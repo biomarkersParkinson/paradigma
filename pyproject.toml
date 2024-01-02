@@ -2,7 +2,11 @@
 name = "dbpd"
 version = "0.1.0"
 description = "Digital Biomarkers for Parkinson's Disease Toolbox"
-authors = ["Peter Kok"]
+authors = ["Peter Kok <p.kok@esciencecenter.nl>",
+            "Vedran Kasalica <v.kaslica@esciencecenter.nl>",
+            "Erik Post",
+            "Kars Veldkamp",
+            "Diogo Coutinho Soriano"]
 license = "Apache License 2.0"
 readme = "README.md"
 

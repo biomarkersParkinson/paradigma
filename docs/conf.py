@@ -6,9 +6,11 @@
 
 # -- Project information -----------------------------------------------------
 
-project = u"dbpd"
-copyright = u"2023, Peter Kok"
-author = u"Peter Kok"
+project = "dbpd"
+copyright = "2023, Peter Kok,  Vedran Kasalica, Erik Post, Kars Veldkamp and Diogo Coutinho Soriano"
+author = (
+    "Peter Kok,  Vedran Kasalica, Erik Post, Kars Veldkamp and Diogo Coutinho Soriano"
+)
 
 # -- General configuration ---------------------------------------------------
 
