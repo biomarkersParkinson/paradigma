@@ -3,9 +3,10 @@
 Digital Biomarkers for Parkinson's Disease Toolbox
 
 ## Installation
+The package requires Python 3.9 or higher. It can be installed using [Poetry](https://python-poetry.org/docs/#installation):
 
 ```bash
-$ pip install dbpd
+$ poetry install
 ```
 
 ## Usage
@@ -18,7 +19,7 @@ Interested in contributing? Check out the contributing guidelines. Please note t
 
 ## License
 
-`dbpd` was created by Peter Kok. It is licensed under the terms of the Apache License 2.0 license.
+`dbpd` was created by Peter Kok,  Vedran Kasalica, Erik Post, Kars Veldkamp and Diogo Coutinho Soriano. It is licensed under the terms of the Apache License 2.0 license.
 
 ## Credits
 
