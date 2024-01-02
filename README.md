@@ -3,9 +3,10 @@
 Digital Biomarkers for Parkinson's Disease Toolbox
 
 ## Installation
+The package requires Python 3.9 or higher. It can be installed using [Poetry](https://python-poetry.org/docs/#installation):
 
 ```bash
-$ pip install dbpd
+$ poetry install
 ```
 
 ## Usage
