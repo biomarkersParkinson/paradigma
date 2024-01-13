@@ -14,7 +14,7 @@ readme = "README.md"
 python = "^3.9"
 pandas = "^2.1.4"
 scikit-learn = "^1.3.2"
-tsdf = "^0.4.1"
+tsdf = "^0.5.0"
 
 [tool.poetry.dev-dependencies]
 

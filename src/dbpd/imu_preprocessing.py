@@ -1,45 +1,77 @@
-from datetime import datetime
 import numpy as np
 import pandas as pd
 from scipy import signal
 from scipy.interpolate import CubicSpline
 
+from dbpd.constants import DataColumns
 
-class PreprocessingPipeline:
+
+class PreprocessingPipelineConfig:
+    """Object used to configure and execute data preprocessing steps."""
+
     def __init__(
         self,
-        df_sensors: pd.DataFrame,
         time_column: str,
         sampling_frequency: int,
         resampling_frequency: int,
         verbose: int,
     ):
         self.verbose = verbose
-        self.df_sensors = df_sensors
         self.time_column = time_column
         self.sampling_frequency = sampling_frequency
         self.resampling_frequency = resampling_frequency
 
     def transform_time_array(
-        self, time_array, scale_factor, do_convert_to_abs_time: bool
+        self,
+        time_array: np.ndarray,
+        scale_factor: float,
+        do_convert_to_abs_time: bool,
     ) -> np.ndarray:
-        """Transforms the time array to absolute time (when required) and scales the values.
+        """
+        Transforms the time array to absolute time (when required) and scales the values.
+
         TODO: This function outputs relative time, and not absolute time as far as I (Vedran) can see. This should be fixed.
-        :param time_array: The time array to transform
-        :param scale_factor: The scale factor to apply to the time array
-        :param do_convert_to_abs_time: Whether to convert the time array to absolute time
-        :return: The transformed time array.
+
+        Parameters
+        ----------
+        time_array : np.ndarray
+            The time array to transform.
+        scale_factor : float
+            The scale factor to apply to the time array.
+        do_convert_to_abs_time : bool
+            Whether to convert the time array to absolute time.
+
+        Returns
+        -------
+        array_like
+            The transformed time array.
         """
         if do_convert_to_abs_time:
             return np.cumsum(np.double(time_array)) / scale_factor
         return time_array / 1000.0
 
-    def resample_data(self, time_abs_array, values_unscaled, scale_factors):
-        """Resamples the data to the resampling frequency. The data is scaled before resampling.
-        :param time_abs_array: The absolute time array.
-        :param values_unscaled: The values to resample.
-        :param scale_factors: The scale factors to apply to the values.
-        :return: The resampled data.
+    def resample_data(
+        self,
+        time_abs_array: np.ndarray,
+        values_unscaled: np.ndarray,
+        scale_factors: list,
+    ) -> pd.DataFrame:
+        """
+        Resamples the IMU data to the resampling frequency. The data is scaled before resampling.
+
+        Parameters
+        ----------
+        time_abs_array : np.ndarray
+            The absolute time array.
+        values_unscaled : np.ndarray
+            The values to resample.
+        scale_factors : list
+            The scale factors to apply to the values.
+
+        Returns
+        -------
+        pd.DataFrame
+            The resampled data.
         """
 
         # scale data
@@ -54,14 +86,17 @@ class PreprocessingPipeline:
         # interpolate IMU
         for j, sensor_col in enumerate(
             [
-                "acceleration_x",
-                "acceleration_y",
-                "acceleration_z",
-                "rotation_x",
-                "rotation_y",
-                "rotation_z",
+                DataColumns.ACCELERATION_X,
+                DataColumns.ACCELERATION_Y,
+                DataColumns.ACCELERATION_Z,
+                DataColumns.ROTATION_X,
+                DataColumns.ROTATION_Y,
+                DataColumns.ROTATION_Z,
             ]
         ):
+            if not np.all(np.diff(time_abs_array) > 0):
+                raise ValueError("time_abs_array is not strictly increasing")
+
             cs = CubicSpline(time_abs_array, scaled_values.T[j])
             df[sensor_col] = cs(df[self.time_column])
 
@@ -69,7 +104,7 @@ class PreprocessingPipeline:
 
     def butterworth_filter(
         self,
-        sensor_col: str,
+        single_sensor_col: np.ndarray,
         order: int,
         cutoff_frequency: float,
         passband: str,
@@ -104,4 +139,4 @@ class PreprocessingPipeline:
             fs=self.resampling_frequency,
             output="sos",
         )
-        return signal.sosfilt(sos, self.df_sensors[sensor_col])
+        return signal.sosfilt(sos, single_sensor_col)
