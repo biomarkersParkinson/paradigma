@@ -3,6 +3,6 @@ from importlib.metadata import version
 
 __version__ = version("dbpd")
 
-from .imu_preprocessing import PreprocessingPipelineConfig
+from .imu_preprocessing import *
 
 __all__ = ["PreprocessingPipelineConfig"]
