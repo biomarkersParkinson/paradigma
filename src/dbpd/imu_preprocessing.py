@@ -26,30 +26,27 @@ class PreprocessingPipelineConfig:
 def transform_time_array(
     time_array: np.ndarray,
     scale_factor: float,
-    do_convert_to_abs_time: bool,
+    data_in_delta_time: bool,
 ) -> np.ndarray:
     """
-    Transforms the time array to absolute time (when required) and scales the values.
-
-    TODO: This function outputs relative time, and not absolute time as far as I (Vedran) can see. This should be fixed.
+    Transforms the time array to relative time (when defined in delta time) and scales the values.
 
     Parameters
     ----------
     time_array : np.ndarray
-        The time array to transform.
+        The time array in milliseconds to transform.
     scale_factor : float
         The scale factor to apply to the time array.
-    do_convert_to_abs_time : bool
-        Whether to convert the time array to absolute time.
+    data_in_delta_time : bool - true if data is in delta time, and therefore needs to be converted to relative time.
 
     Returns
     -------
     array_like
-        The transformed time array.
+        The transformed time array in seconds.
     """
-    if do_convert_to_abs_time:
+    if data_in_delta_time:
         return np.cumsum(np.double(time_array)) / scale_factor
-    return time_array / 1000.0
+    return time_array
 
 
 def resample_data(
@@ -80,12 +77,12 @@ def resample_data(
     scaled_values = values_unscaled * scale_factors
 
     # resample
-    t_resampled = np.arange(0, time_abs_array[-1], 1 / config.resampling_frequency)
+    t_resampled = np.arange(0, time_abs_array[-1], 1000 / config.resampling_frequency)
 
     # create dataframe
     df = pd.DataFrame(t_resampled, columns=[config.time_column])
 
-    # interpolate IMU
+    # interpolate IMU - maybe a separate method?
     for j, sensor_col in enumerate(
         [
             DataColumns.ACCELERATION_X,
