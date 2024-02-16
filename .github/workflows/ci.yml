@@ -38,5 +38,5 @@ jobs:
         with:
           files: ./coverage.xml # coverage report
 
-      - name: Build documentation
-        run: poetry run make html --directory docs/
+      # - name: Build documentation
+      #   run: poetry run make html --directory docs/

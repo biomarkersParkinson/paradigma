@@ -1113,13 +1113,13 @@ test = ["argcomplete (>=3.0.3)", "mypy (>=1.7.0)", "pre-commit", "pytest (>=7.0,
 
 [[package]]
 name = "tsdf"
-version = "0.5.0"
+version = "0.5.2"
 description = "A Python library that provides methods for encoding and decoding TSDF (Time Series Data Format) data, which allows you to easily create, manipulate and serialize TSDF files in your Python code."
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "tsdf-0.5.0-py3-none-any.whl", hash = "sha256:c6f557c5054c6420218172910b8d16dcf2462a5a3d7eb93976d6add4ee0738f5"},
-    {file = "tsdf-0.5.0.tar.gz", hash = "sha256:75182d7cd18df3572f64732ff90a50c64d81a4b0ceb7bb451951412c26a85240"},
+    {file = "tsdf-0.5.2-py3-none-any.whl", hash = "sha256:7bf39836a0bf971a0253532c5af43a2ed34e1cf6b23d7aa05b392bb69b07e0e7"},
+    {file = "tsdf-0.5.2.tar.gz", hash = "sha256:39cfa8b2228dece926c544541882f2d410669936f6b3cb4d5472248c9715cf86"},
 ]
 
 [package.dependencies]
@@ -1177,4 +1177,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "a5e272db6c4305970933fd5f46ceda1b2ccef39445675e0bdeeede892f77aab5"
+content-hash = "ff6850e555cca3ac1afc5c301fad5e695cfeb850670da20a68c4109635fa2c58"
