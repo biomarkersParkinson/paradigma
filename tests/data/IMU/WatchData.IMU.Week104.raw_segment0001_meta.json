@@ -1,0 +1,73 @@
+{
+    "study_id": "PPP",
+    "device_id": "Verily Study Watch",
+    "subject_id": "0A0B82C94960D6DCABC1F597EC0BA657F4B0EDC320702BCEE3B6955CE924DE05",
+    "ppp_source_protobuf": "WatchData.IMU.Week104.raw",
+    "metadata_version": "0.1",
+    "start_iso8601": "27-Jun-2021 16:52:20 UTC",
+    "end_iso8601": "27-Jun-2021 17:04:31 UTC",
+    "rows": 72947,
+    "sensors": [
+        {
+            "scale_factors": [
+                1
+            ],
+            "sensors": [
+                {
+                    "endianness": "little",
+                    "file_name": "WatchData.IMU.Week104.raw_segment0001_time.bin",
+                    "channels": [
+                        "time"
+                    ],
+                    "units": [
+                        "ms"
+                    ],
+                    "data_type": "float",
+                    "bits": 32
+                },
+                {
+                    "endianness": "not applicable",
+                    "file_name": "WatchData.IMU.Week104.raw_segment0001_quality.bin",
+                    "channels": [
+                        "quality"
+                    ],
+                    "units": [
+                        "boolean"
+                    ],
+                    "data_type": "int",
+                    "bits": 8
+                }
+            ]
+        },
+        {
+            "endianness": "little",
+            "file_name": "WatchData.IMU.Week104.raw_segment0001_samples.bin",
+            "channels": [
+                "acceleration_x",
+                "acceleration_y",
+                "acceleration_z",
+                "rotation_x",
+                "rotation_y",
+                "rotation_z"
+            ],
+            "units": [
+                "m/s/s",
+                "m/s/s",
+                "m/s/s",
+                "deg/s",
+                "deg/s",
+                "deg/s"
+            ],
+            "scale_factors": [
+                0.00469378,
+                0.00469378,
+                0.00469378,
+                0.06097561,
+                0.06097561,
+                0.06097561
+            ],
+            "data_type": "int",
+            "bits": 16
+        }
+    ]
+}
