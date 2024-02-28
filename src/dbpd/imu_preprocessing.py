@@ -17,18 +17,24 @@ class PreprocessingPipelineConfig:
         time_column: str,
         sampling_frequency: int,
         resampling_frequency: int,
-        window_length: int,
-        window_step_size: int,
-        window_type: str,
+        gait_window_length: int,
+        gait_window_step_size: int,
+        gait_window_type: str,
+        arm_window_length: int,
+        arm_window_step_size: int,
+        arm_window_type: str,
         verbose: int,
     ):
         self.verbose = verbose
         self.time_column = time_column
         self.sampling_frequency = sampling_frequency
         self.resampling_frequency = resampling_frequency
-        self.window_length = window_length
-        self.window_step_size = window_step_size
-        self.window_type = window_type
+        self.gait_window_length = gait_window_length
+        self.gait_window_step_size = gait_window_step_size
+        self.gait_window_type = gait_window_type
+        self.arm_window_length = arm_window_length
+        self.arm_window_step_size = arm_window_step_size
+        self.arm_window_type = arm_window_type
 
 
 
@@ -210,20 +216,20 @@ def tabulate_windows(
 
     df = df.reset_index(drop=True)
 
-    if config.window_step_size <= 0:
+    if config.gait_window_step_size <= 0:
         raise Exception("Step size should be larger than 0.")
-    if config.window_length > df.shape[0]:
+    if config.gait_window_length > df.shape[0]:
         return 
 
     l_windows = []
     n_windows = math.floor(
-        (df.shape[0] - config.window_length) / 
-         config.window_step_size
+        (df.shape[0] - config.gait_window_length) / 
+         config.gait_window_step_size
         ) + 1
 
     for window_nr in range(n_windows):
-        lower = window_nr * config.window_step_size
-        upper = window_nr * config.window_step_size + config.window_length - 1
+        lower = window_nr * config.gait_window_step_size
+        upper = window_nr * config.gait_window_step_size + config.gait_window_length - 1
         l_windows.append(create_window(df, window_nr, lower, upper, data_point_level_cols))
 
     df_windows = pd.DataFrame(l_windows, columns=['window_nr', 'window_start', 'window_end'] + data_point_level_cols)
@@ -261,7 +267,7 @@ def compute_fft(
         values: list,
     ):
 
-    w = signal.get_window(config.window_type, len(values), fftbins=False)
+    w = signal.get_window(config.gait_window_type, len(values), fftbins=False)
     yf = 2*fft.fft(values*w)[:int(len(values)/2+1)]
     xf = fft.fftfreq(len(values), 1/config.resampling_frequency)[:int(len(values)/2+1)]
 
@@ -278,7 +284,7 @@ def signal_to_ffts(
     for _, row in df.iterrows():
         l_values, l_freqs = compute_fft(
             values=row[sensor_col],
-            window_type=config.window_type)
+            window_type=config.gait_window_type)
         l_values_total.append(l_values)
         l_freqs_total.append(l_freqs)
 
@@ -291,7 +297,7 @@ def compute_power_in_bandwidth(
         fmin: int,
         fmax: int,
     ):
-    fxx, pxx = signal.periodogram(sensor_col, fs=config.resampling_frequency, window=config.window_type)
+    fxx, pxx = signal.periodogram(sensor_col, fs=config.resampling_frequency, window=config.gait_window_type)
     ind_min = np.argmax(fxx > fmin) - 1
     ind_max = np.argmax(fxx > fmax) - 1
     return np.log10(np.trapz(pxx[ind_min:ind_max], fxx[ind_min:ind_max]))
@@ -324,6 +330,7 @@ def compute_power(
 
 def generate_cepstral_coefficients(
         config,
+        df: pd.DataFrame,
         total_power_col: str,
         low_frequency: int,
         high_frequency: int,
@@ -333,16 +340,16 @@ def generate_cepstral_coefficients(
     
     # compute filter points
     freqs = np.linspace(low_frequency, high_frequency, num=filter_length+2)
-    filter_points = np.floor((config.window_length + 1) / config.resampling_frequency * freqs).astype(int)  
+    filter_points = np.floor((config.gait_window_length + 1) / config.resampling_frequency * freqs).astype(int)  
 
     # construct filterbank
-    filters = np.zeros((len(filter_points)-2, int(config.window_length/2+1)))
+    filters = np.zeros((len(filter_points)-2, int(config.gait_window_length/2+1)))
     for j in range(len(filter_points)-2):
         filters[j, filter_points[j] : filter_points[j+1]] = np.linspace(0, 1, filter_points[j+1] - filter_points[j])
         filters[j, filter_points[j+1] : filter_points[j+2]] = np.linspace(1, 0, filter_points[j+2] - filter_points[j+1])
 
     # filter signal
-    power_filtered = config.df_windows[total_power_col].apply(lambda x: np.dot(filters, x))
+    power_filtered = df[total_power_col].apply(lambda x: np.dot(filters, x))
     log_power_filtered = power_filtered.apply(lambda x: 10.0 * np.log10(x))
 
     # generate cepstral coefficients
