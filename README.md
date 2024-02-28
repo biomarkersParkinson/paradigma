@@ -2,6 +2,10 @@
 
 Digital Biomarkers for Parkinson's Disease Toolbox
 
+## Implementation progress
+
+See [here](https://docs.google.com/spreadsheets/d/19AZZ44cOJeHonGaSpAPh0eMXW2ix5JHz9L9zYTNnH6g/edit?usp=sharing).
+
 ## Installation
 The package requires Python 3.9 or higher. It can be installed using [Poetry](https://python-poetry.org/docs/#installation):
 
