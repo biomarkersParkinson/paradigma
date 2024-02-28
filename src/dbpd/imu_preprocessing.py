@@ -17,12 +17,18 @@ class PreprocessingPipelineConfig:
         time_column: str,
         sampling_frequency: int,
         resampling_frequency: int,
+        window_length: int,
+        window_step_size: int,
+        window_type: str,
         verbose: int,
     ):
         self.verbose = verbose
         self.time_column = time_column
         self.sampling_frequency = sampling_frequency
         self.resampling_frequency = resampling_frequency
+        self.window_length = window_length
+        self.window_step_size = window_step_size
+        self.window_type = window_type
 
 
 
@@ -145,219 +151,209 @@ def butterworth_filter(
     return signal.sosfilt(sos, single_sensor_col)    
 
 
-    def create_window(self,
-                      df: pd.DataFrame,
-                      window_nr: int,
-                      lower_index: int,
-                      upper_index: int,
-                      data_point_level_cols: list
-                      ):
-        """Transforms (a subset of) a dataframe into a single row
-
-        Parameters
-        ----------
-        df_sensor: pd.DataFrame
-            The original dataframe to be windowed
-        subject: str
-            The identification of the participant
-        window_nr: int
-            The identification of the window
-        window_length: int
-            The number of samples a window constitutes
-        lower_index: int
-            The dataframe index of the first sample to be windowed
-        upper_index: int
-            The dataframe index of the final sample to be windowed
+def create_window(
+        df: pd.DataFrame,
+        window_nr: int,
+        lower_index: int,
+        upper_index: int,
         data_point_level_cols: list
-            The columns in sensor_df that are to be kept as individual datapoints in a list instead of aggregates
-        verbose: bool
-            The verbosity of the output
+    ) -> list:
+    """Transforms (a subset of) a dataframe into a single row
 
-        Returns
-        -------
-        l_subset_squeezed: list
-            Rows corresponding to single windows
-        """
-        df_subset = df.loc[lower_index:upper_index, data_point_level_cols].copy()
-        l_subset_squeezed = [window_nr+1, lower_index, upper_index] + df_subset.values.T.tolist()
+    Parameters
+    ----------
+    df: pd.DataFrame
+        The original dataframe to be windowed
+    window_nr: int
+        The identification of the window
+    lower_index: int
+        The dataframe index of the first sample to be windowed
+    upper_index: int
+        The dataframe index of the final sample to be windowed
+    data_point_level_cols: list
+        The columns in sensor_df that are to be kept as individual datapoints in a list instead of aggregates
 
-        return l_subset_squeezed
+    Returns
+    -------
+    l_subset_squeezed: list
+        Rows corresponding to single windows
+    """
+    df_subset = df.loc[lower_index:upper_index, data_point_level_cols].copy()
+    l_subset_squeezed = [window_nr+1, lower_index, upper_index] + df_subset.values.T.tolist()
+
+    return l_subset_squeezed
     
 
-    def tabulate_windows(self,
-                         window_step_size: int,
-                         window_length: int,
-                         data_point_level_cols: list,
-                        ):
-        """Compiles multiple windows into a single dataframe
+def tabulate_windows(
+        config,
+        df: pd.DataFrame,
+        data_point_level_cols: list,
+    ) -> pd.DataFrame:
+    """Compiles multiple windows into a single dataframe
 
-        Parameters
-        ----------
-        df_sensor: pd.DataFrame
-            The original dataframe to be windowed
-        subject: str
-            The identification of the participant
-        window_length: int
-            The number of samples a window constitutes
-        step_size: int
-            The number of samples between the start of the previous and the start of the next window
-        data_point_level_cols: list
-            The columns in sensor_df that are to be kept as individual datapoints in a list instead of aggregates
-        verbose: bool
-            The verbosity of the output
+    Parameters
+    ----------
+    df: pd.DataFrame
+        The original dataframe to be windowed
+    window_length: int
+        The number of samples a window constitutes
+    window_step_size: int
+        The number of samples between the start of the previous and the start of the next window
+    data_point_level_cols: list
+        The columns in sensor_df that are to be kept as individual datapoints in a list instead of aggregates
 
-        Returns
-        -------
-        df_windowed: pd.DataFrame
-            Dataframe with each row corresponding to an individual window
-        """
+    Returns
+    -------
+    df_windowed: pd.DataFrame
+        Dataframe with each row corresponding to an individual window
+    """
 
-        self.df_sensors = self.df_sensors.reset_index(drop=True)
+    df = df.reset_index(drop=True)
 
-        if window_step_size <= 0:
-            raise Exception("Step size should be larger than 0.")
-        if window_length > self.df_sensors.shape[0]:
-            return 
+    if config.window_step_size <= 0:
+        raise Exception("Step size should be larger than 0.")
+    if config.window_length > df.shape[0]:
+        return 
 
-        l_windows = []
-        n_windows = math.floor(
-            (self.df_sensors.shape[0] - window_length) / 
-            window_step_size
-            ) + 1
+    l_windows = []
+    n_windows = math.floor(
+        (df.shape[0] - config.window_length) / 
+         config.window_step_size
+        ) + 1
 
-        for window_nr in range(n_windows):
-            lower = window_nr * window_step_size
-            upper = window_nr * window_step_size + window_length - 1
-            l_windows.append(self.create_window(self.df_sensors, window_nr, lower, upper, data_point_level_cols))
+    for window_nr in range(n_windows):
+        lower = window_nr * config.window_step_size
+        upper = window_nr * config.window_step_size + config.window_length - 1
+        l_windows.append(create_window(df, window_nr, lower, upper, data_point_level_cols))
 
-        df_windows = pd.DataFrame(l_windows, columns=['window_nr', 'window_start', 'window_end'] + data_point_level_cols)
-                
-        return df_windows.reset_index(drop=True)
+    df_windows = pd.DataFrame(l_windows, columns=['window_nr', 'window_start', 'window_end'] + data_point_level_cols)
+            
+    return df_windows.reset_index(drop=True)
+
+
+def generate_statistics(
+        df: pd.DataFrame,
+        sensor_col: str,
+        statistic: str
+    ):
+    if statistic == 'mean':
+        return df.apply(lambda x: np.mean(x[sensor_col]), axis=1)
+    elif statistic == 'std':
+        return df.apply(lambda x: np.std(x[sensor_col]), axis=1)
+    elif statistic == 'max':
+        return df.apply(lambda x: np.max(x[sensor_col]), axis=1)
+    elif statistic == 'min':
+        return df.apply(lambda x: np.min(x[sensor_col]), axis=1)
     
 
-    def generate_statistics(self,
-                            sensor_col: str,
-                            statistic: str
-                            ):
-        if statistic == 'mean':
-            return self.df_windows.apply(lambda x: np.mean(x[sensor_col]), axis=1)
-        elif statistic == 'std':
-            return self.df_windows.apply(lambda x: np.std(x[sensor_col]), axis=1)
-        elif statistic == 'max':
-            return self.df_windows.apply(lambda x: np.max(x[sensor_col]), axis=1)
-        elif statistic == 'min':
-            return self.df_windows.apply(lambda x: np.min(x[sensor_col]), axis=1)
-        
-
-    def generate_std_norm(
-                          self,
-                          cols: list,
-                         ):
-        return self.df_windows.apply(
-            lambda x: np.std(np.sqrt(sum(
+def generate_std_norm(
+        df: pd.DataFrame,
+        cols: list,
+    ):
+    return df.apply(
+        lambda x: np.std(np.sqrt(sum(
             [np.array([y**2 for y in x[col]]) for col in cols]
-            ))), axis=1)
+        ))), axis=1)
     
 
-    def compute_fft(self,
-                    values: list,
-                    window_type: str,
-                    ):
+def compute_fft(
+        config,
+        values: list,
+    ):
 
-        w = signal.get_window(window_type, len(values), fftbins=False)
-        yf = 2*fft.fft(values*w)[:int(len(values)/2+1)]
-        xf = fft.fftfreq(len(values), 1/self.resampling_frequency)[:int(len(values)/2+1)]
+    w = signal.get_window(config.window_type, len(values), fftbins=False)
+    yf = 2*fft.fft(values*w)[:int(len(values)/2+1)]
+    xf = fft.fftfreq(len(values), 1/config.resampling_frequency)[:int(len(values)/2+1)]
 
-        return yf, xf
+    return yf, xf
     
 
-    def signal_to_ffts(self,
-                       sensor_col: str,
-                       window_type: str,
-                       ):
-        l_values_total = []
-        l_freqs_total = []
-        for _, row in self.df_windows.iterrows():
-            l_values, l_freqs = self.compute_fft(
-                values=row[sensor_col],
-                window_type=window_type)
-            l_values_total.append(l_values)
-            l_freqs_total.append(l_freqs)
+def signal_to_ffts(
+        config,
+        df: pd.DataFrame,
+        sensor_col: str,
+    ):
+    l_values_total = []
+    l_freqs_total = []
+    for _, row in df.iterrows():
+        l_values, l_freqs = compute_fft(
+            values=row[sensor_col],
+            window_type=config.window_type)
+        l_values_total.append(l_values)
+        l_freqs_total.append(l_freqs)
 
-        return l_freqs_total, l_values_total
+    return l_freqs_total, l_values_total
     
 
-    def compute_power_in_bandwidth(self,
-                                   sensor_col,
-                                   window_type: str,
-                                   fmin: int,
-                                   fmax: int,
-                                   ):
-        fxx, pxx = signal.periodogram(sensor_col, fs=self.resampling_frequency, window=window_type)
-        ind_min = np.argmax(fxx > fmin) - 1
-        ind_max = np.argmax(fxx > fmax) - 1
-        return np.log10(np.trapz(pxx[ind_min:ind_max], fxx[ind_min:ind_max]))
+def compute_power_in_bandwidth(
+        config,
+        sensor_col,
+        fmin: int,
+        fmax: int,
+    ):
+    fxx, pxx = signal.periodogram(sensor_col, fs=config.resampling_frequency, window=config.window_type)
+    ind_min = np.argmax(fxx > fmin) - 1
+    ind_max = np.argmax(fxx > fmax) - 1
+    return np.log10(np.trapz(pxx[ind_min:ind_max], fxx[ind_min:ind_max]))
+
+
+def get_dominant_frequency(
+        signal_ffts: pd.Series,
+        signal_freqs: pd.Series,
+        fmin: int,
+        fmax: int
+        ):
+    
+    valid_indices = np.where((signal_freqs>fmin) & (signal_freqs<fmax))
+    signal_freqs_adjusted = signal_freqs[valid_indices]
+    signal_ffts_adjusted = signal_ffts[valid_indices]
+
+    idx = np.argmax(np.abs(signal_ffts_adjusted))
+    return np.abs(signal_freqs_adjusted[idx])
     
 
-    def get_dominant_frequency(
-            self,
-            signal_ffts: pd.Series,
-            signal_freqs: pd.Series,
-            fmin: int,
-            fmax: int
-            ):
-        
-        valid_indices = np.where((signal_freqs>fmin) & (signal_freqs<fmax))
-        signal_freqs_adjusted = signal_freqs[valid_indices]
-        signal_ffts_adjusted = signal_ffts[valid_indices]
+def compute_power(
+        df: pd.DataFrame,
+        fft_cols: list
+    ):
+    for col in fft_cols:
+        df['{}_power'.format(col)] = df[col].apply(lambda x: np.square(np.abs(x)))
 
-        idx = np.argmax(np.abs(signal_ffts_adjusted))
-        return np.abs(signal_freqs_adjusted[idx])
+    return df.apply(lambda x: sum([np.array([y for y in x[col+'_power']]) for col in fft_cols]), axis=1)
     
 
-    def compute_power(self,
-                      fft_cols: list
-                      ):
-        df = self.df_windows.copy()
-        for col in fft_cols:
-            df['{}_power'.format(col)] = df[col].apply(lambda x: np.square(np.abs(x)))
-
-        return df.apply(lambda x: sum([np.array([y for y in x[col+'_power']]) for col in fft_cols]), axis=1)
+def generate_cepstral_coefficients(
+        config,
+        total_power_col: str,
+        low_frequency: int,
+        high_frequency: int,
+        filter_length: int,
+        n_dct_filters: int,
+        ):
     
+    # compute filter points
+    freqs = np.linspace(low_frequency, high_frequency, num=filter_length+2)
+    filter_points = np.floor((config.window_length + 1) / config.resampling_frequency * freqs).astype(int)  
 
-    def generate_cepstral_coefficients(
-            self,
-            window_length: int,
-            total_power_col: str,
-            low_frequency: int,
-            high_frequency: int,
-            filter_length: int,
-            n_dct_filters: int,
-            ):
-        
-        # compute filter points
-        freqs = np.linspace(low_frequency, high_frequency, num=filter_length+2)
-        filter_points = np.floor((window_length + 1) / self.resampling_frequency * freqs).astype(int)  
+    # construct filterbank
+    filters = np.zeros((len(filter_points)-2, int(config.window_length/2+1)))
+    for j in range(len(filter_points)-2):
+        filters[j, filter_points[j] : filter_points[j+1]] = np.linspace(0, 1, filter_points[j+1] - filter_points[j])
+        filters[j, filter_points[j+1] : filter_points[j+2]] = np.linspace(1, 0, filter_points[j+2] - filter_points[j+1])
 
-        # construct filterbank
-        filters = np.zeros((len(filter_points)-2, int(window_length/2+1)))
-        for j in range(len(filter_points)-2):
-            filters[j, filter_points[j] : filter_points[j+1]] = np.linspace(0, 1, filter_points[j+1] - filter_points[j])
-            filters[j, filter_points[j+1] : filter_points[j+2]] = np.linspace(1, 0, filter_points[j+2] - filter_points[j+1])
+    # filter signal
+    power_filtered = config.df_windows[total_power_col].apply(lambda x: np.dot(filters, x))
+    log_power_filtered = power_filtered.apply(lambda x: 10.0 * np.log10(x))
 
-        # filter signal
-        power_filtered = self.df_windows[total_power_col].apply(lambda x: np.dot(filters, x))
-        log_power_filtered = power_filtered.apply(lambda x: 10.0 * np.log10(x))
+    # generate cepstral coefficients
+    dct_filters = np.empty((n_dct_filters, filter_length))
+    dct_filters[0, :] = 1.0 / np.sqrt(filter_length)
 
-        # generate cepstral coefficients
-        dct_filters = np.empty((n_dct_filters, filter_length))
-        dct_filters[0, :] = 1.0 / np.sqrt(filter_length)
+    samples = np.arange(1, 2 * filter_length, 2) * np.pi / (2.0 * filter_length)
 
-        samples = np.arange(1, 2 * filter_length, 2) * np.pi / (2.0 * filter_length)
+    for i in range(1, n_dct_filters):
+        dct_filters[i, :] = np.cos(i * samples) * np.sqrt(2.0 / filter_length)
 
-        for i in range(1, n_dct_filters):
-            dct_filters[i, :] = np.cos(i * samples) * np.sqrt(2.0 / filter_length)
+    cepstral_coefs = log_power_filtered.apply(lambda x: np.dot(dct_filters, x))
 
-        cepstral_coefs = log_power_filtered.apply(lambda x: np.dot(dct_filters, x))
-
-        return pd.DataFrame(np.vstack(cepstral_coefs), columns=['cc_{}'.format(j+1) for j in range(n_dct_filters)])
+    return pd.DataFrame(np.vstack(cepstral_coefs), columns=['cc_{}'.format(j+1) for j in range(n_dct_filters)])
