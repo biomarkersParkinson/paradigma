@@ -1,0 +1,54 @@
+{
+    "study_id": "PPP",
+    "device_id": "Verily Study Watch",
+    "subject_id": "0A0B82C94960D6DCABC1F597EC0BA657F4B0EDC320702BCEE3B6955CE924DE05",
+    "ppp_source_protobuf": "WatchData.PPG.Week104.raw",
+    "metadata_version": "0.1",
+    "start_iso8601": "27-Jun-2021 16:52:20 UTC",
+    "end_iso8601": "27-Jun-2021 17:03:05 UTC",
+    "scale_factors": [
+        1
+    ],
+    "rows": 64775,
+    "sensors": [
+        {
+            "data_type": "int",
+            "sensors": [
+                {
+                    "endianness": "not applicable",
+                    "file_name": "WatchData.PPG.Week104.raw_segment0001_quality.bin",
+                    "channels": [
+                        "quality"
+                    ],
+                    "units": [
+                        "boolean"
+                    ],
+                    "bits": 8
+                },
+                {
+                    "endianness": "little",
+                    "file_name": "WatchData.PPG.Week104.raw_segment0001_samples.bin",
+                    "channels": [
+                        "green"
+                    ],
+                    "units": [
+                        "none"
+                    ],
+                    "bits": 32
+                }
+            ]
+        },
+        {
+            "endianness": "little",
+            "file_name": "WatchData.PPG.Week104.raw_segment0001_time.bin",
+            "channels": [
+                "time"
+            ],
+            "units": [
+                "ms"
+            ],
+            "data_type": "float",
+            "bits": 32
+        }
+    ]
+}

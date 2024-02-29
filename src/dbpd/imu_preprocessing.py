@@ -6,91 +6,152 @@ from datetime import datetime
 from scipy import signal, fft
 from scipy.interpolate import CubicSpline
 
+from dbpd.constants import DataColumns
 
-class PreprocessingPipeline():
-    def __init__(self,
-                 df_sensors: pd.DataFrame,
-                 time_column: str,
-                 sampling_frequency: int,
-                 resampling_frequency: int,
-                 verbose: int):
-        
+
+class PreprocessingPipelineConfig:
+    """Object used to configure and execute data preprocessing steps."""
+
+    def __init__(
+        self,
+        time_column: str,
+        sampling_frequency: int,
+        resampling_frequency: int,
+        verbose: int,
+    ):
         self.verbose = verbose
-        self.df_sensors = df_sensors
         self.time_column = time_column
         self.sampling_frequency = sampling_frequency
         self.resampling_frequency = resampling_frequency
 
 
-    def transform_time_array(self, scale_factor, do_convert_to_abs_time):
-        """ Optionally transforms the time array to absolute time and scales the values
-        """
-        if do_convert_to_abs_time:
-            return np.cumsum(np.double(self.df_sensors[self.time_column])) / scale_factor
-        return self.df_sensors[self.time_column] / 1000.0
+
+def transform_time_array(
+    time_array: np.ndarray,
+    scale_factor: float,
+    data_in_delta_time: bool,
+) -> np.ndarray:
+    """
+    Transforms the time array to relative time (when defined in delta time) and scales the values.
+
+    Parameters
+    ----------
+    time_array : np.ndarray
+        The time array in milliseconds to transform.
+    scale_factor : float
+        The scale factor to apply to the time array.
+    data_in_delta_time : bool - true if data is in delta time, and therefore needs to be converted to relative time.
+
+    Returns
+    -------
+    array_like
+        The transformed time array in milliseconds.
+    """
+    if data_in_delta_time:
+        return np.cumsum(np.double(time_array)) / scale_factor
+    return time_array
 
 
-    def resample_data(self, scale_factors):
+def resample_data(
+    config,
+    time_abs_array: np.ndarray,
+    values_unscaled: np.ndarray,
+    scale_factors: list,
+) -> pd.DataFrame:
+    """
+    Resamples the IMU data to the resampling frequency. The data is scaled before resampling.
 
-        l_imu_cols = ['acceleration_x', 'acceleration_y', 'acceleration_z', 'rotation_x', 'rotation_y', 'rotation_z']
+    Parameters
+    ----------
+    time_abs_array : np.ndarray
+        The absolute time array.
+    values_unscaled : np.ndarray
+        The values to resample.
+    scale_factors : list
+        The scale factors to apply to the values.
 
-        # scale data
-        scaled_values = self.df_sensors[l_imu_cols] * scale_factors
+    Returns
+    -------
+    pd.DataFrame
+        The resampled data.
+    """
 
-        # resample
-        t_resampled = np.arange(0, self.df_sensors[self.time_column][-1:].values[0], 1/self.resampling_frequency)
+    # scale data
+    scaled_values = values_unscaled * scale_factors
 
-        # create dataframe
-        df = pd.DataFrame(t_resampled, columns=[self.time_column])
+    # resample
+    t_resampled = np.arange(0, time_abs_array[-1], 1000 / config.resampling_frequency)
 
-        # interpolate IMU
-        for sensor_col in l_imu_cols:
-            cs = CubicSpline(self.df_sensors[self.time_column], scaled_values[sensor_col])
-            df[sensor_col] = cs(df[self.time_column])
+    # create dataframe
+    df = pd.DataFrame(t_resampled, columns=[config.time_column])
 
-        return df
+    # interpolate IMU - maybe a separate method?
+    for j, sensor_col in enumerate(
+        [
+            DataColumns.ACCELERATION_X,
+            DataColumns.ACCELERATION_Y,
+            DataColumns.ACCELERATION_Z,
+            DataColumns.ROTATION_X,
+            DataColumns.ROTATION_Y,
+            DataColumns.ROTATION_Z,
+        ]
+    ):
+        if not np.all(np.diff(time_abs_array) > 0):
+            raise ValueError("time_abs_array is not strictly increasing")
+
+        cs = CubicSpline(time_abs_array, scaled_values.T[j])
+        df[sensor_col] = cs(df[config.time_column])
+
+    return df
 
 
-    def butterworth_filter(
-            self,
-            sensor_col: str,
-            order: int,
-            cutoff_frequency: float,
-            passband: str,
-            ):
-        """Applies the Butterworth filter to a single sensor column
-        
-        Parameters
-        ----------
-        sensor_column: pd.Series
-            A single column containing sensor data in float format
-        frequency: int
-            The sampling frequency of sensor_column in Hz
-        order: int
-            The exponential order of the filter
-        cutoff_frequency: float
-            The frequency at which the gain drops to 1/sqrt(2) that of the passband
-        passband: str
-            Type of passband: ['hp' or 'lp']
-        verbose: bool
-            The verbosity of the output
-            
-        Returns
-        -------
-        sensor_column_filtered: pd.Series
-            The origin sensor column filtered applying a Butterworth filter"""
+def butterworth_filter(
+    config,
+    single_sensor_col: np.ndarray,
+    order: int,
+    cutoff_frequency: float,
+    passband: str,
+):
+    """Applies the Butterworth filter to a single sensor column
 
-        sos = signal.butter(N=order, Wn=cutoff_frequency, btype=passband, analog=False, fs=self.resampling_frequency, output='sos')
-        return signal.sosfilt(sos, self.df_sensors[sensor_col])
-    
+    Parameters
+    ----------
+    sensor_column: pd.Series
+        A single column containing sensor data in float format
+    frequency: int
+        The sampling frequency of sensor_column in Hz
+    order: int
+        The exponential order of the filter
+    cutoff_frequency: float
+        The frequency at which the gain drops to 1/sqrt(2) that of the passband
+    passband: str
+        Type of passband: ['hp' or 'lp']
+    verbose: bool
+        The verbosity of the output
 
-    def create_window(self,
-                      df: pd.DataFrame,
-                      window_nr: int,
-                      lower_index: int,
-                      upper_index: int,
-                      data_point_level_cols: list
-                      ):
+    Returns
+    -------
+    sensor_column_filtered: pd.Series
+        The origin sensor column filtered applying a Butterworth filter"""
+
+    sos = signal.butter(
+        N=order,
+        Wn=cutoff_frequency,
+        btype=passband,
+        analog=False,
+        fs=config.resampling_frequency,
+        output="sos",
+    )
+    return signal.sosfilt(sos, single_sensor_col)    
+
+
+def create_window(self,
+                    df: pd.DataFrame,
+                    window_nr: int,
+                    lower_index: int,
+                    upper_index: int,
+                    data_point_level_cols: list
+                    ):
         """Transforms (a subset of) a dataframe into a single row
 
         Parameters
@@ -121,13 +182,13 @@ class PreprocessingPipeline():
         l_subset_squeezed = [window_nr+1, lower_index, upper_index] + df_subset.values.T.tolist()
 
         return l_subset_squeezed
-    
 
-    def tabulate_windows(self,
-                         window_step_size: int,
-                         window_length: int,
-                         data_point_level_cols: list,
-                        ):
+
+def tabulate_windows(self,
+                        window_step_size: int,
+                        window_length: int,
+                        data_point_level_cols: list,
+                    ):
         """Compiles multiple windows into a single dataframe
 
         Parameters
@@ -172,12 +233,12 @@ class PreprocessingPipeline():
         df_windows = pd.DataFrame(l_windows, columns=['window_nr', 'window_start', 'window_end'] + data_point_level_cols)
                 
         return df_windows.reset_index(drop=True)
-    
 
-    def generate_statistics(self,
-                            sensor_col: str,
-                            statistic: str
-                            ):
+
+def generate_statistics(self,
+                        sensor_col: str,
+                        statistic: str
+                        ):
         if statistic == 'mean':
             return self.df_windows.apply(lambda x: np.mean(x[sensor_col]), axis=1)
         elif statistic == 'std':
@@ -188,32 +249,32 @@ class PreprocessingPipeline():
             return self.df_windows.apply(lambda x: np.min(x[sensor_col]), axis=1)
         
 
-    def generate_std_norm(
-                          self,
-                          cols: list,
-                         ):
+def generate_std_norm(
+                        self,
+                        cols: list,
+                        ):
         return self.df_windows.apply(
             lambda x: np.std(np.sqrt(sum(
             [np.array([y**2 for y in x[col]]) for col in cols]
             ))), axis=1)
-    
 
-    def compute_fft(self,
-                    values: list,
-                    window_type: str,
-                    ):
+
+def compute_fft(self,
+                values: list,
+                window_type: str,
+                ):
 
         w = signal.get_window(window_type, len(values), fftbins=False)
         yf = 2*fft.fft(values*w)[:int(len(values)/2+1)]
         xf = fft.fftfreq(len(values), 1/self.resampling_frequency)[:int(len(values)/2+1)]
 
         return yf, xf
-    
 
-    def signal_to_ffts(self,
-                       sensor_col: str,
-                       window_type: str,
-                       ):
+
+def signal_to_ffts(self,
+                    sensor_col: str,
+                    window_type: str,
+                    ):
         l_values_total = []
         l_freqs_total = []
         for _, row in self.df_windows.iterrows():
@@ -224,27 +285,27 @@ class PreprocessingPipeline():
             l_freqs_total.append(l_freqs)
 
         return l_freqs_total, l_values_total
-    
 
-    def compute_power_in_bandwidth(self,
-                                   sensor_col,
-                                   window_type: str,
-                                   fmin: int,
-                                   fmax: int,
-                                   ):
+
+def compute_power_in_bandwidth(self,
+                                sensor_col,
+                                window_type: str,
+                                fmin: int,
+                                fmax: int,
+                                ):
         fxx, pxx = signal.periodogram(sensor_col, fs=self.resampling_frequency, window=window_type)
         ind_min = np.argmax(fxx > fmin) - 1
         ind_max = np.argmax(fxx > fmax) - 1
         return np.log10(np.trapz(pxx[ind_min:ind_max], fxx[ind_min:ind_max]))
-    
 
-    def get_dominant_frequency(
-            self,
-            signal_ffts: pd.Series,
-            signal_freqs: pd.Series,
-            fmin: int,
-            fmax: int
-            ):
+
+def get_dominant_frequency(
+        self,
+        signal_ffts: pd.Series,
+        signal_freqs: pd.Series,
+        fmin: int,
+        fmax: int
+        ):
         
         valid_indices = np.where((signal_freqs>fmin) & (signal_freqs<fmax))
         signal_freqs_adjusted = signal_freqs[valid_indices]
@@ -252,27 +313,27 @@ class PreprocessingPipeline():
 
         idx = np.argmax(np.abs(signal_ffts_adjusted))
         return np.abs(signal_freqs_adjusted[idx])
-    
 
-    def compute_power(self,
-                      fft_cols: list
-                      ):
+
+def compute_power(self,
+                    fft_cols: list
+                    ):
         df = self.df_windows.copy()
         for col in fft_cols:
             df['{}_power'.format(col)] = df[col].apply(lambda x: np.square(np.abs(x)))
 
         return df.apply(lambda x: sum([np.array([y for y in x[col+'_power']]) for col in fft_cols]), axis=1)
-    
 
-    def generate_cepstral_coefficients(
-            self,
-            window_length: int,
-            total_power_col: str,
-            low_frequency: int,
-            high_frequency: int,
-            filter_length: int,
-            n_dct_filters: int,
-            ):
+
+def generate_cepstral_coefficients(
+        self,
+        window_length: int,
+        total_power_col: str,
+        low_frequency: int,
+        high_frequency: int,
+        filter_length: int,
+        n_dct_filters: int,
+        ):
         
         # compute filter points
         freqs = np.linspace(low_frequency, high_frequency, num=filter_length+2)
