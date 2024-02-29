@@ -18,18 +18,11 @@ class PreprocessingPipelineConfig:
         sampling_frequency: int,
         resampling_frequency: int,
         gyroscope_units: str,
-        window_length: int,
-        window_step_size: int,
-        window_type: str,
     ):
         self.time_column = time_column
         self.sampling_frequency = sampling_frequency
         self.resampling_frequency = resampling_frequency
         self.gyroscope_units = gyroscope_units
-        self.window_length = window_length
-        self.window_step_size = window_step_size
-        self.window_type = window_type
-
 
 def transform_time_array(
     time_array: np.ndarray,
