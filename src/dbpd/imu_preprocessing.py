@@ -18,24 +18,17 @@ class PreprocessingPipelineConfig:
         sampling_frequency: int,
         resampling_frequency: int,
         gyroscope_units: str,
-        gait_window_length: int,
-        gait_window_step_size: int,
-        gait_window_type: str,
-        arm_window_length: int,
-        arm_window_step_size: int,
-        arm_window_type: str,
+        window_length: int,
+        window_step_size: int,
+        window_type: str,
     ):
         self.time_column = time_column
         self.sampling_frequency = sampling_frequency
         self.resampling_frequency = resampling_frequency
         self.gyroscope_units = gyroscope_units
-        self.gait_window_length = gait_window_length
-        self.gait_window_step_size = gait_window_step_size
-        self.gait_window_type = gait_window_type
-        self.arm_window_length = arm_window_length
-        self.arm_window_step_size = arm_window_step_size
-        self.arm_window_type = arm_window_type
-
+        self.window_length = window_length
+        self.window_step_size = window_step_size
+        self.window_type = window_type
 
 
 def transform_time_array(
