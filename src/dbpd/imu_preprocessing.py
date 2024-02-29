@@ -25,7 +25,6 @@ class PreprocessingPipelineConfig:
         arm_window_step_size: int,
         arm_window_type: str,
     ):
-        self.verbose = verbose
         self.time_column = time_column
         self.sampling_frequency = sampling_frequency
         self.resampling_frequency = resampling_frequency
