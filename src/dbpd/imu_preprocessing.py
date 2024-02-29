@@ -138,8 +138,6 @@ def butterworth_filter(
         The frequency at which the gain drops to 1/sqrt(2) that of the passband
     passband: str
         Type of passband: ['hp' or 'lp']
-    verbose: bool
-        The verbosity of the output
 
     Returns
     -------
