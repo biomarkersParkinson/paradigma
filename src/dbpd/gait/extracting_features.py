@@ -320,7 +320,7 @@ def extract_angle_extremes(
     df['angle_minima_deleted'] = np.empty((len(df), 0)).tolist()
     df['angle_maxima_deleted'] = np.empty((len(df), 0)).tolist()
 
-    for index, row in df.iterrows():
+    for index, _ in df.iterrows():
         i_pks = 0                                       # iterable to keep track of consecutive min-min and max-max versus min-max
         n_min = len(df.loc[index, 'angle_new_minima'])  # number of minima in window
         n_max = len(df.loc[index, 'angle_new_maxima'])  # number of maxima in window
@@ -377,7 +377,7 @@ def extract_angle_extremes(
 def extract_range_of_motion(
         df: pd.DataFrame,
         angle_extrema_values_column: str,
-):
+) -> pd.Series:
     df['angle_amplitudes'] = np.empty((len(df), 0)).tolist()
 
     for i, extrema_values in enumerate(df[angle_extrema_values_column]):
