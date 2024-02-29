@@ -78,7 +78,7 @@ def resample_data(
     scaled_values = values_unscaled * scale_factors
 
     # resample
-    t_resampled = np.arange(0, time_abs_array[-1], 1000 / config.resampling_frequency)
+    t_resampled = np.arange(0, time_abs_array[-1], 1 / config.resampling_frequency)
 
     # create dataframe
     df = pd.DataFrame(t_resampled, columns=[config.time_column])
