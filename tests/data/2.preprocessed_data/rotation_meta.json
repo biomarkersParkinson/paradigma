@@ -10,12 +10,13 @@
     "endianness": "little",
     "data_type": "float",
     "bits": 64,
+    "meta_filename": "rotation_meta.json",
     "sensors": [
         {
             "scale_factors": [
                 1
             ],
-            "file_name": "IMU_time.bin",
+            "file_name": "rotation_time.bin",
             "channels": [
                 "time"
             ],
@@ -24,28 +25,16 @@
             ]
         },
         {
-            "file_name": "IMU_samples.bin",
+            "file_name": "rotation_samples.bin",
             "channels": [
                 "rotation_x",
                 "rotation_y",
-                "rotation_z",
-                "acceleration_x",
-                "acceleration_y",
-                "acceleration_z",
-                "grav_acceleration_x",
-                "grav_acceleration_y",
-                "grav_acceleration_z"
+                "rotation_z"
             ],
             "units": [
                 "deg/s",
                 "deg/s",
-                "deg/s",
-                "m/s^2",
-                "m/s^2",
-                "m/s^2",
-                "m/s^2",
-                "m/s^2",
-                "m/s^2"
+                "deg/s"
             ],
             "scale_factors": [
                 0.00469378,
