@@ -14,7 +14,8 @@ def create_window(
         window_nr: int,
         lower_index: int,
         upper_index: int,
-        data_point_level_cols: list
+        data_point_level_cols: list,
+        sampling_frequency: int
     ) -> list:
     """Transforms (a subset of) a dataframe into a single row
 
@@ -37,15 +38,17 @@ def create_window(
         Rows corresponding to single windows
     """
     df_subset = df.loc[lower_index:upper_index, data_point_level_cols].copy()
-    l_subset_squeezed = [window_nr+1, lower_index, upper_index] + df_subset.values.T.tolist()
+    l_subset_squeezed = [window_nr+1, lower_index/sampling_frequency, upper_index/sampling_frequency] + df_subset.values.T.tolist()
 
     return l_subset_squeezed
     
 
 def tabulate_windows(
-        config,
         df: pd.DataFrame,
         data_point_level_cols: list,
+        window_length_s: int,
+        window_step_size_s: int,
+        sampling_frequency: int,
     ) -> pd.DataFrame:
     """Compiles multiple windows into a single dataframe
 
@@ -66,23 +69,35 @@ def tabulate_windows(
         Dataframe with each row corresponding to an individual window
     """
 
+    window_length = sampling_frequency * window_length_s
+    window_step_size = sampling_frequency * window_step_size_s
+
     df = df.reset_index(drop=True)
 
-    if config.window_step_size <= 0:
+    if window_step_size <= 0:
         raise Exception("Step size should be larger than 0.")
-    if config.window_length > df.shape[0]:
+    if window_length > df.shape[0]:
         return 
 
     l_windows = []
     n_windows = math.floor(
-        (df.shape[0] - config.window_length) / 
-         config.window_step_size
+        (df.shape[0] - window_length) / 
+         window_step_size
         ) + 1
 
     for window_nr in range(n_windows):
-        lower = window_nr * config.window_step_size
-        upper = window_nr * config.window_step_size + config.window_length - 1
-        l_windows.append(create_window(df, window_nr, lower, upper, data_point_level_cols))
+        lower = window_nr * window_step_size
+        upper = window_nr * window_step_size + window_length - 1
+        l_windows.append(
+            create_window(
+                df=df,
+                window_nr=window_nr,
+                lower_index=lower,
+                upper_index=upper,
+                data_point_level_cols=data_point_level_cols,
+                sampling_frequency=sampling_frequency
+            )
+        )
 
     df_windows = pd.DataFrame(l_windows, columns=['window_nr', 'window_start', 'window_end'] + data_point_level_cols)
             
@@ -90,18 +105,17 @@ def tabulate_windows(
 
 
 def generate_statistics(
-        df: pd.DataFrame,
-        sensor_col: str,
+        sensor_col: pd.Series,
         statistic: str
     ):
     if statistic == 'mean':
-        return df.apply(lambda x: np.mean(x[sensor_col]), axis=1)
+        return [np.mean(x) for x in sensor_col]
     elif statistic == 'std':
-        return df.apply(lambda x: np.std(x[sensor_col]), axis=1)
+        return [np.std(x) for x in sensor_col]
     elif statistic == 'max':
-        return df.apply(lambda x: np.max(x[sensor_col]), axis=1)
+        return [np.max(x) for x in sensor_col]
     elif statistic == 'min':
-        return df.apply(lambda x: np.min(x[sensor_col]), axis=1)
+        return [np.min(x) for x in sensor_col]
 
 def generate_std_norm(
         df: pd.DataFrame,
@@ -114,28 +128,30 @@ def generate_std_norm(
     
 
 def compute_fft(
-        config,
         values: list,
+        window_type: str,
+        sampling_frequency: int,
     ):
 
-    w = signal.get_window(config.window_type, len(values), fftbins=False)
+    w = signal.get_window(window_type, len(values), fftbins=False)
     yf = 2*fft.fft(values*w)[:int(len(values)/2+1)]
-    xf = fft.fftfreq(len(values), 1/config.resampling_frequency)[:int(len(values)/2+1)]
+    xf = fft.fftfreq(len(values), 1/sampling_frequency)[:int(len(values)/2+1)]
 
     return yf, xf
     
 
 def signal_to_ffts(
-        config,
-        df: pd.DataFrame,
-        sensor_col: str,
+        sensor_col: pd.Series,
+        window_type: str,
+        sampling_frequency: int,
     ):
     l_values_total = []
     l_freqs_total = []
-    for _, row in df.iterrows():
+    for row in sensor_col:
         l_values, l_freqs = compute_fft(
-            values=row[sensor_col],
-            window_type=config.window_type)
+            values=row,
+            window_type=window_type,
+            sampling_frequency=sampling_frequency)
         l_values_total.append(l_values)
         l_freqs_total.append(l_freqs)
 
@@ -143,20 +159,51 @@ def signal_to_ffts(
     
 
 def compute_power_in_bandwidth(
-        config,
-        sensor_col,
+        sensor_col: list,
         fmin: int,
         fmax: int,
+        sampling_frequency: int,
+        window_type: str,
     ):
-    fxx, pxx = signal.periodogram(sensor_col, fs=config.resampling_frequency, window=config.window_type)
+    """Note: sensor_col is a single cell of sensor_col, as it is used with apply function. 
+    Probably we want a smarter way of doing this."""
+    fxx, pxx = signal.periodogram(sensor_col, fs=sampling_frequency, window=window_type)
     ind_min = np.argmax(fxx > fmin) - 1
     ind_max = np.argmax(fxx > fmax) - 1
     return np.log10(np.trapz(pxx[ind_min:ind_max], fxx[ind_min:ind_max]))
 
 
+def compute_perc_power(
+        sensor_col: list,
+        fmin_band: int,
+        fmax_band: int,
+        fmin_total: int,
+        fmax_total: int,
+        sampling_frequency: int,
+        window_type: str,
+):
+    angle_power_band = compute_power_in_bandwidth(
+        sensor_col=sensor_col,
+        fmin=fmin_band,
+        fmax=fmax_band,
+        sampling_frequency=sampling_frequency,
+        window_type=window_type
+        )
+    
+    angle_power_total = compute_power_in_bandwidth(
+        sensor_col=sensor_col,
+        fmin=fmin_total,
+        fmax=fmax_total,
+        sampling_frequency=sampling_frequency,
+        window_type=window_type
+        )
+    
+    return angle_power_band / angle_power_total
+
+
 def get_dominant_frequency(
-        signal_ffts: pd.Series,
-        signal_freqs: pd.Series,
+        signal_ffts: list,
+        signal_freqs: list,
         fmin: int,
         fmax: int
         ):
@@ -180,28 +227,30 @@ def compute_power(
     
 
 def generate_cepstral_coefficients(
-        config,
-        df: pd.DataFrame,
-        total_power_col: str,
+        total_power_col: pd.Series,
+        window_length_s: int,
+        sampling_frequency: int,
         low_frequency: int,
         high_frequency: int,
         filter_length: int,
         n_dct_filters: int,
-        ):
+        ) -> pd.DataFrame:
+    
+    window_length = window_length_s * sampling_frequency
     
     # compute filter points
     freqs = np.linspace(low_frequency, high_frequency, num=filter_length+2)
-    filter_points = np.floor((config.window_length + 1) / config.resampling_frequency * freqs).astype(int)  
+    filter_points = np.floor((window_length + 1) / sampling_frequency * freqs).astype(int)  
 
     # construct filterbank
-    filters = np.zeros((len(filter_points)-2, int(config.window_length/2+1)))
+    filters = np.zeros((len(filter_points)-2, int(window_length/2+1)))
     for j in range(len(filter_points)-2):
         filters[j, filter_points[j] : filter_points[j+1]] = np.linspace(0, 1, filter_points[j+1] - filter_points[j])
         filters[j, filter_points[j+1] : filter_points[j+2]] = np.linspace(1, 0, filter_points[j+2] - filter_points[j+1])
 
     # filter signal
-    power_filtered = df[total_power_col].apply(lambda x: np.dot(filters, x))
-    log_power_filtered = power_filtered.apply(lambda x: 10.0 * np.log10(x))
+    power_filtered = [np.dot(filters, x) for x in total_power_col]
+    log_power_filtered = [10.0 * np.log10(x) for x in power_filtered]
 
     # generate cepstral coefficients
     dct_filters = np.empty((n_dct_filters, filter_length))
@@ -212,58 +261,61 @@ def generate_cepstral_coefficients(
     for i in range(1, n_dct_filters):
         dct_filters[i, :] = np.cos(i * samples) * np.sqrt(2.0 / filter_length)
 
-    cepstral_coefs = log_power_filtered.apply(lambda x: np.dot(dct_filters, x))
+    cepstral_coefs = [np.dot(dct_filters, x) for x in log_power_filtered]
 
     return pd.DataFrame(np.vstack(cepstral_coefs), columns=['cc_{}'.format(j+1) for j in range(n_dct_filters)])
 
 
 def pca_transform_gyroscope(
         df: pd.DataFrame,
-        y_gyro_column: str,
-        z_gyro_column: str,
-        pred_gait_column: str,
+        y_gyro_colname: str,
+        z_gyro_colname: str,
+        pred_gait_colname: str,
 ) -> pd.Series:
     """Apply principal component analysis (PCA) on the y-axis and z-axis of the raw gyroscope signal
     to extract the velocity. PCA is applied to the predicted gait timestamps only to maximize the similarity
     to the velocity in the arm swing direction. """
     pca = PCA(n_components=2, svd_solver='auto', random_state=22)
-    pca.fit([(i,j) for i,j in zip(df.loc[df[pred_gait_column]==1, y_gyro_column], df.loc[df[pred_gait_column]==1, z_gyro_column])])
-    yz_gyros = pca.transform([(i,j) for i,j in zip(df[y_gyro_column], df[z_gyro_column])])
+    pca.fit([(i,j) for i,j in zip(df.loc[df[pred_gait_colname]==1, y_gyro_colname], df.loc[df[pred_gait_colname]==1, z_gyro_colname])])
+    yz_gyros = pca.transform([(i,j) for i,j in zip(df[y_gyro_colname], df[z_gyro_colname])])
 
-    df['velocity'] = [x[0] for x in yz_gyros]
+    velocity = [x[0] for x in yz_gyros]
 
-    return df['velocity']
+    return pd.Series(velocity)
 
 
 def compute_angle(
-        config,
-        df: pd.DataFrame,
-        velocity_column: str,
+        velocity_col: pd.Series,
+        time_col: pd.Series,
 ) -> pd.Series:
     """Apply cumulative trapezoidal integration to extract the angle from the velocity."""
-    df['angle'] = cumulative_trapezoid(y=df[velocity_column], x=df[config.time_column], initial=0)
-    return df['angle'].apply(lambda x: x*-1 if x<0 else x)
+    angle_col = cumulative_trapezoid(velocity_col, time_col, initial=0)
+    return pd.Series([x*-1 if x<0 else x for x in angle_col])
 
 
 def remove_moving_average_angle(
-        config,
-        df: pd.DataFrame,
-        angle_column: str,
+        angle_col: pd.Series,
+        sampling_frequency: int,
 ) -> pd.Series:
-    df['angle_ma'] = df[angle_column].rolling(window=int(2*(config.fs*0.5)+1), min_periods=1, center=True, closed='both').mean()
+    angle_ma = angle_col.rolling(window=int(2*(sampling_frequency*0.5)+1), min_periods=1, center=True, closed='both').mean()
     
-    return df[angle_column] - df['angle_ma']
+    return pd.Series(angle_col - angle_ma)
 
 
 def create_segments(
-        config,
         df: pd.DataFrame,
-        pred_gait_column: str,
+        pred_gait_colname: str,
+        time_colname: str,
+        sampling_frequency: int,
+        window_length_s: int,
 ) -> pd.DataFrame:
-    array_new_segments = np.where((df[config.time_column] - df[config.time_column].shift() > 1.5/config.fs) | (df[pred_gait_column].ne(df[pred_gait_column].shift())), 1, 0)
+    
+    window_length = window_length_s * sampling_frequency
+
+    array_new_segments = np.where((df[time_colname] - df[time_colname].shift() > 1.5/sampling_frequency) | (df[pred_gait_colname].ne(df[pred_gait_colname].shift())), 1, 0)
     df['new_segment_cumsum'] = array_new_segments.cumsum()
-    df_segments = pd.DataFrame(df.groupby(['new_segment_cumsum', pred_gait_column])[config.time_column].count()).reset_index()
-    df_segments.columns = ['segment_nr', pred_gait_column, 'count']
+    df_segments = pd.DataFrame(df.groupby(['new_segment_cumsum', pred_gait_colname])[time_colname].count()).reset_index()
+    df_segments.columns = ['segment_nr', pred_gait_colname, 'count']
 
     cols_to_append = ['segment_nr', 'count']
 
@@ -279,15 +331,15 @@ def create_segments(
 
         index_start += len_segment
 
-    df['length_segment_s'] = df['count'] / config.fs
+    df['length_segment_s'] = df['count'] / sampling_frequency
 
     df = df.drop(columns=['count'])
 
     # subset gait
-    df = df.loc[df[pred_gait_column]==1].reset_index(drop=True)
+    df = df.loc[df[pred_gait_colname]==1].reset_index(drop=True)
     
     # discard segments smaller than window length
-    segment_length_bool = df.groupby(['segment_nr']).size() > config.window_length * config.fs
+    segment_length_bool = df.groupby(['segment_nr']).size() > window_length
 
     df = df.loc[df['segment_nr'].isin(segment_length_bool.loc[segment_length_bool.values].index)]
 
@@ -304,42 +356,34 @@ def create_segments(
 
 
 def extract_angle_extremes(
-        config,
         df: pd.DataFrame,
-        smooth_angle_column: str,
-        dominant_frequency_column: str,
-) -> pd.DataFrame:
+        smooth_angle_colname: str,
+        dominant_frequency_colname: str,
+        sampling_frequency: int,
+) -> pd.Series:
     # determine peaks
-    df['angle_maxima'] = df.apply(lambda x: find_peaks(x[smooth_angle_column], distance=config.fs * 0.6 / x[dominant_frequency_column], prominence=2)[0], axis=1)
-    df['angle_minima'] = df.apply(lambda x: find_peaks([-x for x in x[smooth_angle_column]], distance=config.fs * 0.6 / x[dominant_frequency_column], prominence=2)[0], axis=1) 
+    df['angle_maxima'] = df.apply(lambda x: find_peaks(x[smooth_angle_colname], distance=sampling_frequency * 0.6 / x[dominant_frequency_colname], prominence=2)[0], axis=1)
+    df['angle_minima'] = df.apply(lambda x: find_peaks([-x for x in x[smooth_angle_colname]], distance=sampling_frequency * 0.6 / x[dominant_frequency_colname], prominence=2)[0], axis=1) 
 
     df['angle_new_minima'] = df['angle_minima'].copy()
     df['angle_new_maxima'] = df['angle_maxima'].copy()
 
-    # to keep track of peaks deleted due to constraints
-    df['angle_minima_deleted'] = np.empty((len(df), 0)).tolist()
-    df['angle_maxima_deleted'] = np.empty((len(df), 0)).tolist()
-
     for index, _ in df.iterrows():
         i_pks = 0                                       # iterable to keep track of consecutive min-min and max-max versus min-max
-        n_min = len(df.loc[index, 'angle_new_minima'])  # number of minima in window
-        n_max = len(df.loc[index, 'angle_new_maxima'])  # number of maxima in window
+        n_min = df.loc[index, 'angle_new_minima'].size  # number of minima in window
+        n_max = df.loc[index, 'angle_new_maxima'].size  # number of maxima in window
 
         if n_min > 0 and n_max > 0: 
             if df.loc[index, 'angle_new_maxima'][0] > df.loc[index, 'angle_new_minima'][0]: # if first minimum occurs before first maximum, start with minimum
-                while i_pks < len(df.loc[index, 'angle_new_minima']) - 1 and i_pks < len(df.loc[index, 'angle_new_maxima']): # only continue if there's enough minima and maxima to perform operations
+                while i_pks < df.loc[index, 'angle_new_minima'].size - 1 and i_pks < df.loc[index, 'angle_new_maxima'].size: # only continue if there's enough minima and maxima to perform operations
                     if df.loc[index, 'angle_new_minima'][i_pks+1] < df.loc[index, 'angle_new_maxima'][i_pks]: # if angle of next minimum comes before the current maxima, we have two minima in a row
-                        if df.loc[index, smooth_angle_column][df.loc[index, 'angle_new_minima'][i_pks+1]] < df.loc[index, smooth_angle_column][df.loc[index, 'angle_new_minima'][i_pks]]: # if second minimum if smaller than first, keep second
-                            df.loc[index, 'angle_minima_deleted'].append(df.loc[index, 'angle_new_minima'][i_pks])
+                        if df.loc[index, smooth_angle_colname][df.loc[index, 'angle_new_minima'][i_pks+1]] < df.loc[index, smooth_angle_colname][df.loc[index, 'angle_new_minima'][i_pks]]: # if second minimum if smaller than first, keep second
                             df.at[index, 'angle_new_minima'] = np.delete(df.loc[index, 'angle_new_minima'], i_pks)
                         else: # otherwise keep the first
-                            df.loc[index, 'angle_minima_deleted'].append(df.loc[index, 'angle_new_minima'][i_pks+1])
                             df.at[index, 'angle_new_minima'] = np.delete(df.loc[index, 'angle_new_minima'], i_pks+1)
                         i_pks -= 1
-
                     if i_pks >= 0 and df.loc[index, 'angle_new_minima'][i_pks] > df.loc[index, 'angle_new_maxima'][i_pks]:
-                        if df.loc[index, smooth_angle_column][df.loc[index, 'angle_new_maxima'][i_pks]] < df.loc[index, smooth_angle_column][df.loc[index, 'angle_new_maxima'][i_pks-1]]:
-                            df.loc[index, 'angle_maxima_deleted'].append(df.loc[index, 'angle_new_maxima'][i_pks])
+                        if df.loc[index, smooth_angle_colname][df.loc[index, 'angle_new_maxima'][i_pks]] < df.loc[index, smooth_angle_colname][df.loc[index, 'angle_new_maxima'][i_pks-1]]:
                             df.at[index, 'angle_new_maxima'] = np.delete(df.loc[index, 'angle_new_maxima'], i_pks) 
                         else:
                             df.loc[index, 'angle_maxima_deleted'].append(df.loc[index, 'angle_new_maxima'][i_pks-1])
@@ -348,39 +392,40 @@ def extract_angle_extremes(
                     i_pks += 1
 
             elif df.loc[index, 'angle_new_maxima'][0] < df.loc[index, 'angle_new_minima'][0]: # if the first maximum occurs before the first minimum, start with the maximum
-                while i_pks < len(df.loc[index, 'angle_new_minima']) and i_pks < len(df.loc[index, 'angle_new_maxima'])-1:
+                while i_pks < df.loc[index, 'angle_new_minima'].size and i_pks < df.loc[index, 'angle_new_maxima'].size-1:
                     if df.loc[index, 'angle_new_minima'][i_pks] > df.loc[index, 'angle_new_maxima'][i_pks+1]:
-                        if df.loc[index, smooth_angle_column][df.loc[index, 'angle_new_maxima'][i_pks+1]] > df.loc[index, smooth_angle_column][df.loc[index, 'angle_new_maxima'][i_pks]]:
-                            df.loc[index, 'angle_maxima_deleted'].append(df.loc[index, 'angle_new_maxima'][i_pks])
+                        if df.loc[index, smooth_angle_colname][df.loc[index, 'angle_new_maxima'][i_pks+1]] > df.loc[index, smooth_angle_colname][df.loc[index, 'angle_new_maxima'][i_pks]]:
                             df.at[index, 'angle_new_maxima'] = np.delete(df.loc[index, 'angle_new_maxima'], i_pks) 
                         else:
-                            df.loc[index, 'angle_maxima_deleted'].append(df.loc[index, 'angle_new_maxima'][i_pks+1])
                             df.at[index, 'angle_new_maxima'] = np.delete(df.loc[index, 'angle_new_maxima'], i_pks+1) 
                         i_pks -= 1
                     if i_pks > 0 and df.loc[index, 'angle_new_minima'][i_pks] < df.loc[index, 'angle_new_maxima'][i_pks]:
-                        if df.loc[index, smooth_angle_column][df.loc[index, 'angle_new_minima'][i_pks]] < df.loc[index, smooth_angle_column][df.loc[index, 'angle_new_minima'][i_pks-1]]:
-                            df.loc[index, 'angle_maxima_deleted'].append(df.loc[index, 'angle_new_maxima'][i_pks-1])
-                            df.at[index, 'angle_new_maxima'] = np.delete(df.loc[index, 'angle_new_maxima'], i_pks-1) 
+                        if df.loc[index, smooth_angle_colname][df.loc[index, 'angle_new_minima'][i_pks]] < df.loc[index, smooth_angle_colname][df.loc[index, 'angle_new_minima'][i_pks-1]]:
+                            df.at[index, 'angle_new_minima'] = np.delete(df.loc[index, 'angle_new_minima'], i_pks-1) 
                         
                         else:
-                            df.loc[index, 'angle_maxima_deleted'].append(df.loc[index, 'angle_new_maxima'][i_pks])
-                            df.at[index, 'angle_new_maxima'] = np.delete(df.loc[index, 'angle_new_maxima'], i_pks) 
+                            df.at[index, 'angle_new_minima'] = np.delete(df.loc[index, 'angle_new_minima'], i_pks) 
                         i_pks -= 1
                     i_pks += 1
 
-    # extract amplitude
-    df['angle_extrema_values'] = df.apply(lambda x: [x[smooth_angle_column][i] for i in np.concatenate((x['angle_new_minima'], x['angle_new_maxima']))] if len(x['angle_new_minima']) > 0 and len(x['angle_new_maxima']) > 0 else [], axis=1) 
+    # for some peculiar reason, if a single item remains in the row for angle_new_minima or
+    # angle_new_maxima, it could be either a scalar or a vector.
+    for col in ['angle_new_minima', 'angle_new_maxima']:
+        df.loc[df.apply(lambda x: type(x[col].tolist())==int, axis=1), col] = df.loc[df.apply(lambda x: type(x[col].tolist())==int, axis=1), col].apply(lambda x: [x])
 
-    return df['angle_extrema_values']
+    # extract amplitude
+    df['angle_extrema_values'] = df.apply(lambda x: [x[smooth_angle_colname][i] for i in np.concatenate([x['angle_new_minima'], x['angle_new_maxima']])], axis=1) 
+
+    return
 
 
 def extract_range_of_motion(
-        df: pd.DataFrame,
-        angle_extrema_values_column: str,
+        angle_extrema_values_col: pd.Series,
 ) -> pd.Series:
-    df['angle_amplitudes'] = np.empty((len(df), 0)).tolist()
+    
+    angle_amplitudes = np.empty((len(angle_extrema_values_col), 0)).tolist()
 
-    for i, extrema_values in enumerate(df[angle_extrema_values_column]):
+    for i, extrema_values in enumerate(angle_extrema_values_col):
         l_amplitudes = []
         for j, value in enumerate(extrema_values):
             if j < len(extrema_values)-1:
@@ -394,27 +439,27 @@ def extract_range_of_motion(
                 else:
                     l_amplitudes.append(np.subtract(np.abs(value), np.abs(extrema_values[j+1])))
 
-        df.loc[i, 'angle_amplitudes'].append([x for x in l_amplitudes])
+        angle_amplitudes[i].append([x for x in l_amplitudes])
 
-    return df['angle_amplitudes'].apply(lambda x: [y for item in x for y in item])
+    return [y for item in angle_amplitudes for y in item]
 
 
 def extract_peak_angular_velocity(
         df: pd.DataFrame,
-        velocity_column: str,
-        angle_minima_column: str,
-        angle_maxima_column: str,
+        velocity_colname: str,
+        angle_minima_colname: str,
+        angle_maxima_colname: str,
 ) -> pd.DataFrame:
     df['forward_peak_ang_vel'] = np.empty((len(df), 0)).tolist()
     df['backward_peak_ang_vel'] = np.empty((len(df), 0)).tolist()
 
     for index, row in df.iterrows():
-        if len(row[angle_minima_column]) > 0 and len(row[angle_maxima_column]) > 0:
-            l_extrema_indices = np.sort(np.concatenate((row[angle_minima_column], row[angle_maxima_column])))
+        if len(row[angle_minima_colname]) > 0 and len(row[angle_maxima_colname]) > 0:
+            l_extrema_indices = np.sort(np.concatenate((row[angle_minima_colname], row[angle_maxima_colname])))
             for j, peak_index in enumerate(l_extrema_indices):
-                if peak_index in row[angle_maxima_column] and j < len(l_extrema_indices) - 1:
-                    df.loc[index, 'forward_peak_ang_vel'].append(np.abs(min(row[velocity_column][l_extrema_indices[j]:l_extrema_indices[j+1]])))
-                elif peak_index in row[angle_minima_column] and j < len(l_extrema_indices) - 1:
-                    df.loc[index, 'backward_peak_ang_vel'].append(np.abs(max(row[velocity_column][l_extrema_indices[j]:l_extrema_indices[j+1]])))
-
-    return df
+                if peak_index in row[angle_maxima_colname] and j < len(l_extrema_indices) - 1:
+                    df.loc[index, 'forward_peak_ang_vel'].append(np.abs(min(row[velocity_colname][l_extrema_indices[j]:l_extrema_indices[j+1]])))
+                elif peak_index in row[angle_minima_colname] and j < len(l_extrema_indices) - 1:
+                    df.loc[index, 'backward_peak_ang_vel'].append(np.abs(max(row[velocity_colname][l_extrema_indices[j]:l_extrema_indices[j+1]])))
+    
+    return
