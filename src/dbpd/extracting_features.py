@@ -87,7 +87,7 @@ def tabulate_windows(
 
     for window_nr in range(n_windows):
         lower = window_nr * window_step_size
-        upper = window_nr * window_step_size + window_length - 1
+        upper = window_nr * window_step_size + window_length
         l_windows.append(
             create_window(
                 df=df,
