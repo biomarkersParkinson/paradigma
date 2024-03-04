@@ -16,7 +16,7 @@
             "scale_factors": [
                 1
             ],
-            "file_name": "time.bin",
+            "file_name": "gait_time.bin",
             "channels": [
                 "time"
             ],
@@ -25,7 +25,7 @@
             ]
         },
         {
-            "file_name": "values.bin",
+            "file_name": "gait_values.bin",
             "channels": [
                 "grav_acceleration_x_mean",
                 "grav_acceleration_x_std",
