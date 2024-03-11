@@ -1,6 +1,9 @@
+import math
 import numpy as np
 import pandas as pd
-from scipy import signal
+
+from datetime import datetime
+from scipy import signal, fft
 from scipy.interpolate import CubicSpline
 
 from dbpd.constants import DataColumns
@@ -14,14 +17,12 @@ class PreprocessingPipelineConfig:
         time_column: str,
         sampling_frequency: int,
         resampling_frequency: int,
-        verbose: int,
+        gyroscope_units: str,
     ):
-        self.verbose = verbose
         self.time_column = time_column
         self.sampling_frequency = sampling_frequency
         self.resampling_frequency = resampling_frequency
-
-
+        self.gyroscope_units = gyroscope_units
 
 def transform_time_array(
     time_array: np.ndarray,
@@ -42,7 +43,7 @@ def transform_time_array(
     Returns
     -------
     array_like
-        The transformed time array in seconds.
+        The transformed time array in milliseconds.
     """
     if data_in_delta_time:
         return np.cumsum(np.double(time_array)) / scale_factor
@@ -77,7 +78,7 @@ def resample_data(
     scaled_values = values_unscaled * scale_factors
 
     # resample
-    t_resampled = np.arange(0, time_abs_array[-1], 1000 / config.resampling_frequency)
+    t_resampled = np.arange(0, time_abs_array[-1], 1 / config.resampling_frequency)
 
     # create dataframe
     df = pd.DataFrame(t_resampled, columns=[config.time_column])
@@ -140,3 +141,4 @@ def butterworth_filter(
         output="sos",
     )
     return signal.sosfilt(sos, single_sensor_col)
+    
