@@ -1,0 +1,53 @@
+{
+    "study_id": "PPP",
+    "device_id": "Verily Study Watch",
+    "subject_id": "0A0B82C94960D6DCABC1F597EC0BA657F4B0EDC320702BCEE3B6955CE924DE05",
+    "ppp_source_protobuf": "WatchData.PPG.Week104.raw",
+    "metadata_version": "0.1",
+    "start_iso8601": "27-Jun-2021 16:52:20",
+    "end_iso8601": "27-Jun-2021 17:03:04",
+    "scale_factors": 1,
+    "rows": 639,
+    "sensors": [
+        {
+            "data_type": "float",
+            "endianness": "little",
+            "freq_sampling_original": 100.40200019609766,
+            "sensors": [
+                {
+                    "file_name": "classification_sqa_time.bin",
+                    "channels": [
+                        "time"
+                    ],
+                    "units": [
+                        "time_absolute_unix_ms"
+                    ],
+                    "bits": 64
+                },
+                {
+                    "file_name": "classification_sqa_ppg.bin",
+                    "channels": [
+                        "post probability"
+                    ],
+                    "units": [
+                        "probability"
+                    ],
+                    "bits": 32
+                }
+            ]
+        },
+        {
+            "data_type": "int",
+            "endianness": "not applicable",
+            "file_name": "classification_sqa_imu.bin",
+            "channels": [
+                "accelerometer classification"
+            ],
+            "units": [
+                "boolean"
+            ],
+            "bits": 8,
+            "freq_sampling_original": 100
+        }
+    ]
+}
