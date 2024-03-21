@@ -8,11 +8,11 @@
     "end_iso8601": "27-Jun-2021 16:56:23 UTC",
     "rows": 642,
     "endianness": "little",
-    "data_type": "float",
-    "bits": 64,
     "meta_filename": "rotation_meta.json",
     "sensors": [
         {
+            "data_type": "float",
+            "bits": 64,
             "scale_factors": [
                 1
             ],
@@ -25,12 +25,14 @@
             ]
         },
         {
+            "data_type": "int",
+            "bits": 32,
             "file_name": "arm_swing_values.bin",
             "channels": [
-                "pred_arm_swing_proba"
+                "pred_arm_swing"
             ],
             "units": [
-                "probability"
+                "boolean"
             ],
             "scale_factors": [
                 0.00469378,
