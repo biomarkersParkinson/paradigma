@@ -53,6 +53,7 @@ def create_window(
 def tabulate_windows(
         df: pd.DataFrame,
         time_column_name: str,
+        segment_nr_colname: str,
         data_point_level_cols: list,
         window_length_s: int,
         window_step_size_s: int,
@@ -110,7 +111,7 @@ def tabulate_windows(
             )
         )
 
-    df_windows = pd.DataFrame(l_windows, columns=['segment_nr', 'window_nr', 'window_start', 'window_end'] + data_point_level_cols)
+    df_windows = pd.DataFrame(l_windows, columns=[segment_nr_colname, 'window_nr', 'window_start', 'window_end'] + data_point_level_cols)
             
     return df_windows.reset_index(drop=True)
 
@@ -316,6 +317,7 @@ def remove_moving_average_angle(
 def create_segments(
         df: pd.DataFrame,
         time_colname: str,
+        segment_nr_colname: str,
         minimum_gap_s: int,
 ) -> pd.DataFrame:
     """Create segments based on the time column of the dataframe. Segments are defined as continuous time periods.
@@ -332,10 +334,12 @@ def create_segments(
     array_new_segments = np.where((df[time_colname] - df[time_colname].shift() > minimum_gap_s), 1, 0)
     df['new_segment_cumsum'] = array_new_segments.cumsum()
     df_segments = pd.DataFrame(df.groupby('new_segment_cumsum')[time_colname].count()).reset_index()
-    df_segments.columns = ['segment_nr', 'length_segment_s']
-    df_segments['segment_nr'] += 1
+    df_segments.columns = [segment_nr_colname, 'length_segment_s']
+    df_segments[segment_nr_colname] += 1
 
-    cols_to_append = ['segment_nr', 'length_segment_s']
+    df = df.drop(columns=['new_segment_cumsum'])
+
+    cols_to_append = [segment_nr_colname, 'length_segment_s']
 
     for col in cols_to_append:
         df[col] = 0
@@ -348,6 +352,28 @@ def create_segments(
             df.loc[index_start:index_start+len_segment-1, col] = row[col]
 
         index_start += len_segment
+
+    return df
+
+
+def discard_segments(
+        df: pd.DataFrame,
+        time_colname: str,
+        segment_nr_colname: str,
+        minimum_segment_length_s: int,
+):
+    segment_length_bool = df.groupby(segment_nr_colname)[time_colname].apply(lambda x: x.max() - x.min()) > minimum_segment_length_s
+
+    df = df.loc[df[segment_nr_colname].isin(segment_length_bool.loc[segment_length_bool.values].index)]
+
+    # reorder the segments - starting at 1
+    for segment_nr in df[segment_nr_colname].unique():
+        df.loc[df[segment_nr_colname]==segment_nr, f'{segment_nr_colname}_ordered'] = np.where(df[segment_nr_colname].unique()==segment_nr)[0][0] + 1
+
+    df[f'{segment_nr_colname}_ordered'] = df[f'{segment_nr_colname}_ordered'].astype(int)
+
+    df = df.drop(columns=[segment_nr_colname])
+    df = df.rename(columns={f'{segment_nr_colname}_ordered': segment_nr_colname})
 
     return df
 
