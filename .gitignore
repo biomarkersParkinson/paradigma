@@ -143,3 +143,4 @@ dmypy.json
 
 #VS Code
 .vscode/
+tests/data/tmp
