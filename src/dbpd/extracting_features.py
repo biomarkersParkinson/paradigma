@@ -16,6 +16,7 @@ def create_window(
         lower_index: int,
         upper_index: int,
         data_point_level_cols: list,
+        segment_nr: int,
         sampling_frequency: int
     ) -> list:
     """Transforms (a subset of) a dataframe into a single row
@@ -38,11 +39,13 @@ def create_window(
     l_subset_squeezed: list
         Rows corresponding to single windows
     """
-    df_subset = df.loc[lower_index:upper_index, data_point_level_cols].copy()
-    t_start = lower_index/sampling_frequency + df.loc[window_nr, 'time']
-    t_end = upper_index/sampling_frequency + df.loc[window_nr, 'time']
+    t_start_window = df.loc[lower_index, time_column_name]
 
-    l_subset_squeezed = [window_nr+1, t_start, t_end] + df_subset.values.T.tolist()
+    df_subset = df.loc[lower_index:upper_index, data_point_level_cols].copy()
+    t_start = t_start_window
+    t_end = upper_index/sampling_frequency + t_start_window
+
+    l_subset_squeezed = [segment_nr, window_nr+1, t_start, t_end] + df_subset.values.T.tolist()
 
     return l_subset_squeezed
     
@@ -53,6 +56,7 @@ def tabulate_windows(
         data_point_level_cols: list,
         window_length_s: int,
         window_step_size_s: int,
+        segment_nr: int,
         sampling_frequency: int,
     ) -> pd.DataFrame:
     """Compiles multiple windows into a single dataframe
@@ -74,7 +78,7 @@ def tabulate_windows(
         Dataframe with each row corresponding to an individual window
     """
 
-    window_length = sampling_frequency * window_length_s
+    window_length = sampling_frequency * window_length_s - 1
     window_step_size = sampling_frequency * window_step_size_s
 
     df = df.reset_index(drop=True)
@@ -101,11 +105,12 @@ def tabulate_windows(
                 lower_index=lower,
                 upper_index=upper,
                 data_point_level_cols=data_point_level_cols,
+                segment_nr=segment_nr,
                 sampling_frequency=sampling_frequency
             )
         )
 
-    df_windows = pd.DataFrame(l_windows, columns=['window_nr', 'window_start', 'window_end'] + data_point_level_cols)
+    df_windows = pd.DataFrame(l_windows, columns=['segment_nr', 'window_nr', 'window_start', 'window_end'] + data_point_level_cols)
             
     return df_windows.reset_index(drop=True)
 
