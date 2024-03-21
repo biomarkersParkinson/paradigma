@@ -11,6 +11,7 @@ from scipy.signal import find_peaks
 
 def create_window(
         df: pd.DataFrame,
+        time_column_name: str,
         window_nr: int,
         lower_index: int,
         upper_index: int,
@@ -38,13 +39,17 @@ def create_window(
         Rows corresponding to single windows
     """
     df_subset = df.loc[lower_index:upper_index, data_point_level_cols].copy()
-    l_subset_squeezed = [window_nr+1, lower_index/sampling_frequency, upper_index/sampling_frequency] + df_subset.values.T.tolist()
+    t_start = lower_index/sampling_frequency + df.loc[window_nr, 'time']
+    t_end = upper_index/sampling_frequency + df.loc[window_nr, 'time']
+
+    l_subset_squeezed = [window_nr+1, t_start, t_end] + df_subset.values.T.tolist()
 
     return l_subset_squeezed
     
 
 def tabulate_windows(
         df: pd.DataFrame,
+        time_column_name: str,
         data_point_level_cols: list,
         window_length_s: int,
         window_step_size_s: int,
@@ -91,6 +96,7 @@ def tabulate_windows(
         l_windows.append(
             create_window(
                 df=df,
+                time_column_name=time_column_name,
                 window_nr=window_nr,
                 lower_index=lower,
                 upper_index=upper,
@@ -304,18 +310,18 @@ def remove_moving_average_angle(
 
 def create_segments(
         df: pd.DataFrame,
-        pred_gait_colname: str,
         time_colname: str,
         sampling_frequency: int,
         window_length_s: int,
+        minimum_gap_s: int,
 ) -> pd.DataFrame:
-    
+
     window_length = window_length_s * sampling_frequency
 
-    array_new_segments = np.where((df[time_colname] - df[time_colname].shift() > 1.5/sampling_frequency) | (df[pred_gait_colname].ne(df[pred_gait_colname].shift())), 1, 0)
+    array_new_segments = np.where((df[time_colname] - df[time_colname].shift() > minimum_gap_s/sampling_frequency), 1, 0)
     df['new_segment_cumsum'] = array_new_segments.cumsum()
-    df_segments = pd.DataFrame(df.groupby(['new_segment_cumsum', pred_gait_colname])[time_colname].count()).reset_index()
-    df_segments.columns = ['segment_nr', pred_gait_colname, 'count']
+    df_segments = pd.DataFrame(df.groupby('new_segment_cumsum')[time_colname].count()).reset_index()
+    df_segments.columns = ['segment_nr', 'count']
 
     cols_to_append = ['segment_nr', 'count']
 
@@ -334,9 +340,6 @@ def create_segments(
     df['length_segment_s'] = df['count'] / sampling_frequency
 
     df = df.drop(columns=['count'])
-
-    # subset gait
-    df = df.loc[df[pred_gait_colname]==1].reset_index(drop=True)
     
     # discard segments smaller than window length
     segment_length_bool = df.groupby(['segment_nr']).size() > window_length

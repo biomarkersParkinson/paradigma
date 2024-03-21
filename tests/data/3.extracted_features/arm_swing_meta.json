@@ -5,7 +5,7 @@
     "ppp_source_protobuf": "WatchData.IMU.Week104.raw",
     "metadata_version": "0.1",
     "start_iso8601": "27-Jun-2021 16:52:20 UTC",
-    "end_iso8601": "27-Jun-2021 16:56:23 UTC",
+    "end_iso8601": "27-Jun-2021 17:04:33 UTC",
     "rows": 642,
     "endianness": "little",
     "data_type": "float",
