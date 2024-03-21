@@ -316,49 +316,38 @@ def remove_moving_average_angle(
 def create_segments(
         df: pd.DataFrame,
         time_colname: str,
-        sampling_frequency: int,
-        window_length_s: int,
         minimum_gap_s: int,
 ) -> pd.DataFrame:
-
-    window_length = window_length_s * sampling_frequency
-
+    """Create segments based on the time column of the dataframe. Segments are defined as continuous time periods.
+    
+    Parameters
+    ----------
+    df: pd.DataFrame
+        The dataframe to be segmented
+    time_colname: str
+        The name of the time column
+    minimum_gap_s: int
+        The minimum gap in seconds to split up the time periods into segments
+    """
     array_new_segments = np.where((df[time_colname] - df[time_colname].shift() > minimum_gap_s), 1, 0)
     df['new_segment_cumsum'] = array_new_segments.cumsum()
     df_segments = pd.DataFrame(df.groupby('new_segment_cumsum')[time_colname].count()).reset_index()
-    df_segments.columns = ['segment_nr', 'count']
+    df_segments.columns = ['segment_nr', 'length_segment_s']
+    df_segments['segment_nr'] += 1
 
-    cols_to_append = ['segment_nr', 'count']
+    cols_to_append = ['segment_nr', 'length_segment_s']
 
     for col in cols_to_append:
         df[col] = 0
 
     index_start = 0
     for _, row in df_segments.iterrows():
-        len_segment = row['count']
+        len_segment = row['length_segment_s']
 
         for col in cols_to_append:
             df.loc[index_start:index_start+len_segment-1, col] = row[col]
 
         index_start += len_segment
-
-    df['length_segment_s'] = df['count'] / sampling_frequency
-
-    df = df.drop(columns=['count'])
-    
-    # discard segments smaller than window length
-    segment_length_bool = df.groupby(['segment_nr']).size() > window_length
-
-    df = df.loc[df['segment_nr'].isin(segment_length_bool.loc[segment_length_bool.values].index)]
-
-    # reorder the segments - starting at 1
-    for segment_nr in df['segment_nr'].unique():
-        df.loc[df['segment_nr']==segment_nr, 'segment_nr_ordered'] = np.where(df['segment_nr'].unique()==segment_nr)[0][0] + 1
-
-    df['segment_nr_ordered'] = df['segment_nr_ordered'].astype(int)
-
-    df = df.drop(columns=['segment_nr'])
-    df = df.rename(columns={'segment_nr_ordered': 'segment_nr'})
 
     return df
 
