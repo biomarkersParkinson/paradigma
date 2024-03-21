@@ -323,7 +323,7 @@ def create_segments(
 
     window_length = window_length_s * sampling_frequency
 
-    array_new_segments = np.where((df[time_colname] - df[time_colname].shift() > minimum_gap_s/sampling_frequency), 1, 0)
+    array_new_segments = np.where((df[time_colname] - df[time_colname].shift() > minimum_gap_s), 1, 0)
     df['new_segment_cumsum'] = array_new_segments.cumsum()
     df_segments = pd.DataFrame(df.groupby('new_segment_cumsum')[time_colname].count()).reset_index()
     df_segments.columns = ['segment_nr', 'count']
