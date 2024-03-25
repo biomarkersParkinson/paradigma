@@ -38,6 +38,10 @@ def test_imu_preprocessing_outputs(shared_datadir):
     compare_data(shared_datadir, step_dir, binaries_pairs)
 
 def test_extract_features_gait(shared_datadir):
+    """
+    This function is used to evaluate the output of the gait feature extraction. It evaluates it by comparing the output to a reference output.
+    """
+
     # Notebook step
     step_dir : str = "3.extracted_features"
 
@@ -49,7 +53,9 @@ def test_extract_features_gait(shared_datadir):
 
 def test_extract_features_arm_swing(shared_datadir):
     """
+    This function is used to evaluate the output of the arm swing feature extraction. It evaluates it by comparing the output to a reference output.
     """
+    
     # Notebook step
     step_dir : str = "3.extracted_features"
 
