@@ -5,15 +5,15 @@
     "ppp_source_protobuf": "WatchData.IMU.Week104.raw",
     "metadata_version": "0.1",
     "start_iso8601": "27-Jun-2021 16:52:20 UTC",
-    "end_iso8601": "27-Jun-2021 17:04:30 UTC",
+    "end_iso8601": "27-Jun-2021 17:03:04 UTC",
     "scale_factors": 1,
-    "rows": 73079,
+    "rows": 64459,
     "data_type": "float",
     "endianness": "little",
     "bits": 64,
     "sensors": [
         {
-            "file_name": "acceleration_time.bin",
+            "file_name": "acceleration_filt_time.bin",
             "channels": [
                 "time"
             ],
@@ -23,7 +23,7 @@
             "freq_sampling_original": 100.49069555614177
         },
         {
-            "file_name": "acceleration_samples.bin",
+            "file_name": "acceleration_filt_samples.bin",
             "channels": [
                 "acceleration_x",
                 "acceleration_y",
