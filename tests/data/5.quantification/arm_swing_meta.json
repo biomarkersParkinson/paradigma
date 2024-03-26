@@ -1,0 +1,53 @@
+{
+    "study_id": "PPP",
+    "device_id": "Verily Study Watch",
+    "subject_id": "X",
+    "ppp_source_protobuf": "WatchData.IMU.Week104.raw",
+    "metadata_version": "0.1",
+    "start_iso8601": "27-Jun-2021 16:52:20 UTC",
+    "end_iso8601": "27-Jun-2021 17:04:30 UTC",
+    "rows": 2,
+    "endianness": "little",
+    "meta_filename": "rotation_meta.json",
+    "data_type": "float",
+    "bits": 64,
+    "sensors": [
+        {
+            "scale_factors": [
+                1
+            ],
+            "file_name": "arm_swing_time.bin",
+            "channels": [
+                "time",
+                "segment_duration_s"
+            ],
+            "units": [
+                "s",
+                "s"
+            ]
+        },
+        {
+            "file_name": "arm_swing_values.bin",
+            "channels": [
+                "range_of_motion_median",
+                "range_of_motion_quantile_95",
+                "peak_ang_vel_median",
+                "peak_ang_vel_quantile_95"
+            ],
+            "units": [
+                "deg",
+                "deg",
+                "deg/s",
+                "deg/s"
+            ],
+            "scale_factors": [
+                0.00469378,
+                0.00469378,
+                0.00469378,
+                0.06097561,
+                0.06097561,
+                0.06097561
+            ]
+        }
+    ]
+}
