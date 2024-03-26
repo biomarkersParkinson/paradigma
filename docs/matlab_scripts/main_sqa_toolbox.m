@@ -13,8 +13,8 @@
 %% Initalization
 % Setting data paths + extracting metafilenames already
 clear all; close all; clc
-addpath(genpath('..\..\PPG_pipeline'))       % Add git repository to the path
-addpath(genpath("C:\Users\z863160\Documents\AI4P\PPG\GitHub\tsdf4matlab"))       % Add wrapper to the path
+addpath(genpath('..\..\..\PPG_pipeline'))       % Add git repository to the path
+addpath(genpath("..\..\..\\tsdf4matlab"))       % Add wrapper to the path
 
 unix_ticks_ms = 1000.0;
 fs_ppg = 30;     % Establish the sampling rate desired for resampling PPG --> now chosen to be fixed on 30 Hz
