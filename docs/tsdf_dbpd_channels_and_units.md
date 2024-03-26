@@ -12,13 +12,14 @@ Within the `DBPD` project, some of the field types are further specialised to pr
 
 | `channel_type` name       | Recommended `unit` | Description                                                                        
 |--------------------------|--------------------|------------------------------------------------------------------------------------|
-| `time`                   | `time_relative_ms`               | Time corresponding to each datapoint (also see units below)    |
-| `acceleration_x`         | `m/s^2`             | Acceleration along the x-axis.                                                       |
-| `acceleration_y`         | `m/s^2`             | Acceleration along the y-axis.                                                       |
-| `acceleration_z`         | `m/s^2`             | Acceleration along the z-axis.                                                       |
+| `time`                   | `absolute_ms`      | Time corresponding to the start of each window/segment (also see units below).      |
+| `acceleration_x`         | `m/s^2`            | Acceleration along the x-axis.                                                       |
+| `acceleration_y`         | `m/s^2`            | Acceleration along the y-axis.                                                       |
+| `acceleration_z`         | `m/s^2`            | Acceleration along the z-axis.                                                       |
 | `rotation_x`             | `deg/s`            | Angular rotation rate around the x-axis.                                              |
 | `rotation_y`             | `deg/s`            | Angular rotation rate around the y-axis.                                              |
 | `rotation_z`             | `deg/s`            | Angular rotation rate around the z-axis.                                              |
+| `green`                  | `deg/s`            | Green signal values indicate blood volume changes for physiological analysis.         |
 
 
 ---
@@ -145,11 +146,11 @@ Within the `DBPD` project, some of the field types are further specialised to pr
 
 | `unit_type`     | Description                                                                                         |
 |-----------------|-----------------------------------------------------------------------------------------------------|
-| `time_relative_ms`  | Time in milliseconds, relative to the `start_iso8601`.                                                          |
-| `time_absolute_unix_s`  | Absolute time in seconds, relative to unix epoch.                                                                 |
-| `time_absolute_unix_ms`  | [TODO] Absolute time in milliseconds, relative to unix epoch.                                                                 |
+| `relative_ms`   | Time (in milliseconds), relative to the `start_iso8601`, i.e., time elapsed since the start time of the recording.   |
+| `difference_ms` | Time (in milliseconds) elapsed since the previous sample.                                                          |
+| `absolute_ms`   | Absolute time in milliseconds, relative to Unix epoch.                                                                 |
 | `probability`   | Probability values (0 to 1) indicating the likelihood of tremor activity for each sample.           |
-| `boolean_num`   | `[TODO]` Integer values (0 or 1) representing the true (1) or false (0) presence of an activity.    |
+| `boolean_num`   | Integer values (0 or 1) representing the true (1) or false (0) presence of an activity.    |
 | `unitless`      | Numerical values without units.                                                                     |
 | `m/s^2`         | Acceleration in meters per second squared.                                                          |
 | `deg/s`         | Angular velocity in degrees per second.                                                             |
