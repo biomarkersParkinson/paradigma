@@ -45,7 +45,7 @@
                 "time"
             ],
             "units": [
-                "ms"
+                "time_delta_ms"
             ],
             "data_type": "float",
             "bits": 32

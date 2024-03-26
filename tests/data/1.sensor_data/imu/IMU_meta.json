@@ -20,7 +20,7 @@
                         "time"
                     ],
                     "units": [
-                        "ms"
+                        "time_delta_ms"
                     ],
                     "data_type": "float",
                     "bits": 32
@@ -32,7 +32,7 @@
                         "quality"
                     ],
                     "units": [
-                        "boolean"
+                        "boolean_num"
                     ],
                     "data_type": "int",
                     "bits": 8
