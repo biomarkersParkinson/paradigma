@@ -24,7 +24,7 @@
             "data_type": "int"
         },
         {
-            "file_name": "Tremor_features.bin",
+            "file_name": "Tremor_features_gait_preproc.bin",
             "channels": [
                 "GyMeanDx",
                 "GyMeanDy",
