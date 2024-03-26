@@ -19,10 +19,8 @@
                 "time"
             ],
             "units": [
-                "ms"
-            ],
-            "data_type": "int",
-            "bits": 32
+                "time_relative_ms"
+            ]
         },
         {
             "file_name": "acceleration_samples.bin",
@@ -37,12 +35,12 @@
                 "grav_acceleration_z"
             ],
             "units": [
-                "m/s^2",
-                "m/s^2",
-                "m/s^2",
-                "m/s^2",
-                "m/s^2",
-                "m/s^2"
+                "g",
+                "g",
+                "g",
+                "g",
+                "g",
+                "g"
             ],
             "scale_factors": [
                 0.00469378,
