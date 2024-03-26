@@ -13,14 +13,14 @@
 %% Initalization
 % Setting data paths + extracting metafilenames already
 clear all; close all; clc
-addpath(genpath('..\..\dbpd_toolbox'))       % Add git repository to the path
-addpath(genpath("..\..\..\tsdf4matlab"))       % Add wrapper to the path --> adjust this
+addpath(genpath('..\..\PPG_pipeline'))       % Add git repository to the path
+addpath(genpath("C:\Users\z863160\Documents\AI4P\PPG\GitHub\tsdf4matlab"))       % Add wrapper to the path
 
 unix_ticks_ms = 1000.0;
 fs_ppg = 30;     % Establish the sampling rate desired for resampling PPG --> now chosen to be fixed on 30 Hz
 fs_imu = 100;    % Establish the sampling rate desired for resampling IMU --> now chosen to be fixed on 30 Hz
 
-raw_data_root = '..\..\tests\data\1.sensor_data\';
+raw_data_root = 'tests\data\1.sensor_data\';
 ppp_data_path_ppg = [raw_data_root 'PPG\'];
 meta_segments_list_ppg = dir(fullfile(ppp_data_path_ppg, 'PPG_meta.json'));   % create the segment list
 
@@ -108,17 +108,17 @@ else
 end
 
 %% 5a. Write TSDF PPG preprocessing output
-location = "..\..\tests\data\2.preprocessed_data";
+location = "tests\data\2.preprocessed_data";
 data_pre_ppg{1} = tr_ppg_pre;
 data_pre_ppg{2} = v_ppg_pre;
 
 metafile_pre_template = metadata_list_ppg{values_idx_ppg};
 
-start_time_iso = datetime(ts_sync/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss Z', 'TimeZone', 'UTC');
-end_time_iso = datetime((ts_sync+tr_ppg_pre(end)*1000)/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss Z', 'TimeZone', 'UTC');
+start_time_iso = datetime(ts_sync/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');
+end_time_iso = datetime((ts_sync+tr_ppg_pre(end)*1000)/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');
 
-metafile_pre_template.start_iso8601 = datestr(start_time_iso);
-metafile_pre_template.end_iso8601 = datestr(end_time_iso);
+metafile_pre_template.start_iso8601 = string(start_time_iso);
+metafile_pre_template.end_iso8601 = string(end_time_iso);
 metafile_pre_template.ppp_source_protobuf = "WatchData.PPG.Week104.raw";
 
 metafile_time = metafile_pre_template;         % time vector metadata list as a template and adjust it
@@ -145,11 +145,11 @@ data_pre_acc{2} = v_imu_pre;
 
 metafile_pre_template = metadata_list_ppg{values_idx_ppg};
 
-start_time_iso = datetime(ts_sync/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss Z', 'TimeZone', 'UTC');
-end_time_iso = datetime((ts_sync+tr_imu_pre(end)*unix_ticks_ms)/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss Z', 'TimeZone', 'UTC');
+start_time_iso = datetime(ts_sync/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');
+end_time_iso = datetime((ts_sync+tr_imu_pre(end)*unix_ticks_ms)/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');
 
-metafile_pre_template.start_iso8601 = datestr(start_time_iso);
-metafile_pre_template.end_iso8601 = datestr(end_time_iso);
+metafile_pre_template.start_iso8601 = string(start_time_iso);
+metafile_pre_template.end_iso8601 = string(end_time_iso);
 metafile_pre_template.ppp_source_protobuf = "WatchData.IMU.Week104.raw";
 
 metafile_time = metafile_pre_template;         % time vector metadata list
@@ -237,7 +237,7 @@ t_epochs_end = t_unix_feat_ppg(1) + tr_ppg_pre(i+samples_shift_ppg*overlap-1)*un
 
 
 %% 6a. Write TSDF PPG feature extraction output (ppg features)
-location = "..\..\tests\data\3.features";
+location = "tests\data\3.features";
 data_feat_ppg{1} = t_unix_feat_ppg;
 data_feat_ppg{2} = single(features_ppg_scaled);
 
@@ -271,7 +271,7 @@ save_tsdf_data(meta_feat_ppg, data_feat_ppg, location, mat_metadata_file_name)
 %% 6b. Write TSDF PPG preprocessing output (accelerometer feature)
 data_feat_acc{1} = t_unix_feat_imu;
 data_feat_acc{2} = single(feature_acc);
-location = "..\..\tests\data\3.features";
+location = "tests\data\3.features";
 metafile_pre_template = metadata_list_ppg{values_idx_ppg};
 
 start_time_iso = datetime(ts_sync/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss Z', 'TimeZone', 'UTC');
@@ -308,7 +308,7 @@ data_class{1} = t_unix_feat_ppg;
 data_class{2} = single(ppg_post_prob_HQ);  % 32 bit float
 data_class{3} = int8(imu_label);
 
-location = "..\..\tests\data\4.predictions";
+location = "tests\data\4.predictions";
 metafile_pre_template = metadata_list_ppg{values_idx_ppg};
 
 start_time_iso = datetime(ts_sync/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss Z', 'TimeZone', 'UTC');
@@ -335,7 +335,7 @@ metafile_values_ppg.freq_sampling_original = 1000/median(t_diff_ppg); % Sampling
 metafile_values_ppg.file_name = 'classification_sqa_ppg.bin';
 
 metafile_values_imu.channels = {'accelerometer classification'};
-metafile_values_imu.units = {'boolean'};
+metafile_values_imu.units = {'boolean_num'};
 metafile_values_imu.freq_sampling_original = 1000/median(t_diff_imu); % Sampling rate in Hz
 metafile_values_imu.file_name = 'classification_sqa_imu.bin';
 
