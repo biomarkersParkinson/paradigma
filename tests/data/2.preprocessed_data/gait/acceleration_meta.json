@@ -21,7 +21,7 @@
                 "time"
             ],
             "units": [
-                "ms"
+                "time_relative_ms"
             ]
         },
         {
@@ -35,12 +35,12 @@
                 "grav_acceleration_z"
             ],
             "units": [
-                "m/s^2",
-                "m/s^2",
-                "m/s^2",
-                "m/s^2",
-                "m/s^2",
-                "m/s^2"
+                "g",
+                "g",
+                "g",
+                "g",
+                "g",
+                "g"
             ],
             "scale_factors": [
                 0.00469378,

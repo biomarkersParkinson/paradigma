@@ -19,11 +19,11 @@
             "file_name": "arm_swing_time.bin",
             "channels": [
                 "time",
-                "segment_duration_s"
+                "segment_duration_ms"
             ],
             "units": [
-                "s",
-                "s"
+                "relative_time_ms",
+                "ms"
             ]
         },
         {
