@@ -45,10 +45,10 @@ def create_window(
     t_start = t_start_window
     t_end = upper_index/sampling_frequency + t_start_window
 
-    if segment_nr==0:
-        l_subset_squeezed = [segment_nr, window_nr+1, t_start, t_end] + df_subset.values.T.tolist()
-    else:
+    if segment_nr is None:
         l_subset_squeezed = [window_nr+1, t_start, t_end] + df_subset.values.T.tolist()
+    else:
+        l_subset_squeezed = [segment_nr, window_nr+1, t_start, t_end] + df_subset.values.T.tolist()
 
     return l_subset_squeezed
     
@@ -56,12 +56,12 @@ def create_window(
 def tabulate_windows(
         df: pd.DataFrame,
         time_column_name: str,
-        segment_nr_colname: str,
         data_point_level_cols: list,
         window_length_s: int,
         window_step_size_s: int,
         sampling_frequency: int,
-        segment_nr: int = 0,
+        segment_nr_colname: str = None,
+        segment_nr: int = None,
     ) -> pd.DataFrame:
     """Compiles multiple windows into a single dataframe
 
@@ -71,8 +71,6 @@ def tabulate_windows(
         The original dataframe to be windowed
     time_column_name: str
         The name of the time column
-    segment_nr_colname: str
-        The name of the column that identifies the segment
     data_point_level_cols: list
         The names of the columns that are to be kept as individual datapoints in a list instead of aggregates
     window_length_s: int
@@ -81,8 +79,10 @@ def tabulate_windows(
         The number of seconds between the end of the previous and the start of the next window
     sampling_frequency: int
         The sampling frequency of the data
+    segment_nr_colname: str
+        The name of the column that identifies the segment; set to None if not applicable
     segment_nr: int
-        The identification of the segment
+        The identification of the segment; set to None if not applicable
     
 
     Returns
@@ -123,10 +123,10 @@ def tabulate_windows(
             )
         )
 
-    if segment_nr==0:
-        df_windows = pd.DataFrame(l_windows, columns=[segment_nr_colname, 'window_nr', 'window_start', 'window_end'] + data_point_level_cols)
-    else:
+    if segment_nr is None:
         df_windows = pd.DataFrame(l_windows, columns=['window_nr', 'window_start', 'window_end'] + data_point_level_cols)
+    else:
+        df_windows = pd.DataFrame(l_windows, columns=[segment_nr_colname, 'window_nr', 'window_start', 'window_end'] + data_point_level_cols)
             
     return df_windows.reset_index(drop=True)
 
