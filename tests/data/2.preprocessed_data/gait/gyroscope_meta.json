@@ -1,30 +1,31 @@
 {
     "study_id": "PPP",
     "device_id": "Verily Study Watch",
-    "subject_id": "0A0B82C94960D6DCABC1F597EC0BA657F4B0EDC320702BCEE3B6955CE924DE05",
+    "subject_id": "X",
     "ppp_source_protobuf": "WatchData.IMU.Week104.raw",
     "metadata_version": "0.1",
-    "start_iso8601": "27-Jun-2021 16:52:20",
-    "end_iso8601": "27-Jun-2021 17:04:31",
+    "start_iso8601": "27-Jun-2021 16:52:20 UTC",
+    "end_iso8601": "27-Jun-2021 17:04:31 UTC",
     "rows": 73079,
-    "scale_factors": 1,
     "endianness": "little",
+    "data_type": "float",
     "bits": 64,
-    "freq_sampling_original": 100,
-    "freq_sampling_adjusted": 100,
+    "meta_filename": "gyroscope_meta.json",
     "sensors": [
         {
-            "file_name": "Tremor_preprocessed_time.bin",
+            "scale_factors": [
+                1
+            ],
+            "file_name": "gyroscope_time.bin",
             "channels": [
                 "time"
             ],
             "units": [
-                "time_absolute_unix_ms"
-            ],
-            "data_type": "int"
+                "ms"
+            ]
         },
         {
-            "file_name": "Tremor_preprocessed_gyro.bin",
+            "file_name": "gyroscope_samples.bin",
             "channels": [
                 "rotation_x",
                 "rotation_y",
@@ -35,7 +36,14 @@
                 "deg/s",
                 "deg/s"
             ],
-            "data_type": "float"
+            "scale_factors": [
+                0.00469378,
+                0.00469378,
+                0.00469378,
+                0.06097561,
+                0.06097561,
+                0.06097561
+            ]
         }
     ]
 }
