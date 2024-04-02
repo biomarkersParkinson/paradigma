@@ -104,7 +104,7 @@ if length(v_ppg) < fs_ppg * min_window_length || length(v_imu_scaled) < fs_imu *
     warning('Sample is of insufficient length!')
 else
     [v_ppg_pre, tr_ppg_pre] = preprocessing_ppg(tr_ppg, v_ppg, fs_ppg);   % call preprocessing_ppg.m function to preprocess every segment seperately
-    [v_imu_pre, tr_imu_pre] = preprocessing_imu(tr_imu, v_imu_scaled, fs_imu);   % call preprocessing_imu.m function to preprocess every segment seperately
+    [v_imu_pre, tr_imu_pre] = preprocessing_imu(tr_imu, v_imu_scaled, fs_imu);   % List of call preprocessing_imu.m function to preprocess every segment seperately
 end
 
 %% 5a. Write TSDF PPG preprocessing output
@@ -125,7 +125,7 @@ metafile_time = metafile_pre_template;         % time vector metadata list as a 
 metafile_values = metafile_pre_template;
 
 metafile_time.channels = {'time'};
-metafile_time.units = {'ms'};
+metafile_time.units = {'relative_ms'};
 metafile_time.freq_sampling_original = 1000/mean(t_diff_ppg);
 metafile_time.file_name = 'PPG_time.bin';
 
@@ -204,7 +204,7 @@ mu = LR_model.mu;
 sigma = LR_model.sigma;
 classifier = LR_model.classifier;
 
-
+% DESCRIBE THE LOOPING OVER 6s SEGMENTS FOR BOTH PPG AND IMU AND CALCULATE FEATURES
 for i = 1:samples_shift_ppg:(length(v_ppg_pre) - samples_per_epoch_ppg + 1)
     
         ppg_segment = v_ppg_pre(i:(i + samples_per_epoch_ppg - 1));
