@@ -96,15 +96,15 @@ ts_sync = ts_ppg + tr_ppg(1)*unix_ticks_ms;   % update ts_sync by the first rela
 
 %% 5. Data preprocessing
 %%--Preprocessing both IMU and PPG%%  
-v_imu_scaled = scale_factors(1,1:3).*double(v_imu(:,1:3));     % Extract only the accelerometer channels and multiply them using scale factors! --> now based on indices but preferably on channel names in metadata???
+v_acc_scaled = scale_factors(1,1:3).*double(v_imu(:,1:3));     % Extract only the accelerometer channels and multiply them using scale factors! --> now based on indices but preferably on channel names in metadata???
 min_window_length = 30;
 
 %%----NEEDS TO BE IMPLEMENTED IN FUNCTION!!--%%
-if length(v_ppg) < fs_ppg * min_window_length || length(v_imu_scaled) < fs_imu * min_window_length    % Only resample, feature calculation and classification on arrays > 30s since these are required for HR(V) analysis later on --> maybe add this to the synchronization  
+if length(v_ppg) < fs_ppg * min_window_length || length(v_acc_scaled) < fs_imu * min_window_length    % Only resample, feature calculation and classification on arrays > 30s since these are required for HR(V) analysis later on --> maybe add this to the synchronization  
     warning('Sample is of insufficient length!')
 else
     [v_ppg_pre, tr_ppg_pre] = preprocessing_ppg(tr_ppg, v_ppg, fs_ppg);   % call preprocessing_ppg.m function to preprocess every segment seperately
-    [v_imu_pre, tr_imu_pre] = preprocessing_imu(tr_imu, v_imu_scaled, fs_imu);   % List of call preprocessing_imu.m function to preprocess every segment seperately
+    [v_acc_pre, tr_acc_pre] = preprocessing_imu(tr_imu, v_acc_scaled, fs_imu);   % List of call preprocessing_imu.m function to preprocess every segment seperately
 end
 
 %% 5a. Write TSDF PPG preprocessing output
@@ -140,13 +140,13 @@ mat_metadata_file_name = "PPG_meta.json";
 save_tsdf_data(meta_pre_ppg, data_pre_ppg, location, mat_metadata_file_name)
 
 %% 5b. Write TSDF PPG preprocessing output
-data_pre_acc{1} = tr_imu_pre;
-data_pre_acc{2} = v_imu_pre;
+data_pre_acc{1} = tr_acc_pre;
+data_pre_acc{2} = v_acc_pre;
 
 metafile_pre_template = metadata_list_ppg{values_idx_ppg};
 
 start_time_iso = datetime(ts_sync/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');
-end_time_iso = datetime((ts_sync+tr_imu_pre(end)*unix_ticks_ms)/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');
+end_time_iso = datetime((ts_sync+tr_acc_pre(end)*unix_ticks_ms)/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');
 
 metafile_pre_template.start_iso8601 = string(start_time_iso);
 metafile_pre_template.end_iso8601 = string(end_time_iso);
@@ -177,26 +177,26 @@ overlap = 5; % in seconds
 
 % Number of samples in epoch
 samples_per_epoch_ppg = epoch_length * fs_ppg;
-samples_per_epoch_imu = epoch_length * fs_imu;
+samples_per_epoch_acc = epoch_length * fs_imu;
 
 % Calculate number of samples to shift for each epoch
 samples_shift_ppg = (epoch_length - overlap) * fs_ppg;
-samples_shift_imu = (epoch_length - overlap) * fs_imu;          % Hoe krijg ik mijn segmenten precies gelijk zodat het niet toevallig een error geeft dat 1 langer is dan de ander
+samples_shift_acc = (epoch_length - overlap) * fs_imu;          % Hoe krijg ik mijn segmenten precies gelijk zodat het niet toevallig een error geeft dat 1 langer is dan de ander
 
-pwelchwin_imu = 3*fs_imu;
+pwelchwin_acc = 3*fs_imu;
 pwelchwin_ppg = 3*fs_ppg;
-noverlap_imu = 0.5*pwelchwin_imu;
+noverlap_acc = 0.5*pwelchwin_acc;
 noverlap_ppg = 0.5*pwelchwin_ppg;
 
 f_bin_res = 0.05;   % the treshold is set based on this binning --> so range of 0.1 Hz for calculating the PSD feature 
 nfft_ppg = 0:f_bin_res:fs_ppg/2;
-nfft_imu = 0:f_bin_res:fs_imu/2;
+nfft_acc = 0:f_bin_res:fs_imu/2;
 
 features_ppg_scaled = [];
 feature_acc = [];
 t_unix_feat_ppg = [];
-t_unix_feat_imu = [];
-imu_idx = 1;
+t_unix_feat_acc = [];
+acc_idx = 1;
 
 % Load classifier with corresponding mu and sigma to z-score the features
 load("LR_model.mat")
@@ -208,7 +208,7 @@ classifier = LR_model.classifier;
 for i = 1:samples_shift_ppg:(length(v_ppg_pre) - samples_per_epoch_ppg + 1)
     
         ppg_segment = v_ppg_pre(i:(i + samples_per_epoch_ppg - 1));
-        imu_segment = v_imu_pre(imu_idx:(imu_idx+samples_per_epoch_imu-1),:);
+        acc_segment = v_acc_pre(acc_idx:(acc_idx+samples_per_epoch_acc-1),:);
   
         %%--------Feature extraction + scaling--------%%
         % calculate features using Features_final.m
@@ -218,17 +218,17 @@ for i = 1:samples_shift_ppg:(length(v_ppg_pre) - samples_per_epoch_ppg + 1)
         features_ppg_scaled(count,:) = normalize(features, 'center', mu, 'scale', sigma);
 
         % Calculating psd of imu and ppg
-        [pxx1,f1] = pwelch(imu_segment,hann(pwelchwin_imu), noverlap_imu, nfft_imu, fs_imu);
+        [pxx1,f1] = pwelch(acc_segment,hann(pwelchwin_acc), noverlap_acc, nfft_acc, fs_imu);
         PSD_imu = sum(pxx1,2);     % sum over the three axis
         [pxx2,f2] = pwelch(ppg_segment,hann(pwelchwin_ppg), noverlap_ppg, nfft_ppg, fs_ppg);
         PSD_ppg = sum(pxx2,1);
         
-        feature_acc(count,1) = imu_feature(f1, PSD_imu, f2, PSD_ppg);
+        feature_acc(count,1) = acc_feature(f1, PSD_imu, f2, PSD_ppg);
         
         t_unix_feat_ppg(count,1) = tr_ppg_pre(i)*unix_ticks_ms + t_ppg(1);  % Save in absolute unix time ms
-        t_unix_feat_imu(count,1) = tr_imu_pre(imu_idx)*unix_ticks_ms + t_imu(1);
+        t_unix_feat_acc(count,1) = tr_acc_pre(acc_idx)*unix_ticks_ms + t_imu(1);
 
-        imu_idx = imu_idx + samples_shift_imu; % update IMU_idx 
+        acc_idx = acc_idx + samples_shift_acc; % update IMU_idx 
         count = count + 1;
 end
 
@@ -244,7 +244,7 @@ data_feat_ppg{2} = single(features_ppg_scaled);
 metafile_pre_template = metadata_list_ppg{values_idx_ppg};
 
 start_time_iso = datetime(ts_sync/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');
-end_time_iso = datetime((ts_sync+tr_imu_pre(end)*unix_ticks_ms)/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');
+end_time_iso = datetime((ts_sync+tr_acc_pre(end)*unix_ticks_ms)/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');
 
 metafile_pre_template.start_iso8601 = string(start_time_iso);
 metafile_pre_template.end_iso8601 = string(end_time_iso);
@@ -270,12 +270,12 @@ save_tsdf_data(meta_feat_ppg, data_feat_ppg, location, mat_metadata_file_name)
 
 %% 6b. Write TSDF PPG preprocessing output (accelerometer feature)
 location = "..\..\tests\data\3.extracted_features\ppg";
-data_feat_acc{1} = t_unix_feat_imu;
+data_feat_acc{1} = t_unix_feat_acc;
 data_feat_acc{2} = single(feature_acc);
 metafile_pre_template = metadata_list_ppg{values_idx_ppg};
 
 start_time_iso = datetime(ts_sync/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');
-end_time_iso = datetime((ts_sync+tr_imu_pre(end)*unix_ticks_ms)/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');
+end_time_iso = datetime((ts_sync+tr_acc_pre(end)*unix_ticks_ms)/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');
 
 metafile_pre_template.start_iso8601 = string(start_time_iso);
 metafile_pre_template.end_iso8601 = string(end_time_iso);
@@ -302,17 +302,17 @@ save_tsdf_data(meta_feat_acc, data_feat_acc, location, mat_metadata_file_name)
 threshold_acc = 0.15; % to be determined!!
 [~, ppg_post_prob] = predict(classifier, features_ppg_scaled);       % Calculate posterior probability using LR model 
 ppg_post_prob_HQ = ppg_post_prob(:,1);
-imu_label = feature_acc < threshold_acc; % logical (boolean) for not surpassing threshold_acc for imu feature. imu_label is one if we don't suspect the epoch to be disturbed by periodic movements! That is in line with 1 for HQ PPG
+acc_label = feature_acc < threshold_acc; % logical (boolean) for not surpassing threshold_acc for imu feature. imu_label is one if we don't suspect the epoch to be disturbed by periodic movements! That is in line with 1 for HQ PPG
 %% 7a. Storage of classification in tsdf
 data_class{1} = t_unix_feat_ppg;
 data_class{2} = single(ppg_post_prob_HQ);  % 32 bit float
-data_class{3} = int8(imu_label);
+data_class{3} = int8(acc_label);
 
 location = "..\..\tests\data\4.predictions\ppg";
 metafile_pre_template = metadata_list_ppg{values_idx_ppg};
 
 start_time_iso = datetime(ts_sync/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');
-end_time_iso = datetime((ts_sync+tr_imu_pre(end)*unix_ticks_ms)/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');
+end_time_iso = datetime((ts_sync+tr_acc_pre(end)*unix_ticks_ms)/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');
 
 metafile_pre_template.start_iso8601 = string(start_time_iso);
 metafile_pre_template.end_iso8601 = string(end_time_iso);
