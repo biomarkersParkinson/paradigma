@@ -81,8 +81,8 @@ scale_factors = metadata_list_imu{values_idx_imu}.scale_factors';
 
 %% 4. Data synchronization on right indices
 fs_ppg_est = 1000/median(t_diff_ppg); 
-fs_imu_est = 1000/mean(t_diff_imu);
-[ppg_indices, imu_indices] = extract_overlapping_segments(ts_ppg, ts_imu, t_ppg, t_imu);
+fs_imu_est = 1000/median(t_diff_imu);
+[ppg_indices, imu_indices] = extract_overlapping_segments(t_ppg, t_imu);
 
 %%---Update data vectors on synchronized labels---%%
 v_ppg = v_ppg(ppg_indices(1):ppg_indices(2));
@@ -126,12 +126,12 @@ metafile_values = metafile_pre_template;
 
 metafile_time.channels = {'time'};
 metafile_time.units = {'relative_ms'};
-metafile_time.freq_sampling_original = 1000/mean(t_diff_ppg);
+metafile_time.freq_sampling_original = fs_ppg_est;
 metafile_time.file_name = 'PPG_time.bin';
 
 metafile_values.channels = {'green'};
 metafile_values.units = {'none'};
-metafile_values.freq_sampling_original = 1000/mean(t_diff_ppg);
+metafile_values.freq_sampling_original = fs_ppg_est;
 metafile_values.file_name = 'PPG_samples.bin';
 
 meta_pre_ppg{1} = metafile_time;
@@ -157,12 +157,12 @@ metafile_values = metafile_pre_template;
 
 metafile_time.channels = {'time'};
 metafile_time.units = {'ms'};
-metafile_time.freq_sampling_original = 1000/mean(t_diff_ppg);
+metafile_time.freq_sampling_original = fs_imu_est;
 metafile_time.file_name = 'acceleration_time.bin';
 
 metafile_values.channels = {'acceleration_x', 'acceleration_y', 'acceleration_z'};
 metafile_values.units = {'m/s/s', 'm/s/s', 'm/s/s'};
-metafile_values.freq_sampling_original = 1000/mean(t_diff_imu); % Sampling rate in Hz
+metafile_values.freq_sampling_original = fs_imu_est; % Sampling rate in Hz
 metafile_values.file_name = 'acceleration_samples.bin';
 
 meta_pre_acc{1} = metafile_time;
@@ -255,12 +255,12 @@ metafile_values = metafile_pre_template;
 
 metafile_time.channels = {'time'};
 metafile_time.units = {'time_absolute_unix_ms'};
-metafile_time.freq_sampling_original = 1000/median(t_diff_ppg);
+metafile_time.freq_sampling_original = fs_ppg_est;
 metafile_time.file_name = 'features_ppg_time.bin';
 
 metafile_values.channels = {'variance', 'mean', 'median', 'kurtosis', 'skewness', 'dominant frequency', 'relative power', 'spectral entropy', 'SNR', 'correlation peak'};
 metafile_values.units = {'none', 'none', 'none', 'none', 'none', 'Hz', 'none', 'none', 'none', 'none'};
-metafile_values.freq_sampling_original = 1000/median(t_diff_ppg);
+metafile_values.freq_sampling_original = fs_ppg_est;
 metafile_values.file_name = 'features_ppg_samples.bin';
 
 meta_feat_ppg{1} = metafile_time;
@@ -286,12 +286,12 @@ metafile_values = metafile_pre_template;
 
 metafile_time.channels = {'time'};
 metafile_time.units = {'time_absolute_unix_ms'};
-metafile_time.freq_sampling_original = 1000/median(t_diff_imu);
+metafile_time.freq_sampling_original = fs_imu_est;
 metafile_time.file_name = 'feature_acc_time.bin';
 
 metafile_values.channels = {'relative power acc'};
 metafile_values.units = {'none'};
-metafile_values.freq_sampling_original = 1000/median(t_diff_imu); % Sampling rate in Hz
+metafile_values.freq_sampling_original = fs_imu_est; % Sampling rate in Hz
 metafile_values.file_name = 'feature_acc_samples.bin';
 
 meta_feat_acc{1} = metafile_time;
@@ -326,17 +326,17 @@ metafile_values_imu = metafile_pre_template;
 
 metafile_time.channels = {'time'};
 metafile_time.units = {'time_absolute_unix_ms'};
-metafile_time.freq_sampling_original = 1000/median(t_diff_ppg);  % For now ppg, but it is not relevant right??
+metafile_time.freq_sampling_original = fs_ppg_est;  % For now ppg, but it is not relevant right??
 metafile_time.file_name = 'classification_sqa_time.bin';
 
 metafile_values_ppg.channels = {'post probability'};
 metafile_values_ppg.units = {'probability'};
-metafile_values_ppg.freq_sampling_original = 1000/median(t_diff_ppg); % Sampling rate in Hz
+metafile_values_ppg.freq_sampling_original = fs_ppg_est; % Sampling rate in Hz
 metafile_values_ppg.file_name = 'classification_sqa_ppg.bin';
 
 metafile_values_imu.channels = {'accelerometer classification'};
 metafile_values_imu.units = {'boolean_num'};
-metafile_values_imu.freq_sampling_original = 1000/median(t_diff_imu); % Sampling rate in Hz
+metafile_values_imu.freq_sampling_original = fs_imu_est; % Sampling rate in Hz
 metafile_values_imu.file_name = 'classification_sqa_imu.bin';
 
 meta_class{1} = metafile_time;
