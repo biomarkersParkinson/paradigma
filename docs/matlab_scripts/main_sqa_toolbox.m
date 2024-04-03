@@ -90,10 +90,12 @@ v_imu = v_imu(imu_indices(1):imu_indices(2),:);
 t_ppg = t_ppg(ppg_indices(1):ppg_indices(2));
 t_imu = t_imu(imu_indices(1):imu_indices(2));
 tr_ppg = tr_ppg(ppg_indices(1):ppg_indices(2));
-tr_ppg = tr_ppg - tr_ppg(1);   % update tr_ppg by the first relative time point containing both PPG and IMU
 tr_imu = tr_imu(imu_indices(1):imu_indices(2));
-tr_imu = tr_imu - tr_imu(1);  % update tr_imu by the first relative time point containing both PPG and IMU
+
 ts_sync = ts_ppg + tr_ppg(1)*unix_ticks_ms;   % update ts_sync by the first relative time point containing both PPG and IMU a
+
+tr_ppg = tr_ppg - tr_ppg(1);   % update tr_ppg by the first relative time point containing both PPG and IMU --> should be done after ts_sync is updated
+tr_imu = tr_imu - tr_imu(1);  % update tr_imu by the first relative time point containing both PPG and IMU
 
 
 %% 5. Data preprocessing
