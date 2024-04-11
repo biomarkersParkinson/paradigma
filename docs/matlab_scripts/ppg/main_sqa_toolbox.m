@@ -21,14 +21,14 @@ fs_ppg = 30;     % Establish the sampling rate desired for resampling PPG --> no
 fs_imu = 100;    % Establish the sampling rate desired for resampling IMU --> now chosen to be fixed on 30 Hz
 
 raw_data_root = '..\..\tests\data\1.sensor_data\';
-ppp_data_path_ppg = [raw_data_root 'PPG\'];
-meta_segments_list_ppg = dir(fullfile(ppp_data_path_ppg, 'PPG_meta.json'));   % create the segment list
+ppp_data_path_ppg = [raw_data_root 'PPG\']; % path to a folder
+meta_segments_list_ppg = dir(fullfile(ppp_data_path_ppg, 'PPG_meta.json'));   % a list of objects describing metadata files in a directory (name, size, ect.) 
 
 ppp_data_path_imu = [raw_data_root 'IMU\'];
 meta_segments_list_imu = dir(fullfile(ppp_data_path_imu, 'IMU_meta.json'));   % create the segment list
 
-meta_filenames_ppg = {meta_segments_list_ppg.name}; % get names
-meta_filenames_imu = {meta_segments_list_imu.name}; % get names
+meta_filenames_ppg = {meta_segments_list_ppg.name}; % a list of metadata file names
+meta_filenames_imu = {meta_segments_list_imu.name}; % a list of metadata file names
 
 %% 1. Loading all metadata of PPG and IMU
 meta_ppg = tsdf_scan_meta(ppp_data_path_ppg);            % tsdf_scan_meta returns metafile struct containing information of all metafiles from all patients in tsdf_dirlist
@@ -82,7 +82,7 @@ scale_factors = metadata_list_imu{values_idx_imu}.scale_factors';
 %% 4. Data synchronization on right indices
 fs_ppg_est = 1000/median(t_diff_ppg); 
 fs_imu_est = 1000/mean(t_diff_imu);
-[ppg_indices, imu_indices] = extract_overlapping_segments(ts_ppg, ts_imu, t_ppg, t_imu);
+[ppg_indices, imu_indices] = extract_overlapping_segments(ts_ppg, ts_imu, t_ppg, t_imu); % List of two pairs of indices, e.g., [(0, 1000), (1, 2002)] - they might differ depending on the sampling rate
 
 %%---Update data vectors on synchronized labels---%%
 v_ppg = v_ppg(ppg_indices(1):ppg_indices(2));
@@ -103,8 +103,8 @@ min_window_length = 30;
 if length(v_ppg) < fs_ppg * min_window_length || length(v_imu_scaled) < fs_imu * min_window_length    % Only resample, feature calculation and classification on arrays > 30s since these are required for HR(V) analysis later on --> maybe add this to the synchronization  
     warning('Sample is of insufficient length!')
 else
-    [v_ppg_pre, tr_ppg_pre] = preprocessing_ppg(tr_ppg, v_ppg, fs_ppg);   % call preprocessing_ppg.m function to preprocess every segment seperately
-    [v_imu_pre, tr_imu_pre] = preprocessing_imu(tr_imu, v_imu_scaled, fs_imu);   % call preprocessing_imu.m function to preprocess every segment seperately
+    [v_ppg_pre, tr_ppg_pre] = preprocessing_ppg(tr_ppg, v_ppg, fs_ppg);   %  2 matrices, one for ppg (Nx1) and for time (Nx1) 
+    [v_imu_pre, tr_imu_pre] = preprocessing_imu(tr_imu, v_imu_scaled, fs_imu);   % 2 matrices, one for accel imu (Nx3) and for time (Nx1)
 end
 
 %% 5a. Write TSDF PPG preprocessing output

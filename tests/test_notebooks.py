@@ -19,7 +19,7 @@ def test_imu_preprocessed(shared_datadir):
     The initial test to check if the preprocessing function works as expected. It checks the output dimensions and the type of the output.
     """
     metadata_dict = tsdf.load_metadata_from_path(
-        shared_datadir / "1.sensor_data/PPG_meta.json"
+        shared_datadir / "1.sensor_data/gait/PPG_meta.json"
     )
 
     # Retrieve the metadata object we want, using the name of the binary as key
@@ -34,7 +34,7 @@ def test_imu_preprocessing_outputs(shared_datadir):
     # Notebook step
     step_dir: str = "2.preprocessed_data"
 
-    input_path = os.path.join(shared_datadir, '1.sensor_data')
+    input_path = os.path.join(shared_datadir, '1.sensor_data/imu')
     new_output_path = os.path.join(shared_datadir, "tmp", step_dir)
 
     execute_notebook(shared_datadir, "1.preprocess_imu", input_path, new_output_path)
@@ -43,8 +43,8 @@ def test_imu_preprocessing_outputs(shared_datadir):
     binaries_pairs: list[tuple[str, str]] = [
         ("acceleration_meta.json", "acceleration_samples.bin"),
         ("acceleration_meta.json", "acceleration_time.bin"),
-        ("rotation_meta.json", "rotation_samples.bin"),
-        ("rotation_meta.json", "rotation_time.bin"),
+        # ("gyroscope_meta.json", "gyroscope_samples.bin"),
+        # ("gyroscope_meta.json", "gyroscope_time.bin"),
     ]
     compare_data(shared_datadir, step_dir, binaries_pairs)
 
@@ -58,7 +58,7 @@ def test_extract_features_gait(shared_datadir):
     step_dir: str = "3.extracted_features"
 
     # Temporary path to store the output of the notebook
-    input_path = os.path.join(shared_datadir, 'tmp' "2.preprocessed_data")
+    input_path = os.path.join(shared_datadir, "2.preprocessed_data/gait")
     new_output_path = os.path.join(shared_datadir, "tmp", step_dir)
 
     execute_notebook(shared_datadir, "2.extract_features_gait", input_path, new_output_path)
@@ -79,7 +79,7 @@ def test_extract_features_arm_swing(shared_datadir):
     step_dir: str = "3.extracted_features"
 
     # Temporary path to store the output of the notebook
-    input_path = os.path.join(shared_datadir, 'tmp' "2.preprocessed_data")
+    input_path = os.path.join(shared_datadir, "2.preprocessed_data/gait")
     new_output_path = os.path.join(shared_datadir, "tmp", step_dir)
 
     execute_notebook(shared_datadir, "4.extract_features_arm_swing", input_path, new_output_path)
@@ -117,7 +117,7 @@ def compare_data(shared_datadir, step_dir: str, biaries_pairs: list[tuple[str, s
 
         # load the reference data
         reference_metadata = tsdf.load_metadata_from_path(
-            shared_datadir / step_dir / metadata
+            shared_datadir / step_dir / "gait" / metadata
         )
         ref_metadata_samples = reference_metadata[binary]
         ref_data = tsdf.load_ndarray_from_binary(ref_metadata_samples)

@@ -59,5 +59,4 @@ def compare_data(shared_datadir, step_dir: str, biaries_pairs: list[tuple[str, s
 
         print(original_data.shape, ref_data.shape)
         # Check if the data is the same
-        print("Max difference is: " + np.max(np.abs(original_data - ref_data)))
         assert np.allclose(original_data, ref_data, tolerance, abs_tol)
