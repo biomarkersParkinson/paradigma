@@ -19,7 +19,7 @@ def test_imu_preprocessed(shared_datadir):
     The initial test to check if the preprocessing function works as expected. It checks the output dimensions and the type of the output.
     """
     metadata_dict = tsdf.load_metadata_from_path(
-        shared_datadir / "1.sensor_data/gait/PPG_meta.json"
+        shared_datadir / "1.sensor_data/ppg/PPG_meta.json"
     )
 
     # Retrieve the metadata object we want, using the name of the binary as key
@@ -49,7 +49,7 @@ def test_imu_preprocessing_outputs(shared_datadir):
     compare_data(shared_datadir, step_dir, binaries_pairs)
 
 
-def test_extract_features_gait(shared_datadir):
+def test_extract_features_gait_output(shared_datadir):
     """
     This function is used to evaluate the output of the gait feature extraction. It evaluates it by comparing the output to a reference output.
     """
@@ -70,7 +70,7 @@ def test_extract_features_gait(shared_datadir):
     compare_data(shared_datadir, step_dir, binaries_pairs)
 
 
-def test_extract_features_arm_swing(shared_datadir):
+def test_extract_features_arm_swing_output(shared_datadir):
     """
     This function is used to evaluate the output of the arm swing feature extraction. It evaluates it by comparing the output to a reference output.
     """
