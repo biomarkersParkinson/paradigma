@@ -58,8 +58,7 @@ def test_2_extract_features_gait_output(shared_datadir):
 
     # Temporary path to store the output of the notebook
     input_path = os.path.join(shared_datadir, "2.preprocessed_data/gait")
-    tmp_output_folder = create_tmp_folder_if_not_exists(shared_datadir, "tmp")
-    new_output_path = os.path.join(tmp_output_folder, step_dir)
+    
 
     execute_notebook(shared_datadir, "2.extract_features_gait", input_path, new_output_path)
 
@@ -80,7 +79,8 @@ def test_4_extract_features_arm_swing_output(shared_datadir):
 
     # Temporary path to store the output of the notebook
     input_path = os.path.join(shared_datadir, "2.preprocessed_data/gait")
-    new_output_path = os.path.join(shared_datadir, "tmp", step_dir)
+    tmp_output_folder = create_tmp_folder_if_not_exists(shared_datadir, "tmp")
+    new_output_path = os.path.join(tmp_output_folder, step_dir)
 
     execute_notebook(shared_datadir, "4.extract_features_arm_swing", input_path, new_output_path)
     binaries_pairs: list[tuple[str, str]] = [
