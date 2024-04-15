@@ -39,8 +39,8 @@ def test_imu_preprocessing_outputs(shared_datadir):
 
     # pairs of metadata and binary files that are used in the tests
     binaries_pairs: list[tuple[str, str]] = [
-        ("acceleration_meta.json", "acceleration_samples.bin"),
-        ("acceleration_meta.json", "acceleration_time.bin"),
+        ("accelerometer_meta.json", "accelerometer_samples.bin"),
+        ("accelerometer_meta.json", "accelerometer_time.bin"),
         # ("gyroscope_meta.json", "gyroscope_samples.bin"),
         # ("gyroscope_meta.json", "gyroscope_time.bin"),
     ]
