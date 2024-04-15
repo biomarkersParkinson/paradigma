@@ -32,7 +32,7 @@ def test_1_imu_preprocessing_outputs(shared_datadir):
     # Notebook step
     step_dir: str = "2.preprocessed_data"
 
-    input_path = os.path.join(shared_datadir, '1.sensor_data/imu')
+    input_path = os.path.join(shared_datadir, "1.sensor_data","imu")
     tmp_output_folder = create_tmp_folder_if_not_exists(shared_datadir, "tmp")
     new_output_path = os.path.join(tmp_output_folder, step_dir)
 
@@ -57,7 +57,7 @@ def test_2_extract_features_gait_output(shared_datadir):
     step_dir: str = "3.extracted_features"
 
     # Temporary path to store the output of the notebook
-    input_path = os.path.join(shared_datadir, "2.preprocessed_data/gait")
+    input_path = os.path.join(shared_datadir, "2.preprocessed_data","gait")
     tmp_output_folder = create_tmp_folder_if_not_exists(shared_datadir, "tmp")
     new_output_path = os.path.join(tmp_output_folder, step_dir)
 
@@ -69,6 +69,29 @@ def test_2_extract_features_gait_output(shared_datadir):
     ]
     compare_data(shared_datadir, step_dir, binaries_pairs)
 
+
+
+def test_3_gait_detection_output(shared_datadir):
+    """
+    This function is used to evaluate the output of the gait detection. It evaluates it by comparing the output to a reference output.
+    """
+
+    # Notebook step
+    step_dir: str = "4.predictions"
+
+    # Temporary path to store the output of the notebook
+    
+    input_path = os.path.join(shared_datadir, "3.extracted_features","gait")
+    tmp_output_folder = create_tmp_folder_if_not_exists(shared_datadir, "tmp")
+    new_output_path = os.path.join(tmp_output_folder, step_dir)
+
+    execute_notebook(shared_datadir, "3.gait_detection", input_path, new_output_path)
+
+    binaries_pairs: list[tuple[str, str]] = [
+        ("gait_meta.json", "gait_time.bin"),
+        ("gait_meta.json", "gait_values.bin"),
+    ]
+    compare_data(shared_datadir, step_dir, binaries_pairs)
 
 def test_4_extract_features_arm_swing_output(shared_datadir):
     """
@@ -110,10 +133,11 @@ def execute_notebook(shared_datadir, notebook_name:str, input_dir: str, output_d
     # compute shared_datadir / "tmp" / step_dir / metadata
     notebook_output = f"{shared_datadir}/tmp/{notebook_name}.ipynb"
 
+    path_to_data = f"{shared_datadir}"
     pm.execute_notebook(
         notebook_path,
         notebook_output,
-        parameters=dict(input_path = input_dir,output_path = output_dir),
+        parameters=dict(input_path = input_dir,output_path = output_dir, path_to_data=path_to_data),
     )
     
 
