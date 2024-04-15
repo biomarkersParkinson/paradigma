@@ -8,6 +8,8 @@
     "end_iso8601": "27-Jun-2021 17:04:31 UTC",
     "rows": 73079,
     "endianness": "little",
+    "data_type": "float",
+    "bits": 64,
     "meta_filename": "acceleration_meta.json",
     "sensors": [
         {
@@ -24,8 +26,6 @@
         },
         {
             "file_name": "acceleration_samples.bin",
-            "data_type": "float",
-            "bits": 64,
             "channels": [
                 "acceleration_x",
                 "grav_acceleration_x",

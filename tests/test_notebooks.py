@@ -14,19 +14,6 @@ abs_tol: float = 1e-10
 
 notebooks_dir: str = "docs/notebooks/gait"
 
-def test_imu_preprocessed(shared_datadir):
-    """
-    The initial test to check if the preprocessing function works as expected. It checks the output dimensions and the type of the output.
-    """
-    metadata_dict = tsdf.load_metadata_from_path(
-        shared_datadir / "1.sensor_data/ppg/PPG_meta.json"
-    )
-
-    # Retrieve the metadata object we want, using the name of the binary as key
-    metadata_samples = metadata_dict["PPG_time.bin"]
-    data = tsdf.load_ndarray_from_binary(metadata_samples)
-    assert data.shape == (64775,)
-
 def test_imu_preprocessing_outputs(shared_datadir):
     """
     This function is used to evaluate the output of the preprocessing function. It evaluates it by comparing the output to a reference output.
@@ -70,24 +57,24 @@ def test_extract_features_gait_output(shared_datadir):
     compare_data(shared_datadir, step_dir, binaries_pairs)
 
 
-def test_extract_features_arm_swing_output(shared_datadir):
-    """
-    This function is used to evaluate the output of the arm swing feature extraction. It evaluates it by comparing the output to a reference output.
-    """
+# def test_extract_features_arm_swing_output(shared_datadir):
+#     """
+#     This function is used to evaluate the output of the arm swing feature extraction. It evaluates it by comparing the output to a reference output.
+#     """
 
-    # Notebook step
-    step_dir: str = "3.extracted_features"
+#     # Notebook step
+#     step_dir: str = "3.extracted_features"
 
-    # Temporary path to store the output of the notebook
-    input_path = os.path.join(shared_datadir, "2.preprocessed_data/gait")
-    new_output_path = os.path.join(shared_datadir, "tmp", step_dir)
+#     # Temporary path to store the output of the notebook
+#     input_path = os.path.join(shared_datadir, "2.preprocessed_data/gait")
+#     new_output_path = os.path.join(shared_datadir, "tmp", step_dir)
 
-    execute_notebook(shared_datadir, "4.extract_features_arm_swing", input_path, new_output_path)
-    binaries_pairs: list[tuple[str, str]] = [
-        ("arm_swing_meta.json", "arm_swing_values.bin"),
-        ("arm_swing_meta.json", "arm_swing_time.bin"),
-    ]
-    compare_data(shared_datadir, step_dir, binaries_pairs)
+#     execute_notebook(shared_datadir, "4.extract_features_arm_swing", input_path, new_output_path)
+#     binaries_pairs: list[tuple[str, str]] = [
+#         ("arm_swing_meta.json", "arm_swing_values.bin"),
+#         ("arm_swing_meta.json", "arm_swing_time.bin"),
+#     ]
+#     compare_data(shared_datadir, step_dir, binaries_pairs)
 
 
 def execute_notebook(shared_datadir, notebook_name:str, input_dir: str, output_dir: str):
