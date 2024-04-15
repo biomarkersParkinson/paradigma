@@ -13,8 +13,8 @@
 %% Initalization
 % Setting data paths + extracting metafilenames already
 clear all; close all; clc
-addpath(genpath('..\..\..\PPG_pipeline'))       % Add git repository to the path
-addpath(genpath("..\..\..\\tsdf4matlab"))       % Add wrapper to the path
+addpath(genpath('..\..\..\dbpd-toolbox'))       % Add git repository to the path
+addpath(genpath("..\..\..\tsdf4matlab"))       % Add wrapper to the path
 
 unix_ticks_ms = 1000.0;
 fs_ppg = 30;     % Establish the sampling rate desired for resampling PPG --> now chosen to be fixed on 30 Hz
@@ -22,13 +22,7 @@ fs_imu = 100;    % Establish the sampling rate desired for resampling IMU --> no
 
 raw_data_root = '..\..\tests\data\1.sensor_data\';
 ppp_data_path_ppg = [raw_data_root 'PPG\'];
-meta_segments_list_ppg = dir(fullfile(ppp_data_path_ppg, 'PPG_meta.json'));   % create the segment list
-
 ppp_data_path_imu = [raw_data_root 'IMU\'];
-meta_segments_list_imu = dir(fullfile(ppp_data_path_imu, 'IMU_meta.json'));   % create the segment list
-
-meta_filenames_ppg = {meta_segments_list_ppg.name}; % get names
-meta_filenames_imu = {meta_segments_list_imu.name}; % get names
 
 %% 1. Loading all metadata of PPG and IMU
 meta_ppg = tsdf_scan_meta(ppp_data_path_ppg);            % tsdf_scan_meta returns metafile struct containing information of all metafiles from all patients in tsdf_dirlist
@@ -46,8 +40,8 @@ n_files_sync = length(segment_ppg); % For test data this is 1 for final applicat
 % end
 
 n = 1;
-meta_path_ppg = meta_ppg(segment_ppg{n}).tsdf_meta_fullpath;
-meta_path_imu = meta_imu(segment_imu{n}).tsdf_meta_fullpath;
+meta_path_ppg = meta_ppg(segment_ppg(n)).tsdf_meta_fullpath;
+meta_path_imu = meta_imu(segment_imu(n)).tsdf_meta_fullpath;
 
 [metadata_list_ppg, data_list_ppg] = load_tsdf_metadata_from_path(meta_path_ppg);
 [metadata_list_imu, data_list_imu] = load_tsdf_metadata_from_path(meta_path_imu);
@@ -96,7 +90,6 @@ ts_sync = ts_ppg + tr_ppg(1)*unix_ticks_ms;   % update ts_sync by the first rela
 
 tr_ppg = tr_ppg - tr_ppg(1);   % update tr_ppg by the first relative time point containing both PPG and IMU --> should be done after ts_sync is updated
 tr_imu = tr_imu - tr_imu(1);  % update tr_imu by the first relative time point containing both PPG and IMU
-
 
 %% 5. Data preprocessing
 %%--Preprocessing both IMU and PPG%%  
@@ -175,7 +168,6 @@ mat_metadata_file_name = "acceleration_meta.json";
 save_tsdf_data(meta_pre_acc, data_pre_acc, location, mat_metadata_file_name)
 %% 6. Feature extraction
 % Create loop for 6s epochs with 5s overlap
-count = 1;
 epoch_length = 6; % in seconds
 overlap = 5; % in seconds
 
@@ -198,8 +190,8 @@ nfft_acc = 0:f_bin_res:fs_imu/2;
 
 features_ppg_scaled = [];
 feature_acc = [];
-t_unix_feat_ppg = [];
-t_unix_feat_acc = [];
+t_unix_feat_total = [];
+count = 0;
 acc_idx = 1;
 
 % Load classifier with corresponding mu and sigma to z-score the features
@@ -210,9 +202,14 @@ classifier = LR_model.classifier;
 
 % DESCRIBE THE LOOPING OVER 6s SEGMENTS FOR BOTH PPG AND IMU AND CALCULATE FEATURES
 for i = 1:samples_shift_ppg:(length(v_ppg_pre) - samples_per_epoch_ppg + 1)
-    
         ppg_segment = v_ppg_pre(i:(i + samples_per_epoch_ppg - 1));
-        acc_segment = v_acc_pre(acc_idx:(acc_idx+samples_per_epoch_acc-1),:);
+        if acc_idx + samples_per_epoch_acc - 1 > length(v_acc_pre)
+                break
+        else
+            acc_segment = v_acc_pre(acc_idx:(acc_idx+samples_per_epoch_acc-1),:);
+        end
+
+        count = count + 1;
   
         %%--------Feature extraction + scaling--------%%
         % calculate features using Features_final.m
@@ -229,20 +226,19 @@ for i = 1:samples_shift_ppg:(length(v_ppg_pre) - samples_per_epoch_ppg + 1)
         
         feature_acc(count,1) = acc_feature(f1, PSD_imu, f2, PSD_ppg);
         
-        t_unix_feat_ppg(count,1) = tr_ppg_pre(i)*unix_ticks_ms + t_ppg(1);  % Save in absolute unix time ms
-        t_unix_feat_acc(count,1) = tr_acc_pre(acc_idx)*unix_ticks_ms + t_imu(1);
-
+        t_unix_feat_total(count,1) = tr_ppg_pre(i)*unix_ticks_ms + t_ppg(1);  % Save in absolute unix time ms
         acc_idx = acc_idx + samples_shift_acc; % update IMU_idx 
-        count = count + 1;
 end
 
-t_epochs_start = t_unix_feat_ppg(1);
-t_epochs_end = t_unix_feat_ppg(1) + tr_ppg_pre(i+samples_shift_ppg*overlap-1)*unix_ticks_ms;
+v_sync_ppg_total(1,1) = ppg_indices(1); % start index --> needed for HR pipeline
+v_sync_ppg_total(1,2) = ppg_indices(2); % end index --> needed for HR pipeline
+v_sync_ppg_total(1,3) = segment_ppg(1);  % Segment index --> needed for HR pipeline --> in loop this is n
+v_sync_ppg_total(1,4) = count; % Number of epochs in the segment --> needed for HR pipeline
 
 
 %% 6a. Write TSDF PPG feature extraction output (ppg features)
 location = "..\..\tests\data\3.extracted_features\ppg";
-data_feat_ppg{1} = t_unix_feat_ppg;
+data_feat_ppg{1} = t_unix_feat_total;
 data_feat_ppg{2} = single(features_ppg_scaled);
 
 metafile_pre_template = metadata_list_ppg{values_idx_ppg};
@@ -274,7 +270,7 @@ save_tsdf_data(meta_feat_ppg, data_feat_ppg, location, mat_metadata_file_name)
 
 %% 6b. Write TSDF PPG preprocessing output (accelerometer feature)
 location = "..\..\tests\data\3.extracted_features\ppg";
-data_feat_acc{1} = t_unix_feat_acc;
+data_feat_acc{1} = t_unix_feat_total;
 data_feat_acc{2} = single(feature_acc);
 metafile_pre_template = metadata_list_ppg{values_idx_ppg};
 
@@ -303,20 +299,23 @@ meta_feat_acc{2} = metafile_values;
 mat_metadata_file_name = "feature_acc_meta.json";
 save_tsdf_data(meta_feat_acc, data_feat_acc, location, mat_metadata_file_name)
 %% 7. Classification
-threshold_acc = 0.15; % to be determined!!
+threshold_acc = 0.13; % Final threshold
 [~, ppg_post_prob] = predict(classifier, features_ppg_scaled);       % Calculate posterior probability using LR model 
 ppg_post_prob_HQ = ppg_post_prob(:,1);
 acc_label = feature_acc < threshold_acc; % logical (boolean) for not surpassing threshold_acc for imu feature. imu_label is one if we don't suspect the epoch to be disturbed by periodic movements! That is in line with 1 for HQ PPG
+
 %% 7a. Storage of classification in tsdf
-data_class{1} = t_unix_feat_ppg;
+data_class{1} = int32(t_unix_feat_total/unix_ticks_ms); % 32 bit integer and store it in unix seconds
 data_class{2} = single(ppg_post_prob_HQ);  % 32 bit float
-data_class{3} = int8(acc_label);
+data_class{3} = int8(acc_label); % 8 bit integer
+data_class{4} = int32(v_sync_ppg_total); % 64 bit integer
+data_class{5} = single(feature_acc); % 32 bit float
 
 location = "..\..\tests\data\4.predictions\ppg";
 metafile_pre_template = metadata_list_ppg{values_idx_ppg};
 
-start_time_iso = datetime(ts_sync/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');
-end_time_iso = datetime((ts_sync+tr_acc_pre(end)*unix_ticks_ms)/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');
+start_time_iso = datetime(t_unix_feat_total(1)/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');
+end_time_iso = datetime(t_unix_feat_total(end)/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');    % Convert the start and end time to ISO8601 format
 
 metafile_pre_template.start_iso8601 = string(start_time_iso);
 metafile_pre_template.end_iso8601 = string(end_time_iso);
@@ -327,10 +326,11 @@ metafile_pre_template.end_iso8601 = string(end_time_iso);
 metafile_time = metafile_pre_template;         % time vector metadata list
 metafile_values_ppg = metafile_pre_template;
 metafile_values_imu = metafile_pre_template; 
+metafile_sync = metafile_pre_template;    
+metafile_values_imu_feat = metafile_pre_template;
 
 metafile_time.channels = {'time'};
 metafile_time.units = {'time_absolute_unix_ms'};
-metafile_time.freq_sampling_original = fs_ppg_est;  % For now ppg, but it is not relevant right??
 metafile_time.file_name = 'classification_sqa_time.bin';
 
 metafile_values_ppg.channels = {'post probability'};
@@ -343,9 +343,20 @@ metafile_values_imu.units = {'boolean_num'};
 metafile_values_imu.freq_sampling_original = fs_imu_est; % Sampling rate in Hz
 metafile_values_imu.file_name = 'classification_sqa_imu.bin';
 
+metafile_sync.channels = {'ppg start index', 'ppg end index', 'ppg segment index', 'number of windows'};  % Define the channels
+metafile_sync.units = {'index', 'index', 'index', 'none'};
+metafile_sync.file_name = 'classification_sqa_sync.bin';
+
+metafile_values_imu_feat.channels = {'Relative power'};
+metafile_values_imu_feat.units = {'none'};
+metafile_values_imu_feat.file_name = 'classification_sqa_feat_imu.bin';
+metafile_values_imu_feat.bin_width = 2*f_bin_res;  % Save the bin width of the relative power ratio feature
+
 meta_class{1} = metafile_time;
 meta_class{2} = metafile_values_ppg;
 meta_class{3} = metafile_values_imu;
+meta_class{4} = metafile_sync;
+meta_class{5} = metafile_values_imu_feat;
 
 mat_metadata_file_name = "classification_sqa_meta.json";
 save_tsdf_data(meta_class, data_class, location, mat_metadata_file_name)

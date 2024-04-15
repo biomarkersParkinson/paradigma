@@ -1,4 +1,5 @@
-function [segment_ppg, segment_imu] = synchronization(ppg_meta, imu_meta)
+function [segment_ppg_total, segment_imu_total] = synchronization(ppg_meta, imu_meta)
+% K.I. Veldkamp, PhD student AI4P, 29-02-24
 % This function checks data availability between PPG and IMU and returns
 % the synchronized indices
 
@@ -51,13 +52,25 @@ if ~isempty(corr_indices)
 end
 
 % Extract the synchronized indices for each segment
-segment_ppg = cell(size(corr_start_end,1), 1);
-segment_imu = cell(size(corr_start_end,1), 1);
+segment_ppg_total = [];
+segment_imu_total = [];
 for i = 1:size(corr_start_end,1)
     start_idx = corr_start_end(i,1);
     end_idx = corr_start_end(i,2);
-    segment_ppg{i} = unique(data_presence_ppg_idx(start_idx:end_idx));
-    segment_imu{i} = unique(data_presence_imu_idx(start_idx:end_idx));
+    segment_ppg = unique(data_presence_ppg_idx(start_idx:end_idx))';
+    segment_imu = unique(data_presence_imu_idx(start_idx:end_idx))';
+    if length(segment_ppg) > 1 & length(segment_imu) == 1
+        segment_ppg_total = [segment_ppg_total; segment_ppg];
+        segment_imu_total = [segment_imu_total; segment_imu*ones(length(segment_ppg),1)];
+    elseif length(segment_ppg) == 1 & length(segment_imu) > 1
+        segment_ppg_total = [segment_ppg_total; segment_ppg*ones(length(segment_imu),1)];
+        segment_imu_total = [segment_imu_total; segment_imu];
+    elseif length(segment_ppg) == length(segment_imu)
+        segment_ppg_total = [segment_ppg_total; segment_ppg];
+        segment_imu_total = [segment_imu_total; segment_imu];
+    else
+        continue
+    end
 end
 
 end
