@@ -12,6 +12,9 @@ import tsdf
 tolerance: float = 1e-8
 abs_tol: float = 1e-10
 
+# Path to the notebooks
+notebooks_dir: str = "docs/notebooks/gait"
+
 def create_tmp_folder_if_not_exists(base_path, folder_name):
     """
     This function checks if a folder exists at the specified path and creates it if it does not exist.
@@ -22,9 +25,7 @@ def create_tmp_folder_if_not_exists(base_path, folder_name):
     return tmp_folder_path
 
 
-notebooks_dir: str = "docs/notebooks/gait"
-
-def test_imu_preprocessing_outputs(shared_datadir):
+def test_1_imu_preprocessing_outputs(shared_datadir):
     """
     This function is used to evaluate the output of the preprocessing function. It evaluates it by comparing the output to a reference output.
     """
@@ -47,7 +48,7 @@ def test_imu_preprocessing_outputs(shared_datadir):
     compare_data(shared_datadir, step_dir, binaries_pairs)
 
 
-def test_extract_features_gait_output(shared_datadir):
+def test_2_extract_features_gait_output(shared_datadir):
     """
     This function is used to evaluate the output of the gait feature extraction. It evaluates it by comparing the output to a reference output.
     """
@@ -69,27 +70,41 @@ def test_extract_features_gait_output(shared_datadir):
     compare_data(shared_datadir, step_dir, binaries_pairs)
 
 
-# def test_extract_features_arm_swing_output(shared_datadir):
-#     """
-#     This function is used to evaluate the output of the arm swing feature extraction. It evaluates it by comparing the output to a reference output.
-#     """
+def test_4_extract_features_arm_swing_output(shared_datadir):
+    """
+    This function is used to evaluate the output of the arm swing feature extraction. It evaluates it by comparing the output to a reference output.
+    """
 
-#     # Notebook step
-#     step_dir: str = "3.extracted_features"
+    # Notebook step
+    step_dir: str = "3.extracted_features"
 
-#     # Temporary path to store the output of the notebook
-#     input_path = os.path.join(shared_datadir, "2.preprocessed_data/gait")
-#     new_output_path = os.path.join(shared_datadir, "tmp", step_dir)
+    # Temporary path to store the output of the notebook
+    input_path = os.path.join(shared_datadir, "2.preprocessed_data/gait")
+    new_output_path = os.path.join(shared_datadir, "tmp", step_dir)
 
-#     execute_notebook(shared_datadir, "4.extract_features_arm_swing", input_path, new_output_path)
-#     binaries_pairs: list[tuple[str, str]] = [
-#         ("arm_swing_meta.json", "arm_swing_values.bin"),
-#         ("arm_swing_meta.json", "arm_swing_time.bin"),
-#     ]
-#     compare_data(shared_datadir, step_dir, binaries_pairs)
+    execute_notebook(shared_datadir, "4.extract_features_arm_swing", input_path, new_output_path)
+    binaries_pairs: list[tuple[str, str]] = [
+        ("arm_swing_meta.json", "arm_swing_values.bin"),
+        ("arm_swing_meta.json", "arm_swing_time.bin"),
+    ]
+    compare_data(shared_datadir, step_dir, binaries_pairs)
 
 
 def execute_notebook(shared_datadir, notebook_name:str, input_dir: str, output_dir: str):
+    """
+    This function is used to execute a notebook.
+
+    Parameters
+    ----------
+    shared_datadir : str
+        The path to the shared data directory.
+    notebook_name : str
+        The name of the notebook to execute.
+    input_dir : str
+        The path to the input directory.
+    output_dir : str
+        The path to the output directory.
+    """
     notebook_path = f"{notebooks_dir}/{notebook_name}.ipynb"
     # compute shared_datadir / "tmp" / step_dir / metadata
     notebook_output = f"{shared_datadir}/tmp/{notebook_name}.ipynb"
