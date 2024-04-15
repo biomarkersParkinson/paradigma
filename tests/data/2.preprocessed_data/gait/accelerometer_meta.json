@@ -10,13 +10,13 @@
     "endianness": "little",
     "data_type": "float",
     "bits": 64,
-    "meta_filename": "acceleration_meta.json",
+    "meta_filename": "accelerometer_meta.json",
     "sensors": [
         {
             "scale_factors": [
                 1
             ],
-            "file_name": "acceleration_time.bin",
+            "file_name": "accelerometer_time.bin",
             "channels": [
                 "time"
             ],
@@ -25,14 +25,14 @@
             ]
         },
         {
-            "file_name": "acceleration_samples.bin",
+            "file_name": "accelerometer_samples.bin",
             "channels": [
-                "acceleration_x",
-                "grav_acceleration_x",
-                "acceleration_y",
-                "grav_acceleration_y",
-                "acceleration_z",
-                "grav_acceleration_z"
+                "accelerometer_x",
+                "grav_accelerometer_x",
+                "accelerometer_y",
+                "grav_accelerometer_y",
+                "accelerometer_z",
+                "grav_accelerometer_z"
             ],
             "units": [
                 "g",

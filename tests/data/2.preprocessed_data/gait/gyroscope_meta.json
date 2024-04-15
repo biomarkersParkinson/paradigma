@@ -27,9 +27,9 @@
         {
             "file_name": "gyroscope_samples.bin",
             "channels": [
-                "rotation_x",
-                "rotation_y",
-                "rotation_z"
+                "gyroscope_x",
+                "gyroscope_y",
+                "gyroscope_z"
             ],
             "units": [
                 "deg/s",

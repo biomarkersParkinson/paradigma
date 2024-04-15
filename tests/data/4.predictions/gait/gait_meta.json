@@ -10,7 +10,7 @@
     "endianness": "little",
     "data_type": "float",
     "bits": 64,
-    "meta_filename": "acceleration_meta.json",
+    "meta_filename": "accelerometer_meta.json",
     "sensors": [
         {
             "scale_factors": [
