@@ -12,6 +12,16 @@ import tsdf
 tolerance: float = 1e-8
 abs_tol: float = 1e-10
 
+def create_tmp_folder_if_not_exists(base_path, folder_name):
+    """
+    This function checks if a folder exists at the specified path and creates it if it does not exist.
+    """
+    tmp_folder_path = os.path.join(base_path, folder_name)
+    if not os.path.exists(tmp_folder_path):
+        os.makedirs(tmp_folder_path)
+    return tmp_folder_path
+
+
 notebooks_dir: str = "docs/notebooks/gait"
 
 def test_imu_preprocessing_outputs(shared_datadir):
@@ -22,7 +32,8 @@ def test_imu_preprocessing_outputs(shared_datadir):
     step_dir: str = "2.preprocessed_data"
 
     input_path = os.path.join(shared_datadir, '1.sensor_data/imu')
-    new_output_path = os.path.join(shared_datadir, "tmp", step_dir)
+    tmp_output_folder = create_tmp_folder_if_not_exists(shared_datadir, "tmp")
+    new_output_path = os.path.join(tmp_output_folder, step_dir)
 
     execute_notebook(shared_datadir, "1.preprocess_imu", input_path, new_output_path)
 
@@ -46,7 +57,8 @@ def test_extract_features_gait_output(shared_datadir):
 
     # Temporary path to store the output of the notebook
     input_path = os.path.join(shared_datadir, "2.preprocessed_data/gait")
-    new_output_path = os.path.join(shared_datadir, "tmp", step_dir)
+    tmp_output_folder = create_tmp_folder_if_not_exists(shared_datadir, "tmp")
+    new_output_path = os.path.join(tmp_output_folder, step_dir)
 
     execute_notebook(shared_datadir, "2.extract_features_gait", input_path, new_output_path)
 
