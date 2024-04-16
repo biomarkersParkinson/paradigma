@@ -17,6 +17,29 @@ abs_tol: float = 1e-10
 notebooks_dir: str = "docs/notebooks/gait"
 
 
+# Mappings between the metadata and binary files
+
+gait_binaries_pairs: list[tuple[str, str]] = [
+        ("gait_meta.json", "gait_time.bin"),
+        ("gait_meta.json", "gait_values.bin"),
+    ]
+
+arm_swing_binaries_pairs: list[tuple[str, str]] = [
+        ("arm_swing_meta.json", "arm_swing_values.bin"),
+        ("arm_swing_meta.json", "arm_swing_time.bin"),
+    ]
+
+accelerometer_binaries_pairs: list[tuple[str, str]] = [
+        ("accelerometer_meta.json", "accelerometer_samples.bin"),
+        ("accelerometer_meta.json", "accelerometer_time.bin"),
+    ]
+gyroscope_binaries_pairs: list[tuple[str, str]] = [
+        ("gyroscope_meta.json", "gyroscope_samples.bin"),
+        ("gyroscope_meta.json", "gyroscope_time.bin"),
+    ]
+imu_binaries_pairs: list[tuple[str, str]] = accelerometer_binaries_pairs + gyroscope_binaries_pairs
+
+
 def create_tmp_folder_if_not_exists(base_path: str):
     """
     This function checks if a folder exists at the specified path and creates it if it does not exist.
@@ -53,15 +76,7 @@ def test_1_imu_preprocessing_outputs(shared_datadir):
     output_path = os.path.join(tmp_output_folder, notebook_output_dir_name)
 
     execute_notebook(shared_datadir, notebook_name, input_path, output_path)
-
-    # pairs of metadata and binary files that are used in the tests
-    binaries_pairs: list[tuple[str, str]] = [
-        ("accelerometer_meta.json", "accelerometer_samples.bin"),
-        ("accelerometer_meta.json", "accelerometer_time.bin"),
-        ("gyroscope_meta.json", "gyroscope_samples.bin"),
-        ("gyroscope_meta.json", "gyroscope_time.bin"),
-    ]
-    compare_data(shared_datadir, notebook_output_dir_name, binaries_pairs)
+    compare_data(shared_datadir, notebook_output_dir_name, imu_binaries_pairs)
 
 
 def test_2_extract_features_gait_output(shared_datadir):
@@ -81,12 +96,7 @@ def test_2_extract_features_gait_output(shared_datadir):
     output_path = os.path.join(tmp_output_folder, notebook_output_dir_name)
 
     execute_notebook(shared_datadir, notebook_name, input_path, output_path)
-
-    binaries_pairs: list[tuple[str, str]] = [
-        ("gait_meta.json", "gait_time.bin"),
-        ("gait_meta.json", "gait_values.bin"),
-    ]
-    compare_data(shared_datadir, notebook_output_dir_name, binaries_pairs)
+    compare_data(shared_datadir, notebook_output_dir_name, gait_binaries_pairs)
 
 
 def test_3_gait_detection_output(shared_datadir):
@@ -108,11 +118,8 @@ def test_3_gait_detection_output(shared_datadir):
 
     execute_notebook(shared_datadir, notebook_name, input_path, output_path)
 
-    binaries_pairs: list[tuple[str, str]] = [
-        ("gait_meta.json", "gait_time.bin"),
-        ("gait_meta.json", "gait_values.bin"),
-    ]
-    compare_data(shared_datadir, notebook_output_dir_name, binaries_pairs)
+    
+    compare_data(shared_datadir, notebook_output_dir_name, arm_swing_binaries_pairs)
 
 
 def test_4_extract_features_arm_swing_output(shared_datadir):
@@ -132,11 +139,7 @@ def test_4_extract_features_arm_swing_output(shared_datadir):
     output_path = os.path.join(tmp_output_folder, notebook_output_dir_name)
 
     execute_notebook(shared_datadir, notebook_name, input_path, output_path)
-    binaries_pairs: list[tuple[str, str]] = [
-        ("arm_swing_meta.json", "arm_swing_values.bin"),
-        ("arm_swing_meta.json", "arm_swing_time.bin"),
-    ]
-    compare_data(shared_datadir, notebook_output_dir_name, binaries_pairs)
+    compare_data(shared_datadir, notebook_output_dir_name, arm_swing_binaries_pairs)
 
 
 def test_5_arm_swing_detection_output(shared_datadir):
@@ -157,19 +160,13 @@ def test_5_arm_swing_detection_output(shared_datadir):
     output_path = os.path.join(tmp_output_folder, notebook_output_dir_name)
 
     execute_notebook(shared_datadir, notebook_name, input_path, output_path)
-
-    binaries_pairs: list[tuple[str, str]] = [
-        ("arm_swing_meta.json", "arm_swing_values.bin"),
-        ("arm_swing_meta.json", "arm_swing_time.bin"),
-    ]
-    compare_data(shared_datadir, notebook_output_dir_name, binaries_pairs)
+    compare_data(shared_datadir, notebook_output_dir_name, arm_swing_binaries_pairs)
 
 
 def test_6_arm_swing_quantification_output(shared_datadir):
     """
     This function is used to evaluate the output of the arm swing quantification. It evaluates it by comparing the output to a reference output.
     """
-    shared_datadir = Path("/Users/vedran/git/biomarkers_repo/dbpd-toolbox/tests/data")
 
     # Notebook step
     notebook_input_dir_name: str = "3.extracted_features"
@@ -183,11 +180,7 @@ def test_6_arm_swing_quantification_output(shared_datadir):
     output_path = os.path.join(tmp_output_folder, notebook_output_dir_name)
 
     execute_notebook(shared_datadir, notebook_name, input_path, output_path)
-    binaries_pairs: list[tuple[str, str]] = [
-        ("arm_swing_meta.json", "arm_swing_values.bin"),
-        ("arm_swing_meta.json", "arm_swing_time.bin"),
-    ]
-    compare_data(shared_datadir, notebook_output_dir_name, binaries_pairs)
+    compare_data(shared_datadir, notebook_output_dir_name, arm_swing_binaries_pairs)
 
 
 def execute_notebook(
