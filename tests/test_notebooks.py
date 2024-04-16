@@ -117,9 +117,7 @@ def test_3_gait_detection_output(shared_datadir):
     output_path = os.path.join(tmp_output_folder, notebook_output_dir_name)
 
     execute_notebook(shared_datadir, notebook_name, input_path, output_path)
-
-    
-    compare_data(shared_datadir, notebook_output_dir_name, arm_swing_binaries_pairs)
+    compare_data(shared_datadir, notebook_output_dir_name, gait_binaries_pairs)
 
 
 def test_4_extract_features_arm_swing_output(shared_datadir):
