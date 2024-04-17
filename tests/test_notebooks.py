@@ -182,14 +182,14 @@ def test_6_arm_swing_quantification_output(shared_datadir):
 
 
 def execute_notebook(
-    shared_datadir, notebook_name: str, input_dir: str, output_dir: str
+    datadir:Path, notebook_name: str, input_dir: str, output_dir: str
 ):
     """
     This function is used to execute a notebook.
 
     Parameters
     ----------
-    shared_datadir : str
+    shared_datadir : Path
         The path to the shared data directory.
     notebook_name : str
         The name of the notebook to execute.
@@ -200,9 +200,9 @@ def execute_notebook(
     """
     notebook_path = f"{notebooks_dir}/{notebook_name}.ipynb"
     # compute shared_datadir / "tmp" / notebook_output_dir_name / metadata
-    notebook_output = f"{shared_datadir}/tmp/{notebook_name}.ipynb"
+    notebook_output = f"{datadir}/tmp/{notebook_name}.ipynb"
 
-    path_to_data = f"{shared_datadir}"
+    path_to_data = f"{datadir}"
     pm.execute_notebook(
         notebook_path,
         notebook_output,
@@ -213,29 +213,29 @@ def execute_notebook(
 
 
 def compare_data(
-    shared_datadir, notebook_output_dir_name: str, biaries_pairs: list[tuple[str, str]]
+    datadir: Path, notebook_output_dir_name: str, binaries_pairs: list[tuple[str, str]]
 ):
     """
     This function is used to evaluate the output of a notebook. It evaluates it by comparing the output to a reference output.
 
     Parameters
     ----------
-    shared_datadir : str
+    shared_datadir : Path
         The path to the shared data directory.
-    biaries_pairs : list[tuple[str, str]]
+    binaries_pairs : list[tuple[str, str]]
         The list of pairs of metadata and binary files to compare.
     """
-    for metadata, binary in biaries_pairs:
+    for metadata, binary in binaries_pairs:
 
         # load the reference data
         reference_metadata = tsdf.load_metadata_from_path(
-            shared_datadir / notebook_output_dir_name / "gait" / metadata
+            datadir / notebook_output_dir_name / "gait" / metadata
         )
         ref_metadata_samples = reference_metadata[binary]
         ref_data = tsdf.load_ndarray_from_binary(ref_metadata_samples)
         # load the generated data
         original_metadata = tsdf.load_metadata_from_path(
-            shared_datadir / "tmp" / notebook_output_dir_name / metadata
+            datadir / "tmp" / notebook_output_dir_name / metadata
         )
         original_metadata_samples = original_metadata[binary]
         original_data = tsdf.load_ndarray_from_binary(original_metadata_samples)
