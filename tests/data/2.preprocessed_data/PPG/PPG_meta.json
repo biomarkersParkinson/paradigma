@@ -7,22 +7,23 @@
     "start_iso8601": "27-Jun-2021 16:52:20 UTC",
     "end_iso8601": "27-Jun-2021 17:03:04 UTC",
     "scale_factors": 1,
-    "rows": 19338,
     "data_type": "float",
     "endianness": "little",
     "bits": 64,
-    "freq_sampling_original": 100.49069555614177,
+    "freq_sampling_original": 100.40200019609766,
     "sensors": [
         {
+            "rows": 1,
             "file_name": "PPG_time.bin",
             "channels": [
                 "time"
             ],
             "units": [
-                "ms"
+                "relative_ms"
             ]
         },
         {
+            "rows": 19338,
             "file_name": "PPG_samples.bin",
             "channels": [
                 "green"

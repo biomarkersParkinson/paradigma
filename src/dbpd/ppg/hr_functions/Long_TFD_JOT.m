@@ -30,7 +30,7 @@ count = 0;
 for i = 2:2:length(rel_ppg_tfd)/fs-4            % starting at 2 and ending at length -4 to discard the first and last 2 sec of the WVD which are influenced by boundary effects
     count = count + 1;
     rel_wvd_idx = ntime>=i & ntime<i+2;
-    HR_smooth_tfd(count) = 60*mean(k(k_idx(rel_wvd_idx))); 
+    HR_smooth_tfd(count,1) = 60*mean(k(k_idx(rel_wvd_idx))); 
 
 end
 
