@@ -10,6 +10,12 @@
 %   7. Classification
 
 
+% Architecture overview
+% The script implements the following steps:
+%   1. IMU and PPG preprocessing
+%   2. IMU and PPG feature extraction
+%   3. Signal quality assessment
+
 %% Initalization
 % Setting data paths + extracting metafilenames already
 clear all; close all; clc
