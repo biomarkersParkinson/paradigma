@@ -76,7 +76,7 @@ scale_factors = metadata_list_imu{values_idx_imu}.scale_factors';
 %% 4. Data synchronization on right indices
 fs_ppg_est = 1000/median(t_diff_ppg); 
 fs_imu_est = 1000/median(t_diff_imu);
-[ppg_indices, imu_indices] = extract_overlapping_segments(t_ppg, t_imu);
+[ppg_indices, imu_indices] = extract_overlapping_segments(t_ppg, t_imu); % List of two pairs of indices, e.g., [(0, 1000), (1, 2002)] - they might differ depending on the sampling rate
 
 %%---Update data vectors on synchronized labels---%%
 v_ppg = v_ppg(ppg_indices(1):ppg_indices(2));
@@ -91,7 +91,6 @@ ts_sync = ts_ppg + tr_ppg(1)*unix_ticks_ms;   % update ts_sync by the first rela
 tr_ppg = tr_ppg - tr_ppg(1);   % update tr_ppg by the first relative time point containing both PPG and IMU --> should be done after ts_sync is updated
 tr_imu = tr_imu - tr_imu(1);  % update tr_imu by the first relative time point containing both PPG and IMU
 
-
 %% 5. Data preprocessing
 %%--Preprocessing both IMU and PPG%%  
 v_acc_scaled = scale_factors(1,1:3).*double(v_imu(:,1:3));     % Extract only the accelerometer channels and multiply them using scale factors! --> now based on indices but preferably on channel names in metadata???
@@ -101,8 +100,8 @@ min_window_length = 30;
 if length(v_ppg) < fs_ppg * min_window_length || length(v_acc_scaled) < fs_imu * min_window_length    % Only resample, feature calculation and classification on arrays > 30s since these are required for HR(V) analysis later on --> maybe add this to the synchronization  
     warning('Sample is of insufficient length!')
 else
-    [v_ppg_pre, tr_ppg_pre] = preprocessing_ppg(tr_ppg, v_ppg, fs_ppg);   % call preprocessing_ppg.m function to preprocess every segment seperately
-    [v_acc_pre, tr_acc_pre] = preprocessing_imu(tr_imu, v_acc_scaled, fs_imu);   % List of call preprocessing_imu.m function to preprocess every segment seperately
+    [v_ppg_pre, tr_ppg_pre] = preprocessing_ppg(tr_ppg, v_ppg, fs_ppg);   %  2 matrices, one for ppg (Nx1) and for time (Nx1) 
+    [v_imu_pre, tr_imu_pre] = preprocessing_imu(tr_imu, v_imu_scaled, fs_imu);   % 2 matrices, one for accel imu (Nx3) and for time (Nx1)
 end
 
 %% 5a. Write TSDF PPG preprocessing output
@@ -169,7 +168,6 @@ mat_metadata_file_name = "acceleration_meta.json";
 save_tsdf_data(meta_pre_acc, data_pre_acc, location, mat_metadata_file_name)
 %% 6. Feature extraction
 % Create loop for 6s epochs with 5s overlap
-count = 1;
 epoch_length = 6; % in seconds
 overlap = 5; % in seconds
 
@@ -192,8 +190,8 @@ nfft_acc = 0:f_bin_res:fs_imu/2;
 
 features_ppg_scaled = [];
 feature_acc = [];
-t_unix_feat_ppg = [];
-t_unix_feat_acc = [];
+t_unix_feat_total = [];
+count = 0;
 acc_idx = 1;
 
 % Load classifier with corresponding mu and sigma to z-score the features
@@ -204,9 +202,14 @@ classifier = LR_model.classifier;
 
 % DESCRIBE THE LOOPING OVER 6s SEGMENTS FOR BOTH PPG AND IMU AND CALCULATE FEATURES
 for i = 1:samples_shift_ppg:(length(v_ppg_pre) - samples_per_epoch_ppg + 1)
-    
         ppg_segment = v_ppg_pre(i:(i + samples_per_epoch_ppg - 1));
-        acc_segment = v_acc_pre(acc_idx:(acc_idx+samples_per_epoch_acc-1),:);
+        if acc_idx + samples_per_epoch_acc - 1 > length(v_acc_pre)
+                break
+        else
+            acc_segment = v_acc_pre(acc_idx:(acc_idx+samples_per_epoch_acc-1),:);
+        end
+
+        count = count + 1;
   
         %%--------Feature extraction + scaling--------%%
         % calculate features using Features_final.m
@@ -223,18 +226,19 @@ for i = 1:samples_shift_ppg:(length(v_ppg_pre) - samples_per_epoch_ppg + 1)
         
         feature_acc(count,1) = acc_feature(f1, PSD_imu, f2, PSD_ppg);
         
-        t_unix_feat_ppg(count,1) = tr_ppg_pre(i)*unix_ticks_ms + t_ppg(1);  % Save in absolute unix time ms
-        t_unix_feat_acc(count,1) = tr_acc_pre(acc_idx)*unix_ticks_ms + t_imu(1);
-
+        t_unix_feat_total(count,1) = tr_ppg_pre(i)*unix_ticks_ms + t_ppg(1);  % Save in absolute unix time ms
         acc_idx = acc_idx + samples_shift_acc; % update IMU_idx 
-        count = count + 1;
 end
 
+v_sync_ppg_total(1,1) = ppg_indices(1); % start index --> needed for HR pipeline
+v_sync_ppg_total(1,2) = ppg_indices(2); % end index --> needed for HR pipeline
+v_sync_ppg_total(1,3) = segment_ppg(1);  % Segment index --> needed for HR pipeline --> in loop this is n
+v_sync_ppg_total(1,4) = count; % Number of epochs in the segment --> needed for HR pipeline
 
 
 %% 6a. Write TSDF PPG feature extraction output (ppg features)
 location = "..\..\tests\data\3.extracted_features\ppg";
-data_feat_ppg{1} = t_unix_feat_ppg;
+data_feat_ppg{1} = t_unix_feat_total;
 data_feat_ppg{2} = single(features_ppg_scaled);
 
 metafile_pre_template = metadata_list_ppg{values_idx_ppg};
@@ -266,7 +270,7 @@ save_tsdf_data(meta_feat_ppg, data_feat_ppg, location, mat_metadata_file_name)
 
 %% 6b. Write TSDF PPG preprocessing output (accelerometer feature)
 location = "..\..\tests\data\3.extracted_features\ppg";
-data_feat_acc{1} = t_unix_feat_acc;
+data_feat_acc{1} = t_unix_feat_total;
 data_feat_acc{2} = single(feature_acc);
 metafile_pre_template = metadata_list_ppg{values_idx_ppg};
 
@@ -301,7 +305,7 @@ ppg_post_prob_HQ = ppg_post_prob(:,1);
 acc_label = feature_acc < threshold_acc; % logical (boolean) for not surpassing threshold_acc for imu feature. imu_label is one if we don't suspect the epoch to be disturbed by periodic movements! That is in line with 1 for HQ PPG
 
 %% 7a. Storage of classification in tsdf
-data_class{1} = int32(t_unix_feat_ppg/unix_ticks_ms); % 32 bit integer and store it in unix seconds
+data_class{1} = int32(t_unix_feat_total/unix_ticks_ms); % 32 bit integer and store it in unix seconds
 data_class{2} = single(ppg_post_prob_HQ);  % 32 bit float
 data_class{3} = int8(acc_label); % 8 bit integer
 data_class{4} = int32(v_sync_ppg_total); % 64 bit integer
@@ -310,8 +314,8 @@ data_class{5} = single(feature_acc); % 32 bit float
 location = "..\..\tests\data\4.predictions\ppg";
 metafile_pre_template = metadata_list_ppg{values_idx_ppg};
 
-start_time_iso = datetime(t_unix_class_total(1)/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');
-end_time_iso = datetime(t_unix_class_total(end)/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');    % Convert the start and end time to ISO8601 format
+start_time_iso = datetime(t_unix_feat_total(1)/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');
+end_time_iso = datetime(t_unix_feat_total(end)/unix_ticks_ms, "ConvertFrom", "posixtime", 'Format', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');    % Convert the start and end time to ISO8601 format
 
 metafile_pre_template.start_iso8601 = string(start_time_iso);
 metafile_pre_template.end_iso8601 = string(end_time_iso);

@@ -10,13 +10,13 @@
     "endianness": "little",
     "data_type": "float",
     "bits": 64,
-    "meta_filename": "rotation_meta.json",
+    "meta_filename": "accelerometer_meta.json",
     "sensors": [
         {
             "scale_factors": [
                 1
             ],
-            "file_name": "rotation_time.bin",
+            "file_name": "accelerometer_time.bin",
             "channels": [
                 "time"
             ],
@@ -25,16 +25,22 @@
             ]
         },
         {
-            "file_name": "rotation_samples.bin",
+            "file_name": "accelerometer_samples.bin",
             "channels": [
-                "rotation_x",
-                "rotation_y",
-                "rotation_z"
+                "accelerometer_x",
+                "grav_accelerometer_x",
+                "accelerometer_y",
+                "grav_accelerometer_y",
+                "accelerometer_z",
+                "grav_accelerometer_z"
             ],
             "units": [
-                "deg/s",
-                "deg/s",
-                "deg/s"
+                "g",
+                "g",
+                "g",
+                "g",
+                "g",
+                "g"
             ],
             "scale_factors": [
                 0.00469378,

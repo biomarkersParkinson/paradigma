@@ -86,12 +86,12 @@ def resample_data(
     # interpolate IMU - maybe a separate method?
     for j, sensor_col in enumerate(
         [
-            DataColumns.ACCELERATION_X,
-            DataColumns.ACCELERATION_Y,
-            DataColumns.ACCELERATION_Z,
-            DataColumns.ROTATION_X,
-            DataColumns.ROTATION_Y,
-            DataColumns.ROTATION_Z,
+            DataColumns.ACCELEROMETER_X,
+            DataColumns.ACCELEROMETER_Y,
+            DataColumns.ACCELEROMETER_Z,
+            DataColumns.GYROSCOPE_X,
+            DataColumns.GYROSCOPE_Y,
+            DataColumns.GYROSCOPE_Z,
         ]
     ):
         if not np.all(np.diff(time_abs_array) > 0):
