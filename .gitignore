@@ -144,3 +144,6 @@ dmypy.json
 #VS Code
 .vscode/
 tests/data/tmp
+
+# Ignore all files in the repo with extension .asv
+*.asv

@@ -5,49 +5,86 @@
     "ppp_source_protobuf": "WatchData.PPG.Week104.raw",
     "metadata_version": "0.1",
     "start_iso8601": "27-Jun-2021 16:52:20 UTC",
-    "end_iso8601": "27-Jun-2021 17:03:04 UTC",
+    "end_iso8601": "27-Jun-2021 17:02:58 UTC",
     "scale_factors": 1,
-    "rows": 639,
     "sensors": [
         {
-            "data_type": "float",
-            "endianness": "little",
-            "freq_sampling_original": 100.40200019609766,
+            "rows": 639,
             "sensors": [
                 {
-                    "file_name": "classification_sqa_time.bin",
-                    "channels": [
-                        "time"
-                    ],
-                    "units": [
-                        "time_absolute_unix_ms"
-                    ],
-                    "bits": 64
+                    "endianness": "little",
+                    "bits": 32,
+                    "sensors": [
+                        {
+                            "data_type": "float",
+                            "sensors": [
+                                {
+                                    "file_name": "classification_sqa_ppg.bin",
+                                    "channels": [
+                                        "post probability"
+                                    ],
+                                    "units": [
+                                        "probability"
+                                    ],
+                                    "freq_sampling_original": 100.40200019609766
+                                },
+                                {
+                                    "file_name": "classification_sqa_feat_imu.bin",
+                                    "channels": [
+                                        "Relative power"
+                                    ],
+                                    "units": [
+                                        "none"
+                                    ],
+                                    "bin_width": 0.1
+                                }
+                            ]
+                        },
+                        {
+                            "data_type": "int",
+                            "file_name": "classification_sqa_time.bin",
+                            "channels": [
+                                "time"
+                            ],
+                            "units": [
+                                "time_absolute_unix_ms"
+                            ]
+                        }
+                    ]
                 },
                 {
-                    "file_name": "classification_sqa_ppg.bin",
+                    "data_type": "int",
+                    "endianness": "not applicable",
+                    "file_name": "classification_sqa_imu.bin",
                     "channels": [
-                        "post probability"
+                        "accelerometer classification"
                     ],
                     "units": [
-                        "probability"
+                        "boolean_num"
                     ],
-                    "bits": 32
+                    "bits": 8,
+                    "freq_sampling_original": 100
                 }
             ]
         },
         {
+            "rows": 1,
             "data_type": "int",
-            "endianness": "not applicable",
-            "file_name": "classification_sqa_imu.bin",
+            "endianness": "little",
+            "file_name": "classification_sqa_sync.bin",
             "channels": [
-                "accelerometer classification"
+                "ppg start index",
+                "ppg end index",
+                "ppg segment index",
+                "number of windows"
             ],
             "units": [
-                "boolean_num"
+                "index",
+                "index",
+                "index",
+                "none"
             ],
-            "bits": 8,
-            "freq_sampling_original": 100
+            "bits": 32
         }
     ]
 }
