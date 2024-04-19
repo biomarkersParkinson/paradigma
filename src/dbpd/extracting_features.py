@@ -289,6 +289,60 @@ def compute_power_in_bandwidth(
     return np.log10(np.trapz(pxx[ind_min:ind_max], fxx[ind_min:ind_max]))
 
 
+def compute_perc_power(
+        sensor_col: list,
+        fmin_band: int,
+        fmax_band: int,
+        fmin_total: int = 0,
+        fmax_total: int = 100,
+        sampling_frequency: int = 100,
+        window_type: str = 'hann'
+    ) -> float:
+    """Note: sensor_col is a single cell (which corresponds to a single window) of sensor_col, as it is used with apply function.
+
+    Computes the percentage of power in a specific frequency band for a specified sensor and axis.
+    
+    Parameters
+    ----------
+    sensor_col: list
+        The sensor column to be transformed (e.g. x-axis of accelerometer). This corresponds to a single window, which is a single row of the dataframe
+    fmin_band: int
+        The lower bound of the frequency band
+    fmax_band: int
+        The upper bound of the frequency band
+    fmin_total: int
+        The lower bound of the frequency spectrum (default: 0)
+    fmax_total: int
+        The upper bound of the frequency spectrum (default: 100)
+    sampling_frequency: int
+        The sampling frequency of the signal (default: 100)
+    window_type: str
+        The type of window to be used for the FFT (default: 'hann')
+    
+    Returns
+    -------
+    float
+        The percentage of power in the specified frequency band
+    """
+    angle_power_band = compute_power_in_bandwidth(
+        sensor_col=sensor_col,
+        fmin=fmin_band,
+        fmax=fmax_band,
+        sampling_frequency=sampling_frequency,
+        window_type=window_type
+        )
+    
+    angle_power_total = compute_power_in_bandwidth(
+        sensor_col=sensor_col,
+        fmin=fmin_total,
+        fmax=fmax_total,
+        sampling_frequency=sampling_frequency,
+        window_type=window_type
+        )
+    
+    return angle_power_band / angle_power_total
+
+
 def get_dominant_frequency(
         signal_ffts: list,
         signal_freqs: list,
