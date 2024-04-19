@@ -294,8 +294,27 @@ def get_dominant_frequency(
         signal_freqs: list,
         fmin: int,
         fmax: int
-        ):
+        ) -> float:
+    """Note: signal_ffts and signal_freqs are single cells (which corresponds to a single window) of signal_ffts and signal_freqs, as it is used with apply function.
     
+    Computes the dominant frequency in a specific frequency band.
+    
+    Parameters
+    ----------
+    signal_ffts: list
+        The FFT values of the signal of a single window
+    signal_freqs: list
+        The corresponding frequencies of the FFT values
+    fmin: int
+        The lower bound of the frequency band
+    fmax: int
+        The upper bound of the frequency band
+    
+    Returns
+    -------
+    float
+        The dominant frequency in the specified frequency band
+    """
     valid_indices = np.where((signal_freqs>fmin) & (signal_freqs<fmax))
     signal_freqs_adjusted = signal_freqs[valid_indices]
     signal_ffts_adjusted = signal_ffts[valid_indices]
