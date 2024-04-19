@@ -326,7 +326,21 @@ def get_dominant_frequency(
 def compute_power(
         df: pd.DataFrame,
         fft_cols: list
-    ):
+    ) -> pd.Series:
+    """Compute the power of the FFT values.
+    
+    Parameters
+    ----------
+    df: pd.DataFrame
+        The dataframe containing the FFT values
+    fft_cols: list
+        The names of the columns containing the FFT values
+    
+    Returns
+    -------
+    pd.Series
+        The power of the FFT values
+    """
     for col in fft_cols:
         df['{}_power'.format(col)] = df[col].apply(lambda x: np.square(np.abs(x)))
 
