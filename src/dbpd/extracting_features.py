@@ -211,7 +211,6 @@ def compute_fft(
     tuple
         The FFT values and the corresponding frequencies
     """
-
     w = signal.get_window(window_type, len(values), fftbins=False)
     yf = 2*fft.fft(values*w)[:int(len(values)/2+1)]
     xf = fft.fftfreq(len(values), 1/sampling_frequency)[:int(len(values)/2+1)]
@@ -221,9 +220,25 @@ def compute_fft(
 
 def signal_to_ffts(
         sensor_col: pd.Series,
-        window_type: str,
-        sampling_frequency: int,
-    ):
+        window_type: str = 'hann',
+        sampling_frequency: int = 100,
+    ) -> tuple:
+    """Compute the Fast Fourier Transform (FFT) of a signal per window (can probably be combined with compute_fft and simplified).
+
+    Parameters
+    ----------
+    sensor_col: pd.Series
+        The sensor column to be transformed (e.g. x-axis of accelerometer)
+    window_type: str
+        The type of window to be used for the FFT (default: 'hann')
+    sampling_frequency: int
+        The sampling frequency of the signal (default: 100)
+    
+    Returns
+    -------
+    tuple
+        Lists of FFT values and corresponding frequencies which can be concatenated as column to the dataframe
+    """
     l_values_total = []
     l_freqs_total = []
     for row in sensor_col:
