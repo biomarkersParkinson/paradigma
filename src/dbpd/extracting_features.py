@@ -17,7 +17,7 @@ def create_window(
         upper_index: int,
         data_point_level_cols: list,
         segment_nr: int,
-        sampling_frequency: int
+        sampling_frequency: int = 100
     ) -> list:
     """Transforms (a subset of) a dataframe into a single row
 
@@ -63,9 +63,9 @@ def tabulate_windows(
         df: pd.DataFrame,
         time_column_name: str,
         data_point_level_cols: list,
-        window_length_s: int,
-        window_step_size_s: int,
-        sampling_frequency: int,
+        window_length_s: int = 6,
+        window_step_size_s: int = 1,
+        sampling_frequency: int = 100,
         segment_nr_colname: str = None,
         segment_nr: int = None,
     ) -> pd.DataFrame:
@@ -80,9 +80,9 @@ def tabulate_windows(
     data_point_level_cols: list
         The names of the columns that are to be kept as individual datapoints in a list instead of aggregates
     window_length_s: int
-        The number of seconds a window constitutes
+        The number of seconds a window constitutes (default: 6)
     window_step_size_s: int
-        The number of seconds between the end of the previous and the start of the next window
+        The number of seconds between the end of the previous and the start of the next window (default: 1)
     sampling_frequency: int
         The sampling frequency of the data
     segment_nr_colname: str
@@ -165,6 +165,7 @@ def generate_statistics(
     else:
         raise ValueError("Statistic not recognized.")
 
+
 def generate_std_norm(
         df: pd.DataFrame,
         cols: list,
@@ -191,9 +192,25 @@ def generate_std_norm(
 
 def compute_fft(
         values: list,
-        window_type: str,
-        sampling_frequency: int,
-    ):
+        window_type: str = 'hann',
+        sampling_frequency: int = 100,
+    ) -> tuple:
+    """Compute the Fast Fourier Transform (FFT) of a signal.
+    
+    Parameters
+    ----------
+    values: list
+        The values of the signal (e.g., accelerometer data) of a single window.
+    window_type: str
+        The type of window to be used for the FFT (default: 'hann')
+    sampling_frequency: int
+        The sampling frequency of the signal (default: 100)
+        
+    Returns
+    -------
+    tuple
+        The FFT values and the corresponding frequencies
+    """
 
     w = signal.get_window(window_type, len(values), fftbins=False)
     yf = 2*fft.fft(values*w)[:int(len(values)/2+1)]
