@@ -633,13 +633,31 @@ def discard_segments(
 
 def extract_angle_extremes(
         df: pd.DataFrame,
-        smooth_angle_colname: str,
+        angle_colname: str,
         dominant_frequency_colname: str,
-        sampling_frequency: int,
+        sampling_frequency: int = 100,
 ) -> pd.Series:
+    """Extract the peaks of the angle (minima and maxima) from the smoothed angle signal that adhere to a set of specific requirements.
+    
+    Parameters
+    ----------
+    df: pd.DataFrame
+        The dataframe containing the angle signal
+    angle_colname: str
+        The name of the column containing the smoothed angle signal
+    dominant_frequency_colname: str
+        The name of the column containing the dominant frequency
+    sampling_frequency: int
+        The sampling frequency of the data (default: 100)
+
+    Returns
+    -------
+    pd.Series
+        The extracted angle extremes (peaks)
+    """
     # determine peaks
-    df['angle_maxima'] = df.apply(lambda x: find_peaks(x[smooth_angle_colname], distance=sampling_frequency * 0.6 / x[dominant_frequency_colname], prominence=2)[0], axis=1)
-    df['angle_minima'] = df.apply(lambda x: find_peaks([-x for x in x[smooth_angle_colname]], distance=sampling_frequency * 0.6 / x[dominant_frequency_colname], prominence=2)[0], axis=1) 
+    df['angle_maxima'] = df.apply(lambda x: find_peaks(x[angle_colname], distance=sampling_frequency * 0.6 / x[dominant_frequency_colname], prominence=2)[0], axis=1)
+    df['angle_minima'] = df.apply(lambda x: find_peaks([-x for x in x[angle_colname]], distance=sampling_frequency * 0.6 / x[dominant_frequency_colname], prominence=2)[0], axis=1) 
 
     df['angle_new_minima'] = df['angle_minima'].copy()
     df['angle_new_maxima'] = df['angle_maxima'].copy()
@@ -653,13 +671,13 @@ def extract_angle_extremes(
             if df.loc[index, 'angle_new_maxima'][0] > df.loc[index, 'angle_new_minima'][0]: # if first minimum occurs before first maximum, start with minimum
                 while i_pks < df.loc[index, 'angle_new_minima'].size - 1 and i_pks < df.loc[index, 'angle_new_maxima'].size: # only continue if there's enough minima and maxima to perform operations
                     if df.loc[index, 'angle_new_minima'][i_pks+1] < df.loc[index, 'angle_new_maxima'][i_pks]: # if angle of next minimum comes before the current maxima, we have two minima in a row
-                        if df.loc[index, smooth_angle_colname][df.loc[index, 'angle_new_minima'][i_pks+1]] < df.loc[index, smooth_angle_colname][df.loc[index, 'angle_new_minima'][i_pks]]: # if second minimum if smaller than first, keep second
+                        if df.loc[index, angle_colname][df.loc[index, 'angle_new_minima'][i_pks+1]] < df.loc[index, angle_colname][df.loc[index, 'angle_new_minima'][i_pks]]: # if second minimum if smaller than first, keep second
                             df.at[index, 'angle_new_minima'] = np.delete(df.loc[index, 'angle_new_minima'], i_pks)
                         else: # otherwise keep the first
                             df.at[index, 'angle_new_minima'] = np.delete(df.loc[index, 'angle_new_minima'], i_pks+1)
                         i_pks -= 1
                     if i_pks >= 0 and df.loc[index, 'angle_new_minima'][i_pks] > df.loc[index, 'angle_new_maxima'][i_pks]:
-                        if df.loc[index, smooth_angle_colname][df.loc[index, 'angle_new_maxima'][i_pks]] < df.loc[index, smooth_angle_colname][df.loc[index, 'angle_new_maxima'][i_pks-1]]:
+                        if df.loc[index, angle_colname][df.loc[index, 'angle_new_maxima'][i_pks]] < df.loc[index, angle_colname][df.loc[index, 'angle_new_maxima'][i_pks-1]]:
                             df.at[index, 'angle_new_maxima'] = np.delete(df.loc[index, 'angle_new_maxima'], i_pks) 
                         else:
                             df.loc[index, 'angle_maxima_deleted'].append(df.loc[index, 'angle_new_maxima'][i_pks-1])
@@ -670,13 +688,13 @@ def extract_angle_extremes(
             elif df.loc[index, 'angle_new_maxima'][0] < df.loc[index, 'angle_new_minima'][0]: # if the first maximum occurs before the first minimum, start with the maximum
                 while i_pks < df.loc[index, 'angle_new_minima'].size and i_pks < df.loc[index, 'angle_new_maxima'].size-1:
                     if df.loc[index, 'angle_new_minima'][i_pks] > df.loc[index, 'angle_new_maxima'][i_pks+1]:
-                        if df.loc[index, smooth_angle_colname][df.loc[index, 'angle_new_maxima'][i_pks+1]] > df.loc[index, smooth_angle_colname][df.loc[index, 'angle_new_maxima'][i_pks]]:
+                        if df.loc[index, angle_colname][df.loc[index, 'angle_new_maxima'][i_pks+1]] > df.loc[index, angle_colname][df.loc[index, 'angle_new_maxima'][i_pks]]:
                             df.at[index, 'angle_new_maxima'] = np.delete(df.loc[index, 'angle_new_maxima'], i_pks) 
                         else:
                             df.at[index, 'angle_new_maxima'] = np.delete(df.loc[index, 'angle_new_maxima'], i_pks+1) 
                         i_pks -= 1
                     if i_pks > 0 and df.loc[index, 'angle_new_minima'][i_pks] < df.loc[index, 'angle_new_maxima'][i_pks]:
-                        if df.loc[index, smooth_angle_colname][df.loc[index, 'angle_new_minima'][i_pks]] < df.loc[index, smooth_angle_colname][df.loc[index, 'angle_new_minima'][i_pks-1]]:
+                        if df.loc[index, angle_colname][df.loc[index, 'angle_new_minima'][i_pks]] < df.loc[index, angle_colname][df.loc[index, 'angle_new_minima'][i_pks-1]]:
                             df.at[index, 'angle_new_minima'] = np.delete(df.loc[index, 'angle_new_minima'], i_pks-1) 
                         
                         else:
@@ -690,7 +708,7 @@ def extract_angle_extremes(
         df.loc[df.apply(lambda x: type(x[col].tolist())==int, axis=1), col] = df.loc[df.apply(lambda x: type(x[col].tolist())==int, axis=1), col].apply(lambda x: [x])
 
     # extract amplitude
-    df['angle_extrema_values'] = df.apply(lambda x: [x[smooth_angle_colname][i] for i in np.concatenate([x['angle_new_minima'], x['angle_new_maxima']])], axis=1) 
+    df['angle_extrema_values'] = df.apply(lambda x: [x[angle_colname][i] for i in np.concatenate([x['angle_new_minima'], x['angle_new_maxima']])], axis=1) 
 
     return
 
