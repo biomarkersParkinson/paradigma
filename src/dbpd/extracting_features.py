@@ -636,7 +636,7 @@ def extract_angle_extremes(
         angle_colname: str,
         dominant_frequency_colname: str,
         sampling_frequency: int = 100,
-) -> pd.Series:
+    ) -> pd.Series:
     """Extract the peaks of the angle (minima and maxima) from the smoothed angle signal that adhere to a set of specific requirements.
     
     Parameters
@@ -715,8 +715,19 @@ def extract_angle_extremes(
 
 def extract_range_of_motion(
         angle_extrema_values_col: pd.Series,
-) -> pd.Series:
+    ) -> pd.Series:
+    """Extract the range of motion from the angle extrema values.
     
+    Parameters
+    ----------
+    angle_extrema_values_col: pd.Series
+        The column containing the angle extrema values
+    
+    Returns
+    -------
+    pd.Series
+        The range of motion
+    """
     angle_amplitudes = np.empty((len(angle_extrema_values_col), 0)).tolist()
 
     for i, extrema_values in enumerate(angle_extrema_values_col):
