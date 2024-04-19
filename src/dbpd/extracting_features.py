@@ -168,7 +168,21 @@ def generate_statistics(
 def generate_std_norm(
         df: pd.DataFrame,
         cols: list,
-    ):
+    ) -> pd.Series:
+    """Generate the standard deviation of the norm of the accelerometer axes.
+    
+    Parameters
+    ----------
+    df: pd.DataFrame
+        The dataframe containing the accelerometer axes
+    cols: list
+        The names of the columns containing the accelerometer axes
+        
+    Returns
+    -------
+    pd.Series
+        The standard deviation of the norm of the accelerometer axes
+    """
     return df.apply(
         lambda x: np.std(np.sqrt(sum(
             [np.array([y**2 for y in x[col]]) for col in cols]
