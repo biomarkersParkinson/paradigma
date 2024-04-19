@@ -350,13 +350,36 @@ def compute_power(
 def generate_cepstral_coefficients(
         total_power_col: pd.Series,
         window_length_s: int,
-        sampling_frequency: int,
-        low_frequency: int,
-        high_frequency: int,
-        filter_length: int,
-        n_dct_filters: int,
+        sampling_frequency: int = 100,
+        low_frequency: int = 0,
+        high_frequency: int = 50,
+        filter_length: int = 16,
+        n_dct_filters: int = 16,
         ) -> pd.DataFrame:
+    """Generate cepstral coefficients from the total power of the signal.
     
+    Parameters
+    ----------
+    total_power_col: pd.Series
+        The total power of the signal, extracted using compute_power
+    window_length_s: int
+        The number of seconds a window constitutes
+    sampling_frequency: int
+        The sampling frequency of the data (default: 100)
+    low_frequency: int
+        The lower bound of the frequency band (default: 0)
+    high_frequency: int
+        The upper bound of the frequency band (default: 50)
+    filter_length: int
+        The length of the DCT filter (default: 16)
+    n_dct_filters: int
+        The number of DCT filters (default: 16)
+    
+    Returns
+    -------
+    pd.DataFrame
+        A dataframe with a single column corresponding to a single cepstral coefficient
+    """
     window_length = window_length_s * sampling_frequency
     
     # compute filter points
