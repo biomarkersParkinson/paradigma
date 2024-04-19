@@ -42,7 +42,7 @@ def create_window(
 
     Returns
     -------
-    l_subset_squeezed: list
+    list
         Rows corresponding to single windows
     """
     t_start_window = df.loc[lower_index, time_column_name]
@@ -93,10 +93,9 @@ def tabulate_windows(
 
     Returns
     -------
-    df_windowed: pd.DataFrame
+    pd.DataFrame
         Dataframe with each row corresponding to an individual window
     """
-
     window_length = sampling_frequency * window_length_s - 1
     window_step_size = sampling_frequency * window_step_size_s
 
@@ -141,6 +140,20 @@ def generate_statistics(
         sensor_col: pd.Series,
         statistic: str
     ):
+    """Generate statistics for a single sensor and axis. The function is used with the apply function in pandas.
+    
+    Parameters
+    ----------
+    sensor_col: pd.Series
+        The sensor column to be aggregated (e.g. x-axis of accelerometer)
+    statistic: str
+        The statistic to be computed [mean, std, max, min]
+        
+    Returns
+    -------
+    list
+        The aggregated statistics
+    """
     if statistic == 'mean':
         return [np.mean(x) for x in sensor_col]
     elif statistic == 'std':
@@ -149,6 +162,8 @@ def generate_statistics(
         return [np.max(x) for x in sensor_col]
     elif statistic == 'min':
         return [np.min(x) for x in sensor_col]
+    else:
+        raise ValueError("Statistic not recognized.")
 
 def generate_std_norm(
         df: pd.DataFrame,
