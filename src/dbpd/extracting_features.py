@@ -502,7 +502,7 @@ def pca_transform_gyroscope(
 def compute_angle(
         velocity_col: pd.Series,
         time_col: pd.Series,
-) -> pd.Series:
+    ) -> pd.Series:
     """Apply cumulative trapezoidal integration to extract the angle from the velocity.
     
     Parameters
@@ -523,8 +523,22 @@ def compute_angle(
 
 def remove_moving_average_angle(
         angle_col: pd.Series,
-        sampling_frequency: int,
-) -> pd.Series:
+        sampling_frequency: int = 100,
+    ) -> pd.Series:
+    """Remove the moving average from the angle to account for potential drift in the signal.
+    
+    Parameters
+    ----------
+    angle_col: pd.Series
+        The angle column to be processed, obtained using compute_angle
+    sampling_frequency: int
+        The sampling frequency of the data (default: 100)
+        
+    Returns
+    -------
+    pd.Series
+        The estimated angle without potential drift
+    """
     angle_ma = angle_col.rolling(window=int(2*(sampling_frequency*0.5)+1), min_periods=1, center=True, closed='both').mean()
     
     return pd.Series(angle_col - angle_ma)
@@ -535,7 +549,7 @@ def create_segments(
         time_colname: str,
         segment_nr_colname: str,
         minimum_gap_s: int,
-) -> pd.DataFrame:
+    ) -> pd.DataFrame:
     """Create segments based on the time column of the dataframe. Segments are defined as continuous time periods.
     
     Parameters
