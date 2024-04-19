@@ -256,11 +256,32 @@ def compute_power_in_bandwidth(
         sensor_col: list,
         fmin: int,
         fmax: int,
-        sampling_frequency: int,
-        window_type: str,
-    ):
-    """Note: sensor_col is a single cell of sensor_col, as it is used with apply function. 
-    Probably we want a smarter way of doing this."""
+        sampling_frequency: int = 100,
+        window_type: str = 'hann',
+    ) -> float:
+    """Note: sensor_col is a single cell (which corresponds to a single window) of sensor_col, as it is used with apply function. 
+    Probably we want a smarter way of doing this.
+    
+    Computes the power in a specific frequency band for a specified sensor and axis.
+    
+    Parameters
+    ----------
+    sensor_col: list
+        The sensor column to be transformed (e.g. x-axis of accelerometer)
+    fmin: int
+        The lower bound of the frequency band
+    fmax: int
+        The upper bound of the frequency band
+    sampling_frequency: int
+        The sampling frequency of the signal (default: 100)
+    window_type: str
+        The type of window to be used for the FFT (default: 'hann')
+
+    Returns
+    -------
+    float
+        The power in the specified frequency band    
+    """
     fxx, pxx = signal.periodogram(sensor_col, fs=sampling_frequency, window=window_type)
     ind_min = np.argmax(fxx > fmin) - 1
     ind_max = np.argmax(fxx > fmax) - 1
