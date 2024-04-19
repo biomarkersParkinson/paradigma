@@ -139,7 +139,7 @@ def tabulate_windows(
 def generate_statistics(
         sensor_col: pd.Series,
         statistic: str
-    ):
+    ) -> list:
     """Generate statistics for a single sensor and axis. The function is used with the apply function in pandas.
     
     Parameters
