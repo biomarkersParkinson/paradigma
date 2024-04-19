@@ -596,7 +596,25 @@ def discard_segments(
         time_colname: str,
         segment_nr_colname: str,
         minimum_segment_length_s: int,
-):
+    ) -> pd.DataFrame:
+    """Discard segments that are shorter than a specified length.
+    
+    Parameters
+    ----------
+    df: pd.DataFrame
+        The dataframe containing information about the segments
+    time_colname: str
+        The column name of the time column
+    segment_nr_colname: str
+        The column name of the column containing the segment numbers
+    minimum_segment_length_s: int
+        The minimum required length of a segment in seconds
+    
+    Returns
+    -------
+    pd.DataFrame
+        The dataframe with segments that are longer than the specified length
+    """
     segment_length_bool = df.groupby(segment_nr_colname)[time_colname].apply(lambda x: x.max() - x.min()) > minimum_segment_length_s
 
     df = df.loc[df[segment_nr_colname].isin(segment_length_bool.loc[segment_length_bool.values].index)]
