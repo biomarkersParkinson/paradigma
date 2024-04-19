@@ -755,6 +755,24 @@ def extract_peak_angular_velocity(
         angle_minima_colname: str,
         angle_maxima_colname: str,
 ) -> pd.DataFrame:
+    """Extract the forward and backward peak angular velocity from the angular velocity.
+    
+    Parameters
+    ----------
+    df: pd.DataFrame
+        The dataframe containing the angular velocity
+    velocity_colname: str
+        The column name of the angular velocity
+    angle_minima_colname: str
+        The column name of the column containing the angle minima
+    angle_maxima_colname: str
+        The column name of the column containing the angle maxima
+        
+    Returns
+    -------
+    pd.DataFrame
+        The dataframe with the forward and backward peak angular velocity
+    """
     df['forward_peak_ang_vel'] = np.empty((len(df), 0)).tolist()
     df['backward_peak_ang_vel'] = np.empty((len(df), 0)).tolist()
 
