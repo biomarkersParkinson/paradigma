@@ -560,6 +560,11 @@ def create_segments(
         The name of the time column
     minimum_gap_s: int
         The minimum gap in seconds to split up the time periods into segments
+
+    Returns
+    -------
+    pd.DataFrame
+        The dataframe with additional columns related to segments
     """
     array_new_segments = np.where((df[time_colname] - df[time_colname].shift() > minimum_gap_s), 1, 0)
     df['new_segment_cumsum'] = array_new_segments.cumsum()
