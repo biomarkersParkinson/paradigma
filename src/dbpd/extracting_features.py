@@ -25,6 +25,8 @@ def create_window(
     ----------
     df: pd.DataFrame
         The original dataframe to be windowed
+    time_column_name: str
+        The name of the time column
     window_nr: int
         The identification of the window
     lower_index: int
@@ -33,6 +35,10 @@ def create_window(
         The dataframe index of the final sample to be windowed
     data_point_level_cols: list
         The columns in sensor_df that are to be kept as individual datapoints in a list instead of aggregates
+    segment_nr: int
+        The identification of the segment
+    sampling_frequency: int
+        The sampling frequency of the data
 
     Returns
     -------
