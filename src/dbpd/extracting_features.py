@@ -267,7 +267,8 @@ def compute_power_in_bandwidth(
     Parameters
     ----------
     sensor_col: list
-        The sensor column to be transformed (e.g. x-axis of accelerometer)
+        The sensor column to be transformed (e.g. x-axis of accelerometer). This corresponds to a single window, which is a single row of the dataframe, 
+        and contains values of individual timestamps composing the window.
     fmin: int
         The lower bound of the frequency band
     fmax: int
@@ -286,34 +287,6 @@ def compute_power_in_bandwidth(
     ind_min = np.argmax(fxx > fmin) - 1
     ind_max = np.argmax(fxx > fmax) - 1
     return np.log10(np.trapz(pxx[ind_min:ind_max], fxx[ind_min:ind_max]))
-
-
-def compute_perc_power(
-        sensor_col: list,
-        fmin_band: int,
-        fmax_band: int,
-        fmin_total: int,
-        fmax_total: int,
-        sampling_frequency: int,
-        window_type: str,
-):
-    angle_power_band = compute_power_in_bandwidth(
-        sensor_col=sensor_col,
-        fmin=fmin_band,
-        fmax=fmax_band,
-        sampling_frequency=sampling_frequency,
-        window_type=window_type
-        )
-    
-    angle_power_total = compute_power_in_bandwidth(
-        sensor_col=sensor_col,
-        fmin=fmin_total,
-        fmax=fmax_total,
-        sampling_frequency=sampling_frequency,
-        window_type=window_type
-        )
-    
-    return angle_power_band / angle_power_total
 
 
 def get_dominant_frequency(
