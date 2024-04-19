@@ -418,7 +418,24 @@ def pca_transform_gyroscope(
 ) -> pd.Series:
     """Apply principal component analysis (PCA) on the y-axis and z-axis of the raw gyroscope signal
     to extract the velocity. PCA is applied to the predicted gait timestamps only to maximize the similarity
-    to the velocity in the arm swing direction. """
+    to the velocity in the arm swing direction. 
+    
+    Parameters
+    ----------
+    df: pd.DataFrame
+        The dataframe containing the gyroscope data
+    y_gyro_colname: str
+        The column name of the y-axis of the gyroscope
+    z_gyro_colname: str
+        The column name of the z-axis of the gyroscope
+    pred_gait_colname: str
+        The column name of the predicted gait boolean
+
+    Returns
+    -------
+    pd.Series
+        The first principal component corresponding to the angular velocity in the arm swing direction
+    """
     pca = PCA(n_components=2, svd_solver='auto', random_state=22)
     pca.fit([(i,j) for i,j in zip(df.loc[df[pred_gait_colname]==1, y_gyro_colname], df.loc[df[pred_gait_colname]==1, z_gyro_colname])])
     yz_gyros = pca.transform([(i,j) for i,j in zip(df[y_gyro_colname], df[z_gyro_colname])])
