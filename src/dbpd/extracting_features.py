@@ -503,7 +503,20 @@ def compute_angle(
         velocity_col: pd.Series,
         time_col: pd.Series,
 ) -> pd.Series:
-    """Apply cumulative trapezoidal integration to extract the angle from the velocity."""
+    """Apply cumulative trapezoidal integration to extract the angle from the velocity.
+    
+    Parameters
+    ----------
+    velocity_col: pd.Series
+        The angular velocity (gyroscope) column to be integrated
+    time_col: pd.Series
+        The time column corresponding to the angular velocity
+        
+    Returns
+    -------
+    pd.Series
+        An estimation of the angle extracted from the angular velocity
+    """
     angle_col = cumulative_trapezoid(velocity_col, time_col, initial=0)
     return pd.Series([x*-1 if x<0 else x for x in angle_col])
 
