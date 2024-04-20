@@ -2359,6 +2359,17 @@ sphinxcontrib-jquery = ">=4,<5"
 dev = ["bump2version", "sphinxcontrib-httpdomain", "transifex-client", "wheel"]
 
 [[package]]
+name = "sphinx-serve"
+version = "1.0.1"
+description = "Preview sphinx documentation locally"
+category = "dev"
+optional = false
+python-versions = "*"
+files = [
+    {file = "sphinx-serve-1.0.1.tar.gz", hash = "sha256:8d90f6595114108500b1f935d3f4d07bf5192783c67ce83f944ef289099669c9"},
+]
+
+[[package]]
 name = "sphinxcontrib-applehelp"
 version = "1.0.8"
 description = "sphinxcontrib-applehelp is a Sphinx extension which outputs Apple help books"
@@ -2886,4 +2897,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "8ab3b400bc8d0fe9628344b886b51925f1e09fe596afbe19505e480d2c1c51a7"
+content-hash = "f5f37a8ee3b1c28a274d04b1a1f26cc536ac516896d9952ef5f847f780245b05"

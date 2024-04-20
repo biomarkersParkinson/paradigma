@@ -30,6 +30,7 @@ sphinx = "^7.3.6"
 myst-nb = "^1.1.0"
 sphinx-autoapi = "^3.0.0"
 sphinx-rtd-theme = "^2.0.0"
+sphinx-serve = "^1.0.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
