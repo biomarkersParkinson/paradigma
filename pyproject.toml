@@ -2,11 +2,13 @@
 name = "dbpd"
 version = "0.1.0"
 description = "Digital Biomarkers for Parkinson's Disease Toolbox"
-authors = ["Peter Kok <p.kok@esciencecenter.nl>",
+authors = [ "Peter Kok <p.kok@esciencecenter.nl>",
             "Vedran Kasalica <v.kaslica@esciencecenter.nl>",
             "Erik Post",
             "Kars Veldkamp",
-            "Diogo Coutinho Soriano"]
+            "Nienke Timmermans",
+            "Diogo Coutinho Soriano",
+            "Luc Evers" ]
 license = "Apache License 2.0"
 readme = "README.md"
 
@@ -15,19 +17,19 @@ python = "^3.9"
 pandas = "^2.1.4"
 scikit-learn = "^1.3.2"
 tsdf = "^0.5.2"
-papermill = "^2.5.0"
-sphinx = "^7.3.6"
-myst-nb = "^1.1.0"
-sphinx-autoapi = "^3.0.0"
-sphinx-rtd-theme = "^2.0.0"
 
-[tool.poetry.dev-dependencies]
-
-[tool.poetry.group.dev.dependencies]
+[tool.poetry.group.testing.dependencies]
 ipykernel = "^6.27.1"
 pytest = "^7.4.3"
 pytest-datadir = "^1.5.0"
 pytest-cov = "^4.1.0"
+papermill = "^2.5.0"
+
+[tool.poetry.group.docs.dependencies]
+sphinx = "^7.3.6"
+myst-nb = "^1.1.0"
+sphinx-autoapi = "^3.0.0"
+sphinx-rtd-theme = "^2.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
