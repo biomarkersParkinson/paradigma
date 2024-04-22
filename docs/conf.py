@@ -7,9 +7,9 @@
 # -- Project information -----------------------------------------------------
 
 project = "dbpd"
-copyright = "2023, Peter Kok,  Vedran Kasalica, Erik Post, Kars Veldkamp and Diogo Coutinho Soriano"
+copyright = "2023, Peter Kok, Vedran Kasalica, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Luc Evers"
 author = (
-    "Peter Kok,  Vedran Kasalica, Erik Post, Kars Veldkamp and Diogo Coutinho Soriano"
+    "Peter Kok, Vedran Kasalica, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Luc Evers"
 )
 
 # -- General configuration ---------------------------------------------------
