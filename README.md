@@ -22,9 +22,7 @@ $ poetry install
 ### Building documentation
 
 ```bash
-cd docs
-poetry shell
-make html
+poetry run make html --directory docs/
 ```
 
 ## Contributing
