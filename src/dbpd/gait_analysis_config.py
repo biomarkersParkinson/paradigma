@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple
+from typing import Dict, List
 from dbpd import DataColumns
 
 
@@ -86,3 +86,16 @@ class GaitFeatureExtractionConfig:
         self.low_frequency: int = 0  # Hz
         self.high_frequency: int = int(self.sampling_frequency / 2)  # Hz
         self.filter_length: int = self.high_frequency - 1
+
+
+class GaitDetectionConfig:
+
+    def __init__(self) -> None:
+        self.classifier_file_name = 'gd_classifier.pkl'
+        self.thresholds_file_name = 'gd_thresholds.txt'
+
+        self.meta_filename = 'gait_meta.json'
+        self.time_filename = 'gait_time.bin'
+        self.values_filename = 'gait_values.bin'
+
+        self.l_accel_cols = [DataColumns.ACCELEROMETER_X, DataColumns.ACCELEROMETER_Y, DataColumns.ACCELEROMETER_Z]

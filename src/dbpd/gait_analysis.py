@@ -4,7 +4,7 @@ import datetime
 
 import tsdf
 
-from dbpd.gait_analysis_config import GaitFeatureExtractionConfig
+from dbpd.gait_analysis_config import *
 from dbpd.feature_extraction import *
 from dbpd.windowing import *
 
@@ -117,8 +117,55 @@ def extract_gait_features(input_path: str, output_path: str, config: GaitFeature
     tsdf.write_metadata([metadata_time, metadata_samples], 'gait_meta.json')
 
 
-def detect_gait():
-    pass
+def detect_gait(input_path: str, output_path: str, path_to_classifier_input: str, config: GaitDetectionConfig) -> None:
+    
+    # Load the data
+    metadata_dict = tsdf.load_metadata_from_path(os.path.join(input_path, config.meta_filename))
+    metadata_time = metadata_dict[config.time_filename]
+    metadata_samples = metadata_dict[config.values_filename]
+    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+
+    # Initialize the classifier
+    clf = pd.read_pickle(os.path.join(path_to_classifier_input, config.classifier_file_name))
+    with open(os.path.join(path_to_classifier_input, config.thresholds_file_name), 'r') as f:
+        thresholds_str = f.read()
+    threshold = np.mean([float(x) for x in thresholds_str.split(' ')])
+
+    # Prepare the data
+    clf.feature_names_in_ = [f'{x}_power_below_gait' for x in config.l_accel_cols] + \
+                            [f'{x}_power_gait' for x in config.l_accel_cols] + \
+                            [f'{x}_power_tremor' for x in config.l_accel_cols] + \
+                            [f'{x}_power_above_tremor' for x in config.l_accel_cols] + \
+                            ['std_norm_acc'] + [f'cc_{i}_acc' for i in range(1, 17)] + [f'grav_{x}_{y}' for x in config.l_accel_cols for y in ['mean', 'std']] + \
+                            [f'{x}_dominant_frequency' for x in config.l_accel_cols]
+    X = df.loc[:, clf.feature_names_in_]
+
+    # Make prediction
+    df['pred_gait_proba'] = clf.predict_proba(X)[:, 1]
+    df['pred_gait'] = df['pred_gait_proba'] > threshold
+
+    # Prepare the metadata
+    metadata_samples.__setattr__('file_name', 'gait_values.bin')
+    metadata_samples.__setattr__('file_dir_path', output_path)
+    metadata_time.__setattr__('file_name', 'gait_time.bin')
+    metadata_time.__setattr__('file_dir_path', output_path)
+
+    metadata_samples.__setattr__('channels', ['pred_gait_proba'])
+    metadata_samples.__setattr__('units', ['probability'])
+    metadata_samples.__setattr__('data_type', np.float32)
+    metadata_samples.__setattr__('bits', 32)
+
+    metadata_time.__setattr__('channels', ['time'])
+    metadata_time.__setattr__('units', ['relative_time_ms'])
+    metadata_time.__setattr__('data_type', np.int32)
+    metadata_time.__setattr__('bits', 32)
+
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+
+    # store binaries and metadata
+    tsdf.write_dataframe_to_binaries(output_path, df, [metadata_time, metadata_samples])
+    tsdf.write_metadata([metadata_time, metadata_samples], 'gait_meta.json')
 
 def extract_arm_swing_features():
     pass
