@@ -31,8 +31,8 @@ def create_window(
         The columns in sensor_df that are to be kept as individual datapoints in a list instead of aggregates
     segment_nr: int
         The identification of the segment
-    sampling_frequency: int
-        The sampling frequency of the data
+    sampling_frequency: int, optional
+        The sampling frequency (Hz) of the data (default: 100)
 
     Returns
     -------
