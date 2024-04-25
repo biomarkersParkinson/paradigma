@@ -1,12 +1,11 @@
 import os
-from dateutil import parser
-import datetime
 
 import tsdf
 
 from dbpd.gait_analysis_config import *
 from dbpd.feature_extraction import *
 from dbpd.windowing import *
+from dbpd.util import get_end_iso8601, write_data
 
 
 def extract_gait_features(input_path: str, output_path: str, config: GaitFeatureExtractionConfig) -> None:
@@ -93,7 +92,8 @@ def extract_gait_features(input_path: str, output_path: str, config: GaitFeature
     df_windowed = df_windowed.drop(columns=[f'{col}{x}' for x in ['', '_freqs', '_fft', '_fft_power'] for col in config.l_accelerometer_cols] + ['total_accel_power', 'window_nr', 'window_end'] + config.l_gravity_cols + config.l_accelerometer_cols)
 
 
-    end_iso8601 = (parser.parse(metadata_samples.start_iso8601) + datetime.timedelta(seconds=int(df_windowed['time'][-1:].values[0] + config.window_length_s))).strftime('%d-%b-%Y %H:%M:%S') + ' UTC'
+    end_iso8601 = get_end_iso8601(start_iso8601=metadata_time.start_iso8601,
+                                  window_length_seconds=int(df_windowed['time'][-1:].values[0] + config.window_length_s))
 
     metadata_samples.__setattr__('end_iso8601', end_iso8601)
     metadata_samples.__setattr__('file_name', 'gait_values.bin')
@@ -109,13 +109,7 @@ def extract_gait_features(input_path: str, output_path: str, config: GaitFeature
     metadata_time.__setattr__('units', ['relative_time_ms'])
     metadata_time.__setattr__('data_type', np.int64)
 
-    if not os.path.exists(output_path):
-        os.makedirs(output_path)
-
-    # store binaries and metadata
-    tsdf.write_dataframe_to_binaries(output_path, df_windowed, [metadata_time, metadata_samples])
-    tsdf.write_metadata([metadata_time, metadata_samples], 'gait_meta.json')
-
+    write_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df_windowed)
 
 def detect_gait(input_path: str, output_path: str, path_to_classifier_input: str, config: GaitDetectionConfig) -> None:
     
@@ -160,12 +154,7 @@ def detect_gait(input_path: str, output_path: str, path_to_classifier_input: str
     metadata_time.__setattr__('data_type', np.int32)
     metadata_time.__setattr__('bits', 32)
 
-    if not os.path.exists(output_path):
-        os.makedirs(output_path)
-
-    # store binaries and metadata
-    tsdf.write_dataframe_to_binaries(output_path, df, [metadata_time, metadata_samples])
-    tsdf.write_metadata([metadata_time, metadata_samples], 'gait_meta.json')
+    write_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df)
 
 def extract_arm_swing_features():
     pass
