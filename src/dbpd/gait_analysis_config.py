@@ -99,3 +99,137 @@ class GaitDetectionConfig:
         self.values_filename = 'gait_values.bin'
 
         self.l_accel_cols = [DataColumns.ACCELEROMETER_X, DataColumns.ACCELEROMETER_Y, DataColumns.ACCELEROMETER_Z]
+
+
+class ArmSwingFeatureExtractionConfig:
+
+    def set_window_length(self, window_length_s: int) -> None:
+        self.window_length_s = window_length_s
+        self.window_overlap_s = 3 * 0.75
+        self.window_step_size_s = window_length_s - self.window_overlap_s
+
+    def set_sampling_frequency(self, sampling_frequency: int) -> None:
+        self.sampling_frequency = sampling_frequency
+
+        # computing power
+        self.power_band_low_frequency = 0.3
+        self.power_band_high_frequency = 3
+        self.power_total_low_frequency = 0
+        self.power_total_high_frequency = int(sampling_frequency / 2)
+
+        self.d_frequency_bandwidths = {
+            'power_below_gait': [0.3, 0.7],
+            'power_gait': [0.7, 3.5],
+            'power_tremor': [3.5, 8],
+            'power_above_tremor': [8, sampling_frequency]
+        }
+
+        # cepstral coefficients
+        self.cc_low_frequency = 0
+        self.cc_high_frequency = int(sampling_frequency / 2) 
+        self.filter_length = 16
+        self.n_dct_filters = 16
+
+    def set_column_names(self, time_colname='time', pred_gait_colname='pred_gait',
+                         angle_smooth_colname='angle_smooth', angle_colname='angle',
+                         velocity_colname='velocity', segment_nr_colname='segment_nr') -> None:
+        self.time_colname = time_colname
+        self.pred_gait_colname = pred_gait_colname
+        self.angle_smooth_colname = angle_smooth_colname
+        self.angle_colname = angle_colname
+        self.velocity_colname = velocity_colname
+        self.segment_nr_colname = segment_nr_colname
+
+        self.l_data_point_level_cols = [
+            DataColumns.ACCELEROMETER_X,
+            DataColumns.ACCELEROMETER_Y,
+            DataColumns.ACCELEROMETER_Z,
+            DataColumns.GYROSCOPE_X,
+            DataColumns.GYROSCOPE_Y,
+            DataColumns.GYROSCOPE_Z,
+            f'grav_{DataColumns.ACCELEROMETER_X}',
+            f'grav_{DataColumns.ACCELEROMETER_Y}',
+            f'grav_{DataColumns.ACCELEROMETER_Z}',
+            angle_smooth_colname, 
+            velocity_colname
+        ]
+
+    def __init__(self) -> None:
+        # general
+        self.sensor = 'IMU'
+        self.units = 'degrees'
+
+        # windowing
+        self.window_type = 'hann'
+        self.set_window_length(3)
+
+        self.set_sampling_frequency(100)
+
+        self.set_column_names()
+
+        self.d_channels_values = {
+            'angle_perc_power': 'proportion',
+            'range_of_motion': 'deg',
+            'forward_peak_ang_vel_mean': 'deg/s',
+            'forward_peak_ang_vel_std': 'deg/s',
+            'backward_peak_ang_vel_mean': 'deg/s',
+            'backward_peak_ang_vel_std': 'deg/s',
+            'std_norm_acc': 'g',
+            'grav_accelerometer_x_mean': 'g',
+            'grav_accelerometer_x_std': 'g',
+            'grav_accelerometer_y_mean': 'g',
+            'grav_accelerometer_y_std': 'g',
+            'grav_accelerometer_z_mean': 'g',
+            'grav_accelerometer_z_std': 'g',
+            'accelerometer_x_power_below_gait': 'X', 
+            'accelerometer_x_power_gait': 'X',
+            'accelerometer_x_power_tremor': 'X',
+            'accelerometer_x_power_above_tremor': 'X',
+            'accelerometer_x_dominant_frequency': 'Hz',
+            'accelerometer_y_power_below_gait': 'X',
+            'accelerometer_y_power_gait': 'X',
+            'accelerometer_y_power_tremor': 'X',
+            'accelerometer_y_power_above_tremor': 'X',
+            'accelerometer_y_dominant_frequency': 'Hz',
+            'accelerometer_z_power_below_gait': 'X',
+            'accelerometer_z_power_gait': 'X',
+            'accelerometer_z_power_tremor': 'X',
+            'accelerometer_z_power_above_tremor': 'X',
+            'accelerometer_z_dominant_frequency': 'Hz',
+            'gyroscope_x_dominant_frequency': 'Hz',
+            'gyroscope_y_dominant_frequency': 'Hz',
+            'gyroscope_z_dominant_frequency': 'Hz',
+            'cc_1_accelerometer': 'X',
+            'cc_2_accelerometer': 'X',
+            'cc_3_accelerometer': 'X',
+            'cc_4_accelerometer': 'X',
+            'cc_5_accelerometer': 'X',
+            'cc_6_accelerometer': 'X',
+            'cc_7_accelerometer': 'X',
+            'cc_8_accelerometer': 'X',
+            'cc_9_accelerometer': 'X',
+            'cc_10_accelerometer': 'X',
+            'cc_11_accelerometer': 'X',
+            'cc_12_accelerometer': 'X',
+            'cc_13_accelerometer': 'X',
+            'cc_14_accelerometer': 'X',
+            'cc_15_accelerometer': 'X',
+            'cc_16_accelerometer': 'X',
+            'cc_1_gyroscope': 'X',
+            'cc_2_gyroscope': 'X',
+            'cc_3_gyroscope': 'X',
+            'cc_4_gyroscope': 'X',
+            'cc_5_gyroscope': 'X',
+            'cc_6_gyroscope': 'X',
+            'cc_7_gyroscope': 'X',
+            'cc_8_gyroscope': 'X',
+            'cc_9_gyroscope': 'X',
+            'cc_10_gyroscope': 'X',
+            'cc_11_gyroscope': 'X',
+            'cc_12_gyroscope': 'X',
+            'cc_13_gyroscope': 'X',
+            'cc_14_gyroscope': 'X',
+            'cc_15_gyroscope': 'X',
+            'cc_16_gyroscope': 'X'
+        }
+
