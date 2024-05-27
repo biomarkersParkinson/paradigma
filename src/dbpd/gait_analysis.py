@@ -4,6 +4,7 @@ import tsdf
 
 from dbpd.gait_analysis_config import *
 from dbpd.feature_extraction import *
+from dbpd.quantification import *
 from dbpd.windowing import *
 from dbpd.util import get_end_iso8601, write_data
 
@@ -379,7 +380,6 @@ def extract_arm_swing_features(input_path: str, output_path: str, config: ArmSwi
                 'total_power', 'gyroscope_dominant_frequency', 'window_nr', 'window_end']
 
     df_windowed = df_windowed.drop(columns=l_drop_cols).rename(columns={'window_start': 'time'})
-    print(df_windowed.columns)
 
     # Store data
 
@@ -454,8 +454,94 @@ def detect_arm_swing(input_path: str, output_path: str, path_to_classifier_input
     write_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df)
 
 
-def quantify_arm_swing():
-    pass
+def quantify_arm_swing(path_to_feature_input: str, path_to_prediction_input: str, output_path: str, config: ArmSwingQuantificationConfig) -> None:
+    # Load the features & predictions
+    metadata_dict = tsdf.load_metadata_from_path(os.path.join(path_to_feature_input, config.meta_filename))
+    metadata_time = metadata_dict[config.time_filename]
+    metadata_samples = metadata_dict[config.values_filename]
+    df_features = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+
+    metadata_dict = tsdf.load_metadata_from_path(os.path.join(path_to_prediction_input, config.meta_filename))
+    metadata_time = metadata_dict[config.time_filename]
+    metadata_samples = metadata_dict[config.values_filename]
+    df_predictions = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+
+    # Validate
+    # dataframes have same length
+    assert df_features.shape[0] == df_predictions.shape[0]
+
+    # dataframes have same time column
+    assert df_features['time'].equals(df_predictions['time'])
+
+    # Prepare the data
+
+    # subset features
+    l_feature_cols = ['time', 'range_of_motion', 'forward_peak_ang_vel_mean', 'backward_peak_ang_vel_mean']
+    df_features = df_features[l_feature_cols]
+
+    # concatenate features and predictions
+    df = pd.concat([df_features, df_predictions[config.pred_arm_swing_colname]], axis=1)
+
+    # temporarily for testing: manually determine predictions
+    df[config.pred_arm_swing_colname] = np.concatenate([np.repeat([1], df.shape[0]//3), np.repeat([0], df.shape[0]//3), np.repeat([1], df.shape[0] - 2*df.shape[0]//3)], axis=0)
+
+    # keep only predicted arm swing
+    df_arm_swing = df.loc[df[config.pred_arm_swing_colname]==1].copy().reset_index(drop=True)
+
+    del df
+
+    # create peak angular velocity
+    df_arm_swing.loc[:, 'peak_ang_vel'] = df_arm_swing.loc[:, ['forward_peak_ang_vel_mean', 'backward_peak_ang_vel_mean']].mean(axis=1)
+    df_arm_swing = df_arm_swing.drop(columns=['forward_peak_ang_vel_mean', 'backward_peak_ang_vel_mean'])
+
+    # Segmenting
+
+    df_arm_swing = create_segments(
+        df=df_arm_swing,
+        time_colname='time',
+        segment_nr_colname='segment_nr',
+        minimum_gap_s=config.segment_gap_s
+    )
+    df_arm_swing = discard_segments(
+        df=df_arm_swing,
+        time_colname='time',
+        segment_nr_colname='segment_nr',
+        minimum_segment_length_s=config.min_segment_length_s
+    )
+
+    # Quantify arm swing
+    df_aggregates = aggregate_segments(
+        df=df_arm_swing,
+        time_colname='time',
+        segment_nr_colname='segment_nr',
+        window_step_size_s=config.window_step_size,
+        l_metrics=['range_of_motion', 'peak_ang_vel'],
+        l_aggregates=['median'],
+        l_quantiles=[0.95]
+    )
+
+    df_aggregates['segment_duration_ms'] = df_aggregates['segment_duration_s'] * 1000
+    df_aggregates = df_aggregates.drop(columns=['segment_nr'])
+
+    # Store data
+    metadata_samples.__setattr__('file_name', 'arm_swing_values.bin')
+    metadata_samples.__setattr__('file_dir_path', output_path)
+    metadata_time.__setattr__('file_name', 'arm_swing_time.bin')
+    metadata_time.__setattr__('file_dir_path', output_path)
+
+    metadata_samples.__setattr__('channels', ['range_of_motion_median', 'range_of_motion_quantile_95',
+                                            'peak_ang_vel_median', 'peak_ang_vel_quantile_95'])
+    metadata_samples.__setattr__('units', ['deg', 'deg', 'deg/s', 'deg/s'])
+    metadata_samples.__setattr__('data_type', np.float32)
+    metadata_samples.__setattr__('bits', 32)
+
+    metadata_time.__setattr__('channels', ['time', 'segment_duration_ms'])
+    metadata_time.__setattr__('units', ['relative_time_ms', 'ms'])
+    metadata_time.__setattr__('data_type', np.int32)
+    metadata_time.__setattr__('bits', 32)
+
+    write_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df_aggregates)
+
 
 def aggregate_weekly_arm_swing():
     pass

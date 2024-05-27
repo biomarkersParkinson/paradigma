@@ -245,3 +245,18 @@ class ArmSwingDetectionConfig:
 
         self.l_accel_cols = [DataColumns.ACCELEROMETER_X, DataColumns.ACCELEROMETER_Y, DataColumns.ACCELEROMETER_Z]
         self.l_gyro_cols = [DataColumns.GYROSCOPE_X, DataColumns.GYROSCOPE_Y, DataColumns.GYROSCOPE_Z]
+
+
+class ArmSwingQuantificationConfig:
+
+    def __init__(self) -> None:
+        self.meta_filename = 'arm_swing_meta.json'
+        self.time_filename = 'arm_swing_time.bin'
+        self.values_filename = 'arm_swing_values.bin'
+
+        self.pred_arm_swing_colname = 'pred_arm_swing'
+
+        self.window_length_s = 3
+        self.window_step_size = 0.75
+        self.segment_gap_s = 3
+        self.min_segment_length_s = 3
