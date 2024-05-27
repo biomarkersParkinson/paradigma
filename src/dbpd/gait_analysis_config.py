@@ -103,12 +103,12 @@ class GaitDetectionConfig:
 
 class ArmSwingFeatureExtractionConfig:
 
-    def set_window_length(self, window_length_s: int) -> None:
+    def initialize_window_length_fields(self, window_length_s: int) -> None:
         self.window_length_s = window_length_s
-        self.window_overlap_s = 3 * 0.75
+        self.window_overlap_s = window_length_s * 0.75
         self.window_step_size_s = window_length_s - self.window_overlap_s
 
-    def set_sampling_frequency(self, sampling_frequency: int) -> None:
+    def initialize_sampling_frequency_fields(self, sampling_frequency: int) -> None:
         self.sampling_frequency = sampling_frequency
 
         # computing power
@@ -130,7 +130,7 @@ class ArmSwingFeatureExtractionConfig:
         self.filter_length = 16
         self.n_dct_filters = 16
 
-    def set_column_names(self, time_colname='time', pred_gait_colname='pred_gait',
+    def initialize_column_names(self, time_colname='time', pred_gait_colname='pred_gait',
                          angle_smooth_colname='angle_smooth', angle_colname='angle',
                          velocity_colname='velocity', segment_nr_colname='segment_nr') -> None:
         self.time_colname = time_colname
@@ -161,11 +161,11 @@ class ArmSwingFeatureExtractionConfig:
 
         # windowing
         self.window_type = 'hann'
-        self.set_window_length(3)
+        self.initialize_window_length_fields(3)
 
-        self.set_sampling_frequency(100)
+        self.initialize_sampling_frequency_fields(100)
 
-        self.set_column_names()
+        self.initialize_column_names()
 
         self.d_channels_values = {
             'angle_perc_power': 'proportion',
