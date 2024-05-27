@@ -107,7 +107,7 @@ if length(v_ppg) < fs_ppg * min_window_length || length(v_acc_scaled) < fs_imu *
     warning('Sample is of insufficient length!')
 else
     [v_ppg_pre, tr_ppg_pre] = preprocessing_ppg(tr_ppg, v_ppg, fs_ppg);   %  2 matrices, one for ppg (Nx1) and for time (Nx1) 
-    [v_imu_pre, tr_imu_pre] = preprocessing_imu(tr_imu, v_imu_scaled, fs_imu);   % 2 matrices, one for accel imu (Nx3) and for time (Nx1)
+    [v_imu_pre, tr_imu_pre] = preprocessing_imu(tr_imu, v_acc_scaled, fs_imu);   % 2 matrices, one for accel imu (Nx3) and for time (Nx1)
 end
 
 %% 5a. Write TSDF PPG preprocessing output
