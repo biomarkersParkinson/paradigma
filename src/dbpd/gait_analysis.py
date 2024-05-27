@@ -406,8 +406,53 @@ def extract_arm_swing_features(input_path: str, output_path: str, config: ArmSwi
     write_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df_windowed)
 
 
-def detect_arm_swing():
-    pass
+def detect_arm_swing(input_path: str, output_path: str, path_to_classifier_input: str, config: ArmSwingDetectionConfig) -> None:
+    # Load the data
+    metadata_dict = tsdf.load_metadata_from_path(os.path.join(input_path, config.meta_filename))
+    metadata_time = metadata_dict[config.time_filename]
+    metadata_samples = metadata_dict[config.values_filename]
+    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+
+    # Initialize the classifier
+    clf = pd.read_pickle(os.path.join(path_to_classifier_input, config.classifier_file_name))
+
+    # Prepare the data
+    clf.feature_names_in_ = [f'{x}_power_below_gait' for x in config.l_accel_cols] + \
+                            [f'{x}_power_gait' for x in config.l_accel_cols] + \
+                            [f'{x}_power_tremor' for x in config.l_accel_cols] + \
+                            [f'{x}_power_above_tremor' for x in config.l_accel_cols] + \
+                            [f'grav_{x}_{y}' for x in config.l_accel_cols for y in ['mean', 'std']] + \
+                            ['std_norm_acc'] + [f'cc_{i}_accelerometer' for i in range(1, 17)] + \
+                            [f'{x}_dominant_frequency' for x in config.l_accel_cols] + \
+                            [f'cc_{i}_gyroscope' for i in range(1, 17)] + \
+                            [f'{x}_dominant_frequency' for x in config.l_gyro_cols] + \
+                            ['range_of_motion', 'forward_peak_ang_vel_mean',
+                            'forward_peak_ang_vel_std', 'backward_peak_ang_vel_mean',
+                            'backward_peak_ang_vel_std', 'angle_perc_power']
+    X = df.loc[:, clf.feature_names_in_]
+
+    # Make prediction
+    # df['pred_arm_swing_proba'] = clf.predict_proba(X)[:, 1]
+    df['pred_arm_swing'] = clf.predict(X)
+
+    # Prepare the metadata
+    metadata_samples.__setattr__('file_name', 'arm_swing_values.bin')
+    metadata_samples.__setattr__('file_dir_path', output_path)
+    metadata_time.__setattr__('file_name', 'arm_swing_time.bin')
+    metadata_time.__setattr__('file_dir_path', output_path)
+
+    metadata_samples.__setattr__('channels', ['pred_arm_swing'])
+    metadata_samples.__setattr__('units', ['boolean'])
+    metadata_samples.__setattr__('data_type', np.int8)
+    metadata_samples.__setattr__('bits', 8)
+
+    metadata_time.__setattr__('channels', ['time'])
+    metadata_time.__setattr__('units', ['relative_time_ms'])
+    metadata_time.__setattr__('data_type', np.int32)
+    metadata_time.__setattr__('bits', 32)
+
+    write_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df)
+
 
 def quantify_arm_swing():
     pass

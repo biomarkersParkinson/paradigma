@@ -233,3 +233,15 @@ class ArmSwingFeatureExtractionConfig:
             'cc_16_gyroscope': 'X'
         }
 
+
+class ArmSwingDetectionConfig:
+
+    def __init__(self) -> None:
+        self.classifier_file_name = 'asd_classifier.pkl'
+
+        self.meta_filename = 'arm_swing_meta.json'
+        self.time_filename = 'arm_swing_time.bin'
+        self.values_filename = 'arm_swing_values.bin'
+
+        self.l_accel_cols = [DataColumns.ACCELEROMETER_X, DataColumns.ACCELEROMETER_Y, DataColumns.ACCELEROMETER_Z]
+        self.l_gyro_cols = [DataColumns.GYROSCOPE_X, DataColumns.GYROSCOPE_Y, DataColumns.GYROSCOPE_Z]
