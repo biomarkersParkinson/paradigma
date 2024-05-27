@@ -17,13 +17,21 @@ $ poetry install
 
 - TODO
 
+## Development
+
+### Building documentation
+
+```bash
+poetry run make html --directory docs/
+```
+
 ## Contributing
 
 Interested in contributing? Check out the contributing guidelines. Please note that this project is released with a Code of Conduct. By contributing to this project, you agree to abide by its terms.
 
 ## License
 
-`dbpd` was created by Peter Kok, Vedran Kasalica, Erik Post, Kars Veldkamp, Diogo Coutinho Soriano and Luc Evers. It is licensed under the terms of the Apache License 2.0 license.
+`dbpd` was created by Peter Kok, Vedran Kasalica, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Luc Evers. It is licensed under the terms of the Apache License 2.0 license.
 
 ## Credits
 
