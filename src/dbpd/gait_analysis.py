@@ -97,10 +97,8 @@ def extract_gait_features(input_path: str, output_path: str, config: GaitFeature
 
     metadata_samples.__setattr__('end_iso8601', end_iso8601)
     metadata_samples.__setattr__('file_name', 'gait_values.bin')
-    metadata_samples.__setattr__('file_dir_path', output_path)
     metadata_time.__setattr__('end_iso8601', end_iso8601)
     metadata_time.__setattr__('file_name', 'gait_time.bin')
-    metadata_time.__setattr__('file_dir_path', output_path)
 
     metadata_samples.__setattr__('channels', list(config.d_channels_values.keys()))
     metadata_samples.__setattr__('units', list(config.d_channels_values.values()))
@@ -139,9 +137,7 @@ def detect_gait(input_path: str, output_path: str, path_to_classifier_input: str
 
     # Prepare the metadata
     metadata_samples.__setattr__('file_name', 'gait_values.bin')
-    metadata_samples.__setattr__('file_dir_path', output_path)
     metadata_time.__setattr__('file_name', 'gait_time.bin')
-    metadata_time.__setattr__('file_dir_path', output_path)
 
     metadata_samples.__setattr__('channels', ['pred_gait_proba'])
     metadata_samples.__setattr__('units', ['probability'])
@@ -385,10 +381,8 @@ def extract_arm_swing_features(input_path: str, output_path: str, config: ArmSwi
 
     metadata_samples.__setattr__('end_iso8601', end_iso8601)
     metadata_samples.__setattr__('file_name', 'arm_swing_values.bin')
-    metadata_samples.__setattr__('file_dir_path', output_path)
     metadata_time.__setattr__('end_iso8601', end_iso8601)
     metadata_time.__setattr__('file_name', 'arm_swing_time.bin')
-    metadata_time.__setattr__('file_dir_path', output_path)
 
     metadata_samples.__setattr__('channels', list(config.d_channels_values.keys()))
     metadata_samples.__setattr__('units', list(config.d_channels_values.values()))
@@ -432,9 +426,7 @@ def detect_arm_swing(input_path: str, output_path: str, path_to_classifier_input
 
     # Prepare the metadata
     metadata_samples.__setattr__('file_name', 'arm_swing_values.bin')
-    metadata_samples.__setattr__('file_dir_path', output_path)
     metadata_time.__setattr__('file_name', 'arm_swing_time.bin')
-    metadata_time.__setattr__('file_dir_path', output_path)
 
     metadata_samples.__setattr__('channels', ['pred_arm_swing'])
     metadata_samples.__setattr__('units', ['boolean'])
@@ -518,9 +510,7 @@ def quantify_arm_swing(path_to_feature_input: str, path_to_prediction_input: str
 
     # Store data
     metadata_samples.__setattr__('file_name', 'arm_swing_values.bin')
-    metadata_samples.__setattr__('file_dir_path', output_path)
     metadata_time.__setattr__('file_name', 'arm_swing_time.bin')
-    metadata_time.__setattr__('file_dir_path', output_path)
 
     metadata_samples.__setattr__('channels', ['range_of_motion_median', 'range_of_motion_quantile_95',
                                             'peak_ang_vel_median', 'peak_ang_vel_quantile_95'])

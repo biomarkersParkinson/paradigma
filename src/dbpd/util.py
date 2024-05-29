@@ -19,6 +19,10 @@ def write_data(metadata_time: TSDFMetadata, metadata_samples: TSDFMetadata,
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 
+    # TODO: improve the way the metadata is stored at a different location
+    metadata_time.__setattr__('file_dir_path', output_path)
+    metadata_samples.__setattr__('file_dir_path', output_path)
+
     # store binaries and metadata
     tsdf.write_dataframe_to_binaries(output_path, df, [metadata_time, metadata_samples])
     tsdf.write_metadata([metadata_time, metadata_samples], output_filename)

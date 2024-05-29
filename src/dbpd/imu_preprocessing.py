@@ -91,9 +91,7 @@ def preprocess_imu_data(input_path: str, output_path: str, config: Preprocessing
         metadata_samples.__setattr__('units', list(np.repeat(units, len(metadata_samples.channels))))
         metadata_samples.__setattr__('meta_filename', meta_filename_store)
         metadata_samples.__setattr__('file_name', meta_filename_store.replace('_meta.json', '_samples.bin'))
-        metadata_samples.__setattr__('file_dir_path', output_path)  
 
-        metadata_time.__setattr__('file_dir_path', output_path)
         metadata_time.__setattr__('meta_filename', meta_filename_store)
         metadata_time.__setattr__('file_name', meta_filename_store.replace('_meta.json', '_time.bin'))
         metadata_time.__setattr__('units', ['time_relative_ms'])
