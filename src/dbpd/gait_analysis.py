@@ -6,15 +6,14 @@ from dbpd.gait_analysis_config import *
 from dbpd.feature_extraction import *
 from dbpd.quantification import *
 from dbpd.windowing import *
-from dbpd.util import get_end_iso8601, write_data
+from dbpd.util import get_end_iso8601, write_data, read_metadata
 
 
 def extract_gait_features(input_path: str, output_path: str, config: GaitFeatureExtractionConfig) -> None:
-    metadata_dict = tsdf.load_metadata_from_path(os.path.join(input_path, config.meta_filename))
-    metadata_time = metadata_dict[config.time_filename]
-    metadata_samples = metadata_dict[config.values_filename]
-
+    # Load data
+    metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+
     df_windowed = tabulate_windows(
         df=df,
         time_column_name='time',
@@ -116,9 +115,7 @@ def extract_gait_features(input_path: str, output_path: str, config: GaitFeature
 def detect_gait(input_path: str, output_path: str, path_to_classifier_input: str, config: GaitDetectionConfig) -> None:
     
     # Load the data
-    metadata_dict = tsdf.load_metadata_from_path(os.path.join(input_path, config.meta_filename))
-    metadata_time = metadata_dict[config.time_filename]
-    metadata_samples = metadata_dict[config.values_filename]
+    metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
 
     # Initialize the classifier
@@ -408,9 +405,7 @@ def extract_arm_swing_features(input_path: str, output_path: str, config: ArmSwi
 
 def detect_arm_swing(input_path: str, output_path: str, path_to_classifier_input: str, config: ArmSwingDetectionConfig) -> None:
     # Load the data
-    metadata_dict = tsdf.load_metadata_from_path(os.path.join(input_path, config.meta_filename))
-    metadata_time = metadata_dict[config.time_filename]
-    metadata_samples = metadata_dict[config.values_filename]
+    metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
 
     # Initialize the classifier
@@ -456,9 +451,7 @@ def detect_arm_swing(input_path: str, output_path: str, path_to_classifier_input
 
 def quantify_arm_swing(path_to_feature_input: str, path_to_prediction_input: str, output_path: str, config: ArmSwingQuantificationConfig) -> None:
     # Load the features & predictions
-    metadata_dict = tsdf.load_metadata_from_path(os.path.join(path_to_feature_input, config.meta_filename))
-    metadata_time = metadata_dict[config.time_filename]
-    metadata_samples = metadata_dict[config.values_filename]
+    metadata_time, metadata_samples = read_metadata(path_to_feature_input, config.meta_filename, config.time_filename, config.values_filename)
     df_features = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
 
     metadata_dict = tsdf.load_metadata_from_path(os.path.join(path_to_prediction_input, config.meta_filename))

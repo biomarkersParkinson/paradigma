@@ -6,7 +6,7 @@ from scipy.interpolate import CubicSpline
 
 import tsdf
 from dbpd.constants import DataColumns
-from dbpd.util import get_end_iso8601, write_data
+from dbpd.util import get_end_iso8601, write_data, read_metadata
 
 
 class PreprocessingConfig:
@@ -37,9 +37,7 @@ class PreprocessingConfig:
 def preprocess_imu_data(input_path: str, output_path: str, config: PreprocessingConfig) -> None:
 
     # Load data
-    metadata_dict = tsdf.load_metadata_from_path(os.path.join(input_path, config.meta_filename))
-    metadata_time = metadata_dict[config.time_filename]
-    metadata_samples = metadata_dict[config.values_filename]
+    metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
 
     # Rename columns

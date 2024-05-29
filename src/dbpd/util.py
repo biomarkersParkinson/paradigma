@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from datetime import timedelta
 from dateutil import parser
+from typing import Tuple
 
 import tsdf
 from tsdf import TSDFMetadata
@@ -21,3 +22,9 @@ def write_data(metadata_time: TSDFMetadata, metadata_samples: TSDFMetadata,
     # store binaries and metadata
     tsdf.write_dataframe_to_binaries(output_path, df, [metadata_time, metadata_samples])
     tsdf.write_metadata([metadata_time, metadata_samples], output_filename)
+
+def read_metadata(input_path: str, meta_filename: str, time_filename: str, values_filename: str) -> Tuple[TSDFMetadata, TSDFMetadata]:
+    metadata_dict = tsdf.load_metadata_from_path(os.path.join(input_path, meta_filename))
+    metadata_time = metadata_dict[time_filename]
+    metadata_samples = metadata_dict[values_filename]
+    return metadata_time, metadata_samples
