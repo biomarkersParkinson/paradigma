@@ -1,16 +1,16 @@
 import numpy as np
 import pandas as pd
-
 from scipy import signal
 from scipy.interpolate import CubicSpline
 
-from dbpd.constants import DataColumns
-
+from dbpd.constants import DataColumns, TimeUnit
 
 def transform_time_array(
     time_array: np.ndarray,
     scale_factor: float,
-    data_in_delta_time: bool,
+    input_unit_type: TimeUnit,
+    output_unit_type: TimeUnit,
+    start_time: float
 ) -> np.ndarray:
     """
     Transforms the time array to relative time (when defined in delta time) and scales the values.
@@ -21,15 +21,39 @@ def transform_time_array(
         The time array in milliseconds to transform.
     scale_factor : float
         The scale factor to apply to the time array.
-    data_in_delta_time : bool - true if data is in delta time, and therefore needs to be converted to relative time.
+    input_unit_type : TimeUnit
+        The time unit type of the input time array. Raw PPP data was in `TimeUnit.difference_ms`.
+    output_unit_type : TimeUnit
+        The time unit type of the output time array. The processing is often done in `TimeUnit.relative_ms`.
+    start_time : float
+        The start time of the time array.
 
     Returns
     -------
-    array_like
-        The transformed time array in milliseconds.
+    time_array
+        The transformed time array in milliseconds, with the specified time unit type.
     """
-    if data_in_delta_time:
-        return np.cumsum(np.double(time_array)) / scale_factor
+    # Scale time array and transform to relative time (`TimeUnit.relative_ms`) 
+    if input_unit_type == TimeUnit.difference_ms:
+    # Convert a series of differences into cumulative sum to reconstruct original time series.
+        time_array = np.cumsum(np.double(time_array)) / scale_factor
+    elif input_unit_type == TimeUnit.absolute_ms:
+        # Convert absolute time stamps into a time series relative to start_time.
+        time_array = (time_array - start_time) / scale_factor
+    elif input_unit_type == TimeUnit.relative_ms:
+        # Scale the relative time series as per the scale_factor.
+        time_array = time_array / scale_factor
+
+    # Transform the time array from `TimeUnit.relative_ms` to the specified time unit type
+    if output_unit_type == TimeUnit.absolute_ms:
+        # Converts time array to absolute time by adding the start time to each element.
+        time_array = time_array + start_time
+    elif output_unit_type == TimeUnit.difference_ms:
+        # Creates a new array starting with 0, followed by the differences between consecutive elements.
+        time_array = np.diff(np.insert(time_array, 0, start_time))
+    elif output_unit_type == TimeUnit.relative_ms:
+        # The array is already in relative format, do nothing.
+        pass
     return time_array
 
 
