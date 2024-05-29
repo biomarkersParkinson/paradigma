@@ -8,11 +8,13 @@ from typing import Tuple
 import tsdf
 from tsdf import TSDFMetadata
 
+def format_datetime_to_iso8601(datetime):
+    return datetime.strftime('%Y-%m-%dT%H:%M:%S') + 'Z'
+
 def get_end_iso8601(start_iso8601, window_length_seconds):
     start_date = parser.parse(start_iso8601)
     end_date = start_date + timedelta(seconds=window_length_seconds)
-    # TODO: this is not valid iso8601:
-    return end_date.strftime('%d-%b-%Y %H:%M:%S') + ' UTC'
+    return format_datetime_to_iso8601(end_date)
 
 def write_data(metadata_time: TSDFMetadata, metadata_samples: TSDFMetadata,
                output_path: str, output_filename: str, df: pd.DataFrame):
