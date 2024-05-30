@@ -29,7 +29,7 @@ class PreprocessingConfig:
 
         # filtering
         self.sampling_frequency = 100
-        self.lower_cutoff_frequency = 0.3
+        self.lower_cutoff_frequency = 0.2
         self.filter_order = 4
 
 
