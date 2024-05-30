@@ -4,11 +4,10 @@
     "subject_id": "X",
     "ppp_source_protobuf": "WatchData.IMU.Week104.raw",
     "metadata_version": "0.1",
-    "start_iso8601": "27-Jun-2021 16:52:20 UTC",
-    "end_iso8601": "27-Jun-2021 17:04:30 UTC",
+    "start_iso8601": "2021-06-27T16:52:20Z",
+    "end_iso8601": "2021-06-27T17:04:30Z",
     "rows": 2,
     "endianness": "little",
-    "meta_filename": "rotation_meta.json",
     "data_type": "float",
     "bits": 64,
     "sensors": [
