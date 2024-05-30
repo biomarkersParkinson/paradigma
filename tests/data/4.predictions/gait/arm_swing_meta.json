@@ -8,7 +8,6 @@
     "end_iso8601": "2021-06-27T17:04:30Z",
     "rows": 642,
     "endianness": "little",
-    "meta_filename": "gyroscope_meta.json",
     "sensors": [
         {
             "data_type": "float",

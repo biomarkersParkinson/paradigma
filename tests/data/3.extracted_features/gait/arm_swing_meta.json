@@ -10,7 +10,6 @@
     "endianness": "little",
     "data_type": "float",
     "bits": 64,
-    "meta_filename": "gyroscope_meta.json",
     "sensors": [
         {
             "scale_factors": [

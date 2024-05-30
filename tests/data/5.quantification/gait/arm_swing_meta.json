@@ -8,7 +8,6 @@
     "end_iso8601": "2021-06-27T17:04:30Z",
     "rows": 2,
     "endianness": "little",
-    "meta_filename": "rotation_meta.json",
     "data_type": "float",
     "bits": 64,
     "sensors": [
