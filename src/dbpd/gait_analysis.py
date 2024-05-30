@@ -95,17 +95,17 @@ def extract_gait_features(input_path: str, output_path: str, config: GaitFeature
     end_iso8601 = get_end_iso8601(start_iso8601=metadata_time.start_iso8601,
                                   window_length_seconds=int(df_windowed['time'][-1:].values[0] + config.window_length_s))
 
-    metadata_samples.__setattr__('end_iso8601', end_iso8601)
-    metadata_samples.__setattr__('file_name', 'gait_values.bin')
-    metadata_time.__setattr__('end_iso8601', end_iso8601)
-    metadata_time.__setattr__('file_name', 'gait_time.bin')
+    metadata_samples.end_iso8601 = end_iso8601
+    metadata_samples.file_name = 'gait_values.bin'
+    metadata_time.end_iso8601 = end_iso8601
+    metadata_time.file_name = 'gait_time.bin'
 
-    metadata_samples.__setattr__('channels', list(config.d_channels_values.keys()))
-    metadata_samples.__setattr__('units', list(config.d_channels_values.values()))
+    metadata_samples.channels = list(config.d_channels_values.keys())
+    metadata_samples.units = list(config.d_channels_values.values())
 
-    metadata_time.__setattr__('channels', ['time'])
-    metadata_time.__setattr__('units', ['relative_time_ms'])
-    metadata_time.__setattr__('data_type', np.int64)
+    metadata_time.channels = ['time']
+    metadata_time.units = ['relative_time_ms']
+    metadata_time.data_type = np.int64
 
     write_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df_windowed)
 
@@ -136,18 +136,18 @@ def detect_gait(input_path: str, output_path: str, path_to_classifier_input: str
     df['pred_gait'] = df['pred_gait_proba'] > threshold
 
     # Prepare the metadata
-    metadata_samples.__setattr__('file_name', 'gait_values.bin')
-    metadata_time.__setattr__('file_name', 'gait_time.bin')
+    metadata_samples.file_name = 'gait_values.bin'
+    metadata_time.file_name = 'gait_time.bin'
 
-    metadata_samples.__setattr__('channels', ['pred_gait_proba'])
-    metadata_samples.__setattr__('units', ['probability'])
-    metadata_samples.__setattr__('data_type', np.float32)
-    metadata_samples.__setattr__('bits', 32)
+    metadata_samples.channels = ['pred_gait_proba']
+    metadata_samples.units = ['probability']
+    metadata_samples.data_type = np.float32
+    metadata_samples.bits = 32
 
-    metadata_time.__setattr__('channels', ['time'])
-    metadata_time.__setattr__('units', ['relative_time_ms'])
-    metadata_time.__setattr__('data_type', np.int32)
-    metadata_time.__setattr__('bits', 32)
+    metadata_time.channels = ['time']
+    metadata_time.units = ['relative_time_ms']
+    metadata_time.data_type = np.int32
+    metadata_time.bits = 32
 
     write_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df)
 
@@ -379,20 +379,20 @@ def extract_arm_swing_features(input_path: str, output_path: str, config: ArmSwi
     end_iso8601 = get_end_iso8601(metadata_samples.start_iso8601, 
                                 df_windowed['time'][-1:].values[0] + config.window_length_s)
 
-    metadata_samples.__setattr__('end_iso8601', end_iso8601)
-    metadata_samples.__setattr__('file_name', 'arm_swing_values.bin')
-    metadata_time.__setattr__('end_iso8601', end_iso8601)
-    metadata_time.__setattr__('file_name', 'arm_swing_time.bin')
+    metadata_samples.end_iso8601 = end_iso8601
+    metadata_samples.file_name = 'arm_swing_values.bin'
+    metadata_time.end_iso8601 = end_iso8601
+    metadata_time.file_name = 'arm_swing_time.bin'
 
-    metadata_samples.__setattr__('channels', list(config.d_channels_values.keys()))
-    metadata_samples.__setattr__('units', list(config.d_channels_values.values()))
-    metadata_samples.__setattr__('data_type', np.float32)
-    metadata_samples.__setattr__('bits', 32)
+    metadata_samples.channels = list(config.d_channels_values.keys())
+    metadata_samples.units = list(config.d_channels_values.values())
+    metadata_samples.data_type = np.float32
+    metadata_samples.bits = 32
 
-    metadata_time.__setattr__('channels', ['time'])
-    metadata_time.__setattr__('units', ['relative_time_ms'])
-    metadata_time.__setattr__('data_type', np.int32)
-    metadata_time.__setattr__('bits', 32)
+    metadata_time.channels = ['time']
+    metadata_time.units = ['relative_time_ms']
+    metadata_time.data_type = np.int32
+    metadata_time.bits = 32
 
     write_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df_windowed)
 
@@ -425,18 +425,18 @@ def detect_arm_swing(input_path: str, output_path: str, path_to_classifier_input
     df['pred_arm_swing'] = clf.predict(X)
 
     # Prepare the metadata
-    metadata_samples.__setattr__('file_name', 'arm_swing_values.bin')
-    metadata_time.__setattr__('file_name', 'arm_swing_time.bin')
+    metadata_samples.file_name = 'arm_swing_values.bin'
+    metadata_time.file_name = 'arm_swing_time.bin'
 
-    metadata_samples.__setattr__('channels', ['pred_arm_swing'])
-    metadata_samples.__setattr__('units', ['boolean'])
-    metadata_samples.__setattr__('data_type', np.int8)
-    metadata_samples.__setattr__('bits', 8)
+    metadata_samples.channels = ['pred_arm_swing']
+    metadata_samples.units = ['boolean']
+    metadata_samples.data_type = np.int8
+    metadata_samples.bits = 8
 
-    metadata_time.__setattr__('channels', ['time'])
-    metadata_time.__setattr__('units', ['relative_time_ms'])
-    metadata_time.__setattr__('data_type', np.int32)
-    metadata_time.__setattr__('bits', 32)
+    metadata_time.channels = ['time']
+    metadata_time.units = ['relative_time_ms']
+    metadata_time.data_type = np.int32
+    metadata_time.bits = 32
 
     write_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df)
 
@@ -509,19 +509,19 @@ def quantify_arm_swing(path_to_feature_input: str, path_to_prediction_input: str
     df_aggregates = df_aggregates.drop(columns=['segment_nr'])
 
     # Store data
-    metadata_samples.__setattr__('file_name', 'arm_swing_values.bin')
-    metadata_time.__setattr__('file_name', 'arm_swing_time.bin')
+    metadata_samples.file_name = 'arm_swing_values.bin'
+    metadata_time.file_name = 'arm_swing_time.bin'
 
-    metadata_samples.__setattr__('channels', ['range_of_motion_median', 'range_of_motion_quantile_95',
-                                            'peak_ang_vel_median', 'peak_ang_vel_quantile_95'])
-    metadata_samples.__setattr__('units', ['deg', 'deg', 'deg/s', 'deg/s'])
-    metadata_samples.__setattr__('data_type', np.float32)
-    metadata_samples.__setattr__('bits', 32)
+    metadata_samples.channels = ['range_of_motion_median', 'range_of_motion_quantile_95',
+                                    'peak_ang_vel_median', 'peak_ang_vel_quantile_95']
+    metadata_samples.units = ['deg', 'deg', 'deg/s', 'deg/s']
+    metadata_samples.data_type = np.float32
+    metadata_samples.bits = 32
 
-    metadata_time.__setattr__('channels', ['time', 'segment_duration_ms'])
-    metadata_time.__setattr__('units', ['relative_time_ms', 'ms'])
-    metadata_time.__setattr__('data_type', np.int32)
-    metadata_time.__setattr__('bits', 32)
+    metadata_time.channels = ['time', 'segment_duration_ms']
+    metadata_time.units = ['relative_time_ms', 'ms']
+    metadata_time.data_type = np.int32
+    metadata_time.bits = 32
 
     write_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df_aggregates)
 

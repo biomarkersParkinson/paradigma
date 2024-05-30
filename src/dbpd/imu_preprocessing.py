@@ -85,12 +85,12 @@ def preprocess_imu_data(input_path: str, output_path: str, config: Preprocessing
     for sensor, units in zip(['accelerometer', 'gyroscope'], ['g', config.rotation_units]):
         df_sensor = df[['time'] + [x for x in df.columns if sensor in x]]
 
-        metadata_samples.__setattr__('channels', [x for x in df.columns if sensor in x])
-        metadata_samples.__setattr__('units', list(np.repeat(units, len(metadata_samples.channels))))
-        metadata_samples.__setattr__('file_name', f'{sensor}_samples.bin')
+        metadata_samples.channels = [x for x in df.columns if sensor in x]
+        metadata_samples.units = list(np.repeat(units, len(metadata_samples.channels)))
+        metadata_samples.file_name = f'{sensor}_samples.bin'
 
-        metadata_time.__setattr__('file_name', f'{sensor}_time.bin')
-        metadata_time.__setattr__('units', ['time_relative_ms'])
+        metadata_time.file_name = f'{sensor}_time.bin'
+        metadata_time.units = ['time_relative_ms']
 
         write_data(metadata_time, metadata_samples, output_path, f'{sensor}_meta.json', df_sensor)
 
