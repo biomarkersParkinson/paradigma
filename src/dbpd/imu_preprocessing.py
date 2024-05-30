@@ -18,6 +18,9 @@ class PreprocessingConfig:
         self.acceleration_units = 'm/s^2'
         self.rotation_units = 'deg/s'
 
+        self.l_acceleration_cols = [DataColumns.ACCELEROMETER_X, DataColumns.ACCELEROMETER_Y, DataColumns.ACCELEROMETER_Z]
+        self.time_colname = 'time'
+
         self.d_channels_units = {
             DataColumns.ACCELEROMETER_X: self.acceleration_units,
             DataColumns.ACCELEROMETER_Y: self.acceleration_units,
@@ -26,6 +29,9 @@ class PreprocessingConfig:
             DataColumns.GYROSCOPE_Y: self.rotation_units,
             DataColumns.GYROSCOPE_Z: self.rotation_units,
         }
+
+        # participant information
+        self.side_watch = 'right'
 
         # filtering
         self.sampling_frequency = 100
@@ -44,26 +50,22 @@ def preprocess_imu_data(input_path: str, output_path: str, config: Preprocessing
     df = df.rename(columns={f'acceleration_{a}': f'accelerometer_{a}' for a in ['x', 'y', 'z']})
 
     # convert to relative seconds from delta milliseconds
-    df['time'] = transform_time_array(
-        time_array=df['time'],
+    df[config.time_colname] = transform_time_array(
+        time_array=df[config.time_colname],
         scale_factor=1000, 
         data_in_delta_time=True)
 
     df = resample_data(
-        time_abs_array=np.array(df['time']),
+        time_abs_array=np.array(df[config.time_colname]),
         values_unscaled=np.array(df[list(config.d_channels_units.keys())]),
         scale_factors=metadata_samples.scale_factors,
         resampling_frequency=config.sampling_frequency,
-        time_column='time')
+        time_column=config.time_colname)
 
-    # TODO: @Erik, please fix:
-    # correct for sensor orientation - this subject has watch on right-hand side
-    side_watch = 'left'
-    df[DataColumns.ACCELEROMETER_Z] *= -1
-    if side_watch == 'right':
+    if config.side_watch == 'left':
         df[DataColumns.ACCELEROMETER_X] *= -1
 
-    for col in [x for x in config.d_channels_units.keys() if 'accelerometer' in x]:
+    for col in config.l_acceleration_cols:
 
         # change to correct units [g]
         if config.acceleration_units == 'm/s^2':
@@ -83,7 +85,7 @@ def preprocess_imu_data(input_path: str, output_path: str, config: Preprocessing
 
     # Store data
     for sensor, units in zip(['accelerometer', 'gyroscope'], ['g', config.rotation_units]):
-        df_sensor = df[['time'] + [x for x in df.columns if sensor in x]]
+        df_sensor = df[[config.time_colname] + [x for x in df.columns if sensor in x]]
 
         metadata_samples.channels = [x for x in df.columns if sensor in x]
         metadata_samples.units = list(np.repeat(units, len(metadata_samples.channels)))
