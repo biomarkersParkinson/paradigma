@@ -22,57 +22,62 @@ class GaitFeatureExtractionConfig:
             'power_tremor': [3.5, 8],
             'power_above_tremor': [8, self.sampling_frequency]
         }
+
+        self.time_colname = 'time'
         
         self.l_accelerometer_cols: List[str] = [
             DataColumns.ACCELEROMETER_X, 
             DataColumns.ACCELEROMETER_Y, 
             DataColumns.ACCELEROMETER_Z
         ]
+
         self.l_gravity_cols: List[str] = [f'grav_{x}' for x in self.l_accelerometer_cols]
         self.l_window_level_cols: List[str] = ['id', 'window_nr', 'window_start', 'window_end']
         self.l_data_point_level_cols: List[str] = self.l_accelerometer_cols + self.l_gravity_cols
         
+        # TODO: generate this dictionary using object attributes (self.X) and parameters (e.g., n_dct_filters for cc)
         self.d_channels_values: Dict[str, str] = {
-            'grav_accelerometer_x_mean': 'g',
-            'grav_accelerometer_y_mean': 'g',
-            'grav_accelerometer_z_mean': 'g',
-            'grav_accelerometer_x_std': 'g',
-            'grav_accelerometer_y_std': 'g',
-            'grav_accelerometer_z_std': 'g',
-            'accelerometer_x_power_below_gait': 'X',
-            'accelerometer_y_power_below_gait': 'X',
-            'accelerometer_z_power_below_gait': 'X',
-            'accelerometer_x_power_gait': 'X',
-            'accelerometer_y_power_gait': 'X',
-            'accelerometer_z_power_gait': 'X',
-            'accelerometer_x_power_tremor': 'X',
-            'accelerometer_y_power_tremor': 'X',
-            'accelerometer_z_power_tremor': 'X',
-            'accelerometer_x_power_above_tremor': 'X',
-            'accelerometer_y_power_above_tremor': 'X',
-            'accelerometer_z_power_above_tremor': 'X',
-            'accelerometer_x_dominant_frequency': 'Hz',
-            'accelerometer_y_dominant_frequency': 'Hz',
-            'accelerometer_z_dominant_frequency': 'Hz',
-            'std_norm_acc': 'X',
-            'cc_1_acc': 'X',
-            'cc_2_acc': 'X',
-            'cc_3_acc': 'X',
-            'cc_4_acc': 'X',
-            'cc_5_acc': 'X',
-            'cc_6_acc': 'X',
-            'cc_7_acc': 'X',
-            'cc_8_acc': 'X',
-            'cc_9_acc': 'X',
-            'cc_10_acc': 'X',
-            'cc_11_acc': 'X',
-            'cc_12_acc': 'X',
-            'cc_13_acc': 'X',
-            'cc_14_acc': 'X',
-            'cc_15_acc': 'X',
-            'cc_16_acc': 'X'
+            f'grav_{self.sensor}_x_mean': 'g',
+            f'grav_{self.sensor}_y_mean': 'g',
+            f'grav_{self.sensor}_z_mean': 'g',
+            f'grav_{self.sensor}_x_std': 'g',
+            f'grav_{self.sensor}_y_std': 'g',
+            f'grav_{self.sensor}_z_std': 'g',
+            f'{self.sensor}_x_power_below_gait': 'X',
+            f'{self.sensor}_y_power_below_gait': 'X',
+            f'{self.sensor}_z_power_below_gait': 'X',
+            f'{self.sensor}_x_power_gait': 'X',
+            f'{self.sensor}_y_power_gait': 'X',
+            f'{self.sensor}_z_power_gait': 'X',
+            f'{self.sensor}_x_power_tremor': 'X',
+            f'{self.sensor}_y_power_tremor': 'X',
+            f'{self.sensor}_z_power_tremor': 'X',
+            f'{self.sensor}_x_power_above_tremor': 'X',
+            f'{self.sensor}_y_power_above_tremor': 'X',
+            f'{self.sensor}_z_power_above_tremor': 'X',
+            f'{self.sensor}_x_dominant_frequency': 'Hz',
+            f'{self.sensor}_y_dominant_frequency': 'Hz',
+            f'{self.sensor}_z_dominant_frequency': 'Hz',
+            f'std_norm_acc': 'X',
+            f'cc_1_{self.sensor}': 'X',
+            f'cc_2_{self.sensor}': 'X',
+            f'cc_3_{self.sensor}': 'X',
+            f'cc_4_{self.sensor}': 'X',
+            f'cc_5_{self.sensor}': 'X',
+            f'cc_6_{self.sensor}': 'X',
+            f'cc_7_{self.sensor}': 'X',
+            f'cc_8_{self.sensor}': 'X',
+            f'cc_9_{self.sensor}': 'X',
+            f'cc_10_{self.sensor}': 'X',
+            f'cc_11_{self.sensor}': 'X',
+            f'cc_12_{self.sensor}': 'X',
+            f'cc_13_{self.sensor}': 'X',
+            f'cc_14_{self.sensor}': 'X',
+            f'cc_15_{self.sensor}': 'X',
+            f'cc_16_{self.sensor}': 'X'
         }
 
+    # TODO: move to higher level config class (duplicate in armswing feature extraction)
     def set_sensor(self, sensor: str) -> None:
         """ Sets the sensor and derived filenames """
         self.sensor: str = sensor
@@ -83,9 +88,9 @@ class GaitFeatureExtractionConfig:
     def set_sampling_frequency(self, sampling_frequency: int) -> None:
         """ Sets the sampling frequency and derived variables """
         self.sampling_frequency: int = sampling_frequency
-        self.low_frequency: int = 0  # Hz
-        self.high_frequency: int = int(self.sampling_frequency / 2)  # Hz
-        self.filter_length: int = self.high_frequency - 1
+        self.spectrum_low_frequency: int = 0  # Hz
+        self.spectrum_high_frequency: int = int(self.sampling_frequency / 2)  # Hz
+        self.filter_length: int = self.spectrum_high_frequency - 1
 
 
 class GaitDetectionConfig:
@@ -99,6 +104,8 @@ class GaitDetectionConfig:
         self.values_filename = 'gait_values.bin'
 
         self.l_accel_cols = [DataColumns.ACCELEROMETER_X, DataColumns.ACCELEROMETER_Y, DataColumns.ACCELEROMETER_Z]
+
+        self.time_colname = 'time'
 
 
 class ArmSwingFeatureExtractionConfig:
@@ -114,8 +121,8 @@ class ArmSwingFeatureExtractionConfig:
         # computing power
         self.power_band_low_frequency = 0.3
         self.power_band_high_frequency = 3
-        self.power_total_low_frequency = 0
-        self.power_total_high_frequency = int(sampling_frequency / 2)
+        self.spectrum_low_frequency = 0
+        self.spectrum_high_frequency = int(sampling_frequency / 2)
 
         self.d_frequency_bandwidths = {
             'power_below_gait': [0.3, 0.7],
@@ -140,18 +147,22 @@ class ArmSwingFeatureExtractionConfig:
         self.velocity_colname = velocity_colname
         self.segment_nr_colname = segment_nr_colname
 
-        self.l_data_point_level_cols = [
-            DataColumns.ACCELEROMETER_X,
-            DataColumns.ACCELEROMETER_Y,
-            DataColumns.ACCELEROMETER_Z,
-            DataColumns.GYROSCOPE_X,
-            DataColumns.GYROSCOPE_Y,
-            DataColumns.GYROSCOPE_Z,
-            f'grav_{DataColumns.ACCELEROMETER_X}',
-            f'grav_{DataColumns.ACCELEROMETER_Y}',
-            f'grav_{DataColumns.ACCELEROMETER_Z}',
-            angle_smooth_colname, 
-            velocity_colname
+        self.l_accelerometer_cols: List[str] = [
+            DataColumns.ACCELEROMETER_X, 
+            DataColumns.ACCELEROMETER_Y, 
+            DataColumns.ACCELEROMETER_Z
+        ]
+
+        self.l_gyroscope_cols: List[str] = [
+            DataColumns.GYROSCOPE_X, 
+            DataColumns.GYROSCOPE_Y, 
+            DataColumns.GYROSCOPE_Z
+        ]
+        
+        self.l_gravity_cols: List[str] = [f'grav_{x}' for x in self.l_accelerometer_cols]
+
+        self.l_data_point_level_cols = self.l_accelerometer_cols + self.l_gyroscope_cols + self.l_gravity_cols + [
+            angle_smooth_colname, velocity_colname
         ]
 
     def __init__(self) -> None:
@@ -232,6 +243,14 @@ class ArmSwingFeatureExtractionConfig:
             'cc_15_gyroscope': 'X',
             'cc_16_gyroscope': 'X'
         }
+
+    # TODO: move to higher level config class (duplicate in gait feature extraction)
+    def set_sensor(self, sensor: str) -> None:
+        """ Sets the sensor and derived filenames """
+        self.sensor: str = sensor
+        self.meta_filename: str = f'{self.sensor}_meta.json'
+        self.values_filename: str = f'{self.sensor}_samples.bin'
+        self.time_filename: str = f'{self.sensor}_time.bin'
 
 
 class ArmSwingDetectionConfig:
