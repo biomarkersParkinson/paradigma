@@ -7,6 +7,10 @@ import papermill as pm
 
 import tsdf
 
+from dbpd.imu_preprocessing import *
+from dbpd.gait_analysis import *
+from dbpd.gait_analysis_config import *
+
 # Step names
 
 # Tolerance for the np.allclose function
@@ -66,17 +70,18 @@ def test_1_imu_preprocessing_outputs(shared_datadir):
     This function is used to evaluate the output of the preprocessing function. It evaluates it by comparing the output to a reference output.
     """
     # Notebook step
-    notebook_input_dir_name: str = "1.sensor_data"
-    notebook_output_dir_name: str = "2.preprocessed_data"
+    input_dir_name: str = "1.sensor_data"
+    output_dir_name: str = "2.preprocessed_data"
     data_type: str = "imu"
-    notebook_name: str = "1.preprocess_imu"
 
-    input_path = os.path.join(shared_datadir, notebook_input_dir_name, data_type)
+    input_path = os.path.join(shared_datadir, input_dir_name, data_type)
     tmp_output_folder = create_tmp_folder_if_not_exists(shared_datadir)
-    output_path = os.path.join(tmp_output_folder, notebook_output_dir_name)
+    output_path = os.path.join(tmp_output_folder, output_dir_name)
 
-    execute_notebook(shared_datadir, notebook_name, input_path, output_path)
-    compare_data(shared_datadir, notebook_output_dir_name, imu_binaries_pairs)
+    config = PreprocessingConfig()
+    preprocess_imu_data(input_path, output_path, config)
+
+    compare_data(shared_datadir, output_dir_name, imu_binaries_pairs)
 
 
 def test_2_extract_features_gait_output(shared_datadir):
@@ -85,18 +90,19 @@ def test_2_extract_features_gait_output(shared_datadir):
     """
 
     # Notebook step
-    notebook_input_dir_name: str = "2.preprocessed_data"
-    notebook_output_dir_name: str = "3.extracted_features"
+    input_dir_name: str = "2.preprocessed_data"
+    output_dir_name: str = "3.extracted_features"
     data_type: str = "gait"
-    notebook_name: str = "2.extract_features_gait"
 
     # Temporary path to store the output of the notebook
-    input_path = os.path.join(shared_datadir, notebook_input_dir_name, data_type)
+    input_path = os.path.join(shared_datadir, input_dir_name, data_type)
     tmp_output_folder = create_tmp_folder_if_not_exists(shared_datadir)
-    output_path = os.path.join(tmp_output_folder, notebook_output_dir_name)
+    output_path = os.path.join(tmp_output_folder, output_dir_name)
 
-    execute_notebook(shared_datadir, notebook_name, input_path, output_path)
-    compare_data(shared_datadir, notebook_output_dir_name, gait_binaries_pairs)
+    config = GaitFeatureExtractionConfig()
+    extract_gait_features(input_path, output_path, config)
+
+    compare_data(shared_datadir, output_dir_name, gait_binaries_pairs)
 
 
 def test_3_gait_detection_output(shared_datadir):
@@ -105,19 +111,20 @@ def test_3_gait_detection_output(shared_datadir):
     """
 
     # Notebook step
-    notebook_input_dir_name: str = "3.extracted_features"
-    notebook_output_dir_name: str = "4.predictions"
+    input_dir_name: str = "3.extracted_features"
+    output_dir_name: str = "4.predictions"
     data_type: str = "gait"
-    notebook_name: str = "3.gait_detection"
 
     # Temporary path to store the output of the notebook
-
-    input_path = os.path.join(shared_datadir, notebook_input_dir_name, data_type)
+    input_path = os.path.join(shared_datadir, input_dir_name, data_type)
     tmp_output_folder = create_tmp_folder_if_not_exists(shared_datadir)
-    output_path = os.path.join(tmp_output_folder, notebook_output_dir_name)
+    output_path = os.path.join(tmp_output_folder, output_dir_name)
+    path_to_classifier_input = os.path.join(shared_datadir, '0.classifiers', 'gait')
 
-    execute_notebook(shared_datadir, notebook_name, input_path, output_path)
-    compare_data(shared_datadir, notebook_output_dir_name, gait_binaries_pairs)
+    config = GaitDetectionConfig()
+    detect_gait(input_path, output_path, path_to_classifier_input, config)
+
+    compare_data(shared_datadir, output_dir_name, gait_binaries_pairs)
 
 
 def test_4_extract_features_arm_swing_output(shared_datadir):
@@ -126,18 +133,19 @@ def test_4_extract_features_arm_swing_output(shared_datadir):
     """
 
     # Notebook step
-    notebook_input_dir_name: str = "2.preprocessed_data"
-    notebook_output_dir_name: str = "3.extracted_features"
+    input_dir_name: str = "2.preprocessed_data"
+    output_dir_name: str = "3.extracted_features"
     data_type: str = "gait"
-    notebook_name: str = "4.extract_features_arm_swing"
 
     # Temporary path to store the output of the notebook
-    input_path = os.path.join(shared_datadir, notebook_input_dir_name, data_type)
+    input_path = os.path.join(shared_datadir, input_dir_name, data_type)
     tmp_output_folder = create_tmp_folder_if_not_exists(shared_datadir)
-    output_path = os.path.join(tmp_output_folder, notebook_output_dir_name)
+    output_path = os.path.join(tmp_output_folder, output_dir_name)
 
-    execute_notebook(shared_datadir, notebook_name, input_path, output_path)
-    compare_data(shared_datadir, notebook_output_dir_name, arm_swing_binaries_pairs)
+    config = ArmSwingFeatureExtractionConfig()
+    extract_arm_swing_features(input_path, output_path, config)
+
+    compare_data(shared_datadir, output_dir_name, arm_swing_binaries_pairs)
 
 
 def test_5_arm_swing_detection_output(shared_datadir):
@@ -146,19 +154,20 @@ def test_5_arm_swing_detection_output(shared_datadir):
     """
 
     # Notebook info
-    notebook_input_dir_name: str = "3.extracted_features"
-    notebook_output_dir_name: str = "4.predictions"
+    input_dir_name: str = "3.extracted_features"
+    output_dir_name: str = "4.predictions"
     data_type: str = "gait"
-    notebook_name: str = "5.arm_swing_detection"
 
     # Temporary path to store the output of the notebook
-
-    input_path = os.path.join(shared_datadir, notebook_input_dir_name, data_type)
+    input_path = os.path.join(shared_datadir, input_dir_name, data_type)
     tmp_output_folder = create_tmp_folder_if_not_exists(shared_datadir)
-    output_path = os.path.join(tmp_output_folder, notebook_output_dir_name)
+    output_path = os.path.join(tmp_output_folder, output_dir_name)
+    path_to_classifier_input = os.path.join(shared_datadir, '0.classifiers', 'gait')
 
-    execute_notebook(shared_datadir, notebook_name, input_path, output_path)
-    compare_data(shared_datadir, notebook_output_dir_name, arm_swing_binaries_pairs)
+    config = ArmSwingDetectionConfig()
+    detect_arm_swing(input_path, output_path, path_to_classifier_input, config)
+
+    compare_data(shared_datadir, output_dir_name, arm_swing_binaries_pairs)
 
 
 def test_6_arm_swing_quantification_output(shared_datadir):
@@ -167,22 +176,24 @@ def test_6_arm_swing_quantification_output(shared_datadir):
     """
 
     # Notebook step
-    notebook_input_dir_name: str = "3.extracted_features"
-    notebook_output_dir_name: str = "5.quantification"
+    input_dir_name: str = "3.extracted_features"
+    output_dir_name: str = "5.quantification"
     data_type: str = "gait"
-    notebook_name: str = "6.arm_swing_quantification"
 
     # Temporary path to store the output of the notebook
-    input_path = os.path.join(shared_datadir, notebook_input_dir_name, data_type)
+    path_to_feature_input = os.path.join(shared_datadir, '3.extracted_features', 'gait')
+    path_to_prediction_input = os.path.join(shared_datadir, '4.predictions', 'gait')
     tmp_output_folder = create_tmp_folder_if_not_exists(shared_datadir)
-    output_path = os.path.join(tmp_output_folder, notebook_output_dir_name)
+    output_path = os.path.join(tmp_output_folder, output_dir_name)
 
-    execute_notebook(shared_datadir, notebook_name, input_path, output_path)
-    compare_data(shared_datadir, notebook_output_dir_name, arm_swing_binaries_pairs)
+    config = ArmSwingQuantificationConfig()
+    quantify_arm_swing(path_to_feature_input, path_to_prediction_input, output_path, config)
+
+    compare_data(shared_datadir, output_dir_name, arm_swing_binaries_pairs)
 
 
 def execute_notebook(
-    datadir:Path, notebook_name: str, input_dir: str, output_dir: str
+    datadir:Path, name: str, input_dir: str, output_dir: str
 ):
     """
     This function is used to execute a notebook.
@@ -191,21 +202,21 @@ def execute_notebook(
     ----------
     shared_datadir : Path
         The path to the shared data directory.
-    notebook_name : str
+    name : str
         The name of the notebook to execute.
     input_dir : str
         The path to the input directory.
     output_dir : str
         The path to the output directory.
     """
-    notebook_path = f"{notebooks_dir}/{notebook_name}.ipynb"
-    # compute shared_datadir / "tmp" / notebook_output_dir_name / metadata
-    notebook_output = f"{datadir}/tmp/{notebook_name}.ipynb"
+    path = f"{notebooks_dir}/{name}.ipynb"
+    # compute shared_datadir / "tmp" / output_dir_name / metadata
+    output = f"{datadir}/tmp/{name}.ipynb"
 
     path_to_data = f"{datadir}"
     pm.execute_notebook(
-        notebook_path,
-        notebook_output,
+        path,
+        output,
         parameters=dict(
             input_path=input_dir, output_path=output_dir, path_to_data=path_to_data
         ),
@@ -213,7 +224,7 @@ def execute_notebook(
 
 
 def compare_data(
-    datadir: Path, notebook_output_dir_name: str, binaries_pairs: list[tuple[str, str]]
+    datadir: Path, output_dir_name: str, binaries_pairs: list[tuple[str, str]]
 ):
     """
     This function is used to evaluate the output of a notebook. It evaluates it by comparing the output to a reference output.
@@ -229,13 +240,13 @@ def compare_data(
 
         # load the reference data
         reference_metadata = tsdf.load_metadata_from_path(
-            datadir / notebook_output_dir_name / "gait" / metadata
+            datadir / output_dir_name / "gait" / metadata
         )
         ref_metadata_samples = reference_metadata[binary]
         ref_data = tsdf.load_ndarray_from_binary(ref_metadata_samples)
         # load the generated data
         original_metadata = tsdf.load_metadata_from_path(
-            datadir / "tmp" / notebook_output_dir_name / metadata
+            datadir / "tmp" / output_dir_name / metadata
         )
         original_metadata_samples = original_metadata[binary]
         original_data = tsdf.load_ndarray_from_binary(original_metadata_samples)
