@@ -8,6 +8,7 @@ class DataColumns:
     GYROSCOPE_X = "gyroscope_x"
     GYROSCOPE_Y = "gyroscope_y"
     GYROSCOPE_Z = "gyroscope_z"
+    PPG = "green"
     TIME = "time"
 
 class TimeUnit:

@@ -1,3 +1,4 @@
+from typing import List
 import numpy as np
 import pandas as pd
 from scipy import signal
@@ -10,7 +11,7 @@ def transform_time_array(
     scale_factor: float,
     input_unit_type: TimeUnit,
     output_unit_type: TimeUnit,
-    start_time: float
+    start_time: float = 0.0,
 ) -> np.ndarray:
     """
     Transforms the time array to relative time (when defined in delta time) and scales the values.
@@ -25,8 +26,8 @@ def transform_time_array(
         The time unit type of the input time array. Raw PPP data was in `TimeUnit.difference_ms`.
     output_unit_type : TimeUnit
         The time unit type of the output time array. The processing is often done in `TimeUnit.relative_ms`.
-    start_time : float
-        The start time of the time array.
+    start_time : float, optional
+        The start time of the time array in UNIX milliseconds (default is 0.0)
 
     Returns
     -------
@@ -38,6 +39,9 @@ def transform_time_array(
     # Convert a series of differences into cumulative sum to reconstruct original time series.
         time_array = np.cumsum(np.double(time_array)) / scale_factor
     elif input_unit_type == TimeUnit.absolute_ms:
+        # Set the start time if not provided.
+        if start_time == 0.0:
+            start_time = time_array[0]
         # Convert absolute time stamps into a time series relative to start_time.
         time_array = (time_array - start_time) / scale_factor
     elif input_unit_type == TimeUnit.relative_ms:
@@ -58,11 +62,12 @@ def transform_time_array(
 
 
 def resample_data(
-    time_abs_array: np.ndarray,
-    values_unscaled: np.ndarray,
-    scale_factors: list,
+    df: pd.DataFrame,
+    time_column : DataColumns,
+    unscaled_column_names : list,
     resampling_frequency: int,
-    time_column: str,
+    scale_factors: list = [],
+    start_time : float = 0.0,
 ) -> pd.DataFrame:
     """
     Resamples the IMU data to the resampling frequency. The data is scaled before resampling.
@@ -73,39 +78,36 @@ def resample_data(
         The absolute time array.
     values_unscaled : np.ndarray
         The values to resample.
-    scale_factors : list
-        The scale factors to apply to the values.
     resampling_frequency : int
         The frequency to resample the data to.
     time_column : str
         The name of the time column.
+    scale_factors : list, optional
+        The scale factors to apply to the values before resampling (default is []).
 
     Returns
     -------
     pd.DataFrame
         The resampled data.
     """
+    print("Type of unscaled_column_names: ", type(unscaled_column_names))
+    time_abs_array=np.array(df[time_column])
+    
+    values_unscaled=np.array(df[unscaled_column_names])[0]
+
 
     # scale data
-    scaled_values = values_unscaled * scale_factors
+    if len(scale_factors) != 0 and scale_factors is not None:
+        scaled_values = values_unscaled * scale_factors
 
     # resample
-    t_resampled = np.arange(0, time_abs_array[-1], 1 / resampling_frequency)
+    t_resampled = np.arange(float, time_abs_array[-1], 1 / resampling_frequency)
 
     # create dataframe
     df = pd.DataFrame(t_resampled, columns=[time_column])
 
     # interpolate IMU - maybe a separate method?
-    for j, sensor_col in enumerate(
-        [
-            DataColumns.ACCELEROMETER_X,
-            DataColumns.ACCELEROMETER_Y,
-            DataColumns.ACCELEROMETER_Z,
-            DataColumns.GYROSCOPE_X,
-            DataColumns.GYROSCOPE_Y,
-            DataColumns.GYROSCOPE_Z,
-        ]
-    ):
+    for j, sensor_col in enumerate(unscaled_column_names):
         if not np.all(np.diff(time_abs_array) > 0):
             raise ValueError("time_abs_array is not strictly increasing")
 
