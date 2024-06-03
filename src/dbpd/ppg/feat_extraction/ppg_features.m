@@ -1,5 +1,5 @@
 function [FeaturesPPG] = ppg_features(PPG,fs)
-
+    % extract features from the PPG signal, per 6sec window (PPG input is a 6sec window of PPG signal)
     N_feat = 10;
     FeaturesPPG = zeros(1, N_feat);
     % Time-domain features
@@ -39,11 +39,11 @@ function [FeaturesPPG] = ppg_features(PPG,fs)
     
     %% Autocorrelation features
     
-    [acf, ~] = autocorr(PPG, 'NumLags', fs*3);
+    [acf, ~] = autocorr(PPG, 'NumLags', fs*3); % Compute the autocorrelation of the PPG signal with a maximum lag of 3 seconds (or 3 time the sampling rate)
     [peakValues, ~] = peakdet(acf, 0.01);
     sortedValues = sort(peakValues(:,2), 'descend');     % sort the peaks found in the corellogram
     if length(sortedValues) > 1
-        FeaturesPPG(10) = sortedValues(2); % determine the second peak as the highest peak after the peak at lag=0
+        FeaturesPPG(10) = sortedValues(2); % determine the second peak as the highest peak after the peak at lag=0, the idea is to determine the periodicity of the signal
     else
         FeaturesPPG(10) = 0;              % Set at 0 if there is no clear second peak
     end
