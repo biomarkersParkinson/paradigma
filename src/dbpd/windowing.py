@@ -31,8 +31,8 @@ def create_window(
         The columns in sensor_df that are to be kept as individual datapoints in a list instead of aggregates
     segment_nr: int
         The identification of the segment
-    sampling_frequency: int
-        The sampling frequency of the data
+    sampling_frequency: int, optional
+        The sampling frequency (Hz) of the data (default: 100)
 
     Returns
     -------
@@ -73,16 +73,16 @@ def tabulate_windows(
         The name of the time column
     data_point_level_cols: list
         The names of the columns that are to be kept as individual datapoints in a list instead of aggregates
-    window_length_s: int
+    window_length_s: int, optional
         The number of seconds a window constitutes (default: 6)
-    window_step_size_s: int
+    window_step_size_s: int, optional
         The number of seconds between the end of the previous and the start of the next window (default: 1)
-    sampling_frequency: int
-        The sampling frequency of the data
-    segment_nr_colname: str
-        The name of the column that identifies the segment; set to None if not applicable
-    segment_nr: int
-        The identification of the segment; set to None if not applicable
+    sampling_frequency: int, optional
+        The sampling frequency of the data (default: 100)
+    segment_nr_colname: str, optional
+        The name of the column that identifies the segment; set to None if not applicable (default: None)
+    segment_nr: int, optional
+        The identification of the segment; set to None if not applicable (default: None)
     
 
     Returns
