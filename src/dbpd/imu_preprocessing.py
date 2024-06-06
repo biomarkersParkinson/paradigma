@@ -20,7 +20,7 @@ class PreprocessingConfig:
         self.rotation_units = 'deg/s'
 
         self.l_acceleration_cols = [DataColumns.ACCELEROMETER_X, DataColumns.ACCELEROMETER_Y, DataColumns.ACCELEROMETER_Z]
-        self.time_colname = 'time'
+        self.time_colname = DataColumns.TIME
 
         self.d_channels_units = {
             DataColumns.ACCELEROMETER_X: self.acceleration_units,
@@ -52,7 +52,7 @@ def preprocess_imu_data(input_path: str, output_path: str, config: Preprocessing
 
     # convert to relative seconds from delta milliseconds
     df[config.time_colname] = transform_time_array(
-        time_array=df[DataColumns.TIME],
+        time_array=df[config.time_colname],
         scale_factor=1000, 
         input_unit_type = TimeUnit.difference_ms,
         output_unit_type = TimeUnit.relative_ms)
@@ -60,12 +60,11 @@ def preprocess_imu_data(input_path: str, output_path: str, config: Preprocessing
 
     df = resample_data(
         df=df,
-        time_column=DataColumns.TIME,
+        time_column=config.time_colname,
         time_unit_type=TimeUnit.relative_ms,
         unscaled_column_names = list(config.d_channels_units.keys()),
         scale_factors=metadata_samples.scale_factors,
-        resampling_frequency=config.sampling_frequency,
-        time_column=config.time_colname)
+        resampling_frequency=config.sampling_frequency)
     
     if config.side_watch == 'left':
         df[DataColumns.ACCELEROMETER_X] *= -1
