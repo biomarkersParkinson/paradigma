@@ -52,17 +52,21 @@ def preprocess_imu_data(input_path: str, output_path: str, config: Preprocessing
 
     # convert to relative seconds from delta milliseconds
     df[config.time_colname] = transform_time_array(
-        time_array=df[config.time_colname],
+        time_array=df[DataColumns.TIME],
         scale_factor=1000, 
-        data_in_delta_time=True)
+        input_unit_type = TimeUnit.difference_ms,
+        output_unit_type = TimeUnit.relative_ms)
+    
 
     df = resample_data(
-        time_abs_array=np.array(df[config.time_colname]),
-        values_unscaled=np.array(df[list(config.d_channels_units.keys())]),
+        df=df,
+        time_column=DataColumns.TIME,
+        time_unit_type=TimeUnit.relative_ms,
+        unscaled_column_names = list(config.d_channels_units.keys()),
         scale_factors=metadata_samples.scale_factors,
         resampling_frequency=config.sampling_frequency,
         time_column=config.time_colname)
-
+    
     if config.side_watch == 'left':
         df[DataColumns.ACCELEROMETER_X] *= -1
 
@@ -131,7 +135,7 @@ def transform_time_array(
         time_array = np.cumsum(np.double(time_array)) / scale_factor
     elif input_unit_type == TimeUnit.absolute_ms:
         # Set the start time if not provided.
-        if start_time == 0.0:
+        if np.isclose(start_time, 0.0, rtol=1e-09, atol=1e-09):
             start_time = time_array[0]
         # Convert absolute time stamps into a time series relative to start_time.
         time_array = (time_array - start_time) / scale_factor
@@ -155,18 +159,20 @@ def transform_time_array(
 def resample_data(
     df: pd.DataFrame,
     time_column : DataColumns,
+    time_unit_type: TimeUnit,
     unscaled_column_names : list,
     resampling_frequency: int,
-    scale_factors: list = [],
-    start_time : float = 0.0,
+    scale_factors: list = []
 ) -> pd.DataFrame:
     """
     Resamples the IMU data to the resampling frequency. The data is scaled before resampling.
-
+    TODO: This method does not work on the PPG data because it is in the absolute time format. I added `time_unit_type` as a parameter to the method, but it is not used yet.
     Parameters
     ----------
     time_abs_array : np.ndarray
         The absolute time array.
+    time_unit_type : TimeUnit
+        The time unit type of the time array. The method currently works only for `TimeUnit.relative_ms`.
     values_unscaled : np.ndarray
         The values to resample.
     resampling_frequency : int
