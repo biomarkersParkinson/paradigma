@@ -453,35 +453,52 @@ def extract_angle_extremes(
         n_max = df.loc[index, 'angle_new_maxima'].size  # number of maxima in window
 
         if n_min > 0 and n_max > 0: 
-            if df.loc[index, 'angle_new_maxima'][0] > df.loc[index, 'angle_new_minima'][0]: # if first minimum occurs before first maximum, start with minimum
-                while i_pks < df.loc[index, 'angle_new_minima'].size - 1 and i_pks < df.loc[index, 'angle_new_maxima'].size: # only continue if there's enough minima and maxima to perform operations
-                    if df.loc[index, 'angle_new_minima'][i_pks+1] < df.loc[index, 'angle_new_maxima'][i_pks]: # if angle of next minimum comes before the current maxima, we have two minima in a row
-                        if df.loc[index, angle_colname][df.loc[index, 'angle_new_minima'][i_pks+1]] < df.loc[index, angle_colname][df.loc[index, 'angle_new_minima'][i_pks]]: # if second minimum if smaller than first, keep second
+            # if the first minimum occurs before the first maximum, start with the minimum
+            if df.loc[index, 'angle_new_maxima'][0] > df.loc[index, 'angle_new_minima'][0]: 
+                # only continue if there are enough minima and maxima to perform operations
+                while i_pks < df.loc[index, 'angle_new_minima'].size - 1 and i_pks < df.loc[index, 'angle_new_maxima'].size: 
+
+                    # if the next minimum comes before the next maximum, we have two minima in a row, and should keep the larger one
+                    if df.loc[index, 'angle_new_minima'][i_pks+1] < df.loc[index, 'angle_new_maxima'][i_pks]: 
+                        # if the next minimum is smaller than the current minimum, keep the next minimum and discard the current minimum
+                        if df.loc[index, angle_colname][df.loc[index, 'angle_new_minima'][i_pks+1]] < df.loc[index, angle_colname][df.loc[index, 'angle_new_minima'][i_pks]]:
                             df.at[index, 'angle_new_minima'] = np.delete(df.loc[index, 'angle_new_minima'], i_pks)
-                        else: # otherwise keep the first
+                        # otherwise, keep the current minimum and discard the next minimum
+                        else:
                             df.at[index, 'angle_new_minima'] = np.delete(df.loc[index, 'angle_new_minima'], i_pks+1)
                         i_pks -= 1
+
+                    # if the current maximum comes before the current minimum, we have two maxima in a row, and should keep the larger one
                     if i_pks >= 0 and df.loc[index, 'angle_new_minima'][i_pks] > df.loc[index, 'angle_new_maxima'][i_pks]:
+                        # if the current maximum is smaller than the previous maximum, keep the previous maximum and discard the current maximum
                         if df.loc[index, angle_colname][df.loc[index, 'angle_new_maxima'][i_pks]] < df.loc[index, angle_colname][df.loc[index, 'angle_new_maxima'][i_pks-1]]:
                             df.at[index, 'angle_new_maxima'] = np.delete(df.loc[index, 'angle_new_maxima'], i_pks) 
+                        # otherwise, keep the current maximum and discard the previous maximum
                         else:
-                            df.loc[index, 'angle_maxima_deleted'].append(df.loc[index, 'angle_new_maxima'][i_pks-1])
                             df.at[index, 'angle_new_maxima'] = np.delete(df.loc[index, 'angle_new_maxima'], i_pks-1) 
                         i_pks -= 1
                     i_pks += 1
 
-            elif df.loc[index, 'angle_new_maxima'][0] < df.loc[index, 'angle_new_minima'][0]: # if the first maximum occurs before the first minimum, start with the maximum
+            # or if the first maximum occurs before the first minimum, start with the maximum
+            elif df.loc[index, 'angle_new_maxima'][0] < df.loc[index, 'angle_new_minima'][0]: 
+                # only continue if there are enough minima and maxima to perform operations
                 while i_pks < df.loc[index, 'angle_new_minima'].size and i_pks < df.loc[index, 'angle_new_maxima'].size-1:
+                    # if the next maximum comes before the current minimum, we have two maxima in a row, and should keep the larger one
                     if df.loc[index, 'angle_new_minima'][i_pks] > df.loc[index, 'angle_new_maxima'][i_pks+1]:
+                        # if the next maximum is smaller than the current maximum, keep the next maximum and discard the current maximum
                         if df.loc[index, angle_colname][df.loc[index, 'angle_new_maxima'][i_pks+1]] > df.loc[index, angle_colname][df.loc[index, 'angle_new_maxima'][i_pks]]:
                             df.at[index, 'angle_new_maxima'] = np.delete(df.loc[index, 'angle_new_maxima'], i_pks) 
+                        # otherwise, keep the current maximum and discard the next maximum
                         else:
                             df.at[index, 'angle_new_maxima'] = np.delete(df.loc[index, 'angle_new_maxima'], i_pks+1) 
                         i_pks -= 1
+
+                    # if the current minimum comes before the current maximum, we have two minima in a row, and should keep the larger one
                     if i_pks > 0 and df.loc[index, 'angle_new_minima'][i_pks] < df.loc[index, 'angle_new_maxima'][i_pks]:
+                        # if the current minimum is smaller than the previous minimum, keep the previous minimum and discard the current minimum
                         if df.loc[index, angle_colname][df.loc[index, 'angle_new_minima'][i_pks]] < df.loc[index, angle_colname][df.loc[index, 'angle_new_minima'][i_pks-1]]:
                             df.at[index, 'angle_new_minima'] = np.delete(df.loc[index, 'angle_new_minima'], i_pks-1) 
-                        
+                        # otherwise, keep the current minimum and discard the previous minimum                        
                         else:
                             df.at[index, 'angle_new_minima'] = np.delete(df.loc[index, 'angle_new_minima'], i_pks) 
                         i_pks -= 1
@@ -492,7 +509,6 @@ def extract_angle_extremes(
     for col in ['angle_new_minima', 'angle_new_maxima']:
         df.loc[df.apply(lambda x: type(x[col].tolist())==int, axis=1), col] = df.loc[df.apply(lambda x: type(x[col].tolist())==int, axis=1), col].apply(lambda x: [x])
 
-    # extract amplitude
     df['angle_extrema_values'] = df.apply(lambda x: [x[angle_colname][i] for i in np.concatenate([x['angle_new_minima'], x['angle_new_maxima']])], axis=1) 
 
     return
@@ -515,18 +531,24 @@ def extract_range_of_motion(
     """
     angle_amplitudes = np.empty((len(angle_extrema_values_col), 0)).tolist()
 
+    # for each window
     for i, extrema_values in enumerate(angle_extrema_values_col):
         l_amplitudes = []
+        # for each extremum contained in the window
         for j, value in enumerate(extrema_values):
+            # if the extremum is not the last one in the list of extrema
             if j < len(extrema_values)-1:
-                # if extrema are on different sides of 0
+                # if the current extremum is a maximum and the next one is a minimum, or vice versa
                 if (value > 0 and extrema_values[j+1] < 0) or (value < 0 and extrema_values[j+1] > 0):
+                    # compute the amplitude as the sum of the absolute values of the two extrema
                     l_amplitudes.append(np.sum(np.abs(value) + np.abs(extrema_values[j+1])))
-                # elif extrema are both positive or both negative, and current extreme is closer to 0
+                # or if the extrema are both positive or both negative, and the current extremum is closer to 0
                 elif np.abs(value) < np.abs(extrema_values[j+1]):
+                    # compute the amplitude as the difference between the two extrema
                     l_amplitudes.append(np.subtract(np.abs(extrema_values[j+1]), np.abs(value)))
-                # or if extrema are both positive and negative, and current extreme is further waay from 0
+                # or if the extrema are both positive and negative, and the current extremum is further away from 0
                 else:
+                    # compute the amplitude as the difference between the two extrema
                     l_amplitudes.append(np.subtract(np.abs(value), np.abs(extrema_values[j+1])))
 
         angle_amplitudes[i].append([x for x in l_amplitudes])
@@ -561,13 +583,21 @@ def extract_peak_angular_velocity(
     df['forward_peak_ang_vel'] = np.empty((len(df), 0)).tolist()
     df['backward_peak_ang_vel'] = np.empty((len(df), 0)).tolist()
 
+    # for each window
     for index, row in df.iterrows():
+        # the peak angular velocity can only be computed if there is at least one minimum and one maximum in the window
         if len(row[angle_minima_colname]) > 0 and len(row[angle_maxima_colname]) > 0:
+            # combine the minima and maxima
             l_extrema_indices = np.sort(np.concatenate((row[angle_minima_colname], row[angle_maxima_colname])))
+            # for each peak
             for j, peak_index in enumerate(l_extrema_indices):
+                # if the peak is a maximum and there is another peak after it
                 if peak_index in row[angle_maxima_colname] and j < len(l_extrema_indices) - 1:
+                    # compute the forward peak angular velocity, defined by the maximum negative angular velocity between the two peaks
                     df.loc[index, 'forward_peak_ang_vel'].append(np.abs(min(row[velocity_colname][l_extrema_indices[j]:l_extrema_indices[j+1]])))
+                # if the peak is a minimum and there is another peak after it
                 elif peak_index in row[angle_minima_colname] and j < len(l_extrema_indices) - 1:
+                    # compute the backward peak angular velocity, defined by the maximum positive angular velocity between the two peaks
                     df.loc[index, 'backward_peak_ang_vel'].append(np.abs(max(row[velocity_colname][l_extrema_indices[j]:l_extrema_indices[j+1]])))
     
     return

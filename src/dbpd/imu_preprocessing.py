@@ -1,10 +1,100 @@
 import numpy as np
 import pandas as pd
-
 from scipy import signal
 from scipy.interpolate import CubicSpline
 
+import tsdf
 from dbpd.constants import DataColumns
+from dbpd.util import write_data, read_metadata
+
+
+class PreprocessingConfig:
+
+    def __init__(self) -> None:
+        self.meta_filename = 'IMU_meta.json'
+        self.values_filename = 'IMU_samples.bin'
+        self.time_filename = 'IMU_time.bin'
+
+        self.acceleration_units = 'm/s^2'
+        self.rotation_units = 'deg/s'
+
+        self.l_acceleration_cols = [DataColumns.ACCELEROMETER_X, DataColumns.ACCELEROMETER_Y, DataColumns.ACCELEROMETER_Z]
+        self.time_colname = 'time'
+
+        self.d_channels_units = {
+            DataColumns.ACCELEROMETER_X: self.acceleration_units,
+            DataColumns.ACCELEROMETER_Y: self.acceleration_units,
+            DataColumns.ACCELEROMETER_Z: self.acceleration_units,
+            DataColumns.GYROSCOPE_X: self.rotation_units,
+            DataColumns.GYROSCOPE_Y: self.rotation_units,
+            DataColumns.GYROSCOPE_Z: self.rotation_units,
+        }
+
+        # participant information
+        self.side_watch = 'right'
+
+        # filtering
+        self.sampling_frequency = 100
+        self.lower_cutoff_frequency = 0.2
+        self.filter_order = 4
+
+
+def preprocess_imu_data(input_path: str, output_path: str, config: PreprocessingConfig) -> None:
+
+    # Load data
+    metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
+    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+
+    # Rename columns
+    df = df.rename(columns={f'rotation_{a}': f'gyroscope_{a}' for a in ['x', 'y', 'z']})
+    df = df.rename(columns={f'acceleration_{a}': f'accelerometer_{a}' for a in ['x', 'y', 'z']})
+
+    # convert to relative seconds from delta milliseconds
+    df[config.time_colname] = transform_time_array(
+        time_array=df[config.time_colname],
+        scale_factor=1000, 
+        data_in_delta_time=True)
+
+    df = resample_data(
+        time_abs_array=np.array(df[config.time_colname]),
+        values_unscaled=np.array(df[list(config.d_channels_units.keys())]),
+        scale_factors=metadata_samples.scale_factors,
+        resampling_frequency=config.sampling_frequency,
+        time_column=config.time_colname)
+
+    if config.side_watch == 'left':
+        df[DataColumns.ACCELEROMETER_X] *= -1
+
+    for col in config.l_acceleration_cols:
+
+        # change to correct units [g]
+        if config.acceleration_units == 'm/s^2':
+            df[col] /= 9.81
+
+        for result, side_pass in zip(['filt', 'grav'], ['hp', 'lp']):
+            df[f'{result}_{col}'] = butterworth_filter(
+                single_sensor_col=np.array(df[col]),
+                order=config.filter_order,
+                cutoff_frequency=config.lower_cutoff_frequency,
+                passband=side_pass,
+                sampling_frequency=config.sampling_frequency,
+                )
+            
+        df = df.drop(columns=[col])
+        df = df.rename(columns={f'filt_{col}': col})
+
+    # Store data
+    for sensor, units in zip(['accelerometer', 'gyroscope'], ['g', config.rotation_units]):
+        df_sensor = df[[config.time_colname] + [x for x in df.columns if sensor in x]]
+
+        metadata_samples.channels = [x for x in df.columns if sensor in x]
+        metadata_samples.units = list(np.repeat(units, len(metadata_samples.channels)))
+        metadata_samples.file_name = f'{sensor}_samples.bin'
+
+        metadata_time.file_name = f'{sensor}_time.bin'
+        metadata_time.units = ['time_relative_ms']
+
+        write_data(metadata_time, metadata_samples, output_path, f'{sensor}_meta.json', df_sensor)
 
 
 def transform_time_array(
