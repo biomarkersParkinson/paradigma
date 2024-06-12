@@ -13,9 +13,9 @@ Within the `DBPD` project, some of the field types are further specialised to pr
 | `channel_type` name       | Recommended `unit` | Description                                                                        
 |--------------------------|--------------------|------------------------------------------------------------------------------------|
 | `time`                   | `absolute_ms`      | Time corresponding to the start of each window/segment (also see units below).      |
-| `acceleration_x`         | `m/s^2`            | Acceleration along the x-axis.                                                       |
-| `acceleration_y`         | `m/s^2`            | Acceleration along the y-axis.                                                       |
-| `acceleration_z`         | `m/s^2`            | Acceleration along the z-axis.                                                       |
+| `acceleration_x`         | `g`            | Acceleration along the x-axis.                                                       |
+| `acceleration_y`         | `g`            | Acceleration along the y-axis.                                                       |
+| `acceleration_z`         | `g`            | Acceleration along the z-axis.                                                       |
 | `rotation_x`             | `deg/s`            | Angular rotation rate around the x-axis.                                              |
 | `rotation_y`             | `deg/s`            | Angular rotation rate around the y-axis.                                              |
 | `rotation_z`             | `deg/s`            | Angular rotation rate around the z-axis.                                              |
@@ -97,29 +97,29 @@ Within the `DBPD` project, some of the field types are further specialised to pr
 
 | `channel_type` name       | Recommended `unit` | Description                                                                         |
 |--------------------------|--------------------|-------------------------------------------------------------------------------------|
-| `std_accel_norm`       | `m/s^2`            | Standard deviation of the norm of the accelerometer axes in the temporal domain.     |
-| `x_accel_grav_mean`    | `m/s^2`            | Mean of the x-axis acceleration gravity component.     |
-| `y_accel_grav_mean`    | `m/s^2`            | Mean of the y-axis acceleration gravity component.  |
-| `z_accel_grav_mean`    | `m/s^2`            | Mean of the z-axis acceleration gravity component. |
-| `x_accel_grav_std`     | `m/s^2`            | Standard deviation of the x-axis acceleration gravity component. |
-| `y_accel_grav_std`     | `m/s^2`            | Standard deviation of the y-axis acceleration gravity component. |
-| `z_accel_grav_std`     | `m/s^2`            | Standard deviation of the z-axis acceleration gravity component.. |
-| `x_accel_power_below_gait`  | `(m/s^2)^2/Hz`            | Total power in the [0, 0.7] Hz range of the x-axis accelerometer. |
-| `y_accel_power_below_gait`  | `(m/s^2)^2/Hz`            | Total power in the [0, 0.7] Hz range of the y-axis accelerometer. |
-| `z_accel_power_below_gait`  | `(m/s^2)^2/Hz`            | Total power in the [0, 0.7] Hz range of the z-axis accelerometer. |
-| `x_accel_power_gait`  | `(m/s^2)^2/Hz`            | Total power in the [0.7, 3.5] Hz range of the x-axis accelerometer. |
-| `y_accel_power_gait`  | `(m/s^2)^2/Hz`            | Total power in the [0.7, 3.5] Hz range of the y-axis accelerometer. |
-| `z_accel_power_gait`  | `(m/s^2)^2/Hz`            | Total power in the [0.7, 3.5] Hz range of the z-axis accelerometer. |
-| `x_accel_power_tremor`  | `(m/s^2)^2/Hz`            | Total power in the [3.5, 8] Hz range of the x-axis accelerometer. |
-| `y_accel_power_tremor`  | `(m/s^2)^2/Hz`            | Total power in the [3.5, 8] Hz range of the y-axis accelerometer. |
-| `z_accel_power_tremor`  | `(m/s^2)^2/Hz`            | Total power in the [3.5, 8] Hz range of the z-axis accelerometer. |
-| `x_accel_power_above_tremor`  | `(m/s^2)^2/Hz`            | Total power in the [8, 50] Hz range of the x-axis accelerometer. |
-| `y_accel_power_above_tremor`  | `(m/s^2)^2/Hz`            | Total power in the [8, 50] Hz range of the y-axis accelerometer. |
-| `z_accel_power_above_tremor`  | `(m/s^2)^2/Hz`            | Total power in the [8, 50] Hz range of the z-axis accelerometer. |
+| `std_accel_norm`       | `g`            | Standard deviation of the norm of the accelerometer axes in the temporal domain.     |
+| `x_accel_grav_mean`    | `g`            | Mean of the x-axis acceleration gravity component.     |
+| `y_accel_grav_mean`    | `g`            | Mean of the y-axis acceleration gravity component.  |
+| `z_accel_grav_mean`    | `g`            | Mean of the z-axis acceleration gravity component. |
+| `x_accel_grav_std`     | `g`            | Standard deviation of the x-axis acceleration gravity component. |
+| `y_accel_grav_std`     | `g`            | Standard deviation of the y-axis acceleration gravity component. |
+| `z_accel_grav_std`     | `g`            | Standard deviation of the z-axis acceleration gravity component.. |
+| `x_accel_power_below_gait`  | `g^2/Hz`            | Total power in the [0, 0.7] Hz range of the x-axis accelerometer. |
+| `y_accel_power_below_gait`  | `g^2/Hz`            | Total power in the [0, 0.7] Hz range of the y-axis accelerometer. |
+| `z_accel_power_below_gait`  | `g^2/Hz`            | Total power in the [0, 0.7] Hz range of the z-axis accelerometer. |
+| `x_accel_power_gait`  | `g^2/Hz`            | Total power in the [0.7, 3.5] Hz range of the x-axis accelerometer. |
+| `y_accel_power_gait`  | `g^2/Hz`            | Total power in the [0.7, 3.5] Hz range of the y-axis accelerometer. |
+| `z_accel_power_gait`  | `g^2/Hz`            | Total power in the [0.7, 3.5] Hz range of the z-axis accelerometer. |
+| `x_accel_power_tremor`  | `g^2/Hz`            | Total power in the [3.5, 8] Hz range of the x-axis accelerometer. |
+| `y_accel_power_tremor`  | `g^2/Hz`            | Total power in the [3.5, 8] Hz range of the y-axis accelerometer. |
+| `z_accel_power_tremor`  | `g^2/Hz`            | Total power in the [3.5, 8] Hz range of the z-axis accelerometer. |
+| `x_accel_power_above_tremor`  | `g^2/Hz`            | Total power in the [8, 50] Hz range of the x-axis accelerometer. |
+| `y_accel_power_above_tremor`  | `g^2/Hz`            | Total power in the [8, 50] Hz range of the y-axis accelerometer. |
+| `z_accel_power_above_tremor`  | `g^2/Hz`            | Total power in the [8, 50] Hz range of the z-axis accelerometer. |
 | `x_accel_dominant_frequency`  | `Hz`            | Dominant frequency of the x-axis accelerometer. |
 | `y_accel_dominant_frequency`  | `Hz`            | Dominant frequency of the x-axis accelerometer. |
 | `z_accel_dominant_frequency`  | `Hz`            | Dominant frequency of the x-axis accelerometer. |
-| `accel_norm_cc_{n}`  | `?`            | Cepstral coefficient n with n $\in$ [1,2,...,16] of the accelerometer. |
+| `accel_norm_cc_{n}`  | `g`            | Cepstral coefficient n with n $\in$ [1,2,...,16] of the accelerometer. |
 | `gd_pred_gait_proba`  | `probability`            | Predicted probability of gait being the predominant activity within the window span. |
 | `gyro_norm_cc_{n}` | `?` | Cepstral coefficient n with n $\in$ [1,2,...,16] of the gyroscope. |
 | `x_gyro_dominant_frequency`  | `Hz`            | Dominant frequency of the x-axis gyroscope |
@@ -150,7 +150,7 @@ Within the `DBPD` project, some of the field types are further specialised to pr
 | `difference_ms` | Time (in milliseconds) elapsed since the previous sample.                                                          |
 | `absolute_ms`   | Absolute time in milliseconds, relative to Unix epoch.                                                                 |
 | `probability`   | Probability values (0 to 1) indicating the likelihood of tremor activity for each sample.           |
-| `boolean_num`   | Integer values (0 or 1) representing the true (1) or false (0) presence of an activity.    |
+| `boolean_num`   | Integer values (0 or 1) representing the true (1) or false (0) presence of an activity.             |
 | `unitless`      | Numerical values without units.                                                                     |
-| `m/s^2`         | Acceleration in meters per second squared.                                                          |
+| `g`         | Acceleration in g (meters per second squared / 9.81).                                                   |
 | `deg/s`         | Angular velocity in degrees per second.                                                             |
