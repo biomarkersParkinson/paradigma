@@ -14,6 +14,9 @@ class GaitFeatureExtractionConfig:
         self.window_length_s: int = 6
         self.window_step_size_s: int = 1
 
+        # cepstral coefficients
+        self.cc_low_frequency = 0
+        self.cc_high_frequency = 25
         self.n_dct_filters_cc: int = 20
         self.n_coefficients_cc: int = 12
         
@@ -130,9 +133,9 @@ class ArmSwingFeatureExtractionConfig:
 
         # cepstral coefficients
         self.cc_low_frequency = 0
-        self.cc_high_frequency = int(sampling_frequency / 2) 
-        self.filter_length = 16
-        self.n_dct_filters = 16
+        self.cc_high_frequency = 25
+        self.n_dct_filters_cc: int = 20
+        self.n_coefficients_cc: int = 12
 
     def initialize_column_names(self, time_colname='time', pred_gait_colname='pred_gait',
                          angle_smooth_colname='angle_smooth', angle_colname='angle',
