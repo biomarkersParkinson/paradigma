@@ -88,7 +88,7 @@ class GaitDetectionConfig:
 
     def __init__(self) -> None:
         self.classifier_file_name = 'gd_classifier.pkl'
-        self.thresholds_file_name = 'gd_thresholds.txt'
+        self.thresholds_file_name = 'gd_threshold.txt'
 
         self.meta_filename = 'gait_meta.json'
         self.time_filename = 'gait_time.bin'
