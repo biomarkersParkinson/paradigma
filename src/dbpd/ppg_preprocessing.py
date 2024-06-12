@@ -5,6 +5,7 @@ import json
 from typing import List
 
 from datetime import datetime, timedelta
+from dbpd.util import parse_iso8601_to_datetime
 
 # Module methods
 
@@ -45,27 +46,6 @@ def tsdf_scan_meta(tsdf_data_full_path : str) -> List[dict]:
     return tsdf
 
 
-def convert_iso8601_to_datetime(date_str):
-        """
-        Convert a date string to a datetime object.
-
-        Parameters
-        ----------
-        date_str : str
-            Date string in the format '%d-%b-%Y %H:%M:%S %Z'.
-
-        Returns
-        -------
-        datetime
-            A datetime object corresponding to the input date string.
-
-        Examples
-        --------
-        >>> convert_to_datetime('27-Jun-2021 16:52:20 UTC')
-        datetime.datetime(2021, 6, 27, 16, 52, 20, tzinfo=<UTC>)
-        """
-        return datetime.strptime(date_str, '%d-%b-%Y %H:%M:%S %Z')
-
 def synchronization(ppg_meta, imu_meta):
     """
     Synchronize PPG and IMU data segments based on their start and end times.
@@ -84,10 +64,10 @@ def synchronization(ppg_meta, imu_meta):
     segment_imu_total : list of int
         List of synchronized segment indices for IMU data.
     """
-    ppg_start_time = [convert_iso8601_to_datetime(t['start_iso8601']) for t in ppg_meta]
-    imu_start_time = [convert_iso8601_to_datetime(t['start_iso8601']) for t in imu_meta]
-    ppg_end_time = [convert_iso8601_to_datetime(t['end_iso8601']) for t in ppg_meta]
-    imu_end_time = [convert_iso8601_to_datetime(t['end_iso8601']) for t in imu_meta]
+    ppg_start_time = [parse_iso8601_to_datetime(t['start_iso8601']) for t in ppg_meta]
+    imu_start_time = [parse_iso8601_to_datetime(t['start_iso8601']) for t in imu_meta]
+    ppg_end_time = [parse_iso8601_to_datetime(t['end_iso8601']) for t in ppg_meta]
+    imu_end_time = [parse_iso8601_to_datetime(t['end_iso8601']) for t in imu_meta]
 
     # Create a time vector covering the entire range
     time_vector_total = []

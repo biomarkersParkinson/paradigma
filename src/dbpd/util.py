@@ -8,6 +8,9 @@ from typing import Tuple
 import tsdf
 from tsdf import TSDFMetadata
 
+def parse_iso8601_to_datetime(date_str):
+    return parser.parse(date_str)
+
 def format_datetime_to_iso8601(datetime):
     return datetime.strftime('%Y-%m-%dT%H:%M:%S') + 'Z'
 
