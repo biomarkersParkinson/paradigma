@@ -201,39 +201,12 @@ class ArmSwingFeatureExtractionConfig:
             'gyroscope_x_dominant_frequency': 'Hz',
             'gyroscope_y_dominant_frequency': 'Hz',
             'gyroscope_z_dominant_frequency': 'Hz',
-            'cc_1_accelerometer': 'X',
-            'cc_2_accelerometer': 'X',
-            'cc_3_accelerometer': 'X',
-            'cc_4_accelerometer': 'X',
-            'cc_5_accelerometer': 'X',
-            'cc_6_accelerometer': 'X',
-            'cc_7_accelerometer': 'X',
-            'cc_8_accelerometer': 'X',
-            'cc_9_accelerometer': 'X',
-            'cc_10_accelerometer': 'X',
-            'cc_11_accelerometer': 'X',
-            'cc_12_accelerometer': 'X',
-            'cc_13_accelerometer': 'X',
-            'cc_14_accelerometer': 'X',
-            'cc_15_accelerometer': 'X',
-            'cc_16_accelerometer': 'X',
-            'cc_1_gyroscope': 'X',
-            'cc_2_gyroscope': 'X',
-            'cc_3_gyroscope': 'X',
-            'cc_4_gyroscope': 'X',
-            'cc_5_gyroscope': 'X',
-            'cc_6_gyroscope': 'X',
-            'cc_7_gyroscope': 'X',
-            'cc_8_gyroscope': 'X',
-            'cc_9_gyroscope': 'X',
-            'cc_10_gyroscope': 'X',
-            'cc_11_gyroscope': 'X',
-            'cc_12_gyroscope': 'X',
-            'cc_13_gyroscope': 'X',
-            'cc_14_gyroscope': 'X',
-            'cc_15_gyroscope': 'X',
-            'cc_16_gyroscope': 'X'
         }
+
+        for sensor in ['accelerometer', 'gyroscope']:
+            for cc_coef in range(1, self.n_coefficients_cc+1):
+                self.d_channels_values[f'cc_{cc_coef}_{sensor}'] = 'g'
+
 
     # TODO: move to higher level config class (duplicate in gait feature extraction)
     def set_sensor(self, sensor: str) -> None:
