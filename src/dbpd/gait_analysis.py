@@ -142,7 +142,7 @@ def detect_gait(input_path: str, output_path: str, path_to_classifier_input: str
                             [f'{x}_power_gait' for x in config.l_accel_cols] + \
                             [f'{x}_power_tremor' for x in config.l_accel_cols] + \
                             [f'{x}_power_above_tremor' for x in config.l_accel_cols] + \
-                            ['std_norm_acc'] + [f'cc_{i}_accelerometer' for i in range(1, config.n_coefficients_cc)] + [f'grav_{x}_{y}' for x in config.l_accel_cols for y in ['mean', 'std']] + \
+                            ['std_norm_acc'] + [f'cc_{cc_coef}_accelerometer' for cc_coef in range(1, 13)] + [f'grav_{x}_{y}' for x in config.l_accel_cols for y in ['mean', 'std']] + \ 
                             [f'{x}_dominant_frequency' for x in config.l_accel_cols]
     X = df.loc[:, clf.feature_names_in_]
 

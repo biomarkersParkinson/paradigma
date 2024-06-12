@@ -63,19 +63,10 @@ class GaitFeatureExtractionConfig:
             f'{self.sensor}_y_dominant_frequency': 'Hz',
             f'{self.sensor}_z_dominant_frequency': 'Hz',
             f'std_norm_acc': 'g',
-            f'cc_1_{self.sensor}': 'g',
-            f'cc_2_{self.sensor}': 'g',
-            f'cc_3_{self.sensor}': 'g',
-            f'cc_4_{self.sensor}': 'g',
-            f'cc_5_{self.sensor}': 'g',
-            f'cc_6_{self.sensor}': 'g',
-            f'cc_7_{self.sensor}': 'g',
-            f'cc_8_{self.sensor}': 'g',
-            f'cc_9_{self.sensor}': 'g',
-            f'cc_10_{self.sensor}': 'g',
-            f'cc_11_{self.sensor}': 'g',
-            f'cc_12_{self.sensor}': 'g',
         }
+
+        for cc_coef in range(1, self.n_coefficients_cc+1):
+            self.d_channels_values[f'cc_{cc_coef}_{self.sensor}'] = 'g'
 
     # TODO: move to higher level config class (duplicate in armswing feature extraction)
     def set_sensor(self, sensor: str) -> None:
