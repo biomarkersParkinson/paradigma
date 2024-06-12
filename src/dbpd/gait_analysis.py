@@ -73,13 +73,13 @@ def extract_spectral_domain_features(config, df_windowed, sensor, l_sensor_colna
         sampling_frequency=config.sampling_frequency,
         low_frequency=config.spectrum_low_frequency,
         high_frequency=config.spectrum_high_frequency,
-        filter_length=config.filter_length,
-        n_dct_filters=config.n_dct_filters
+        n_filters=config.n_dct_filters_cc,
+        n_coefficients=config.n_coefficients_cc
         )
 
     df_windowed = pd.concat([df_windowed, cc_cols], axis=1)
 
-    df_windowed = df_windowed.rename(columns={f'cc_{cc_nr}': f'cc_{cc_nr}_{sensor}' for cc_nr in range(1,config.n_dct_filters+1)}).rename(columns={'window_start': 'time'})
+    df_windowed = df_windowed.rename(columns={f'cc_{cc_nr}': f'cc_{cc_nr}_{sensor}' for cc_nr in range(1,config.n_coefficients_cc+1)}).rename(columns={'window_start': 'time'})
 
     return df_windowed
 
