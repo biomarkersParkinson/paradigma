@@ -14,7 +14,8 @@ class GaitFeatureExtractionConfig:
         self.window_length_s: int = 6
         self.window_step_size_s: int = 1
 
-        self.n_dct_filters: int = 16
+        self.n_dct_filters_cc: int = 20
+        self.n_coefficients_cc: int = 12
         
         self.d_frequency_bandwidths: Dict[str, List[float]] = {
             'power_below_gait': [0.3, 0.7],
@@ -43,22 +44,22 @@ class GaitFeatureExtractionConfig:
             f'grav_{self.sensor}_x_std': 'g',
             f'grav_{self.sensor}_y_std': 'g',
             f'grav_{self.sensor}_z_std': 'g',
-            f'{self.sensor}_x_power_below_gait': 'X',
-            f'{self.sensor}_y_power_below_gait': 'X',
-            f'{self.sensor}_z_power_below_gait': 'X',
-            f'{self.sensor}_x_power_gait': 'X',
-            f'{self.sensor}_y_power_gait': 'X',
-            f'{self.sensor}_z_power_gait': 'X',
-            f'{self.sensor}_x_power_tremor': 'X',
-            f'{self.sensor}_y_power_tremor': 'X',
-            f'{self.sensor}_z_power_tremor': 'X',
-            f'{self.sensor}_x_power_above_tremor': 'X',
-            f'{self.sensor}_y_power_above_tremor': 'X',
-            f'{self.sensor}_z_power_above_tremor': 'X',
+            f'{self.sensor}_x_power_below_gait': '(m/s^2)^2/Hz',
+            f'{self.sensor}_y_power_below_gait': '(m/s^2)^2/Hz',
+            f'{self.sensor}_z_power_below_gait': '(m/s^2)^2/Hz',
+            f'{self.sensor}_x_power_gait': '(m/s^2)^2/Hz',
+            f'{self.sensor}_y_power_gait': '(m/s^2)^2/Hz',
+            f'{self.sensor}_z_power_gait': '(m/s^2)^2/Hz',
+            f'{self.sensor}_x_power_tremor': '(m/s^2)^2/Hz',
+            f'{self.sensor}_y_power_tremor': '(m/s^2)^2/Hz',
+            f'{self.sensor}_z_power_tremor': '(m/s^2)^2/Hz',
+            f'{self.sensor}_x_power_above_tremor': '(m/s^2)^2/Hz',
+            f'{self.sensor}_y_power_above_tremor': '(m/s^2)^2/Hz',
+            f'{self.sensor}_z_power_above_tremor': '(m/s^2)^2/Hz',
             f'{self.sensor}_x_dominant_frequency': 'Hz',
             f'{self.sensor}_y_dominant_frequency': 'Hz',
             f'{self.sensor}_z_dominant_frequency': 'Hz',
-            f'std_norm_acc': 'X',
+            f'std_norm_acc': 'm/s^2',
             f'cc_1_{self.sensor}': 'X',
             f'cc_2_{self.sensor}': 'X',
             f'cc_3_{self.sensor}': 'X',
@@ -71,10 +72,6 @@ class GaitFeatureExtractionConfig:
             f'cc_10_{self.sensor}': 'X',
             f'cc_11_{self.sensor}': 'X',
             f'cc_12_{self.sensor}': 'X',
-            f'cc_13_{self.sensor}': 'X',
-            f'cc_14_{self.sensor}': 'X',
-            f'cc_15_{self.sensor}': 'X',
-            f'cc_16_{self.sensor}': 'X'
         }
 
     # TODO: move to higher level config class (duplicate in armswing feature extraction)
