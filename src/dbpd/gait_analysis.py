@@ -134,8 +134,7 @@ def detect_gait(input_path: str, output_path: str, path_to_classifier_input: str
     # Initialize the classifier
     clf = pd.read_pickle(os.path.join(path_to_classifier_input, config.classifier_file_name))
     with open(os.path.join(path_to_classifier_input, config.thresholds_file_name), 'r') as f:
-        thresholds_str = f.read()
-    threshold = np.mean([float(x) for x in thresholds_str.split(' ')])
+        threshold = float(f.read())
 
     # Prepare the data
     clf.feature_names_in_ = [f'{x}_power_below_gait' for x in config.l_accel_cols] + \
