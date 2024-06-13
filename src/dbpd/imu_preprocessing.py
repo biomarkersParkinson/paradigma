@@ -188,16 +188,14 @@ def resample_data(
     """
     print("Type of unscaled_column_names: ", type(unscaled_column_names))
     time_abs_array=np.array(df[time_column])
-    
-    values_unscaled=np.array(df[unscaled_column_names])[0]
-
+    values_unscaled=np.array(df[unscaled_column_names])
 
     # scale data
     if len(scale_factors) != 0 and scale_factors is not None:
         scaled_values = values_unscaled * scale_factors
 
     # resample
-    t_resampled = np.arange(float, time_abs_array[-1], 1 / resampling_frequency)
+    t_resampled = np.arange(0, time_abs_array[-1], 1 / resampling_frequency)
 
     # create dataframe
     df = pd.DataFrame(t_resampled, columns=[time_column])
