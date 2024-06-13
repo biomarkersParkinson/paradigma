@@ -21,3 +21,5 @@ class TimeUnit:
     """ The time is absolute in milliseconds. """
     difference_ms = "difference_ms"
     """ The time is the difference between consecutive samples in milliseconds. """
+
+UNIX_TICKS_MS: int = 1000

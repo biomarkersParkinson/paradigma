@@ -9,12 +9,18 @@ from dbpd.constants import DataColumns, TimeUnit
 from dbpd.util import write_data, read_metadata
 
 
+#TODO: split into multiple config classes for IMU and PPG
 class PreprocessingConfig:
 
     def __init__(self) -> None:
         self.meta_filename = 'IMU_meta.json'
         self.values_filename = 'IMU_samples.bin'
         self.time_filename = 'IMU_time.bin'
+
+        #TODO
+        self.ppg_meta_filename = 'PPG_meta.json'
+        self.ppg_values_filename = 'PPG_samples.bin'
+        self.ppg_time_filename = 'PPG_time.bin'
 
         self.acceleration_units = 'm/s^2'
         self.rotation_units = 'deg/s'
@@ -31,6 +37,18 @@ class PreprocessingConfig:
             DataColumns.GYROSCOPE_Z: self.rotation_units,
         }
 
+        #TODO
+        self.d_channels_units_imu_for_ppg = {
+            DataColumns.ACCELEROMETER_X: self.acceleration_units,
+            DataColumns.ACCELEROMETER_Y: self.acceleration_units,
+            DataColumns.ACCELEROMETER_Z: self.acceleration_units,
+        }
+
+        #TODO
+        self.d_channels_units_ppg = {
+            DataColumns.PPG: 'none'
+        }
+
         # participant information
         self.side_watch = 'right'
 
@@ -38,6 +56,9 @@ class PreprocessingConfig:
         self.sampling_frequency = 100
         self.lower_cutoff_frequency = 0.2
         self.filter_order = 4
+
+        #TODO
+        self.ppg_sampling_frequency = 30
 
 
 def preprocess_imu_data(input_path: str, output_path: str, config: PreprocessingConfig) -> None:
@@ -159,34 +180,40 @@ def resample_data(
     df: pd.DataFrame,
     time_column : DataColumns,
     time_unit_type: TimeUnit,
-    unscaled_column_names : list,
+    unscaled_column_names: list,
     resampling_frequency: int,
-    scale_factors: list = []
+    scale_factors: list = [],
+    start_time: float = 0.0,
 ) -> pd.DataFrame:
     """
     Resamples the IMU data to the resampling frequency. The data is scaled before resampling.
-    TODO: This method does not work on the PPG data because it is in the absolute time format. I added `time_unit_type` as a parameter to the method, but it is not used yet.
     Parameters
     ----------
-    time_abs_array : np.ndarray
-        The absolute time array.
-    time_unit_type : TimeUnit
-        The time unit type of the time array. The method currently works only for `TimeUnit.relative_ms`.
-    values_unscaled : np.ndarray
-        The values to resample.
-    resampling_frequency : int
-        The frequency to resample the data to.
+    df : pd.DataFrame
+        The data to resample.
     time_column : str
         The name of the time column.
+    time_unit_type : TimeUnit
+        The time unit type of the time array. The method currently works only for `TimeUnit.relative_ms`.
+    unscaled_column_names : list
+        The names of the columns to resample.
+    resampling_frequency : int
+        The frequency to resample the data to.
     scale_factors : list, optional
         The scale factors to apply to the values before resampling (default is []).
+    start_time : float, optional
+        The start time of the time array, which is required if it is in absolute format (default is 0.0).
 
     Returns
     -------
     pd.DataFrame
         The resampled data.
     """
-    print("Type of unscaled_column_names: ", type(unscaled_column_names))
+    # We need a start_time if the time is in absolute time format
+    if time_unit_type == TimeUnit.absolute_ms and start_time == 0.0:
+        raise ValueError("start_time is required for absolute time format")
+
+    # get time and values
     time_abs_array=np.array(df[time_column])
     values_unscaled=np.array(df[unscaled_column_names])
 
@@ -195,7 +222,7 @@ def resample_data(
         scaled_values = values_unscaled * scale_factors
 
     # resample
-    t_resampled = np.arange(0, time_abs_array[-1], 1 / resampling_frequency)
+    t_resampled = np.arange(start_time, time_abs_array[-1], 1 / resampling_frequency)
 
     # create dataframe
     df = pd.DataFrame(t_resampled, columns=[time_column])

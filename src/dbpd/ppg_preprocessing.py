@@ -1,22 +1,110 @@
+import os
+import json
 import numpy as np
 import pandas as pd
 from pathlib import Path
-import json
 from typing import List
-
 from datetime import datetime, timedelta
+
+import tsdf
+from dbpd import DataColumns
+import dbpd.constants
+from dbpd.imu_preprocessing import PreprocessingConfig
 from dbpd.util import parse_iso8601_to_datetime
+import dbpd.imu_preprocessing
 
-# Module methods
 
-def tsdf_scan_meta(tsdf_data_full_path : str) -> List[dict]:
+
+def scan_and_sync_segments(input_path_ppg, input_path_imu):
+
+    # Scan for available TSDF metadata files
+    meta_ppg = extract_meta_from_tsdf_files(input_path_ppg)
+    meta_imu = extract_meta_from_tsdf_files(input_path_imu)
+
+    # Synchronize PPG and IMU data segments
+    segments_ppg, segments_imu = synchronization(meta_ppg, meta_imu)  # Define `synchronization`
+    
+    assert len(segments_ppg) == len(segments_imu), 'Number of PPG and IMU segments do not match.'
+
+    # Load metadata for every synced segment pair
+    metadatas_ppg = [tsdf.load_metadata_from_path(meta_ppg[index]['tsdf_meta_fullpath']) for index in segments_ppg]
+    metadatas_imu = [tsdf.load_metadata_from_path(meta_imu[index]['tsdf_meta_fullpath']) for index in segments_imu]
+
+    return metadatas_ppg, metadatas_imu
+
+
+def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TSDFMetadata, config: PreprocessingConfig):
+
+    # Load PPG data
+    metadata_time_ppg = tsdf_meta_ppg[config.ppg_time_filename]
+    metadata_samples_ppg = tsdf_meta_ppg[config.ppg_values_filename]
+    df_ppg = tsdf.load_dataframe_from_binaries([metadata_time_ppg, metadata_samples_ppg], tsdf.constants.ConcatenationType.columns)
+
+    # Load IMU data
+    metadata_time_imu = tsdf_meta_imu[config.time_filename]
+    metadata_samples_imu = tsdf_meta_imu[config.values_filename]
+    df_imu = tsdf.load_dataframe_from_binaries([metadata_time_imu, metadata_samples_imu], tsdf.constants.ConcatenationType.columns)
+
+    # Drop the gyroscope columns from the IMU data
+    cols_to_drop = df_imu.filter(regex='^rotation_').columns
+    df_imu.drop(cols_to_drop, axis=1, inplace=True)
+    df_imu = df_imu.rename(columns={f'acceleration_{a}': f'accelerometer_{a}' for a in ['x', 'y', 'z']})
+
+    # Transform the time arrays to absolute milliseconds
+    start_time_ppg = parse_iso8601_to_datetime(metadata_time_ppg.start_iso8601).timestamp()
+    df_imu[DataColumns.TIME] = dbpd.imu_preprocessing.transform_time_array(
+        time_array=df_imu[DataColumns.TIME],
+        scale_factor=1000, 
+        input_unit_type = dbpd.constants.TimeUnit.difference_ms,
+        output_unit_type = dbpd.constants.TimeUnit.absolute_ms,
+        start_time = start_time_ppg)
+
+    start_time_imu = parse_iso8601_to_datetime(metadata_time_imu.start_iso8601).timestamp()
+    df_ppg[DataColumns.TIME] = dbpd.imu_preprocessing.transform_time_array(
+        time_array=df_ppg[DataColumns.TIME],
+        scale_factor=1000, 
+        input_unit_type = dbpd.constants.TimeUnit.difference_ms,
+        output_unit_type = dbpd.constants.TimeUnit.absolute_ms,
+        start_time = start_time_imu)
+    
+    # Extract overlapping segments
+    print("Shape of the original data:", df_ppg.shape, df_imu.shape)
+    df_ppg_overlapping, df_imu_overlapping = extract_overlapping_segments(df_ppg, df_imu)
+    print("Shape of the overlapping segments:", df_ppg_overlapping.shape, df_imu_overlapping.shape)
+
+    # The following method is failing
+    df_imu_proc = dbpd.imu_preprocessing.resample_data(
+        df=df_imu_overlapping,
+        time_column=DataColumns.TIME,
+        time_unit_type=dbpd.constants.TimeUnit.absolute_ms,
+        unscaled_column_names = list(config.d_channels_units_imu_for_ppg.keys()),
+        resampling_frequency=config.sampling_frequency,
+        scale_factors=metadata_samples_imu.scale_factors[0:3],
+        start_time=start_time_imu)
+
+    # metadata_samples_ppg.scale_factors - the data specifies 1, but it is not an obligatory tsdf field, maybe it should be optional parameter in `resample_data`
+    df_ppg_proc = dbpd.imu_preprocessing.resample_data(
+        df=df_ppg_overlapping,
+        time_column=DataColumns.TIME,
+        time_unit_type=dbpd.constants.TimeUnit.absolute_ms,
+        unscaled_column_names = list(config.d_channels_units_ppg.keys()),
+        scale_factors=metadata_samples_imu.scale_factors,
+        resampling_frequency=config.ppg_sampling_frequency,
+        start_time = start_time_imu
+        )
+
+    #TODO: write the processed data to a file
+
+
+# TODO: ideally something like this should be possible directly in the tsdf library
+def extract_meta_from_tsdf_files(tsdf_data_dir : str) -> List[dict]:
     """
     For each given TSDF directory, transcribe TSDF metadata contents to a list of dictionaries.
     
     Parameters
     ----------
-    tsdf_data_full_path : str
-        Full path to the directory containing TSDF metadata files.
+    tsdf_data_dir : str
+        Path to the directory containing TSDF metadata files.
 
     Returns
     -------
@@ -28,10 +116,10 @@ def tsdf_scan_meta(tsdf_data_full_path : str) -> List[dict]:
     >>> tsdf_scan_meta('/path/to/tsdf_data')
     [{'start_iso8601': '2021-06-27T16:52:20Z', 'end_iso8601': '2021-06-27T17:52:20Z'}, ...]
     """
-    tsdf = []
+    metas = []
     
     # Collect all metadata JSON files in the specified directory
-    meta_list = list(Path(tsdf_data_full_path).rglob('*_meta.json'))
+    meta_list = list(Path(tsdf_data_dir).rglob('*_meta.json'))
     for meta_file in meta_list:
         with open(meta_file, 'r') as file:
             json_obj = json.load(file)
@@ -41,9 +129,9 @@ def tsdf_scan_meta(tsdf_data_full_path : str) -> List[dict]:
                 'start_iso8601': json_obj['start_iso8601'],
                 'end_iso8601': json_obj['end_iso8601']
             }
-            tsdf.append(meta_data)
+            metas.append(meta_data)
     
-    return tsdf
+    return metas
 
 
 def synchronization(ppg_meta, imu_meta):
