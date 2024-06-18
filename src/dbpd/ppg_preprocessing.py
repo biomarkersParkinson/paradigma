@@ -10,7 +10,7 @@ import tsdf
 from dbpd import DataColumns
 import dbpd.constants
 from dbpd.imu_preprocessing import PreprocessingConfig
-from dbpd.util import parse_iso8601_to_datetime
+from dbpd.util import parse_iso8601_to_datetime, write_data
 import dbpd.imu_preprocessing
 
 
@@ -33,7 +33,7 @@ def scan_and_sync_segments(input_path_ppg, input_path_imu):
     return metadatas_ppg, metadatas_imu
 
 
-def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TSDFMetadata, config: PreprocessingConfig):
+def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TSDFMetadata, output_path: str, config: PreprocessingConfig):
 
     # Load PPG data
     metadata_time_ppg = tsdf_meta_ppg[config.ppg_time_filename]
@@ -93,7 +93,20 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
         start_time = start_time_imu
         )
 
-    #TODO: write the processed data to a file
+    # Store data
+    metadata_samples_imu.channels = list(config.d_channels_units_imu_for_ppg.keys())
+    metadata_samples_imu.units = list(config.d_channels_units_imu_for_ppg.values())
+    metadata_samples_imu.file_name = 'acceleration_samples.bin'
+    metadata_time_imu.units = ['time_absolute_ms']
+    metadata_time_imu.file_name = 'acceleration_time.bin'
+    write_data(metadata_time_imu, metadata_samples_imu, output_path, 'acceleration_meta.json', df_imu_proc)
+
+    metadata_samples_ppg.channels = list(config.d_channels_units_ppg.keys())
+    metadata_samples_ppg.units = list(config.d_channels_units_ppg.values())
+    metadata_samples_ppg.file_name = 'PPG_samples.bin'
+    metadata_time_ppg.units = ['time_absolute_ms']
+    metadata_time_ppg.file_name = 'PPG_time.bin'
+    write_data(metadata_time_ppg, metadata_samples_ppg, output_path, 'PPG_meta.json', df_ppg_proc)
 
 
 # TODO: ideally something like this should be possible directly in the tsdf library
