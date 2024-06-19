@@ -198,9 +198,7 @@ class ArmSwingFeatureExtractionConfig:
             'accelerometer_z_power_tremor': 'X',
             'accelerometer_z_power_above_tremor': 'X',
             'accelerometer_z_dominant_frequency': 'Hz',
-            'gyroscope_x_dominant_frequency': 'Hz',
-            'gyroscope_y_dominant_frequency': 'Hz',
-            'gyroscope_z_dominant_frequency': 'Hz',
+            'angle_dominant_frequency': 'Hz',
         }
 
         for sensor in ['accelerometer', 'gyroscope']:
