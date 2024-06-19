@@ -8,8 +8,8 @@
     "end_iso8601": "2021-06-27T17:04:30Z",
     "rows": 2,
     "endianness": "little",
-    "data_type": "float",
     "bits": 64,
+    "data_type": "float",
     "sensors": [
         {
             "scale_factors": [

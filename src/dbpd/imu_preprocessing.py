@@ -218,5 +218,5 @@ def butterworth_filter(
         fs=sampling_frequency,
         output="sos",
     )
-    return signal.sosfilt(sos, single_sensor_col)
+    return signal.sosfiltfilt(sos, single_sensor_col)
     
