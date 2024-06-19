@@ -73,13 +73,13 @@ def extract_spectral_domain_features(config, df_windowed, sensor, l_sensor_colna
         sampling_frequency=config.sampling_frequency,
         low_frequency=config.spectrum_low_frequency,
         high_frequency=config.spectrum_high_frequency,
-        filter_length=config.filter_length,
-        n_dct_filters=config.n_dct_filters
+        n_filters=config.n_dct_filters_cc,
+        n_coefficients=config.n_coefficients_cc
         )
 
     df_windowed = pd.concat([df_windowed, cc_cols], axis=1)
 
-    df_windowed = df_windowed.rename(columns={f'cc_{cc_nr}': f'cc_{cc_nr}_{sensor}' for cc_nr in range(1,config.n_dct_filters+1)}).rename(columns={'window_start': 'time'})
+    df_windowed = df_windowed.rename(columns={f'cc_{cc_nr}': f'cc_{cc_nr}_{sensor}' for cc_nr in range(1,config.n_coefficients_cc+1)}).rename(columns={'window_start': 'time'})
 
     return df_windowed
 
@@ -134,15 +134,14 @@ def detect_gait(input_path: str, output_path: str, path_to_classifier_input: str
     # Initialize the classifier
     clf = pd.read_pickle(os.path.join(path_to_classifier_input, config.classifier_file_name))
     with open(os.path.join(path_to_classifier_input, config.thresholds_file_name), 'r') as f:
-        thresholds_str = f.read()
-    threshold = np.mean([float(x) for x in thresholds_str.split(' ')])
+        threshold = float(f.read())
 
     # Prepare the data
     clf.feature_names_in_ = [f'{x}_power_below_gait' for x in config.l_accel_cols] + \
                             [f'{x}_power_gait' for x in config.l_accel_cols] + \
                             [f'{x}_power_tremor' for x in config.l_accel_cols] + \
                             [f'{x}_power_above_tremor' for x in config.l_accel_cols] + \
-                            ['std_norm_acc'] + [f'cc_{i}_accelerometer' for i in range(1, 17)] + [f'grav_{x}_{y}' for x in config.l_accel_cols for y in ['mean', 'std']] + \
+                            ['std_norm_acc'] + [f'cc_{i}_accelerometer' for i in range(1, 13)] + [f'grav_{x}_{y}' for x in config.l_accel_cols for y in ['mean', 'std']] + \
                             [f'{x}_dominant_frequency' for x in config.l_accel_cols]
     X = df.loc[:, clf.feature_names_in_]
 
@@ -254,7 +253,7 @@ def extract_arm_swing_features(input_path: str, output_path: str, config: ArmSwi
 
     # obtain the dominant frequency of the angle signal in the frequency band of interest
     # defined by the highest peak in the power spectrum
-    df_windowed['gyroscope_dominant_frequency'] = df_windowed.apply(
+    df_windowed['angle_dominant_frequency'] = df_windowed.apply(
         lambda x: get_dominant_frequency(signal_ffts=x['angle_fft'],
                                         signal_freqs=x['angle_freqs'],
                                         fmin=config.power_band_low_frequency,
@@ -285,7 +284,7 @@ def extract_arm_swing_features(input_path: str, output_path: str, config: ArmSwi
     extract_angle_extremes(
         df=df_windowed,
         angle_colname=config.angle_smooth_colname,
-        dominant_frequency_colname='gyroscope_dominant_frequency',
+        dominant_frequency_colname='angle_dominant_frequency',
         sampling_frequency=config.sampling_frequency
     )
 
@@ -359,18 +358,16 @@ def detect_arm_swing(input_path: str, output_path: str, path_to_classifier_input
     clf = pd.read_pickle(os.path.join(path_to_classifier_input, config.classifier_file_name))
 
     # Prepare the data
-    clf.feature_names_in_ = [f'{x}_power_below_gait' for x in config.l_accel_cols] + \
+    clf.feature_names_in_ = ['std_norm_acc'] + [f'{x}_power_below_gait' for x in config.l_accel_cols] + \
                             [f'{x}_power_gait' for x in config.l_accel_cols] + \
                             [f'{x}_power_tremor' for x in config.l_accel_cols] + \
                             [f'{x}_power_above_tremor' for x in config.l_accel_cols] + \
-                            [f'grav_{x}_{y}' for x in config.l_accel_cols for y in ['mean', 'std']] + \
-                            ['std_norm_acc'] + [f'cc_{i}_accelerometer' for i in range(1, 17)] + \
-                            [f'{x}_dominant_frequency' for x in config.l_accel_cols] + \
-                            [f'cc_{i}_gyroscope' for i in range(1, 17)] + \
-                            [f'{x}_dominant_frequency' for x in config.l_gyro_cols] + \
-                            ['range_of_motion', 'forward_peak_ang_vel_mean',
-                            'forward_peak_ang_vel_std', 'backward_peak_ang_vel_mean',
-                            'backward_peak_ang_vel_std', 'angle_perc_power']
+                            [f'cc_{i}_accelerometer' for i in range(1, 13)] + [f'cc_{i}_gyroscope' for i in range(1, 13)] + \
+                            [f'grav_{x}_mean' for x in config.l_accel_cols] +  [f'grav_{x}_std' for x in config.l_accel_cols] + \
+                            ['range_of_motion', 'forward_peak_ang_vel_mean', 'backward_peak_ang_vel_mean', 'forward_peak_ang_vel_std', 
+                            'backward_peak_ang_vel_std', 'angle_perc_power', 'angle_dominant_frequency'] + \
+                            [f'{x}_dominant_frequency' for x in config.l_accel_cols]
+                            
     X = df.loc[:, clf.feature_names_in_]
 
     # Make prediction

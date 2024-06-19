@@ -278,9 +278,9 @@ def generate_cepstral_coefficients(
         window_length_s: int,
         sampling_frequency: int = 100,
         low_frequency: int = 0,
-        high_frequency: int = 50,
-        filter_length: int = 16,
-        n_dct_filters: int = 16,
+        high_frequency: int = 25,
+        n_filters: int = 20,
+        n_coefficients: int = 12,
         ) -> pd.DataFrame:
     """Generate cepstral coefficients from the total power of the signal.
     
@@ -295,11 +295,11 @@ def generate_cepstral_coefficients(
     low_frequency: int
         The lower bound of the frequency band (default: 0)
     high_frequency: int
-        The upper bound of the frequency band (default: 50)
-    filter_length: int
-        The length of the DCT filter (default: 16)
-    n_dct_filters: int
-        The number of DCT filters (default: 16)
+        The upper bound of the frequency band (default: 25)
+    n_filters: int
+        The number of DCT filters (default: 20)
+    n_coefficients: int
+        The number of coefficients to extract (default: 12)
     
     Returns
     -------
@@ -309,7 +309,7 @@ def generate_cepstral_coefficients(
     window_length = window_length_s * sampling_frequency
     
     # compute filter points
-    freqs = np.linspace(low_frequency, high_frequency, num=filter_length+2)
+    freqs = np.linspace(low_frequency, high_frequency, num=n_filters+2)
     filter_points = np.floor((window_length + 1) / sampling_frequency * freqs).astype(int)  
 
     # construct filterbank
@@ -323,17 +323,17 @@ def generate_cepstral_coefficients(
     log_power_filtered = [10.0 * np.log10(x) for x in power_filtered]
 
     # generate cepstral coefficients
-    dct_filters = np.empty((n_dct_filters, filter_length))
-    dct_filters[0, :] = 1.0 / np.sqrt(filter_length)
+    dct_filters = np.empty((n_coefficients, n_filters))
+    dct_filters[0, :] = 1.0 / np.sqrt(n_filters)
 
-    samples = np.arange(1, 2 * filter_length, 2) * np.pi / (2.0 * filter_length)
+    samples = np.arange(1, 2 * n_filters, 2) * np.pi / (2.0 * n_filters)
 
-    for i in range(1, n_dct_filters):
-        dct_filters[i, :] = np.cos(i * samples) * np.sqrt(2.0 / filter_length)
+    for i in range(1, n_coefficients):
+        dct_filters[i, :] = np.cos(i * samples) * np.sqrt(2.0 / n_filters)
 
     cepstral_coefs = [np.dot(dct_filters, x) for x in log_power_filtered]
 
-    return pd.DataFrame(np.vstack(cepstral_coefs), columns=['cc_{}'.format(j+1) for j in range(n_dct_filters)])
+    return pd.DataFrame(np.vstack(cepstral_coefs), columns=['cc_{}'.format(j+1) for j in range(n_coefficients)])
 
 
 def pca_transform_gyroscope(

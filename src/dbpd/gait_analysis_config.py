@@ -14,7 +14,11 @@ class GaitFeatureExtractionConfig:
         self.window_length_s: int = 6
         self.window_step_size_s: int = 1
 
-        self.n_dct_filters: int = 16
+        # cepstral coefficients
+        self.cc_low_frequency = 0
+        self.cc_high_frequency = 25
+        self.n_dct_filters_cc: int = 20
+        self.n_coefficients_cc: int = 12
         
         self.d_frequency_bandwidths: Dict[str, List[float]] = {
             'power_below_gait': [0.3, 0.7],
@@ -43,39 +47,26 @@ class GaitFeatureExtractionConfig:
             f'grav_{self.sensor}_x_std': 'g',
             f'grav_{self.sensor}_y_std': 'g',
             f'grav_{self.sensor}_z_std': 'g',
-            f'{self.sensor}_x_power_below_gait': 'X',
-            f'{self.sensor}_y_power_below_gait': 'X',
-            f'{self.sensor}_z_power_below_gait': 'X',
-            f'{self.sensor}_x_power_gait': 'X',
-            f'{self.sensor}_y_power_gait': 'X',
-            f'{self.sensor}_z_power_gait': 'X',
-            f'{self.sensor}_x_power_tremor': 'X',
-            f'{self.sensor}_y_power_tremor': 'X',
-            f'{self.sensor}_z_power_tremor': 'X',
-            f'{self.sensor}_x_power_above_tremor': 'X',
-            f'{self.sensor}_y_power_above_tremor': 'X',
-            f'{self.sensor}_z_power_above_tremor': 'X',
+            f'{self.sensor}_x_power_below_gait': 'g^2/Hz',
+            f'{self.sensor}_y_power_below_gait': 'g^2/Hz',
+            f'{self.sensor}_z_power_below_gait': 'g^2/Hz',
+            f'{self.sensor}_x_power_gait': 'g^2/Hz',
+            f'{self.sensor}_y_power_gait': 'g^2/Hz',
+            f'{self.sensor}_z_power_gait': 'g^2/Hz',
+            f'{self.sensor}_x_power_tremor': 'g^2/Hz',
+            f'{self.sensor}_y_power_tremor': 'g^2/Hz',
+            f'{self.sensor}_z_power_tremor': 'g^2/Hz',
+            f'{self.sensor}_x_power_above_tremor': 'g^2/Hz',
+            f'{self.sensor}_y_power_above_tremor': 'g^2/Hz',
+            f'{self.sensor}_z_power_above_tremor': 'g^2/Hz',
             f'{self.sensor}_x_dominant_frequency': 'Hz',
             f'{self.sensor}_y_dominant_frequency': 'Hz',
             f'{self.sensor}_z_dominant_frequency': 'Hz',
-            f'std_norm_acc': 'X',
-            f'cc_1_{self.sensor}': 'X',
-            f'cc_2_{self.sensor}': 'X',
-            f'cc_3_{self.sensor}': 'X',
-            f'cc_4_{self.sensor}': 'X',
-            f'cc_5_{self.sensor}': 'X',
-            f'cc_6_{self.sensor}': 'X',
-            f'cc_7_{self.sensor}': 'X',
-            f'cc_8_{self.sensor}': 'X',
-            f'cc_9_{self.sensor}': 'X',
-            f'cc_10_{self.sensor}': 'X',
-            f'cc_11_{self.sensor}': 'X',
-            f'cc_12_{self.sensor}': 'X',
-            f'cc_13_{self.sensor}': 'X',
-            f'cc_14_{self.sensor}': 'X',
-            f'cc_15_{self.sensor}': 'X',
-            f'cc_16_{self.sensor}': 'X'
+            f'std_norm_acc': 'g',
         }
+
+        for cc_coef in range(1, self.n_coefficients_cc+1):
+            self.d_channels_values[f'cc_{cc_coef}_{self.sensor}'] = 'g'
 
     # TODO: move to higher level config class (duplicate in armswing feature extraction)
     def set_sensor(self, sensor: str) -> None:
@@ -97,7 +88,7 @@ class GaitDetectionConfig:
 
     def __init__(self) -> None:
         self.classifier_file_name = 'gd_classifier.pkl'
-        self.thresholds_file_name = 'gd_thresholds.txt'
+        self.thresholds_file_name = 'gd_threshold.txt'
 
         self.meta_filename = 'gait_meta.json'
         self.time_filename = 'gait_time.bin'
@@ -133,9 +124,9 @@ class ArmSwingFeatureExtractionConfig:
 
         # cepstral coefficients
         self.cc_low_frequency = 0
-        self.cc_high_frequency = int(sampling_frequency / 2) 
-        self.filter_length = 16
-        self.n_dct_filters = 16
+        self.cc_high_frequency = 25
+        self.n_dct_filters_cc: int = 20
+        self.n_coefficients_cc: int = 12
 
     def initialize_column_names(self, time_colname='time', pred_gait_colname='pred_gait',
                          angle_smooth_colname='angle_smooth', angle_colname='angle',
@@ -207,42 +198,13 @@ class ArmSwingFeatureExtractionConfig:
             'accelerometer_z_power_tremor': 'X',
             'accelerometer_z_power_above_tremor': 'X',
             'accelerometer_z_dominant_frequency': 'Hz',
-            'gyroscope_x_dominant_frequency': 'Hz',
-            'gyroscope_y_dominant_frequency': 'Hz',
-            'gyroscope_z_dominant_frequency': 'Hz',
-            'cc_1_accelerometer': 'X',
-            'cc_2_accelerometer': 'X',
-            'cc_3_accelerometer': 'X',
-            'cc_4_accelerometer': 'X',
-            'cc_5_accelerometer': 'X',
-            'cc_6_accelerometer': 'X',
-            'cc_7_accelerometer': 'X',
-            'cc_8_accelerometer': 'X',
-            'cc_9_accelerometer': 'X',
-            'cc_10_accelerometer': 'X',
-            'cc_11_accelerometer': 'X',
-            'cc_12_accelerometer': 'X',
-            'cc_13_accelerometer': 'X',
-            'cc_14_accelerometer': 'X',
-            'cc_15_accelerometer': 'X',
-            'cc_16_accelerometer': 'X',
-            'cc_1_gyroscope': 'X',
-            'cc_2_gyroscope': 'X',
-            'cc_3_gyroscope': 'X',
-            'cc_4_gyroscope': 'X',
-            'cc_5_gyroscope': 'X',
-            'cc_6_gyroscope': 'X',
-            'cc_7_gyroscope': 'X',
-            'cc_8_gyroscope': 'X',
-            'cc_9_gyroscope': 'X',
-            'cc_10_gyroscope': 'X',
-            'cc_11_gyroscope': 'X',
-            'cc_12_gyroscope': 'X',
-            'cc_13_gyroscope': 'X',
-            'cc_14_gyroscope': 'X',
-            'cc_15_gyroscope': 'X',
-            'cc_16_gyroscope': 'X'
+            'angle_dominant_frequency': 'Hz',
         }
+
+        for sensor in ['accelerometer', 'gyroscope']:
+            for cc_coef in range(1, self.n_coefficients_cc+1):
+                self.d_channels_values[f'cc_{cc_coef}_{sensor}'] = 'g'
+
 
     # TODO: move to higher level config class (duplicate in gait feature extraction)
     def set_sensor(self, sensor: str) -> None:
