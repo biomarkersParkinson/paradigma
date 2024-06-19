@@ -8,10 +8,10 @@
     "end_iso8601": "2021-06-27T17:04:30Z",
     "rows": 642,
     "endianness": "little",
+    "bits": 64,
     "sensors": [
         {
             "data_type": "float",
-            "bits": 64,
             "scale_factors": [
                 1
             ],
@@ -25,7 +25,6 @@
         },
         {
             "data_type": "int",
-            "bits": 32,
             "file_name": "arm_swing_values.bin",
             "channels": [
                 "pred_arm_swing"
