@@ -363,9 +363,9 @@ def detect_arm_swing(input_path: str, output_path: str, path_to_classifier_input
                             [f'{x}_power_tremor' for x in config.l_accel_cols] + \
                             [f'{x}_power_above_tremor' for x in config.l_accel_cols] + \
                             [f'grav_{x}_{y}' for x in config.l_accel_cols for y in ['mean', 'std']] + \
-                            ['std_norm_acc'] + [f'cc_{i}_accelerometer' for i in range(1, 17)] + \
+                            ['std_norm_acc'] + [f'cc_{i}_accelerometer' for i in range(1, 13)] + \
                             [f'{x}_dominant_frequency' for x in config.l_accel_cols] + \
-                            [f'cc_{i}_gyroscope' for i in range(1, 17)] + \
+                            [f'cc_{i}_gyroscope' for i in range(1, 13)] + \
                             [f'{x}_dominant_frequency' for x in config.l_gyro_cols] + \
                             ['range_of_motion', 'forward_peak_ang_vel_mean',
                             'forward_peak_ang_vel_std', 'backward_peak_ang_vel_mean',
