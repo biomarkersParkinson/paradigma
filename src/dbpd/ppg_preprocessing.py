@@ -7,9 +7,8 @@ from typing import List
 from datetime import datetime, timedelta
 
 import tsdf
-from dbpd import DataColumns
-import dbpd.constants
-from dbpd.imu_preprocessing import PreprocessingConfig
+from dbpd.constants import TimeUnit, DataColumns
+from dbpd.preprocessing_config import PPGPreprocessingConfig, IMUPreprocessingConfig
 from dbpd.util import parse_iso8601_to_datetime, write_data
 import dbpd.imu_preprocessing
 
@@ -33,16 +32,16 @@ def scan_and_sync_segments(input_path_ppg, input_path_imu):
     return metadatas_ppg, metadatas_imu
 
 
-def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TSDFMetadata, output_path: str, config: PreprocessingConfig):
+def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TSDFMetadata, output_path: str, ppg_config: PPGPreprocessingConfig, imu_config: IMUPreprocessingConfig):
 
     # Load PPG data
-    metadata_time_ppg = tsdf_meta_ppg[config.ppg_time_filename]
-    metadata_samples_ppg = tsdf_meta_ppg[config.ppg_values_filename]
+    metadata_time_ppg = tsdf_meta_ppg[ppg_config.time_filename]
+    metadata_samples_ppg = tsdf_meta_ppg[ppg_config.values_filename]
     df_ppg = tsdf.load_dataframe_from_binaries([metadata_time_ppg, metadata_samples_ppg], tsdf.constants.ConcatenationType.columns)
 
     # Load IMU data
-    metadata_time_imu = tsdf_meta_imu[config.time_filename]
-    metadata_samples_imu = tsdf_meta_imu[config.values_filename]
+    metadata_time_imu = tsdf_meta_imu[imu_config.time_filename]
+    metadata_samples_imu = tsdf_meta_imu[imu_config.values_filename]
     df_imu = tsdf.load_dataframe_from_binaries([metadata_time_imu, metadata_samples_imu], tsdf.constants.ConcatenationType.columns)
 
     # Drop the gyroscope columns from the IMU data
@@ -77,8 +76,8 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
         df=df_imu_overlapping,
         time_column=DataColumns.TIME,
         time_unit_type=dbpd.constants.TimeUnit.absolute_ms,
-        unscaled_column_names = list(config.d_channels_units_imu_for_ppg.keys()),
-        resampling_frequency=config.sampling_frequency,
+        unscaled_column_names = list(imu_config.d_channels_accelerometer.keys()),
+        resampling_frequency=imu_config.sampling_frequency,
         scale_factors=metadata_samples_imu.scale_factors[0:3],
         start_time=start_time_imu)
 
@@ -87,24 +86,24 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
         df=df_ppg_overlapping,
         time_column=DataColumns.TIME,
         time_unit_type=dbpd.constants.TimeUnit.absolute_ms,
-        unscaled_column_names = list(config.d_channels_units_ppg.keys()),
+        unscaled_column_names = list(ppg_config.d_channels_ppg.keys()),
         scale_factors=metadata_samples_imu.scale_factors,
-        resampling_frequency=config.ppg_sampling_frequency,
+        resampling_frequency=ppg_config.sampling_frequency,
         start_time = start_time_imu
         )
 
     # Store data
-    metadata_samples_imu.channels = list(config.d_channels_units_imu_for_ppg.keys())
-    metadata_samples_imu.units = list(config.d_channels_units_imu_for_ppg.values())
+    metadata_samples_imu.channels = list(imu_config.d_channels_accelerometer.keys())
+    metadata_samples_imu.units = list(imu_config.d_channels_accelerometer.values())
     metadata_samples_imu.file_name = 'acceleration_samples.bin'
-    metadata_time_imu.units = ['time_absolute_ms']
+    metadata_time_imu.units = [TimeUnit.absolute_ms]
     metadata_time_imu.file_name = 'acceleration_time.bin'
     write_data(metadata_time_imu, metadata_samples_imu, output_path, 'acceleration_meta.json', df_imu_proc)
 
-    metadata_samples_ppg.channels = list(config.d_channels_units_ppg.keys())
-    metadata_samples_ppg.units = list(config.d_channels_units_ppg.values())
+    metadata_samples_ppg.channels = list(ppg_config.d_channels_ppg.keys())
+    metadata_samples_ppg.units = list(ppg_config.d_channels_ppg.values())
     metadata_samples_ppg.file_name = 'PPG_samples.bin'
-    metadata_time_ppg.units = ['time_absolute_ms']
+    metadata_time_ppg.units = [TimeUnit.absolute_ms]
     metadata_time_ppg.file_name = 'PPG_time.bin'
     write_data(metadata_time_ppg, metadata_samples_ppg, output_path, 'PPG_meta.json', df_ppg_proc)
 

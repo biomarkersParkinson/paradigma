@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from dbpd.preprocessing_config import IMUPreprocessingConfig
 from dbpd.imu_preprocessing import *
 from dbpd.gait_analysis import *
 from dbpd.gait_analysis_config import *
@@ -40,7 +41,7 @@ def test_1_imu_preprocessing_outputs(shared_datadir: Path):
     reference_output_path = shared_datadir / output_dir_name / "gait"
     tested_output_path = reference_output_path / "test-output"
 
-    config = PreprocessingConfig()
+    config = IMUPreprocessingConfig()
     preprocess_imu_data(input_path, tested_output_path, config)
     compare_data(reference_output_path, tested_output_path, imu_binaries_pairs)
 

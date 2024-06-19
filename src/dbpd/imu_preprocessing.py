@@ -7,61 +7,10 @@ from scipy.interpolate import CubicSpline
 import tsdf
 from dbpd.constants import DataColumns, TimeUnit
 from dbpd.util import write_data, read_metadata
+from dbpd.preprocessing_config import IMUPreprocessingConfig, PPGPreprocessingConfig
 
 
-#TODO: split into multiple config classes for IMU and PPG
-class PreprocessingConfig:
-
-    def __init__(self) -> None:
-        self.meta_filename = 'IMU_meta.json'
-        self.values_filename = 'IMU_samples.bin'
-        self.time_filename = 'IMU_time.bin'
-
-        #TODO
-        self.ppg_meta_filename = 'PPG_meta.json'
-        self.ppg_values_filename = 'PPG_samples.bin'
-        self.ppg_time_filename = 'PPG_time.bin'
-
-        self.acceleration_units = 'm/s^2'
-        self.rotation_units = 'deg/s'
-
-        self.l_acceleration_cols = [DataColumns.ACCELEROMETER_X, DataColumns.ACCELEROMETER_Y, DataColumns.ACCELEROMETER_Z]
-        self.time_colname = DataColumns.TIME
-
-        self.d_channels_units = {
-            DataColumns.ACCELEROMETER_X: self.acceleration_units,
-            DataColumns.ACCELEROMETER_Y: self.acceleration_units,
-            DataColumns.ACCELEROMETER_Z: self.acceleration_units,
-            DataColumns.GYROSCOPE_X: self.rotation_units,
-            DataColumns.GYROSCOPE_Y: self.rotation_units,
-            DataColumns.GYROSCOPE_Z: self.rotation_units,
-        }
-
-        #TODO
-        self.d_channels_units_imu_for_ppg = {
-            DataColumns.ACCELEROMETER_X: self.acceleration_units,
-            DataColumns.ACCELEROMETER_Y: self.acceleration_units,
-            DataColumns.ACCELEROMETER_Z: self.acceleration_units,
-        }
-
-        #TODO
-        self.d_channels_units_ppg = {
-            DataColumns.PPG: 'none'
-        }
-
-        # participant information
-        self.side_watch = 'right'
-
-        # filtering
-        self.sampling_frequency = 100
-        self.lower_cutoff_frequency = 0.2
-        self.filter_order = 4
-
-        #TODO
-        self.ppg_sampling_frequency = 30
-
-
-def preprocess_imu_data(input_path: str, output_path: str, config: PreprocessingConfig) -> None:
+def preprocess_imu_data(input_path: str, output_path: str, config: IMUPreprocessingConfig) -> None:
 
     # Load data
     metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
@@ -83,14 +32,14 @@ def preprocess_imu_data(input_path: str, output_path: str, config: Preprocessing
         df=df,
         time_column=config.time_colname,
         time_unit_type=TimeUnit.relative_ms,
-        unscaled_column_names = list(config.d_channels_units.keys()),
+        unscaled_column_names = list(config.d_channels_imu.keys()),
         scale_factors=metadata_samples.scale_factors,
         resampling_frequency=config.sampling_frequency)
     
     if config.side_watch == 'left':
         df[DataColumns.ACCELEROMETER_X] *= -1
 
-    for col in config.l_acceleration_cols:
+    for col in config.d_channels_accelerometer.keys():
 
         # change to correct units [g]
         if config.acceleration_units == 'm/s^2':
