@@ -125,13 +125,13 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
         #     df_ppg_proc = df_ppg_proc.drop(columns=[col])
         #     df_ppg_proc = df_ppg_proc.rename(columns={f'filt_{col}': col})
 
-        df_imu_proc[DataColumns.TIME] = dbpd.imu_preprocessing.transform_time_array(
-            time_array=df_imu_proc[DataColumns.TIME],
-            scale_factor=1,
-            input_unit_type=dbpd.constants.TimeUnit.absolute_ms,
-            output_unit_type=dbpd.constants.TimeUnit.relative_ms,
-            start_time=start_time_ppg,
-        )
+    df_imu_proc[DataColumns.TIME] = dbpd.imu_preprocessing.transform_time_array(
+        time_array=df_imu_proc[DataColumns.TIME],
+        scale_factor=1,
+        input_unit_type=dbpd.constants.TimeUnit.absolute_ms,
+        output_unit_type=dbpd.constants.TimeUnit.relative_ms,
+        start_time=start_time_ppg,
+    )
 
     df_ppg_proc[DataColumns.TIME] = dbpd.imu_preprocessing.transform_time_array(
         time_array=df_ppg_proc[DataColumns.TIME],
