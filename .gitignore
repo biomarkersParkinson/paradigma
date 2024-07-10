@@ -147,3 +147,4 @@ tests/data/tmp
 
 # Ignore all files in the repo with extension .asv
 *.asv
+tests/data/2.preprocessed_data/ppg/new/
