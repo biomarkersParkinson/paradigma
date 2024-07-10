@@ -11,6 +11,16 @@ class DataColumns:
     PPG = "green"
     TIME = "time"
 
+class DataUnits:
+    """
+    Enum for the data channel unit types in tsdf.
+    """
+    ACCELERATION = "m/s^2"
+    """ The acceleration is in m/s^2. """
+    ROTATION = "deg/s"
+    """ The rotation is in degrees per second. """
+    
+
 class TimeUnit:
     """
     Enum for the `time` channel unit types in tsdf.

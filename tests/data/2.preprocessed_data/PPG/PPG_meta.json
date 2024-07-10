@@ -11,9 +11,9 @@
     "endianness": "little",
     "bits": 64,
     "freq_sampling_original": 100.40200019609766,
+    "rows": 19338,
     "sensors": [
         {
-            "rows": 1,
             "file_name": "PPG_time.bin",
             "channels": [
                 "time"
@@ -23,7 +23,6 @@
             ]
         },
         {
-            "rows": 19338,
             "file_name": "PPG_samples.bin",
             "channels": [
                 "green"

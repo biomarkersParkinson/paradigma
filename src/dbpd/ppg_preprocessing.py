@@ -7,7 +7,7 @@ from typing import List
 from datetime import datetime, timedelta
 
 import tsdf
-from dbpd.constants import TimeUnit, DataColumns
+from dbpd.constants import DataUnits, TimeUnit, DataColumns
 from dbpd.preprocessing_config import PPGPreprocessingConfig, IMUPreprocessingConfig
 from dbpd.util import parse_iso8601_to_datetime, write_data
 import dbpd.imu_preprocessing
@@ -91,6 +91,43 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
         resampling_frequency=ppg_config.sampling_frequency,
         start_time = start_time_imu
         )
+    
+    # apply Butterworth filter to accelerometer data
+    for col in imu_config.d_channels_accelerometer.keys():
+
+        # change to correct units [g]
+        if imu_config.acceleration_units == DataUnits.ACCELERATION:
+            df_imu_proc[col] /= 9.81
+
+        for result, side_pass in zip(['filt', 'grav'], ['hp', 'lp']):
+            df_imu_proc[f'{result}_{col}'] = dbpd.imu_preprocessing.butterworth_filter(
+                single_sensor_col=np.array(df_imu_proc[col]),
+                order=imu_config.filter_order,
+                cutoff_frequency=imu_config.lower_cutoff_frequency,
+                passband=side_pass,
+                sampling_frequency=imu_config.sampling_frequency,
+                )
+            
+        df_imu_proc = df_imu_proc.drop(columns=[col])
+        df_imu_proc = df_imu_proc.rename(columns={f'filt_{col}': col})
+
+    
+    # Apply the same filter to PPG data (should this be applied?)
+    # for col in ppg_config.d_channels_ppg.keys():
+
+    #     for result, side_pass in zip(['filt'], ['hp', 'lp']):
+    #         df_ppg_proc[f'{result}_{col}'] = dbpd.imu_preprocessing.butterworth_filter(
+    #             single_sensor_col=np.array(df_ppg_proc[col]),
+    #             order=ppg_config.filter_order,
+    #             cutoff_frequency=ppg_config.lower_cutoff_frequency,
+    #             passband=side_pass,
+    #             sampling_frequency=ppg_config.sampling_frequency,
+    #             )
+            
+    #     df_ppg_proc = df_ppg_proc.drop(columns=[col])
+    #     df_ppg_proc = df_ppg_proc.rename(columns={f'filt_{col}': col})
+
+    
 
     # Store data
     metadata_samples_imu.channels = list(imu_config.d_channels_accelerometer.keys())

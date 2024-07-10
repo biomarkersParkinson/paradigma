@@ -11,9 +11,9 @@
     "endianness": "little",
     "bits": 64,
     "freq_sampling_original": 100,
+    "rows": 64459,
     "sensors": [
         {
-            "rows": 1,
             "file_name": "acceleration_time.bin",
             "channels": [
                 "time"
@@ -23,7 +23,6 @@
             ]
         },
         {
-            "rows": 64459,
             "file_name": "acceleration_samples.bin",
             "channels": [
                 "acceleration_x",
