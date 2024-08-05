@@ -13,7 +13,6 @@ from dbpd.util import parse_iso8601_to_datetime, write_data
 import dbpd.imu_preprocessing
 
 
-
 def scan_and_sync_segments(input_path_ppg, input_path_imu):
 
     # Scan for available TSDF metadata files
@@ -65,7 +64,7 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
         input_unit_type = dbpd.constants.TimeUnit.difference_ms,
         output_unit_type = dbpd.constants.TimeUnit.absolute_ms,
         start_time = start_time_imu)
-    
+
     # Extract overlapping segments
     print("Shape of the original data:", df_ppg.shape, df_imu.shape)
     df_ppg_overlapping, df_imu_overlapping = extract_overlapping_segments(df_ppg, df_imu)
@@ -91,7 +90,7 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
         resampling_frequency=ppg_config.sampling_frequency,
         start_time = start_time_imu
         )
-    
+
     # apply Butterworth filter to accelerometer data
     for col in imu_config.d_channels_accelerometer.keys():
 
@@ -107,27 +106,37 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
                 passband=side_pass,
                 sampling_frequency=imu_config.sampling_frequency,
                 )
-            
+
         df_imu_proc = df_imu_proc.drop(columns=[col])
         df_imu_proc = df_imu_proc.rename(columns={f'filt_{col}': col})
 
-    
-    # Apply the same filter to PPG data (should this be applied?)
-    # for col in ppg_config.d_channels_ppg.keys():
+        for col in ppg_config.d_channels_ppg.keys():
+            df_ppg_proc[f'filt_{col}'] = dbpd.imu_preprocessing.butterworth_filter(
+                single_sensor_col=np.array(df_ppg_proc[col]),
+                order=ppg_config.filter_order,
+                cutoff_frequency=[ppg_config.lower_cutoff_frequency, ppg_config.upper_cutoff_frequency],
+                passband='band',
+                sampling_frequency=ppg_config.sampling_frequency,
+            )
 
-    #     for result, side_pass in zip(['filt'], ['hp', 'lp']):
-    #         df_ppg_proc[f'{result}_{col}'] = dbpd.imu_preprocessing.butterworth_filter(
-    #             single_sensor_col=np.array(df_ppg_proc[col]),
-    #             order=ppg_config.filter_order,
-    #             cutoff_frequency=ppg_config.lower_cutoff_frequency,
-    #             passband=side_pass,
-    #             sampling_frequency=ppg_config.sampling_frequency,
-    #             )
-            
-    #     df_ppg_proc = df_ppg_proc.drop(columns=[col])
-    #     df_ppg_proc = df_ppg_proc.rename(columns={f'filt_{col}': col})
+            df_ppg_proc = df_ppg_proc.drop(columns=[col])
+            df_ppg_proc = df_ppg_proc.rename(columns={f'filt_{col}': col})
 
-    
+    df_imu_proc[DataColumns.TIME] = dbpd.imu_preprocessing.transform_time_array(
+        time_array=df_imu_proc[DataColumns.TIME],
+        scale_factor=1,
+        input_unit_type=dbpd.constants.TimeUnit.absolute_ms,
+        output_unit_type=dbpd.constants.TimeUnit.relative_ms,
+        start_time=start_time_ppg,
+    )
+
+    df_ppg_proc[DataColumns.TIME] = dbpd.imu_preprocessing.transform_time_array(
+        time_array=df_ppg_proc[DataColumns.TIME],
+        scale_factor=1,
+        input_unit_type=dbpd.constants.TimeUnit.absolute_ms,
+        output_unit_type=dbpd.constants.TimeUnit.relative_ms,
+        start_time=start_time_imu,
+    )
 
     # Store data
     metadata_samples_imu.channels = list(imu_config.d_channels_accelerometer.keys())

@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 import numpy as np
 import pandas as pd
 from scipy import signal
@@ -190,7 +190,7 @@ def resample_data(
 def butterworth_filter(
     single_sensor_col: np.ndarray,
     order: int,
-    cutoff_frequency: float,
+    cutoff_frequency: Union[float, List[float]],
     passband: str,
     sampling_frequency: int,
 ):
@@ -203,10 +203,10 @@ def butterworth_filter(
         A single column containing sensor data in float format
     order: int
         The exponential order of the filter
-    cutoff_frequency: float
-        The frequency at which the gain drops to 1/sqrt(2) that of the passband
+    cutoff_frequency: float or List[float]
+        The frequency at which the gain drops to 1/sqrt(2) that of the passband. If passband is 'band', then cutoff_frequency should be a list of two floats.
     passband: str
-        Type of passband: ['hp' or 'lp']
+        Type of passband: ['hp', 'lp' or 'band']
     sampling_frequency: int
         The sampling frequency of the sensor data
 

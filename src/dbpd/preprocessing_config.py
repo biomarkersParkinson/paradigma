@@ -20,6 +20,7 @@ class BasePreprocessingConfig:
         # filtering
         self.sampling_frequency = 100
         self.lower_cutoff_frequency = 0.2
+        self.upper_cutoff_frequency = 3.5
         self.filter_order = 4
 
 
@@ -46,12 +47,6 @@ class IMUPreprocessingConfig(BasePreprocessingConfig):
             DataColumns.GYROSCOPE_Z: self.rotation_units,
         }
         self.d_channels_imu = {**self.d_channels_accelerometer, **self.d_channels_gyroscope}
-
-        # filtering
-        self.sampling_frequency = 100
-        self.lower_cutoff_frequency = 0.2
-        self.filter_order = 4
-
 
 class PPGPreprocessingConfig(BasePreprocessingConfig):
 
