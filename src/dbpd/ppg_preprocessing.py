@@ -110,20 +110,17 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
         df_imu_proc = df_imu_proc.drop(columns=[col])
         df_imu_proc = df_imu_proc.rename(columns={f'filt_{col}': col})
 
-        # Apply the same filter to PPG data (should this be applied?)
-        # for col in ppg_config.d_channels_ppg.keys():
+        for col in ppg_config.d_channels_ppg.keys():
+            df_ppg_proc[f'filt_{col}'] = dbpd.imu_preprocessing.butterworth_filter(
+                single_sensor_col=np.array(df_ppg_proc[col]),
+                order=ppg_config.filter_order,
+                cutoff_frequency=[ppg_config.lower_cutoff_frequency, ppg_config.upper_cutoff_frequency],
+                passband='band',
+                sampling_frequency=ppg_config.sampling_frequency,
+            )
 
-        #     for result, side_pass in zip(['filt'], ['hp', 'lp']):
-        #         df_ppg_proc[f'{result}_{col}'] = dbpd.imu_preprocessing.butterworth_filter(
-        #             single_sensor_col=np.array(df_ppg_proc[col]),
-        #             order=ppg_config.filter_order,
-        #             cutoff_frequency=ppg_config.lower_cutoff_frequency,
-        #             passband=side_pass,
-        #             sampling_frequency=ppg_config.sampling_frequency,
-        #             )
-
-        #     df_ppg_proc = df_ppg_proc.drop(columns=[col])
-        #     df_ppg_proc = df_ppg_proc.rename(columns={f'filt_{col}': col})
+            df_ppg_proc = df_ppg_proc.drop(columns=[col])
+            df_ppg_proc = df_ppg_proc.rename(columns={f'filt_{col}': col})
 
     df_imu_proc[DataColumns.TIME] = dbpd.imu_preprocessing.transform_time_array(
         time_array=df_imu_proc[DataColumns.TIME],
