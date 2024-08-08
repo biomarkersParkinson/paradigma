@@ -141,10 +141,10 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
     # Store data
     metadata_samples_imu.channels = list(imu_config.d_channels_accelerometer.keys())
     metadata_samples_imu.units = list(imu_config.d_channels_accelerometer.values())
-    metadata_samples_imu.file_name = 'acceleration_samples.bin'
+    metadata_samples_imu.file_name = 'accelerometer_samples.bin'
     metadata_time_imu.units = [TimeUnit.absolute_ms]
-    metadata_time_imu.file_name = 'acceleration_time.bin'
-    write_data(metadata_time_imu, metadata_samples_imu, output_path, 'acceleration_meta.json', df_imu_proc)
+    metadata_time_imu.file_name = 'accelerometer_time.bin'
+    write_data(metadata_time_imu, metadata_samples_imu, output_path, 'accelerometer_meta.json', df_imu_proc)
 
     metadata_samples_ppg.channels = list(ppg_config.d_channels_ppg.keys())
     metadata_samples_ppg.units = list(ppg_config.d_channels_ppg.values())
