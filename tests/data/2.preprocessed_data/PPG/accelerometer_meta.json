@@ -7,34 +7,33 @@
     "start_iso8601": "2021-06-27T16:52:20Z",
     "end_iso8601": "2021-06-27T17:03:04Z",
     "scale_factors": 1,
-    "rows": 64459,
     "data_type": "float",
     "endianness": "little",
     "bits": 64,
+    "freq_sampling_original": 100,
+    "rows": 64459,
     "sensors": [
         {
-            "file_name": "acceleration_filt_time.bin",
+            "file_name": "accelerometer_time.bin",
             "channels": [
                 "time"
             ],
             "units": [
-                "ms"
-            ],
-            "freq_sampling_original": 100.49069555614177
+                "absolute_ms"
+            ]
         },
         {
-            "file_name": "acceleration_filt_samples.bin",
+            "file_name": "accelerometer_samples.bin",
             "channels": [
-                "acceleration_x",
-                "acceleration_y",
-                "acceleration_z"
+                "accelerometer_x",
+                "accelerometer_y",
+                "accelerometer_z"
             ],
             "units": [
                 "m/s/s",
                 "m/s/s",
                 "m/s/s"
-            ],
-            "freq_sampling_original": 99.82007835743657
+            ]
         }
     ]
 }

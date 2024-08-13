@@ -13,9 +13,9 @@ Within the `DBPD` project, some of the field types are further specialised to pr
 | `channel_type` name       | Recommended `unit` | Description                                                                        
 |--------------------------|--------------------|------------------------------------------------------------------------------------|
 | `time`                   | `absolute_ms`      | Time corresponding to the start of each window/segment (also see units below).      |
-| `acceleration_x`         | `g`            | Acceleration along the x-axis.                                                       |
-| `acceleration_y`         | `g`            | Acceleration along the y-axis.                                                       |
-| `acceleration_z`         | `g`            | Acceleration along the z-axis.                                                       |
+| `accelerometer_x`         | `g`            | Acceleration along the x-axis.                                                       |
+| `accelerometer_y`         | `g`            | Acceleration along the y-axis.                                                       |
+| `accelerometer_z`         | `g`            | Acceleration along the z-axis.                                                       |
 | `rotation_x`             | `deg/s`            | Angular rotation rate around the x-axis.                                              |
 | `rotation_y`             | `deg/s`            | Angular rotation rate around the y-axis.                                              |
 | `rotation_z`             | `deg/s`            | Angular rotation rate around the z-axis.                                              |
