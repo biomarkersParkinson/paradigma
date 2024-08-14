@@ -6,7 +6,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = "dbpd"
+project = "paradigma"
 copyright = "2023, Peter Kok, Vedran Kasalica, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Luc Evers"
 author = (
     "Peter Kok, Vedran Kasalica, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Luc Evers"

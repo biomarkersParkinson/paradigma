@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=_build
-set SPHINXPROJ=dbpd
+set SPHINXPROJ=paradigma
 
 if "%1" == "" goto help
 

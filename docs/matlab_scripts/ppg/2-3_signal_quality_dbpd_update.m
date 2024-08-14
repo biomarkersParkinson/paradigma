@@ -2,7 +2,7 @@
 % This script uses both PPG and accelerometer and performs the following
 % steps:
 %   1. Loading the preprocessed PPG and accelerometer data from the
-%   implementation of the dbpd toolbox
+%   implementation of the paradigma toolbox
 %   2. Feature extraction
 %   3. Storing the features
 
@@ -16,7 +16,7 @@
 %% Initalization
 % Setting data paths + extracting metafilenames already
 clearvars; close all; clc
-addpath(genpath('..\..\..\..\dbpd-toolbox'))       % Add git repository to the path
+addpath(genpath('..\..\..\..\paradigma-toolbox'))       % Add git repository to the path
 addpath(genpath("..\..\..\..\tsdf4matlab"))       % Add wrapper to the path
 
 unix_ticks_ms = 1000.0;

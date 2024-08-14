@@ -1,5 +1,5 @@
 from typing import Dict, List
-from dbpd import DataColumns
+from paradigma import DataColumns
 
 
 class GaitFeatureExtractionConfig:

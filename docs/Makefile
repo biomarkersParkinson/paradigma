@@ -3,7 +3,7 @@
 # You can set these variables from the command line.
 SPHINXOPTS    =
 SPHINXBUILD   = python -msphinx
-SPHINXPROJ    = dbpd
+SPHINXPROJ    = paradigma
 SOURCEDIR     = .
 BUILDDIR      = _build
 

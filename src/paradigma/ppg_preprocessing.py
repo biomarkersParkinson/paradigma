@@ -7,10 +7,10 @@ from typing import List
 from datetime import datetime, timedelta
 
 import tsdf
-from dbpd.constants import DataUnits, TimeUnit, DataColumns
-from dbpd.preprocessing_config import PPGPreprocessingConfig, IMUPreprocessingConfig
-from dbpd.util import parse_iso8601_to_datetime, write_data
-import dbpd.imu_preprocessing
+from paradigma.constants import DataUnits, TimeUnit, DataColumns
+from paradigma.preprocessing_config import PPGPreprocessingConfig, IMUPreprocessingConfig
+from paradigma.util import parse_iso8601_to_datetime, write_data
+import paradigma.imu_preprocessing
 
 
 def scan_and_sync_segments(input_path_ppg, input_path_imu):
@@ -50,19 +50,19 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
 
     # Transform the time arrays to absolute milliseconds
     start_time_ppg = parse_iso8601_to_datetime(metadata_time_ppg.start_iso8601).timestamp()
-    df_imu[DataColumns.TIME] = dbpd.imu_preprocessing.transform_time_array(
+    df_imu[DataColumns.TIME] = paradigma.imu_preprocessing.transform_time_array(
         time_array=df_imu[DataColumns.TIME],
         scale_factor=1000, 
-        input_unit_type = dbpd.constants.TimeUnit.difference_ms,
-        output_unit_type = dbpd.constants.TimeUnit.absolute_ms,
+        input_unit_type = paradigma.constants.TimeUnit.difference_ms,
+        output_unit_type = paradigma.constants.TimeUnit.absolute_ms,
         start_time = start_time_ppg)
 
     start_time_imu = parse_iso8601_to_datetime(metadata_time_imu.start_iso8601).timestamp()
-    df_ppg[DataColumns.TIME] = dbpd.imu_preprocessing.transform_time_array(
+    df_ppg[DataColumns.TIME] = paradigma.imu_preprocessing.transform_time_array(
         time_array=df_ppg[DataColumns.TIME],
         scale_factor=1000, 
-        input_unit_type = dbpd.constants.TimeUnit.difference_ms,
-        output_unit_type = dbpd.constants.TimeUnit.absolute_ms,
+        input_unit_type = paradigma.constants.TimeUnit.difference_ms,
+        output_unit_type = paradigma.constants.TimeUnit.absolute_ms,
         start_time = start_time_imu)
 
     # Extract overlapping segments
@@ -71,20 +71,20 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
     print("Shape of the overlapping segments:", df_ppg_overlapping.shape, df_imu_overlapping.shape)
 
     # The following method is failing
-    df_imu_proc = dbpd.imu_preprocessing.resample_data(
+    df_imu_proc = paradigma.imu_preprocessing.resample_data(
         df=df_imu_overlapping,
         time_column=DataColumns.TIME,
-        time_unit_type=dbpd.constants.TimeUnit.absolute_ms,
+        time_unit_type=paradigma.constants.TimeUnit.absolute_ms,
         unscaled_column_names = list(imu_config.d_channels_accelerometer.keys()),
         resampling_frequency=imu_config.sampling_frequency,
         scale_factors=metadata_samples_imu.scale_factors[0:3],
         start_time=start_time_imu)
 
     # metadata_samples_ppg.scale_factors - the data specifies 1, but it is not an obligatory tsdf field, maybe it should be optional parameter in `resample_data`
-    df_ppg_proc = dbpd.imu_preprocessing.resample_data(
+    df_ppg_proc = paradigma.imu_preprocessing.resample_data(
         df=df_ppg_overlapping,
         time_column=DataColumns.TIME,
-        time_unit_type=dbpd.constants.TimeUnit.absolute_ms,
+        time_unit_type=paradigma.constants.TimeUnit.absolute_ms,
         unscaled_column_names = list(ppg_config.d_channels_ppg.keys()),
         scale_factors=metadata_samples_imu.scale_factors,
         resampling_frequency=ppg_config.sampling_frequency,
@@ -99,7 +99,7 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
             df_imu_proc[col] /= 9.81
 
         for result, side_pass in zip(['filt', 'grav'], ['hp', 'lp']):
-            df_imu_proc[f'{result}_{col}'] = dbpd.imu_preprocessing.butterworth_filter(
+            df_imu_proc[f'{result}_{col}'] = paradigma.imu_preprocessing.butterworth_filter(
                 single_sensor_col=np.array(df_imu_proc[col]),
                 order=imu_config.filter_order,
                 cutoff_frequency=imu_config.lower_cutoff_frequency,
@@ -111,7 +111,7 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
         df_imu_proc = df_imu_proc.rename(columns={f'filt_{col}': col})
 
         for col in ppg_config.d_channels_ppg.keys():
-            df_ppg_proc[f'filt_{col}'] = dbpd.imu_preprocessing.butterworth_filter(
+            df_ppg_proc[f'filt_{col}'] = paradigma.imu_preprocessing.butterworth_filter(
                 single_sensor_col=np.array(df_ppg_proc[col]),
                 order=ppg_config.filter_order,
                 cutoff_frequency=[ppg_config.lower_cutoff_frequency, ppg_config.upper_cutoff_frequency],
@@ -122,19 +122,19 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
             df_ppg_proc = df_ppg_proc.drop(columns=[col])
             df_ppg_proc = df_ppg_proc.rename(columns={f'filt_{col}': col})
 
-    df_imu_proc[DataColumns.TIME] = dbpd.imu_preprocessing.transform_time_array(
+    df_imu_proc[DataColumns.TIME] = paradigma.imu_preprocessing.transform_time_array(
         time_array=df_imu_proc[DataColumns.TIME],
         scale_factor=1,
-        input_unit_type=dbpd.constants.TimeUnit.absolute_ms,
-        output_unit_type=dbpd.constants.TimeUnit.relative_ms,
+        input_unit_type=paradigma.constants.TimeUnit.absolute_ms,
+        output_unit_type=paradigma.constants.TimeUnit.relative_ms,
         start_time=start_time_ppg,
     )
 
-    df_ppg_proc[DataColumns.TIME] = dbpd.imu_preprocessing.transform_time_array(
+    df_ppg_proc[DataColumns.TIME] = paradigma.imu_preprocessing.transform_time_array(
         time_array=df_ppg_proc[DataColumns.TIME],
         scale_factor=1,
-        input_unit_type=dbpd.constants.TimeUnit.absolute_ms,
-        output_unit_type=dbpd.constants.TimeUnit.relative_ms,
+        input_unit_type=paradigma.constants.TimeUnit.absolute_ms,
+        output_unit_type=paradigma.constants.TimeUnit.relative_ms,
         start_time=start_time_imu,
     )
 

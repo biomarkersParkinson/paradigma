@@ -1,4 +1,4 @@
-from dbpd.constants import DataColumns
+from paradigma.constants import DataColumns
 
 
 class BasePreprocessingConfig:

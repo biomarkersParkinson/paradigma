@@ -7,10 +7,10 @@ from dateutil import parser
 
 import tsdf
 import tsdf.constants
-from dbpd.heart_rate_analysis_config import HeartRateFeatureExtractionConfig
-from dbpd.heart_rate_util import extract_ppg_features, calculate_power_ratio, read_PPG_quality_classifier
-from dbpd.util import read_metadata, write_data, get_end_iso8601
-from dbpd.constants import DataColumns, UNIX_TICKS_MS
+from paradigma.heart_rate_analysis_config import HeartRateFeatureExtractionConfig
+from paradigma.heart_rate_util import extract_ppg_features, calculate_power_ratio, read_PPG_quality_classifier
+from paradigma.util import read_metadata, write_data, get_end_iso8601
+from paradigma.constants import DataColumns, UNIX_TICKS_MS
 
 
 def extract_signal_quality_features(input_path: str, classifier_path: str, output_path: str, config: HeartRateFeatureExtractionConfig) -> None:

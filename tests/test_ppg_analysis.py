@@ -1,12 +1,9 @@
 from pathlib import Path
 
-from dbpd.heart_rate_analysis_config import HeartRateFeatureExtractionConfig
-from dbpd.preprocessing_config import PPGPreprocessingConfig, IMUPreprocessingConfig
-from dbpd.ppg_preprocessing import *
-from dbpd.imu_preprocessing import *
-from dbpd.gait_analysis import *
-from dbpd.gait_analysis_config import *
-from dbpd.heart_rate_analysis import *
+from paradigma.heart_rate_analysis import extract_signal_quality_features
+from paradigma.heart_rate_analysis_config import HeartRateFeatureExtractionConfig
+from paradigma.preprocessing_config import PPGPreprocessingConfig, IMUPreprocessingConfig
+from paradigma.ppg_preprocessing import preprocess_ppg_data, scan_and_sync_segments
 from test_notebooks import compare_data
 
 
@@ -83,7 +80,7 @@ def test_accelerometer_feature_extraction(shared_datadir: Path):
     """
     input_dir_name: str = "2.preprocessed_data"
     output_dir_name: str = "3.extracted_features"
-    classifier_path = "src/dbpd/ppg/classifier/LR_PPG_quality.pkl"
+    classifier_path = "src/paradigma/ppg/classifier/LR_PPG_quality.pkl"
 
     input_path = shared_datadir / input_dir_name / "ppg"
     reference_output_path = shared_datadir / output_dir_name / "ppg"

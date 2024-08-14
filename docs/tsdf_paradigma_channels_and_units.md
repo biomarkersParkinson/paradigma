@@ -1,6 +1,6 @@
-# Channels and units in Digital Biomarkers for Parkinson's Disease (`DBPD`) schemas
+# Channels and units in Paradigma schemas
 
-Within the `DBPD` project, some of the field types are further specialised to provide a better description of the data. These are described in the following sections.
+Within the `paradigma` project, some of the field types are further specialised to provide a better description of the data. These are described in the following sections.
 
 ## Field: `channels`
 **Type:** `channel_type[]`         

@@ -5,9 +5,9 @@ from scipy import signal
 from scipy.interpolate import CubicSpline
 
 import tsdf
-from dbpd.constants import DataColumns, TimeUnit
-from dbpd.util import write_data, read_metadata
-from dbpd.preprocessing_config import IMUPreprocessingConfig
+from paradigma.constants import DataColumns, TimeUnit
+from paradigma.util import write_data, read_metadata
+from paradigma.preprocessing_config import IMUPreprocessingConfig
 
 
 def preprocess_imu_data(input_path: str, output_path: str, config: IMUPreprocessingConfig) -> None:
