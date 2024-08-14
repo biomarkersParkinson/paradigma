@@ -1,9 +1,9 @@
 from pathlib import Path
 
+from paradigma.gait_analysis import detect_arm_swing, detect_gait, extract_arm_swing_features, extract_gait_features, quantify_arm_swing
+from paradigma.gait_analysis_config import ArmSwingDetectionConfig, ArmSwingFeatureExtractionConfig, ArmSwingQuantificationConfig, GaitDetectionConfig, GaitFeatureExtractionConfig
+from paradigma.imu_preprocessing import preprocess_imu_data
 from paradigma.preprocessing_config import IMUPreprocessingConfig
-from paradigma.imu_preprocessing import *
-from paradigma.gait_analysis import *
-from paradigma.gait_analysis_config import *
 from test_notebooks import compare_data
 
 
