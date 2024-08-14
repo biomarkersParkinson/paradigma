@@ -1,5 +1,5 @@
 
-# TSDF fields in Digital Biomarkers for Parkinson's Disease (`paradigma`) schemas
+# TSDF fields in Paradigma schemas
 
 ## Mandatory fields
 

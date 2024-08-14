@@ -1,4 +1,4 @@
-# Channels and units in Digital Biomarkers for Parkinson's Disease (`paradigma`) schemas
+# Channels and units in Paradigma schemas
 
 Within the `paradigma` project, some of the field types are further specialised to provide a better description of the data. These are described in the following sections.
 
