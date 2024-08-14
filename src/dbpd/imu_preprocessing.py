@@ -7,7 +7,7 @@ from scipy.interpolate import CubicSpline
 import tsdf
 from dbpd.constants import DataColumns, TimeUnit
 from dbpd.util import write_data, read_metadata
-from dbpd.preprocessing_config import IMUPreprocessingConfig, PPGPreprocessingConfig
+from dbpd.preprocessing_config import IMUPreprocessingConfig
 
 
 def preprocess_imu_data(input_path: str, output_path: str, config: IMUPreprocessingConfig) -> None:
