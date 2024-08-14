@@ -1,45 +1,16 @@
+from typing import List, Union
 import numpy as np
 import pandas as pd
 from scipy import signal
 from scipy.interpolate import CubicSpline
 
 import tsdf
-from dbpd.constants import DataColumns
+from dbpd.constants import DataColumns, TimeUnit
 from dbpd.util import write_data, read_metadata
+from dbpd.preprocessing_config import IMUPreprocessingConfig
 
 
-class PreprocessingConfig:
-
-    def __init__(self) -> None:
-        self.meta_filename = 'IMU_meta.json'
-        self.values_filename = 'IMU_samples.bin'
-        self.time_filename = 'IMU_time.bin'
-
-        self.acceleration_units = 'm/s^2'
-        self.rotation_units = 'deg/s'
-
-        self.l_acceleration_cols = [DataColumns.ACCELEROMETER_X, DataColumns.ACCELEROMETER_Y, DataColumns.ACCELEROMETER_Z]
-        self.time_colname = 'time'
-
-        self.d_channels_units = {
-            DataColumns.ACCELEROMETER_X: self.acceleration_units,
-            DataColumns.ACCELEROMETER_Y: self.acceleration_units,
-            DataColumns.ACCELEROMETER_Z: self.acceleration_units,
-            DataColumns.GYROSCOPE_X: self.rotation_units,
-            DataColumns.GYROSCOPE_Y: self.rotation_units,
-            DataColumns.GYROSCOPE_Z: self.rotation_units,
-        }
-
-        # participant information
-        self.side_watch = 'right'
-
-        # filtering
-        self.sampling_frequency = 100
-        self.lower_cutoff_frequency = 0.2
-        self.filter_order = 4
-
-
-def preprocess_imu_data(input_path: str, output_path: str, config: PreprocessingConfig) -> None:
+def preprocess_imu_data(input_path: str, output_path: str, config: IMUPreprocessingConfig) -> None:
 
     # Load data
     metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
@@ -53,19 +24,22 @@ def preprocess_imu_data(input_path: str, output_path: str, config: Preprocessing
     df[config.time_colname] = transform_time_array(
         time_array=df[config.time_colname],
         scale_factor=1000, 
-        data_in_delta_time=True)
+        input_unit_type = TimeUnit.difference_ms,
+        output_unit_type = TimeUnit.relative_ms)
+    
 
     df = resample_data(
-        time_abs_array=np.array(df[config.time_colname]),
-        values_unscaled=np.array(df[list(config.d_channels_units.keys())]),
+        df=df,
+        time_column=config.time_colname,
+        time_unit_type=TimeUnit.relative_ms,
+        unscaled_column_names = list(config.d_channels_imu.keys()),
         scale_factors=metadata_samples.scale_factors,
-        resampling_frequency=config.sampling_frequency,
-        time_column=config.time_colname)
-
+        resampling_frequency=config.sampling_frequency)
+    
     if config.side_watch == 'left':
         df[DataColumns.ACCELEROMETER_X] *= -1
 
-    for col in config.l_acceleration_cols:
+    for col in config.d_channels_accelerometer.keys():
 
         # change to correct units [g]
         if config.acceleration_units == 'm/s^2':
@@ -96,11 +70,12 @@ def preprocess_imu_data(input_path: str, output_path: str, config: Preprocessing
 
         write_data(metadata_time, metadata_samples, output_path, f'{sensor}_meta.json', df_sensor)
 
-
 def transform_time_array(
     time_array: np.ndarray,
     scale_factor: float,
-    data_in_delta_time: bool,
+    input_unit_type: TimeUnit,
+    output_unit_type: TimeUnit,
+    start_time: float = 0.0,
 ) -> np.ndarray:
     """
     Transforms the time array to relative time (when defined in delta time) and scales the values.
@@ -111,67 +86,98 @@ def transform_time_array(
         The time array in milliseconds to transform.
     scale_factor : float
         The scale factor to apply to the time array.
-    data_in_delta_time : bool - true if data is in delta time, and therefore needs to be converted to relative time.
+    input_unit_type : TimeUnit
+        The time unit type of the input time array. Raw PPP data was in `TimeUnit.difference_ms`.
+    output_unit_type : TimeUnit
+        The time unit type of the output time array. The processing is often done in `TimeUnit.relative_ms`.
+    start_time : float, optional
+        The start time of the time array in UNIX milliseconds (default is 0.0)
 
     Returns
     -------
-    array_like
-        The transformed time array in milliseconds.
+    time_array
+        The transformed time array in milliseconds, with the specified time unit type.
     """
-    if data_in_delta_time:
-        return np.cumsum(np.double(time_array)) / scale_factor
+    # Scale time array and transform to relative time (`TimeUnit.relative_ms`) 
+    if input_unit_type == TimeUnit.difference_ms:
+    # Convert a series of differences into cumulative sum to reconstruct original time series.
+        time_array = np.cumsum(np.double(time_array)) / scale_factor
+    elif input_unit_type == TimeUnit.absolute_ms:
+        # Set the start time if not provided.
+        if np.isclose(start_time, 0.0, rtol=1e-09, atol=1e-09):
+            start_time = time_array[0]
+        # Convert absolute time stamps into a time series relative to start_time.
+        time_array = (time_array - start_time) / scale_factor
+    elif input_unit_type == TimeUnit.relative_ms:
+        # Scale the relative time series as per the scale_factor.
+        time_array = time_array / scale_factor
+
+    # Transform the time array from `TimeUnit.relative_ms` to the specified time unit type
+    if output_unit_type == TimeUnit.absolute_ms:
+        # Converts time array to absolute time by adding the start time to each element.
+        time_array = time_array + start_time
+    elif output_unit_type == TimeUnit.difference_ms:
+        # Creates a new array starting with 0, followed by the differences between consecutive elements.
+        time_array = np.diff(np.insert(time_array, 0, start_time))
+    elif output_unit_type == TimeUnit.relative_ms:
+        # The array is already in relative format, do nothing.
+        pass
     return time_array
 
 
 def resample_data(
-    time_abs_array: np.ndarray,
-    values_unscaled: np.ndarray,
-    scale_factors: list,
+    df: pd.DataFrame,
+    time_column : DataColumns,
+    time_unit_type: TimeUnit,
+    unscaled_column_names: list,
     resampling_frequency: int,
-    time_column: str,
+    scale_factors: list = [],
+    start_time: float = 0.0,
 ) -> pd.DataFrame:
     """
     Resamples the IMU data to the resampling frequency. The data is scaled before resampling.
-
     Parameters
     ----------
-    time_abs_array : np.ndarray
-        The absolute time array.
-    values_unscaled : np.ndarray
-        The values to resample.
-    scale_factors : list
-        The scale factors to apply to the values.
-    resampling_frequency : int
-        The frequency to resample the data to.
+    df : pd.DataFrame
+        The data to resample.
     time_column : str
         The name of the time column.
+    time_unit_type : TimeUnit
+        The time unit type of the time array. The method currently works only for `TimeUnit.relative_ms`.
+    unscaled_column_names : list
+        The names of the columns to resample.
+    resampling_frequency : int
+        The frequency to resample the data to.
+    scale_factors : list, optional
+        The scale factors to apply to the values before resampling (default is []).
+    start_time : float, optional
+        The start time of the time array, which is required if it is in absolute format (default is 0.0).
 
     Returns
     -------
     pd.DataFrame
         The resampled data.
     """
+    # We need a start_time if the time is in absolute time format
+    if time_unit_type == TimeUnit.absolute_ms and start_time == 0.0:
+        raise ValueError("start_time is required for absolute time format")
+
+    # get time and values
+    time_abs_array=np.array(df[time_column])
+    values_unscaled=np.array(df[unscaled_column_names])
 
     # scale data
-    scaled_values = values_unscaled * scale_factors
+    if len(scale_factors) != 0 and scale_factors is not None:
+        scaled_values = values_unscaled * scale_factors
 
     # resample
-    t_resampled = np.arange(0, time_abs_array[-1], 1 / resampling_frequency)
+    t_resampled = np.arange(start_time, time_abs_array[-1], 1 / resampling_frequency)
 
     # create dataframe
     df = pd.DataFrame(t_resampled, columns=[time_column])
 
     # interpolate IMU - maybe a separate method?
-    for j, sensor_col in enumerate(
-        [
-            DataColumns.ACCELEROMETER_X,
-            DataColumns.ACCELEROMETER_Y,
-            DataColumns.ACCELEROMETER_Z,
-            DataColumns.GYROSCOPE_X,
-            DataColumns.GYROSCOPE_Y,
-            DataColumns.GYROSCOPE_Z,
-        ]
-    ):
+    for j, sensor_col in enumerate(unscaled_column_names):
         if not np.all(np.diff(time_abs_array) > 0):
             raise ValueError("time_abs_array is not strictly increasing")
 
@@ -184,7 +190,7 @@ def resample_data(
 def butterworth_filter(
     single_sensor_col: np.ndarray,
     order: int,
-    cutoff_frequency: float,
+    cutoff_frequency: Union[float, List[float]],
     passband: str,
     sampling_frequency: int,
 ):
@@ -197,10 +203,10 @@ def butterworth_filter(
         A single column containing sensor data in float format
     order: int
         The exponential order of the filter
-    cutoff_frequency: float
-        The frequency at which the gain drops to 1/sqrt(2) that of the passband
+    cutoff_frequency: float or List[float]
+        The frequency at which the gain drops to 1/sqrt(2) that of the passband. If passband is 'band', then cutoff_frequency should be a list of two floats.
     passband: str
-        Type of passband: ['hp' or 'lp']
+        Type of passband: ['hp', 'lp' or 'band']
     sampling_frequency: int
         The sampling frequency of the sensor data
 

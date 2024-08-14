@@ -9,6 +9,11 @@
 %   6. Perform pseude-smoothed wigner-ville distribution (PSWVD) on PPG
 %   7. Saving the HR estimates in tsdf format
 
+%% Architecture overview
+% The script implements the following steps:
+%   1. PPG preprocessing
+%   4. HR estimation
+
 %% Initalization
 % Setting data paths + extracting metafilenames already
 clear all; close all; clc

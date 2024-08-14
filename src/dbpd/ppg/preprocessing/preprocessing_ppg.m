@@ -6,7 +6,7 @@ function [PPG_data, t_tar] = preprocessing_ppg(t_orig, PPG_sample, fs_ppg)
 
     % Band-pass filter for detrending
 
-    [b,a]=butter(6,[0.4, 3.5]/(fs_ppg/2),'bandpass');  % band-pass filter for detrending
+    [b,a]=butter(4,[0.4, 3.5]/(fs_ppg/2),'bandpass');  % band-pass filter for detrending
     PPG_filt = filtfilt(b,a,double(signal_resampled)); % Apply filter
     PPG_data = PPG_filt';   % In case of a sample package error where PPG_filt consists of multiple "parts"
 

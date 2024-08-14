@@ -1,18 +1,24 @@
 %% Main script to perform signal quality assessment of wearable PPG
 % This script uses both PPG and accelerometer and performs the following
 % steps:
-%   1. Loading all metadata of PPG and IMU
+%   1. Loading all metadata of PPG and IMU - get all metafiles and find pairs and do pairwise synchronization
 %   2. Query on data availability + synchronization
 %   3. Loading relevant segment sensor data using tsdf wrapper (start for loop over synchronized segment indices)
 %   4. Synchronize the data (correct indices etc)
 %   5. Data preprocessing
 %   6. Feature extraction
-%   7. Classification
+%   7. Classification - combine after this
 
+
+% Architecture overview
+% The script implements the following steps:
+%   1. IMU and PPG preprocessing
+%   2. IMU and PPG feature extraction
+%   3. Signal quality assessment
 
 %% Initalization
 % Setting data paths + extracting metafilenames already
-clear all; close all; clc
+clearvars; close all; clc
 addpath(genpath('..\..\..\dbpd-toolbox'))       % Add git repository to the path
 addpath(genpath("..\..\..\tsdf4matlab"))       % Add wrapper to the path
 
@@ -20,7 +26,7 @@ unix_ticks_ms = 1000.0;
 fs_ppg = 30;     % Establish the sampling rate desired for resampling PPG --> now chosen to be fixed on 30 Hz
 fs_imu = 100;    % Establish the sampling rate desired for resampling IMU --> now chosen to be fixed on 30 Hz
 
-raw_data_root = '..\..\tests\data\1.sensor_data\';
+raw_data_root = '..\..\..\tests\data\1.sensor_data\';
 ppp_data_path_ppg = [raw_data_root 'PPG\'];
 ppp_data_path_imu = [raw_data_root 'IMU\'];
 
@@ -54,8 +60,8 @@ values_idx_imu = tsdf_values_idx(metadata_list_imu, 'samples');
 t_iso_ppg = metadata_list_ppg{time_idx_ppg}.start_iso8601;
 t_iso_imu = metadata_list_imu{time_idx_imu}.start_iso8601;
 
-datetime_ppg = datetime(t_iso_ppg, 'InputFormat', 'dd-MMM-yyyy HH:mm:ss Z', 'TimeZone', 'UTC');
-datetime_imu = datetime(t_iso_imu, 'InputFormat', 'dd-MMM-yyyy HH:mm:ss Z', 'TimeZone', 'UTC');
+datetime_ppg = datetime(t_iso_ppg, 'InputFormat', 'yyyy-MM-dd''T''HH:mm:ssZ', 'TimeZone', 'UTC');
+datetime_imu = datetime(t_iso_imu, 'InputFormat', 'yyyy-MM-dd''T''HH:mm:ssZ', 'TimeZone', 'UTC');
 
 t_diff_ppg = data_list_ppg{time_idx_ppg};
 t_diff_imu = data_list_imu{time_idx_imu};
@@ -101,7 +107,7 @@ if length(v_ppg) < fs_ppg * min_window_length || length(v_acc_scaled) < fs_imu *
     warning('Sample is of insufficient length!')
 else
     [v_ppg_pre, tr_ppg_pre] = preprocessing_ppg(tr_ppg, v_ppg, fs_ppg);   %  2 matrices, one for ppg (Nx1) and for time (Nx1) 
-    [v_imu_pre, tr_imu_pre] = preprocessing_imu(tr_imu, v_imu_scaled, fs_imu);   % 2 matrices, one for accel imu (Nx3) and for time (Nx1)
+    [v_imu_pre, tr_imu_pre] = preprocessing_imu(tr_imu, v_acc_scaled, fs_imu);   % 2 matrices, one for accel imu (Nx3) and for time (Nx1)
 end
 
 %% 5a. Write TSDF PPG preprocessing output
@@ -155,16 +161,16 @@ metafile_values = metafile_pre_template;
 metafile_time.channels = {'time'};
 metafile_time.units = {'ms'};
 metafile_time.freq_sampling_original = fs_imu_est;
-metafile_time.file_name = 'acceleration_time.bin';
+metafile_time.file_name = 'accelerometer_time.bin';
 
 metafile_values.channels = {'acceleration_x', 'acceleration_y', 'acceleration_z'};
 metafile_values.units = {'m/s/s', 'm/s/s', 'm/s/s'};
 metafile_values.freq_sampling_original = fs_imu_est; % Sampling rate in Hz
-metafile_values.file_name = 'acceleration_samples.bin';
+metafile_values.file_name = 'accelerometer_samples.bin';
 
 meta_pre_acc{1} = metafile_time;
 meta_pre_acc{2} = metafile_values;
-mat_metadata_file_name = "acceleration_meta.json";
+mat_metadata_file_name = "accelerometer_meta.json";
 save_tsdf_data(meta_pre_acc, data_pre_acc, location, mat_metadata_file_name)
 %% 6. Feature extraction
 % Create loop for 6s epochs with 5s overlap
@@ -179,14 +185,14 @@ samples_per_epoch_acc = epoch_length * fs_imu;
 samples_shift_ppg = (epoch_length - overlap) * fs_ppg;
 samples_shift_acc = (epoch_length - overlap) * fs_imu;          % Hoe krijg ik mijn segmenten precies gelijk zodat het niet toevallig een error geeft dat 1 langer is dan de ander
 
-pwelchwin_acc = 3*fs_imu;
-pwelchwin_ppg = 3*fs_ppg;
-noverlap_acc = 0.5*pwelchwin_acc;
-noverlap_ppg = 0.5*pwelchwin_ppg;
+pwelchwin_acc = 3*fs_imu; % window length for pwelch
+pwelchwin_ppg = 3*fs_ppg; % window length for pwelch
+noverlap_acc = 0.5*pwelchwin_acc; % overlap for pwelch
+noverlap_ppg = 0.5*pwelchwin_ppg; % overlap for pwelch
 
 f_bin_res = 0.05;   % the treshold is set based on this binning --> so range of 0.1 Hz for calculating the PSD feature 
-nfft_ppg = 0:f_bin_res:fs_ppg/2;
-nfft_acc = 0:f_bin_res:fs_imu/2;
+nfft_ppg = 0:f_bin_res:fs_ppg/2; % frequency bins for pwelch ppg
+nfft_acc = 0:f_bin_res:fs_imu/2; % frequency bins for pwelch imu
 
 features_ppg_scaled = [];
 feature_acc = [];
@@ -196,40 +202,46 @@ acc_idx = 1;
 
 % Load classifier with corresponding mu and sigma to z-score the features
 load("LR_model.mat")
-mu = LR_model.mu;
+mu = LR_model.mu; 
 sigma = LR_model.sigma;
-classifier = LR_model.classifier;
+classifier = LR_model.classifier; % this classifier is only used later at the stage 7 
 
 % DESCRIBE THE LOOPING OVER 6s SEGMENTS FOR BOTH PPG AND IMU AND CALCULATE FEATURES
 for i = 1:samples_shift_ppg:(length(v_ppg_pre) - samples_per_epoch_ppg + 1)
-        ppg_segment = v_ppg_pre(i:(i + samples_per_epoch_ppg - 1));
-        if acc_idx + samples_per_epoch_acc - 1 > length(v_acc_pre)
+        
+        if acc_idx + samples_per_epoch_acc - 1 > length(v_acc_pre) % For the last epoch, check if the segment for IMU is too short (not 6 seconds), add a check for the last epoch first (if i == last then...)
                 break
         else
-            acc_segment = v_acc_pre(acc_idx:(acc_idx+samples_per_epoch_acc-1),:);
+            acc_segment = v_acc_pre(acc_idx:(acc_idx+samples_per_epoch_acc-1),:); % Extract the IMU window (6seconds)
         end
+        ppg_segment = v_ppg_pre(i:(i + samples_per_epoch_ppg - 1)); % Extract the PPG window (6seconds)
 
         count = count + 1;
   
         %%--------Feature extraction + scaling--------%%
-        % calculate features using Features_final.m
+        % calculate features using ppg_features.m
         features = ppg_features(ppg_segment, fs_ppg);  % for now PPG_segment --> name can be adjusted!
         
         % Scaling using z-score 
         features_ppg_scaled(count,:) = normalize(features, 'center', mu, 'scale', sigma);
 
-        % Calculating psd of imu and ppg
+        % Calculating psd (power spectral density) of imu and ppg
+        % in the Gait pipeline this is done using the Fourier transformation
         [pxx1,f1] = pwelch(acc_segment,hann(pwelchwin_acc), noverlap_acc, nfft_acc, fs_imu);
         PSD_imu = sum(pxx1,2);     % sum over the three axis
         [pxx2,f2] = pwelch(ppg_segment,hann(pwelchwin_ppg), noverlap_ppg, nfft_ppg, fs_ppg);
-        PSD_ppg = sum(pxx2,1);
+        PSD_ppg = sum(pxx2,1); % this does nothing, equal to PSD_ppg = pxx2
         
-        feature_acc(count,1) = acc_feature(f1, PSD_imu, f2, PSD_ppg);
+        % IMU feature extraction
+        feature_acc(count,1) = acc_feature(f1, PSD_imu, f2, PSD_ppg); % Calculate the power ratio of the accelerometer signal in the PPG frequency range and store it as a row in the feature matrix (which has only 1 column)
         
+        % time channel
         t_unix_feat_total(count,1) = tr_ppg_pre(i)*unix_ticks_ms + t_ppg(1);  % Save in absolute unix time ms
         acc_idx = acc_idx + samples_shift_acc; % update IMU_idx 
 end
+% at this point we have a matrix with features for PPG (10 column), IMU (1 columns), and a time vector
 
+% THis is stored for later (stage 4)
 v_sync_ppg_total(1,1) = ppg_indices(1); % start index --> needed for HR pipeline
 v_sync_ppg_total(1,2) = ppg_indices(2); % end index --> needed for HR pipeline
 v_sync_ppg_total(1,3) = segment_ppg(1);  % Segment index --> needed for HR pipeline --> in loop this is n
@@ -299,16 +311,18 @@ meta_feat_acc{2} = metafile_values;
 mat_metadata_file_name = "feature_acc_meta.json";
 save_tsdf_data(meta_feat_acc, data_feat_acc, location, mat_metadata_file_name)
 %% 7. Classification
+
+
 threshold_acc = 0.13; % Final threshold
-[~, ppg_post_prob] = predict(classifier, features_ppg_scaled);       % Calculate posterior probability using LR model 
+[~, ppg_post_prob] = predict(classifier, features_ppg_scaled);       % Calculate posterior probability using LR model, python provides a similar function
 ppg_post_prob_HQ = ppg_post_prob(:,1);
 acc_label = feature_acc < threshold_acc; % logical (boolean) for not surpassing threshold_acc for imu feature. imu_label is one if we don't suspect the epoch to be disturbed by periodic movements! That is in line with 1 for HQ PPG
 
-%% 7a. Storage of classification in tsdf
+%% 7a. Storage of classification in tsdf, each element is a separate binary file (all but the 4th one include one column)
 data_class{1} = int32(t_unix_feat_total/unix_ticks_ms); % 32 bit integer and store it in unix seconds
 data_class{2} = single(ppg_post_prob_HQ);  % 32 bit float
 data_class{3} = int8(acc_label); % 8 bit integer
-data_class{4} = int32(v_sync_ppg_total); % 64 bit integer
+data_class{4} = int32(v_sync_ppg_total); % 64 bit integer - 4 columns
 data_class{5} = single(feature_acc); % 32 bit float
 
 location = "..\..\tests\data\4.predictions\ppg";
