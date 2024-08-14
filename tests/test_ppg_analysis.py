@@ -70,9 +70,9 @@ def test_accelerometer_feature_extraction(shared_datadir: Path):
 
         input_path = shared_datadir / input_dir_name / "ppg"
         reference_output_path = shared_datadir / output_dir_name / "ppg"
-
+        tested_output_path = reference_output_path / "test-output"
 
         config = HeartRateFeatureExtractionConfig()
-        extract_signal_quality_features(input_path, classifier_path, reference_output_path, config)
-        compare_data(reference_output_path, reference_output_path, accelerometer_binaries_pairs)
+        extract_signal_quality_features(input_path, classifier_path, tested_output_path, config)
+        compare_data(reference_output_path, tested_output_path, accelerometer_binaries_pairs)
 
