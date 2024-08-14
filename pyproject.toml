@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "dbpd"
+name = "paradigma"
 version = "0.1.0"
 description = "Digital Biomarkers for Parkinson's Disease Toolbox"
 authors = [ "Peter Kok <p.kok@esciencecenter.nl>",

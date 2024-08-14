@@ -4,8 +4,8 @@
 ```{toctree}
 :maxdepth: 2
 :caption: TSDF schema
-tsdf_dbpd_schemas.md
-tsdf_dbpd_channels_and_units.md
+tsdf_paradigma_schemas.md
+tsdf_paradigma_channels_and_units.md
 ```
 
 ```{toctree}

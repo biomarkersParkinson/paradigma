@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from dbpd.preprocessing_config import IMUPreprocessingConfig
-from dbpd.imu_preprocessing import *
-from dbpd.gait_analysis import *
-from dbpd.gait_analysis_config import *
+from paradigma.preprocessing_config import IMUPreprocessingConfig
+from paradigma.imu_preprocessing import *
+from paradigma.gait_analysis import *
+from paradigma.gait_analysis_config import *
 from test_notebooks import compare_data
 
 

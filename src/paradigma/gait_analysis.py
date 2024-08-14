@@ -2,11 +2,11 @@ import os
 
 import tsdf
 
-from dbpd.gait_analysis_config import *
-from dbpd.feature_extraction import *
-from dbpd.quantification import *
-from dbpd.windowing import *
-from dbpd.util import get_end_iso8601, write_data, read_metadata
+from paradigma.gait_analysis_config import *
+from paradigma.feature_extraction import *
+from paradigma.quantification import *
+from paradigma.windowing import *
+from paradigma.util import get_end_iso8601, write_data, read_metadata
 
 def extract_temporal_domain_features(config, df_windowed, l_gravity_stats=['mean', 'std']):
     # compute the mean and standard deviation of the gravity component of the acceleration signal for each axis

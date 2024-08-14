@@ -1,9 +1,9 @@
 
-# TSDF fields in Digital Biomarkers for Parkinson's Disease (`DBPD`) schemas
+# TSDF fields in Digital Biomarkers for Parkinson's Disease (`paradigma`) schemas
 
 ## Mandatory fields
 
-This is a preliminary list of mandatory fields (to be shaped into schemas) that are used in the `DBPD` project. The list will be updated based on the upcoming discussions.
+This is a preliminary list of mandatory fields (to be shaped into schemas) that are used in the `paradigma` project. The list will be updated based on the upcoming discussions.
 
 | Field                      | Type         | Description                                                                       |
 |----------------------------|--------------|-----------------------------------------------------------------------------------|
