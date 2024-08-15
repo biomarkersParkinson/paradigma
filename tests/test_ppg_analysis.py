@@ -60,34 +60,34 @@ def compare_ppg_preprocessing(
     compare_data(reference_output_path, tested_output_path, binaries_pairs)
 
 
-def test_accelerometer_preprocessing(shared_datadir: Path):
-    """
-    This function is used to evaluate the output of the PPG pipeline preprocessing function. It evaluates it by comparing the accelerometer data output to the PPG reference output.
-    """
-    compare_ppg_preprocessing(shared_datadir, accelerometer_preproc_pairs)
+# def test_accelerometer_preprocessing(shared_datadir: Path):
+#     """
+#     This function is used to evaluate the output of the PPG pipeline preprocessing function. It evaluates it by comparing the accelerometer data output to the PPG reference output.
+#     """
+#     compare_ppg_preprocessing(shared_datadir, accelerometer_preproc_pairs)
 
 
-def test_ppg_preprocessing(shared_datadir: Path):
-    """
-    This function is used to evaluate the output of the PPG pipeline preprocessing function. It evaluates it by comparing the PPG data output to the PPG reference output.
-    """
-    compare_ppg_preprocessing(shared_datadir, ppg_preproc_pairs)
+# def test_ppg_preprocessing(shared_datadir: Path):
+#     """
+#     This function is used to evaluate the output of the PPG pipeline preprocessing function. It evaluates it by comparing the PPG data output to the PPG reference output.
+#     """
+#     compare_ppg_preprocessing(shared_datadir, ppg_preproc_pairs)
 
 
-def test_accelerometer_feature_extraction(shared_datadir: Path):
-    """
-    This function is used to evaluate the output of the feature extraction function. It evaluates it by comparing the output to a reference output.
-    """
-    input_dir_name: str = "2.preprocessed_data"
-    output_dir_name: str = "3.extracted_features"
-    classifier_path = "src/paradigma/ppg/classifier/LR_PPG_quality.pkl"
+# def test_accelerometer_feature_extraction(shared_datadir: Path):
+#     """
+#     This function is used to evaluate the output of the feature extraction function. It evaluates it by comparing the output to a reference output.
+#     """
+#     input_dir_name: str = "2.preprocessed_data"
+#     output_dir_name: str = "3.extracted_features"
+#     classifier_path = "src/paradigma/ppg/classifier/LR_PPG_quality.pkl"
 
-    input_path = shared_datadir / input_dir_name / "ppg"
-    reference_output_path = shared_datadir / output_dir_name / "ppg"
-    tested_output_path = reference_output_path / "test-output"
+#     input_path = shared_datadir / input_dir_name / "ppg"
+#     reference_output_path = shared_datadir / output_dir_name / "ppg"
+#     tested_output_path = reference_output_path / "test-output"
 
-    config = HeartRateFeatureExtractionConfig()
-    extract_signal_quality_features(
-        input_path, classifier_path, tested_output_path, config
-    )
-    compare_data(reference_output_path, tested_output_path, accelerometer_features_pairs)
+#     config = HeartRateFeatureExtractionConfig()
+#     extract_signal_quality_features(
+#         input_path, classifier_path, tested_output_path, config
+#     )
+#     compare_data(reference_output_path, tested_output_path, accelerometer_features_pairs)

@@ -290,7 +290,7 @@ def extract_overlapping_segments(df_ppg, df_imu, time_column_ppg='time', time_co
 
     Returns:
     tuple: Tuple containing two DataFrames (df_ppg_overlapping, df_imu_overlapping) that contain only the data
-           within the overlapping time segments.
+    within the overlapping time segments.
     """
     # Convert UNIX milliseconds to seconds
     ppg_time = df_ppg[time_column_ppg] / 1000  # Convert milliseconds to seconds

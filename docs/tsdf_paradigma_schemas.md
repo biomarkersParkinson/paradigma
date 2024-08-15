@@ -10,8 +10,8 @@ This is a preliminary list of mandatory fields (to be shaped into schemas) that 
 | `window_size_sec`          | `float`               | Size of the window (in seconds) used in the analysis.                             |
 | `step_size_sec`            | `float`               | Duration in seconds for each segment in the written data.                         |
 | `freq_sampling`            | `int`                 | Sampling frequency (in Hz) of the input data.                                                   |
-| `channels`         | [channel_type](tsdf_field_types.md)`[]`         | Description of the content of the data written. `channel_type` is specific to the `Digital biomarkers for PD` extension. |
-| `units`         | [unit_type](tsdf_field_types.md)`[]`         | Description of the format of the data written. `unit_type` is specific to the `Digital biomarkers for PD` extension. |
+| `channels`         | [channel_type](tsdf_paradigma_channels_and_units.md)`[]`         | Description of the content of the data written. `channel_type` is specific to the `Digital biomarkers for PD` extension. |
+| `units`         | [unit_type](tsdf_paradigma_channels_and_units.md)`[]`         | Description of the format of the data written. `unit_type` is specific to the `Digital biomarkers for PD` extension. |
 
 
 
