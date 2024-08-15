@@ -1,0 +1,55 @@
+Traceback (most recent call last):
+  File "/home/runner/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.9/lib/python3.9/site-packages/jupyter_cache/executors/utils.py", line 58, in single_nb_execution
+    executenb(
+  File "/home/runner/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.9/lib/python3.9/site-packages/nbclient/client.py", line 1314, in execute
+    return NotebookClient(nb=nb, resources=resources, km=km, **kwargs).execute()
+  File "/home/runner/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.9/lib/python3.9/site-packages/jupyter_core/utils/__init__.py", line 165, in wrapped
+    return loop.run_until_complete(inner)
+  File "/opt/hostedtoolcache/Python/3.9.19/x64/lib/python3.9/asyncio/base_events.py", line 647, in run_until_complete
+    return future.result()
+  File "/home/runner/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.9/lib/python3.9/site-packages/nbclient/client.py", line 709, in async_execute
+    await self.async_execute_cell(
+  File "/home/runner/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.9/lib/python3.9/site-packages/nbclient/client.py", line 1062, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "/home/runner/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.9/lib/python3.9/site-packages/nbclient/client.py", line 918, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+config = HeartRateFeatureExtractionConfig()
+extract_signal_quality_features(path_to_preprocessed_data, quality_classifier_path, path_to_quality_features, config)
+------------------
+
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mFileNotFoundError[0m                         Traceback (most recent call last)
+Cell [0;32mIn[4], line 2[0m
+[1;32m      1[0m config [38;5;241m=[39m HeartRateFeatureExtractionConfig()
+[0;32m----> 2[0m [43mextract_signal_quality_features[49m[43m([49m[43mpath_to_preprocessed_data[49m[43m,[49m[43m [49m[43mquality_classifier_path[49m[43m,[49m[43m [49m[43mpath_to_quality_features[49m[43m,[49m[43m [49m[43mconfig[49m[43m)[49m
+
+File [0;32m~/work/paradigma/paradigma/src/paradigma/heart_rate_analysis.py:18[0m, in [0;36mextract_signal_quality_features[0;34m(input_path, classifier_path, output_path, config)[0m
+[1;32m     16[0m [38;5;28;01mdef[39;00m [38;5;21mextract_signal_quality_features[39m(input_path: [38;5;28mstr[39m, classifier_path: [38;5;28mstr[39m, output_path: [38;5;28mstr[39m, config: HeartRateFeatureExtractionConfig) [38;5;241m-[39m[38;5;241m>[39m [38;5;28;01mNone[39;00m:
+[1;32m     17[0m     [38;5;66;03m# load data[39;00m
+[0;32m---> 18[0m     metadata_time_ppg, metadata_samples_ppg [38;5;241m=[39m [43mread_metadata[49m[43m([49m[43minput_path[49m[43m,[49m[43m [49m[38;5;124;43m"[39;49m[38;5;124;43mPPG_meta.json[39;49m[38;5;124;43m"[39;49m[43m,[49m[43m [49m[38;5;124;43m"[39;49m[38;5;124;43mPPG_time.bin[39;49m[38;5;124;43m"[39;49m[43m,[49m[43m [49m[38;5;124;43m"[39;49m[38;5;124;43mPPG_samples.bin[39;49m[38;5;124;43m"[39;49m[43m)[49m
+[1;32m     19[0m     df_ppg [38;5;241m=[39m tsdf[38;5;241m.[39mload_dataframe_from_binaries([metadata_time_ppg, metadata_samples_ppg], tsdf[38;5;241m.[39mconstants[38;5;241m.[39mConcatenationType[38;5;241m.[39mcolumns)
+[1;32m     20[0m     arr_ppg [38;5;241m=[39m df_ppg[DataColumns[38;5;241m.[39mPPG][38;5;241m.[39mto_numpy()
+
+File [0;32m~/work/paradigma/paradigma/src/paradigma/util.py:47[0m, in [0;36mread_metadata[0;34m(input_path, meta_filename, time_filename, values_filename)[0m
+[1;32m     46[0m [38;5;28;01mdef[39;00m [38;5;21mread_metadata[39m(input_path: [38;5;28mstr[39m, meta_filename: [38;5;28mstr[39m, time_filename: [38;5;28mstr[39m, values_filename: [38;5;28mstr[39m) [38;5;241m-[39m[38;5;241m>[39m Tuple[TSDFMetadata, TSDFMetadata]:
+[0;32m---> 47[0m     metadata_dict [38;5;241m=[39m [43mtsdf[49m[38;5;241;43m.[39;49m[43mload_metadata_from_path[49m[43m([49m[43mos[49m[38;5;241;43m.[39;49m[43mpath[49m[38;5;241;43m.[39;49m[43mjoin[49m[43m([49m[43minput_path[49m[43m,[49m[43m [49m[43mmeta_filename[49m[43m)[49m[43m)[49m
+[1;32m     48[0m     metadata_time [38;5;241m=[39m metadata_dict[time_filename]
+[1;32m     49[0m     metadata_samples [38;5;241m=[39m metadata_dict[values_filename]
+
+File [0;32m~/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.9/lib/python3.9/site-packages/tsdf/read_tsdf.py:83[0m, in [0;36mload_metadata_from_path[0;34m(path)[0m
+[1;32m     75[0m [38;5;250m[39m[38;5;124;03m"""[39;00m
+[1;32m     76[0m [38;5;124;03mLoads a TSDF metadata file, returns a dictionary[39;00m
+[1;32m     77[0m 
+[0;32m   (...)[0m
+[1;32m     80[0m [38;5;124;03m:return: dictionary of TSDFMetadata objects.[39;00m
+[1;32m     81[0m [38;5;124;03m"""[39;00m
+[1;32m     82[0m [38;5;66;03m# The data is isomorphic to a JSON[39;00m
+[0;32m---> 83[0m [38;5;28;01mwith[39;00m [38;5;28;43mopen[39;49m[43m([49m[43mpath[49m[43m,[49m[43m [49m[38;5;124;43m"[39;49m[38;5;124;43mr[39;49m[38;5;124;43m"[39;49m[43m)[49m [38;5;28;01mas[39;00m file:
+[1;32m     84[0m     data [38;5;241m=[39m json[38;5;241m.[39mload(file)
+[1;32m     86[0m abs_path [38;5;241m=[39m os[38;5;241m.[39mpath[38;5;241m.[39mrealpath(path)
+
+[0;31mFileNotFoundError[0m: [Errno 2] No such file or directory: '../../../tests/data/2.preprocessed_data/ppg/PPG_meta.json'
+

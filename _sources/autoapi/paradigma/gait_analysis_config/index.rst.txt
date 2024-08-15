@@ -1,0 +1,104 @@
+paradigma.gait_analysis_config
+==============================
+
+.. py:module:: paradigma.gait_analysis_config
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   paradigma.gait_analysis_config.DataColumns
+   paradigma.gait_analysis_config.GaitFeatureExtractionConfig
+   paradigma.gait_analysis_config.GaitDetectionConfig
+   paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig
+   paradigma.gait_analysis_config.ArmSwingDetectionConfig
+   paradigma.gait_analysis_config.ArmSwingQuantificationConfig
+
+
+Module Contents
+---------------
+
+.. py:class:: DataColumns
+
+   Enum for the data channels in tsdf.
+
+
+   .. py:attribute:: ACCELEROMETER_X
+      :value: 'accelerometer_x'
+
+
+
+   .. py:attribute:: ACCELEROMETER_Y
+      :value: 'accelerometer_y'
+
+
+
+   .. py:attribute:: ACCELEROMETER_Z
+      :value: 'accelerometer_z'
+
+
+
+   .. py:attribute:: GYROSCOPE_X
+      :value: 'gyroscope_x'
+
+
+
+   .. py:attribute:: GYROSCOPE_Y
+      :value: 'gyroscope_y'
+
+
+
+   .. py:attribute:: GYROSCOPE_Z
+      :value: 'gyroscope_z'
+
+
+
+   .. py:attribute:: PPG
+      :value: 'green'
+
+
+
+   .. py:attribute:: TIME
+      :value: 'time'
+
+
+
+.. py:class:: GaitFeatureExtractionConfig
+
+   .. py:method:: set_sensor(sensor: str) -> None
+
+      Sets the sensor and derived filenames
+
+
+
+   .. py:method:: set_sampling_frequency(sampling_frequency: int) -> None
+
+      Sets the sampling frequency and derived variables
+
+
+
+.. py:class:: GaitDetectionConfig
+
+.. py:class:: ArmSwingFeatureExtractionConfig
+
+   .. py:method:: initialize_window_length_fields(window_length_s: int) -> None
+
+
+   .. py:method:: initialize_sampling_frequency_fields(sampling_frequency: int) -> None
+
+
+   .. py:method:: initialize_column_names(time_colname='time', pred_gait_colname='pred_gait', angle_smooth_colname='angle_smooth', angle_colname='angle', velocity_colname='velocity', segment_nr_colname='segment_nr') -> None
+
+
+   .. py:method:: set_sensor(sensor: str) -> None
+
+      Sets the sensor and derived filenames
+
+
+
+.. py:class:: ArmSwingDetectionConfig
+
+.. py:class:: ArmSwingQuantificationConfig
+

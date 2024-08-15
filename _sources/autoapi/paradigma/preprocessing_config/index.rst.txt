@@ -1,0 +1,77 @@
+paradigma.preprocessing_config
+==============================
+
+.. py:module:: paradigma.preprocessing_config
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   paradigma.preprocessing_config.DataColumns
+   paradigma.preprocessing_config.BasePreprocessingConfig
+   paradigma.preprocessing_config.IMUPreprocessingConfig
+   paradigma.preprocessing_config.PPGPreprocessingConfig
+
+
+Module Contents
+---------------
+
+.. py:class:: DataColumns
+
+   Enum for the data channels in tsdf.
+
+
+   .. py:attribute:: ACCELEROMETER_X
+      :value: 'accelerometer_x'
+
+
+
+   .. py:attribute:: ACCELEROMETER_Y
+      :value: 'accelerometer_y'
+
+
+
+   .. py:attribute:: ACCELEROMETER_Z
+      :value: 'accelerometer_z'
+
+
+
+   .. py:attribute:: GYROSCOPE_X
+      :value: 'gyroscope_x'
+
+
+
+   .. py:attribute:: GYROSCOPE_Y
+      :value: 'gyroscope_y'
+
+
+
+   .. py:attribute:: GYROSCOPE_Z
+      :value: 'gyroscope_z'
+
+
+
+   .. py:attribute:: PPG
+      :value: 'green'
+
+
+
+   .. py:attribute:: TIME
+      :value: 'time'
+
+
+
+.. py:class:: BasePreprocessingConfig
+
+.. py:class:: IMUPreprocessingConfig
+
+   Bases: :py:obj:`BasePreprocessingConfig`
+
+
+.. py:class:: PPGPreprocessingConfig
+
+   Bases: :py:obj:`BasePreprocessingConfig`
+
+

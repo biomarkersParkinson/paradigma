@@ -1,0 +1,40 @@
+paradigma.quantification
+========================
+
+.. py:module:: paradigma.quantification
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   paradigma.quantification.aggregate_segments
+
+
+Module Contents
+---------------
+
+.. py:function:: aggregate_segments(df: pandas.DataFrame, time_colname: str, segment_nr_colname: str, window_step_size_s: float, l_metrics: list, l_aggregates: list, l_quantiles: list = []) -> pandas.DataFrame
+
+   Extract arm swing aggregations from segments of a dataframe
+
+   :param df: Dataframe containing windowed arm swing features
+   :type df: pd.DataFrame
+   :param time_colname: Name of the column containing the start time of the window
+   :type time_colname: str
+   :param segment_nr_colname: Name of the column containing the segment number
+   :type segment_nr_colname: str
+   :param window_step_size_s: Duration of each window in seconds
+   :type window_step_size_s: float
+   :param l_metrics: List of metrics to aggregate
+   :type l_metrics: list
+   :param l_aggregates: List of aggregation functions to apply to the metrics
+   :type l_aggregates: list
+   :param l_quantiles: List of quantiles to calculate
+   :type l_quantiles: list
+
+   :returns: Dataframe of segments containing aggregated arm swing features for each segment
+   :rtype: pd.DataFrame
+
+

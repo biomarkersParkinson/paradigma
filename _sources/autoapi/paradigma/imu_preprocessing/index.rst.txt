@@ -1,0 +1,174 @@
+paradigma.imu_preprocessing
+===========================
+
+.. py:module:: paradigma.imu_preprocessing
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   paradigma.imu_preprocessing.DataColumns
+   paradigma.imu_preprocessing.TimeUnit
+   paradigma.imu_preprocessing.IMUPreprocessingConfig
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   paradigma.imu_preprocessing.write_data
+   paradigma.imu_preprocessing.read_metadata
+   paradigma.imu_preprocessing.preprocess_imu_data
+   paradigma.imu_preprocessing.transform_time_array
+   paradigma.imu_preprocessing.resample_data
+   paradigma.imu_preprocessing.butterworth_filter
+
+
+Module Contents
+---------------
+
+.. py:class:: DataColumns
+
+   Enum for the data channels in tsdf.
+
+
+   .. py:attribute:: ACCELEROMETER_X
+      :value: 'accelerometer_x'
+
+
+
+   .. py:attribute:: ACCELEROMETER_Y
+      :value: 'accelerometer_y'
+
+
+
+   .. py:attribute:: ACCELEROMETER_Z
+      :value: 'accelerometer_z'
+
+
+
+   .. py:attribute:: GYROSCOPE_X
+      :value: 'gyroscope_x'
+
+
+
+   .. py:attribute:: GYROSCOPE_Y
+      :value: 'gyroscope_y'
+
+
+
+   .. py:attribute:: GYROSCOPE_Z
+      :value: 'gyroscope_z'
+
+
+
+   .. py:attribute:: PPG
+      :value: 'green'
+
+
+
+   .. py:attribute:: TIME
+      :value: 'time'
+
+
+
+.. py:class:: TimeUnit
+
+   Enum for the `time` channel unit types in tsdf.
+
+
+   .. py:attribute:: relative_ms
+      :value: 'relative_ms'
+
+
+      The time is relative to the start time in milliseconds.
+
+
+   .. py:attribute:: absolute_ms
+      :value: 'absolute_ms'
+
+
+      The time is absolute in milliseconds.
+
+
+   .. py:attribute:: difference_ms
+      :value: 'difference_ms'
+
+
+      The time is the difference between consecutive samples in milliseconds.
+
+
+.. py:function:: write_data(metadata_time: tsdf.TSDFMetadata, metadata_samples: tsdf.TSDFMetadata, output_path: str, output_filename: str, df: pandas.DataFrame)
+
+.. py:function:: read_metadata(input_path: str, meta_filename: str, time_filename: str, values_filename: str) -> Tuple[tsdf.TSDFMetadata, tsdf.TSDFMetadata]
+
+.. py:class:: IMUPreprocessingConfig
+
+   Bases: :py:obj:`BasePreprocessingConfig`
+
+
+.. py:function:: preprocess_imu_data(input_path: str, output_path: str, config: paradigma.preprocessing_config.IMUPreprocessingConfig) -> None
+
+.. py:function:: transform_time_array(time_array: numpy.ndarray, scale_factor: float, input_unit_type: paradigma.constants.TimeUnit, output_unit_type: paradigma.constants.TimeUnit, start_time: float = 0.0) -> numpy.ndarray
+
+   Transforms the time array to relative time (when defined in delta time) and scales the values.
+
+   :param time_array: The time array in milliseconds to transform.
+   :type time_array: np.ndarray
+   :param scale_factor: The scale factor to apply to the time array.
+   :type scale_factor: float
+   :param input_unit_type: The time unit type of the input time array. Raw PPP data was in `TimeUnit.difference_ms`.
+   :type input_unit_type: TimeUnit
+   :param output_unit_type: The time unit type of the output time array. The processing is often done in `TimeUnit.relative_ms`.
+   :type output_unit_type: TimeUnit
+   :param start_time: The start time of the time array in UNIX milliseconds (default is 0.0)
+   :type start_time: float, optional
+
+   :returns: The transformed time array in milliseconds, with the specified time unit type.
+   :rtype: time_array
+
+
+.. py:function:: resample_data(df: pandas.DataFrame, time_column: paradigma.constants.DataColumns, time_unit_type: paradigma.constants.TimeUnit, unscaled_column_names: list, resampling_frequency: int, scale_factors: list = [], start_time: float = 0.0) -> pandas.DataFrame
+
+   Resamples the IMU data to the resampling frequency. The data is scaled before resampling.
+   :param df: The data to resample.
+   :type df: pd.DataFrame
+   :param time_column: The name of the time column.
+   :type time_column: str
+   :param time_unit_type: The time unit type of the time array. The method currently works only for `TimeUnit.relative_ms`.
+   :type time_unit_type: TimeUnit
+   :param unscaled_column_names: The names of the columns to resample.
+   :type unscaled_column_names: list
+   :param resampling_frequency: The frequency to resample the data to.
+   :type resampling_frequency: int
+   :param scale_factors: The scale factors to apply to the values before resampling (default is []).
+   :type scale_factors: list, optional
+   :param start_time: The start time of the time array, which is required if it is in absolute format (default is 0.0).
+   :type start_time: float, optional
+
+   :returns: The resampled data.
+   :rtype: pd.DataFrame
+
+
+.. py:function:: butterworth_filter(single_sensor_col: numpy.ndarray, order: int, cutoff_frequency: Union[float, List[float]], passband: str, sampling_frequency: int)
+
+   Applies the Butterworth filter to a single sensor column
+
+   :param single_sensor_column: A single column containing sensor data in float format
+   :type single_sensor_column: pd.Series
+   :param order: The exponential order of the filter
+   :type order: int
+   :param cutoff_frequency: The frequency at which the gain drops to 1/sqrt(2) that of the passband. If passband is 'band', then cutoff_frequency should be a list of two floats.
+   :type cutoff_frequency: float or List[float]
+   :param passband: Type of passband: ['hp', 'lp' or 'band']
+   :type passband: str
+   :param sampling_frequency: The sampling frequency of the sensor data
+   :type sampling_frequency: int
+
+   :returns: **sensor_column_filtered** -- The origin sensor column filtered applying a Butterworth filter
+   :rtype: pd.Series
+
+

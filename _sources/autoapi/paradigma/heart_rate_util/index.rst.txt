@@ -1,0 +1,61 @@
+paradigma.heart_rate_util
+=========================
+
+.. py:module:: paradigma.heart_rate_util
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   paradigma.heart_rate_util.extract_ppg_features
+   paradigma.heart_rate_util.peakdet
+   paradigma.heart_rate_util.calculate_power_ratio
+   paradigma.heart_rate_util.read_PPG_quality_classifier
+
+
+Module Contents
+---------------
+
+.. py:function:: extract_ppg_features(arr_ppg: numpy.ndarray, sampling_frequency: int) -> numpy.ndarray
+
+.. py:function:: peakdet(v: numpy.ndarray, delta, x: numpy.ndarray = None) -> Tuple[List[Tuple[int, float]], List[Tuple[int, float]]]
+
+   Detect peaks in a vector.
+
+   Args:
+   v (numpy array): Input vector.
+   delta (float): Minimum difference between a peak and its surrounding values.
+   x (numpy array, optional): Indices corresponding to the values in v. If not provided, indices are generated.
+
+   Returns:
+   maxtab (list of tuples): Local maxima as (index, value) pairs.
+   mintab (list of tuples): Local minima as (index, value) pairs.
+
+
+.. py:function:: calculate_power_ratio(f1: numpy.ndarray, PSD_acc: numpy.ndarray, f2: numpy.ndarray, PSD_ppg: numpy.ndarray) -> float
+
+   Calculates the power ratio of the accelerometer signal in the PPG frequency range.
+
+   Args:
+   f1 (numpy.ndarray): Frequency bins for the accelerometer signal.
+   PSD_acc (numpy.ndarray): Power Spectral Density of the accelerometer signal.
+   f2 (numpy.ndarray): Frequency bins for the PPG signal.
+   PSD_ppg (numpy.ndarray): Power Spectral Density of the PPG signal.
+
+   Returns:
+   float: The power ratio of the accelerometer signal in the PPG frequency range.
+
+
+.. py:function:: read_PPG_quality_classifier(classifier_path: str)
+
+   Read the PPG quality classifier from a file.
+
+   :param classifier_path: The path to the classifier file.
+   :type classifier_path: str
+
+   :returns: The classifier dictionary.
+   :rtype: dict
+
+

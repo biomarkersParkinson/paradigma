@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>paradigma.heart_rate_analysis &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TSDF schema</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tsdf_paradigma_schemas.html">TSDF fields in Paradigma schemas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tsdf_paradigma_channels_and_units.html">Channels and units in Paradigma schemas</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Example notebooks</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/gait/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/ppg/ppg_analysis.html">PPG analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conduct.html">Code of Conduct</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">paradigma.heart_rate_analysis</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for paradigma.heart_rate_analysis</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">welch</span>
+<span class="kn">from</span> <span class="nn">scipy.signal.windows</span> <span class="kn">import</span> <span class="n">hann</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span> <span class="nn">dateutil</span> <span class="kn">import</span> <span class="n">parser</span>
+
+<span class="kn">import</span> <span class="nn">tsdf</span>
+<span class="kn">import</span> <span class="nn">tsdf.constants</span>
+<span class="kn">from</span> <span class="nn">paradigma.heart_rate_analysis_config</span> <span class="kn">import</span> <span class="n">HeartRateFeatureExtractionConfig</span>
+<span class="kn">from</span> <span class="nn">paradigma.heart_rate_util</span> <span class="kn">import</span> <span class="n">extract_ppg_features</span><span class="p">,</span> <span class="n">calculate_power_ratio</span><span class="p">,</span> <span class="n">read_PPG_quality_classifier</span>
+<span class="kn">from</span> <span class="nn">paradigma.util</span> <span class="kn">import</span> <span class="n">read_metadata</span><span class="p">,</span> <span class="n">write_data</span><span class="p">,</span> <span class="n">get_end_iso8601</span>
+<span class="kn">from</span> <span class="nn">paradigma.constants</span> <span class="kn">import</span> <span class="n">DataColumns</span><span class="p">,</span> <span class="n">UNIX_TICKS_MS</span>
+
+
+<div class="viewcode-block" id="extract_signal_quality_features">
+<a class="viewcode-back" href="../../autoapi/paradigma/heart_rate_analysis/index.html#paradigma.heart_rate_analysis.extract_signal_quality_features">[docs]</a>
+<span class="k">def</span> <span class="nf">extract_signal_quality_features</span><span class="p">(</span><span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">classifier_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">HeartRateFeatureExtractionConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># load data</span>
+    <span class="n">metadata_time_ppg</span><span class="p">,</span> <span class="n">metadata_samples_ppg</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="s2">&quot;PPG_meta.json&quot;</span><span class="p">,</span> <span class="s2">&quot;PPG_time.bin&quot;</span><span class="p">,</span> <span class="s2">&quot;PPG_samples.bin&quot;</span><span class="p">)</span>
+    <span class="n">df_ppg</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time_ppg</span><span class="p">,</span> <span class="n">metadata_samples_ppg</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">arr_ppg</span> <span class="o">=</span> <span class="n">df_ppg</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PPG</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="n">relative_time_ppg</span> <span class="o">=</span> <span class="n">df_ppg</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    
+    <span class="n">metadata_time_acc</span><span class="p">,</span> <span class="n">metadata_samples_acc</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="s2">&quot;accelerometer_meta.json&quot;</span><span class="p">,</span> <span class="s2">&quot;accelerometer_time.bin&quot;</span><span class="p">,</span> <span class="s2">&quot;accelerometer_samples.bin&quot;</span><span class="p">)</span>
+    <span class="n">df_acc</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time_acc</span><span class="p">,</span> <span class="n">metadata_samples_acc</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">arr_acc</span> <span class="o">=</span> <span class="n">df_acc</span><span class="p">[[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Y</span><span class="p">,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Z</span><span class="p">]]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+    <span class="n">sampling_frequency_ppg</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency_ppg</span>
+    <span class="n">sampling_frequency_imu</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency_imu</span>
+
+    <span class="c1"># Parameters</span>
+    <span class="n">epoch_length</span> <span class="o">=</span> <span class="mi">6</span>  <span class="c1"># in seconds</span>
+    <span class="n">overlap</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># in seconds</span>
+
+    <span class="c1"># Number of samples in epoch</span>
+    <span class="n">samples_per_epoch_ppg</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">epoch_length</span> <span class="o">*</span> <span class="n">sampling_frequency_ppg</span><span class="p">)</span>
+    <span class="n">samples_per_epoch_acc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">epoch_length</span> <span class="o">*</span> <span class="n">sampling_frequency_imu</span><span class="p">)</span>
+
+    <span class="c1"># Calculate number of samples to shift for each epoch</span>
+    <span class="n">samples_shift_ppg</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">epoch_length</span> <span class="o">-</span> <span class="n">overlap</span><span class="p">)</span> <span class="o">*</span> <span class="n">sampling_frequency_ppg</span><span class="p">)</span>
+    <span class="n">samples_shift_acc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">epoch_length</span> <span class="o">-</span> <span class="n">overlap</span><span class="p">)</span> <span class="o">*</span> <span class="n">sampling_frequency_imu</span><span class="p">)</span>
+
+    <span class="n">pwelchwin_acc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">sampling_frequency_imu</span><span class="p">)</span>  <span class="c1"># window length for pwelch</span>
+    <span class="n">pwelchwin_ppg</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">sampling_frequency_ppg</span><span class="p">)</span>  <span class="c1"># window length for pwelch</span>
+    <span class="n">noverlap_acc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">pwelchwin_acc</span><span class="p">)</span>  <span class="c1"># overlap for pwelch</span>
+    <span class="n">noverlap_ppg</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">pwelchwin_ppg</span><span class="p">)</span>  <span class="c1"># overlap for pwelch</span>
+
+    <span class="n">f_bin_res</span> <span class="o">=</span> <span class="mf">0.05</span>  <span class="c1"># the threshold is set based on this binning</span>
+    <span class="n">nfft_ppg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sampling_frequency_ppg</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">f_bin_res</span><span class="p">)</span>  <span class="c1"># frequency bins for pwelch ppg</span>
+    <span class="n">nfft_acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sampling_frequency_imu</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">f_bin_res</span><span class="p">)</span>  <span class="c1"># frequency bins for pwelch imu</span>
+
+    <span class="n">features_ppg_scaled</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">feature_acc</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">t_unix_feat_total</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">acc_idx</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Read the classifier (it contains mu and sigma)</span>
+    <span class="n">clf</span> <span class="o">=</span> <span class="n">read_PPG_quality_classifier</span><span class="p">(</span><span class="n">classifier_path</span><span class="p">)</span>
+    <span class="c1"># not used here: lr_model = clf[&#39;model&#39;]</span>
+    <span class="n">arr_mu</span> <span class="o">=</span> <span class="n">clf</span><span class="p">[</span><span class="s1">&#39;mu&#39;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">arr_sigma</span> <span class="o">=</span> <span class="n">clf</span><span class="p">[</span><span class="s1">&#39;sigma&#39;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+    <span class="n">scaler</span><span class="o">.</span><span class="n">mean_</span> <span class="o">=</span> <span class="n">arr_mu</span>
+    <span class="n">scaler</span><span class="o">.</span><span class="n">scale_</span> <span class="o">=</span> <span class="n">arr_sigma</span>
+
+    <span class="n">ppg_start_time</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">metadata_time_ppg</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">)</span>
+
+    <span class="c1"># Loop over 6s segments for both PPG and IMU and calculate features</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">arr_ppg</span><span class="p">)</span> <span class="o">-</span> <span class="n">samples_per_epoch_ppg</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">samples_shift_ppg</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">acc_idx</span> <span class="o">+</span> <span class="n">samples_per_epoch_acc</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">arr_acc</span><span class="p">):</span>  <span class="c1"># For the last epoch, check if the segment for IMU is too short (not 6 seconds)</span>
+            <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">acc_segment</span> <span class="o">=</span> <span class="n">arr_acc</span><span class="p">[</span><span class="n">acc_idx</span><span class="p">:</span><span class="n">acc_idx</span> <span class="o">+</span> <span class="n">samples_per_epoch_acc</span><span class="p">,</span> <span class="p">:]</span>  <span class="c1"># Extract the IMU window (6 seconds)</span>
+
+        <span class="n">ppg_segment</span> <span class="o">=</span> <span class="n">arr_ppg</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">samples_per_epoch_ppg</span><span class="p">]</span>  <span class="c1"># Extract the PPG window (6 seconds)</span>
+
+        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># Feature extraction + scaling</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="n">extract_ppg_features</span><span class="p">(</span><span class="n">ppg_segment</span><span class="p">,</span> <span class="n">sampling_frequency_ppg</span><span class="p">)</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">features_ppg_scaled</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">features</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1"># Calculating PSD (power spectral density) of IMU and PPG</span>
+        <span class="c1">#hann(pwelchwin_acc)</span>
+        <span class="c1">#hann(pwelchwin_ppg)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">pwelchwin_acc</span><span class="p">,</span> <span class="n">noverlap_acc</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">nfft_acc</span><span class="p">))</span>
+        <span class="n">f1</span><span class="p">,</span> <span class="n">pxx1</span> <span class="o">=</span> <span class="n">welch</span><span class="p">(</span><span class="n">acc_segment</span><span class="p">,</span> <span class="n">sampling_frequency_imu</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="s1">&#39;hann&#39;</span><span class="p">,</span> <span class="n">nperseg</span><span class="o">=</span><span class="n">pwelchwin_acc</span><span class="p">,</span> <span class="n">noverlap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nfft</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">nfft_acc</span><span class="p">))</span>
+        <span class="n">PSD_imu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">pxx1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># sum over the three axes</span>
+        <span class="n">f2</span><span class="p">,</span> <span class="n">pxx2</span> <span class="o">=</span> <span class="n">welch</span><span class="p">(</span><span class="n">ppg_segment</span><span class="p">,</span> <span class="n">sampling_frequency_ppg</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="s1">&#39;hann&#39;</span><span class="p">,</span> <span class="n">nperseg</span><span class="o">=</span><span class="n">pwelchwin_ppg</span><span class="p">,</span> <span class="n">noverlap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nfft</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">nfft_ppg</span><span class="p">))</span>
+        <span class="n">PSD_ppg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">pxx2</span><span class="p">)</span>  <span class="c1"># this does nothing, equal to PSD_ppg = pxx2</span>
+
+        <span class="c1"># IMU feature extraction</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">f1</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">f2</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">feature_acc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">calculate_power_ratio</span><span class="p">(</span><span class="n">f1</span><span class="p">,</span> <span class="n">PSD_imu</span><span class="p">,</span> <span class="n">f2</span><span class="p">,</span> <span class="n">PSD_ppg</span><span class="p">))</span>  <span class="c1"># Calculate the power ratio of the accelerometer signal in the PPG frequency range</span>
+
+        <span class="c1"># time channel</span>
+        <span class="n">t_unix_feat_total</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">relative_time_ppg</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">ppg_start_time</span><span class="p">)</span> <span class="o">*</span> <span class="n">UNIX_TICKS_MS</span><span class="p">)</span>  <span class="c1"># Save in absolute unix time ms</span>
+        <span class="n">acc_idx</span> <span class="o">+=</span> <span class="n">samples_shift_acc</span>  <span class="c1"># update IMU_idx</span>
+
+    <span class="c1"># Convert lists to numpy arrays</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">features_ppg_scaled</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span>
+    <span class="n">features_ppg_scaled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">features_ppg_scaled</span><span class="p">)</span>
+    <span class="n">feature_acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">feature_acc</span><span class="p">)</span>
+    <span class="n">t_unix_feat_total</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">t_unix_feat_total</span><span class="p">)</span>
+
+    <span class="c1"># Synchronization information</span>
+    <span class="c1"># TODO: store this, as this is needed for the HR pipeline</span>
+    <span class="c1"># v_sync_ppg_total = np.array([</span>
+    <span class="c1">#     ppg_indices[0],  # start index</span>
+    <span class="c1">#     ppg_indices[1],  # end index</span>
+    <span class="c1">#     segment_ppg[0],  # Segment index</span>
+    <span class="c1">#     count  # Number of epochs in the segment</span>
+    <span class="c1"># ])</span>
+
+    <span class="n">metadata_features_ppg</span> <span class="o">=</span> <span class="n">metadata_samples_ppg</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">metadata_features_ppg</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;variance&quot;</span><span class="p">,</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">,</span> <span class="s2">&quot;kurtosis&quot;</span><span class="p">,</span> <span class="s2">&quot;skewness&quot;</span><span class="p">,</span> <span class="s2">&quot;dominant_frequency&quot;</span><span class="p">,</span> <span class="s2">&quot;relative_power&quot;</span><span class="p">,</span> <span class="s2">&quot;spectral_entropy&quot;</span><span class="p">,</span> <span class="s2">&quot;signal_noise_ratio&quot;</span><span class="p">,</span> <span class="s2">&quot;second_highest_peak&quot;</span><span class="p">]</span>
+    <span class="n">metadata_features_acc</span> <span class="o">=</span> <span class="n">metadata_samples_acc</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">metadata_features_acc</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;power_ratio&quot;</span><span class="p">]</span>
+    <span class="n">metadata_time_ppg</span> <span class="o">=</span> <span class="n">metadata_time_ppg</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">metadata_time_ppg</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span>
+    <span class="n">metadata_time_acc</span> <span class="o">=</span> <span class="n">metadata_time_acc</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">metadata_time_acc</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span>
+
+    <span class="n">write_data</span><span class="p">(</span><span class="n">metadata_time_ppg</span><span class="p">,</span> <span class="n">metadata_features_ppg</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;features_ppg_meta.json&#39;</span><span class="p">,</span> <span class="n">features_ppg_scaled</span><span class="p">)</span>
+    <span class="n">write_data</span><span class="p">(</span><span class="n">metadata_time_acc</span><span class="p">,</span> <span class="n">metadata_features_acc</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;feature_acc_meta.json&#39;</span><span class="p">,</span> <span class="n">feature_acc</span><span class="p">)</span></div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Peter Kok, Vedran Kasalica, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

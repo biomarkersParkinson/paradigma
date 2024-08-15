@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Channels and units in Paradigma schemas &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Gait analysis" href="notebooks/gait/gait_analysis.html" />
+    <link rel="prev" title="TSDF fields in Paradigma schemas" href="tsdf_paradigma_schemas.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TSDF schema</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tsdf_paradigma_schemas.html">TSDF fields in Paradigma schemas</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Channels and units in Paradigma schemas</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#field-channels">Field: <code class="docutils literal notranslate"><span class="pre">channels</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#field-units">Field: <code class="docutils literal notranslate"><span class="pre">units</span></code></a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Example notebooks</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/gait/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/ppg/ppg_analysis.html">PPG analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conduct.html">Code of Conduct</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Channels and units in Paradigma schemas</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tsdf_paradigma_channels_and_units.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="channels-and-units-in-paradigma-schemas">
+<h1>Channels and units in Paradigma schemas<a class="headerlink" href="#channels-and-units-in-paradigma-schemas" title="Link to this heading"></a></h1>
+<p>Within the <code class="docutils literal notranslate"><span class="pre">paradigma</span></code> project, some of the field types are further specialised to provide a better description of the data. These are described in the following sections.</p>
+<section id="field-channels">
+<h2>Field: <code class="docutils literal notranslate"><span class="pre">channels</span></code><a class="headerlink" href="#field-channels" title="Link to this heading"></a></h2>
+<p><strong>Type:</strong> <code class="docutils literal notranslate"><span class="pre">channel_type[]</span></code><br />
+<strong>Description:</strong> Describes the content of the data written. <code class="docutils literal notranslate"><span class="pre">channel_type</span></code> is specific to the <code class="docutils literal notranslate"><span class="pre">Digital</span> <span class="pre">biomarkers</span> <span class="pre">for</span> <span class="pre">PD</span></code> extension.</p>
+<hr class="docutils" />
+<p><strong>General types</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">channel_type</span></code> name</p></th>
+<th class="head"><p>Recommended <code class="docutils literal notranslate"><span class="pre">unit</span></code></p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">time</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">absolute_ms</span></code></p></td>
+<td><p>Time corresponding to the start of each window/segment (also see units below).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">accelerometer_x</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g</span></code></p></td>
+<td><p>Acceleration along the x-axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">accelerometer_y</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g</span></code></p></td>
+<td><p>Acceleration along the y-axis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">accelerometer_z</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g</span></code></p></td>
+<td><p>Acceleration along the z-axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rotation_x</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">deg/s</span></code></p></td>
+<td><p>Angular rotation rate around the x-axis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rotation_y</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">deg/s</span></code></p></td>
+<td><p>Angular rotation rate around the y-axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rotation_z</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">deg/s</span></code></p></td>
+<td><p>Angular rotation rate around the z-axis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">green</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">deg/s</span></code></p></td>
+<td><p>Green signal values indicate blood volume changes for physiological analysis.</p></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<details markdown="1">
+<summary><b>PPG-related types</b></summary>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">channel_type</span></code> name</p></th>
+<th class="head"><p>Recommended <code class="docutils literal notranslate"><span class="pre">unit</span></code></p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ppg_quality_post_prob</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">probability</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Posterior probability that the corresponding PPG signal is of high quality (0 to 1).</p></td>
+</tr>
+</tbody>
+</table>
+</details>
+<hr class="docutils" />
+<details markdown="1">
+<summary><b>Tremor-related types</b></summary>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">channel_type</span></code> name</p></th>
+<th class="head"><p>Recommended <code class="docutils literal notranslate"><span class="pre">unit</span></code></p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gyro_tremor_prob</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">probability</span></code></p></td>
+<td><p>Probability values (0 to 1) indicating the likelihood of tremor activity for each sample.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">gyro_tremor_hat</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">boolean_num</span></code></p></td>
+<td><p>Estimated values representing the presence or absence of tremor activity for each sample.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gyro_arm_actv_prob</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">probability</span></code></p></td>
+<td><p>Probability values (0 to 1) indicating the likelihood of arm activity for each sample.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">gyro_arm_actv_hat</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">boolean_num</span></code></p></td>
+<td><p>Estimated values representing the presence or absence of arm activity for each sample.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GyMeanDx</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p>Mean gyro derivative in the x axis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GyMeanDy</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p>Mean gyro derivative in the y axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GyMeanDz</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p>Mean gyro derivative in the z axis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GyLTreDomPowerX</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p>Gyro Low tremor (range [3.5-8 Hz]) dominant power in the x axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GyLTreDomPowerY</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p>Gyro Low tremor (range [3.5-8 Hz]) dominant power in the y axis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GyLTreDomPowerZ</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p>Gyro Low tremor (range [3.5-8 Hz]) dominant power in the z axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GyGaitBandPower</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p>Gyro gait bandpower (range [0.4 – 2] Hz) – PSD: sum of the axes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GyGaitBandpowerRatio</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p>Gyro gait bandpower sum / total bandpower sum up to 15 Hz – PSD: sum of the axes.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GyGaitFreqPeak</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p>Frequency peak of the in the gyro gait range – PSD: sum of the axes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GyGaitFixedDomPower</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Gyro dominant power in a fixed range (specific frequency range not provided).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GyGaitFixedDomPowerRatio</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Ratio of dominant power in the gyro gait range to total power.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GyGaitDomPower</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Dominant power in the gyro gait range.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GyGaitDomPowerRatio</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Ratio of dominant power in the gyro gait range to total power.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GyGaitPeakFreqWidth</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Width of the frequency peak in the gyro gait range.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GyLTreBandPower</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Low tremor bandpower (specific frequency range not provided).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GyLTreBandpower</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Low tremor bandpower (specific frequency range not provided).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GyLTreFreqPeak</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Frequency peak in the low tremor range.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GyLTreFixedDomP</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Low tremor dominant power in a fixed range (specific frequency range not provided).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GyLTreFixedDomP</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Low tremor dominant power in a fixed range (specific frequency range not provided).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GyLTreDomPower</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Low tremor dominant power (specific frequency range not provided).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GyLTreDomPowerR</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Ratio of low tremor dominant power to total power.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GyLTrePeakFreqW</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Width of the frequency peak in the low tremor range.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GyHTreBandPower</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> High tremor bandpower (specific frequency range not provided).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GyHTreBandpower</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> High tremor bandpower (specific frequency range not provided).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GyHTreFreqPeak</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Frequency peak in the high tremor range.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GyHTreFixedDomP</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> High tremor dominant power in a fixed range (specific frequency range not provided).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GyHTreFixedDomP</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> High tremor dominant power in a fixed range (specific frequency range not provided).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GyHTreDomPower</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> High tremor dominant power (specific frequency range not provided).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GyHTreDomPowerR</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Ratio of high tremor dominant power to total power.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GyHTrePeakFreqW</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Width of the frequency peak in the high tremor range.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GyMFCC1</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Mel-frequency cepstral coefficient 1.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GyMFCC2</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Mel-frequency cepstral coefficient 2.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GyMFCC3</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Mel-frequency cepstral coefficient 3.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GyMFCC4</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Mel-frequency cepstral coefficient 4.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GyMFCC5</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Mel-frequency cepstral coefficient 5.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GyMFCC6</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Mel-frequency cepstral coefficient 6.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GyMFCC7</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Mel-frequency cepstral coefficient 7.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GyMFCC8</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Mel-frequency cepstral coefficient 8.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GyMFCC9</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Mel-frequency cepstral coefficient 9.</p></td>
+</tr>
+</tbody>
+</table>
+</details>
+<hr class="docutils" />
+<details markdown="1">
+<summary><b>Gait-related types</b></summary>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">channel_type</span></code> name</p></th>
+<th class="head"><p>Recommended <code class="docutils literal notranslate"><span class="pre">unit</span></code></p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">std_accel_norm</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g</span></code></p></td>
+<td><p>Standard deviation of the norm of the accelerometer axes in the temporal domain.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">x_accel_grav_mean</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g</span></code></p></td>
+<td><p>Mean of the x-axis acceleration gravity component.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">y_accel_grav_mean</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g</span></code></p></td>
+<td><p>Mean of the y-axis acceleration gravity component.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">z_accel_grav_mean</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g</span></code></p></td>
+<td><p>Mean of the z-axis acceleration gravity component.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">x_accel_grav_std</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g</span></code></p></td>
+<td><p>Standard deviation of the x-axis acceleration gravity component.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">y_accel_grav_std</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g</span></code></p></td>
+<td><p>Standard deviation of the y-axis acceleration gravity component.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">z_accel_grav_std</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g</span></code></p></td>
+<td><p>Standard deviation of the z-axis acceleration gravity component..</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">x_accel_power_below_gait</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g^2/Hz</span></code></p></td>
+<td><p>Total power in the [0, 0.7] Hz range of the x-axis accelerometer.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">y_accel_power_below_gait</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g^2/Hz</span></code></p></td>
+<td><p>Total power in the [0, 0.7] Hz range of the y-axis accelerometer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">z_accel_power_below_gait</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g^2/Hz</span></code></p></td>
+<td><p>Total power in the [0, 0.7] Hz range of the z-axis accelerometer.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">x_accel_power_gait</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g^2/Hz</span></code></p></td>
+<td><p>Total power in the [0.7, 3.5] Hz range of the x-axis accelerometer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">y_accel_power_gait</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g^2/Hz</span></code></p></td>
+<td><p>Total power in the [0.7, 3.5] Hz range of the y-axis accelerometer.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">z_accel_power_gait</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g^2/Hz</span></code></p></td>
+<td><p>Total power in the [0.7, 3.5] Hz range of the z-axis accelerometer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">x_accel_power_tremor</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g^2/Hz</span></code></p></td>
+<td><p>Total power in the [3.5, 8] Hz range of the x-axis accelerometer.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">y_accel_power_tremor</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g^2/Hz</span></code></p></td>
+<td><p>Total power in the [3.5, 8] Hz range of the y-axis accelerometer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">z_accel_power_tremor</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g^2/Hz</span></code></p></td>
+<td><p>Total power in the [3.5, 8] Hz range of the z-axis accelerometer.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">x_accel_power_above_tremor</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g^2/Hz</span></code></p></td>
+<td><p>Total power in the [8, 50] Hz range of the x-axis accelerometer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">y_accel_power_above_tremor</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g^2/Hz</span></code></p></td>
+<td><p>Total power in the [8, 50] Hz range of the y-axis accelerometer.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">z_accel_power_above_tremor</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g^2/Hz</span></code></p></td>
+<td><p>Total power in the [8, 50] Hz range of the z-axis accelerometer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">x_accel_dominant_frequency</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Hz</span></code></p></td>
+<td><p>Dominant frequency of the x-axis accelerometer.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">y_accel_dominant_frequency</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Hz</span></code></p></td>
+<td><p>Dominant frequency of the x-axis accelerometer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">z_accel_dominant_frequency</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Hz</span></code></p></td>
+<td><p>Dominant frequency of the x-axis accelerometer.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">accel_norm_cc_{n}</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g</span></code></p></td>
+<td><p>Cepstral coefficient n with n $\in$ [1,2,…,16] of the accelerometer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">gd_pred_gait_proba</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">probability</span></code></p></td>
+<td><p>Predicted probability of gait being the predominant activity within the window span.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gyro_norm_cc_{n}</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">?</span></code></p></td>
+<td><p>Cepstral coefficient n with n $\in$ [1,2,…,16] of the gyroscope.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">x_gyro_dominant_frequency</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Hz</span></code></p></td>
+<td><p>Dominant frequency of the x-axis gyroscope</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">y_gyro_dominant_frequency</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Hz</span></code></p></td>
+<td><p>Dominant frequency of the x-axis gyroscope</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">z_gyro_dominant_frequency</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Hz</span></code></p></td>
+<td><p>Dominant frequency of the x-axis gyroscope</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">angle_mean_amplitude</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">deg</span></code></p></td>
+<td><p>Mean of the sum of consecutive minima and maxima angles (angle amplitude is often referred to as range of motion)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">angle_std_amplitude</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">deg</span></code></p></td>
+<td><p>Std of the sum of consecutive minima and maxima angles</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">angle_sum_amplitude</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">deg</span></code></p></td>
+<td><p>Sum of the sum of consecutive minima and maxima angles</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ange_perc_95_amplitude</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">deg</span></code></p></td>
+<td><p>95th percentile of the sum of consecutive minima and maxima angles</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">forward_peak_ang_vel_mean</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">deg/s</span></code></p></td>
+<td><p>Angular velocity mean in forward direction of the first principal component</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">forward_peak_ang_vel_std</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">deg/s</span></code></p></td>
+<td><p>Angular velocity standard deviation in forward direction of the first principal component</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">backward_peak_ang_vel_mean</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">deg/s</span></code></p></td>
+<td><p>Angular velocity mean in backward direction of the first principal component</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">backward_peak_ang_vel_std</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">deg/s</span></code></p></td>
+<td><p>Angular velocity standard deviation in backward direction of the first principal component</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">angle_perc_power</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">percentage</span></code></p></td>
+<td><p>Percentage of total power in the arm swing frequency band [0.3 - 3 Hz]</p></td>
+</tr>
+</tbody>
+</table>
+</details>
+</section>
+<hr class="docutils" />
+<section id="field-units">
+<h2>Field: <code class="docutils literal notranslate"><span class="pre">units</span></code><a class="headerlink" href="#field-units" title="Link to this heading"></a></h2>
+<p><strong>Type:</strong> <code class="docutils literal notranslate"><span class="pre">unit_type[]</span></code></p>
+<p><strong>Description:</strong> Describes the format of the data written. <code class="docutils literal notranslate"><span class="pre">unit_type</span></code> is specific to the <code class="docutils literal notranslate"><span class="pre">Digital</span> <span class="pre">biomarkers</span> <span class="pre">for</span> <span class="pre">PD</span></code> extension.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">unit_type</span></code></p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">relative_ms</span></code></p></td>
+<td><p>Time (in milliseconds), relative to the <code class="docutils literal notranslate"><span class="pre">start_iso8601</span></code>, i.e., time elapsed since the start time of the recording.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">difference_ms</span></code></p></td>
+<td><p>Time (in milliseconds) elapsed since the previous sample.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">absolute_ms</span></code></p></td>
+<td><p>Absolute time in milliseconds, relative to Unix epoch.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">probability</span></code></p></td>
+<td><p>Probability values (0 to 1) indicating the likelihood of tremor activity for each sample.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">boolean_num</span></code></p></td>
+<td><p>Integer values (0 or 1) representing the true (1) or false (0) presence of an activity.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">unitless</span></code></p></td>
+<td><p>Numerical values without units.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">g</span></code></p></td>
+<td><p>Acceleration in g (meters per second squared / 9.81).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">deg/s</span></code></p></td>
+<td><p>Angular velocity in degrees per second.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tsdf_paradigma_schemas.html" class="btn btn-neutral float-left" title="TSDF fields in Paradigma schemas" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="notebooks/gait/gait_analysis.html" class="btn btn-neutral float-right" title="Gait analysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Peter Kok, Vedran Kasalica, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

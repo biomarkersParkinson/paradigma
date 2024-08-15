@@ -1,0 +1,280 @@
+paradigma.feature_extraction
+============================
+
+.. py:module:: paradigma.feature_extraction
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   paradigma.feature_extraction.generate_statistics
+   paradigma.feature_extraction.generate_std_norm
+   paradigma.feature_extraction.compute_fft
+   paradigma.feature_extraction.signal_to_ffts
+   paradigma.feature_extraction.compute_power_in_bandwidth
+   paradigma.feature_extraction.compute_perc_power
+   paradigma.feature_extraction.get_dominant_frequency
+   paradigma.feature_extraction.compute_power
+   paradigma.feature_extraction.generate_cepstral_coefficients
+   paradigma.feature_extraction.pca_transform_gyroscope
+   paradigma.feature_extraction.compute_angle
+   paradigma.feature_extraction.remove_moving_average_angle
+   paradigma.feature_extraction.extract_angle_extremes
+   paradigma.feature_extraction.extract_range_of_motion
+   paradigma.feature_extraction.extract_peak_angular_velocity
+
+
+Module Contents
+---------------
+
+.. py:function:: generate_statistics(sensor_col: pandas.Series, statistic: str) -> list
+
+   Generate statistics for a single sensor and axis. The function is used with the apply function in pandas.
+
+   :param sensor_col: The sensor column to be aggregated (e.g. x-axis of accelerometer)
+   :type sensor_col: pd.Series
+   :param statistic: The statistic to be computed [mean, std, max, min]
+   :type statistic: str
+
+   :returns: The aggregated statistics
+   :rtype: list
+
+
+.. py:function:: generate_std_norm(df: pandas.DataFrame, cols: list) -> pandas.Series
+
+   Generate the standard deviation of the norm of the accelerometer axes.
+
+   :param df: The dataframe containing the accelerometer axes
+   :type df: pd.DataFrame
+   :param cols: The names of the columns containing the accelerometer axes
+   :type cols: list
+
+   :returns: The standard deviation of the norm of the accelerometer axes
+   :rtype: pd.Series
+
+
+.. py:function:: compute_fft(values: list, window_type: str = 'hann', sampling_frequency: int = 100) -> tuple
+
+   Compute the Fast Fourier Transform (FFT) of a signal.
+
+   :param values: The values of the signal (e.g., accelerometer data) of a single window.
+   :type values: list
+   :param window_type: The type of window to be used for the FFT (default: 'hann')
+   :type window_type: str
+   :param sampling_frequency: The sampling frequency of the signal (default: 100)
+   :type sampling_frequency: int
+
+   :returns: The FFT values and the corresponding frequencies
+   :rtype: tuple
+
+
+.. py:function:: signal_to_ffts(sensor_col: pandas.Series, window_type: str = 'hann', sampling_frequency: int = 100) -> tuple
+
+   Compute the Fast Fourier Transform (FFT) of a signal per window (can probably be combined with compute_fft and simplified).
+
+   :param sensor_col: The sensor column to be transformed (e.g. x-axis of accelerometer)
+   :type sensor_col: pd.Series
+   :param window_type: The type of window to be used for the FFT (default: 'hann')
+   :type window_type: str
+   :param sampling_frequency: The sampling frequency of the signal (default: 100)
+   :type sampling_frequency: int
+
+   :returns: Lists of FFT values and corresponding frequencies which can be concatenated as column to the dataframe
+   :rtype: tuple
+
+
+.. py:function:: compute_power_in_bandwidth(sensor_col: list, fmin: int, fmax: int, sampling_frequency: int = 100, window_type: str = 'hann') -> float
+
+   Note: sensor_col is a single cell (which corresponds to a single window) of sensor_col, as it is used with apply function.
+   Probably we want a smarter way of doing this.
+
+   Computes the power in a specific frequency band for a specified sensor and axis.
+
+   :param sensor_col: The sensor column to be transformed (e.g. x-axis of accelerometer). This corresponds to a single window, which is a single row of the dataframe,
+                      and contains values of individual timestamps composing the window.
+   :type sensor_col: list
+   :param fmin: The lower bound of the frequency band
+   :type fmin: int
+   :param fmax: The upper bound of the frequency band
+   :type fmax: int
+   :param sampling_frequency: The sampling frequency of the signal (default: 100)
+   :type sampling_frequency: int
+   :param window_type: The type of window to be used for the FFT (default: 'hann')
+   :type window_type: str
+
+   :returns: The power in the specified frequency band
+   :rtype: float
+
+
+.. py:function:: compute_perc_power(sensor_col: list, fmin_band: int, fmax_band: int, fmin_total: int = 0, fmax_total: int = 100, sampling_frequency: int = 100, window_type: str = 'hann') -> float
+
+   Note: sensor_col is a single cell (which corresponds to a single window) of sensor_col, as it is used with apply function.
+
+   Computes the percentage of power in a specific frequency band for a specified sensor and axis.
+
+   :param sensor_col: The sensor column to be transformed (e.g. x-axis of accelerometer). This corresponds to a single window, which is a single row of the dataframe
+   :type sensor_col: list
+   :param fmin_band: The lower bound of the frequency band
+   :type fmin_band: int
+   :param fmax_band: The upper bound of the frequency band
+   :type fmax_band: int
+   :param fmin_total: The lower bound of the frequency spectrum (default: 0)
+   :type fmin_total: int
+   :param fmax_total: The upper bound of the frequency spectrum (default: 100)
+   :type fmax_total: int
+   :param sampling_frequency: The sampling frequency of the signal (default: 100)
+   :type sampling_frequency: int
+   :param window_type: The type of window to be used for the FFT (default: 'hann')
+   :type window_type: str
+
+   :returns: The percentage of power in the specified frequency band
+   :rtype: float
+
+
+.. py:function:: get_dominant_frequency(signal_ffts: list, signal_freqs: list, fmin: int, fmax: int) -> float
+
+   Note: signal_ffts and signal_freqs are single cells (which corresponds to a single window) of signal_ffts and signal_freqs, as it is used with apply function.
+
+   Computes the dominant frequency in a specific frequency band.
+
+   :param signal_ffts: The FFT values of the signal of a single window
+   :type signal_ffts: list
+   :param signal_freqs: The corresponding frequencies of the FFT values
+   :type signal_freqs: list
+   :param fmin: The lower bound of the frequency band
+   :type fmin: int
+   :param fmax: The upper bound of the frequency band
+   :type fmax: int
+
+   :returns: The dominant frequency in the specified frequency band
+   :rtype: float
+
+
+.. py:function:: compute_power(df: pandas.DataFrame, fft_cols: list) -> pandas.Series
+
+   Compute the power of the FFT values.
+
+   :param df: The dataframe containing the FFT values
+   :type df: pd.DataFrame
+   :param fft_cols: The names of the columns containing the FFT values
+   :type fft_cols: list
+
+   :returns: The power of the FFT values
+   :rtype: pd.Series
+
+
+.. py:function:: generate_cepstral_coefficients(total_power_col: pandas.Series, window_length_s: int, sampling_frequency: int = 100, low_frequency: int = 0, high_frequency: int = 25, n_filters: int = 20, n_coefficients: int = 12) -> pandas.DataFrame
+
+   Generate cepstral coefficients from the total power of the signal.
+
+   :param total_power_col: The total power of the signal, extracted using compute_power
+   :type total_power_col: pd.Series
+   :param window_length_s: The number of seconds a window constitutes
+   :type window_length_s: int
+   :param sampling_frequency: The sampling frequency of the data (default: 100)
+   :type sampling_frequency: int
+   :param low_frequency: The lower bound of the frequency band (default: 0)
+   :type low_frequency: int
+   :param high_frequency: The upper bound of the frequency band (default: 25)
+   :type high_frequency: int
+   :param n_filters: The number of DCT filters (default: 20)
+   :type n_filters: int
+   :param n_coefficients: The number of coefficients to extract (default: 12)
+   :type n_coefficients: int
+
+   :returns: A dataframe with a single column corresponding to a single cepstral coefficient
+   :rtype: pd.DataFrame
+
+
+.. py:function:: pca_transform_gyroscope(df: pandas.DataFrame, y_gyro_colname: str, z_gyro_colname: str, pred_gait_colname: str) -> pandas.Series
+
+   Apply principal component analysis (PCA) on the y-axis and z-axis of the raw gyroscope signal
+   to extract the velocity. PCA is applied to the predicted gait timestamps only to maximize the similarity
+   to the velocity in the arm swing direction.
+
+   :param df: The dataframe containing the gyroscope data
+   :type df: pd.DataFrame
+   :param y_gyro_colname: The column name of the y-axis of the gyroscope
+   :type y_gyro_colname: str
+   :param z_gyro_colname: The column name of the z-axis of the gyroscope
+   :type z_gyro_colname: str
+   :param pred_gait_colname: The column name of the predicted gait boolean
+   :type pred_gait_colname: str
+
+   :returns: The first principal component corresponding to the angular velocity in the arm swing direction
+   :rtype: pd.Series
+
+
+.. py:function:: compute_angle(velocity_col: pandas.Series, time_col: pandas.Series) -> pandas.Series
+
+   Apply cumulative trapezoidal integration to extract the angle from the velocity.
+
+   :param velocity_col: The angular velocity (gyroscope) column to be integrated
+   :type velocity_col: pd.Series
+   :param time_col: The time column corresponding to the angular velocity
+   :type time_col: pd.Series
+
+   :returns: An estimation of the angle extracted from the angular velocity
+   :rtype: pd.Series
+
+
+.. py:function:: remove_moving_average_angle(angle_col: pandas.Series, sampling_frequency: int = 100) -> pandas.Series
+
+   Remove the moving average from the angle to account for potential drift in the signal.
+
+   :param angle_col: The angle column to be processed, obtained using compute_angle
+   :type angle_col: pd.Series
+   :param sampling_frequency: The sampling frequency of the data (default: 100)
+   :type sampling_frequency: int
+
+   :returns: The estimated angle without potential drift
+   :rtype: pd.Series
+
+
+.. py:function:: extract_angle_extremes(df: pandas.DataFrame, angle_colname: str, dominant_frequency_colname: str, sampling_frequency: int = 100) -> pandas.Series
+
+   Extract the peaks of the angle (minima and maxima) from the smoothed angle signal that adhere to a set of specific requirements.
+
+   :param df: The dataframe containing the angle signal
+   :type df: pd.DataFrame
+   :param angle_colname: The name of the column containing the smoothed angle signal
+   :type angle_colname: str
+   :param dominant_frequency_colname: The name of the column containing the dominant frequency
+   :type dominant_frequency_colname: str
+   :param sampling_frequency: The sampling frequency of the data (default: 100)
+   :type sampling_frequency: int
+
+   :returns: The extracted angle extremes (peaks)
+   :rtype: pd.Series
+
+
+.. py:function:: extract_range_of_motion(angle_extrema_values_col: pandas.Series) -> pandas.Series
+
+   Extract the range of motion from the angle extrema values.
+
+   :param angle_extrema_values_col: The column containing the angle extrema values
+   :type angle_extrema_values_col: pd.Series
+
+   :returns: The range of motion
+   :rtype: pd.Series
+
+
+.. py:function:: extract_peak_angular_velocity(df: pandas.DataFrame, velocity_colname: str, angle_minima_colname: str, angle_maxima_colname: str) -> pandas.DataFrame
+
+   Extract the forward and backward peak angular velocity from the angular velocity.
+
+   :param df: The dataframe containing the angular velocity
+   :type df: pd.DataFrame
+   :param velocity_colname: The column name of the angular velocity
+   :type velocity_colname: str
+   :param angle_minima_colname: The column name of the column containing the angle minima
+   :type angle_minima_colname: str
+   :param angle_maxima_colname: The column name of the column containing the angle maxima
+   :type angle_maxima_colname: str
+
+   :returns: The dataframe with the forward and backward peak angular velocity
+   :rtype: pd.DataFrame
+
+

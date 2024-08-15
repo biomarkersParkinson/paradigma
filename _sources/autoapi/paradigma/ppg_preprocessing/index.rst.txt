@@ -1,0 +1,187 @@
+paradigma.ppg_preprocessing
+===========================
+
+.. py:module:: paradigma.ppg_preprocessing
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   paradigma.ppg_preprocessing.DataUnits
+   paradigma.ppg_preprocessing.TimeUnit
+   paradigma.ppg_preprocessing.DataColumns
+   paradigma.ppg_preprocessing.PPGPreprocessingConfig
+   paradigma.ppg_preprocessing.IMUPreprocessingConfig
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   paradigma.ppg_preprocessing.parse_iso8601_to_datetime
+   paradigma.ppg_preprocessing.write_data
+   paradigma.ppg_preprocessing.scan_and_sync_segments
+   paradigma.ppg_preprocessing.preprocess_ppg_data
+   paradigma.ppg_preprocessing.extract_meta_from_tsdf_files
+   paradigma.ppg_preprocessing.synchronization
+   paradigma.ppg_preprocessing.extract_overlapping_segments
+
+
+Module Contents
+---------------
+
+.. py:class:: DataUnits
+
+   Enum for the data channel unit types in tsdf.
+
+
+   .. py:attribute:: ACCELERATION
+      :value: 'm/s^2'
+
+
+      The acceleration is in m/s^2.
+
+
+   .. py:attribute:: ROTATION
+      :value: 'deg/s'
+
+
+      The rotation is in degrees per second.
+
+
+.. py:class:: TimeUnit
+
+   Enum for the `time` channel unit types in tsdf.
+
+
+   .. py:attribute:: relative_ms
+      :value: 'relative_ms'
+
+
+      The time is relative to the start time in milliseconds.
+
+
+   .. py:attribute:: absolute_ms
+      :value: 'absolute_ms'
+
+
+      The time is absolute in milliseconds.
+
+
+   .. py:attribute:: difference_ms
+      :value: 'difference_ms'
+
+
+      The time is the difference between consecutive samples in milliseconds.
+
+
+.. py:class:: DataColumns
+
+   Enum for the data channels in tsdf.
+
+
+   .. py:attribute:: ACCELEROMETER_X
+      :value: 'accelerometer_x'
+
+
+
+   .. py:attribute:: ACCELEROMETER_Y
+      :value: 'accelerometer_y'
+
+
+
+   .. py:attribute:: ACCELEROMETER_Z
+      :value: 'accelerometer_z'
+
+
+
+   .. py:attribute:: GYROSCOPE_X
+      :value: 'gyroscope_x'
+
+
+
+   .. py:attribute:: GYROSCOPE_Y
+      :value: 'gyroscope_y'
+
+
+
+   .. py:attribute:: GYROSCOPE_Z
+      :value: 'gyroscope_z'
+
+
+
+   .. py:attribute:: PPG
+      :value: 'green'
+
+
+
+   .. py:attribute:: TIME
+      :value: 'time'
+
+
+
+.. py:class:: PPGPreprocessingConfig
+
+   Bases: :py:obj:`BasePreprocessingConfig`
+
+
+.. py:class:: IMUPreprocessingConfig
+
+   Bases: :py:obj:`BasePreprocessingConfig`
+
+
+.. py:function:: parse_iso8601_to_datetime(date_str)
+
+.. py:function:: write_data(metadata_time: tsdf.TSDFMetadata, metadata_samples: tsdf.TSDFMetadata, output_path: str, output_filename: str, df: pandas.DataFrame)
+
+.. py:function:: scan_and_sync_segments(input_path_ppg, input_path_imu)
+
+.. py:function:: preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TSDFMetadata, output_path: str, ppg_config: paradigma.preprocessing_config.PPGPreprocessingConfig, imu_config: paradigma.preprocessing_config.IMUPreprocessingConfig)
+
+.. py:function:: extract_meta_from_tsdf_files(tsdf_data_dir: str) -> List[dict]
+
+   For each given TSDF directory, transcribe TSDF metadata contents to a list of dictionaries.
+
+   :param tsdf_data_dir: Path to the directory containing TSDF metadata files.
+   :type tsdf_data_dir: str
+
+   :returns: List of dictionaries with metadata from each JSON file in the directory.
+   :rtype: List[Dict]
+
+   .. rubric:: Examples
+
+   >>> tsdf_scan_meta('/path/to/tsdf_data')
+   [{'start_iso8601': '2021-06-27T16:52:20Z', 'end_iso8601': '2021-06-27T17:52:20Z'}, ...]
+
+
+.. py:function:: synchronization(ppg_meta, imu_meta)
+
+   Synchronize PPG and IMU data segments based on their start and end times.
+
+   :param ppg_meta: List of dictionaries containing 'start_iso8601' and 'end_iso8601' keys for PPG data.
+   :type ppg_meta: list of dict
+   :param imu_meta: List of dictionaries containing 'start_iso8601' and 'end_iso8601' keys for IMU data.
+   :type imu_meta: list of dict
+
+   :returns: * **segment_ppg_total** (*list of int*) -- List of synchronized segment indices for PPG data.
+             * **segment_imu_total** (*list of int*) -- List of synchronized segment indices for IMU data.
+
+
+.. py:function:: extract_overlapping_segments(df_ppg, df_imu, time_column_ppg='time', time_column_imu='time')
+
+   Extract DataFrames with overlapping data segments between IMU and PPG datasets based on their timestamps.
+
+   Parameters:
+   df_ppg (pd.DataFrame): DataFrame containing PPG data with a time column in UNIX milliseconds.
+   df_imu (pd.DataFrame): DataFrame containing IMU data with a time column in UNIX milliseconds.
+   time_column_ppg (str): Column name of the timestamp in the PPG DataFrame.
+   time_column_imu (str): Column name of the timestamp in the IMU DataFrame.
+
+   Returns:
+   tuple: Tuple containing two DataFrames (df_ppg_overlapping, df_imu_overlapping) that contain only the data
+   within the overlapping time segments.
+
+

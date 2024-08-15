@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TSDF fields in Paradigma schemas &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Channels and units in Paradigma schemas" href="tsdf_paradigma_channels_and_units.html" />
+    <link rel="prev" title="paradigma" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TSDF schema</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">TSDF fields in Paradigma schemas</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mandatory-fields">Mandatory fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tremor-pipeline-specific-fields"><strong>Tremor</strong> pipeline specific fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ppg-pipeline-specific-fields"><strong>PPG</strong> pipeline specific fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gait-pipeline-specific-fields"><strong>Gait</strong> pipeline specific fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#additional-generic-fields">Additional generic fields</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tsdf_paradigma_channels_and_units.html">Channels and units in Paradigma schemas</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Example notebooks</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/gait/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/ppg/ppg_analysis.html">PPG analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conduct.html">Code of Conduct</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">TSDF fields in Paradigma schemas</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tsdf_paradigma_schemas.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tsdf-fields-in-paradigma-schemas">
+<h1>TSDF fields in Paradigma schemas<a class="headerlink" href="#tsdf-fields-in-paradigma-schemas" title="Link to this heading"></a></h1>
+<section id="mandatory-fields">
+<h2>Mandatory fields<a class="headerlink" href="#mandatory-fields" title="Link to this heading"></a></h2>
+<p>This is a preliminary list of mandatory fields (to be shaped into schemas) that are used in the <code class="docutils literal notranslate"><span class="pre">paradigma</span></code> project. The list will be updated based on the upcoming discussions.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">window_size_sec</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>Size of the window (in seconds) used in the analysis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">step_size_sec</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>Duration in seconds for each segment in the written data.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">freq_sampling</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>Sampling frequency (in Hz) of the input data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">channels</span></code></p></td>
+<td><p><a class="reference internal" href="tsdf_paradigma_channels_and_units.html"><span class="std std-doc">channel_type</span></a><code class="docutils literal notranslate"><span class="pre">[]</span></code></p></td>
+<td><p>Description of the content of the data written. <code class="docutils literal notranslate"><span class="pre">channel_type</span></code> is specific to the <code class="docutils literal notranslate"><span class="pre">Digital</span> <span class="pre">biomarkers</span> <span class="pre">for</span> <span class="pre">PD</span></code> extension.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">units</span></code></p></td>
+<td><p><a class="reference internal" href="tsdf_paradigma_channels_and_units.html"><span class="std std-doc">unit_type</span></a><code class="docutils literal notranslate"><span class="pre">[]</span></code></p></td>
+<td><p>Description of the format of the data written. <code class="docutils literal notranslate"><span class="pre">unit_type</span></code> is specific to the <code class="docutils literal notranslate"><span class="pre">Digital</span> <span class="pre">biomarkers</span> <span class="pre">for</span> <span class="pre">PD</span></code> extension.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="tremor-pipeline-specific-fields">
+<h2><strong>Tremor</strong> pipeline specific fields<a class="headerlink" href="#tremor-pipeline-specific-fields" title="Link to this heading"></a></h2>
+<p>Non-mandatory fields used in the tremor pipeline.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mfcc_num_filters</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>Number of filters used for estimating the mel-frequency cepstral coefficients.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mfcc_num_mel_coeff</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>Number of coefficients used for estimating the mel-frequency cepstral coefficients.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mfcc_max_freq_filter</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>Maximum frequency (in Hz) used for filtering in mel-frequency cepstral coefficients.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mfcc_window_size</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>Size of the sub-window in seconds used to estimate the spectrogram used in the evaluation of the mel-frequency cepstral coefficients.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">excluded_hours</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int[]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> List of the excluded hours from the analysis (vector scaling?)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sum_features_gyro_scale</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float[]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Scaling factors for the sum of tremor-related features (from gyro)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sum_squared_features_gyro_scale</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float[]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Scaling factors for the sum of squared tremor-related features (from gyro)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_features_gyro_scale</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Scaling factor for the number of gyro features</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="ppg-pipeline-specific-fields">
+<h2><strong>PPG</strong> pipeline specific fields<a class="headerlink" href="#ppg-pipeline-specific-fields" title="Link to this heading"></a></h2>
+<p>Non-mandatory fields used in the PPG pipeline.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">segment_number</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>Order number of the analyzed data segment.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">freq_sampling_original</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>Sampling frequency (in Hz) of the original data (before adjustments for the analysis).</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="gait-pipeline-specific-fields">
+<h2><strong>Gait</strong> pipeline specific fields<a class="headerlink" href="#gait-pipeline-specific-fields" title="Link to this heading"></a></h2>
+<p>Non-mandatory fields used in the gait pipeline. We currently do not have information about the fields used in the gait pipeline, but we will update this section as soon as we have more information.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">side_watch</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">string</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> Possible values: [‘left’, ‘right’].</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="additional-generic-fields">
+<h2>Additional generic fields<a class="headerlink" href="#additional-generic-fields" title="Link to this heading"></a></h2>
+<p>These fields are non-mandatory, and provide standardised vocabulary for describing the data.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">week_number</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>Denotes the specific study week number used for tracking or comparing data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">columns</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>Number of columns in the data matrix.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">interpolated</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p></td>
+<td><p>Indicates whether interpolation was performed on the data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">high_pass_filter_applied</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p></td>
+<td><p>Indicates whether a high-pass filter was applied to remove low-frequency noise.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">high_pass_filter_cutoff</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>Cutoff frequency (in Hz) for the high-pass filter, in case it was applied.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">z_score_normalised</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p></td>
+<td><p>Indicates whether z-score normalization was applied to the data.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">start_datetime_unix_ms</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">string</span></code></p></td>
+<td><p>UNIX timestamp for the start of the recording (milliseconds). Equivalent to <code class="docutils literal notranslate"><span class="pre">start_iso8601</span></code> in UNIX format.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">end_datetime_unix_ms</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">string</span></code></p></td>
+<td><p>UNIX timestamp for the end of the recording (milliseconds). Equivalent to <code class="docutils literal notranslate"><span class="pre">end_iso8601</span></code> in UNIX format.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="paradigma" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tsdf_paradigma_channels_and_units.html" class="btn btn-neutral float-right" title="Channels and units in Paradigma schemas" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Peter Kok, Vedran Kasalica, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

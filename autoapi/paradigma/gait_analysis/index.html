@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>paradigma.gait_analysis &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="paradigma.gait_analysis_config" href="../gait_analysis_config/index.html" />
+    <link rel="prev" title="paradigma.feature_extraction" href="../feature_extraction/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TSDF schema</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tsdf_paradigma_schemas.html">TSDF fields in Paradigma schemas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tsdf_paradigma_channels_and_units.html">Channels and units in Paradigma schemas</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Example notebooks</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/gait/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/ppg/ppg_analysis.html">PPG analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">paradigma</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../constants/index.html">paradigma.constants</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../feature_extraction/index.html">paradigma.feature_extraction</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">paradigma.gait_analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../gait_analysis_config/index.html">paradigma.gait_analysis_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../heart_rate_analysis/index.html">paradigma.heart_rate_analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../heart_rate_analysis_config/index.html">paradigma.heart_rate_analysis_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../heart_rate_util/index.html">paradigma.heart_rate_util</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../imu_preprocessing/index.html">paradigma.imu_preprocessing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../ppg_preprocessing/index.html">paradigma.ppg_preprocessing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../preprocessing_config/index.html">paradigma.preprocessing_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../quantification/index.html">paradigma.quantification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util/index.html">paradigma.util</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../windowing/index.html">paradigma.windowing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../conduct.html">Code of Conduct</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">paradigma</a></li>
+      <li class="breadcrumb-item active">paradigma.gait_analysis</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/paradigma/gait_analysis/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-paradigma.gait_analysis">
+<span id="paradigma-gait-analysis"></span><h1>paradigma.gait_analysis<a class="headerlink" href="#module-paradigma.gait_analysis" title="Link to this heading"></a></h1>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis.DataColumns" title="paradigma.gait_analysis.DataColumns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataColumns</span></code></a></p></td>
+<td><p>Enum for the data channels in tsdf.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.gait_analysis.GaitFeatureExtractionConfig" title="paradigma.gait_analysis.GaitFeatureExtractionConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GaitFeatureExtractionConfig</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis.GaitDetectionConfig" title="paradigma.gait_analysis.GaitDetectionConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GaitDetectionConfig</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.gait_analysis.ArmSwingFeatureExtractionConfig" title="paradigma.gait_analysis.ArmSwingFeatureExtractionConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ArmSwingFeatureExtractionConfig</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis.ArmSwingDetectionConfig" title="paradigma.gait_analysis.ArmSwingDetectionConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ArmSwingDetectionConfig</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.gait_analysis.ArmSwingQuantificationConfig" title="paradigma.gait_analysis.ArmSwingQuantificationConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ArmSwingQuantificationConfig</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis.generate_statistics" title="paradigma.gait_analysis.generate_statistics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_statistics</span></code></a>(→ list)</p></td>
+<td><p>Generate statistics for a single sensor and axis. The function is used with the apply function in pandas.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.gait_analysis.generate_std_norm" title="paradigma.gait_analysis.generate_std_norm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_std_norm</span></code></a>(→ pandas.Series)</p></td>
+<td><p>Generate the standard deviation of the norm of the accelerometer axes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis.compute_fft" title="paradigma.gait_analysis.compute_fft"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_fft</span></code></a>(→ tuple)</p></td>
+<td><p>Compute the Fast Fourier Transform (FFT) of a signal.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.gait_analysis.signal_to_ffts" title="paradigma.gait_analysis.signal_to_ffts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">signal_to_ffts</span></code></a>(→ tuple)</p></td>
+<td><p>Compute the Fast Fourier Transform (FFT) of a signal per window (can probably be combined with compute_fft and simplified).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis.compute_power_in_bandwidth" title="paradigma.gait_analysis.compute_power_in_bandwidth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_power_in_bandwidth</span></code></a>(→ float)</p></td>
+<td><p>Note: sensor_col is a single cell (which corresponds to a single window) of sensor_col, as it is used with apply function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.gait_analysis.compute_perc_power" title="paradigma.gait_analysis.compute_perc_power"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_perc_power</span></code></a>(→ float)</p></td>
+<td><p>Note: sensor_col is a single cell (which corresponds to a single window) of sensor_col, as it is used with apply function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis.get_dominant_frequency" title="paradigma.gait_analysis.get_dominant_frequency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dominant_frequency</span></code></a>(→ float)</p></td>
+<td><p>Note: signal_ffts and signal_freqs are single cells (which corresponds to a single window) of signal_ffts and signal_freqs, as it is used with apply function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.gait_analysis.compute_power" title="paradigma.gait_analysis.compute_power"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_power</span></code></a>(→ pandas.Series)</p></td>
+<td><p>Compute the power of the FFT values.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis.generate_cepstral_coefficients" title="paradigma.gait_analysis.generate_cepstral_coefficients"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_cepstral_coefficients</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Generate cepstral coefficients from the total power of the signal.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.gait_analysis.pca_transform_gyroscope" title="paradigma.gait_analysis.pca_transform_gyroscope"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pca_transform_gyroscope</span></code></a>(→ pandas.Series)</p></td>
+<td><p>Apply principal component analysis (PCA) on the y-axis and z-axis of the raw gyroscope signal</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis.compute_angle" title="paradigma.gait_analysis.compute_angle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_angle</span></code></a>(→ pandas.Series)</p></td>
+<td><p>Apply cumulative trapezoidal integration to extract the angle from the velocity.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.gait_analysis.remove_moving_average_angle" title="paradigma.gait_analysis.remove_moving_average_angle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_moving_average_angle</span></code></a>(→ pandas.Series)</p></td>
+<td><p>Remove the moving average from the angle to account for potential drift in the signal.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis.extract_angle_extremes" title="paradigma.gait_analysis.extract_angle_extremes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_angle_extremes</span></code></a>(→ pandas.Series)</p></td>
+<td><p>Extract the peaks of the angle (minima and maxima) from the smoothed angle signal that adhere to a set of specific requirements.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.gait_analysis.extract_range_of_motion" title="paradigma.gait_analysis.extract_range_of_motion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_range_of_motion</span></code></a>(→ pandas.Series)</p></td>
+<td><p>Extract the range of motion from the angle extrema values.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis.extract_peak_angular_velocity" title="paradigma.gait_analysis.extract_peak_angular_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_peak_angular_velocity</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Extract the forward and backward peak angular velocity from the angular velocity.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.gait_analysis.aggregate_segments" title="paradigma.gait_analysis.aggregate_segments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_segments</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Extract arm swing aggregations from segments of a dataframe</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis.create_window" title="paradigma.gait_analysis.create_window"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_window</span></code></a>(→ list)</p></td>
+<td><p>Transforms (a subset of) a dataframe into a single row</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.gait_analysis.tabulate_windows" title="paradigma.gait_analysis.tabulate_windows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tabulate_windows</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Compiles multiple windows into a single dataframe</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis.create_segments" title="paradigma.gait_analysis.create_segments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_segments</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Create segments based on the time column of the dataframe. Segments are defined as continuous time periods.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.gait_analysis.discard_segments" title="paradigma.gait_analysis.discard_segments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">discard_segments</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Discard segments that are shorter than a specified length.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis.get_end_iso8601" title="paradigma.gait_analysis.get_end_iso8601"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_end_iso8601</span></code></a>(start_iso8601, window_length_seconds)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.gait_analysis.write_data" title="paradigma.gait_analysis.write_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_data</span></code></a>(metadata_time, metadata_samples, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis.read_metadata" title="paradigma.gait_analysis.read_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_metadata</span></code></a>(→ Tuple[tsdf.TSDFMetadata, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.gait_analysis.extract_temporal_domain_features" title="paradigma.gait_analysis.extract_temporal_domain_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_temporal_domain_features</span></code></a>(config, df_windowed)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis.extract_spectral_domain_features" title="paradigma.gait_analysis.extract_spectral_domain_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_spectral_domain_features</span></code></a>(config, df_windowed, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.gait_analysis.extract_gait_features" title="paradigma.gait_analysis.extract_gait_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_gait_features</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis.detect_gait" title="paradigma.gait_analysis.detect_gait"><code class="xref py py-obj docutils literal notranslate"><span class="pre">detect_gait</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.gait_analysis.extract_arm_swing_features" title="paradigma.gait_analysis.extract_arm_swing_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_arm_swing_features</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis.detect_arm_swing" title="paradigma.gait_analysis.detect_arm_swing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">detect_arm_swing</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.gait_analysis.quantify_arm_swing" title="paradigma.gait_analysis.quantify_arm_swing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quantify_arm_swing</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis.aggregate_weekly_arm_swing" title="paradigma.gait_analysis.aggregate_weekly_arm_swing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_weekly_arm_swing</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.DataColumns">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">DataColumns</span></span><a class="reference internal" href="../../../_modules/paradigma/constants.html#DataColumns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.DataColumns" title="Link to this definition"></a></dt>
+<dd><p>Enum for the data channels in tsdf.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.DataColumns.ACCELEROMETER_X">
+<span class="sig-name descname"><span class="pre">ACCELEROMETER_X</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'accelerometer_x'</span></em><a class="headerlink" href="#paradigma.gait_analysis.DataColumns.ACCELEROMETER_X" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.DataColumns.ACCELEROMETER_Y">
+<span class="sig-name descname"><span class="pre">ACCELEROMETER_Y</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'accelerometer_y'</span></em><a class="headerlink" href="#paradigma.gait_analysis.DataColumns.ACCELEROMETER_Y" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.DataColumns.ACCELEROMETER_Z">
+<span class="sig-name descname"><span class="pre">ACCELEROMETER_Z</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'accelerometer_z'</span></em><a class="headerlink" href="#paradigma.gait_analysis.DataColumns.ACCELEROMETER_Z" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.DataColumns.GYROSCOPE_X">
+<span class="sig-name descname"><span class="pre">GYROSCOPE_X</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'gyroscope_x'</span></em><a class="headerlink" href="#paradigma.gait_analysis.DataColumns.GYROSCOPE_X" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.DataColumns.GYROSCOPE_Y">
+<span class="sig-name descname"><span class="pre">GYROSCOPE_Y</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'gyroscope_y'</span></em><a class="headerlink" href="#paradigma.gait_analysis.DataColumns.GYROSCOPE_Y" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.DataColumns.GYROSCOPE_Z">
+<span class="sig-name descname"><span class="pre">GYROSCOPE_Z</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'gyroscope_z'</span></em><a class="headerlink" href="#paradigma.gait_analysis.DataColumns.GYROSCOPE_Z" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.DataColumns.PPG">
+<span class="sig-name descname"><span class="pre">PPG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'green'</span></em><a class="headerlink" href="#paradigma.gait_analysis.DataColumns.PPG" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.DataColumns.TIME">
+<span class="sig-name descname"><span class="pre">TIME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'time'</span></em><a class="headerlink" href="#paradigma.gait_analysis.DataColumns.TIME" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.GaitFeatureExtractionConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">GaitFeatureExtractionConfig</span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#GaitFeatureExtractionConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.GaitFeatureExtractionConfig" title="Link to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.GaitFeatureExtractionConfig.set_sensor">
+<span class="sig-name descname"><span class="pre">set_sensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#GaitFeatureExtractionConfig.set_sensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.GaitFeatureExtractionConfig.set_sensor" title="Link to this definition"></a></dt>
+<dd><p>Sets the sensor and derived filenames</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.GaitFeatureExtractionConfig.set_sampling_frequency">
+<span class="sig-name descname"><span class="pre">set_sampling_frequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#GaitFeatureExtractionConfig.set_sampling_frequency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.GaitFeatureExtractionConfig.set_sampling_frequency" title="Link to this definition"></a></dt>
+<dd><p>Sets the sampling frequency and derived variables</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.GaitDetectionConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">GaitDetectionConfig</span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#GaitDetectionConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.GaitDetectionConfig" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.ArmSwingFeatureExtractionConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">ArmSwingFeatureExtractionConfig</span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#ArmSwingFeatureExtractionConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.ArmSwingFeatureExtractionConfig" title="Link to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.ArmSwingFeatureExtractionConfig.initialize_window_length_fields">
+<span class="sig-name descname"><span class="pre">initialize_window_length_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">window_length_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#ArmSwingFeatureExtractionConfig.initialize_window_length_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.ArmSwingFeatureExtractionConfig.initialize_window_length_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.ArmSwingFeatureExtractionConfig.initialize_sampling_frequency_fields">
+<span class="sig-name descname"><span class="pre">initialize_sampling_frequency_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#ArmSwingFeatureExtractionConfig.initialize_sampling_frequency_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.ArmSwingFeatureExtractionConfig.initialize_sampling_frequency_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.ArmSwingFeatureExtractionConfig.initialize_column_names">
+<span class="sig-name descname"><span class="pre">initialize_column_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_colname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_gait_colname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pred_gait'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_smooth_colname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'angle_smooth'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_colname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'angle'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocity_colname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'velocity'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_nr_colname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'segment_nr'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#ArmSwingFeatureExtractionConfig.initialize_column_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.ArmSwingFeatureExtractionConfig.initialize_column_names" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.ArmSwingFeatureExtractionConfig.set_sensor">
+<span class="sig-name descname"><span class="pre">set_sensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#ArmSwingFeatureExtractionConfig.set_sensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.ArmSwingFeatureExtractionConfig.set_sensor" title="Link to this definition"></a></dt>
+<dd><p>Sets the sensor and derived filenames</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.ArmSwingDetectionConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">ArmSwingDetectionConfig</span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#ArmSwingDetectionConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.ArmSwingDetectionConfig" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.ArmSwingQuantificationConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">ArmSwingQuantificationConfig</span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#ArmSwingQuantificationConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.ArmSwingQuantificationConfig" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.generate_statistics">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">generate_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">statistic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#generate_statistics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.generate_statistics" title="Link to this definition"></a></dt>
+<dd><p>Generate statistics for a single sensor and axis. The function is used with the apply function in pandas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sensor_col</strong> (<em>pd.Series</em>) – The sensor column to be aggregated (e.g. x-axis of accelerometer)</p></li>
+<li><p><strong>statistic</strong> (<em>str</em>) – The statistic to be computed [mean, std, max, min]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The aggregated statistics</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.generate_std_norm">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">generate_std_norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#generate_std_norm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.generate_std_norm" title="Link to this definition"></a></dt>
+<dd><p>Generate the standard deviation of the norm of the accelerometer axes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The dataframe containing the accelerometer axes</p></li>
+<li><p><strong>cols</strong> (<em>list</em>) – The names of the columns containing the accelerometer axes</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The standard deviation of the norm of the accelerometer axes</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.Series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.compute_fft">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">compute_fft</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'hann'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_fft"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.compute_fft" title="Link to this definition"></a></dt>
+<dd><p>Compute the Fast Fourier Transform (FFT) of a signal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>values</strong> (<em>list</em>) – The values of the signal (e.g., accelerometer data) of a single window.</p></li>
+<li><p><strong>window_type</strong> (<em>str</em>) – The type of window to be used for the FFT (default: ‘hann’)</p></li>
+<li><p><strong>sampling_frequency</strong> (<em>int</em>) – The sampling frequency of the signal (default: 100)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The FFT values and the corresponding frequencies</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.signal_to_ffts">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">signal_to_ffts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'hann'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#signal_to_ffts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.signal_to_ffts" title="Link to this definition"></a></dt>
+<dd><p>Compute the Fast Fourier Transform (FFT) of a signal per window (can probably be combined with compute_fft and simplified).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sensor_col</strong> (<em>pd.Series</em>) – The sensor column to be transformed (e.g. x-axis of accelerometer)</p></li>
+<li><p><strong>window_type</strong> (<em>str</em>) – The type of window to be used for the FFT (default: ‘hann’)</p></li>
+<li><p><strong>sampling_frequency</strong> (<em>int</em>) – The sampling frequency of the signal (default: 100)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Lists of FFT values and corresponding frequencies which can be concatenated as column to the dataframe</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.compute_power_in_bandwidth">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">compute_power_in_bandwidth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'hann'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_power_in_bandwidth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.compute_power_in_bandwidth" title="Link to this definition"></a></dt>
+<dd><p>Note: sensor_col is a single cell (which corresponds to a single window) of sensor_col, as it is used with apply function.
+Probably we want a smarter way of doing this.</p>
+<p>Computes the power in a specific frequency band for a specified sensor and axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sensor_col</strong> (<em>list</em>) – The sensor column to be transformed (e.g. x-axis of accelerometer). This corresponds to a single window, which is a single row of the dataframe,
+and contains values of individual timestamps composing the window.</p></li>
+<li><p><strong>fmin</strong> (<em>int</em>) – The lower bound of the frequency band</p></li>
+<li><p><strong>fmax</strong> (<em>int</em>) – The upper bound of the frequency band</p></li>
+<li><p><strong>sampling_frequency</strong> (<em>int</em>) – The sampling frequency of the signal (default: 100)</p></li>
+<li><p><strong>window_type</strong> (<em>str</em>) – The type of window to be used for the FFT (default: ‘hann’)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The power in the specified frequency band</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.compute_perc_power">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">compute_perc_power</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin_band</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax_band</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin_total</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax_total</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'hann'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_perc_power"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.compute_perc_power" title="Link to this definition"></a></dt>
+<dd><p>Note: sensor_col is a single cell (which corresponds to a single window) of sensor_col, as it is used with apply function.</p>
+<p>Computes the percentage of power in a specific frequency band for a specified sensor and axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sensor_col</strong> (<em>list</em>) – The sensor column to be transformed (e.g. x-axis of accelerometer). This corresponds to a single window, which is a single row of the dataframe</p></li>
+<li><p><strong>fmin_band</strong> (<em>int</em>) – The lower bound of the frequency band</p></li>
+<li><p><strong>fmax_band</strong> (<em>int</em>) – The upper bound of the frequency band</p></li>
+<li><p><strong>fmin_total</strong> (<em>int</em>) – The lower bound of the frequency spectrum (default: 0)</p></li>
+<li><p><strong>fmax_total</strong> (<em>int</em>) – The upper bound of the frequency spectrum (default: 100)</p></li>
+<li><p><strong>sampling_frequency</strong> (<em>int</em>) – The sampling frequency of the signal (default: 100)</p></li>
+<li><p><strong>window_type</strong> (<em>str</em>) – The type of window to be used for the FFT (default: ‘hann’)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The percentage of power in the specified frequency band</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.get_dominant_frequency">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">get_dominant_frequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_ffts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_freqs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#get_dominant_frequency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.get_dominant_frequency" title="Link to this definition"></a></dt>
+<dd><p>Note: signal_ffts and signal_freqs are single cells (which corresponds to a single window) of signal_ffts and signal_freqs, as it is used with apply function.</p>
+<p>Computes the dominant frequency in a specific frequency band.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>signal_ffts</strong> (<em>list</em>) – The FFT values of the signal of a single window</p></li>
+<li><p><strong>signal_freqs</strong> (<em>list</em>) – The corresponding frequencies of the FFT values</p></li>
+<li><p><strong>fmin</strong> (<em>int</em>) – The lower bound of the frequency band</p></li>
+<li><p><strong>fmax</strong> (<em>int</em>) – The upper bound of the frequency band</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The dominant frequency in the specified frequency band</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.compute_power">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">compute_power</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fft_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_power"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.compute_power" title="Link to this definition"></a></dt>
+<dd><p>Compute the power of the FFT values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The dataframe containing the FFT values</p></li>
+<li><p><strong>fft_cols</strong> (<em>list</em>) – The names of the columns containing the FFT values</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The power of the FFT values</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.Series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.generate_cepstral_coefficients">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">generate_cepstral_coefficients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">total_power_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_length_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_filters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_coefficients</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#generate_cepstral_coefficients"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.generate_cepstral_coefficients" title="Link to this definition"></a></dt>
+<dd><p>Generate cepstral coefficients from the total power of the signal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>total_power_col</strong> (<em>pd.Series</em>) – The total power of the signal, extracted using compute_power</p></li>
+<li><p><strong>window_length_s</strong> (<em>int</em>) – The number of seconds a window constitutes</p></li>
+<li><p><strong>sampling_frequency</strong> (<em>int</em>) – The sampling frequency of the data (default: 100)</p></li>
+<li><p><strong>low_frequency</strong> (<em>int</em>) – The lower bound of the frequency band (default: 0)</p></li>
+<li><p><strong>high_frequency</strong> (<em>int</em>) – The upper bound of the frequency band (default: 25)</p></li>
+<li><p><strong>n_filters</strong> (<em>int</em>) – The number of DCT filters (default: 20)</p></li>
+<li><p><strong>n_coefficients</strong> (<em>int</em>) – The number of coefficients to extract (default: 12)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dataframe with a single column corresponding to a single cepstral coefficient</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.pca_transform_gyroscope">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">pca_transform_gyroscope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_gyro_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_gyro_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_gait_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#pca_transform_gyroscope"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.pca_transform_gyroscope" title="Link to this definition"></a></dt>
+<dd><p>Apply principal component analysis (PCA) on the y-axis and z-axis of the raw gyroscope signal
+to extract the velocity. PCA is applied to the predicted gait timestamps only to maximize the similarity
+to the velocity in the arm swing direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The dataframe containing the gyroscope data</p></li>
+<li><p><strong>y_gyro_colname</strong> (<em>str</em>) – The column name of the y-axis of the gyroscope</p></li>
+<li><p><strong>z_gyro_colname</strong> (<em>str</em>) – The column name of the z-axis of the gyroscope</p></li>
+<li><p><strong>pred_gait_colname</strong> (<em>str</em>) – The column name of the predicted gait boolean</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The first principal component corresponding to the angular velocity in the arm swing direction</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.Series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.compute_angle">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">compute_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">velocity_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_angle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.compute_angle" title="Link to this definition"></a></dt>
+<dd><p>Apply cumulative trapezoidal integration to extract the angle from the velocity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>velocity_col</strong> (<em>pd.Series</em>) – The angular velocity (gyroscope) column to be integrated</p></li>
+<li><p><strong>time_col</strong> (<em>pd.Series</em>) – The time column corresponding to the angular velocity</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An estimation of the angle extracted from the angular velocity</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.Series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.remove_moving_average_angle">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">remove_moving_average_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#remove_moving_average_angle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.remove_moving_average_angle" title="Link to this definition"></a></dt>
+<dd><p>Remove the moving average from the angle to account for potential drift in the signal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>angle_col</strong> (<em>pd.Series</em>) – The angle column to be processed, obtained using compute_angle</p></li>
+<li><p><strong>sampling_frequency</strong> (<em>int</em>) – The sampling frequency of the data (default: 100)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The estimated angle without potential drift</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.Series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.extract_angle_extremes">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">extract_angle_extremes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dominant_frequency_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#extract_angle_extremes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.extract_angle_extremes" title="Link to this definition"></a></dt>
+<dd><p>Extract the peaks of the angle (minima and maxima) from the smoothed angle signal that adhere to a set of specific requirements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The dataframe containing the angle signal</p></li>
+<li><p><strong>angle_colname</strong> (<em>str</em>) – The name of the column containing the smoothed angle signal</p></li>
+<li><p><strong>dominant_frequency_colname</strong> (<em>str</em>) – The name of the column containing the dominant frequency</p></li>
+<li><p><strong>sampling_frequency</strong> (<em>int</em>) – The sampling frequency of the data (default: 100)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The extracted angle extremes (peaks)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.Series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.extract_range_of_motion">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">extract_range_of_motion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle_extrema_values_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#extract_range_of_motion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.extract_range_of_motion" title="Link to this definition"></a></dt>
+<dd><p>Extract the range of motion from the angle extrema values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>angle_extrema_values_col</strong> (<em>pd.Series</em>) – The column containing the angle extrema values</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The range of motion</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.Series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.extract_peak_angular_velocity">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">extract_peak_angular_velocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocity_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_minima_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_maxima_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#extract_peak_angular_velocity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.extract_peak_angular_velocity" title="Link to this definition"></a></dt>
+<dd><p>Extract the forward and backward peak angular velocity from the angular velocity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The dataframe containing the angular velocity</p></li>
+<li><p><strong>velocity_colname</strong> (<em>str</em>) – The column name of the angular velocity</p></li>
+<li><p><strong>angle_minima_colname</strong> (<em>str</em>) – The column name of the column containing the angle minima</p></li>
+<li><p><strong>angle_maxima_colname</strong> (<em>str</em>) – The column name of the column containing the angle maxima</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The dataframe with the forward and backward peak angular velocity</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.aggregate_segments">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">aggregate_segments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_nr_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_step_size_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l_metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l_aggregates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l_quantiles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../_modules/paradigma/quantification.html#aggregate_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.aggregate_segments" title="Link to this definition"></a></dt>
+<dd><p>Extract arm swing aggregations from segments of a dataframe</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Dataframe containing windowed arm swing features</p></li>
+<li><p><strong>time_colname</strong> (<em>str</em>) – Name of the column containing the start time of the window</p></li>
+<li><p><strong>segment_nr_colname</strong> (<em>str</em>) – Name of the column containing the segment number</p></li>
+<li><p><strong>window_step_size_s</strong> (<em>float</em>) – Duration of each window in seconds</p></li>
+<li><p><strong>l_metrics</strong> (<em>list</em>) – List of metrics to aggregate</p></li>
+<li><p><strong>l_aggregates</strong> (<em>list</em>) – List of aggregation functions to apply to the metrics</p></li>
+<li><p><strong>l_quantiles</strong> (<em>list</em>) – List of quantiles to calculate</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dataframe of segments containing aggregated arm swing features for each segment</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.create_window">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">create_window</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_nr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_point_level_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_nr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../../../_modules/paradigma/windowing.html#create_window"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.create_window" title="Link to this definition"></a></dt>
+<dd><p>Transforms (a subset of) a dataframe into a single row</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The original dataframe to be windowed</p></li>
+<li><p><strong>time_column_name</strong> (<em>str</em>) – The name of the time column</p></li>
+<li><p><strong>window_nr</strong> (<em>int</em>) – The identification of the window</p></li>
+<li><p><strong>lower_index</strong> (<em>int</em>) – The dataframe index of the first sample to be windowed</p></li>
+<li><p><strong>upper_index</strong> (<em>int</em>) – The dataframe index of the final sample to be windowed</p></li>
+<li><p><strong>data_point_level_cols</strong> (<em>list</em>) – The columns in sensor_df that are to be kept as individual datapoints in a list instead of aggregates</p></li>
+<li><p><strong>segment_nr</strong> (<em>int</em>) – The identification of the segment</p></li>
+<li><p><strong>sampling_frequency</strong> (<em>int</em><em>, </em><em>optional</em>) – The sampling frequency (Hz) of the data (default: 100)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Rows corresponding to single windows</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.tabulate_windows">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">tabulate_windows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_point_level_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_length_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_step_size_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_nr_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_nr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../_modules/paradigma/windowing.html#tabulate_windows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.tabulate_windows" title="Link to this definition"></a></dt>
+<dd><p>Compiles multiple windows into a single dataframe</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The original dataframe to be windowed</p></li>
+<li><p><strong>time_column_name</strong> (<em>str</em>) – The name of the time column</p></li>
+<li><p><strong>data_point_level_cols</strong> (<em>list</em>) – The names of the columns that are to be kept as individual datapoints in a list instead of aggregates</p></li>
+<li><p><strong>window_length_s</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of seconds a window constitutes (default: 6)</p></li>
+<li><p><strong>window_step_size_s</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of seconds between the end of the previous and the start of the next window (default: 1)</p></li>
+<li><p><strong>sampling_frequency</strong> (<em>int</em><em>, </em><em>optional</em>) – The sampling frequency of the data (default: 100)</p></li>
+<li><p><strong>segment_nr_colname</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of the column that identifies the segment; set to None if not applicable (default: None)</p></li>
+<li><p><strong>segment_nr</strong> (<em>int</em><em>, </em><em>optional</em>) – The identification of the segment; set to None if not applicable (default: None)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dataframe with each row corresponding to an individual window</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.create_segments">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">create_segments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_nr_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minimum_gap_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../_modules/paradigma/windowing.html#create_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.create_segments" title="Link to this definition"></a></dt>
+<dd><p>Create segments based on the time column of the dataframe. Segments are defined as continuous time periods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The dataframe to be segmented</p></li>
+<li><p><strong>time_colname</strong> (<em>str</em>) – The name of the time column</p></li>
+<li><p><strong>minimum_gap_s</strong> (<em>int</em>) – The minimum gap in seconds to split up the time periods into segments</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The dataframe with additional columns related to segments</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.discard_segments">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">discard_segments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_nr_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minimum_segment_length_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../_modules/paradigma/windowing.html#discard_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.discard_segments" title="Link to this definition"></a></dt>
+<dd><p>Discard segments that are shorter than a specified length.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The dataframe containing information about the segments</p></li>
+<li><p><strong>time_colname</strong> (<em>str</em>) – The column name of the time column</p></li>
+<li><p><strong>segment_nr_colname</strong> (<em>str</em>) – The column name of the column containing the segment numbers</p></li>
+<li><p><strong>minimum_segment_length_s</strong> (<em>int</em>) – The minimum required length of a segment in seconds</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The dataframe with segments that are longer than the specified length</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.get_end_iso8601">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">get_end_iso8601</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_iso8601</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_length_seconds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/util.html#get_end_iso8601"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.get_end_iso8601" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.write_data">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">write_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metadata_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tsdf.TSDFMetadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tsdf.TSDFMetadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/util.html#write_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.write_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.read_metadata">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">read_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tsdf.TSDFMetadata</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tsdf.TSDFMetadata</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/paradigma/util.html#read_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.read_metadata" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.extract_temporal_domain_features">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">extract_temporal_domain_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_windowed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l_gravity_stats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['mean',</span> <span class="pre">'std']</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis.html#extract_temporal_domain_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.extract_temporal_domain_features" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.extract_spectral_domain_features">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">extract_spectral_domain_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_windowed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l_sensor_colnames</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis.html#extract_spectral_domain_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.extract_spectral_domain_features" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.extract_gait_features">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">extract_gait_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../gait_analysis_config/index.html#paradigma.gait_analysis_config.GaitFeatureExtractionConfig" title="paradigma.gait_analysis_config.GaitFeatureExtractionConfig"><span class="pre">paradigma.gait_analysis_config.GaitFeatureExtractionConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis.html#extract_gait_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.extract_gait_features" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.detect_gait">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">detect_gait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_classifier_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../gait_analysis_config/index.html#paradigma.gait_analysis_config.GaitDetectionConfig" title="paradigma.gait_analysis_config.GaitDetectionConfig"><span class="pre">paradigma.gait_analysis_config.GaitDetectionConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis.html#detect_gait"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.detect_gait" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.extract_arm_swing_features">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">extract_arm_swing_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../gait_analysis_config/index.html#paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig" title="paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig"><span class="pre">paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis.html#extract_arm_swing_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.extract_arm_swing_features" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.detect_arm_swing">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">detect_arm_swing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_classifier_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../gait_analysis_config/index.html#paradigma.gait_analysis_config.ArmSwingDetectionConfig" title="paradigma.gait_analysis_config.ArmSwingDetectionConfig"><span class="pre">paradigma.gait_analysis_config.ArmSwingDetectionConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis.html#detect_arm_swing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.detect_arm_swing" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.quantify_arm_swing">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">quantify_arm_swing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_feature_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_prediction_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../gait_analysis_config/index.html#paradigma.gait_analysis_config.ArmSwingQuantificationConfig" title="paradigma.gait_analysis_config.ArmSwingQuantificationConfig"><span class="pre">paradigma.gait_analysis_config.ArmSwingQuantificationConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis.html#quantify_arm_swing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.quantify_arm_swing" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.gait_analysis.aggregate_weekly_arm_swing">
+<span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis.</span></span><span class="sig-name descname"><span class="pre">aggregate_weekly_arm_swing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis.html#aggregate_weekly_arm_swing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis.aggregate_weekly_arm_swing" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../feature_extraction/index.html" class="btn btn-neutral float-left" title="paradigma.feature_extraction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../gait_analysis_config/index.html" class="btn btn-neutral float-right" title="paradigma.gait_analysis_config" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Peter Kok, Vedran Kasalica, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

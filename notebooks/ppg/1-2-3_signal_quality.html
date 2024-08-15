@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Main script to perform heart rate estimation of wearable imu &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TSDF schema</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tsdf_paradigma_schemas.html">TSDF fields in Paradigma schemas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tsdf_paradigma_channels_and_units.html">Channels and units in Paradigma schemas</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Example notebooks</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../gait/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ppg_analysis.html">PPG analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conduct.html">Code of Conduct</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Main script to perform heart rate estimation of wearable imu</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/notebooks/ppg/1-2-3_signal_quality.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="main-script-to-perform-heart-rate-estimation-of-wearable-imu">
+<h1>Main script to perform heart rate estimation of wearable imu<a class="headerlink" href="#main-script-to-perform-heart-rate-estimation-of-wearable-imu" title="Link to this heading"></a></h1>
+<p>This script uses both PPG and accelerometer and performs the following steps:</p>
+<ol class="arabic simple">
+<li><p>Loading all metadata of PPG and IMU</p></li>
+<li><p>Query on data availability + synchronization</p></li>
+<li><p>Loading relevant segment sensor data using tsdf wrapper (start for loop over synchronized segment indices)</p></li>
+<li><p>Synchronize the data (correct indices etc)</p></li>
+<li><p>Data preprocessing</p></li>
+<li><p>Feature extraction</p></li>
+<li><p>Classification</p></li>
+</ol>
+</section>
+<section id="architecture-overview">
+<h1>Architecture overview<a class="headerlink" href="#architecture-overview" title="Link to this heading"></a></h1>
+<p>The script implements the following steps:</p>
+<ul class="simple">
+<li><p>Step 1: IMU and PPG preprocessing</p></li>
+<li><p>Step 2: IMU and PPG feature extraction</p></li>
+<li><p>Step 3: Signal quality assessment</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Automatically reload modules</span>
+<span class="o">%</span><span class="k">load_ext</span> autoreload
+<span class="o">%</span><span class="k">autoreload</span> 2
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+<span class="kn">import</span> <span class="nn">tsdf</span>
+<span class="kn">import</span> <span class="nn">paradigma</span>
+<span class="kn">from</span> <span class="nn">paradigma</span> <span class="kn">import</span> <span class="n">DataColumns</span>
+<span class="kn">from</span> <span class="nn">paradigma.ppg_preprocessing</span> <span class="kn">import</span> <span class="n">tsdf_scan_meta</span><span class="p">,</span> <span class="n">synchronization</span><span class="p">,</span> <span class="n">extract_overlapping_segments</span>
+<span class="kn">from</span> <span class="nn">paradigma.util</span> <span class="kn">import</span> <span class="n">parse_iso8601_to_datetime</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">ImportError</span><span class="g g-Whitespace">                               </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">16</span>
+<span class="g g-Whitespace">     </span><span class="mi">14</span> <span class="kn">import</span> <span class="nn">paradigma</span>
+<span class="g g-Whitespace">     </span><span class="mi">15</span> <span class="kn">from</span> <span class="nn">paradigma</span> <span class="kn">import</span> <span class="n">DataColumns</span>
+<span class="ne">---&gt; </span><span class="mi">16</span> <span class="kn">from</span> <span class="nn">paradigma.ppg_preprocessing</span> <span class="kn">import</span> <span class="n">tsdf_scan_meta</span><span class="p">,</span> <span class="n">synchronization</span><span class="p">,</span> <span class="n">extract_overlapping_segments</span>
+<span class="g g-Whitespace">     </span><span class="mi">17</span> <span class="kn">from</span> <span class="nn">paradigma.util</span> <span class="kn">import</span> <span class="n">parse_iso8601_to_datetime</span>
+
+<span class="ne">ImportError</span>: cannot import name &#39;tsdf_scan_meta&#39; from &#39;paradigma.ppg_preprocessing&#39; (/home/runner/work/paradigma/paradigma/src/paradigma/ppg_preprocessing.py)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Cell has the tag &#39;parameters&#39;</span>
+<span class="n">path_to_data</span> <span class="o">=</span>  <span class="s1">&#39;../../../tests/data&#39;</span>
+
+<span class="n">input_path_imu</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_to_data</span><span class="p">,</span> <span class="s1">&#39;1.sensor_data&#39;</span><span class="p">,</span> <span class="s1">&#39;imu&#39;</span><span class="p">)</span>
+<span class="n">input_path_ppg</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_to_data</span><span class="p">,</span> <span class="s1">&#39;1.sensor_data&#39;</span><span class="p">,</span> <span class="s1">&#39;ppg&#39;</span><span class="p">)</span>
+<span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_to_data</span><span class="p">,</span> <span class="s1">&#39;2.preprocessed_data&#39;</span><span class="p">,</span> <span class="s1">&#39;ppg&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Constants</span>
+<span class="n">sensor_imu</span> <span class="o">=</span> <span class="s1">&#39;IMU&#39;</span>
+<span class="n">sensor_ppg</span> <span class="o">=</span> <span class="s1">&#39;PPG&#39;</span>
+
+<span class="n">imu_meta_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">sensor_imu</span><span class="si">}</span><span class="s1">_meta.json&#39;</span>
+<span class="n">imu_values_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">sensor_imu</span><span class="si">}</span><span class="s1">_samples.bin&#39;</span>
+<span class="n">imu_time_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">sensor_imu</span><span class="si">}</span><span class="s1">_time.bin&#39;</span>
+
+<span class="n">ppg_meta_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">sensor_ppg</span><span class="si">}</span><span class="s1">_meta.json&#39;</span>
+<span class="n">ppg_values_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">sensor_ppg</span><span class="si">}</span><span class="s1">_samples.bin&#39;</span>
+<span class="n">ppg_time_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">sensor_ppg</span><span class="si">}</span><span class="s1">_time.bin&#39;</span>
+
+<span class="n">no_units</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span>
+<span class="n">acceleration_units</span> <span class="o">=</span> <span class="s1">&#39;m/s^2&#39;</span>
+
+<span class="n">d_channels_units_imu</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">:</span> <span class="n">acceleration_units</span><span class="p">,</span>
+    <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Y</span><span class="p">:</span> <span class="n">acceleration_units</span><span class="p">,</span>
+    <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Z</span><span class="p">:</span> <span class="n">acceleration_units</span>
+<span class="p">}</span>
+
+<span class="n">d_channels_units_ppg</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">DataColumns</span><span class="o">.</span><span class="n">PPG</span><span class="p">:</span> <span class="n">no_units</span>
+<span class="p">}</span>
+
+<span class="c1"># filtering</span>
+<span class="c1"># sampling_frequency = 100</span>
+<span class="c1"># lower_cutoff_frequency = 0.3</span>
+<span class="c1"># filter_order = 4</span>
+
+<span class="c1"># Constants</span>
+<span class="n">FS_PPG</span> <span class="o">=</span> <span class="mi">30</span>  <span class="c1"># Sampling rate for PPG</span>
+<span class="n">FS_IMU</span> <span class="o">=</span> <span class="mi">100</span>  <span class="c1"># Sampling rate for IMU</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="loading-all-metadata-of-ppg-and-imu">
+<h1>1. Loading all metadata of PPG and IMU<a class="headerlink" href="#loading-all-metadata-of-ppg-and-imu" title="Link to this heading"></a></h1>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">meta_ppg</span> <span class="o">=</span> <span class="n">tsdf_scan_meta</span><span class="p">(</span><span class="n">input_path_ppg</span><span class="p">)</span>
+<span class="n">meta_imu</span> <span class="o">=</span> <span class="n">tsdf_scan_meta</span><span class="p">(</span><span class="n">input_path_imu</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="query-on-data-availability-synchronization">
+<h1>2. Query on data availability + synchronization<a class="headerlink" href="#query-on-data-availability-synchronization" title="Link to this heading"></a></h1>
+<p>Calculate PPG and IMU segments that describe the same data</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">segment_ppg</span><span class="p">,</span> <span class="n">segment_imu</span> <span class="o">=</span> <span class="n">synchronization</span><span class="p">(</span><span class="n">meta_ppg</span><span class="p">,</span> <span class="n">meta_imu</span><span class="p">)</span>  <span class="c1"># Define `synchronization`</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="loading-relevant-segment-sensor-data">
+<h1>3. Loading relevant segment sensor data<a class="headerlink" href="#loading-relevant-segment-sensor-data" title="Link to this heading"></a></h1>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Assuming we&#39;re only looking at the first synchronized segment pair - the loop here should be over all segment pairs</span>
+<span class="n">meta_path_ppg</span> <span class="o">=</span> <span class="n">meta_ppg</span><span class="p">[</span><span class="n">segment_ppg</span><span class="p">[</span><span class="n">n</span><span class="p">]][</span><span class="s1">&#39;tsdf_meta_fullpath&#39;</span><span class="p">]</span>
+<span class="n">meta_path_imu</span> <span class="o">=</span> <span class="n">meta_imu</span><span class="p">[</span><span class="n">segment_imu</span><span class="p">[</span><span class="n">n</span><span class="p">]][</span><span class="s1">&#39;tsdf_meta_fullpath&#39;</span><span class="p">]</span>
+
+<span class="n">metadata_list_ppg</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_metadata_from_path</span><span class="p">(</span><span class="n">meta_path_ppg</span><span class="p">)</span>
+<span class="n">metadata_list_imu</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_metadata_from_path</span><span class="p">(</span><span class="n">meta_path_imu</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load PPG data</span>
+<span class="n">metadata_time_ppg</span> <span class="o">=</span> <span class="n">metadata_list_ppg</span><span class="p">[</span><span class="n">ppg_time_filename</span><span class="p">]</span>
+<span class="n">metadata_samples_ppg</span> <span class="o">=</span> <span class="n">metadata_list_ppg</span><span class="p">[</span><span class="n">ppg_values_filename</span><span class="p">]</span>
+<span class="n">df_ppg</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time_ppg</span><span class="p">,</span> <span class="n">metadata_samples_ppg</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+<span class="c1"># Load IMU data</span>
+<span class="n">metadata_time_imu</span> <span class="o">=</span> <span class="n">metadata_list_imu</span><span class="p">[</span><span class="n">imu_time_filename</span><span class="p">]</span>
+<span class="n">metadata_samples_imu</span> <span class="o">=</span> <span class="n">metadata_list_imu</span><span class="p">[</span><span class="n">imu_values_filename</span><span class="p">]</span>
+<span class="n">df_imu</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time_imu</span><span class="p">,</span> <span class="n">metadata_samples_imu</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df_ppg</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>green</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000</td>
+      <td>649511</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>9.959961</td>
+      <td>648214</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Drop the gyroscope columns from the IMU data</span>
+<span class="n">cols_to_drop</span> <span class="o">=</span> <span class="n">df_imu</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s1">&#39;^rotation_&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+<span class="n">df_imu</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">cols_to_drop</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">df_imu</span> <span class="o">=</span> <span class="n">df_imu</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="sa">f</span><span class="s1">&#39;acceleration_</span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;accelerometer_</span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">]})</span>
+
+<span class="n">df_imu</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>accelerometer_x</th>
+      <th>accelerometer_y</th>
+      <th>accelerometer_z</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000</td>
+      <td>-1151</td>
+      <td>1200</td>
+      <td>-572</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>10.040039</td>
+      <td>-1120</td>
+      <td>1303</td>
+      <td>-532</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">paradigma.constants</span> <span class="kn">import</span> <span class="n">DataColumns</span><span class="p">,</span> <span class="n">TimeUnit</span>
+
+<span class="c1"># TODO: why get this again? The metadata is already available in metadata_{time|samples}_{ppg|imu}?</span>
+<span class="c1"># Extract indices for time and samples (TSDF should support extracting data based on the channel names)</span>
+<span class="n">time_idx_ppg</span> <span class="o">=</span> <span class="n">metadata_list_ppg</span><span class="p">[</span><span class="s2">&quot;PPG_time.bin&quot;</span><span class="p">]</span>
+<span class="n">time_idx_imu</span> <span class="o">=</span> <span class="n">metadata_list_imu</span><span class="p">[</span><span class="s2">&quot;IMU_time.bin&quot;</span><span class="p">]</span>
+<span class="n">values_idx_ppg</span> <span class="o">=</span> <span class="n">metadata_list_ppg</span><span class="p">[</span><span class="s2">&quot;PPG_samples.bin&quot;</span><span class="p">]</span>
+<span class="n">values_idx_imu</span> <span class="o">=</span> <span class="n">metadata_list_imu</span><span class="p">[</span><span class="s2">&quot;IMU_samples.bin&quot;</span><span class="p">]</span>
+
+<span class="n">start_time_ppg</span> <span class="o">=</span> <span class="n">parse_iso8601_to_datetime</span><span class="p">(</span><span class="n">time_idx_ppg</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">)</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span>
+<span class="n">df_imu</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">=</span> <span class="n">paradigma</span><span class="o">.</span><span class="n">imu_preprocessing</span><span class="o">.</span><span class="n">transform_time_array</span><span class="p">(</span>
+    <span class="n">time_array</span><span class="o">=</span><span class="n">df_imu</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">],</span>
+    <span class="n">scale_factor</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> 
+    <span class="n">input_unit_type</span> <span class="o">=</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">difference_ms</span><span class="p">,</span>
+    <span class="n">output_unit_type</span> <span class="o">=</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">absolute_ms</span><span class="p">,</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">start_time_ppg</span><span class="p">)</span>
+
+<span class="n">start_time_imu</span> <span class="o">=</span> <span class="n">parse_iso8601_to_datetime</span><span class="p">(</span><span class="n">time_idx_imu</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">)</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span>
+<span class="n">df_ppg</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">=</span> <span class="n">paradigma</span><span class="o">.</span><span class="n">imu_preprocessing</span><span class="o">.</span><span class="n">transform_time_array</span><span class="p">(</span>
+    <span class="n">time_array</span><span class="o">=</span><span class="n">df_ppg</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">],</span>
+    <span class="n">scale_factor</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> 
+    <span class="n">input_unit_type</span> <span class="o">=</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">difference_ms</span><span class="p">,</span>
+    <span class="n">output_unit_type</span> <span class="o">=</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">absolute_ms</span><span class="p">,</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">start_time_imu</span><span class="p">)</span>
+
+
+<span class="n">df_imu</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="c1"># ts_ppg = int(datetime_ppg.timestamp() * UNIX_TICKS_MS)</span>
+<span class="c1"># ts_imu = int(datetime_imu.timestamp() * UNIX_TICKS_MS)</span>
+
+<span class="c1"># # Calculating continuous time vectors</span>
+<span class="c1"># t_ppg = np.cumsum(data_list_ppg[time_idx_ppg]) + ts_ppg</span>
+<span class="c1"># t_imu = np.cumsum(data_list_imu[time_idx_imu]) + ts_imu</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>accelerometer_x</th>
+      <th>accelerometer_y</th>
+      <th>accelerometer_z</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>72945</th>
+      <td>1.624813e+09</td>
+      <td>-502</td>
+      <td>-1075</td>
+      <td>-1689</td>
+    </tr>
+    <tr>
+      <th>72946</th>
+      <td>1.624813e+09</td>
+      <td>-509</td>
+      <td>-1068</td>
+      <td>-1689</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="data-synchronization-on-right-indices">
+<h1>4. Data synchronization on right indices<a class="headerlink" href="#data-synchronization-on-right-indices" title="Link to this heading"></a></h1>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Shape of the original data:&quot;</span><span class="p">,</span> <span class="n">df_ppg</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">df_imu</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+<span class="c1"># Extract overlapping segments</span>
+<span class="n">df_ppg_overlapping</span><span class="p">,</span> <span class="n">df_imu_overlapping</span> <span class="o">=</span> <span class="n">extract_overlapping_segments</span><span class="p">(</span><span class="n">df_ppg</span><span class="p">,</span> <span class="n">df_imu</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Shape of the overlapping segments:&quot;</span><span class="p">,</span> <span class="n">df_ppg_overlapping</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">df_imu_overlapping</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Shape of the original data: (64775, 2) (72947, 4)
+Shape of the overlapping segments: (64775, 2) (64361, 4)
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="data-preprocessing">
+<h1>5. Data preprocessing<a class="headerlink" href="#data-preprocessing" title="Link to this heading"></a></h1>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># The following method is failing</span>
+<span class="n">df_imu_proc</span> <span class="o">=</span> <span class="n">paradigma</span><span class="o">.</span><span class="n">imu_preprocessing</span><span class="o">.</span><span class="n">resample_data</span><span class="p">(</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df_imu_overlapping</span><span class="p">,</span>
+    <span class="n">time_column</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span>
+    <span class="n">time_unit_type</span><span class="o">=</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">absolute_ms</span><span class="p">,</span>
+    <span class="n">unscaled_column_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">d_channels_units_imu</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+    <span class="n">resampling_frequency</span><span class="o">=</span><span class="n">FS_IMU</span><span class="p">,</span>
+    <span class="n">scale_factors</span><span class="o">=</span><span class="n">metadata_samples_imu</span><span class="o">.</span><span class="n">scale_factors</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">],</span>
+    <span class="n">start_time</span><span class="o">=</span><span class="n">start_time_imu</span><span class="p">)</span>
+
+<span class="c1"># metadata_samples_ppg.scale_factors - the data specifies 1, but it is not an obligatory tsdf field, maybe it should be optional parameter in `resample_data`</span>
+<span class="n">df_ppg_proc</span> <span class="o">=</span> <span class="n">paradigma</span><span class="o">.</span><span class="n">imu_preprocessing</span><span class="o">.</span><span class="n">resample_data</span><span class="p">(</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df_ppg_overlapping</span><span class="p">,</span>
+    <span class="n">time_column</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span>
+    <span class="n">time_unit_type</span><span class="o">=</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">absolute_ms</span><span class="p">,</span>
+    <span class="n">unscaled_column_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">d_channels_units_ppg</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+    <span class="n">scale_factors</span><span class="o">=</span><span class="n">metadata_samples_imu</span><span class="o">.</span><span class="n">scale_factors</span><span class="p">,</span>
+    <span class="n">resampling_frequency</span><span class="o">=</span><span class="n">FS_PPG</span><span class="p">,</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">start_time_imu</span>
+    <span class="p">)</span>
+
+<span class="c1"># Still TODO</span>
+<span class="c1"># use the same sampling frequency for both PPG and IMU to test whether the resampling works (the shape should be the same)</span>
+<span class="c1"># v_ppg_pre, tr_ppg_pre = preprocessing_ppg(v_ppg, FS_PPG)</span>
+<span class="c1"># v_imu_pre, tr_imu_pre = preprocessing_imu(v_imu, FS_IMU)</span>
+
+<span class="c1"># TODO: Save preprocessed data and compare with the expected results</span>
+<span class="c1"># location = &quot;../../tests/data/2.preprocessed_data/ppg&quot;</span>
+<span class="c1"># save_preprocessed_data(v_ppg_pre, tr_ppg_pre, v_imu_pre, tr_imu_pre, location)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#  Feature extraction and Classification</span>
+<span class="c1"># Assume feature extraction and classification functions are implemented</span>
+<span class="c1"># features_ppg, features_imu = extract_features(v_ppg_pre, v_imu_pre)</span>
+<span class="c1"># classification_results = classify_signals(features_ppg, features_imu)</span>
+
+<span class="c1"># Save the classification results</span>
+<span class="c1"># save_classification_data(classification_results, location)</span>
+
+<span class="c1"># We need to implement:</span>
+<span class="c1"># - synchronization: to find overlapping segments between PPG and IMU data based on metadata</span>
+<span class="c1"># - extract_overlapping_segments: to calculate the correct indices for synchronized data segments</span>
+<span class="c1"># - preprocessing_ppg, preprocessing_imu: functions to preprocess the raw PPG and IMU data</span>
+<span class="c1"># - extract_features: to extract relevant features from the preprocessed data</span>
+<span class="c1"># - classify_signals: to perform the classification on the extracted features</span>
+<span class="c1"># - save_preprocessed_data, save_classification_data: functions to save data to files in a suitable format</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Peter Kok, Vedran Kasalica, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>paradigma.heart_rate_util &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TSDF schema</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tsdf_paradigma_schemas.html">TSDF fields in Paradigma schemas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tsdf_paradigma_channels_and_units.html">Channels and units in Paradigma schemas</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Example notebooks</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/gait/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/ppg/ppg_analysis.html">PPG analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conduct.html">Code of Conduct</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">paradigma.heart_rate_util</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for paradigma.heart_rate_util</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">welch</span><span class="p">,</span> <span class="n">find_peaks</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">kurtosis</span><span class="p">,</span> <span class="n">skew</span>
+
+
+<div class="viewcode-block" id="extract_ppg_features">
+<a class="viewcode-back" href="../../autoapi/paradigma/heart_rate_util/index.html#paradigma.heart_rate_analysis.extract_ppg_features">[docs]</a>
+<span class="k">def</span> <span class="nf">extract_ppg_features</span><span class="p">(</span><span class="n">arr_ppg</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">sampling_frequency</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="c1"># Number of features</span>
+    <span class="n">feature_count</span> <span class="o">=</span> <span class="mi">10</span>
+    
+    <span class="c1"># Initialize features array</span>
+    <span class="n">features_ppg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">feature_count</span><span class="p">)</span>
+    
+    <span class="c1"># Time-domain features</span>
+    <span class="n">absPPG</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">arr_ppg</span><span class="p">)</span>
+    <span class="n">features_ppg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">arr_ppg</span><span class="p">)</span>  <span class="c1"># Feature 1: variance</span>
+    <span class="n">features_ppg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">absPPG</span><span class="p">)</span>  <span class="c1"># Feature 2: mean</span>
+    <span class="n">features_ppg</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">absPPG</span><span class="p">)</span>  <span class="c1"># Feature 3: median</span>
+    <span class="n">features_ppg</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">kurtosis</span><span class="p">(</span><span class="n">arr_ppg</span><span class="p">)</span>  <span class="c1"># Feature 4: kurtosis</span>
+    <span class="n">features_ppg</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">skew</span><span class="p">(</span><span class="n">arr_ppg</span><span class="p">)</span>  <span class="c1"># Feature 5: skewness</span>
+    
+    <span class="n">window</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">sampling_frequency</span>  <span class="c1"># 90 samples for Welch&#39;s method =&gt; fr = 2/3 = 0.67 Hz --&gt; not an issue with a clear distinct frequency</span>
+    <span class="n">overlap</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">window</span><span class="p">)</span>  <span class="c1"># 45 samples overlap for Welch&#39;s Method</span>
+    
+    <span class="n">f</span><span class="p">,</span> <span class="n">P</span> <span class="o">=</span> <span class="n">welch</span><span class="p">(</span><span class="n">arr_ppg</span><span class="p">,</span> <span class="n">sampling_frequency</span><span class="p">,</span> <span class="n">nperseg</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">noverlap</span><span class="o">=</span><span class="n">overlap</span><span class="p">)</span>
+    
+    <span class="c1"># Find the dominant frequency</span>
+    <span class="n">maxIndex</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
+    <span class="n">features_ppg</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">maxIndex</span><span class="p">]</span>  <span class="c1"># Feature 6: dominant frequency</span>
+    
+    <span class="c1"># Find indices of f in relevant physiological heart range 45-180 bpm (0.75 - 3 Hz)</span>
+    <span class="n">ph_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">f</span> <span class="o">&gt;=</span> <span class="mf">0.75</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">f</span> <span class="o">&lt;=</span> <span class="mi">3</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">maxIndex_ph</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">P</span><span class="p">[</span><span class="n">ph_idx</span><span class="p">])</span>
+    <span class="n">dominantFrequency_ph</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">ph_idx</span><span class="p">[</span><span class="n">maxIndex_ph</span><span class="p">]]</span>
+    <span class="n">f_dom_band</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">f</span> <span class="o">&gt;=</span> <span class="n">dominantFrequency_ph</span> <span class="o">-</span> <span class="mf">0.2</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">f</span> <span class="o">&lt;=</span> <span class="n">dominantFrequency_ph</span> <span class="o">+</span> <span class="mf">0.2</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">features_ppg</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">P</span><span class="p">[</span><span class="n">f_dom_band</span><span class="p">])</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>  <span class="c1"># Feature 7: relative power</span>
+    
+    <span class="c1"># Normalize the power spectrum</span>
+    <span class="n">pxx_norm</span> <span class="o">=</span> <span class="n">P</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
+    
+    <span class="c1"># Compute spectral entropy</span>
+    <span class="n">features_ppg</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">pxx_norm</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">pxx_norm</span><span class="p">))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">arr_ppg</span><span class="p">))</span>  <span class="c1"># Feature 8: spectral entropy</span>
+    
+    <span class="c1"># Signal to noise ratio</span>
+    <span class="n">arr_signal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">arr_ppg</span><span class="p">)</span>
+    <span class="n">arr_noise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">absPPG</span><span class="p">)</span>
+    <span class="n">features_ppg</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr_signal</span> <span class="o">/</span> <span class="n">arr_noise</span>  <span class="c1"># Feature 9: surrogate of signal to noise ratio</span>
+    
+    <span class="c1"># Autocorrelation features</span>
+    <span class="n">ppg_series</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">arr_ppg</span><span class="p">)</span>
+    <span class="n">autocorrelations</span> <span class="o">=</span> <span class="p">[</span><span class="n">ppg_series</span><span class="o">.</span><span class="n">autocorr</span><span class="p">(</span><span class="n">lag</span><span class="o">=</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sampling_frequency</span><span class="o">*</span><span class="mi">3</span><span class="p">)]</span>
+    
+    <span class="c1"># Finding peaks in autocorrelation</span>
+    <span class="n">peaks</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">peakdet</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">autocorrelations</span><span class="p">),</span> <span class="n">delta</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+    <span class="n">sorted_peaks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">peaks</span><span class="p">)</span>
+    <span class="c1">#TODO: double check if this is correct</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">sorted_peaks</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sorted_peaks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">features_ppg</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">=</span> <span class="n">sorted_peaks</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Feature 10: the second highest peak</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">features_ppg</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Set to 0 if there is no clear second peak</span>
+    
+    <span class="k">return</span> <span class="n">features_ppg</span></div>
+
+
+<span class="c1"># Example usage:</span>
+<span class="c1"># PPG = np.random.randn(300)  # Example PPG signal, replace with actual data</span>
+<span class="c1"># fs = 50  # Example sampling frequency, replace with actual sampling rate</span>
+<span class="c1"># features_df = ppg_features(PPG, fs)</span>
+<span class="c1"># print(features_df)</span>
+
+
+<div class="viewcode-block" id="peakdet">
+<a class="viewcode-back" href="../../autoapi/paradigma/heart_rate_util/index.html#paradigma.heart_rate_analysis.peakdet">[docs]</a>
+<span class="k">def</span> <span class="nf">peakdet</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Detect peaks in a vector.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">    v (numpy array): Input vector.</span>
+<span class="sd">    delta (float): Minimum difference between a peak and its surrounding values.</span>
+<span class="sd">    x (numpy array, optional): Indices corresponding to the values in v. If not provided, indices are generated.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    maxtab (list of tuples): Local maxima as (index, value) pairs.</span>
+<span class="sd">    mintab (list of tuples): Local minima as (index, value) pairs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input vectors v and x must have the same length&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Detect maxima</span>
+    <span class="n">max_indices</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">find_peaks</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">delta</span><span class="p">)</span>
+    <span class="n">maxtab</span> <span class="o">=</span> <span class="p">[(</span><span class="n">x</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">v</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">max_indices</span><span class="p">]</span>
+    
+    <span class="c1"># Detect minima by inverting the signal</span>
+    <span class="n">min_indices</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">find_peaks</span><span class="p">(</span><span class="o">-</span><span class="n">v</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">delta</span><span class="p">)</span>
+    <span class="n">mintab</span> <span class="o">=</span> <span class="p">[(</span><span class="n">x</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">v</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">min_indices</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">maxtab</span><span class="p">,</span> <span class="n">mintab</span></div>
+
+
+<span class="c1"># Example usage:</span>
+<span class="c1"># v = [0, 1, 2, 1, 0, 1, 2, 3, 2, 1, 0]</span>
+<span class="c1"># delta = 1</span>
+<span class="c1"># maxtab, mintab = peakdet(v, delta)</span>
+<span class="c1"># print(&quot;Maxima:&quot;, maxtab)</span>
+<span class="c1"># print(&quot;Minima:&quot;, mintab)</span>
+
+
+<div class="viewcode-block" id="calculate_power_ratio">
+<a class="viewcode-back" href="../../autoapi/paradigma/heart_rate_util/index.html#paradigma.heart_rate_analysis.calculate_power_ratio">[docs]</a>
+<span class="k">def</span> <span class="nf">calculate_power_ratio</span><span class="p">(</span><span class="n">f1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">PSD_acc</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">f2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">PSD_ppg</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the power ratio of the accelerometer signal in the PPG frequency range.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">    f1 (numpy.ndarray): Frequency bins for the accelerometer signal.</span>
+<span class="sd">    PSD_acc (numpy.ndarray): Power Spectral Density of the accelerometer signal.</span>
+<span class="sd">    f2 (numpy.ndarray): Frequency bins for the PPG signal.</span>
+<span class="sd">    PSD_ppg (numpy.ndarray): Power Spectral Density of the PPG signal.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">    float: The power ratio of the accelerometer signal in the PPG frequency range.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># Find the index of the maximum PSD value in the PPG signal</span>
+    <span class="n">max_PPG_psd_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">PSD_ppg</span><span class="p">)</span>
+    <span class="n">max_PPG_freq_psd</span> <span class="o">=</span> <span class="n">f2</span><span class="p">[</span><span class="n">max_PPG_psd_idx</span><span class="p">]</span>
+    
+    <span class="c1"># Find the index of the closest frequency in the accelerometer signal to the dominant PPG frequency</span>
+    <span class="n">corr_acc_psd_df_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">max_PPG_freq_psd</span> <span class="o">-</span> <span class="n">f1</span><span class="p">))</span>
+    
+    <span class="n">df_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">corr_acc_psd_df_idx</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">corr_acc_psd_df_idx</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
+    
+    <span class="c1"># Find the index of the closest frequency in the accelerometer signal to the first harmonic of the PPG frequency</span>
+    <span class="n">corr_acc_psd_fh_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">max_PPG_freq_psd</span><span class="o">*</span><span class="mi">2</span> <span class="o">-</span> <span class="n">f1</span><span class="p">))</span>
+    <span class="n">fh_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">corr_acc_psd_fh_idx</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">corr_acc_psd_fh_idx</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
+    
+    <span class="c1"># Calculate the power ratio</span>
+    <span class="n">acc_power_PPG_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">PSD_acc</span><span class="p">[</span><span class="n">df_idx</span><span class="p">],</span> <span class="n">f1</span><span class="p">[</span><span class="n">df_idx</span><span class="p">])</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">PSD_acc</span><span class="p">[</span><span class="n">fh_idx</span><span class="p">],</span> <span class="n">f1</span><span class="p">[</span><span class="n">fh_idx</span><span class="p">])</span>
+    <span class="n">acc_power_total</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">PSD_acc</span><span class="p">,</span> <span class="n">f1</span><span class="p">)</span>
+    
+    <span class="n">acc_power_ratio</span> <span class="o">=</span> <span class="n">acc_power_PPG_range</span> <span class="o">/</span> <span class="n">acc_power_total</span>
+    
+    <span class="k">return</span> <span class="n">acc_power_ratio</span></div>
+
+
+<span class="c1"># Example usage:</span>
+<span class="c1"># f1 = np.array([0.1, 0.2, 0.3, 0.4, 0.5])</span>
+<span class="c1"># PSD_acc = np.array([1, 2, 3, 2, 1])</span>
+<span class="c1"># f2 = np.array([0.1, 0.2, 0.3, 0.4, 0.5])</span>
+<span class="c1"># PSD_ppg = np.array([1, 3, 2, 1, 0.5])</span>
+<span class="c1"># result = acc_feature(f1, PSD_acc, f2, PSD_ppg)</span>
+<span class="c1"># print(result)</span>
+
+<div class="viewcode-block" id="read_PPG_quality_classifier">
+<a class="viewcode-back" href="../../autoapi/paradigma/heart_rate_util/index.html#paradigma.heart_rate_analysis.read_PPG_quality_classifier">[docs]</a>
+<span class="k">def</span> <span class="nf">read_PPG_quality_classifier</span><span class="p">(</span><span class="n">classifier_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read the PPG quality classifier from a file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    classifier_path : str</span>
+<span class="sd">        The path to the classifier file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        The classifier dictionary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">classifier_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">clf</span></div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Peter Kok, Vedran Kasalica, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

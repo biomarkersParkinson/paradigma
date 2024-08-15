@@ -1,0 +1,122 @@
+paradigma.constants
+===================
+
+.. py:module:: paradigma.constants
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   paradigma.constants.UNIX_TICKS_MS
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   paradigma.constants.DataColumns
+   paradigma.constants.DataUnits
+   paradigma.constants.TimeUnit
+
+
+Module Contents
+---------------
+
+.. py:class:: DataColumns
+
+   Enum for the data channels in tsdf.
+
+
+   .. py:attribute:: ACCELEROMETER_X
+      :value: 'accelerometer_x'
+
+
+
+   .. py:attribute:: ACCELEROMETER_Y
+      :value: 'accelerometer_y'
+
+
+
+   .. py:attribute:: ACCELEROMETER_Z
+      :value: 'accelerometer_z'
+
+
+
+   .. py:attribute:: GYROSCOPE_X
+      :value: 'gyroscope_x'
+
+
+
+   .. py:attribute:: GYROSCOPE_Y
+      :value: 'gyroscope_y'
+
+
+
+   .. py:attribute:: GYROSCOPE_Z
+      :value: 'gyroscope_z'
+
+
+
+   .. py:attribute:: PPG
+      :value: 'green'
+
+
+
+   .. py:attribute:: TIME
+      :value: 'time'
+
+
+
+.. py:class:: DataUnits
+
+   Enum for the data channel unit types in tsdf.
+
+
+   .. py:attribute:: ACCELERATION
+      :value: 'm/s^2'
+
+
+      The acceleration is in m/s^2.
+
+
+   .. py:attribute:: ROTATION
+      :value: 'deg/s'
+
+
+      The rotation is in degrees per second.
+
+
+.. py:class:: TimeUnit
+
+   Enum for the `time` channel unit types in tsdf.
+
+
+   .. py:attribute:: relative_ms
+      :value: 'relative_ms'
+
+
+      The time is relative to the start time in milliseconds.
+
+
+   .. py:attribute:: absolute_ms
+      :value: 'absolute_ms'
+
+
+      The time is absolute in milliseconds.
+
+
+   .. py:attribute:: difference_ms
+      :value: 'difference_ms'
+
+
+      The time is the difference between consecutive samples in milliseconds.
+
+
+.. py:data:: UNIX_TICKS_MS
+   :type:  int
+   :value: 1000
+
+

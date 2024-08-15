@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>paradigma.constants &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="paradigma.feature_extraction" href="../feature_extraction/index.html" />
+    <link rel="prev" title="paradigma" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TSDF schema</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tsdf_paradigma_schemas.html">TSDF fields in Paradigma schemas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tsdf_paradigma_channels_and_units.html">Channels and units in Paradigma schemas</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Example notebooks</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/gait/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/ppg/ppg_analysis.html">PPG analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">paradigma</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">paradigma.constants</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../feature_extraction/index.html">paradigma.feature_extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../gait_analysis/index.html">paradigma.gait_analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../gait_analysis_config/index.html">paradigma.gait_analysis_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../heart_rate_analysis/index.html">paradigma.heart_rate_analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../heart_rate_analysis_config/index.html">paradigma.heart_rate_analysis_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../heart_rate_util/index.html">paradigma.heart_rate_util</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../imu_preprocessing/index.html">paradigma.imu_preprocessing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../ppg_preprocessing/index.html">paradigma.ppg_preprocessing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../preprocessing_config/index.html">paradigma.preprocessing_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../quantification/index.html">paradigma.quantification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util/index.html">paradigma.util</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../windowing/index.html">paradigma.windowing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../conduct.html">Code of Conduct</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">paradigma</a></li>
+      <li class="breadcrumb-item active">paradigma.constants</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/paradigma/constants/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-paradigma.constants">
+<span id="paradigma-constants"></span><h1>paradigma.constants<a class="headerlink" href="#module-paradigma.constants" title="Link to this heading"></a></h1>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.constants.UNIX_TICKS_MS" title="paradigma.constants.UNIX_TICKS_MS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UNIX_TICKS_MS</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.constants.DataColumns" title="paradigma.constants.DataColumns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataColumns</span></code></a></p></td>
+<td><p>Enum for the data channels in tsdf.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.constants.DataUnits" title="paradigma.constants.DataUnits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataUnits</span></code></a></p></td>
+<td><p>Enum for the data channel unit types in tsdf.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.constants.TimeUnit" title="paradigma.constants.TimeUnit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TimeUnit</span></code></a></p></td>
+<td><p>Enum for the <cite>time</cite> channel unit types in tsdf.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.constants.</span></span><span class="sig-name descname"><span class="pre">DataColumns</span></span><a class="reference internal" href="../../../_modules/paradigma/constants.html#DataColumns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.constants.DataColumns" title="Link to this definition"></a></dt>
+<dd><p>Enum for the data channels in tsdf.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.ACCELEROMETER_X">
+<span class="sig-name descname"><span class="pre">ACCELEROMETER_X</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'accelerometer_x'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.ACCELEROMETER_X" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.ACCELEROMETER_Y">
+<span class="sig-name descname"><span class="pre">ACCELEROMETER_Y</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'accelerometer_y'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.ACCELEROMETER_Y" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.ACCELEROMETER_Z">
+<span class="sig-name descname"><span class="pre">ACCELEROMETER_Z</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'accelerometer_z'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.ACCELEROMETER_Z" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.GYROSCOPE_X">
+<span class="sig-name descname"><span class="pre">GYROSCOPE_X</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'gyroscope_x'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.GYROSCOPE_X" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.GYROSCOPE_Y">
+<span class="sig-name descname"><span class="pre">GYROSCOPE_Y</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'gyroscope_y'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.GYROSCOPE_Y" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.GYROSCOPE_Z">
+<span class="sig-name descname"><span class="pre">GYROSCOPE_Z</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'gyroscope_z'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.GYROSCOPE_Z" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.PPG">
+<span class="sig-name descname"><span class="pre">PPG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'green'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.PPG" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.TIME">
+<span class="sig-name descname"><span class="pre">TIME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'time'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.TIME" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="paradigma.constants.DataUnits">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.constants.</span></span><span class="sig-name descname"><span class="pre">DataUnits</span></span><a class="reference internal" href="../../../_modules/paradigma/constants.html#DataUnits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.constants.DataUnits" title="Link to this definition"></a></dt>
+<dd><p>Enum for the data channel unit types in tsdf.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataUnits.ACCELERATION">
+<span class="sig-name descname"><span class="pre">ACCELERATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'m/s^2'</span></em><a class="headerlink" href="#paradigma.constants.DataUnits.ACCELERATION" title="Link to this definition"></a></dt>
+<dd><p>The acceleration is in m/s^2.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataUnits.ROTATION">
+<span class="sig-name descname"><span class="pre">ROTATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'deg/s'</span></em><a class="headerlink" href="#paradigma.constants.DataUnits.ROTATION" title="Link to this definition"></a></dt>
+<dd><p>The rotation is in degrees per second.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="paradigma.constants.TimeUnit">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.constants.</span></span><span class="sig-name descname"><span class="pre">TimeUnit</span></span><a class="reference internal" href="../../../_modules/paradigma/constants.html#TimeUnit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.constants.TimeUnit" title="Link to this definition"></a></dt>
+<dd><p>Enum for the <cite>time</cite> channel unit types in tsdf.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.TimeUnit.relative_ms">
+<span class="sig-name descname"><span class="pre">relative_ms</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'relative_ms'</span></em><a class="headerlink" href="#paradigma.constants.TimeUnit.relative_ms" title="Link to this definition"></a></dt>
+<dd><p>The time is relative to the start time in milliseconds.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.TimeUnit.absolute_ms">
+<span class="sig-name descname"><span class="pre">absolute_ms</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'absolute_ms'</span></em><a class="headerlink" href="#paradigma.constants.TimeUnit.absolute_ms" title="Link to this definition"></a></dt>
+<dd><p>The time is absolute in milliseconds.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.TimeUnit.difference_ms">
+<span class="sig-name descname"><span class="pre">difference_ms</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'difference_ms'</span></em><a class="headerlink" href="#paradigma.constants.TimeUnit.difference_ms" title="Link to this definition"></a></dt>
+<dd><p>The time is the difference between consecutive samples in milliseconds.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="paradigma.constants.UNIX_TICKS_MS">
+<span class="sig-prename descclassname"><span class="pre">paradigma.constants.</span></span><span class="sig-name descname"><span class="pre">UNIX_TICKS_MS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1000</span></em><a class="headerlink" href="#paradigma.constants.UNIX_TICKS_MS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="paradigma" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../feature_extraction/index.html" class="btn btn-neutral float-right" title="paradigma.feature_extraction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Peter Kok, Vedran Kasalica, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,31 @@
+paradigma.util
+==============
+
+.. py:module:: paradigma.util
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   paradigma.util.parse_iso8601_to_datetime
+   paradigma.util.format_datetime_to_iso8601
+   paradigma.util.get_end_iso8601
+   paradigma.util.write_data
+   paradigma.util.read_metadata
+
+
+Module Contents
+---------------
+
+.. py:function:: parse_iso8601_to_datetime(date_str)
+
+.. py:function:: format_datetime_to_iso8601(datetime)
+
+.. py:function:: get_end_iso8601(start_iso8601, window_length_seconds)
+
+.. py:function:: write_data(metadata_time: tsdf.TSDFMetadata, metadata_samples: tsdf.TSDFMetadata, output_path: str, output_filename: str, df: pandas.DataFrame)
+
+.. py:function:: read_metadata(input_path: str, meta_filename: str, time_filename: str, values_filename: str) -> Tuple[tsdf.TSDFMetadata, tsdf.TSDFMetadata]
+

@@ -1,0 +1,19 @@
+paradigma.heart_rate_analysis_config
+====================================
+
+.. py:module:: paradigma.heart_rate_analysis_config
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   paradigma.heart_rate_analysis_config.HeartRateFeatureExtractionConfig
+
+
+Module Contents
+---------------
+
+.. py:class:: HeartRateFeatureExtractionConfig
+
