@@ -135,6 +135,7 @@ def resample_data(
 ) -> pd.DataFrame:
     """
     Resamples the IMU data to the resampling frequency. The data is scaled before resampling.
+    
     Parameters
     ----------
     df : pd.DataFrame
