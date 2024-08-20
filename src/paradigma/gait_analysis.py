@@ -2,6 +2,7 @@ import os
 
 import tsdf
 
+import paradigma
 from paradigma.gait_analysis_config import *
 from paradigma.feature_extraction import *
 from paradigma.quantification import *
@@ -189,8 +190,8 @@ def extract_arm_swing_features(input_path: str, output_path: str, config: ArmSwi
     # direction of the swing of the arm 
     df[config.velocity_colname] = pca_transform_gyroscope(
         df=df, 
-        y_gyro_colname=DataColumns.GYROSCOPE_Y,
-        z_gyro_colname=DataColumns.GYROSCOPE_Z,
+        y_gyro_colname=paradigma.DataColumns.GYROSCOPE_Y,
+        z_gyro_colname=paradigma.DataColumns.GYROSCOPE_Z,
         pred_gait_colname=config.pred_gait_colname
     )
 

@@ -7,22 +7,22 @@ from dateutil import parser
 
 import tsdf
 import tsdf.constants
+import paradigma
 from paradigma.heart_rate_analysis_config import HeartRateFeatureExtractionConfig
 from paradigma.heart_rate_util import extract_ppg_features, calculate_power_ratio, read_PPG_quality_classifier
 from paradigma.util import read_metadata, write_data, get_end_iso8601
-from paradigma.constants import DataColumns, UNIX_TICKS_MS
 
 
 def extract_signal_quality_features(input_path: str, classifier_path: str, output_path: str, config: HeartRateFeatureExtractionConfig) -> None:
     # load data
     metadata_time_ppg, metadata_samples_ppg = read_metadata(input_path, "PPG_meta.json", "PPG_time.bin", "PPG_samples.bin")
     df_ppg = tsdf.load_dataframe_from_binaries([metadata_time_ppg, metadata_samples_ppg], tsdf.constants.ConcatenationType.columns)
-    arr_ppg = df_ppg[DataColumns.PPG].to_numpy()
-    relative_time_ppg = df_ppg[DataColumns.TIME].to_numpy()
+    arr_ppg = df_ppg[paradigma.DataColumns.PPG].to_numpy()
+    relative_time_ppg = df_ppg[paradigma.DataColumns.TIME].to_numpy()
     
     metadata_time_acc, metadata_samples_acc = read_metadata(input_path, "accelerometer_meta.json", "accelerometer_time.bin", "accelerometer_samples.bin")
     df_acc = tsdf.load_dataframe_from_binaries([metadata_time_acc, metadata_samples_acc], tsdf.constants.ConcatenationType.columns)
-    arr_acc = df_acc[[DataColumns.ACCELEROMETER_X, DataColumns.ACCELEROMETER_Y, DataColumns.ACCELEROMETER_Z]].to_numpy()
+    arr_acc = df_acc[[paradigma.DataColumns.ACCELEROMETER_X, paradigma.DataColumns.ACCELEROMETER_Y, paradigma.DataColumns.ACCELEROMETER_Z]].to_numpy()
 
     sampling_frequency_ppg = config.sampling_frequency_ppg
     sampling_frequency_imu = config.sampling_frequency_imu
@@ -96,7 +96,7 @@ def extract_signal_quality_features(input_path: str, classifier_path: str, outpu
         feature_acc.append(calculate_power_ratio(f1, PSD_imu, f2, PSD_ppg))  # Calculate the power ratio of the accelerometer signal in the PPG frequency range
 
         # time channel
-        t_unix_feat_total.append((relative_time_ppg[i] + ppg_start_time) * UNIX_TICKS_MS)  # Save in absolute unix time ms
+        t_unix_feat_total.append((relative_time_ppg[i] + ppg_start_time) * paradigma.UNIX_TICKS_MS)  # Save in absolute unix time ms
         acc_idx += samples_shift_acc  # update IMU_idx
 
     # Convert lists to numpy arrays
