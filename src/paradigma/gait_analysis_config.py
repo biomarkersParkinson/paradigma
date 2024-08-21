@@ -1,5 +1,5 @@
 from typing import Dict, List
-import paradigma
+from paradigma import DataColumns
 
 
 class GaitFeatureExtractionConfig:
@@ -30,9 +30,9 @@ class GaitFeatureExtractionConfig:
         self.time_colname = 'time'
         
         self.l_accelerometer_cols: List[str] = [
-            paradigma.DataColumns.ACCELEROMETER_X, 
-            paradigma.DataColumns.ACCELEROMETER_Y, 
-            paradigma.DataColumns.ACCELEROMETER_Z
+            DataColumns.ACCELEROMETER_X, 
+            DataColumns.ACCELEROMETER_Y, 
+            DataColumns.ACCELEROMETER_Z
         ]
 
         self.l_gravity_cols: List[str] = [f'grav_{x}' for x in self.l_accelerometer_cols]
@@ -94,7 +94,7 @@ class GaitDetectionConfig:
         self.time_filename = 'gait_time.bin'
         self.values_filename = 'gait_values.bin'
 
-        self.l_accel_cols = [paradigma.DataColumns.ACCELEROMETER_X, paradigma.DataColumns.ACCELEROMETER_Y, paradigma.DataColumns.ACCELEROMETER_Z]
+        self.l_accel_cols = [DataColumns.ACCELEROMETER_X, DataColumns.ACCELEROMETER_Y, DataColumns.ACCELEROMETER_Z]
 
         self.time_colname = 'time'
 
@@ -139,15 +139,15 @@ class ArmSwingFeatureExtractionConfig:
         self.segment_nr_colname = segment_nr_colname
 
         self.l_accelerometer_cols: List[str] = [
-            paradigma.DataColumns.ACCELEROMETER_X, 
-            paradigma.DataColumns.ACCELEROMETER_Y, 
-            paradigma.DataColumns.ACCELEROMETER_Z
+            DataColumns.ACCELEROMETER_X, 
+            DataColumns.ACCELEROMETER_Y, 
+            DataColumns.ACCELEROMETER_Z
         ]
 
         self.l_gyroscope_cols: List[str] = [
-            paradigma.DataColumns.GYROSCOPE_X, 
-            paradigma.DataColumns.GYROSCOPE_Y, 
-            paradigma.DataColumns.GYROSCOPE_Z
+            DataColumns.GYROSCOPE_X, 
+            DataColumns.GYROSCOPE_Y, 
+            DataColumns.GYROSCOPE_Z
         ]
         
         self.l_gravity_cols: List[str] = [f'grav_{x}' for x in self.l_accelerometer_cols]
@@ -224,8 +224,8 @@ class ArmSwingDetectionConfig:
         self.time_filename = 'arm_swing_time.bin'
         self.values_filename = 'arm_swing_values.bin'
 
-        self.l_accel_cols = [paradigma.DataColumns.ACCELEROMETER_X, paradigma.DataColumns.ACCELEROMETER_Y, paradigma.DataColumns.ACCELEROMETER_Z]
-        self.l_gyro_cols = [paradigma.DataColumns.GYROSCOPE_X, paradigma.DataColumns.GYROSCOPE_Y, paradigma.DataColumns.GYROSCOPE_Z]
+        self.l_accel_cols = [DataColumns.ACCELEROMETER_X, DataColumns.ACCELEROMETER_Y, DataColumns.ACCELEROMETER_Z]
+        self.l_gyro_cols = [DataColumns.GYROSCOPE_X, DataColumns.GYROSCOPE_Y, DataColumns.GYROSCOPE_Z]
 
 
 class ArmSwingQuantificationConfig:

@@ -5,11 +5,12 @@ from scipy import signal
 from scipy.interpolate import CubicSpline
 
 import tsdf
-import paradigma
+from paradigma.constants import DataColumns, TimeUnit
 from paradigma.util import write_data, read_metadata
+from paradigma.preprocessing_config import IMUPreprocessingConfig
 
 
-def preprocess_imu_data(input_path: str, output_path: str, config: paradigma.preprocessing_config.IMUPreprocessingConfig) -> None:
+def preprocess_imu_data(input_path: str, output_path: str, config: IMUPreprocessingConfig) -> None:
 
     # Load data
     metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
@@ -23,20 +24,20 @@ def preprocess_imu_data(input_path: str, output_path: str, config: paradigma.pre
     df[config.time_colname] = transform_time_array(
         time_array=df[config.time_colname],
         scale_factor=1000, 
-        input_unit_type = paradigma.TimeUnit.difference_ms,
-        output_unit_type = paradigma.TimeUnit.relative_ms)
+        input_unit_type = TimeUnit.difference_ms,
+        output_unit_type = TimeUnit.relative_ms)
     
 
     df = resample_data(
         df=df,
         time_column=config.time_colname,
-        time_unit_type=paradigma.TimeUnit.relative_ms,
+        time_unit_type=TimeUnit.relative_ms,
         unscaled_column_names = list(config.d_channels_imu.keys()),
         scale_factors=metadata_samples.scale_factors,
         resampling_frequency=config.sampling_frequency)
     
     if config.side_watch == 'left':
-        df[paradigma.DataColumns.ACCELEROMETER_X] *= -1
+        df[DataColumns.ACCELEROMETER_X] *= -1
 
     for col in config.d_channels_accelerometer.keys():
 
@@ -72,8 +73,8 @@ def preprocess_imu_data(input_path: str, output_path: str, config: paradigma.pre
 def transform_time_array(
     time_array: np.ndarray,
     scale_factor: float,
-    input_unit_type: paradigma.TimeUnit,
-    output_unit_type: paradigma.TimeUnit,
+    input_unit_type: TimeUnit,
+    output_unit_type: TimeUnit,
     start_time: float = 0.0,
 ) -> np.ndarray:
     """
@@ -85,10 +86,10 @@ def transform_time_array(
         The time array in milliseconds to transform.
     scale_factor : float
         The scale factor to apply to the time array.
-    input_unit_type : paradigma.TimeUnit
-        The time unit type of the input time array. Raw PPP data was in `paradigma.TimeUnit.difference_ms`.
-    output_unit_type : paradigma.TimeUnit
-        The time unit type of the output time array. The processing is often done in `paradigma.TimeUnit.relative_ms`.
+    input_unit_type : TimeUnit
+        The time unit type of the input time array. Raw PPP data was in `TimeUnit.difference_ms`.
+    output_unit_type : TimeUnit
+        The time unit type of the output time array. The processing is often done in `TimeUnit.relative_ms`.
     start_time : float, optional
         The start time of the time array in UNIX milliseconds (default is 0.0)
 
@@ -97,28 +98,28 @@ def transform_time_array(
     time_array
         The transformed time array in milliseconds, with the specified time unit type.
     """
-    # Scale time array and transform to relative time (`paradigma.TimeUnit.relative_ms`) 
-    if input_unit_type == paradigma.TimeUnit.difference_ms:
+    # Scale time array and transform to relative time (`TimeUnit.relative_ms`) 
+    if input_unit_type == TimeUnit.difference_ms:
     # Convert a series of differences into cumulative sum to reconstruct original time series.
         time_array = np.cumsum(np.double(time_array)) / scale_factor
-    elif input_unit_type == paradigma.TimeUnit.absolute_ms:
+    elif input_unit_type == TimeUnit.absolute_ms:
         # Set the start time if not provided.
         if np.isclose(start_time, 0.0, rtol=1e-09, atol=1e-09):
             start_time = time_array[0]
         # Convert absolute time stamps into a time series relative to start_time.
         time_array = (time_array - start_time) / scale_factor
-    elif input_unit_type == paradigma.TimeUnit.relative_ms:
+    elif input_unit_type == TimeUnit.relative_ms:
         # Scale the relative time series as per the scale_factor.
         time_array = time_array / scale_factor
 
-    # Transform the time array from `paradigma.TimeUnit.relative_ms` to the specified time unit type
-    if output_unit_type == paradigma.TimeUnit.absolute_ms:
+    # Transform the time array from `TimeUnit.relative_ms` to the specified time unit type
+    if output_unit_type == TimeUnit.absolute_ms:
         # Converts time array to absolute time by adding the start time to each element.
         time_array = time_array + start_time
-    elif output_unit_type == paradigma.TimeUnit.difference_ms:
+    elif output_unit_type == TimeUnit.difference_ms:
         # Creates a new array starting with 0, followed by the differences between consecutive elements.
         time_array = np.diff(np.insert(time_array, 0, start_time))
-    elif output_unit_type == paradigma.TimeUnit.relative_ms:
+    elif output_unit_type == TimeUnit.relative_ms:
         # The array is already in relative format, do nothing.
         pass
     return time_array
@@ -126,8 +127,8 @@ def transform_time_array(
 
 def resample_data(
     df: pd.DataFrame,
-    time_column : paradigma.DataColumns,
-    time_unit_type: paradigma.TimeUnit,
+    time_column : DataColumns,
+    time_unit_type: TimeUnit,
     unscaled_column_names: list,
     resampling_frequency: int,
     scale_factors: list = [],
@@ -142,8 +143,8 @@ def resample_data(
         The data to resample.
     time_column : str
         The name of the time column.
-    time_unit_type : paradigma.TimeUnit
-        The time unit type of the time array. The method currently works only for `paradigma.TimeUnit.relative_ms`.
+    time_unit_type : TimeUnit
+        The time unit type of the time array. The method currently works only for `TimeUnit.relative_ms`.
     unscaled_column_names : list
         The names of the columns to resample.
     resampling_frequency : int
@@ -159,7 +160,7 @@ def resample_data(
         The resampled data.
     """
     # We need a start_time if the time is in absolute time format
-    if time_unit_type == paradigma.TimeUnit.absolute_ms and start_time == 0.0:
+    if time_unit_type == TimeUnit.absolute_ms and start_time == 0.0:
         raise ValueError("start_time is required for absolute time format")
 
     # get time and values

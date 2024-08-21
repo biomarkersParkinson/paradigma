@@ -1,4 +1,4 @@
-import paradigma
+from paradigma.constants import DataColumns
 
 
 class BasePreprocessingConfig:
@@ -12,7 +12,7 @@ class BasePreprocessingConfig:
         self.acceleration_units = 'm/s^2'
         self.rotation_units = 'deg/s'
 
-        self.time_colname = paradigma.DataColumns.TIME
+        self.time_colname = DataColumns.TIME
 
         # participant information
         self.side_watch = 'right'
@@ -37,14 +37,14 @@ class IMUPreprocessingConfig(BasePreprocessingConfig):
         self.rotation_units = 'deg/s'
 
         self.d_channels_accelerometer = {
-            paradigma.DataColumns.ACCELEROMETER_X: self.acceleration_units,
-            paradigma.DataColumns.ACCELEROMETER_Y: self.acceleration_units,
-            paradigma.DataColumns.ACCELEROMETER_Z: self.acceleration_units,
+            DataColumns.ACCELEROMETER_X: self.acceleration_units,
+            DataColumns.ACCELEROMETER_Y: self.acceleration_units,
+            DataColumns.ACCELEROMETER_Z: self.acceleration_units,
         }
         self.d_channels_gyroscope = {
-            paradigma.DataColumns.GYROSCOPE_X: self.rotation_units,
-            paradigma.DataColumns.GYROSCOPE_Y: self.rotation_units,
-            paradigma.DataColumns.GYROSCOPE_Z: self.rotation_units,
+            DataColumns.GYROSCOPE_X: self.rotation_units,
+            DataColumns.GYROSCOPE_Y: self.rotation_units,
+            DataColumns.GYROSCOPE_Z: self.rotation_units,
         }
         self.d_channels_imu = {**self.d_channels_accelerometer, **self.d_channels_gyroscope}
 
@@ -58,7 +58,7 @@ class PPGPreprocessingConfig(BasePreprocessingConfig):
         self.time_filename = 'PPG_time.bin'
 
         self.d_channels_ppg = {
-            paradigma.DataColumns.PPG: 'none'
+            DataColumns.PPG: 'none'
         }
 
         self.sampling_frequency = 30
