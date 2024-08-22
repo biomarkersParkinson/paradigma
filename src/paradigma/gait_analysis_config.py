@@ -1,5 +1,6 @@
 from typing import Dict, List
-from paradigma import DataColumns
+
+from paradigma.constants import DataColumns
 
 
 class GaitFeatureExtractionConfig:

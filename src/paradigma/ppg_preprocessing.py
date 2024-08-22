@@ -171,7 +171,7 @@ def extract_meta_from_tsdf_files(tsdf_data_dir : str) -> List[dict]:
 
     Examples
     --------
-    >>> tsdf_scan_meta('/path/to/tsdf_data')
+    >>> extract_meta_from_tsdf_files('/path/to/tsdf_data')
     [{'start_iso8601': '2021-06-27T16:52:20Z', 'end_iso8601': '2021-06-27T17:52:20Z'}, ...]
     """
     metas = []

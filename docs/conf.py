@@ -23,12 +23,19 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
 ]
+
 autoapi_dirs = ["../src"]
+
+# Include the following entities in the API documentation, this explicitly excludes 'imported-members',
+# as we don't want to clutter the documentation with all the imported members.
+# https://sphinx-autoapi.readthedocs.io/en/latest/reference/config.html#confval-autoapi_options
+autoapi_options = ['members', 'undoc-members', 'private-members', 'show-inheritance',
+                   'show-module-summary', 'special-members']
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = ["build", "Thumbs.db", ".DS_Store"]
 
 # -- Options for HTML output -------------------------------------------------
 
