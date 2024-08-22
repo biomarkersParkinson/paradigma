@@ -4,23 +4,11 @@ paradigma.imu_preprocessing
 .. py:module:: paradigma.imu_preprocessing
 
 
-Classes
--------
-
-.. autoapisummary::
-
-   paradigma.imu_preprocessing.DataColumns
-   paradigma.imu_preprocessing.TimeUnit
-   paradigma.imu_preprocessing.IMUPreprocessingConfig
-
-
 Functions
 ---------
 
 .. autoapisummary::
 
-   paradigma.imu_preprocessing.write_data
-   paradigma.imu_preprocessing.read_metadata
    paradigma.imu_preprocessing.preprocess_imu_data
    paradigma.imu_preprocessing.transform_time_array
    paradigma.imu_preprocessing.resample_data
@@ -29,86 +17,6 @@ Functions
 
 Module Contents
 ---------------
-
-.. py:class:: DataColumns
-
-   Enum for the data channels in tsdf.
-
-
-   .. py:attribute:: ACCELEROMETER_X
-      :value: 'accelerometer_x'
-
-
-
-   .. py:attribute:: ACCELEROMETER_Y
-      :value: 'accelerometer_y'
-
-
-
-   .. py:attribute:: ACCELEROMETER_Z
-      :value: 'accelerometer_z'
-
-
-
-   .. py:attribute:: GYROSCOPE_X
-      :value: 'gyroscope_x'
-
-
-
-   .. py:attribute:: GYROSCOPE_Y
-      :value: 'gyroscope_y'
-
-
-
-   .. py:attribute:: GYROSCOPE_Z
-      :value: 'gyroscope_z'
-
-
-
-   .. py:attribute:: PPG
-      :value: 'green'
-
-
-
-   .. py:attribute:: TIME
-      :value: 'time'
-
-
-
-.. py:class:: TimeUnit
-
-   Enum for the `time` channel unit types in tsdf.
-
-
-   .. py:attribute:: relative_ms
-      :value: 'relative_ms'
-
-
-      The time is relative to the start time in milliseconds.
-
-
-   .. py:attribute:: absolute_ms
-      :value: 'absolute_ms'
-
-
-      The time is absolute in milliseconds.
-
-
-   .. py:attribute:: difference_ms
-      :value: 'difference_ms'
-
-
-      The time is the difference between consecutive samples in milliseconds.
-
-
-.. py:function:: write_data(metadata_time: tsdf.TSDFMetadata, metadata_samples: tsdf.TSDFMetadata, output_path: str, output_filename: str, df: pandas.DataFrame)
-
-.. py:function:: read_metadata(input_path: str, meta_filename: str, time_filename: str, values_filename: str) -> Tuple[tsdf.TSDFMetadata, tsdf.TSDFMetadata]
-
-.. py:class:: IMUPreprocessingConfig
-
-   Bases: :py:obj:`BasePreprocessingConfig`
-
 
 .. py:function:: preprocess_imu_data(input_path: str, output_path: str, config: paradigma.preprocessing_config.IMUPreprocessingConfig) -> None
 
@@ -134,6 +42,7 @@ Module Contents
 .. py:function:: resample_data(df: pandas.DataFrame, time_column: paradigma.constants.DataColumns, time_unit_type: paradigma.constants.TimeUnit, unscaled_column_names: list, resampling_frequency: int, scale_factors: list = [], start_time: float = 0.0) -> pandas.DataFrame
 
    Resamples the IMU data to the resampling frequency. The data is scaled before resampling.
+
    :param df: The data to resample.
    :type df: pd.DataFrame
    :param time_column: The name of the time column.

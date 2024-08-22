@@ -4,25 +4,11 @@ paradigma.ppg_preprocessing
 .. py:module:: paradigma.ppg_preprocessing
 
 
-Classes
--------
-
-.. autoapisummary::
-
-   paradigma.ppg_preprocessing.DataUnits
-   paradigma.ppg_preprocessing.TimeUnit
-   paradigma.ppg_preprocessing.DataColumns
-   paradigma.ppg_preprocessing.PPGPreprocessingConfig
-   paradigma.ppg_preprocessing.IMUPreprocessingConfig
-
-
 Functions
 ---------
 
 .. autoapisummary::
 
-   paradigma.ppg_preprocessing.parse_iso8601_to_datetime
-   paradigma.ppg_preprocessing.write_data
    paradigma.ppg_preprocessing.scan_and_sync_segments
    paradigma.ppg_preprocessing.preprocess_ppg_data
    paradigma.ppg_preprocessing.extract_meta_from_tsdf_files
@@ -32,110 +18,6 @@ Functions
 
 Module Contents
 ---------------
-
-.. py:class:: DataUnits
-
-   Enum for the data channel unit types in tsdf.
-
-
-   .. py:attribute:: ACCELERATION
-      :value: 'm/s^2'
-
-
-      The acceleration is in m/s^2.
-
-
-   .. py:attribute:: ROTATION
-      :value: 'deg/s'
-
-
-      The rotation is in degrees per second.
-
-
-.. py:class:: TimeUnit
-
-   Enum for the `time` channel unit types in tsdf.
-
-
-   .. py:attribute:: relative_ms
-      :value: 'relative_ms'
-
-
-      The time is relative to the start time in milliseconds.
-
-
-   .. py:attribute:: absolute_ms
-      :value: 'absolute_ms'
-
-
-      The time is absolute in milliseconds.
-
-
-   .. py:attribute:: difference_ms
-      :value: 'difference_ms'
-
-
-      The time is the difference between consecutive samples in milliseconds.
-
-
-.. py:class:: DataColumns
-
-   Enum for the data channels in tsdf.
-
-
-   .. py:attribute:: ACCELEROMETER_X
-      :value: 'accelerometer_x'
-
-
-
-   .. py:attribute:: ACCELEROMETER_Y
-      :value: 'accelerometer_y'
-
-
-
-   .. py:attribute:: ACCELEROMETER_Z
-      :value: 'accelerometer_z'
-
-
-
-   .. py:attribute:: GYROSCOPE_X
-      :value: 'gyroscope_x'
-
-
-
-   .. py:attribute:: GYROSCOPE_Y
-      :value: 'gyroscope_y'
-
-
-
-   .. py:attribute:: GYROSCOPE_Z
-      :value: 'gyroscope_z'
-
-
-
-   .. py:attribute:: PPG
-      :value: 'green'
-
-
-
-   .. py:attribute:: TIME
-      :value: 'time'
-
-
-
-.. py:class:: PPGPreprocessingConfig
-
-   Bases: :py:obj:`BasePreprocessingConfig`
-
-
-.. py:class:: IMUPreprocessingConfig
-
-   Bases: :py:obj:`BasePreprocessingConfig`
-
-
-.. py:function:: parse_iso8601_to_datetime(date_str)
-
-.. py:function:: write_data(metadata_time: tsdf.TSDFMetadata, metadata_samples: tsdf.TSDFMetadata, output_path: str, output_filename: str, df: pandas.DataFrame)
 
 .. py:function:: scan_and_sync_segments(input_path_ppg, input_path_imu)
 
@@ -153,7 +35,7 @@ Module Contents
 
    .. rubric:: Examples
 
-   >>> tsdf_scan_meta('/path/to/tsdf_data')
+   >>> extract_meta_from_tsdf_files('/path/to/tsdf_data')
    [{'start_iso8601': '2021-06-27T16:52:20Z', 'end_iso8601': '2021-06-27T17:52:20Z'}, ...]
 
 

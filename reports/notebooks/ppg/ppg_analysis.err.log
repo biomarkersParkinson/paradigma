@@ -26,12 +26,12 @@ Cell [0;32mIn[4], line 2[0m
 [1;32m      1[0m config [38;5;241m=[39m HeartRateFeatureExtractionConfig()
 [0;32m----> 2[0m [43mextract_signal_quality_features[49m[43m([49m[43mpath_to_preprocessed_data[49m[43m,[49m[43m [49m[43mquality_classifier_path[49m[43m,[49m[43m [49m[43mpath_to_quality_features[49m[43m,[49m[43m [49m[43mconfig[49m[43m)[49m
 
-File [0;32m~/work/paradigma/paradigma/src/paradigma/heart_rate_analysis.py:18[0m, in [0;36mextract_signal_quality_features[0;34m(input_path, classifier_path, output_path, config)[0m
-[1;32m     16[0m [38;5;28;01mdef[39;00m [38;5;21mextract_signal_quality_features[39m(input_path: [38;5;28mstr[39m, classifier_path: [38;5;28mstr[39m, output_path: [38;5;28mstr[39m, config: HeartRateFeatureExtractionConfig) [38;5;241m-[39m[38;5;241m>[39m [38;5;28;01mNone[39;00m:
-[1;32m     17[0m     [38;5;66;03m# load data[39;00m
-[0;32m---> 18[0m     metadata_time_ppg, metadata_samples_ppg [38;5;241m=[39m [43mread_metadata[49m[43m([49m[43minput_path[49m[43m,[49m[43m [49m[38;5;124;43m"[39;49m[38;5;124;43mPPG_meta.json[39;49m[38;5;124;43m"[39;49m[43m,[49m[43m [49m[38;5;124;43m"[39;49m[38;5;124;43mPPG_time.bin[39;49m[38;5;124;43m"[39;49m[43m,[49m[43m [49m[38;5;124;43m"[39;49m[38;5;124;43mPPG_samples.bin[39;49m[38;5;124;43m"[39;49m[43m)[49m
-[1;32m     19[0m     df_ppg [38;5;241m=[39m tsdf[38;5;241m.[39mload_dataframe_from_binaries([metadata_time_ppg, metadata_samples_ppg], tsdf[38;5;241m.[39mconstants[38;5;241m.[39mConcatenationType[38;5;241m.[39mcolumns)
-[1;32m     20[0m     arr_ppg [38;5;241m=[39m df_ppg[DataColumns[38;5;241m.[39mPPG][38;5;241m.[39mto_numpy()
+File [0;32m~/work/paradigma/paradigma/src/paradigma/heart_rate_analysis.py:17[0m, in [0;36mextract_signal_quality_features[0;34m(input_path, classifier_path, output_path, config)[0m
+[1;32m     15[0m [38;5;28;01mdef[39;00m [38;5;21mextract_signal_quality_features[39m(input_path: [38;5;28mstr[39m, classifier_path: [38;5;28mstr[39m, output_path: [38;5;28mstr[39m, config: HeartRateFeatureExtractionConfig) [38;5;241m-[39m[38;5;241m>[39m [38;5;28;01mNone[39;00m:
+[1;32m     16[0m     [38;5;66;03m# load data[39;00m
+[0;32m---> 17[0m     metadata_time_ppg, metadata_samples_ppg [38;5;241m=[39m [43mread_metadata[49m[43m([49m[43minput_path[49m[43m,[49m[43m [49m[38;5;124;43m"[39;49m[38;5;124;43mPPG_meta.json[39;49m[38;5;124;43m"[39;49m[43m,[49m[43m [49m[38;5;124;43m"[39;49m[38;5;124;43mPPG_time.bin[39;49m[38;5;124;43m"[39;49m[43m,[49m[43m [49m[38;5;124;43m"[39;49m[38;5;124;43mPPG_samples.bin[39;49m[38;5;124;43m"[39;49m[43m)[49m
+[1;32m     18[0m     df_ppg [38;5;241m=[39m tsdf[38;5;241m.[39mload_dataframe_from_binaries([metadata_time_ppg, metadata_samples_ppg], tsdf[38;5;241m.[39mconstants[38;5;241m.[39mConcatenationType[38;5;241m.[39mcolumns)
+[1;32m     19[0m     arr_ppg [38;5;241m=[39m df_ppg[DataColumns[38;5;241m.[39mPPG][38;5;241m.[39mto_numpy()
 
 File [0;32m~/work/paradigma/paradigma/src/paradigma/util.py:47[0m, in [0;36mread_metadata[0;34m(input_path, meta_filename, time_filename, values_filename)[0m
 [1;32m     46[0m [38;5;28;01mdef[39;00m [38;5;21mread_metadata[39m(input_path: [38;5;28mstr[39m, meta_filename: [38;5;28mstr[39m, time_filename: [38;5;28mstr[39m, values_filename: [38;5;28mstr[39m) [38;5;241m-[39m[38;5;241m>[39m Tuple[TSDFMetadata, TSDFMetadata]:

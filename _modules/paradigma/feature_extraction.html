@@ -43,12 +43,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">TSDF schema</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../tsdf_paradigma_schemas.html">TSDF fields in Paradigma schemas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tsdf_paradigma_channels_and_units.html">Channels and units in Paradigma schemas</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Example notebooks</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Example notebooks</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/gait/gait_analysis.html">Gait analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/ppg/ppg_analysis.html">PPG analysis</a></li>
@@ -56,6 +51,11 @@
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TSDF schema</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tsdf_paradigma_schemas.html">TSDF fields in Paradigma schemas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tsdf_paradigma_channels_and_units.html">Channels and units in Paradigma schemas</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
@@ -94,13 +94,12 @@
 <span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
 
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">signal</span><span class="p">,</span> <span class="n">fft</span>
-
 <span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">cumulative_trapezoid</span>
 <span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">find_peaks</span>
 
 
 <div class="viewcode-block" id="generate_statistics">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis/index.html#paradigma.feature_extraction.generate_statistics">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.generate_statistics">[docs]</a>
 <span class="k">def</span> <span class="nf">generate_statistics</span><span class="p">(</span>
         <span class="n">sensor_col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
         <span class="n">statistic</span><span class="p">:</span> <span class="nb">str</span>
@@ -133,7 +132,7 @@
 
 
 <div class="viewcode-block" id="generate_std_norm">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis/index.html#paradigma.feature_extraction.generate_std_norm">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.generate_std_norm">[docs]</a>
 <span class="k">def</span> <span class="nf">generate_std_norm</span><span class="p">(</span>
         <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
@@ -160,7 +159,7 @@
     
 
 <div class="viewcode-block" id="compute_fft">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis/index.html#paradigma.feature_extraction.compute_fft">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_fft">[docs]</a>
 <span class="k">def</span> <span class="nf">compute_fft</span><span class="p">(</span>
         <span class="n">values</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
         <span class="n">window_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;hann&#39;</span><span class="p">,</span>
@@ -191,7 +190,7 @@
     
 
 <div class="viewcode-block" id="signal_to_ffts">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis/index.html#paradigma.feature_extraction.signal_to_ffts">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.signal_to_ffts">[docs]</a>
 <span class="k">def</span> <span class="nf">signal_to_ffts</span><span class="p">(</span>
         <span class="n">sensor_col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
         <span class="n">window_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;hann&#39;</span><span class="p">,</span>
@@ -228,7 +227,7 @@
     
 
 <div class="viewcode-block" id="compute_power_in_bandwidth">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis/index.html#paradigma.feature_extraction.compute_power_in_bandwidth">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_power_in_bandwidth">[docs]</a>
 <span class="k">def</span> <span class="nf">compute_power_in_bandwidth</span><span class="p">(</span>
         <span class="n">sensor_col</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
         <span class="n">fmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -268,7 +267,7 @@
 
 
 <div class="viewcode-block" id="compute_perc_power">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis/index.html#paradigma.feature_extraction.compute_perc_power">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_perc_power">[docs]</a>
 <span class="k">def</span> <span class="nf">compute_perc_power</span><span class="p">(</span>
         <span class="n">sensor_col</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
         <span class="n">fmin_band</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -325,7 +324,7 @@
 
 
 <div class="viewcode-block" id="get_dominant_frequency">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis/index.html#paradigma.feature_extraction.get_dominant_frequency">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.get_dominant_frequency">[docs]</a>
 <span class="k">def</span> <span class="nf">get_dominant_frequency</span><span class="p">(</span>
         <span class="n">signal_ffts</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
         <span class="n">signal_freqs</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
@@ -362,7 +361,7 @@
     
 
 <div class="viewcode-block" id="compute_power">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis/index.html#paradigma.feature_extraction.compute_power">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_power">[docs]</a>
 <span class="k">def</span> <span class="nf">compute_power</span><span class="p">(</span>
         <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">fft_cols</span><span class="p">:</span> <span class="nb">list</span>
@@ -389,7 +388,7 @@
     
 
 <div class="viewcode-block" id="generate_cepstral_coefficients">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis/index.html#paradigma.feature_extraction.generate_cepstral_coefficients">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.generate_cepstral_coefficients">[docs]</a>
 <span class="k">def</span> <span class="nf">generate_cepstral_coefficients</span><span class="p">(</span>
         <span class="n">total_power_col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
         <span class="n">window_length_s</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -455,7 +454,7 @@
 
 
 <div class="viewcode-block" id="pca_transform_gyroscope">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis/index.html#paradigma.feature_extraction.pca_transform_gyroscope">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.pca_transform_gyroscope">[docs]</a>
 <span class="k">def</span> <span class="nf">pca_transform_gyroscope</span><span class="p">(</span>
         <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">y_gyro_colname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -493,7 +492,7 @@
 
 
 <div class="viewcode-block" id="compute_angle">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis/index.html#paradigma.feature_extraction.compute_angle">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_angle">[docs]</a>
 <span class="k">def</span> <span class="nf">compute_angle</span><span class="p">(</span>
         <span class="n">velocity_col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
         <span class="n">time_col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
@@ -518,7 +517,7 @@
 
 
 <div class="viewcode-block" id="remove_moving_average_angle">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis/index.html#paradigma.feature_extraction.remove_moving_average_angle">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.remove_moving_average_angle">[docs]</a>
 <span class="k">def</span> <span class="nf">remove_moving_average_angle</span><span class="p">(</span>
         <span class="n">angle_col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
         <span class="n">sampling_frequency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
@@ -544,7 +543,7 @@
 
 
 <div class="viewcode-block" id="extract_angle_extremes">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis/index.html#paradigma.feature_extraction.extract_angle_extremes">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.extract_angle_extremes">[docs]</a>
 <span class="k">def</span> <span class="nf">extract_angle_extremes</span><span class="p">(</span>
         <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">angle_colname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -645,7 +644,7 @@
 
 
 <div class="viewcode-block" id="extract_range_of_motion">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis/index.html#paradigma.feature_extraction.extract_range_of_motion">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.extract_range_of_motion">[docs]</a>
 <span class="k">def</span> <span class="nf">extract_range_of_motion</span><span class="p">(</span>
         <span class="n">angle_extrema_values_col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
@@ -690,7 +689,7 @@
 
 
 <div class="viewcode-block" id="extract_peak_angular_velocity">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis/index.html#paradigma.feature_extraction.extract_peak_angular_velocity">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.extract_peak_angular_velocity">[docs]</a>
 <span class="k">def</span> <span class="nf">extract_peak_angular_velocity</span><span class="p">(</span>
         <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">velocity_colname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -736,6 +735,88 @@
                     <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;backward_peak_ang_vel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">velocity_colname</span><span class="p">][</span><span class="n">l_extrema_indices</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span><span class="n">l_extrema_indices</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]])))</span>
     
     <span class="k">return</span></div>
+
+
+
+<div class="viewcode-block" id="extract_temporal_domain_features">
+<a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.extract_temporal_domain_features">[docs]</a>
+<span class="k">def</span> <span class="nf">extract_temporal_domain_features</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">df_windowed</span><span class="p">,</span> <span class="n">l_gravity_stats</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">]):</span>
+    <span class="c1"># compute the mean and standard deviation of the gravity component of the acceleration signal for each axis</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">l_gravity_cols</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">stat</span> <span class="ow">in</span> <span class="n">l_gravity_stats</span><span class="p">:</span>
+            <span class="n">df_windowed</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">stat</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">generate_statistics</span><span class="p">(</span>
+                <span class="n">sensor_col</span><span class="o">=</span><span class="n">df_windowed</span><span class="p">[</span><span class="n">col</span><span class="p">],</span>
+                <span class="n">statistic</span><span class="o">=</span><span class="n">stat</span>
+                <span class="p">)</span>
+
+    <span class="c1"># compute the standard deviation of the Euclidean norm of the three axes</span>
+    <span class="n">df_windowed</span><span class="p">[</span><span class="s1">&#39;std_norm_acc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">generate_std_norm</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">df_windowed</span><span class="p">,</span>
+        <span class="n">cols</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">l_accelerometer_cols</span>
+        <span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">df_windowed</span></div>
+
+
+
+<div class="viewcode-block" id="extract_spectral_domain_features">
+<a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.extract_spectral_domain_features">[docs]</a>
+<span class="k">def</span> <span class="nf">extract_spectral_domain_features</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">df_windowed</span><span class="p">,</span> <span class="n">sensor</span><span class="p">,</span> <span class="n">l_sensor_colnames</span><span class="p">):</span>
+
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">l_sensor_colnames</span><span class="p">:</span>
+
+        <span class="c1"># transform the temporal signal to the spectral domain using the fast fourier transform</span>
+        <span class="n">df_windowed</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s1">_freqs&#39;</span><span class="p">],</span> <span class="n">df_windowed</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s1">_fft&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">signal_to_ffts</span><span class="p">(</span>
+            <span class="n">sensor_col</span><span class="o">=</span><span class="n">df_windowed</span><span class="p">[</span><span class="n">col</span><span class="p">],</span>
+            <span class="n">window_type</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">window_type</span><span class="p">,</span>
+            <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span>
+            <span class="p">)</span>
+
+        <span class="c1"># compute the power in distinct frequency bandwidths</span>
+        <span class="k">for</span> <span class="n">bandwidth</span><span class="p">,</span> <span class="n">frequencies</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">d_frequency_bandwidths</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">df_windowed</span><span class="p">[</span><span class="n">col</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="n">bandwidth</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_windowed</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">compute_power_in_bandwidth</span><span class="p">(</span>
+                <span class="n">sensor_col</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="n">col</span><span class="p">],</span>
+                <span class="n">fmin</span><span class="o">=</span><span class="n">frequencies</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">fmax</span><span class="o">=</span><span class="n">frequencies</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
+                <span class="n">window_type</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">window_type</span><span class="p">,</span>
+                <span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+            <span class="p">)</span>
+
+        <span class="c1"># compute the dominant frequency, i.e., the frequency with the highest power</span>
+        <span class="n">df_windowed</span><span class="p">[</span><span class="n">col</span><span class="o">+</span><span class="s1">&#39;_dominant_frequency&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_windowed</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">get_dominant_frequency</span><span class="p">(</span>
+            <span class="n">signal_ffts</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="n">col</span><span class="o">+</span><span class="s1">&#39;_fft&#39;</span><span class="p">],</span> 
+            <span class="n">signal_freqs</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="n">col</span><span class="o">+</span><span class="s1">&#39;_freqs&#39;</span><span class="p">],</span>
+            <span class="n">fmin</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">spectrum_low_frequency</span><span class="p">,</span>
+            <span class="n">fmax</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">spectrum_high_frequency</span>
+            <span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+
+    <span class="c1"># compute the power summed over the individual axes to obtain the total power per frequency bandwidth</span>
+    <span class="k">for</span> <span class="n">bandwidth</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">d_frequency_bandwidths</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">df_windowed</span><span class="p">[</span><span class="s1">&#39;total_&#39;</span><span class="o">+</span><span class="n">bandwidth</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_windowed</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">y</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="n">bandwidth</span><span class="p">]</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">l_sensor_colnames</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># compute the power summed over the individual frequency bandwidths to obtain the total power</span>
+    <span class="n">df_windowed</span><span class="p">[</span><span class="s1">&#39;total_power&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">compute_power</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">df_windowed</span><span class="p">,</span>
+        <span class="n">fft_cols</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s1">_fft&#39;</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">l_sensor_colnames</span><span class="p">])</span>
+
+    <span class="c1"># compute the cepstral coefficients of the total power signal</span>
+    <span class="n">cc_cols</span> <span class="o">=</span> <span class="n">generate_cepstral_coefficients</span><span class="p">(</span>
+        <span class="n">total_power_col</span><span class="o">=</span><span class="n">df_windowed</span><span class="p">[</span><span class="s1">&#39;total_power&#39;</span><span class="p">],</span>
+        <span class="n">window_length_s</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">,</span>
+        <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
+        <span class="n">low_frequency</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">spectrum_low_frequency</span><span class="p">,</span>
+        <span class="n">high_frequency</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">spectrum_high_frequency</span><span class="p">,</span>
+        <span class="n">n_filters</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">n_dct_filters_cc</span><span class="p">,</span>
+        <span class="n">n_coefficients</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">n_coefficients_cc</span>
+        <span class="p">)</span>
+
+    <span class="n">df_windowed</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_windowed</span><span class="p">,</span> <span class="n">cc_cols</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">df_windowed</span> <span class="o">=</span> <span class="n">df_windowed</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="sa">f</span><span class="s1">&#39;cc_</span><span class="si">{</span><span class="n">cc_nr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;cc_</span><span class="si">{</span><span class="n">cc_nr</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">sensor</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">cc_nr</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">config</span><span class="o">.</span><span class="n">n_coefficients_cc</span><span class="o">+</span><span class="mi">1</span><span class="p">)})</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;window_start&#39;</span><span class="p">:</span> <span class="s1">&#39;time&#39;</span><span class="p">})</span>
+
+    <span class="k">return</span> <span class="n">df_windowed</span></div>
 
 </pre></div>
 

@@ -46,12 +46,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">TSDF schema</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../tsdf_paradigma_schemas.html">TSDF fields in Paradigma schemas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tsdf_paradigma_channels_and_units.html">Channels and units in Paradigma schemas</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Example notebooks</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Example notebooks</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../notebooks/gait/gait_analysis.html">Gait analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../notebooks/ppg/ppg_analysis.html">PPG analysis</a></li>
@@ -80,6 +75,11 @@
 </li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TSDF schema</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tsdf_paradigma_schemas.html">TSDF fields in Paradigma schemas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tsdf_paradigma_channels_and_units.html">Channels and units in Paradigma schemas</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
@@ -116,32 +116,10 @@
              
   <section id="module-paradigma.imu_preprocessing">
 <span id="paradigma-imu-preprocessing"></span><h1>paradigma.imu_preprocessing<a class="headerlink" href="#module-paradigma.imu_preprocessing" title="Link to this heading"></a></h1>
-<section id="classes">
-<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.imu_preprocessing.DataColumns" title="paradigma.imu_preprocessing.DataColumns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataColumns</span></code></a></p></td>
-<td><p>Enum for the data channels in tsdf.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.imu_preprocessing.TimeUnit" title="paradigma.imu_preprocessing.TimeUnit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TimeUnit</span></code></a></p></td>
-<td><p>Enum for the <cite>time</cite> channel unit types in tsdf.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.imu_preprocessing.IMUPreprocessingConfig" title="paradigma.imu_preprocessing.IMUPreprocessingConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IMUPreprocessingConfig</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-</tbody>
-</table>
-</section>
 <section id="functions">
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.imu_preprocessing.write_data" title="paradigma.imu_preprocessing.write_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_data</span></code></a>(metadata_time, metadata_samples, ...)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.imu_preprocessing.read_metadata" title="paradigma.imu_preprocessing.read_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_metadata</span></code></a>(→ Tuple[tsdf.TSDFMetadata, ...)</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.imu_preprocessing.preprocess_imu_data" title="paradigma.imu_preprocessing.preprocess_imu_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocess_imu_data</span></code></a>(→ None)</p></td>
 <td><p></p></td>
 </tr>
@@ -159,92 +137,6 @@
 </section>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="paradigma.imu_preprocessing.DataColumns">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.imu_preprocessing.</span></span><span class="sig-name descname"><span class="pre">DataColumns</span></span><a class="reference internal" href="../../../_modules/paradigma/constants.html#DataColumns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.imu_preprocessing.DataColumns" title="Link to this definition"></a></dt>
-<dd><p>Enum for the data channels in tsdf.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.imu_preprocessing.DataColumns.ACCELEROMETER_X">
-<span class="sig-name descname"><span class="pre">ACCELEROMETER_X</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'accelerometer_x'</span></em><a class="headerlink" href="#paradigma.imu_preprocessing.DataColumns.ACCELEROMETER_X" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.imu_preprocessing.DataColumns.ACCELEROMETER_Y">
-<span class="sig-name descname"><span class="pre">ACCELEROMETER_Y</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'accelerometer_y'</span></em><a class="headerlink" href="#paradigma.imu_preprocessing.DataColumns.ACCELEROMETER_Y" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.imu_preprocessing.DataColumns.ACCELEROMETER_Z">
-<span class="sig-name descname"><span class="pre">ACCELEROMETER_Z</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'accelerometer_z'</span></em><a class="headerlink" href="#paradigma.imu_preprocessing.DataColumns.ACCELEROMETER_Z" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.imu_preprocessing.DataColumns.GYROSCOPE_X">
-<span class="sig-name descname"><span class="pre">GYROSCOPE_X</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'gyroscope_x'</span></em><a class="headerlink" href="#paradigma.imu_preprocessing.DataColumns.GYROSCOPE_X" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.imu_preprocessing.DataColumns.GYROSCOPE_Y">
-<span class="sig-name descname"><span class="pre">GYROSCOPE_Y</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'gyroscope_y'</span></em><a class="headerlink" href="#paradigma.imu_preprocessing.DataColumns.GYROSCOPE_Y" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.imu_preprocessing.DataColumns.GYROSCOPE_Z">
-<span class="sig-name descname"><span class="pre">GYROSCOPE_Z</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'gyroscope_z'</span></em><a class="headerlink" href="#paradigma.imu_preprocessing.DataColumns.GYROSCOPE_Z" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.imu_preprocessing.DataColumns.PPG">
-<span class="sig-name descname"><span class="pre">PPG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'green'</span></em><a class="headerlink" href="#paradigma.imu_preprocessing.DataColumns.PPG" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.imu_preprocessing.DataColumns.TIME">
-<span class="sig-name descname"><span class="pre">TIME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'time'</span></em><a class="headerlink" href="#paradigma.imu_preprocessing.DataColumns.TIME" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="paradigma.imu_preprocessing.TimeUnit">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.imu_preprocessing.</span></span><span class="sig-name descname"><span class="pre">TimeUnit</span></span><a class="reference internal" href="../../../_modules/paradigma/constants.html#TimeUnit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.imu_preprocessing.TimeUnit" title="Link to this definition"></a></dt>
-<dd><p>Enum for the <cite>time</cite> channel unit types in tsdf.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.imu_preprocessing.TimeUnit.relative_ms">
-<span class="sig-name descname"><span class="pre">relative_ms</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'relative_ms'</span></em><a class="headerlink" href="#paradigma.imu_preprocessing.TimeUnit.relative_ms" title="Link to this definition"></a></dt>
-<dd><p>The time is relative to the start time in milliseconds.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.imu_preprocessing.TimeUnit.absolute_ms">
-<span class="sig-name descname"><span class="pre">absolute_ms</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'absolute_ms'</span></em><a class="headerlink" href="#paradigma.imu_preprocessing.TimeUnit.absolute_ms" title="Link to this definition"></a></dt>
-<dd><p>The time is absolute in milliseconds.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.imu_preprocessing.TimeUnit.difference_ms">
-<span class="sig-name descname"><span class="pre">difference_ms</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'difference_ms'</span></em><a class="headerlink" href="#paradigma.imu_preprocessing.TimeUnit.difference_ms" title="Link to this definition"></a></dt>
-<dd><p>The time is the difference between consecutive samples in milliseconds.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="paradigma.imu_preprocessing.write_data">
-<span class="sig-prename descclassname"><span class="pre">paradigma.imu_preprocessing.</span></span><span class="sig-name descname"><span class="pre">write_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metadata_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tsdf.TSDFMetadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tsdf.TSDFMetadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/util.html#write_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.imu_preprocessing.write_data" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="paradigma.imu_preprocessing.read_metadata">
-<span class="sig-prename descclassname"><span class="pre">paradigma.imu_preprocessing.</span></span><span class="sig-name descname"><span class="pre">read_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tsdf.TSDFMetadata</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tsdf.TSDFMetadata</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/paradigma/util.html#read_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.imu_preprocessing.read_metadata" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="paradigma.imu_preprocessing.IMUPreprocessingConfig">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.imu_preprocessing.</span></span><span class="sig-name descname"><span class="pre">IMUPreprocessingConfig</span></span><a class="reference internal" href="../../../_modules/paradigma/preprocessing_config.html#IMUPreprocessingConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.imu_preprocessing.IMUPreprocessingConfig" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">BasePreprocessingConfig</span></code></p>
-</dd></dl>
-
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.imu_preprocessing.preprocess_imu_data">
 <span class="sig-prename descclassname"><span class="pre">paradigma.imu_preprocessing.</span></span><span class="sig-name descname"><span class="pre">preprocess_imu_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../preprocessing_config/index.html#paradigma.preprocessing_config.IMUPreprocessingConfig" title="paradigma.preprocessing_config.IMUPreprocessingConfig"><span class="pre">paradigma.preprocessing_config.IMUPreprocessingConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/paradigma/imu_preprocessing.html#preprocess_imu_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.imu_preprocessing.preprocess_imu_data" title="Link to this definition"></a></dt>
@@ -259,8 +151,8 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>time_array</strong> (<em>np.ndarray</em>) – The time array in milliseconds to transform.</p></li>
 <li><p><strong>scale_factor</strong> (<em>float</em>) – The scale factor to apply to the time array.</p></li>
-<li><p><strong>input_unit_type</strong> (<a class="reference internal" href="#paradigma.imu_preprocessing.TimeUnit" title="paradigma.imu_preprocessing.TimeUnit"><em>TimeUnit</em></a>) – The time unit type of the input time array. Raw PPP data was in <cite>TimeUnit.difference_ms</cite>.</p></li>
-<li><p><strong>output_unit_type</strong> (<a class="reference internal" href="#paradigma.imu_preprocessing.TimeUnit" title="paradigma.imu_preprocessing.TimeUnit"><em>TimeUnit</em></a>) – The time unit type of the output time array. The processing is often done in <cite>TimeUnit.relative_ms</cite>.</p></li>
+<li><p><strong>input_unit_type</strong> (<a class="reference internal" href="../constants/index.html#paradigma.constants.TimeUnit" title="paradigma.constants.TimeUnit"><em>TimeUnit</em></a>) – The time unit type of the input time array. Raw PPP data was in <cite>TimeUnit.difference_ms</cite>.</p></li>
+<li><p><strong>output_unit_type</strong> (<a class="reference internal" href="../constants/index.html#paradigma.constants.TimeUnit" title="paradigma.constants.TimeUnit"><em>TimeUnit</em></a>) – The time unit type of the output time array. The processing is often done in <cite>TimeUnit.relative_ms</cite>.</p></li>
 <li><p><strong>start_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The start time of the time array in UNIX milliseconds (default is 0.0)</p></li>
 </ul>
 </dd>
@@ -276,27 +168,24 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.imu_preprocessing.resample_data">
 <span class="sig-prename descclassname"><span class="pre">paradigma.imu_preprocessing.</span></span><span class="sig-name descname"><span class="pre">resample_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../constants/index.html#paradigma.constants.DataColumns" title="paradigma.constants.DataColumns"><span class="pre">paradigma.constants.DataColumns</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_unit_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../constants/index.html#paradigma.constants.TimeUnit" title="paradigma.constants.TimeUnit"><span class="pre">paradigma.constants.TimeUnit</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">unscaled_column_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../_modules/paradigma/imu_preprocessing.html#resample_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.imu_preprocessing.resample_data" title="Link to this definition"></a></dt>
-<dd><p>Resamples the IMU data to the resampling frequency. The data is scaled before resampling.
-:param df: The data to resample.
-:type df: pd.DataFrame
-:param time_column: The name of the time column.
-:type time_column: str
-:param time_unit_type: The time unit type of the time array. The method currently works only for <cite>TimeUnit.relative_ms</cite>.
-:type time_unit_type: TimeUnit
-:param unscaled_column_names: The names of the columns to resample.
-:type unscaled_column_names: list
-:param resampling_frequency: The frequency to resample the data to.
-:type resampling_frequency: int
-:param scale_factors: The scale factors to apply to the values before resampling (default is []).
-:type scale_factors: list, optional
-:param start_time: The start time of the time array, which is required if it is in absolute format (default is 0.0).
-:type start_time: float, optional</p>
+<dd><p>Resamples the IMU data to the resampling frequency. The data is scaled before resampling.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The resampled data.</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The data to resample.</p></li>
+<li><p><strong>time_column</strong> (<em>str</em>) – The name of the time column.</p></li>
+<li><p><strong>time_unit_type</strong> (<a class="reference internal" href="../constants/index.html#paradigma.constants.TimeUnit" title="paradigma.constants.TimeUnit"><em>TimeUnit</em></a>) – The time unit type of the time array. The method currently works only for <cite>TimeUnit.relative_ms</cite>.</p></li>
+<li><p><strong>unscaled_column_names</strong> (<em>list</em>) – The names of the columns to resample.</p></li>
+<li><p><strong>resampling_frequency</strong> (<em>int</em>) – The frequency to resample the data to.</p></li>
+<li><p><strong>scale_factors</strong> (<em>list</em><em>, </em><em>optional</em>) – The scale factors to apply to the values before resampling (default is []).</p></li>
+<li><p><strong>start_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The start time of the time array, which is required if it is in absolute format (default is 0.0).</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>pd.DataFrame</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The resampled data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
 </dd>
 </dl>
 </dd></dl>

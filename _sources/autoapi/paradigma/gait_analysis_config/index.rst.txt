@@ -9,7 +9,6 @@ Classes
 
 .. autoapisummary::
 
-   paradigma.gait_analysis_config.DataColumns
    paradigma.gait_analysis_config.GaitFeatureExtractionConfig
    paradigma.gait_analysis_config.GaitDetectionConfig
    paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig
@@ -19,51 +18,6 @@ Classes
 
 Module Contents
 ---------------
-
-.. py:class:: DataColumns
-
-   Enum for the data channels in tsdf.
-
-
-   .. py:attribute:: ACCELEROMETER_X
-      :value: 'accelerometer_x'
-
-
-
-   .. py:attribute:: ACCELEROMETER_Y
-      :value: 'accelerometer_y'
-
-
-
-   .. py:attribute:: ACCELEROMETER_Z
-      :value: 'accelerometer_z'
-
-
-
-   .. py:attribute:: GYROSCOPE_X
-      :value: 'gyroscope_x'
-
-
-
-   .. py:attribute:: GYROSCOPE_Y
-      :value: 'gyroscope_y'
-
-
-
-   .. py:attribute:: GYROSCOPE_Z
-      :value: 'gyroscope_z'
-
-
-
-   .. py:attribute:: PPG
-      :value: 'green'
-
-
-
-   .. py:attribute:: TIME
-      :value: 'time'
-
-
 
 .. py:class:: GaitFeatureExtractionConfig
 

@@ -24,6 +24,8 @@ Functions
    paradigma.feature_extraction.extract_angle_extremes
    paradigma.feature_extraction.extract_range_of_motion
    paradigma.feature_extraction.extract_peak_angular_velocity
+   paradigma.feature_extraction.extract_temporal_domain_features
+   paradigma.feature_extraction.extract_spectral_domain_features
 
 
 Module Contents
@@ -277,4 +279,8 @@ Module Contents
    :returns: The dataframe with the forward and backward peak angular velocity
    :rtype: pd.DataFrame
 
+
+.. py:function:: extract_temporal_domain_features(config, df_windowed, l_gravity_stats=['mean', 'std'])
+
+.. py:function:: extract_spectral_domain_features(config, df_windowed, sensor, l_sensor_colnames)
 

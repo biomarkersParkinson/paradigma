@@ -43,12 +43,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">TSDF schema</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../tsdf_paradigma_schemas.html">TSDF fields in Paradigma schemas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tsdf_paradigma_channels_and_units.html">Channels and units in Paradigma schemas</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Example notebooks</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Example notebooks</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/gait/gait_analysis.html">Gait analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/ppg/ppg_analysis.html">PPG analysis</a></li>
@@ -56,6 +51,11 @@
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TSDF schema</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tsdf_paradigma_schemas.html">TSDF fields in Paradigma schemas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tsdf_paradigma_channels_and_units.html">Channels and units in Paradigma schemas</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
@@ -98,7 +98,7 @@
 
 
 <div class="viewcode-block" id="extract_ppg_features">
-<a class="viewcode-back" href="../../autoapi/paradigma/heart_rate_util/index.html#paradigma.heart_rate_analysis.extract_ppg_features">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/heart_rate_util/index.html#paradigma.heart_rate_util.extract_ppg_features">[docs]</a>
 <span class="k">def</span> <span class="nf">extract_ppg_features</span><span class="p">(</span><span class="n">arr_ppg</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">sampling_frequency</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
     <span class="c1"># Number of features</span>
     <span class="n">feature_count</span> <span class="o">=</span> <span class="mi">10</span>
@@ -167,7 +167,7 @@
 
 
 <div class="viewcode-block" id="peakdet">
-<a class="viewcode-back" href="../../autoapi/paradigma/heart_rate_util/index.html#paradigma.heart_rate_analysis.peakdet">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/heart_rate_util/index.html#paradigma.heart_rate_util.peakdet">[docs]</a>
 <span class="k">def</span> <span class="nf">peakdet</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Detect peaks in a vector.</span>
@@ -208,7 +208,7 @@
 
 
 <div class="viewcode-block" id="calculate_power_ratio">
-<a class="viewcode-back" href="../../autoapi/paradigma/heart_rate_util/index.html#paradigma.heart_rate_analysis.calculate_power_ratio">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/heart_rate_util/index.html#paradigma.heart_rate_util.calculate_power_ratio">[docs]</a>
 <span class="k">def</span> <span class="nf">calculate_power_ratio</span><span class="p">(</span><span class="n">f1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">PSD_acc</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">f2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">PSD_ppg</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the power ratio of the accelerometer signal in the PPG frequency range.</span>
@@ -254,7 +254,7 @@
 <span class="c1"># print(result)</span>
 
 <div class="viewcode-block" id="read_PPG_quality_classifier">
-<a class="viewcode-back" href="../../autoapi/paradigma/heart_rate_util/index.html#paradigma.heart_rate_analysis.read_PPG_quality_classifier">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/heart_rate_util/index.html#paradigma.heart_rate_util.read_PPG_quality_classifier">[docs]</a>
 <span class="k">def</span> <span class="nf">read_PPG_quality_classifier</span><span class="p">(</span><span class="n">classifier_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read the PPG quality classifier from a file.</span>

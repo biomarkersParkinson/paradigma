@@ -43,12 +43,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">TSDF schema</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../tsdf_paradigma_schemas.html">TSDF fields in Paradigma schemas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tsdf_paradigma_channels_and_units.html">Channels and units in Paradigma schemas</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Example notebooks</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Example notebooks</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/gait/gait_analysis.html">Gait analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/ppg/ppg_analysis.html">PPG analysis</a></li>
@@ -56,6 +51,11 @@
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TSDF schema</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tsdf_paradigma_schemas.html">TSDF fields in Paradigma schemas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tsdf_paradigma_channels_and_units.html">Channels and units in Paradigma schemas</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
@@ -90,11 +90,12 @@
              
   <h1>Source code for paradigma.gait_analysis_config</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
-<span class="kn">from</span> <span class="nn">paradigma</span> <span class="kn">import</span> <span class="n">DataColumns</span>
+
+<span class="kn">from</span> <span class="nn">paradigma.constants</span> <span class="kn">import</span> <span class="n">DataColumns</span>
 
 
 <div class="viewcode-block" id="GaitFeatureExtractionConfig">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis.GaitFeatureExtractionConfig">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.GaitFeatureExtractionConfig">[docs]</a>
 <span class="k">class</span> <span class="nc">GaitFeatureExtractionConfig</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -163,7 +164,7 @@
 
     <span class="c1"># TODO: move to higher level config class (duplicate in armswing feature extraction)</span>
 <div class="viewcode-block" id="GaitFeatureExtractionConfig.set_sensor">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis.GaitFeatureExtractionConfig.set_sensor">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.GaitFeatureExtractionConfig.set_sensor">[docs]</a>
     <span class="k">def</span> <span class="nf">set_sensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sensor</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Sets the sensor and derived filenames &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">sensor</span>
@@ -173,7 +174,7 @@
 
 
 <div class="viewcode-block" id="GaitFeatureExtractionConfig.set_sampling_frequency">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis.GaitFeatureExtractionConfig.set_sampling_frequency">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.GaitFeatureExtractionConfig.set_sampling_frequency">[docs]</a>
     <span class="k">def</span> <span class="nf">set_sampling_frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sampling_frequency</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Sets the sampling frequency and derived variables &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">sampling_frequency</span>
@@ -185,7 +186,7 @@
 
 
 <div class="viewcode-block" id="GaitDetectionConfig">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis.GaitDetectionConfig">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.GaitDetectionConfig">[docs]</a>
 <span class="k">class</span> <span class="nc">GaitDetectionConfig</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -203,11 +204,11 @@
 
 
 <div class="viewcode-block" id="ArmSwingFeatureExtractionConfig">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis.ArmSwingFeatureExtractionConfig">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig">[docs]</a>
 <span class="k">class</span> <span class="nc">ArmSwingFeatureExtractionConfig</span><span class="p">:</span>
 
 <div class="viewcode-block" id="ArmSwingFeatureExtractionConfig.initialize_window_length_fields">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis.ArmSwingFeatureExtractionConfig.initialize_window_length_fields">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig.initialize_window_length_fields">[docs]</a>
     <span class="k">def</span> <span class="nf">initialize_window_length_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">window_length_s</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window_length_s</span> <span class="o">=</span> <span class="n">window_length_s</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window_overlap_s</span> <span class="o">=</span> <span class="n">window_length_s</span> <span class="o">*</span> <span class="mf">0.75</span>
@@ -215,7 +216,7 @@
 
 
 <div class="viewcode-block" id="ArmSwingFeatureExtractionConfig.initialize_sampling_frequency_fields">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis.ArmSwingFeatureExtractionConfig.initialize_sampling_frequency_fields">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig.initialize_sampling_frequency_fields">[docs]</a>
     <span class="k">def</span> <span class="nf">initialize_sampling_frequency_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sampling_frequency</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">sampling_frequency</span>
 
@@ -240,7 +241,7 @@
 
 
 <div class="viewcode-block" id="ArmSwingFeatureExtractionConfig.initialize_column_names">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis.ArmSwingFeatureExtractionConfig.initialize_column_names">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig.initialize_column_names">[docs]</a>
     <span class="k">def</span> <span class="nf">initialize_column_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_colname</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">pred_gait_colname</span><span class="o">=</span><span class="s1">&#39;pred_gait&#39;</span><span class="p">,</span>
                          <span class="n">angle_smooth_colname</span><span class="o">=</span><span class="s1">&#39;angle_smooth&#39;</span><span class="p">,</span> <span class="n">angle_colname</span><span class="o">=</span><span class="s1">&#39;angle&#39;</span><span class="p">,</span>
                          <span class="n">velocity_colname</span><span class="o">=</span><span class="s1">&#39;velocity&#39;</span><span class="p">,</span> <span class="n">segment_nr_colname</span><span class="o">=</span><span class="s1">&#39;segment_nr&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -322,7 +323,7 @@
 
     <span class="c1"># TODO: move to higher level config class (duplicate in gait feature extraction)</span>
 <div class="viewcode-block" id="ArmSwingFeatureExtractionConfig.set_sensor">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis.ArmSwingFeatureExtractionConfig.set_sensor">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig.set_sensor">[docs]</a>
     <span class="k">def</span> <span class="nf">set_sensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sensor</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Sets the sensor and derived filenames &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">sensor</span>
@@ -334,7 +335,7 @@
 
 
 <div class="viewcode-block" id="ArmSwingDetectionConfig">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis.ArmSwingDetectionConfig">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.ArmSwingDetectionConfig">[docs]</a>
 <span class="k">class</span> <span class="nc">ArmSwingDetectionConfig</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -350,7 +351,7 @@
 
 
 <div class="viewcode-block" id="ArmSwingQuantificationConfig">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis.ArmSwingQuantificationConfig">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.ArmSwingQuantificationConfig">[docs]</a>
 <span class="k">class</span> <span class="nc">ArmSwingQuantificationConfig</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>

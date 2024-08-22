@@ -43,12 +43,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">TSDF schema</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../tsdf_paradigma_schemas.html">TSDF fields in Paradigma schemas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tsdf_paradigma_channels_and_units.html">Channels and units in Paradigma schemas</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Example notebooks</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Example notebooks</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/gait/gait_analysis.html">Gait analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/ppg/ppg_analysis.html">PPG analysis</a></li>
@@ -56,6 +51,11 @@
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TSDF schema</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tsdf_paradigma_schemas.html">TSDF fields in Paradigma schemas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tsdf_paradigma_channels_and_units.html">Channels and units in Paradigma schemas</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
@@ -95,7 +95,7 @@
 
 
 <div class="viewcode-block" id="create_window">
-<a class="viewcode-back" href="../../autoapi/paradigma/windowing/index.html#paradigma.gait_analysis.create_window">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/windowing/index.html#paradigma.windowing.create_window">[docs]</a>
 <span class="k">def</span> <span class="nf">create_window</span><span class="p">(</span>
         <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">time_column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -148,7 +148,7 @@
 
 
 <div class="viewcode-block" id="tabulate_windows">
-<a class="viewcode-back" href="../../autoapi/paradigma/windowing/index.html#paradigma.gait_analysis.tabulate_windows">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/windowing/index.html#paradigma.windowing.tabulate_windows">[docs]</a>
 <span class="k">def</span> <span class="nf">tabulate_windows</span><span class="p">(</span>
         <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">time_column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -228,7 +228,7 @@
 
 
 <div class="viewcode-block" id="create_segments">
-<a class="viewcode-back" href="../../autoapi/paradigma/windowing/index.html#paradigma.gait_analysis.create_segments">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/windowing/index.html#paradigma.windowing.create_segments">[docs]</a>
 <span class="k">def</span> <span class="nf">create_segments</span><span class="p">(</span>
         <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">time_colname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -278,7 +278,7 @@
 
 
 <div class="viewcode-block" id="discard_segments">
-<a class="viewcode-back" href="../../autoapi/paradigma/windowing/index.html#paradigma.gait_analysis.discard_segments">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/paradigma/windowing/index.html#paradigma.windowing.discard_segments">[docs]</a>
 <span class="k">def</span> <span class="nf">discard_segments</span><span class="p">(</span>
         <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">time_colname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>

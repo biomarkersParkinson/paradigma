@@ -46,12 +46,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">TSDF schema</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../tsdf_paradigma_schemas.html">TSDF fields in Paradigma schemas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tsdf_paradigma_channels_and_units.html">Channels and units in Paradigma schemas</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Example notebooks</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Example notebooks</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../notebooks/gait/gait_analysis.html">Gait analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../notebooks/ppg/ppg_analysis.html">PPG analysis</a></li>
@@ -80,6 +75,11 @@
 </li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TSDF schema</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tsdf_paradigma_schemas.html">TSDF fields in Paradigma schemas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tsdf_paradigma_channels_and_units.html">Channels and units in Paradigma schemas</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
@@ -164,6 +164,12 @@
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.feature_extraction.extract_peak_angular_velocity" title="paradigma.feature_extraction.extract_peak_angular_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_peak_angular_velocity</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Extract the forward and backward peak angular velocity from the angular velocity.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.feature_extraction.extract_temporal_domain_features" title="paradigma.feature_extraction.extract_temporal_domain_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_temporal_domain_features</span></code></a>(config, df_windowed)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.feature_extraction.extract_spectral_domain_features" title="paradigma.feature_extraction.extract_spectral_domain_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_spectral_domain_features</span></code></a>(config, df_windowed, ...)</p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
@@ -496,6 +502,16 @@ to the velocity in the arm swing direction.</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.feature_extraction.extract_temporal_domain_features">
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">extract_temporal_domain_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_windowed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l_gravity_stats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['mean',</span> <span class="pre">'std']</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#extract_temporal_domain_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.extract_temporal_domain_features" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.feature_extraction.extract_spectral_domain_features">
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">extract_spectral_domain_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_windowed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l_sensor_colnames</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#extract_spectral_domain_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.extract_spectral_domain_features" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 </section>
 </section>
