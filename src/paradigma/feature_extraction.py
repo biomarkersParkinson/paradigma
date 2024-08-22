@@ -3,7 +3,6 @@ import pandas as pd
 from sklearn.decomposition import PCA
 
 from scipy import signal, fft
-
 from scipy.integrate import cumulative_trapezoid
 from scipy.signal import find_peaks
 
@@ -601,3 +600,79 @@ def extract_peak_angular_velocity(
                     df.loc[index, 'backward_peak_ang_vel'].append(np.abs(max(row[velocity_colname][l_extrema_indices[j]:l_extrema_indices[j+1]])))
     
     return
+
+
+def extract_temporal_domain_features(config, df_windowed, l_gravity_stats=['mean', 'std']):
+    # compute the mean and standard deviation of the gravity component of the acceleration signal for each axis
+    for col in config.l_gravity_cols:
+        for stat in l_gravity_stats:
+            df_windowed[f'{col}_{stat}'] = generate_statistics(
+                sensor_col=df_windowed[col],
+                statistic=stat
+                )
+
+    # compute the standard deviation of the Euclidean norm of the three axes
+    df_windowed['std_norm_acc'] = generate_std_norm(
+        df=df_windowed,
+        cols=config.l_accelerometer_cols
+        )
+    
+    return df_windowed
+
+
+def extract_spectral_domain_features(config, df_windowed, sensor, l_sensor_colnames):
+
+    for col in l_sensor_colnames:
+
+        # transform the temporal signal to the spectral domain using the fast fourier transform
+        df_windowed[f'{col}_freqs'], df_windowed[f'{col}_fft'] = signal_to_ffts(
+            sensor_col=df_windowed[col],
+            window_type=config.window_type,
+            sampling_frequency=config.sampling_frequency
+            )
+
+        # compute the power in distinct frequency bandwidths
+        for bandwidth, frequencies in config.d_frequency_bandwidths.items():
+            df_windowed[col+'_'+bandwidth] = df_windowed.apply(lambda x: compute_power_in_bandwidth(
+                sensor_col=x[col],
+                fmin=frequencies[0],
+                fmax=frequencies[1],
+                sampling_frequency=config.sampling_frequency,
+                window_type=config.window_type,
+                ), axis=1
+            )
+
+        # compute the dominant frequency, i.e., the frequency with the highest power
+        df_windowed[col+'_dominant_frequency'] = df_windowed.apply(lambda x: get_dominant_frequency(
+            signal_ffts=x[col+'_fft'], 
+            signal_freqs=x[col+'_freqs'],
+            fmin=config.spectrum_low_frequency,
+            fmax=config.spectrum_high_frequency
+            ), axis=1
+        )
+
+    # compute the power summed over the individual axes to obtain the total power per frequency bandwidth
+    for bandwidth in config.d_frequency_bandwidths.keys():
+        df_windowed['total_'+bandwidth] = df_windowed.apply(lambda x: sum(x[y+'_'+bandwidth] for y in l_sensor_colnames), axis=1)
+
+    # compute the power summed over the individual frequency bandwidths to obtain the total power
+    df_windowed['total_power'] = compute_power(
+        df=df_windowed,
+        fft_cols=[f'{col}_fft' for col in l_sensor_colnames])
+
+    # compute the cepstral coefficients of the total power signal
+    cc_cols = generate_cepstral_coefficients(
+        total_power_col=df_windowed['total_power'],
+        window_length_s=config.window_length_s,
+        sampling_frequency=config.sampling_frequency,
+        low_frequency=config.spectrum_low_frequency,
+        high_frequency=config.spectrum_high_frequency,
+        n_filters=config.n_dct_filters_cc,
+        n_coefficients=config.n_coefficients_cc
+        )
+
+    df_windowed = pd.concat([df_windowed, cc_cols], axis=1)
+
+    df_windowed = df_windowed.rename(columns={f'cc_{cc_nr}': f'cc_{cc_nr}_{sensor}' for cc_nr in range(1,config.n_coefficients_cc+1)}).rename(columns={'window_start': 'time'})
+
+    return df_windowed

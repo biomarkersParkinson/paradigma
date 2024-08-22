@@ -1,7 +1,6 @@
 from typing import List
 import numpy as np
 from scipy.signal import welch
-from scipy.signal.windows import hann
 from sklearn.preprocessing import StandardScaler
 from dateutil import parser
 
