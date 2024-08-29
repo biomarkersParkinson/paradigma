@@ -50,16 +50,16 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
 
     # Transform the time arrays to absolute milliseconds
     start_time_ppg = parse_iso8601_to_datetime(metadata_time_ppg.start_iso8601).timestamp()
-    df_imu[DataColumns.TIME] = paradigma.imu_preprocessing.transform_time_array(
-        time_array=df_imu[DataColumns.TIME],
+    df_imu[DataColumns.TIME.value] = paradigma.imu_preprocessing.transform_time_array(
+        time_array=df_imu[DataColumns.TIME.value],
         scale_factor=1000, 
         input_unit_type = paradigma.constants.TimeUnit.difference_ms,
         output_unit_type = paradigma.constants.TimeUnit.absolute_ms,
         start_time = start_time_ppg)
 
     start_time_imu = parse_iso8601_to_datetime(metadata_time_imu.start_iso8601).timestamp()
-    df_ppg[DataColumns.TIME] = paradigma.imu_preprocessing.transform_time_array(
-        time_array=df_ppg[DataColumns.TIME],
+    df_ppg[DataColumns.TIME.value] = paradigma.imu_preprocessing.transform_time_array(
+        time_array=df_ppg[DataColumns.TIME.value],
         scale_factor=1000, 
         input_unit_type = paradigma.constants.TimeUnit.difference_ms,
         output_unit_type = paradigma.constants.TimeUnit.absolute_ms,
@@ -122,16 +122,16 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
             df_ppg_proc = df_ppg_proc.drop(columns=[col])
             df_ppg_proc = df_ppg_proc.rename(columns={f'filt_{col}': col})
 
-    df_imu_proc[DataColumns.TIME] = paradigma.imu_preprocessing.transform_time_array(
-        time_array=df_imu_proc[DataColumns.TIME],
+    df_imu_proc[DataColumns.TIME.value] = paradigma.imu_preprocessing.transform_time_array(
+        time_array=df_imu_proc[DataColumns.TIME.value],
         scale_factor=1,
         input_unit_type=paradigma.constants.TimeUnit.absolute_ms,
         output_unit_type=paradigma.constants.TimeUnit.relative_ms,
         start_time=start_time_ppg,
     )
 
-    df_ppg_proc[DataColumns.TIME] = paradigma.imu_preprocessing.transform_time_array(
-        time_array=df_ppg_proc[DataColumns.TIME],
+    df_ppg_proc[DataColumns.TIME.value] = paradigma.imu_preprocessing.transform_time_array(
+        time_array=df_ppg_proc[DataColumns.TIME.value],
         scale_factor=1,
         input_unit_type=paradigma.constants.TimeUnit.absolute_ms,
         output_unit_type=paradigma.constants.TimeUnit.relative_ms,

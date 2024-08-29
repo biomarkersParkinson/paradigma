@@ -24,7 +24,7 @@ def preprocess_imu_data(input_path: Union[str, Path], output_path: Union[str, Pa
 
     # convert to relative seconds from delta milliseconds
     df[config.time_colname] = transform_time_array(
-        time_array=df[config.time_colname],
+        time_array=df[config.time_colname.value],
         scale_factor=1000, 
         input_unit_type = TimeUnit.difference_ms,
         output_unit_type = TimeUnit.relative_ms)
@@ -39,7 +39,7 @@ def preprocess_imu_data(input_path: Union[str, Path], output_path: Union[str, Pa
         resampling_frequency=config.sampling_frequency)
     
     if config.side_watch == 'left':
-        df[DataColumns.ACCELEROMETER_X] *= -1
+        df[DataColumns.ACCELEROMETER_X.value] *= -1
 
     for col in config.d_channels_accelerometer.keys():
 
@@ -61,7 +61,7 @@ def preprocess_imu_data(input_path: Union[str, Path], output_path: Union[str, Pa
 
     # Store data
     for sensor, units in zip(['accelerometer', 'gyroscope'], ['g', config.rotation_units]):
-        df_sensor = df[[config.time_colname] + [x for x in df.columns if sensor in x]]
+        df_sensor = df[[config.time_colname.value] + [x for x in df.columns if sensor in x]]
 
         metadata_samples.channels = [x for x in df.columns if sensor in x]
         metadata_samples.units = list(np.repeat(units, len(metadata_samples.channels)))
@@ -75,8 +75,8 @@ def preprocess_imu_data(input_path: Union[str, Path], output_path: Union[str, Pa
 def transform_time_array(
     time_array: pd.Series,
     scale_factor: float,
-    input_unit_type: str,
-    output_unit_type: str,
+    input_unit_type: TimeUnit,
+    output_unit_type: TimeUnit,
     start_time: float = 0.0,
 ) -> np.ndarray:
     """
@@ -88,9 +88,9 @@ def transform_time_array(
         The time array in milliseconds to transform.
     scale_factor : float
         The scale factor to apply to the time array.
-    input_unit_type : str
+    input_unit_type : TimeUnit
         The time unit type of the input time array. Raw PPP data was in `TimeUnit.difference_ms`.
-    output_unit_type : str
+    output_unit_type : TimeUnit
         The time unit type of the output time array. The processing is often done in `TimeUnit.relative_ms`.
     start_time : float, optional
         The start time of the time array in UNIX milliseconds (default is 0.0)
@@ -129,8 +129,8 @@ def transform_time_array(
 
 def resample_data(
     df: pd.DataFrame,
-    time_column : str,
-    time_unit_type: str,
+    time_column : DataColumns,
+    time_unit_type: TimeUnit,
     unscaled_column_names: List[str],
     resampling_frequency: int,
     scale_factors: List[float] = [],
@@ -177,7 +177,7 @@ def resample_data(
     t_resampled = np.arange(start_time, time_abs_array[-1], 1 / resampling_frequency)
 
     # create dataframe
-    df = pd.DataFrame(t_resampled, columns=[time_column])
+    df = pd.DataFrame(t_resampled, columns=[time_column.value])
 
     # interpolate IMU - maybe a separate method?
     for j, sensor_col in enumerate(unscaled_column_names):
@@ -185,7 +185,8 @@ def resample_data(
             raise ValueError("time_abs_array is not strictly increasing")
 
         cs = CubicSpline(time_abs_array, scaled_values.T[j])
-        df[sensor_col] = cs(df[time_column])
+        #TODO: isn't sensor_col of type DataColumns?
+        df[sensor_col] = cs(df[time_column.value])
 
     return df
 

@@ -1,4 +1,6 @@
-class DataColumns:
+from enum import Enum
+
+class DataColumns(Enum):
     """
     Enum for the data channels in tsdf.
     """
@@ -11,7 +13,7 @@ class DataColumns:
     PPG = "green"
     TIME = "time"
 
-class DataUnits:
+class DataUnits(Enum):
     """
     Enum for the data channel unit types in tsdf.
     """
@@ -21,7 +23,7 @@ class DataUnits:
     """ The rotation is in degrees per second. """
     
 
-class TimeUnit:
+class TimeUnit(Enum):
     """
     Enum for the `time` channel unit types in tsdf.
     """

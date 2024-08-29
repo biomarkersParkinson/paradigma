@@ -16,12 +16,12 @@ def extract_signal_quality_features(input_path: str, classifier_path: str, outpu
     # load data
     metadata_time_ppg, metadata_samples_ppg = read_metadata(input_path, "PPG_meta.json", "PPG_time.bin", "PPG_samples.bin")
     df_ppg = tsdf.load_dataframe_from_binaries([metadata_time_ppg, metadata_samples_ppg], tsdf.constants.ConcatenationType.columns)
-    arr_ppg = df_ppg[DataColumns.PPG].to_numpy()
-    relative_time_ppg = df_ppg[DataColumns.TIME].to_numpy()
+    arr_ppg = df_ppg[DataColumns.PPG.value].to_numpy()
+    relative_time_ppg = df_ppg[DataColumns.TIME.value].to_numpy()
     
     metadata_time_acc, metadata_samples_acc = read_metadata(input_path, "accelerometer_meta.json", "accelerometer_time.bin", "accelerometer_samples.bin")
     df_acc = tsdf.load_dataframe_from_binaries([metadata_time_acc, metadata_samples_acc], tsdf.constants.ConcatenationType.columns)
-    arr_acc = df_acc[[DataColumns.ACCELEROMETER_X, DataColumns.ACCELEROMETER_Y, DataColumns.ACCELEROMETER_Z]].to_numpy()
+    arr_acc = df_acc[[DataColumns.ACCELEROMETER_X.value, DataColumns.ACCELEROMETER_Y.value, DataColumns.ACCELEROMETER_Z.value]].to_numpy()
 
     sampling_frequency_ppg = config.sampling_frequency_ppg
     sampling_frequency_imu = config.sampling_frequency_imu

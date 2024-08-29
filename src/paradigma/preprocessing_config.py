@@ -37,14 +37,14 @@ class IMUPreprocessingConfig(BasePreprocessingConfig):
         self.rotation_units = 'deg/s'
 
         self.d_channels_accelerometer = {
-            DataColumns.ACCELEROMETER_X: self.acceleration_units,
-            DataColumns.ACCELEROMETER_Y: self.acceleration_units,
-            DataColumns.ACCELEROMETER_Z: self.acceleration_units,
+            DataColumns.ACCELEROMETER_X.value: self.acceleration_units,
+            DataColumns.ACCELEROMETER_Y.value: self.acceleration_units,
+            DataColumns.ACCELEROMETER_Z.value: self.acceleration_units,
         }
         self.d_channels_gyroscope = {
-            DataColumns.GYROSCOPE_X: self.rotation_units,
-            DataColumns.GYROSCOPE_Y: self.rotation_units,
-            DataColumns.GYROSCOPE_Z: self.rotation_units,
+            DataColumns.GYROSCOPE_X.value: self.rotation_units,
+            DataColumns.GYROSCOPE_Y.value: self.rotation_units,
+            DataColumns.GYROSCOPE_Z.value: self.rotation_units,
         }
         self.d_channels_imu = {**self.d_channels_accelerometer, **self.d_channels_gyroscope}
 
@@ -58,7 +58,7 @@ class PPGPreprocessingConfig(BasePreprocessingConfig):
         self.time_filename = 'PPG_time.bin'
 
         self.d_channels_ppg = {
-            DataColumns.PPG: 'none'
+            DataColumns.PPG.value: 'none'
         }
 
         self.sampling_frequency = 30
