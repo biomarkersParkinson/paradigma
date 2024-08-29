@@ -84,13 +84,13 @@ def transform_time_array(
 
     Parameters
     ----------
-    time_array : np.ndarray
+    time_array : pd.Series
         The time array in milliseconds to transform.
     scale_factor : float
         The scale factor to apply to the time array.
-    input_unit_type : TimeUnit
+    input_unit_type : str
         The time unit type of the input time array. Raw PPP data was in `TimeUnit.difference_ms`.
-    output_unit_type : TimeUnit
+    output_unit_type : str
         The time unit type of the output time array. The processing is often done in `TimeUnit.relative_ms`.
     start_time : float, optional
         The start time of the time array in UNIX milliseconds (default is 0.0)
