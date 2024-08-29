@@ -2,22 +2,35 @@
 
 Digital Biomarkers for Parkinson's Disease Toolbox
 
-## Implementation progress
-
-See [here](https://docs.google.com/spreadsheets/d/19AZZ44cOJeHonGaSpAPh0eMXW2ix5JHz9L9zYTNnH6g/edit?usp=sharing).
+A package ([documentation](https://biomarkersparkinson.github.io/paradigma/)) to process wearable sensor data for Parkinson's disease.
 
 ## Installation
-The package requires Python 3.9 or higher. It can be installed using [Poetry](https://python-poetry.org/docs/#installation):
+
+The package is available in PyPi and requires [Python 3.9](https://www.python.org/downloads/) or higher. It can be installed using:
 
 ```bash
-$ poetry install
+pip install paradigma
 ```
 
 ## Usage
 
-- TODO
+See our [extended documentation](https://biomarkersparkinson.github.io/paradigma/).
+
 
 ## Development
+
+### Installation
+The package requires Python 3.9 or higher. Use [Poetry](https://python-poetry.org/docs/#installation) to set up the environment and install the dependencies:
+
+```bash
+poetry install
+```
+
+### Testing
+
+```bash
+poetry run pytest
+```
 
 ### Building documentation
 
