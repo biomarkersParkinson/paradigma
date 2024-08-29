@@ -1,6 +1,8 @@
 import os
 import numpy as np
 import pandas as pd
+from pathlib import Path
+from typing import Union
 
 import tsdf
 
@@ -16,7 +18,7 @@ from paradigma.windowing import tabulate_windows, create_segments, discard_segme
 from paradigma.util import get_end_iso8601, write_data, read_metadata
 
 
-def extract_gait_features(input_path: str, output_path: str, config: GaitFeatureExtractionConfig) -> None:
+def extract_gait_features(input_path: Union[str, Path], output_path: Union[str, Path], config: GaitFeatureExtractionConfig) -> None:
     # load data
     metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
@@ -57,7 +59,7 @@ def extract_gait_features(input_path: str, output_path: str, config: GaitFeature
     write_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df_windowed)
 
 
-def detect_gait(input_path: str, output_path: str, path_to_classifier_input: str, config: GaitDetectionConfig) -> None:
+def detect_gait(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: GaitDetectionConfig) -> None:
     
     # Load the data
     metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
@@ -98,7 +100,7 @@ def detect_gait(input_path: str, output_path: str, path_to_classifier_input: str
     write_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df)
 
 
-def extract_arm_swing_features(input_path: str, output_path: str, config: ArmSwingFeatureExtractionConfig) -> None:
+def extract_arm_swing_features(input_path: Union[str, Path], output_path: Union[str, Path], config: ArmSwingFeatureExtractionConfig) -> None:
     # load accelerometer and gyroscope data
     l_dfs = []
     for sensor in ['accelerometer', 'gyroscope']:
@@ -281,7 +283,7 @@ def extract_arm_swing_features(input_path: str, output_path: str, config: ArmSwi
     write_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df_windowed)
 
 
-def detect_arm_swing(input_path: str, output_path: str, path_to_classifier_input: str, config: ArmSwingDetectionConfig) -> None:
+def detect_arm_swing(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: ArmSwingDetectionConfig) -> None:
     # Load the data
     metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
@@ -323,7 +325,7 @@ def detect_arm_swing(input_path: str, output_path: str, path_to_classifier_input
     write_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df)
 
 
-def quantify_arm_swing(path_to_feature_input: str, path_to_prediction_input: str, output_path: str, config: ArmSwingQuantificationConfig) -> None:
+def quantify_arm_swing(path_to_feature_input: Union[str, Path], path_to_prediction_input: Union[str, Path], output_path: Union[str, Path], config: ArmSwingQuantificationConfig) -> None:
     # Load the features & predictions
     metadata_time, metadata_samples = read_metadata(path_to_feature_input, config.meta_filename, config.time_filename, config.values_filename)
     df_features = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)

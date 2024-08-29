@@ -125,8 +125,8 @@ def signal_to_ffts(
 
 def compute_power_in_bandwidth(
         sensor_col: list,
-        fmin: int,
-        fmax: int,
+        fmin: float,
+        fmax: float,
         sampling_frequency: int = 100,
         window_type: str = 'hann',
     ) -> float:
@@ -140,9 +140,9 @@ def compute_power_in_bandwidth(
     sensor_col: list
         The sensor column to be transformed (e.g. x-axis of accelerometer). This corresponds to a single window, which is a single row of the dataframe, 
         and contains values of individual timestamps composing the window.
-    fmin: int
+    fmin: float
         The lower bound of the frequency band
-    fmax: int
+    fmax: float
         The upper bound of the frequency band
     sampling_frequency: int
         The sampling frequency of the signal (default: 100)
@@ -162,10 +162,10 @@ def compute_power_in_bandwidth(
 
 def compute_perc_power(
         sensor_col: list,
-        fmin_band: int,
-        fmax_band: int,
-        fmin_total: int = 0,
-        fmax_total: int = 100,
+        fmin_band: float,
+        fmax_band: float,
+        fmin_total: float = 0,
+        fmax_total: float = 100,
         sampling_frequency: int = 100,
         window_type: str = 'hann'
     ) -> float:
@@ -177,13 +177,13 @@ def compute_perc_power(
     ----------
     sensor_col: list
         The sensor column to be transformed (e.g. x-axis of accelerometer). This corresponds to a single window, which is a single row of the dataframe
-    fmin_band: int
+    fmin_band: float
         The lower bound of the frequency band
-    fmax_band: int
+    fmax_band: float
         The upper bound of the frequency band
-    fmin_total: int
+    fmin_total: float
         The lower bound of the frequency spectrum (default: 0)
-    fmax_total: int
+    fmax_total: float
         The upper bound of the frequency spectrum (default: 100)
     sampling_frequency: int
         The sampling frequency of the signal (default: 100)
@@ -217,8 +217,8 @@ def compute_perc_power(
 def get_dominant_frequency(
         signal_ffts: list,
         signal_freqs: list,
-        fmin: int,
-        fmax: int
+        fmin: float,
+        fmax: float
         ) -> float:
     """Note: signal_ffts and signal_freqs are single cells (which corresponds to a single window) of signal_ffts and signal_freqs, as it is used with apply function.
     

@@ -26,13 +26,13 @@ def write_data(metadata_time: TSDFMetadata, metadata_samples: TSDFMetadata,
 
     # Make sure the iso8601 format is correctly set
     #TODO: this should be properly validated in the tsdf library instead
-    start_date = parser.parse(metadata_time.__getattribute__('start_iso8601'))
+    start_date = parser.parse(metadata_time.start_iso8601)
     metadata_time.start_iso8601 = format_datetime_to_iso8601(start_date)
-    end_date = parser.parse(metadata_time.__getattribute__('end_iso8601'))
+    end_date = parser.parse(metadata_time.end_iso8601)
     metadata_time.end_iso8601 = format_datetime_to_iso8601(end_date)
-    start_date = parser.parse(metadata_samples.__getattribute__('start_iso8601'))
+    start_date = parser.parse(metadata_samples.start_iso8601)
     metadata_samples.start_iso8601 = format_datetime_to_iso8601(start_date)
-    end_date = parser.parse(metadata_samples.__getattribute__('end_iso8601'))
+    end_date = parser.parse(metadata_samples.end_iso8601)
     metadata_samples.end_iso8601 = format_datetime_to_iso8601(end_date)
 
     # TODO: improve the way the metadata is stored at a different location

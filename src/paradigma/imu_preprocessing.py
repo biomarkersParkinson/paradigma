@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import List, Union
 import numpy as np
 import pandas as pd
@@ -10,10 +11,11 @@ from paradigma.util import write_data, read_metadata
 from paradigma.preprocessing_config import IMUPreprocessingConfig
 
 
-def preprocess_imu_data(input_path: str, output_path: str, config: IMUPreprocessingConfig) -> None:
+def preprocess_imu_data(input_path: Union[str, Path], output_path: Union[str, Path], config: IMUPreprocessingConfig) -> None:
 
     # Load data
-    metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
+    metadata_time, metadata_samples = read_metadata(str(input_path), str(config.meta_filename),
+                                                    str(config.time_filename), str(config.values_filename))
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
 
     # Rename columns
@@ -71,10 +73,10 @@ def preprocess_imu_data(input_path: str, output_path: str, config: IMUPreprocess
         write_data(metadata_time, metadata_samples, output_path, f'{sensor}_meta.json', df_sensor)
 
 def transform_time_array(
-    time_array: np.ndarray,
+    time_array: pd.Series,
     scale_factor: float,
-    input_unit_type: TimeUnit,
-    output_unit_type: TimeUnit,
+    input_unit_type: str,
+    output_unit_type: str,
     start_time: float = 0.0,
 ) -> np.ndarray:
     """
@@ -127,11 +129,11 @@ def transform_time_array(
 
 def resample_data(
     df: pd.DataFrame,
-    time_column : DataColumns,
-    time_unit_type: TimeUnit,
-    unscaled_column_names: list,
+    time_column : str,
+    time_unit_type: str,
+    unscaled_column_names: List[str],
     resampling_frequency: int,
-    scale_factors: list = [],
+    scale_factors: List[float] = [],
     start_time: float = 0.0,
 ) -> pd.DataFrame:
     """

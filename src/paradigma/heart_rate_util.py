@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
 import pickle
 import pandas as pd
 import numpy as np
@@ -72,7 +72,7 @@ def extract_ppg_features(arr_ppg: np.ndarray, sampling_frequency: int) -> np.nda
 # print(features_df)
 
 
-def peakdet(v: np.ndarray, delta, x: np.ndarray=None) -> Tuple[List[Tuple[int, float]], List[Tuple[int, float]]]:
+def peakdet(v: np.ndarray, delta, x: Union[np.ndarray, None]=None) -> Tuple[List[Tuple[int, float]], List[Tuple[int, float]]]:
     """
     Detect peaks in a vector.
     

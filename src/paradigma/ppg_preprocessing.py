@@ -3,7 +3,7 @@ import json
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import List
+from typing import List, Union
 from datetime import datetime, timedelta
 
 import tsdf
@@ -31,7 +31,7 @@ def scan_and_sync_segments(input_path_ppg, input_path_imu):
     return metadatas_ppg, metadatas_imu
 
 
-def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TSDFMetadata, output_path: str, ppg_config: PPGPreprocessingConfig, imu_config: IMUPreprocessingConfig):
+def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TSDFMetadata, output_path: Union[str, Path], ppg_config: PPGPreprocessingConfig, imu_config: IMUPreprocessingConfig):
 
     # Load PPG data
     metadata_time_ppg = tsdf_meta_ppg[ppg_config.time_filename]
