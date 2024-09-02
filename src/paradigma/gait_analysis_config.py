@@ -16,8 +16,8 @@ class GaitFeatureExtractionConfig:
         self.window_step_size_s: int = 1
 
         # cepstral coefficients
-        self.cc_low_frequency = 0
-        self.cc_high_frequency = 25
+        self.cc_low_frequency: int = 0
+        self.cc_high_frequency: int = 25
         self.n_dct_filters_cc: int = 20
         self.n_coefficients_cc: int = 12
         
@@ -140,14 +140,14 @@ class ArmSwingFeatureExtractionConfig:
         self.segment_nr_colname = segment_nr_colname
 
         self.l_accelerometer_cols: List[str] = [
-            DataColumns.ACCELEROMETER_X.value, 
-            DataColumns.ACCELEROMETER_Y.value, 
+            DataColumns.ACCELEROMETER_X.value,
+            DataColumns.ACCELEROMETER_Y.value,
             DataColumns.ACCELEROMETER_Z.value
         ]
 
         self.l_gyroscope_cols: List[str] = [
-            DataColumns.GYROSCOPE_X.value, 
-            DataColumns.GYROSCOPE_Y.value, 
+            DataColumns.GYROSCOPE_X.value,
+            DataColumns.GYROSCOPE_Y.value,
             DataColumns.GYROSCOPE_Z.value
         ]
         

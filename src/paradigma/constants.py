@@ -27,11 +27,11 @@ class TimeUnit(Enum):
     """
     Enum for the `time` channel unit types in tsdf.
     """
-    relative_ms = "relative_ms"
+    RELATIVE_MS = "relative_ms"
     """ The time is relative to the start time in milliseconds. """
-    absolute_ms = "absolute_ms"
+    ABSOLUTE_MS = "absolute_ms"
     """ The time is absolute in milliseconds. """
-    difference_ms = "difference_ms"
+    DIFFERENCE_MS = "difference_ms"
     """ The time is the difference between consecutive samples in milliseconds. """
 
 UNIX_TICKS_MS: int = 1000

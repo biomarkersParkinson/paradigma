@@ -26,14 +26,14 @@ def preprocess_imu_data(input_path: Union[str, Path], output_path: Union[str, Pa
     df[config.time_colname] = transform_time_array(
         time_array=df[config.time_colname.value],
         scale_factor=1000, 
-        input_unit_type = TimeUnit.difference_ms,
-        output_unit_type = TimeUnit.relative_ms)
+        input_unit_type = TimeUnit.DIFFERENCE_MS,
+        output_unit_type = TimeUnit.RELATIVE_MS)
     
 
     df = resample_data(
         df=df,
         time_column=config.time_colname,
-        time_unit_type=TimeUnit.relative_ms,
+        time_unit_type=TimeUnit.RELATIVE_MS,
         unscaled_column_names = list(config.d_channels_imu.keys()),
         scale_factors=metadata_samples.scale_factors,
         resampling_frequency=config.sampling_frequency)
@@ -89,9 +89,9 @@ def transform_time_array(
     scale_factor : float
         The scale factor to apply to the time array.
     input_unit_type : TimeUnit
-        The time unit type of the input time array. Raw PPP data was in `TimeUnit.difference_ms`.
+        The time unit type of the input time array. Raw PPP data was in `TimeUnit.DIFFERENCE_MS`.
     output_unit_type : TimeUnit
-        The time unit type of the output time array. The processing is often done in `TimeUnit.relative_ms`.
+        The time unit type of the output time array. The processing is often done in `TimeUnit.RELATIVE_MS`.
     start_time : float, optional
         The start time of the time array in UNIX milliseconds (default is 0.0)
 
@@ -100,28 +100,28 @@ def transform_time_array(
     time_array
         The transformed time array in milliseconds, with the specified time unit type.
     """
-    # Scale time array and transform to relative time (`TimeUnit.relative_ms`) 
-    if input_unit_type == TimeUnit.difference_ms:
+    # Scale time array and transform to relative time (`TimeUnit.RELATIVE_MS`) 
+    if input_unit_type == TimeUnit.DIFFERENCE_MS:
     # Convert a series of differences into cumulative sum to reconstruct original time series.
         time_array = np.cumsum(np.double(time_array)) / scale_factor
-    elif input_unit_type == TimeUnit.absolute_ms:
+    elif input_unit_type == TimeUnit.ABSOLUTE_MS:
         # Set the start time if not provided.
         if np.isclose(start_time, 0.0, rtol=1e-09, atol=1e-09):
             start_time = time_array[0]
         # Convert absolute time stamps into a time series relative to start_time.
         time_array = (time_array - start_time) / scale_factor
-    elif input_unit_type == TimeUnit.relative_ms:
+    elif input_unit_type == TimeUnit.RELATIVE_MS:
         # Scale the relative time series as per the scale_factor.
         time_array = time_array / scale_factor
 
-    # Transform the time array from `TimeUnit.relative_ms` to the specified time unit type
-    if output_unit_type == TimeUnit.absolute_ms:
+    # Transform the time array from `TimeUnit.RELATIVE_MS` to the specified time unit type
+    if output_unit_type == TimeUnit.ABSOLUTE_MS:
         # Converts time array to absolute time by adding the start time to each element.
         time_array = time_array + start_time
-    elif output_unit_type == TimeUnit.difference_ms:
+    elif output_unit_type == TimeUnit.DIFFERENCE_MS:
         # Creates a new array starting with 0, followed by the differences between consecutive elements.
         time_array = np.diff(np.insert(time_array, 0, start_time))
-    elif output_unit_type == TimeUnit.relative_ms:
+    elif output_unit_type == TimeUnit.RELATIVE_MS:
         # The array is already in relative format, do nothing.
         pass
     return time_array
@@ -146,7 +146,7 @@ def resample_data(
     time_column : str
         The name of the time column.
     time_unit_type : TimeUnit
-        The time unit type of the time array. The method currently works only for `TimeUnit.relative_ms`.
+        The time unit type of the time array. The method currently works only for `TimeUnit.RELATIVE_MS`.
     unscaled_column_names : list
         The names of the columns to resample.
     resampling_frequency : int
@@ -162,7 +162,7 @@ def resample_data(
         The resampled data.
     """
     # We need a start_time if the time is in absolute time format
-    if time_unit_type == TimeUnit.absolute_ms and start_time == 0.0:
+    if time_unit_type == TimeUnit.ABSOLUTE_MS and start_time == 0.0:
         raise ValueError("start_time is required for absolute time format")
 
     # get time and values
