@@ -42,6 +42,10 @@ authors:
     family-names: Timmermans
     email: nienke.timmermans@radboudumc.nl
     affiliation: Radboud University Medical Center, Nijmegen, Netherlands
+  - given-names: Diogo
+    family-names: Soriano
+    email: diogo.soriano@ufabc.edu.br
+    affiliation: Center for Engineering, Modeling and Applied Social Sciences (CECS), Federal University of ABC (UFABC), Brazil
 identifiers:
   - type: doi
     value: 10.5281/zenodo.7867900
