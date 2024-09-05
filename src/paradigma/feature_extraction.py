@@ -1,3 +1,4 @@
+from typing import List
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
@@ -5,6 +6,9 @@ from sklearn.decomposition import PCA
 from scipy import signal, fft
 from scipy.integrate import cumulative_trapezoid
 from scipy.signal import find_peaks
+
+from paradigma.constants import DataColumns
+from paradigma.gait_analysis_config import GaitFeatureExtractionConfig, ArmSwingFeatureExtractionConfig
 
 
 def generate_statistics(
@@ -39,7 +43,7 @@ def generate_statistics(
 
 def generate_std_norm(
         df: pd.DataFrame,
-        cols: list,
+        cols: List[str],
     ) -> pd.Series:
     """Generate the standard deviation of the norm of the accelerometer axes.
     
@@ -47,7 +51,7 @@ def generate_std_norm(
     ----------
     df: pd.DataFrame
         The dataframe containing the accelerometer axes
-    cols: list
+    cols: List[str]
         The names of the columns containing the accelerometer axes
         
     Returns
@@ -602,7 +606,28 @@ def extract_peak_angular_velocity(
     return
 
 
-def extract_temporal_domain_features(config, df_windowed, l_gravity_stats=['mean', 'std']):
+def extract_temporal_domain_features(config:GaitFeatureExtractionConfig | ArmSwingFeatureExtractionConfig, df_windowed:pd.DataFrame, l_gravity_stats=['mean', 'std']) -> pd.DataFrame:
+    """
+    Compute temporal domain features for the accelerometer signal. The features are added to the dataframe. Therefore the original dataframe is modified, and the modified dataframe is returned.
+
+    Parameters
+    ----------
+
+    config: GaitFeatureExtractionConfig
+        The configuration object containing the parameters for the feature extraction
+    
+    df_windowed: pd.DataFrame
+        The dataframe containing the windowed accelerometer signal
+
+    l_gravity_stats: list, optional
+        The statistics to be computed for the gravity component of the accelerometer signal (default: ['mean', 'std'])
+    
+    Returns
+    -------
+    pd.DataFrame
+        The dataframe with the added temporal domain features.
+    """
+    
     # compute the mean and standard deviation of the gravity component of the acceleration signal for each axis
     for col in config.l_gravity_cols:
         for stat in l_gravity_stats:

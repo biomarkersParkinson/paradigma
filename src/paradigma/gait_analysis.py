@@ -123,8 +123,8 @@ def extract_arm_swing_features(input_path: Union[str, Path], output_path: Union[
     # direction of the swing of the arm 
     df[config.velocity_colname] = pca_transform_gyroscope(
         df=df,
-        y_gyro_colname=DataColumns.GYROSCOPE_Y.value,
-        z_gyro_colname=DataColumns.GYROSCOPE_Z.value,
+        y_gyro_colname=DataColumns.GYROSCOPE_Y,
+        z_gyro_colname=DataColumns.GYROSCOPE_Z,
         pred_gait_colname=config.pred_gait_colname
     )
 

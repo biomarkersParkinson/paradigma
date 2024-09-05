@@ -1,6 +1,8 @@
-from enum import Enum
+from dataclasses import dataclass
 
-class DataColumns(Enum):
+
+@dataclass(frozen=True)
+class DataColumns():
     """
     Enum for the data channels in tsdf.
     """
@@ -13,7 +15,18 @@ class DataColumns(Enum):
     PPG = "green"
     TIME = "time"
 
-class DataUnits(Enum):
+    # The following are used in gait analysis
+    GRAV_ACCELEROMETER_X = "grav_accelerometer_x"
+    GRAV_ACCELEROMETER_Y = "grav_accelerometer_y"
+    GRAV_ACCELEROMETER_Z = "grav_accelerometer_z"
+    PRED_GAIT = "pred_gait"
+    ANGLE = "angle"
+    ANGLE_SMOOTH = "angle_smooth"
+    VELOCITY = "velocity"
+    SEGMENT_NR = "segment_nr"
+    
+@dataclass(frozen=True)
+class DataUnits():
     """
     Enum for the data channel unit types in tsdf.
     """
@@ -21,9 +34,9 @@ class DataUnits(Enum):
     """ The acceleration is in m/s^2. """
     ROTATION = "deg/s"
     """ The rotation is in degrees per second. """
-    
 
-class TimeUnit(Enum):
+@dataclass(frozen=True)
+class TimeUnit():
     """
     Enum for the `time` channel unit types in tsdf.
     """
