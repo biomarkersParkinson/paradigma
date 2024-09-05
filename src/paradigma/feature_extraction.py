@@ -8,7 +8,7 @@ from scipy.integrate import cumulative_trapezoid
 from scipy.signal import find_peaks
 
 from paradigma.constants import DataColumns
-from paradigma.gait_analysis_config import GaitFeatureExtractionConfig, ArmSwingFeatureExtractionConfig
+from paradigma.gait_analysis_config import IMUConfig
 
 
 def generate_statistics(
@@ -606,7 +606,7 @@ def extract_peak_angular_velocity(
     return
 
 
-def extract_temporal_domain_features(config:GaitFeatureExtractionConfig | ArmSwingFeatureExtractionConfig, df_windowed:pd.DataFrame, l_gravity_stats=['mean', 'std']) -> pd.DataFrame:
+def extract_temporal_domain_features(config: IMUConfig, df_windowed:pd.DataFrame, l_gravity_stats=['mean', 'std']) -> pd.DataFrame:
     """
     Compute temporal domain features for the accelerometer signal. The features are added to the dataframe. Therefore the original dataframe is modified, and the modified dataframe is returned.
 

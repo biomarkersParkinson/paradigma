@@ -71,12 +71,12 @@ def detect_gait(input_path: Union[str, Path], output_path: Union[str, Path], pat
         threshold = float(f.read())
 
     # Prepare the data
-    clf.feature_names_in_ = [f'{x}_power_below_gait' for x in config.l_accel_cols] + \
-                            [f'{x}_power_gait' for x in config.l_accel_cols] + \
-                            [f'{x}_power_tremor' for x in config.l_accel_cols] + \
-                            [f'{x}_power_above_tremor' for x in config.l_accel_cols] + \
-                            ['std_norm_acc'] + [f'cc_{i}_accelerometer' for i in range(1, 13)] + [f'grav_{x}_{y}' for x in config.l_accel_cols for y in ['mean', 'std']] + \
-                            [f'{x}_dominant_frequency' for x in config.l_accel_cols]
+    clf.feature_names_in_ = [f'{x}_power_below_gait' for x in config.l_accelerometer_cols] + \
+                            [f'{x}_power_gait' for x in config.l_accelerometer_cols] + \
+                            [f'{x}_power_tremor' for x in config.l_accelerometer_cols] + \
+                            [f'{x}_power_above_tremor' for x in config.l_accelerometer_cols] + \
+                            ['std_norm_acc'] + [f'cc_{i}_accelerometer' for i in range(1, 13)] + [f'grav_{x}_{y}' for x in config.l_accelerometer_cols for y in ['mean', 'std']] + \
+                            [f'{x}_dominant_frequency' for x in config.l_accelerometer_cols]
     X = df.loc[:, clf.feature_names_in_]
 
     # Make prediction
@@ -292,15 +292,15 @@ def detect_arm_swing(input_path: Union[str, Path], output_path: Union[str, Path]
     clf = pd.read_pickle(os.path.join(path_to_classifier_input, config.classifier_file_name))
 
     # Prepare the data
-    clf.feature_names_in_ = ['std_norm_acc'] + [f'{x}_power_below_gait' for x in config.l_accel_cols] + \
-                            [f'{x}_power_gait' for x in config.l_accel_cols] + \
-                            [f'{x}_power_tremor' for x in config.l_accel_cols] + \
-                            [f'{x}_power_above_tremor' for x in config.l_accel_cols] + \
+    clf.feature_names_in_ = ['std_norm_acc'] + [f'{x}_power_below_gait' for x in config.l_accelerometer_cols] + \
+                            [f'{x}_power_gait' for x in config.l_accelerometer_cols] + \
+                            [f'{x}_power_tremor' for x in config.l_accelerometer_cols] + \
+                            [f'{x}_power_above_tremor' for x in config.l_accelerometer_cols] + \
                             [f'cc_{i}_accelerometer' for i in range(1, 13)] + [f'cc_{i}_gyroscope' for i in range(1, 13)] + \
-                            [f'grav_{x}_mean' for x in config.l_accel_cols] +  [f'grav_{x}_std' for x in config.l_accel_cols] + \
+                            [f'grav_{x}_mean' for x in config.l_accelerometer_cols] +  [f'grav_{x}_std' for x in config.l_accelerometer_cols] + \
                             ['range_of_motion', 'forward_peak_ang_vel_mean', 'backward_peak_ang_vel_mean', 'forward_peak_ang_vel_std', 
                             'backward_peak_ang_vel_std', 'angle_perc_power', 'angle_dominant_frequency'] + \
-                            [f'{x}_dominant_frequency' for x in config.l_accel_cols]
+                            [f'{x}_dominant_frequency' for x in config.l_accelerometer_cols]
                             
     X = df.loc[:, clf.feature_names_in_]
 
