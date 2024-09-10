@@ -1,0 +1,54 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: paradigma
+abstract: 'Digital Biomarkers for Parkinson's Disease Toolbox'
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Peter
+    family-names: Kok
+    email: p.kok@esciencecenter.nl
+    affiliation: Netherlands eScience Center
+    orcid: 'https://orcid.org/0000-0002-6630-7326'
+  - given-names: Vedran
+    family-names: Kasalica
+    email: v.kasalica@esciencecenter.nl
+    affiliation: Netherlands eScience Center
+    orcid: 'https://orcid.org/0000-0002-0097-1056'
+  - given-names: Luc J.W.
+    family-names: Evers
+    email: luc.evers@radboudumc.nl
+    affiliation: 
+      - Radboud University, Institute for Computing and Information Sciences, Department of Data Science, Nijmegen, Netherlands
+      - Radboud University Medical Center, Donders Institute for Brain, Cognition and Behaviour, Department of Neurology, Center of Expertise for Parkinson and Movement Disorders, Nijmegen, Netherlands
+    orcid: 'https://orcid.org/0000-0002-8241-5087'
+    corresponding: false
+  - given-names: Erik
+    family-names: Post
+    email: erik.post@radboudumc.nl
+    affiliation: 
+      - Radboud University, Institute for Computing and Information Sciences, Department of Data Science, Nijmegen, Netherlands
+      - Radboud University Medical Center, Donders Institute for Brain, Cognition and Behaviour, Department of Neurology, Center of Expertise for Parkinson and Movement Disorders, Nijmegen, Netherlands
+    orcid: 'https://orcid.org/0000-0002-1937-9976'
+  - given-names: Kars
+    family-names: Veldkamp
+    email: Kars.Veldkamp@radboudumc.nl
+    affiliation: Radboud University Medical Center, Nijmegen, Netherlands
+  - given-names: Nienke
+    family-names: Timmermans
+    email: nienke.timmermans@radboudumc.nl
+    affiliation: Radboud University Medical Center, Nijmegen, Netherlands
+  - given-names: Diogo
+    family-names: Soriano
+    email: diogo.soriano@ufabc.edu.br
+    affiliation: Center for Engineering, Modeling and Applied Social Sciences (CECS), Federal University of ABC (UFABC), Brazil
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.7867900
+repository-code: 'https://github.com/biomarkersParkinson/tsdf'
+url: 'https://biomarkersparkinson.github.io/tsdf/'
+license: Apache-2.0

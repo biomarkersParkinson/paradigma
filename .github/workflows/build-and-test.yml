@@ -54,9 +54,9 @@ jobs:
     - name: Test with pytest
       run: |
         poetry run pytest
-    # - name: Type check
-    #   run: |
-    #     poetry run pytype .
+    - name: Type check
+      run: |
+        poetry run pytype .
 
     # Build the package
     - name: Build the package
