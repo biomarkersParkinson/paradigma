@@ -23,12 +23,24 @@ class BasePreprocessingConfig:
         self.upper_cutoff_frequency = 3.5
         self.filter_order = 4
 
+    def set_filenames(self, prefix: str) -> None:
+        """Sets the filenames based on the prefix. This method is duplicated from `gaits_analysis_config.py`.
+        
+        Parameters
+        ----------
+        prefix : str
+            The prefix for the filenames.
+        """
+        self.meta_filename = f"{prefix}_meta.json"
+        self.time_filename = f"{prefix}_time.bin"
+        self.values_filename = f"{prefix}_samples.bin"
+
 class IMUPreprocessingConfig(BasePreprocessingConfig):
 
     def __init__(self) -> None:
         super().__init__()
 
-        IMUConfig.set_filenames(self, 'IMU')
+        self.set_filenames('IMU')
         self.acceleration_units = DataUnits.ACCELERATION
         self.rotation_units = DataUnits.ROTATION
 
@@ -49,7 +61,7 @@ class PPGPreprocessingConfig(BasePreprocessingConfig):
     def __init__(self) -> None:
         super().__init__()
 
-        IMUConfig.set_filenames(self, 'PPG')
+        self.set_filenames('PPG')
         self.d_channels_ppg = {
             DataColumns.PPG: DataUnits.NONE
         }
