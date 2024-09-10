@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "paradigma"
-version = "0.2.0"
+version = "0.3.0"
 description = "Paradigma - a toolbox for Digital Biomarkers for Parkinson's Disease"
 authors = [ "Peter Kok <p.kok@esciencecenter.nl>",
             "Vedran Kasalica <v.kaslica@esciencecenter.nl>",
@@ -13,7 +13,7 @@ license = "Apache License 2.0"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 pandas = "^2.1.4"
 scikit-learn = "^1.3.2"
 tsdf = "^0.5.2"

@@ -45,6 +45,9 @@ class DataUnits():
     
     FREQUENCY: str = "Hz"
     """ The frequency is in Hz. """
+
+    NONE: str = "none"
+    """ The data channel has no unit. """
     
 
 @dataclass(frozen=True)
