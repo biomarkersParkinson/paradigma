@@ -91,92 +91,149 @@
   <h1>Source code for paradigma.gait_analysis_config</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
 
-<span class="kn">from</span> <span class="nn">paradigma.constants</span> <span class="kn">import</span> <span class="n">DataColumns</span>
+<span class="kn">from</span> <span class="nn">paradigma.constants</span> <span class="kn">import</span> <span class="n">DataColumns</span><span class="p">,</span> <span class="n">DataUnits</span>
+
+
+
+<div class="viewcode-block" id="IMUConfig">
+<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.IMUConfig">[docs]</a>
+<span class="k">class</span> <span class="nc">IMUConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for Gait feature extraction and Gait detection configurations, based on the IMU data (accelerometer, gyroscope).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_colname</span> <span class="o">=</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">l_accelerometer_cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">,</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Y</span><span class="p">,</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Z</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">l_gyroscope_cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_X</span><span class="p">,</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Y</span><span class="p">,</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Z</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">l_gravity_cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GRAV_ACCELEROMETER_X</span><span class="p">,</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GRAV_ACCELEROMETER_Y</span><span class="p">,</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GRAV_ACCELEROMETER_Z</span><span class="p">,</span>
+        <span class="p">]</span>
+
+<div class="viewcode-block" id="IMUConfig.set_sensor">
+<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.IMUConfig.set_sensor">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_sensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sensor</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the sensor and derived filenames&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">sensor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_filenames</span><span class="p">(</span><span class="n">sensor</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="IMUConfig.set_filenames">
+<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.IMUConfig.set_filenames">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_filenames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the filenames based on the prefix,</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        prefix : str</span>
+<span class="sd">            The prefix for the filenames.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_meta.json&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_time.bin&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">values_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_samples.bin&quot;</span></div>
+
+
+<div class="viewcode-block" id="IMUConfig.set_filenames_values">
+<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.IMUConfig.set_filenames_values">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_filenames_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the filenames based on the prefix,</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        prefix : str</span>
+<span class="sd">            The prefix for the filenames.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_meta.json&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_time.bin&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">values_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_values.bin&quot;</span></div>
+</div>
+
 
 
 <div class="viewcode-block" id="GaitFeatureExtractionConfig">
 <a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.GaitFeatureExtractionConfig">[docs]</a>
-<span class="k">class</span> <span class="nc">GaitFeatureExtractionConfig</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">GaitFeatureExtractionConfig</span> <span class="p">(</span><span class="n">IMUConfig</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_sensor</span><span class="p">(</span><span class="s1">&#39;accelerometer&#39;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_sensor</span><span class="p">(</span><span class="s2">&quot;accelerometer&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_sampling_frequency</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">window_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;hann&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hann&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-        
+
         <span class="bp">self</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window_step_size_s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
 
         <span class="c1"># cepstral coefficients</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cc_low_frequency</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cc_high_frequency</span> <span class="o">=</span> <span class="mi">25</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cc_low_frequency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cc_high_frequency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">25</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_dct_filters_cc</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_coefficients_cc</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">12</span>
-        
+
         <span class="bp">self</span><span class="o">.</span><span class="n">d_frequency_bandwidths</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;power_below_gait&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span>
-            <span class="s1">&#39;power_gait&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">],</span>
-            <span class="s1">&#39;power_tremor&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">3.5</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
-            <span class="s1">&#39;power_above_tremor&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">]</span>
+            <span class="s2">&quot;power_below_gait&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span>
+            <span class="s2">&quot;power_gait&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">],</span>
+            <span class="s2">&quot;power_tremor&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">3.5</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+            <span class="s2">&quot;power_above_tremor&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">],</span>
         <span class="p">}</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_colname</span> <span class="o">=</span> <span class="s1">&#39;time&#39;</span>
-        
-        <span class="bp">self</span><span class="o">.</span><span class="n">l_accelerometer_cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">,</span> 
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Y</span><span class="p">,</span> 
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Z</span>
-        <span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">l_gravity_cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;grav_</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_accelerometer_cols</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">l_window_level_cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;window_nr&#39;</span><span class="p">,</span> <span class="s1">&#39;window_start&#39;</span><span class="p">,</span> <span class="s1">&#39;window_end&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">l_data_point_level_cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_accelerometer_cols</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_gravity_cols</span>
-        
+        <span class="bp">self</span><span class="o">.</span><span class="n">l_window_level_cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;window_nr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;window_start&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;window_end&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">l_data_point_level_cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">l_accelerometer_cols</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_gravity_cols</span>
+        <span class="p">)</span>
+
         <span class="c1"># TODO: generate this dictionary using object attributes (self.X) and parameters (e.g., n_dct_filters for cc)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="sa">f</span><span class="s1">&#39;grav_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_x_mean&#39;</span><span class="p">:</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;grav_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_y_mean&#39;</span><span class="p">:</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;grav_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_z_mean&#39;</span><span class="p">:</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;grav_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_x_std&#39;</span><span class="p">:</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;grav_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_y_std&#39;</span><span class="p">:</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;grav_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_z_std&#39;</span><span class="p">:</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_x_power_below_gait&#39;</span><span class="p">:</span> <span class="s1">&#39;g^2/Hz&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_y_power_below_gait&#39;</span><span class="p">:</span> <span class="s1">&#39;g^2/Hz&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_z_power_below_gait&#39;</span><span class="p">:</span> <span class="s1">&#39;g^2/Hz&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_x_power_gait&#39;</span><span class="p">:</span> <span class="s1">&#39;g^2/Hz&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_y_power_gait&#39;</span><span class="p">:</span> <span class="s1">&#39;g^2/Hz&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_z_power_gait&#39;</span><span class="p">:</span> <span class="s1">&#39;g^2/Hz&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_x_power_tremor&#39;</span><span class="p">:</span> <span class="s1">&#39;g^2/Hz&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_y_power_tremor&#39;</span><span class="p">:</span> <span class="s1">&#39;g^2/Hz&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_z_power_tremor&#39;</span><span class="p">:</span> <span class="s1">&#39;g^2/Hz&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_x_power_above_tremor&#39;</span><span class="p">:</span> <span class="s1">&#39;g^2/Hz&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_y_power_above_tremor&#39;</span><span class="p">:</span> <span class="s1">&#39;g^2/Hz&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_z_power_above_tremor&#39;</span><span class="p">:</span> <span class="s1">&#39;g^2/Hz&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_x_dominant_frequency&#39;</span><span class="p">:</span> <span class="s1">&#39;Hz&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_y_dominant_frequency&#39;</span><span class="p">:</span> <span class="s1">&#39;Hz&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_z_dominant_frequency&#39;</span><span class="p">:</span> <span class="s1">&#39;Hz&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;std_norm_acc&#39;</span><span class="p">:</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;grav_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s2">_x_mean&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;grav_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s2">_y_mean&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;grav_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s2">_z_mean&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;grav_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s2">_x_std&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;grav_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s2">_y_std&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;grav_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s2">_z_std&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s2">_x_power_below_gait&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s2">_y_power_below_gait&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s2">_z_power_below_gait&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s2">_x_power_gait&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s2">_y_power_gait&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s2">_z_power_gait&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s2">_x_power_tremor&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s2">_y_power_tremor&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s2">_z_power_tremor&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s2">_x_power_above_tremor&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s2">_y_power_above_tremor&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s2">_z_power_above_tremor&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s2">_x_dominant_frequency&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">FREQUENCY</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s2">_y_dominant_frequency&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">FREQUENCY</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s2">_z_dominant_frequency&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">FREQUENCY</span><span class="p">,</span>
+            <span class="s2">&quot;std_norm_acc&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span><span class="p">,</span>
         <span class="p">}</span>
 
-        <span class="k">for</span> <span class="n">cc_coef</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_coefficients_cc</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;cc_</span><span class="si">{</span><span class="n">cc_coef</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;g&#39;</span>
-
-    <span class="c1"># TODO: move to higher level config class (duplicate in armswing feature extraction)</span>
-<div class="viewcode-block" id="GaitFeatureExtractionConfig.set_sensor">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.GaitFeatureExtractionConfig.set_sensor">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_sensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sensor</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Sets the sensor and derived filenames &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">sensor</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">meta_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_meta.json&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">values_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_samples.bin&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_time.bin&#39;</span></div>
-
+        <span class="k">for</span> <span class="n">cc_coef</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_coefficients_cc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;cc_</span><span class="si">{</span><span class="n">cc_coef</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;g&quot;</span>
 
 <div class="viewcode-block" id="GaitFeatureExtractionConfig.set_sampling_frequency">
 <a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.GaitFeatureExtractionConfig.set_sampling_frequency">[docs]</a>
     <span class="k">def</span> <span class="nf">set_sampling_frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sampling_frequency</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Sets the sampling frequency and derived variables &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the sampling frequency and derived variables&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">sampling_frequency</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">spectrum_low_frequency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Hz</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">spectrum_high_frequency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># Hz</span>
@@ -187,25 +244,21 @@
 
 <div class="viewcode-block" id="GaitDetectionConfig">
 <a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.GaitDetectionConfig">[docs]</a>
-<span class="k">class</span> <span class="nc">GaitDetectionConfig</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">GaitDetectionConfig</span><span class="p">(</span><span class="n">IMUConfig</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">classifier_file_name</span> <span class="o">=</span> <span class="s1">&#39;gd_classifier.pkl&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">thresholds_file_name</span> <span class="o">=</span> <span class="s1">&#39;gd_threshold.txt&#39;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classifier_file_name</span> <span class="o">=</span> <span class="s2">&quot;gd_classifier.pkl&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thresholds_file_name</span> <span class="o">=</span> <span class="s2">&quot;gd_threshold.txt&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">meta_filename</span> <span class="o">=</span> <span class="s1">&#39;gait_meta.json&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_filename</span> <span class="o">=</span> <span class="s1">&#39;gait_time.bin&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">values_filename</span> <span class="o">=</span> <span class="s1">&#39;gait_values.bin&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_filenames_values</span><span class="p">(</span><span class="s2">&quot;gait&quot;</span><span class="p">)</span></div>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">l_accel_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Y</span><span class="p">,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Z</span><span class="p">]</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_colname</span> <span class="o">=</span> <span class="s1">&#39;time&#39;</span></div>
 
 
 
 <div class="viewcode-block" id="ArmSwingFeatureExtractionConfig">
 <a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig">[docs]</a>
-<span class="k">class</span> <span class="nc">ArmSwingFeatureExtractionConfig</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">ArmSwingFeatureExtractionConfig</span><span class="p">(</span><span class="n">IMUConfig</span><span class="p">):</span>
 
 <div class="viewcode-block" id="ArmSwingFeatureExtractionConfig.initialize_window_length_fields">
 <a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig.initialize_window_length_fields">[docs]</a>
@@ -227,10 +280,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">spectrum_high_frequency</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sampling_frequency</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">d_frequency_bandwidths</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;power_below_gait&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span>
-            <span class="s1">&#39;power_gait&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">],</span>
-            <span class="s1">&#39;power_tremor&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">3.5</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
-            <span class="s1">&#39;power_above_tremor&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="n">sampling_frequency</span><span class="p">]</span>
+            <span class="s2">&quot;power_below_gait&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span>
+            <span class="s2">&quot;power_gait&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">],</span>
+            <span class="s2">&quot;power_tremor&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">3.5</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+            <span class="s2">&quot;power_above_tremor&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="n">sampling_frequency</span><span class="p">],</span>
         <span class="p">}</span>
 
         <span class="c1"># cepstral coefficients</span>
@@ -242,42 +295,33 @@
 
 <div class="viewcode-block" id="ArmSwingFeatureExtractionConfig.initialize_column_names">
 <a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig.initialize_column_names">[docs]</a>
-    <span class="k">def</span> <span class="nf">initialize_column_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_colname</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">pred_gait_colname</span><span class="o">=</span><span class="s1">&#39;pred_gait&#39;</span><span class="p">,</span>
-                         <span class="n">angle_smooth_colname</span><span class="o">=</span><span class="s1">&#39;angle_smooth&#39;</span><span class="p">,</span> <span class="n">angle_colname</span><span class="o">=</span><span class="s1">&#39;angle&#39;</span><span class="p">,</span>
-                         <span class="n">velocity_colname</span><span class="o">=</span><span class="s1">&#39;velocity&#39;</span><span class="p">,</span> <span class="n">segment_nr_colname</span><span class="o">=</span><span class="s1">&#39;segment_nr&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_colname</span> <span class="o">=</span> <span class="n">time_colname</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pred_gait_colname</span> <span class="o">=</span> <span class="n">pred_gait_colname</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">angle_smooth_colname</span> <span class="o">=</span> <span class="n">angle_smooth_colname</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">angle_colname</span> <span class="o">=</span> <span class="n">angle_colname</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">velocity_colname</span> <span class="o">=</span> <span class="n">velocity_colname</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">segment_nr_colname</span> <span class="o">=</span> <span class="n">segment_nr_colname</span>
+    <span class="k">def</span> <span class="nf">initialize_column_names</span><span class="p">(</span>
+        <span class="bp">self</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">l_accelerometer_cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">,</span> 
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Y</span><span class="p">,</span> 
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Z</span>
-        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pred_gait_colname</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">angle_smooth_colname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ANGLE_SMOOTH</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">angle_colname</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">ANGLE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">velocity_colname</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">VELOCITY</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">segment_nr_colname</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_NR</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">l_gyroscope_cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_X</span><span class="p">,</span> 
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Y</span><span class="p">,</span> 
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Z</span>
-        <span class="p">]</span>
-        
-        <span class="bp">self</span><span class="o">.</span><span class="n">l_gravity_cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;grav_</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_accelerometer_cols</span><span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">l_data_point_level_cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_accelerometer_cols</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_gyroscope_cols</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_gravity_cols</span> <span class="o">+</span> <span class="p">[</span>
-            <span class="n">angle_smooth_colname</span><span class="p">,</span> <span class="n">velocity_colname</span>
-        <span class="p">]</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">l_data_point_level_cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">l_accelerometer_cols</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_gyroscope_cols</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_gravity_cols</span>
+            <span class="o">+</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">angle_smooth_colname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity_colname</span><span class="p">]</span>
+        <span class="p">)</span></div>
 
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="c1"># general</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sensor</span> <span class="o">=</span> <span class="s1">&#39;IMU&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;degrees&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sensor</span> <span class="o">=</span> <span class="s2">&quot;IMU&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;degrees&quot;</span>
 
         <span class="c1"># windowing</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">window_type</span> <span class="o">=</span> <span class="s1">&#39;hann&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window_type</span> <span class="o">=</span> <span class="s2">&quot;hann&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">initialize_window_length_fields</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">initialize_sampling_frequency_fields</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
@@ -285,81 +329,65 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">initialize_column_names</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;angle_perc_power&#39;</span><span class="p">:</span> <span class="s1">&#39;proportion&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;range_of_motion&#39;</span><span class="p">:</span> <span class="s1">&#39;deg&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;forward_peak_ang_vel_mean&#39;</span><span class="p">:</span> <span class="s1">&#39;deg/s&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;forward_peak_ang_vel_std&#39;</span><span class="p">:</span> <span class="s1">&#39;deg/s&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;backward_peak_ang_vel_mean&#39;</span><span class="p">:</span> <span class="s1">&#39;deg/s&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;backward_peak_ang_vel_std&#39;</span><span class="p">:</span> <span class="s1">&#39;deg/s&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;std_norm_acc&#39;</span><span class="p">:</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;grav_accelerometer_x_mean&#39;</span><span class="p">:</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;grav_accelerometer_x_std&#39;</span><span class="p">:</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;grav_accelerometer_y_mean&#39;</span><span class="p">:</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;grav_accelerometer_y_std&#39;</span><span class="p">:</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;grav_accelerometer_z_mean&#39;</span><span class="p">:</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;grav_accelerometer_z_std&#39;</span><span class="p">:</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;accelerometer_x_power_below_gait&#39;</span><span class="p">:</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span> 
-            <span class="s1">&#39;accelerometer_x_power_gait&#39;</span><span class="p">:</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;accelerometer_x_power_tremor&#39;</span><span class="p">:</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;accelerometer_x_power_above_tremor&#39;</span><span class="p">:</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;accelerometer_x_dominant_frequency&#39;</span><span class="p">:</span> <span class="s1">&#39;Hz&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;accelerometer_y_power_below_gait&#39;</span><span class="p">:</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;accelerometer_y_power_gait&#39;</span><span class="p">:</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;accelerometer_y_power_tremor&#39;</span><span class="p">:</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;accelerometer_y_power_above_tremor&#39;</span><span class="p">:</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;accelerometer_y_dominant_frequency&#39;</span><span class="p">:</span> <span class="s1">&#39;Hz&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;accelerometer_z_power_below_gait&#39;</span><span class="p">:</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;accelerometer_z_power_gait&#39;</span><span class="p">:</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;accelerometer_z_power_tremor&#39;</span><span class="p">:</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;accelerometer_z_power_above_tremor&#39;</span><span class="p">:</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;accelerometer_z_dominant_frequency&#39;</span><span class="p">:</span> <span class="s1">&#39;Hz&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;angle_dominant_frequency&#39;</span><span class="p">:</span> <span class="s1">&#39;Hz&#39;</span><span class="p">,</span>
+            <span class="s2">&quot;angle_perc_power&quot;</span><span class="p">:</span> <span class="s2">&quot;proportion&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;range_of_motion&quot;</span><span class="p">:</span> <span class="s2">&quot;deg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;forward_peak_ang_vel_mean&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">ROTATION</span><span class="p">,</span>
+            <span class="s2">&quot;forward_peak_ang_vel_std&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">ROTATION</span><span class="p">,</span>
+            <span class="s2">&quot;backward_peak_ang_vel_mean&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">ROTATION</span><span class="p">,</span>
+            <span class="s2">&quot;backward_peak_ang_vel_std&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">ROTATION</span><span class="p">,</span>
+            <span class="s2">&quot;std_norm_acc&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span><span class="p">,</span>
+            <span class="s2">&quot;grav_accelerometer_x_mean&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span><span class="p">,</span>
+            <span class="s2">&quot;grav_accelerometer_x_std&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span><span class="p">,</span>
+            <span class="s2">&quot;grav_accelerometer_y_mean&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span><span class="p">,</span>
+            <span class="s2">&quot;grav_accelerometer_y_std&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span><span class="p">,</span>
+            <span class="s2">&quot;grav_accelerometer_z_mean&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span><span class="p">,</span>
+            <span class="s2">&quot;grav_accelerometer_z_std&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_x_power_below_gait&quot;</span><span class="p">:</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_x_power_gait&quot;</span><span class="p">:</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_x_power_tremor&quot;</span><span class="p">:</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_x_power_above_tremor&quot;</span><span class="p">:</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_x_dominant_frequency&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">FREQUENCY</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_y_power_below_gait&quot;</span><span class="p">:</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_y_power_gait&quot;</span><span class="p">:</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_y_power_tremor&quot;</span><span class="p">:</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_y_power_above_tremor&quot;</span><span class="p">:</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_y_dominant_frequency&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">FREQUENCY</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_z_power_below_gait&quot;</span><span class="p">:</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_z_power_gait&quot;</span><span class="p">:</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_z_power_tremor&quot;</span><span class="p">:</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_z_power_above_tremor&quot;</span><span class="p">:</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_z_dominant_frequency&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">FREQUENCY</span><span class="p">,</span>
+            <span class="s2">&quot;angle_dominant_frequency&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">FREQUENCY</span><span class="p">,</span>
         <span class="p">}</span>
 
-        <span class="k">for</span> <span class="n">sensor</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;accelerometer&#39;</span><span class="p">,</span> <span class="s1">&#39;gyroscope&#39;</span><span class="p">]:</span>
-            <span class="k">for</span> <span class="n">cc_coef</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_coefficients_cc</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;cc_</span><span class="si">{</span><span class="n">cc_coef</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">sensor</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;g&#39;</span>
-
-
-    <span class="c1"># TODO: move to higher level config class (duplicate in gait feature extraction)</span>
-<div class="viewcode-block" id="ArmSwingFeatureExtractionConfig.set_sensor">
-<a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig.set_sensor">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_sensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sensor</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Sets the sensor and derived filenames &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">sensor</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">meta_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_meta.json&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">values_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_samples.bin&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_time.bin&#39;</span></div>
-</div>
+        <span class="k">for</span> <span class="n">sensor</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;accelerometer&quot;</span><span class="p">,</span> <span class="s2">&quot;gyroscope&quot;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">cc_coef</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_coefficients_cc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;cc_</span><span class="si">{</span><span class="n">cc_coef</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">sensor</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span></div>
 
 
 
 <div class="viewcode-block" id="ArmSwingDetectionConfig">
 <a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.ArmSwingDetectionConfig">[docs]</a>
-<span class="k">class</span> <span class="nc">ArmSwingDetectionConfig</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">ArmSwingDetectionConfig</span><span class="p">(</span><span class="n">IMUConfig</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">classifier_file_name</span> <span class="o">=</span> <span class="s1">&#39;asd_classifier.pkl&#39;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classifier_file_name</span> <span class="o">=</span> <span class="s2">&quot;asd_classifier.pkl&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">meta_filename</span> <span class="o">=</span> <span class="s1">&#39;arm_swing_meta.json&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_filename</span> <span class="o">=</span> <span class="s1">&#39;arm_swing_time.bin&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">values_filename</span> <span class="o">=</span> <span class="s1">&#39;arm_swing_values.bin&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_filenames_values</span><span class="p">(</span><span class="s2">&quot;arm_swing&quot;</span><span class="p">)</span></div>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">l_accel_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Y</span><span class="p">,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Z</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">l_gyro_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_X</span><span class="p">,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Y</span><span class="p">,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Z</span><span class="p">]</span></div>
 
 
 
 <div class="viewcode-block" id="ArmSwingQuantificationConfig">
 <a class="viewcode-back" href="../../autoapi/paradigma/gait_analysis_config/index.html#paradigma.gait_analysis_config.ArmSwingQuantificationConfig">[docs]</a>
-<span class="k">class</span> <span class="nc">ArmSwingQuantificationConfig</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">ArmSwingQuantificationConfig</span><span class="p">(</span><span class="n">IMUConfig</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">meta_filename</span> <span class="o">=</span> <span class="s1">&#39;arm_swing_meta.json&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_filename</span> <span class="o">=</span> <span class="s1">&#39;arm_swing_time.bin&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">values_filename</span> <span class="o">=</span> <span class="s1">&#39;arm_swing_values.bin&#39;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_filenames_values</span><span class="p">(</span><span class="s2">&quot;arm_swing&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">pred_arm_swing_colname</span> <span class="o">=</span> <span class="s1">&#39;pred_arm_swing&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pred_arm_swing_colname</span> <span class="o">=</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_ARM_SWING</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">window_length_s</span> <span class="o">=</span> <span class="mi">3</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window_step_size</span> <span class="o">=</span> <span class="mf">0.75</span>

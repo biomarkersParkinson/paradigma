@@ -375,48 +375,29 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_html"><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">AttributeError</span><span class="g g-Whitespace">                            </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">10</span><span class="p">],</span> <span class="n">line</span> <span class="mi">14</span>
+<span class="g g-Whitespace">      </span><span class="mi">8</span> <span class="n">values_idx_imu</span> <span class="o">=</span> <span class="n">metadata_list_imu</span><span class="p">[</span><span class="s2">&quot;IMU_samples.bin&quot;</span><span class="p">]</span>
+<span class="g g-Whitespace">     </span><span class="mi">10</span> <span class="n">start_time_ppg</span> <span class="o">=</span> <span class="n">parse_iso8601_to_datetime</span><span class="p">(</span><span class="n">time_idx_ppg</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">)</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span>
+<span class="g g-Whitespace">     </span><span class="mi">11</span> <span class="n">df_imu</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">=</span> <span class="n">paradigma</span><span class="o">.</span><span class="n">imu_preprocessing</span><span class="o">.</span><span class="n">transform_time_array</span><span class="p">(</span>
+<span class="g g-Whitespace">     </span><span class="mi">12</span>     <span class="n">time_array</span><span class="o">=</span><span class="n">df_imu</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">],</span>
+<span class="g g-Whitespace">     </span><span class="mi">13</span>     <span class="n">scale_factor</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> 
+<span class="ne">---&gt; </span><span class="mi">14</span>     <span class="n">input_unit_type</span> <span class="o">=</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">difference_ms</span><span class="p">,</span>
+<span class="g g-Whitespace">     </span><span class="mi">15</span>     <span class="n">output_unit_type</span> <span class="o">=</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">absolute_ms</span><span class="p">,</span>
+<span class="g g-Whitespace">     </span><span class="mi">16</span>     <span class="n">start_time</span> <span class="o">=</span> <span class="n">start_time_ppg</span><span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">18</span> <span class="n">start_time_imu</span> <span class="o">=</span> <span class="n">parse_iso8601_to_datetime</span><span class="p">(</span><span class="n">time_idx_imu</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">)</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span>
+<span class="g g-Whitespace">     </span><span class="mi">19</span> <span class="n">df_ppg</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">=</span> <span class="n">paradigma</span><span class="o">.</span><span class="n">imu_preprocessing</span><span class="o">.</span><span class="n">transform_time_array</span><span class="p">(</span>
+<span class="g g-Whitespace">     </span><span class="mi">20</span>     <span class="n">time_array</span><span class="o">=</span><span class="n">df_ppg</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">],</span>
+<span class="g g-Whitespace">     </span><span class="mi">21</span>     <span class="n">scale_factor</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> 
+<span class="g g-Whitespace">     </span><span class="mi">22</span>     <span class="n">input_unit_type</span> <span class="o">=</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">difference_ms</span><span class="p">,</span>
+<span class="g g-Whitespace">     </span><span class="mi">23</span>     <span class="n">output_unit_type</span> <span class="o">=</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">absolute_ms</span><span class="p">,</span>
+<span class="g g-Whitespace">     </span><span class="mi">24</span>     <span class="n">start_time</span> <span class="o">=</span> <span class="n">start_time_imu</span><span class="p">)</span>
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>time</th>
-      <th>accelerometer_x</th>
-      <th>accelerometer_y</th>
-      <th>accelerometer_z</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>72945</th>
-      <td>1.624813e+09</td>
-      <td>-502</td>
-      <td>-1075</td>
-      <td>-1689</td>
-    </tr>
-    <tr>
-      <th>72946</th>
-      <td>1.624813e+09</td>
-      <td>-509</td>
-      <td>-1068</td>
-      <td>-1689</td>
-    </tr>
-  </tbody>
-</table>
-</div></div></div>
+<span class="ne">AttributeError</span>: type object &#39;TimeUnit&#39; has no attribute &#39;difference_ms&#39;
+</pre></div>
+</div>
+</div>
 </div>
 </section>
 <section id="data-synchronization-on-right-indices">

@@ -93,6 +93,8 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">math</span>
 
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
+
 
 <div class="viewcode-block" id="create_window">
 <a class="viewcode-back" href="../../autoapi/paradigma/windowing/index.html#paradigma.windowing.create_window">[docs]</a>
@@ -153,11 +155,11 @@
         <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">time_column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">data_point_level_cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
-        <span class="n">window_length_s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
-        <span class="n">window_step_size_s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">window_length_s</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
+        <span class="n">window_step_size_s</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">sampling_frequency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
-        <span class="n">segment_nr_colname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">segment_nr</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">segment_nr_colname</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">segment_nr</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compiles multiple windows into a single dataframe</span>
 
@@ -169,9 +171,9 @@
 <span class="sd">        The name of the time column</span>
 <span class="sd">    data_point_level_cols: list</span>
 <span class="sd">        The names of the columns that are to be kept as individual datapoints in a list instead of aggregates</span>
-<span class="sd">    window_length_s: int, optional</span>
+<span class="sd">    window_length_s: int | float, optional</span>
 <span class="sd">        The number of seconds a window constitutes (default: 6)</span>
-<span class="sd">    window_step_size_s: int, optional</span>
+<span class="sd">    window_step_size_s: int | float, optional</span>
 <span class="sd">        The number of seconds between the end of the previous and the start of the next window (default: 1)</span>
 <span class="sd">    sampling_frequency: int, optional</span>
 <span class="sd">        The sampling frequency of the data (default: 100)</span>

@@ -9,6 +9,7 @@ Classes
 
 .. autoapisummary::
 
+   paradigma.gait_analysis_config.IMUConfig
    paradigma.gait_analysis_config.GaitFeatureExtractionConfig
    paradigma.gait_analysis_config.GaitDetectionConfig
    paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig
@@ -19,12 +20,122 @@ Classes
 Module Contents
 ---------------
 
-.. py:class:: GaitFeatureExtractionConfig
+.. py:class:: IMUConfig
+
+   Base class for Gait feature extraction and Gait detection configurations, based on the IMU data (accelerometer, gyroscope).
+
+
+   .. py:attribute:: time_colname
+
+
+   .. py:attribute:: l_accelerometer_cols
+      :type:  List[str]
+
+
+   .. py:attribute:: l_gyroscope_cols
+      :type:  List[str]
+
+
+   .. py:attribute:: l_gravity_cols
+      :type:  List[str]
+
 
    .. py:method:: set_sensor(sensor: str) -> None
 
       Sets the sensor and derived filenames
 
+
+
+   .. py:method:: set_filenames(prefix: str) -> None
+
+      Sets the filenames based on the prefix,
+
+      :param prefix: The prefix for the filenames.
+      :type prefix: str
+
+
+
+   .. py:method:: set_filenames_values(prefix: str) -> None
+
+      Sets the filenames based on the prefix,
+
+      :param prefix: The prefix for the filenames.
+      :type prefix: str
+
+
+
+.. py:class:: GaitFeatureExtractionConfig
+
+   Bases: :py:obj:`IMUConfig`
+
+
+   Base class for Gait feature extraction and Gait detection configurations, based on the IMU data (accelerometer, gyroscope).
+
+
+   .. py:attribute:: window_type
+      :type:  str
+      :value: 'hann'
+
+
+
+   .. py:attribute:: verbose
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: window_length_s
+      :type:  int
+      :value: 6
+
+
+
+   .. py:attribute:: window_step_size_s
+      :type:  int
+      :value: 1
+
+
+
+   .. py:attribute:: cc_low_frequency
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: cc_high_frequency
+      :type:  int
+      :value: 25
+
+
+
+   .. py:attribute:: n_dct_filters_cc
+      :type:  int
+      :value: 20
+
+
+
+   .. py:attribute:: n_coefficients_cc
+      :type:  int
+      :value: 12
+
+
+
+   .. py:attribute:: d_frequency_bandwidths
+      :type:  Dict[str, List[float]]
+
+
+   .. py:attribute:: l_window_level_cols
+      :type:  List[str]
+      :value: ['id', 'window_nr', 'window_start', 'window_end']
+
+
+
+   .. py:attribute:: l_data_point_level_cols
+      :type:  List[str]
+
+
+   .. py:attribute:: d_channels_values
+      :type:  Dict[str, str]
 
 
    .. py:method:: set_sampling_frequency(sampling_frequency: int) -> None
@@ -35,7 +146,29 @@ Module Contents
 
 .. py:class:: GaitDetectionConfig
 
+   Bases: :py:obj:`IMUConfig`
+
+
+   Base class for Gait feature extraction and Gait detection configurations, based on the IMU data (accelerometer, gyroscope).
+
+
+   .. py:attribute:: classifier_file_name
+      :value: 'gd_classifier.pkl'
+
+
+
+   .. py:attribute:: thresholds_file_name
+      :value: 'gd_threshold.txt'
+
+
+
 .. py:class:: ArmSwingFeatureExtractionConfig
+
+   Bases: :py:obj:`IMUConfig`
+
+
+   Base class for Gait feature extraction and Gait detection configurations, based on the IMU data (accelerometer, gyroscope).
+
 
    .. py:method:: initialize_window_length_fields(window_length_s: int) -> None
 
@@ -43,16 +176,68 @@ Module Contents
    .. py:method:: initialize_sampling_frequency_fields(sampling_frequency: int) -> None
 
 
-   .. py:method:: initialize_column_names(time_colname='time', pred_gait_colname='pred_gait', angle_smooth_colname='angle_smooth', angle_colname='angle', velocity_colname='velocity', segment_nr_colname='segment_nr') -> None
+   .. py:method:: initialize_column_names() -> None
 
 
-   .. py:method:: set_sensor(sensor: str) -> None
+   .. py:attribute:: sensor
+      :value: 'IMU'
 
-      Sets the sensor and derived filenames
 
+
+   .. py:attribute:: units
+      :value: 'degrees'
+
+
+
+   .. py:attribute:: window_type
+      :value: 'hann'
+
+
+
+   .. py:attribute:: d_channels_values
 
 
 .. py:class:: ArmSwingDetectionConfig
 
+   Bases: :py:obj:`IMUConfig`
+
+
+   Base class for Gait feature extraction and Gait detection configurations, based on the IMU data (accelerometer, gyroscope).
+
+
+   .. py:attribute:: classifier_file_name
+      :value: 'asd_classifier.pkl'
+
+
+
 .. py:class:: ArmSwingQuantificationConfig
+
+   Bases: :py:obj:`IMUConfig`
+
+
+   Base class for Gait feature extraction and Gait detection configurations, based on the IMU data (accelerometer, gyroscope).
+
+
+   .. py:attribute:: pred_arm_swing_colname
+
+
+   .. py:attribute:: window_length_s
+      :value: 3
+
+
+
+   .. py:attribute:: window_step_size
+      :value: 0.75
+
+
+
+   .. py:attribute:: segment_gap_s
+      :value: 3
+
+
+
+   .. py:attribute:: min_segment_length_s
+      :value: 3
+
+
 

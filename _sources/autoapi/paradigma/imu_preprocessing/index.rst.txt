@@ -18,20 +18,20 @@ Functions
 Module Contents
 ---------------
 
-.. py:function:: preprocess_imu_data(input_path: str, output_path: str, config: paradigma.preprocessing_config.IMUPreprocessingConfig) -> None
+.. py:function:: preprocess_imu_data(input_path: Union[str, pathlib.Path], output_path: Union[str, pathlib.Path], config: paradigma.preprocessing_config.IMUPreprocessingConfig) -> None
 
-.. py:function:: transform_time_array(time_array: numpy.ndarray, scale_factor: float, input_unit_type: paradigma.constants.TimeUnit, output_unit_type: paradigma.constants.TimeUnit, start_time: float = 0.0) -> numpy.ndarray
+.. py:function:: transform_time_array(time_array: pandas.Series, scale_factor: float, input_unit_type: str, output_unit_type: str, start_time: float = 0.0) -> numpy.ndarray
 
    Transforms the time array to relative time (when defined in delta time) and scales the values.
 
    :param time_array: The time array in milliseconds to transform.
-   :type time_array: np.ndarray
+   :type time_array: pd.Series
    :param scale_factor: The scale factor to apply to the time array.
    :type scale_factor: float
-   :param input_unit_type: The time unit type of the input time array. Raw PPP data was in `TimeUnit.difference_ms`.
-   :type input_unit_type: TimeUnit
-   :param output_unit_type: The time unit type of the output time array. The processing is often done in `TimeUnit.relative_ms`.
-   :type output_unit_type: TimeUnit
+   :param input_unit_type: The time unit type of the input time array. Raw PPP data was in `TimeUnit.DIFFERENCE_MS`.
+   :type input_unit_type: str
+   :param output_unit_type: The time unit type of the output time array. The processing is often done in `TimeUnit.RELATIVE_MS`.
+   :type output_unit_type: str
    :param start_time: The start time of the time array in UNIX milliseconds (default is 0.0)
    :type start_time: float, optional
 
@@ -39,7 +39,7 @@ Module Contents
    :rtype: time_array
 
 
-.. py:function:: resample_data(df: pandas.DataFrame, time_column: paradigma.constants.DataColumns, time_unit_type: paradigma.constants.TimeUnit, unscaled_column_names: list, resampling_frequency: int, scale_factors: list = [], start_time: float = 0.0) -> pandas.DataFrame
+.. py:function:: resample_data(df: pandas.DataFrame, time_column: str, time_unit_type: str, unscaled_column_names: List[str], resampling_frequency: int, scale_factors: List[float] = [], start_time: float = 0.0) -> pandas.DataFrame
 
    Resamples the IMU data to the resampling frequency. The data is scaled before resampling.
 
@@ -47,10 +47,10 @@ Module Contents
    :type df: pd.DataFrame
    :param time_column: The name of the time column.
    :type time_column: str
-   :param time_unit_type: The time unit type of the time array. The method currently works only for `TimeUnit.relative_ms`.
-   :type time_unit_type: TimeUnit
+   :param time_unit_type: The time unit type of the time array. The method currently works only for `TimeUnit.RELATIVE_MS`.
+   :type time_unit_type: str
    :param unscaled_column_names: The names of the columns to resample.
-   :type unscaled_column_names: list
+   :type unscaled_column_names: List[str]
    :param resampling_frequency: The frequency to resample the data to.
    :type resampling_frequency: int
    :param scale_factors: The scale factors to apply to the values before resampling (default is []).

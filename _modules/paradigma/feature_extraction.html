@@ -89,13 +89,17 @@
            <div itemprop="articleBody">
              
   <h1>Source code for paradigma.feature_extraction</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
 
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">signal</span><span class="p">,</span> <span class="n">fft</span>
 <span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">cumulative_trapezoid</span>
 <span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">find_peaks</span>
+
+<span class="kn">from</span> <span class="nn">paradigma.constants</span> <span class="kn">import</span> <span class="n">DataColumns</span>
+<span class="kn">from</span> <span class="nn">paradigma.gait_analysis_config</span> <span class="kn">import</span> <span class="n">IMUConfig</span>
 
 
 <div class="viewcode-block" id="generate_statistics">
@@ -135,7 +139,7 @@
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.generate_std_norm">[docs]</a>
 <span class="k">def</span> <span class="nf">generate_std_norm</span><span class="p">(</span>
         <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-        <span class="n">cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate the standard deviation of the norm of the accelerometer axes.</span>
 <span class="sd">    </span>
@@ -143,7 +147,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    df: pd.DataFrame</span>
 <span class="sd">        The dataframe containing the accelerometer axes</span>
-<span class="sd">    cols: list</span>
+<span class="sd">    cols: List[str]</span>
 <span class="sd">        The names of the columns containing the accelerometer axes</span>
 <span class="sd">        </span>
 <span class="sd">    Returns</span>
@@ -230,8 +234,8 @@
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_power_in_bandwidth">[docs]</a>
 <span class="k">def</span> <span class="nf">compute_power_in_bandwidth</span><span class="p">(</span>
         <span class="n">sensor_col</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
-        <span class="n">fmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">fmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">fmin</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">fmax</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">sampling_frequency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
         <span class="n">window_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;hann&#39;</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -245,9 +249,9 @@
 <span class="sd">    sensor_col: list</span>
 <span class="sd">        The sensor column to be transformed (e.g. x-axis of accelerometer). This corresponds to a single window, which is a single row of the dataframe, </span>
 <span class="sd">        and contains values of individual timestamps composing the window.</span>
-<span class="sd">    fmin: int</span>
+<span class="sd">    fmin: float</span>
 <span class="sd">        The lower bound of the frequency band</span>
-<span class="sd">    fmax: int</span>
+<span class="sd">    fmax: float</span>
 <span class="sd">        The upper bound of the frequency band</span>
 <span class="sd">    sampling_frequency: int</span>
 <span class="sd">        The sampling frequency of the signal (default: 100)</span>
@@ -270,10 +274,10 @@
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_perc_power">[docs]</a>
 <span class="k">def</span> <span class="nf">compute_perc_power</span><span class="p">(</span>
         <span class="n">sensor_col</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
-        <span class="n">fmin_band</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">fmax_band</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">fmin_total</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="n">fmax_total</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="n">fmin_band</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">fmax_band</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">fmin_total</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">fmax_total</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
         <span class="n">sampling_frequency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
         <span class="n">window_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;hann&#39;</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -285,13 +289,13 @@
 <span class="sd">    ----------</span>
 <span class="sd">    sensor_col: list</span>
 <span class="sd">        The sensor column to be transformed (e.g. x-axis of accelerometer). This corresponds to a single window, which is a single row of the dataframe</span>
-<span class="sd">    fmin_band: int</span>
+<span class="sd">    fmin_band: float</span>
 <span class="sd">        The lower bound of the frequency band</span>
-<span class="sd">    fmax_band: int</span>
+<span class="sd">    fmax_band: float</span>
 <span class="sd">        The upper bound of the frequency band</span>
-<span class="sd">    fmin_total: int</span>
+<span class="sd">    fmin_total: float</span>
 <span class="sd">        The lower bound of the frequency spectrum (default: 0)</span>
-<span class="sd">    fmax_total: int</span>
+<span class="sd">    fmax_total: float</span>
 <span class="sd">        The upper bound of the frequency spectrum (default: 100)</span>
 <span class="sd">    sampling_frequency: int</span>
 <span class="sd">        The sampling frequency of the signal (default: 100)</span>
@@ -328,8 +332,8 @@
 <span class="k">def</span> <span class="nf">get_dominant_frequency</span><span class="p">(</span>
         <span class="n">signal_ffts</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
         <span class="n">signal_freqs</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
-        <span class="n">fmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">fmax</span><span class="p">:</span> <span class="nb">int</span>
+        <span class="n">fmin</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">fmax</span><span class="p">:</span> <span class="nb">float</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Note: signal_ffts and signal_freqs are single cells (which corresponds to a single window) of signal_ffts and signal_freqs, as it is used with apply function.</span>
 <span class="sd">    </span>
@@ -740,7 +744,28 @@
 
 <div class="viewcode-block" id="extract_temporal_domain_features">
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.extract_temporal_domain_features">[docs]</a>
-<span class="k">def</span> <span class="nf">extract_temporal_domain_features</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">df_windowed</span><span class="p">,</span> <span class="n">l_gravity_stats</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">]):</span>
+<span class="k">def</span> <span class="nf">extract_temporal_domain_features</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">IMUConfig</span><span class="p">,</span> <span class="n">df_windowed</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">l_gravity_stats</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute temporal domain features for the accelerometer signal. The features are added to the dataframe. Therefore the original dataframe is modified, and the modified dataframe is returned.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    config: GaitFeatureExtractionConfig</span>
+<span class="sd">        The configuration object containing the parameters for the feature extraction</span>
+<span class="sd">    </span>
+<span class="sd">    df_windowed: pd.DataFrame</span>
+<span class="sd">        The dataframe containing the windowed accelerometer signal</span>
+
+<span class="sd">    l_gravity_stats: list, optional</span>
+<span class="sd">        The statistics to be computed for the gravity component of the accelerometer signal (default: [&#39;mean&#39;, &#39;std&#39;])</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        The dataframe with the added temporal domain features.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
     <span class="c1"># compute the mean and standard deviation of the gravity component of the acceleration signal for each axis</span>
     <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">l_gravity_cols</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">stat</span> <span class="ow">in</span> <span class="n">l_gravity_stats</span><span class="p">:</span>

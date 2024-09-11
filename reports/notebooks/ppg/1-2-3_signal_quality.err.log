@@ -1,0 +1,74 @@
+Traceback (most recent call last):
+  File "/home/runner/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.10/lib/python3.10/site-packages/jupyter_cache/executors/utils.py", line 58, in single_nb_execution
+    executenb(
+  File "/home/runner/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 1314, in execute
+    return NotebookClient(nb=nb, resources=resources, km=km, **kwargs).execute()
+  File "/home/runner/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.10/lib/python3.10/site-packages/jupyter_core/utils/__init__.py", line 165, in wrapped
+    return loop.run_until_complete(inner)
+  File "/opt/hostedtoolcache/Python/3.10.14/x64/lib/python3.10/asyncio/base_events.py", line 649, in run_until_complete
+    return future.result()
+  File "/home/runner/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 709, in async_execute
+    await self.async_execute_cell(
+  File "/home/runner/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 1062, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "/home/runner/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 918, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+from paradigma.constants import DataColumns, TimeUnit
+
+# TODO: why get this again? The metadata is already available in metadata_{time|samples}_{ppg|imu}?
+# Extract indices for time and samples (TSDF should support extracting data based on the channel names)
+time_idx_ppg = metadata_list_ppg["PPG_time.bin"]
+time_idx_imu = metadata_list_imu["IMU_time.bin"]
+values_idx_ppg = metadata_list_ppg["PPG_samples.bin"]
+values_idx_imu = metadata_list_imu["IMU_samples.bin"]
+
+start_time_ppg = parse_iso8601_to_datetime(time_idx_ppg.start_iso8601).timestamp()
+df_imu[DataColumns.TIME] = paradigma.imu_preprocessing.transform_time_array(
+    time_array=df_imu[DataColumns.TIME],
+    scale_factor=1000, 
+    input_unit_type = TimeUnit.difference_ms,
+    output_unit_type = TimeUnit.absolute_ms,
+    start_time = start_time_ppg)
+
+start_time_imu = parse_iso8601_to_datetime(time_idx_imu.start_iso8601).timestamp()
+df_ppg[DataColumns.TIME] = paradigma.imu_preprocessing.transform_time_array(
+    time_array=df_ppg[DataColumns.TIME],
+    scale_factor=1000, 
+    input_unit_type = TimeUnit.difference_ms,
+    output_unit_type = TimeUnit.absolute_ms,
+    start_time = start_time_imu)
+
+
+df_imu.tail(2)
+# ts_ppg = int(datetime_ppg.timestamp() * UNIX_TICKS_MS)
+# ts_imu = int(datetime_imu.timestamp() * UNIX_TICKS_MS)
+
+# # Calculating continuous time vectors
+# t_ppg = np.cumsum(data_list_ppg[time_idx_ppg]) + ts_ppg
+# t_imu = np.cumsum(data_list_imu[time_idx_imu]) + ts_imu
+------------------
+
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mAttributeError[0m                            Traceback (most recent call last)
+Cell [0;32mIn[10], line 14[0m
+[1;32m      8[0m values_idx_imu [38;5;241m=[39m metadata_list_imu[[38;5;124m"[39m[38;5;124mIMU_samples.bin[39m[38;5;124m"[39m]
+[1;32m     10[0m start_time_ppg [38;5;241m=[39m parse_iso8601_to_datetime(time_idx_ppg[38;5;241m.[39mstart_iso8601)[38;5;241m.[39mtimestamp()
+[1;32m     11[0m df_imu[DataColumns[38;5;241m.[39mTIME] [38;5;241m=[39m paradigma[38;5;241m.[39mimu_preprocessing[38;5;241m.[39mtransform_time_array(
+[1;32m     12[0m     time_array[38;5;241m=[39mdf_imu[DataColumns[38;5;241m.[39mTIME],
+[1;32m     13[0m     scale_factor[38;5;241m=[39m[38;5;241m1000[39m, 
+[0;32m---> 14[0m     input_unit_type [38;5;241m=[39m [43mTimeUnit[49m[38;5;241;43m.[39;49m[43mdifference_ms[49m,
+[1;32m     15[0m     output_unit_type [38;5;241m=[39m TimeUnit[38;5;241m.[39mabsolute_ms,
+[1;32m     16[0m     start_time [38;5;241m=[39m start_time_ppg)
+[1;32m     18[0m start_time_imu [38;5;241m=[39m parse_iso8601_to_datetime(time_idx_imu[38;5;241m.[39mstart_iso8601)[38;5;241m.[39mtimestamp()
+[1;32m     19[0m df_ppg[DataColumns[38;5;241m.[39mTIME] [38;5;241m=[39m paradigma[38;5;241m.[39mimu_preprocessing[38;5;241m.[39mtransform_time_array(
+[1;32m     20[0m     time_array[38;5;241m=[39mdf_ppg[DataColumns[38;5;241m.[39mTIME],
+[1;32m     21[0m     scale_factor[38;5;241m=[39m[38;5;241m1000[39m, 
+[1;32m     22[0m     input_unit_type [38;5;241m=[39m TimeUnit[38;5;241m.[39mdifference_ms,
+[1;32m     23[0m     output_unit_type [38;5;241m=[39m TimeUnit[38;5;241m.[39mabsolute_ms,
+[1;32m     24[0m     start_time [38;5;241m=[39m start_time_imu)
+
+[0;31mAttributeError[0m: type object 'TimeUnit' has no attribute 'difference_ms'
+

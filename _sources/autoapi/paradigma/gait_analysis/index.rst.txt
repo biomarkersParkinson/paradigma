@@ -20,15 +20,15 @@ Functions
 Module Contents
 ---------------
 
-.. py:function:: extract_gait_features(input_path: str, output_path: str, config: paradigma.gait_analysis_config.GaitFeatureExtractionConfig) -> None
+.. py:function:: extract_gait_features(input_path: Union[str, pathlib.Path], output_path: Union[str, pathlib.Path], config: paradigma.gait_analysis_config.GaitFeatureExtractionConfig) -> None
 
-.. py:function:: detect_gait(input_path: str, output_path: str, path_to_classifier_input: str, config: paradigma.gait_analysis_config.GaitDetectionConfig) -> None
+.. py:function:: detect_gait(input_path: Union[str, pathlib.Path], output_path: Union[str, pathlib.Path], path_to_classifier_input: Union[str, pathlib.Path], config: paradigma.gait_analysis_config.GaitDetectionConfig) -> None
 
-.. py:function:: extract_arm_swing_features(input_path: str, output_path: str, config: paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig) -> None
+.. py:function:: extract_arm_swing_features(input_path: Union[str, pathlib.Path], output_path: Union[str, pathlib.Path], config: paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig) -> None
 
-.. py:function:: detect_arm_swing(input_path: str, output_path: str, path_to_classifier_input: str, config: paradigma.gait_analysis_config.ArmSwingDetectionConfig) -> None
+.. py:function:: detect_arm_swing(input_path: Union[str, pathlib.Path], output_path: Union[str, pathlib.Path], path_to_classifier_input: Union[str, pathlib.Path], config: paradigma.gait_analysis_config.ArmSwingDetectionConfig) -> None
 
-.. py:function:: quantify_arm_swing(path_to_feature_input: str, path_to_prediction_input: str, output_path: str, config: paradigma.gait_analysis_config.ArmSwingQuantificationConfig) -> None
+.. py:function:: quantify_arm_swing(path_to_feature_input: Union[str, pathlib.Path], path_to_prediction_input: Union[str, pathlib.Path], output_path: Union[str, pathlib.Path], config: paradigma.gait_analysis_config.ArmSwingQuantificationConfig) -> None
 
 .. py:function:: aggregate_weekly_arm_swing()
 

@@ -120,20 +120,23 @@
 <h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis_config.GaitFeatureExtractionConfig" title="paradigma.gait_analysis_config.GaitFeatureExtractionConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GaitFeatureExtractionConfig</span></code></a></p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis_config.IMUConfig" title="paradigma.gait_analysis_config.IMUConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IMUConfig</span></code></a></p></td>
+<td><p>Base class for Gait feature extraction and Gait detection configurations, based on the IMU data (accelerometer, gyroscope).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.gait_analysis_config.GaitDetectionConfig" title="paradigma.gait_analysis_config.GaitDetectionConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GaitDetectionConfig</span></code></a></p></td>
-<td><p></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.gait_analysis_config.GaitFeatureExtractionConfig" title="paradigma.gait_analysis_config.GaitFeatureExtractionConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GaitFeatureExtractionConfig</span></code></a></p></td>
+<td><p>Base class for Gait feature extraction and Gait detection configurations, based on the IMU data (accelerometer, gyroscope).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig" title="paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ArmSwingFeatureExtractionConfig</span></code></a></p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis_config.GaitDetectionConfig" title="paradigma.gait_analysis_config.GaitDetectionConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GaitDetectionConfig</span></code></a></p></td>
+<td><p>Base class for Gait feature extraction and Gait detection configurations, based on the IMU data (accelerometer, gyroscope).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.gait_analysis_config.ArmSwingDetectionConfig" title="paradigma.gait_analysis_config.ArmSwingDetectionConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ArmSwingDetectionConfig</span></code></a></p></td>
-<td><p></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig" title="paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ArmSwingFeatureExtractionConfig</span></code></a></p></td>
+<td><p>Base class for Gait feature extraction and Gait detection configurations, based on the IMU data (accelerometer, gyroscope).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis_config.ArmSwingQuantificationConfig" title="paradigma.gait_analysis_config.ArmSwingQuantificationConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ArmSwingQuantificationConfig</span></code></a></p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.gait_analysis_config.ArmSwingDetectionConfig" title="paradigma.gait_analysis_config.ArmSwingDetectionConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ArmSwingDetectionConfig</span></code></a></p></td>
+<td><p>Base class for Gait feature extraction and Gait detection configurations, based on the IMU data (accelerometer, gyroscope).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.gait_analysis_config.ArmSwingQuantificationConfig" title="paradigma.gait_analysis_config.ArmSwingQuantificationConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ArmSwingQuantificationConfig</span></code></a></p></td>
+<td><p>Base class for Gait feature extraction and Gait detection configurations, based on the IMU data (accelerometer, gyroscope).</p></td>
 </tr>
 </tbody>
 </table>
@@ -141,13 +144,123 @@
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="paradigma.gait_analysis_config.GaitFeatureExtractionConfig">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis_config.</span></span><span class="sig-name descname"><span class="pre">GaitFeatureExtractionConfig</span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#GaitFeatureExtractionConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis_config.GaitFeatureExtractionConfig" title="Link to this definition"></a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="paradigma.gait_analysis_config.GaitFeatureExtractionConfig.set_sensor">
-<span class="sig-name descname"><span class="pre">set_sensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#GaitFeatureExtractionConfig.set_sensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis_config.GaitFeatureExtractionConfig.set_sensor" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.IMUConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis_config.</span></span><span class="sig-name descname"><span class="pre">IMUConfig</span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#IMUConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis_config.IMUConfig" title="Link to this definition"></a></dt>
+<dd><p>Base class for Gait feature extraction and Gait detection configurations, based on the IMU data (accelerometer, gyroscope).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.IMUConfig.time_colname">
+<span class="sig-name descname"><span class="pre">time_colname</span></span><a class="headerlink" href="#paradigma.gait_analysis_config.IMUConfig.time_colname" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.IMUConfig.l_accelerometer_cols">
+<span class="sig-name descname"><span class="pre">l_accelerometer_cols</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#paradigma.gait_analysis_config.IMUConfig.l_accelerometer_cols" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.IMUConfig.l_gyroscope_cols">
+<span class="sig-name descname"><span class="pre">l_gyroscope_cols</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#paradigma.gait_analysis_config.IMUConfig.l_gyroscope_cols" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.IMUConfig.l_gravity_cols">
+<span class="sig-name descname"><span class="pre">l_gravity_cols</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#paradigma.gait_analysis_config.IMUConfig.l_gravity_cols" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.IMUConfig.set_sensor">
+<span class="sig-name descname"><span class="pre">set_sensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#IMUConfig.set_sensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis_config.IMUConfig.set_sensor" title="Link to this definition"></a></dt>
 <dd><p>Sets the sensor and derived filenames</p>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.IMUConfig.set_filenames">
+<span class="sig-name descname"><span class="pre">set_filenames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#IMUConfig.set_filenames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis_config.IMUConfig.set_filenames" title="Link to this definition"></a></dt>
+<dd><p>Sets the filenames based on the prefix,</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prefix</strong> (<em>str</em>) – The prefix for the filenames.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.IMUConfig.set_filenames_values">
+<span class="sig-name descname"><span class="pre">set_filenames_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#IMUConfig.set_filenames_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis_config.IMUConfig.set_filenames_values" title="Link to this definition"></a></dt>
+<dd><p>Sets the filenames based on the prefix,</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prefix</strong> (<em>str</em>) – The prefix for the filenames.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.GaitFeatureExtractionConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis_config.</span></span><span class="sig-name descname"><span class="pre">GaitFeatureExtractionConfig</span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#GaitFeatureExtractionConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis_config.GaitFeatureExtractionConfig" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#paradigma.gait_analysis_config.IMUConfig" title="paradigma.gait_analysis_config.IMUConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IMUConfig</span></code></a></p>
+<p>Base class for Gait feature extraction and Gait detection configurations, based on the IMU data (accelerometer, gyroscope).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.GaitFeatureExtractionConfig.window_type">
+<span class="sig-name descname"><span class="pre">window_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'hann'</span></em><a class="headerlink" href="#paradigma.gait_analysis_config.GaitFeatureExtractionConfig.window_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.GaitFeatureExtractionConfig.verbose">
+<span class="sig-name descname"><span class="pre">verbose</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#paradigma.gait_analysis_config.GaitFeatureExtractionConfig.verbose" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.GaitFeatureExtractionConfig.window_length_s">
+<span class="sig-name descname"><span class="pre">window_length_s</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#paradigma.gait_analysis_config.GaitFeatureExtractionConfig.window_length_s" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.GaitFeatureExtractionConfig.window_step_size_s">
+<span class="sig-name descname"><span class="pre">window_step_size_s</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#paradigma.gait_analysis_config.GaitFeatureExtractionConfig.window_step_size_s" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.GaitFeatureExtractionConfig.cc_low_frequency">
+<span class="sig-name descname"><span class="pre">cc_low_frequency</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#paradigma.gait_analysis_config.GaitFeatureExtractionConfig.cc_low_frequency" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.GaitFeatureExtractionConfig.cc_high_frequency">
+<span class="sig-name descname"><span class="pre">cc_high_frequency</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">25</span></em><a class="headerlink" href="#paradigma.gait_analysis_config.GaitFeatureExtractionConfig.cc_high_frequency" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.GaitFeatureExtractionConfig.n_dct_filters_cc">
+<span class="sig-name descname"><span class="pre">n_dct_filters_cc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">20</span></em><a class="headerlink" href="#paradigma.gait_analysis_config.GaitFeatureExtractionConfig.n_dct_filters_cc" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.GaitFeatureExtractionConfig.n_coefficients_cc">
+<span class="sig-name descname"><span class="pre">n_coefficients_cc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#paradigma.gait_analysis_config.GaitFeatureExtractionConfig.n_coefficients_cc" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.GaitFeatureExtractionConfig.d_frequency_bandwidths">
+<span class="sig-name descname"><span class="pre">d_frequency_bandwidths</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#paradigma.gait_analysis_config.GaitFeatureExtractionConfig.d_frequency_bandwidths" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.GaitFeatureExtractionConfig.l_window_level_cols">
+<span class="sig-name descname"><span class="pre">l_window_level_cols</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['id',</span> <span class="pre">'window_nr',</span> <span class="pre">'window_start',</span> <span class="pre">'window_end']</span></em><a class="headerlink" href="#paradigma.gait_analysis_config.GaitFeatureExtractionConfig.l_window_level_cols" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.GaitFeatureExtractionConfig.l_data_point_level_cols">
+<span class="sig-name descname"><span class="pre">l_data_point_level_cols</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#paradigma.gait_analysis_config.GaitFeatureExtractionConfig.l_data_point_level_cols" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.GaitFeatureExtractionConfig.d_channels_values">
+<span class="sig-name descname"><span class="pre">d_channels_values</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#paradigma.gait_analysis_config.GaitFeatureExtractionConfig.d_channels_values" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="paradigma.gait_analysis_config.GaitFeatureExtractionConfig.set_sampling_frequency">
@@ -160,12 +273,26 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="paradigma.gait_analysis_config.GaitDetectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis_config.</span></span><span class="sig-name descname"><span class="pre">GaitDetectionConfig</span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#GaitDetectionConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis_config.GaitDetectionConfig" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#paradigma.gait_analysis_config.IMUConfig" title="paradigma.gait_analysis_config.IMUConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IMUConfig</span></code></a></p>
+<p>Base class for Gait feature extraction and Gait detection configurations, based on the IMU data (accelerometer, gyroscope).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.GaitDetectionConfig.classifier_file_name">
+<span class="sig-name descname"><span class="pre">classifier_file_name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'gd_classifier.pkl'</span></em><a class="headerlink" href="#paradigma.gait_analysis_config.GaitDetectionConfig.classifier_file_name" title="Link to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.GaitDetectionConfig.thresholds_file_name">
+<span class="sig-name descname"><span class="pre">thresholds_file_name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'gd_threshold.txt'</span></em><a class="headerlink" href="#paradigma.gait_analysis_config.GaitDetectionConfig.thresholds_file_name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis_config.</span></span><span class="sig-name descname"><span class="pre">ArmSwingFeatureExtractionConfig</span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#ArmSwingFeatureExtractionConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig" title="Link to this definition"></a></dt>
-<dd><dl class="py method">
+<dd><p>Bases: <a class="reference internal" href="#paradigma.gait_analysis_config.IMUConfig" title="paradigma.gait_analysis_config.IMUConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IMUConfig</span></code></a></p>
+<p>Base class for Gait feature extraction and Gait detection configurations, based on the IMU data (accelerometer, gyroscope).</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig.initialize_window_length_fields">
 <span class="sig-name descname"><span class="pre">initialize_window_length_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">window_length_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#ArmSwingFeatureExtractionConfig.initialize_window_length_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig.initialize_window_length_fields" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -177,26 +304,74 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig.initialize_column_names">
-<span class="sig-name descname"><span class="pre">initialize_column_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_colname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_gait_colname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pred_gait'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_smooth_colname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'angle_smooth'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_colname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'angle'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocity_colname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'velocity'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_nr_colname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'segment_nr'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#ArmSwingFeatureExtractionConfig.initialize_column_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig.initialize_column_names" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">initialize_column_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#ArmSwingFeatureExtractionConfig.initialize_column_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig.initialize_column_names" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig.set_sensor">
-<span class="sig-name descname"><span class="pre">set_sensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#ArmSwingFeatureExtractionConfig.set_sensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig.set_sensor" title="Link to this definition"></a></dt>
-<dd><p>Sets the sensor and derived filenames</p>
-</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig.sensor">
+<span class="sig-name descname"><span class="pre">sensor</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IMU'</span></em><a class="headerlink" href="#paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig.sensor" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig.units">
+<span class="sig-name descname"><span class="pre">units</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'degrees'</span></em><a class="headerlink" href="#paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig.units" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig.window_type">
+<span class="sig-name descname"><span class="pre">window_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'hann'</span></em><a class="headerlink" href="#paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig.window_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig.d_channels_values">
+<span class="sig-name descname"><span class="pre">d_channels_values</span></span><a class="headerlink" href="#paradigma.gait_analysis_config.ArmSwingFeatureExtractionConfig.d_channels_values" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="paradigma.gait_analysis_config.ArmSwingDetectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis_config.</span></span><span class="sig-name descname"><span class="pre">ArmSwingDetectionConfig</span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#ArmSwingDetectionConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis_config.ArmSwingDetectionConfig" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#paradigma.gait_analysis_config.IMUConfig" title="paradigma.gait_analysis_config.IMUConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IMUConfig</span></code></a></p>
+<p>Base class for Gait feature extraction and Gait detection configurations, based on the IMU data (accelerometer, gyroscope).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.ArmSwingDetectionConfig.classifier_file_name">
+<span class="sig-name descname"><span class="pre">classifier_file_name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'asd_classifier.pkl'</span></em><a class="headerlink" href="#paradigma.gait_analysis_config.ArmSwingDetectionConfig.classifier_file_name" title="Link to this definition"></a></dt>
 <dd></dd></dl>
+
+</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="paradigma.gait_analysis_config.ArmSwingQuantificationConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.gait_analysis_config.</span></span><span class="sig-name descname"><span class="pre">ArmSwingQuantificationConfig</span></span><a class="reference internal" href="../../../_modules/paradigma/gait_analysis_config.html#ArmSwingQuantificationConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.gait_analysis_config.ArmSwingQuantificationConfig" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#paradigma.gait_analysis_config.IMUConfig" title="paradigma.gait_analysis_config.IMUConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IMUConfig</span></code></a></p>
+<p>Base class for Gait feature extraction and Gait detection configurations, based on the IMU data (accelerometer, gyroscope).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.ArmSwingQuantificationConfig.pred_arm_swing_colname">
+<span class="sig-name descname"><span class="pre">pred_arm_swing_colname</span></span><a class="headerlink" href="#paradigma.gait_analysis_config.ArmSwingQuantificationConfig.pred_arm_swing_colname" title="Link to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.ArmSwingQuantificationConfig.window_length_s">
+<span class="sig-name descname"><span class="pre">window_length_s</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#paradigma.gait_analysis_config.ArmSwingQuantificationConfig.window_length_s" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.ArmSwingQuantificationConfig.window_step_size">
+<span class="sig-name descname"><span class="pre">window_step_size</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.75</span></em><a class="headerlink" href="#paradigma.gait_analysis_config.ArmSwingQuantificationConfig.window_step_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.ArmSwingQuantificationConfig.segment_gap_s">
+<span class="sig-name descname"><span class="pre">segment_gap_s</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#paradigma.gait_analysis_config.ArmSwingQuantificationConfig.segment_gap_s" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.gait_analysis_config.ArmSwingQuantificationConfig.min_segment_length_s">
+<span class="sig-name descname"><span class="pre">min_segment_length_s</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#paradigma.gait_analysis_config.ArmSwingQuantificationConfig.min_segment_length_s" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
 
 </section>
 </section>

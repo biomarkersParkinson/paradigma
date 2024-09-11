@@ -27,55 +27,118 @@ Module Contents
 
 .. py:class:: DataColumns
 
-   Enum for the data channels in tsdf.
+   Class containing the data channels in `tsdf`.
 
 
    .. py:attribute:: ACCELEROMETER_X
+      :type:  str
       :value: 'accelerometer_x'
 
 
 
    .. py:attribute:: ACCELEROMETER_Y
+      :type:  str
       :value: 'accelerometer_y'
 
 
 
    .. py:attribute:: ACCELEROMETER_Z
+      :type:  str
       :value: 'accelerometer_z'
 
 
 
    .. py:attribute:: GYROSCOPE_X
+      :type:  str
       :value: 'gyroscope_x'
 
 
 
    .. py:attribute:: GYROSCOPE_Y
+      :type:  str
       :value: 'gyroscope_y'
 
 
 
    .. py:attribute:: GYROSCOPE_Z
+      :type:  str
       :value: 'gyroscope_z'
 
 
 
    .. py:attribute:: PPG
+      :type:  str
       :value: 'green'
 
 
 
    .. py:attribute:: TIME
+      :type:  str
       :value: 'time'
+
+
+
+   .. py:attribute:: GRAV_ACCELEROMETER_X
+      :type:  str
+      :value: 'grav_accelerometer_x'
+
+
+
+   .. py:attribute:: GRAV_ACCELEROMETER_Y
+      :type:  str
+      :value: 'grav_accelerometer_y'
+
+
+
+   .. py:attribute:: GRAV_ACCELEROMETER_Z
+      :type:  str
+      :value: 'grav_accelerometer_z'
+
+
+
+   .. py:attribute:: PRED_GAIT
+      :type:  str
+      :value: 'pred_gait'
+
+
+
+   .. py:attribute:: PRED_ARM_SWING
+      :type:  str
+      :value: 'pred_arm_swing'
+
+
+
+   .. py:attribute:: ANGLE
+      :type:  str
+      :value: 'angle'
+
+
+
+   .. py:attribute:: ANGLE_SMOOTH
+      :type:  str
+      :value: 'angle_smooth'
+
+
+
+   .. py:attribute:: VELOCITY
+      :type:  str
+      :value: 'velocity'
+
+
+
+   .. py:attribute:: SEGMENT_NR
+      :type:  str
+      :value: 'segment_nr'
 
 
 
 .. py:class:: DataUnits
 
-   Enum for the data channel unit types in tsdf.
+   Class containing the data channel unit types in `tsdf`.
 
 
    .. py:attribute:: ACCELERATION
+      :type:  str
       :value: 'm/s^2'
 
 
@@ -83,32 +146,68 @@ Module Contents
 
 
    .. py:attribute:: ROTATION
+      :type:  str
       :value: 'deg/s'
 
 
       The rotation is in degrees per second.
 
 
+   .. py:attribute:: GRAVITY
+      :type:  str
+      :value: 'g'
+
+
+      The acceleration due to gravity is in g.
+
+
+   .. py:attribute:: POWER_SPECTRAL_DENSITY
+      :type:  str
+      :value: 'g^2/Hz'
+
+
+      The power spectral density is in g^2/Hz.
+
+
+   .. py:attribute:: FREQUENCY
+      :type:  str
+      :value: 'Hz'
+
+
+      The frequency is in Hz.
+
+
+   .. py:attribute:: NONE
+      :type:  str
+      :value: 'none'
+
+
+      The data channel has no unit.
+
+
 .. py:class:: TimeUnit
 
-   Enum for the `time` channel unit types in tsdf.
+   Class containing the `time` channel unit types in `tsdf`.
 
 
-   .. py:attribute:: relative_ms
+   .. py:attribute:: RELATIVE_MS
+      :type:  str
       :value: 'relative_ms'
 
 
       The time is relative to the start time in milliseconds.
 
 
-   .. py:attribute:: absolute_ms
+   .. py:attribute:: ABSOLUTE_MS
+      :type:  str
       :value: 'absolute_ms'
 
 
       The time is absolute in milliseconds.
 
 
-   .. py:attribute:: difference_ms
+   .. py:attribute:: DIFFERENCE_MS
+      :type:  str
       :value: 'difference_ms'
 
 

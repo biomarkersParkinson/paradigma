@@ -44,14 +44,14 @@ Module Contents
    :rtype: list
 
 
-.. py:function:: generate_std_norm(df: pandas.DataFrame, cols: list) -> pandas.Series
+.. py:function:: generate_std_norm(df: pandas.DataFrame, cols: List[str]) -> pandas.Series
 
    Generate the standard deviation of the norm of the accelerometer axes.
 
    :param df: The dataframe containing the accelerometer axes
    :type df: pd.DataFrame
    :param cols: The names of the columns containing the accelerometer axes
-   :type cols: list
+   :type cols: List[str]
 
    :returns: The standard deviation of the norm of the accelerometer axes
    :rtype: pd.Series
@@ -87,7 +87,7 @@ Module Contents
    :rtype: tuple
 
 
-.. py:function:: compute_power_in_bandwidth(sensor_col: list, fmin: int, fmax: int, sampling_frequency: int = 100, window_type: str = 'hann') -> float
+.. py:function:: compute_power_in_bandwidth(sensor_col: list, fmin: float, fmax: float, sampling_frequency: int = 100, window_type: str = 'hann') -> float
 
    Note: sensor_col is a single cell (which corresponds to a single window) of sensor_col, as it is used with apply function.
    Probably we want a smarter way of doing this.
@@ -98,9 +98,9 @@ Module Contents
                       and contains values of individual timestamps composing the window.
    :type sensor_col: list
    :param fmin: The lower bound of the frequency band
-   :type fmin: int
+   :type fmin: float
    :param fmax: The upper bound of the frequency band
-   :type fmax: int
+   :type fmax: float
    :param sampling_frequency: The sampling frequency of the signal (default: 100)
    :type sampling_frequency: int
    :param window_type: The type of window to be used for the FFT (default: 'hann')
@@ -110,7 +110,7 @@ Module Contents
    :rtype: float
 
 
-.. py:function:: compute_perc_power(sensor_col: list, fmin_band: int, fmax_band: int, fmin_total: int = 0, fmax_total: int = 100, sampling_frequency: int = 100, window_type: str = 'hann') -> float
+.. py:function:: compute_perc_power(sensor_col: list, fmin_band: float, fmax_band: float, fmin_total: float = 0, fmax_total: float = 100, sampling_frequency: int = 100, window_type: str = 'hann') -> float
 
    Note: sensor_col is a single cell (which corresponds to a single window) of sensor_col, as it is used with apply function.
 
@@ -119,13 +119,13 @@ Module Contents
    :param sensor_col: The sensor column to be transformed (e.g. x-axis of accelerometer). This corresponds to a single window, which is a single row of the dataframe
    :type sensor_col: list
    :param fmin_band: The lower bound of the frequency band
-   :type fmin_band: int
+   :type fmin_band: float
    :param fmax_band: The upper bound of the frequency band
-   :type fmax_band: int
+   :type fmax_band: float
    :param fmin_total: The lower bound of the frequency spectrum (default: 0)
-   :type fmin_total: int
+   :type fmin_total: float
    :param fmax_total: The upper bound of the frequency spectrum (default: 100)
-   :type fmax_total: int
+   :type fmax_total: float
    :param sampling_frequency: The sampling frequency of the signal (default: 100)
    :type sampling_frequency: int
    :param window_type: The type of window to be used for the FFT (default: 'hann')
@@ -135,7 +135,7 @@ Module Contents
    :rtype: float
 
 
-.. py:function:: get_dominant_frequency(signal_ffts: list, signal_freqs: list, fmin: int, fmax: int) -> float
+.. py:function:: get_dominant_frequency(signal_ffts: list, signal_freqs: list, fmin: float, fmax: float) -> float
 
    Note: signal_ffts and signal_freqs are single cells (which corresponds to a single window) of signal_ffts and signal_freqs, as it is used with apply function.
 
@@ -280,7 +280,20 @@ Module Contents
    :rtype: pd.DataFrame
 
 
-.. py:function:: extract_temporal_domain_features(config, df_windowed, l_gravity_stats=['mean', 'std'])
+.. py:function:: extract_temporal_domain_features(config: paradigma.gait_analysis_config.IMUConfig, df_windowed: pandas.DataFrame, l_gravity_stats=['mean', 'std']) -> pandas.DataFrame
+
+   Compute temporal domain features for the accelerometer signal. The features are added to the dataframe. Therefore the original dataframe is modified, and the modified dataframe is returned.
+
+   :param config: The configuration object containing the parameters for the feature extraction
+   :type config: GaitFeatureExtractionConfig
+   :param df_windowed: The dataframe containing the windowed accelerometer signal
+   :type df_windowed: pd.DataFrame
+   :param l_gravity_stats: The statistics to be computed for the gravity component of the accelerometer signal (default: ['mean', 'std'])
+   :type l_gravity_stats: list, optional
+
+   :returns: The dataframe with the added temporal domain features.
+   :rtype: pd.DataFrame
+
 
 .. py:function:: extract_spectral_domain_features(config, df_windowed, sensor, l_sensor_colnames)
 

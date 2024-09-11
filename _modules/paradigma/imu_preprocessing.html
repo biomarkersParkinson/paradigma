@@ -89,7 +89,8 @@
            <div itemprop="articleBody">
              
   <h1>Source code for paradigma.imu_preprocessing</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">signal</span>
@@ -103,10 +104,11 @@
 
 <div class="viewcode-block" id="preprocess_imu_data">
 <a class="viewcode-back" href="../../autoapi/paradigma/imu_preprocessing/index.html#paradigma.imu_preprocessing.preprocess_imu_data">[docs]</a>
-<span class="k">def</span> <span class="nf">preprocess_imu_data</span><span class="p">(</span><span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">IMUPreprocessingConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">preprocess_imu_data</span><span class="p">(</span><span class="n">input_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">config</span><span class="p">:</span> <span class="n">IMUPreprocessingConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
     <span class="c1"># Load data</span>
-    <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_samples</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">meta_filename</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">time_filename</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">values_filename</span><span class="p">)</span>
+    <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_samples</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">input_path</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">meta_filename</span><span class="p">),</span>
+                                                    <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">time_filename</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">values_filename</span><span class="p">))</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_samples</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
 
     <span class="c1"># Rename columns</span>
@@ -117,14 +119,14 @@
     <span class="n">df</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">]</span> <span class="o">=</span> <span class="n">transform_time_array</span><span class="p">(</span>
         <span class="n">time_array</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">],</span>
         <span class="n">scale_factor</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> 
-        <span class="n">input_unit_type</span> <span class="o">=</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">difference_ms</span><span class="p">,</span>
-        <span class="n">output_unit_type</span> <span class="o">=</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">relative_ms</span><span class="p">)</span>
+        <span class="n">input_unit_type</span> <span class="o">=</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_MS</span><span class="p">,</span>
+        <span class="n">output_unit_type</span> <span class="o">=</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_MS</span><span class="p">)</span>
     
 
     <span class="n">df</span> <span class="o">=</span> <span class="n">resample_data</span><span class="p">(</span>
         <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
         <span class="n">time_column</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">,</span>
-        <span class="n">time_unit_type</span><span class="o">=</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">relative_ms</span><span class="p">,</span>
+        <span class="n">time_unit_type</span><span class="o">=</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_MS</span><span class="p">,</span>
         <span class="n">unscaled_column_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">d_channels_imu</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
         <span class="n">scale_factors</span><span class="o">=</span><span class="n">metadata_samples</span><span class="o">.</span><span class="n">scale_factors</span><span class="p">,</span>
         <span class="n">resampling_frequency</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">)</span>
@@ -167,10 +169,10 @@
 <div class="viewcode-block" id="transform_time_array">
 <a class="viewcode-back" href="../../autoapi/paradigma/imu_preprocessing/index.html#paradigma.imu_preprocessing.transform_time_array">[docs]</a>
 <span class="k">def</span> <span class="nf">transform_time_array</span><span class="p">(</span>
-    <span class="n">time_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">time_array</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
     <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-    <span class="n">input_unit_type</span><span class="p">:</span> <span class="n">TimeUnit</span><span class="p">,</span>
-    <span class="n">output_unit_type</span><span class="p">:</span> <span class="n">TimeUnit</span><span class="p">,</span>
+    <span class="n">input_unit_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output_unit_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">start_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -178,14 +180,14 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    time_array : np.ndarray</span>
+<span class="sd">    time_array : pd.Series</span>
 <span class="sd">        The time array in milliseconds to transform.</span>
 <span class="sd">    scale_factor : float</span>
 <span class="sd">        The scale factor to apply to the time array.</span>
-<span class="sd">    input_unit_type : TimeUnit</span>
-<span class="sd">        The time unit type of the input time array. Raw PPP data was in `TimeUnit.difference_ms`.</span>
-<span class="sd">    output_unit_type : TimeUnit</span>
-<span class="sd">        The time unit type of the output time array. The processing is often done in `TimeUnit.relative_ms`.</span>
+<span class="sd">    input_unit_type : str</span>
+<span class="sd">        The time unit type of the input time array. Raw PPP data was in `TimeUnit.DIFFERENCE_MS`.</span>
+<span class="sd">    output_unit_type : str</span>
+<span class="sd">        The time unit type of the output time array. The processing is often done in `TimeUnit.RELATIVE_MS`.</span>
 <span class="sd">    start_time : float, optional</span>
 <span class="sd">        The start time of the time array in UNIX milliseconds (default is 0.0)</span>
 
@@ -194,28 +196,28 @@
 <span class="sd">    time_array</span>
 <span class="sd">        The transformed time array in milliseconds, with the specified time unit type.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Scale time array and transform to relative time (`TimeUnit.relative_ms`) </span>
-    <span class="k">if</span> <span class="n">input_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">difference_ms</span><span class="p">:</span>
+    <span class="c1"># Scale time array and transform to relative time (`TimeUnit.RELATIVE_MS`) </span>
+    <span class="k">if</span> <span class="n">input_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_MS</span><span class="p">:</span>
     <span class="c1"># Convert a series of differences into cumulative sum to reconstruct original time series.</span>
         <span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">time_array</span><span class="p">))</span> <span class="o">/</span> <span class="n">scale_factor</span>
-    <span class="k">elif</span> <span class="n">input_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">absolute_ms</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">input_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_MS</span><span class="p">:</span>
         <span class="c1"># Set the start time if not provided.</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-09</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-09</span><span class="p">):</span>
             <span class="n">start_time</span> <span class="o">=</span> <span class="n">time_array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="c1"># Convert absolute time stamps into a time series relative to start_time.</span>
         <span class="n">time_array</span> <span class="o">=</span> <span class="p">(</span><span class="n">time_array</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span> <span class="o">/</span> <span class="n">scale_factor</span>
-    <span class="k">elif</span> <span class="n">input_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">relative_ms</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">input_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_MS</span><span class="p">:</span>
         <span class="c1"># Scale the relative time series as per the scale_factor.</span>
         <span class="n">time_array</span> <span class="o">=</span> <span class="n">time_array</span> <span class="o">/</span> <span class="n">scale_factor</span>
 
-    <span class="c1"># Transform the time array from `TimeUnit.relative_ms` to the specified time unit type</span>
-    <span class="k">if</span> <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">absolute_ms</span><span class="p">:</span>
+    <span class="c1"># Transform the time array from `TimeUnit.RELATIVE_MS` to the specified time unit type</span>
+    <span class="k">if</span> <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_MS</span><span class="p">:</span>
         <span class="c1"># Converts time array to absolute time by adding the start time to each element.</span>
         <span class="n">time_array</span> <span class="o">=</span> <span class="n">time_array</span> <span class="o">+</span> <span class="n">start_time</span>
-    <span class="k">elif</span> <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">difference_ms</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_MS</span><span class="p">:</span>
         <span class="c1"># Creates a new array starting with 0, followed by the differences between consecutive elements.</span>
         <span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">start_time</span><span class="p">))</span>
-    <span class="k">elif</span> <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">relative_ms</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_MS</span><span class="p">:</span>
         <span class="c1"># The array is already in relative format, do nothing.</span>
         <span class="k">pass</span>
     <span class="k">return</span> <span class="n">time_array</span></div>
@@ -226,11 +228,11 @@
 <a class="viewcode-back" href="../../autoapi/paradigma/imu_preprocessing/index.html#paradigma.imu_preprocessing.resample_data">[docs]</a>
 <span class="k">def</span> <span class="nf">resample_data</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-    <span class="n">time_column</span> <span class="p">:</span> <span class="n">DataColumns</span><span class="p">,</span>
-    <span class="n">time_unit_type</span><span class="p">:</span> <span class="n">TimeUnit</span><span class="p">,</span>
-    <span class="n">unscaled_column_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">time_column</span> <span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">time_unit_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">unscaled_column_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">resampling_frequency</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">scale_factors</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[],</span>
+    <span class="n">scale_factors</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[],</span>
     <span class="n">start_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -242,9 +244,9 @@
 <span class="sd">        The data to resample.</span>
 <span class="sd">    time_column : str</span>
 <span class="sd">        The name of the time column.</span>
-<span class="sd">    time_unit_type : TimeUnit</span>
-<span class="sd">        The time unit type of the time array. The method currently works only for `TimeUnit.relative_ms`.</span>
-<span class="sd">    unscaled_column_names : list</span>
+<span class="sd">    time_unit_type : str</span>
+<span class="sd">        The time unit type of the time array. The method currently works only for `TimeUnit.RELATIVE_MS`.</span>
+<span class="sd">    unscaled_column_names : List[str]</span>
 <span class="sd">        The names of the columns to resample.</span>
 <span class="sd">    resampling_frequency : int</span>
 <span class="sd">        The frequency to resample the data to.</span>
@@ -259,7 +261,7 @@
 <span class="sd">        The resampled data.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># We need a start_time if the time is in absolute time format</span>
-    <span class="k">if</span> <span class="n">time_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">absolute_ms</span> <span class="ow">and</span> <span class="n">start_time</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">time_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_MS</span> <span class="ow">and</span> <span class="n">start_time</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;start_time is required for absolute time format&quot;</span><span class="p">)</span>
 
     <span class="c1"># get time and values</span>
@@ -282,6 +284,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;time_abs_array is not strictly increasing&quot;</span><span class="p">)</span>
 
         <span class="n">cs</span> <span class="o">=</span> <span class="n">CubicSpline</span><span class="p">(</span><span class="n">time_abs_array</span><span class="p">,</span> <span class="n">scaled_values</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+        <span class="c1">#TODO: isn&#39;t sensor_col of type DataColumns?</span>
         <span class="n">df</span><span class="p">[</span><span class="n">sensor_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">cs</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">time_column</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">df</span></div>

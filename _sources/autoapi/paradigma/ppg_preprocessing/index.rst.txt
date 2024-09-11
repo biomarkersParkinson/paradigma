@@ -21,7 +21,7 @@ Module Contents
 
 .. py:function:: scan_and_sync_segments(input_path_ppg, input_path_imu)
 
-.. py:function:: preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TSDFMetadata, output_path: str, ppg_config: paradigma.preprocessing_config.PPGPreprocessingConfig, imu_config: paradigma.preprocessing_config.IMUPreprocessingConfig)
+.. py:function:: preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TSDFMetadata, output_path: Union[str, pathlib.Path], ppg_config: paradigma.preprocessing_config.PPGPreprocessingConfig, imu_config: paradigma.preprocessing_config.IMUPreprocessingConfig)
 
 .. py:function:: extract_meta_from_tsdf_files(tsdf_data_dir: str) -> List[dict]
 

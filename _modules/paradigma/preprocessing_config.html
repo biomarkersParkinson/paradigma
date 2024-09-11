@@ -89,8 +89,8 @@
            <div itemprop="articleBody">
              
   <h1>Source code for paradigma.preprocessing_config</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">paradigma.constants</span> <span class="kn">import</span> <span class="n">DataColumns</span>
-
+<span></span><span class="kn">from</span> <span class="nn">paradigma.constants</span> <span class="kn">import</span> <span class="n">DataColumns</span><span class="p">,</span> <span class="n">DataUnits</span>
+<span class="kn">from</span> <span class="nn">paradigma.gait_analysis_config</span> <span class="kn">import</span> <span class="n">IMUConfig</span>
 
 <div class="viewcode-block" id="BasePreprocessingConfig">
 <a class="viewcode-back" href="../../autoapi/paradigma/preprocessing_config/index.html#paradigma.preprocessing_config.BasePreprocessingConfig">[docs]</a>
@@ -102,8 +102,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">values_filename</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time_filename</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">acceleration_units</span> <span class="o">=</span> <span class="s1">&#39;m/s^2&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rotation_units</span> <span class="o">=</span> <span class="s1">&#39;deg/s&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acceleration_units</span> <span class="o">=</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">ACCELERATION</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rotation_units</span> <span class="o">=</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">ROTATION</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">time_colname</span> <span class="o">=</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span>
 
@@ -114,8 +114,22 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="mi">100</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lower_cutoff_frequency</span> <span class="o">=</span> <span class="mf">0.2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">upper_cutoff_frequency</span> <span class="o">=</span> <span class="mf">3.5</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">filter_order</span> <span class="o">=</span> <span class="mi">4</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filter_order</span> <span class="o">=</span> <span class="mi">4</span>
 
+<div class="viewcode-block" id="BasePreprocessingConfig.set_filenames">
+<a class="viewcode-back" href="../../autoapi/paradigma/preprocessing_config/index.html#paradigma.preprocessing_config.BasePreprocessingConfig.set_filenames">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_filenames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the filenames based on the prefix. This method is duplicated from `gaits_analysis_config.py`.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        prefix : str</span>
+<span class="sd">            The prefix for the filenames.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_meta.json&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_time.bin&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">values_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_samples.bin&quot;</span></div>
+</div>
 
 
 <div class="viewcode-block" id="IMUPreprocessingConfig">
@@ -125,12 +139,9 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">meta_filename</span> <span class="o">=</span> <span class="s1">&#39;IMU_meta.json&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">values_filename</span> <span class="o">=</span> <span class="s1">&#39;IMU_samples.bin&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_filename</span> <span class="o">=</span> <span class="s1">&#39;IMU_time.bin&#39;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">acceleration_units</span> <span class="o">=</span> <span class="s1">&#39;m/s^2&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rotation_units</span> <span class="o">=</span> <span class="s1">&#39;deg/s&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_filenames</span><span class="p">(</span><span class="s1">&#39;IMU&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acceleration_units</span> <span class="o">=</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">ACCELERATION</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rotation_units</span> <span class="o">=</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">ROTATION</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_accelerometer</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">acceleration_units</span><span class="p">,</span>
@@ -152,12 +163,9 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">meta_filename</span> <span class="o">=</span> <span class="s1">&#39;PPG_meta.json&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">values_filename</span> <span class="o">=</span> <span class="s1">&#39;PPG_samples.bin&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_filename</span> <span class="o">=</span> <span class="s1">&#39;PPG_time.bin&#39;</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_filenames</span><span class="p">(</span><span class="s1">&#39;PPG&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_ppg</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">PPG</span><span class="p">:</span> <span class="s1">&#39;none&#39;</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">PPG</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">NONE</span>
         <span class="p">}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="mi">30</span></div>

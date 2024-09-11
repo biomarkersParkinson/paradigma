@@ -137,18 +137,119 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="paradigma.preprocessing_config.BasePreprocessingConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.preprocessing_config.</span></span><span class="sig-name descname"><span class="pre">BasePreprocessingConfig</span></span><a class="reference internal" href="../../../_modules/paradigma/preprocessing_config.html#BasePreprocessingConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.preprocessing_config.BasePreprocessingConfig" title="Link to this definition"></a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.preprocessing_config.BasePreprocessingConfig.meta_filename">
+<span class="sig-name descname"><span class="pre">meta_filename</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#paradigma.preprocessing_config.BasePreprocessingConfig.meta_filename" title="Link to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.preprocessing_config.BasePreprocessingConfig.values_filename">
+<span class="sig-name descname"><span class="pre">values_filename</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#paradigma.preprocessing_config.BasePreprocessingConfig.values_filename" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.preprocessing_config.BasePreprocessingConfig.time_filename">
+<span class="sig-name descname"><span class="pre">time_filename</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#paradigma.preprocessing_config.BasePreprocessingConfig.time_filename" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.preprocessing_config.BasePreprocessingConfig.acceleration_units">
+<span class="sig-name descname"><span class="pre">acceleration_units</span></span><a class="headerlink" href="#paradigma.preprocessing_config.BasePreprocessingConfig.acceleration_units" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.preprocessing_config.BasePreprocessingConfig.rotation_units">
+<span class="sig-name descname"><span class="pre">rotation_units</span></span><a class="headerlink" href="#paradigma.preprocessing_config.BasePreprocessingConfig.rotation_units" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.preprocessing_config.BasePreprocessingConfig.time_colname">
+<span class="sig-name descname"><span class="pre">time_colname</span></span><a class="headerlink" href="#paradigma.preprocessing_config.BasePreprocessingConfig.time_colname" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.preprocessing_config.BasePreprocessingConfig.side_watch">
+<span class="sig-name descname"><span class="pre">side_watch</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'right'</span></em><a class="headerlink" href="#paradigma.preprocessing_config.BasePreprocessingConfig.side_watch" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.preprocessing_config.BasePreprocessingConfig.sampling_frequency">
+<span class="sig-name descname"><span class="pre">sampling_frequency</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">100</span></em><a class="headerlink" href="#paradigma.preprocessing_config.BasePreprocessingConfig.sampling_frequency" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.preprocessing_config.BasePreprocessingConfig.lower_cutoff_frequency">
+<span class="sig-name descname"><span class="pre">lower_cutoff_frequency</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.2</span></em><a class="headerlink" href="#paradigma.preprocessing_config.BasePreprocessingConfig.lower_cutoff_frequency" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.preprocessing_config.BasePreprocessingConfig.upper_cutoff_frequency">
+<span class="sig-name descname"><span class="pre">upper_cutoff_frequency</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3.5</span></em><a class="headerlink" href="#paradigma.preprocessing_config.BasePreprocessingConfig.upper_cutoff_frequency" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.preprocessing_config.BasePreprocessingConfig.filter_order">
+<span class="sig-name descname"><span class="pre">filter_order</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#paradigma.preprocessing_config.BasePreprocessingConfig.filter_order" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paradigma.preprocessing_config.BasePreprocessingConfig.set_filenames">
+<span class="sig-name descname"><span class="pre">set_filenames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/paradigma/preprocessing_config.html#BasePreprocessingConfig.set_filenames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.preprocessing_config.BasePreprocessingConfig.set_filenames" title="Link to this definition"></a></dt>
+<dd><p>Sets the filenames based on the prefix. This method is duplicated from <cite>gaits_analysis_config.py</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prefix</strong> (<em>str</em>) – The prefix for the filenames.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="paradigma.preprocessing_config.IMUPreprocessingConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.preprocessing_config.</span></span><span class="sig-name descname"><span class="pre">IMUPreprocessingConfig</span></span><a class="reference internal" href="../../../_modules/paradigma/preprocessing_config.html#IMUPreprocessingConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.preprocessing_config.IMUPreprocessingConfig" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#paradigma.preprocessing_config.BasePreprocessingConfig" title="paradigma.preprocessing_config.BasePreprocessingConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BasePreprocessingConfig</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.preprocessing_config.IMUPreprocessingConfig.acceleration_units">
+<span class="sig-name descname"><span class="pre">acceleration_units</span></span><a class="headerlink" href="#paradigma.preprocessing_config.IMUPreprocessingConfig.acceleration_units" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.preprocessing_config.IMUPreprocessingConfig.rotation_units">
+<span class="sig-name descname"><span class="pre">rotation_units</span></span><a class="headerlink" href="#paradigma.preprocessing_config.IMUPreprocessingConfig.rotation_units" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.preprocessing_config.IMUPreprocessingConfig.d_channels_accelerometer">
+<span class="sig-name descname"><span class="pre">d_channels_accelerometer</span></span><a class="headerlink" href="#paradigma.preprocessing_config.IMUPreprocessingConfig.d_channels_accelerometer" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.preprocessing_config.IMUPreprocessingConfig.d_channels_gyroscope">
+<span class="sig-name descname"><span class="pre">d_channels_gyroscope</span></span><a class="headerlink" href="#paradigma.preprocessing_config.IMUPreprocessingConfig.d_channels_gyroscope" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.preprocessing_config.IMUPreprocessingConfig.d_channels_imu">
+<span class="sig-name descname"><span class="pre">d_channels_imu</span></span><a class="headerlink" href="#paradigma.preprocessing_config.IMUPreprocessingConfig.d_channels_imu" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="paradigma.preprocessing_config.PPGPreprocessingConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.preprocessing_config.</span></span><span class="sig-name descname"><span class="pre">PPGPreprocessingConfig</span></span><a class="reference internal" href="../../../_modules/paradigma/preprocessing_config.html#PPGPreprocessingConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.preprocessing_config.PPGPreprocessingConfig" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#paradigma.preprocessing_config.BasePreprocessingConfig" title="paradigma.preprocessing_config.BasePreprocessingConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BasePreprocessingConfig</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.preprocessing_config.PPGPreprocessingConfig.d_channels_ppg">
+<span class="sig-name descname"><span class="pre">d_channels_ppg</span></span><a class="headerlink" href="#paradigma.preprocessing_config.PPGPreprocessingConfig.d_channels_ppg" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.preprocessing_config.PPGPreprocessingConfig.sampling_frequency">
+<span class="sig-name descname"><span class="pre">sampling_frequency</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">30</span></em><a class="headerlink" href="#paradigma.preprocessing_config.PPGPreprocessingConfig.sampling_frequency" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>

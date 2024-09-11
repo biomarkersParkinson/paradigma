@@ -20,7 +20,7 @@ Module Contents
 
 .. py:function:: extract_ppg_features(arr_ppg: numpy.ndarray, sampling_frequency: int) -> numpy.ndarray
 
-.. py:function:: peakdet(v: numpy.ndarray, delta, x: numpy.ndarray = None) -> Tuple[List[Tuple[int, float]], List[Tuple[int, float]]]
+.. py:function:: peakdet(v: numpy.ndarray, delta, x: Union[numpy.ndarray, None] = None) -> Tuple[List[Tuple[int, float]], List[Tuple[int, float]]]
 
    Detect peaks in a vector.
 

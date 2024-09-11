@@ -94,7 +94,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 
 <span class="kn">import</span> <span class="nn">tsdf</span>
@@ -127,7 +127,7 @@
 
 <div class="viewcode-block" id="preprocess_ppg_data">
 <a class="viewcode-back" href="../../autoapi/paradigma/ppg_preprocessing/index.html#paradigma.ppg_preprocessing.preprocess_ppg_data">[docs]</a>
-<span class="k">def</span> <span class="nf">preprocess_ppg_data</span><span class="p">(</span><span class="n">tsdf_meta_ppg</span><span class="p">:</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">TSDFMetadata</span><span class="p">,</span> <span class="n">tsdf_meta_imu</span><span class="p">:</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">TSDFMetadata</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ppg_config</span><span class="p">:</span> <span class="n">PPGPreprocessingConfig</span><span class="p">,</span> <span class="n">imu_config</span><span class="p">:</span> <span class="n">IMUPreprocessingConfig</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">preprocess_ppg_data</span><span class="p">(</span><span class="n">tsdf_meta_ppg</span><span class="p">:</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">TSDFMetadata</span><span class="p">,</span> <span class="n">tsdf_meta_imu</span><span class="p">:</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">TSDFMetadata</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">ppg_config</span><span class="p">:</span> <span class="n">PPGPreprocessingConfig</span><span class="p">,</span> <span class="n">imu_config</span><span class="p">:</span> <span class="n">IMUPreprocessingConfig</span><span class="p">):</span>
 
     <span class="c1"># Load PPG data</span>
     <span class="n">metadata_time_ppg</span> <span class="o">=</span> <span class="n">tsdf_meta_ppg</span><span class="p">[</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">time_filename</span><span class="p">]</span>
@@ -149,16 +149,16 @@
     <span class="n">df_imu</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">=</span> <span class="n">paradigma</span><span class="o">.</span><span class="n">imu_preprocessing</span><span class="o">.</span><span class="n">transform_time_array</span><span class="p">(</span>
         <span class="n">time_array</span><span class="o">=</span><span class="n">df_imu</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">],</span>
         <span class="n">scale_factor</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> 
-        <span class="n">input_unit_type</span> <span class="o">=</span> <span class="n">paradigma</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">difference_ms</span><span class="p">,</span>
-        <span class="n">output_unit_type</span> <span class="o">=</span> <span class="n">paradigma</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">absolute_ms</span><span class="p">,</span>
+        <span class="n">input_unit_type</span> <span class="o">=</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_MS</span><span class="p">,</span>
+        <span class="n">output_unit_type</span> <span class="o">=</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_MS</span><span class="p">,</span>
         <span class="n">start_time</span> <span class="o">=</span> <span class="n">start_time_ppg</span><span class="p">)</span>
 
     <span class="n">start_time_imu</span> <span class="o">=</span> <span class="n">parse_iso8601_to_datetime</span><span class="p">(</span><span class="n">metadata_time_imu</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">)</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span>
     <span class="n">df_ppg</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">=</span> <span class="n">paradigma</span><span class="o">.</span><span class="n">imu_preprocessing</span><span class="o">.</span><span class="n">transform_time_array</span><span class="p">(</span>
         <span class="n">time_array</span><span class="o">=</span><span class="n">df_ppg</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">],</span>
         <span class="n">scale_factor</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> 
-        <span class="n">input_unit_type</span> <span class="o">=</span> <span class="n">paradigma</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">difference_ms</span><span class="p">,</span>
-        <span class="n">output_unit_type</span> <span class="o">=</span> <span class="n">paradigma</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">absolute_ms</span><span class="p">,</span>
+        <span class="n">input_unit_type</span> <span class="o">=</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_MS</span><span class="p">,</span>
+        <span class="n">output_unit_type</span> <span class="o">=</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_MS</span><span class="p">,</span>
         <span class="n">start_time</span> <span class="o">=</span> <span class="n">start_time_imu</span><span class="p">)</span>
 
     <span class="c1"># Extract overlapping segments</span>
@@ -170,7 +170,7 @@
     <span class="n">df_imu_proc</span> <span class="o">=</span> <span class="n">paradigma</span><span class="o">.</span><span class="n">imu_preprocessing</span><span class="o">.</span><span class="n">resample_data</span><span class="p">(</span>
         <span class="n">df</span><span class="o">=</span><span class="n">df_imu_overlapping</span><span class="p">,</span>
         <span class="n">time_column</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span>
-        <span class="n">time_unit_type</span><span class="o">=</span><span class="n">paradigma</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">absolute_ms</span><span class="p">,</span>
+        <span class="n">time_unit_type</span><span class="o">=</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_MS</span><span class="p">,</span>
         <span class="n">unscaled_column_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">imu_config</span><span class="o">.</span><span class="n">d_channels_accelerometer</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
         <span class="n">resampling_frequency</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
         <span class="n">scale_factors</span><span class="o">=</span><span class="n">metadata_samples_imu</span><span class="o">.</span><span class="n">scale_factors</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">],</span>
@@ -180,7 +180,7 @@
     <span class="n">df_ppg_proc</span> <span class="o">=</span> <span class="n">paradigma</span><span class="o">.</span><span class="n">imu_preprocessing</span><span class="o">.</span><span class="n">resample_data</span><span class="p">(</span>
         <span class="n">df</span><span class="o">=</span><span class="n">df_ppg_overlapping</span><span class="p">,</span>
         <span class="n">time_column</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span>
-        <span class="n">time_unit_type</span><span class="o">=</span><span class="n">paradigma</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">absolute_ms</span><span class="p">,</span>
+        <span class="n">time_unit_type</span><span class="o">=</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_MS</span><span class="p">,</span>
         <span class="n">unscaled_column_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">d_channels_ppg</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
         <span class="n">scale_factors</span><span class="o">=</span><span class="n">metadata_samples_imu</span><span class="o">.</span><span class="n">scale_factors</span><span class="p">,</span>
         <span class="n">resampling_frequency</span><span class="o">=</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
@@ -221,16 +221,16 @@
     <span class="n">df_imu_proc</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">=</span> <span class="n">paradigma</span><span class="o">.</span><span class="n">imu_preprocessing</span><span class="o">.</span><span class="n">transform_time_array</span><span class="p">(</span>
         <span class="n">time_array</span><span class="o">=</span><span class="n">df_imu_proc</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">],</span>
         <span class="n">scale_factor</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-        <span class="n">input_unit_type</span><span class="o">=</span><span class="n">paradigma</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">absolute_ms</span><span class="p">,</span>
-        <span class="n">output_unit_type</span><span class="o">=</span><span class="n">paradigma</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">relative_ms</span><span class="p">,</span>
+        <span class="n">input_unit_type</span><span class="o">=</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_MS</span><span class="p">,</span>
+        <span class="n">output_unit_type</span><span class="o">=</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_MS</span><span class="p">,</span>
         <span class="n">start_time</span><span class="o">=</span><span class="n">start_time_ppg</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">df_ppg_proc</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">=</span> <span class="n">paradigma</span><span class="o">.</span><span class="n">imu_preprocessing</span><span class="o">.</span><span class="n">transform_time_array</span><span class="p">(</span>
         <span class="n">time_array</span><span class="o">=</span><span class="n">df_ppg_proc</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">],</span>
         <span class="n">scale_factor</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-        <span class="n">input_unit_type</span><span class="o">=</span><span class="n">paradigma</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">absolute_ms</span><span class="p">,</span>
-        <span class="n">output_unit_type</span><span class="o">=</span><span class="n">paradigma</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">relative_ms</span><span class="p">,</span>
+        <span class="n">input_unit_type</span><span class="o">=</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_MS</span><span class="p">,</span>
+        <span class="n">output_unit_type</span><span class="o">=</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_MS</span><span class="p">,</span>
         <span class="n">start_time</span><span class="o">=</span><span class="n">start_time_imu</span><span class="p">,</span>
     <span class="p">)</span>
 
@@ -238,14 +238,14 @@
     <span class="n">metadata_samples_imu</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">imu_config</span><span class="o">.</span><span class="n">d_channels_accelerometer</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="n">metadata_samples_imu</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">imu_config</span><span class="o">.</span><span class="n">d_channels_accelerometer</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
     <span class="n">metadata_samples_imu</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;accelerometer_samples.bin&#39;</span>
-    <span class="n">metadata_time_imu</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">absolute_ms</span><span class="p">]</span>
+    <span class="n">metadata_time_imu</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_MS</span><span class="p">]</span>
     <span class="n">metadata_time_imu</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;accelerometer_time.bin&#39;</span>
     <span class="n">write_data</span><span class="p">(</span><span class="n">metadata_time_imu</span><span class="p">,</span> <span class="n">metadata_samples_imu</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;accelerometer_meta.json&#39;</span><span class="p">,</span> <span class="n">df_imu_proc</span><span class="p">)</span>
 
     <span class="n">metadata_samples_ppg</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">d_channels_ppg</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="n">metadata_samples_ppg</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">d_channels_ppg</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
     <span class="n">metadata_samples_ppg</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;PPG_samples.bin&#39;</span>
-    <span class="n">metadata_time_ppg</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">absolute_ms</span><span class="p">]</span>
+    <span class="n">metadata_time_ppg</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_MS</span><span class="p">]</span>
     <span class="n">metadata_time_ppg</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;PPG_time.bin&#39;</span>
     <span class="n">write_data</span><span class="p">(</span><span class="n">metadata_time_ppg</span><span class="p">,</span> <span class="n">metadata_samples_ppg</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;PPG_meta.json&#39;</span><span class="p">,</span> <span class="n">df_ppg_proc</span><span class="p">)</span></div>
 
