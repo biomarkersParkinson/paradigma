@@ -1,3 +1,4 @@
+from typing import List
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
@@ -5,6 +6,9 @@ from sklearn.decomposition import PCA
 from scipy import signal, fft
 from scipy.integrate import cumulative_trapezoid
 from scipy.signal import find_peaks
+
+from paradigma.constants import DataColumns
+from paradigma.gait_analysis_config import IMUConfig
 
 
 def generate_statistics(
@@ -39,7 +43,7 @@ def generate_statistics(
 
 def generate_std_norm(
         df: pd.DataFrame,
-        cols: list,
+        cols: List[str],
     ) -> pd.Series:
     """Generate the standard deviation of the norm of the accelerometer axes.
     
@@ -47,7 +51,7 @@ def generate_std_norm(
     ----------
     df: pd.DataFrame
         The dataframe containing the accelerometer axes
-    cols: list
+    cols: List[str]
         The names of the columns containing the accelerometer axes
         
     Returns
@@ -125,8 +129,8 @@ def signal_to_ffts(
 
 def compute_power_in_bandwidth(
         sensor_col: list,
-        fmin: int,
-        fmax: int,
+        fmin: float,
+        fmax: float,
         sampling_frequency: int = 100,
         window_type: str = 'hann',
     ) -> float:
@@ -140,9 +144,9 @@ def compute_power_in_bandwidth(
     sensor_col: list
         The sensor column to be transformed (e.g. x-axis of accelerometer). This corresponds to a single window, which is a single row of the dataframe, 
         and contains values of individual timestamps composing the window.
-    fmin: int
+    fmin: float
         The lower bound of the frequency band
-    fmax: int
+    fmax: float
         The upper bound of the frequency band
     sampling_frequency: int
         The sampling frequency of the signal (default: 100)
@@ -162,10 +166,10 @@ def compute_power_in_bandwidth(
 
 def compute_perc_power(
         sensor_col: list,
-        fmin_band: int,
-        fmax_band: int,
-        fmin_total: int = 0,
-        fmax_total: int = 100,
+        fmin_band: float,
+        fmax_band: float,
+        fmin_total: float = 0,
+        fmax_total: float = 100,
         sampling_frequency: int = 100,
         window_type: str = 'hann'
     ) -> float:
@@ -177,13 +181,13 @@ def compute_perc_power(
     ----------
     sensor_col: list
         The sensor column to be transformed (e.g. x-axis of accelerometer). This corresponds to a single window, which is a single row of the dataframe
-    fmin_band: int
+    fmin_band: float
         The lower bound of the frequency band
-    fmax_band: int
+    fmax_band: float
         The upper bound of the frequency band
-    fmin_total: int
+    fmin_total: float
         The lower bound of the frequency spectrum (default: 0)
-    fmax_total: int
+    fmax_total: float
         The upper bound of the frequency spectrum (default: 100)
     sampling_frequency: int
         The sampling frequency of the signal (default: 100)
@@ -217,8 +221,8 @@ def compute_perc_power(
 def get_dominant_frequency(
         signal_ffts: list,
         signal_freqs: list,
-        fmin: int,
-        fmax: int
+        fmin: float,
+        fmax: float
         ) -> float:
     """Note: signal_ffts and signal_freqs are single cells (which corresponds to a single window) of signal_ffts and signal_freqs, as it is used with apply function.
     
@@ -602,7 +606,28 @@ def extract_peak_angular_velocity(
     return
 
 
-def extract_temporal_domain_features(config, df_windowed, l_gravity_stats=['mean', 'std']):
+def extract_temporal_domain_features(config: IMUConfig, df_windowed:pd.DataFrame, l_gravity_stats=['mean', 'std']) -> pd.DataFrame:
+    """
+    Compute temporal domain features for the accelerometer signal. The features are added to the dataframe. Therefore the original dataframe is modified, and the modified dataframe is returned.
+
+    Parameters
+    ----------
+
+    config: GaitFeatureExtractionConfig
+        The configuration object containing the parameters for the feature extraction
+    
+    df_windowed: pd.DataFrame
+        The dataframe containing the windowed accelerometer signal
+
+    l_gravity_stats: list, optional
+        The statistics to be computed for the gravity component of the accelerometer signal (default: ['mean', 'std'])
+    
+    Returns
+    -------
+    pd.DataFrame
+        The dataframe with the added temporal domain features.
+    """
+    
     # compute the mean and standard deviation of the gravity component of the acceleration signal for each axis
     for col in config.l_gravity_cols:
         for stat in l_gravity_stats:

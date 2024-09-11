@@ -1,5 +1,5 @@
-from paradigma.constants import DataColumns
-
+from paradigma.constants import DataColumns, DataUnits
+from paradigma.gait_analysis_config import IMUConfig
 
 class BasePreprocessingConfig:
 
@@ -9,8 +9,8 @@ class BasePreprocessingConfig:
         self.values_filename = ''
         self.time_filename = ''
 
-        self.acceleration_units = 'm/s^2'
-        self.rotation_units = 'deg/s'
+        self.acceleration_units = DataUnits.ACCELERATION
+        self.rotation_units = DataUnits.ROTATION
 
         self.time_colname = DataColumns.TIME
 
@@ -23,18 +23,26 @@ class BasePreprocessingConfig:
         self.upper_cutoff_frequency = 3.5
         self.filter_order = 4
 
+    def set_filenames(self, prefix: str) -> None:
+        """Sets the filenames based on the prefix. This method is duplicated from `gaits_analysis_config.py`.
+        
+        Parameters
+        ----------
+        prefix : str
+            The prefix for the filenames.
+        """
+        self.meta_filename = f"{prefix}_meta.json"
+        self.time_filename = f"{prefix}_time.bin"
+        self.values_filename = f"{prefix}_samples.bin"
 
 class IMUPreprocessingConfig(BasePreprocessingConfig):
 
     def __init__(self) -> None:
         super().__init__()
 
-        self.meta_filename = 'IMU_meta.json'
-        self.values_filename = 'IMU_samples.bin'
-        self.time_filename = 'IMU_time.bin'
-
-        self.acceleration_units = 'm/s^2'
-        self.rotation_units = 'deg/s'
+        self.set_filenames('IMU')
+        self.acceleration_units = DataUnits.ACCELERATION
+        self.rotation_units = DataUnits.ROTATION
 
         self.d_channels_accelerometer = {
             DataColumns.ACCELEROMETER_X: self.acceleration_units,
@@ -53,12 +61,9 @@ class PPGPreprocessingConfig(BasePreprocessingConfig):
     def __init__(self) -> None:
         super().__init__()
 
-        self.meta_filename = 'PPG_meta.json'
-        self.values_filename = 'PPG_samples.bin'
-        self.time_filename = 'PPG_time.bin'
-
+        self.set_filenames('PPG')
         self.d_channels_ppg = {
-            DataColumns.PPG: 'none'
+            DataColumns.PPG: DataUnits.NONE
         }
 
         self.sampling_frequency = 30

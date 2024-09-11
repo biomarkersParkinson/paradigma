@@ -1,6 +1,8 @@
 import os
 import numpy as np
 import pandas as pd
+from pathlib import Path
+from typing import Union
 
 import tsdf
 
@@ -16,7 +18,7 @@ from paradigma.windowing import tabulate_windows, create_segments, discard_segme
 from paradigma.util import get_end_iso8601, write_data, read_metadata
 
 
-def extract_gait_features(input_path: str, output_path: str, config: GaitFeatureExtractionConfig) -> None:
+def extract_gait_features(input_path: Union[str, Path], output_path: Union[str, Path], config: GaitFeatureExtractionConfig) -> None:
     # load data
     metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
@@ -57,7 +59,7 @@ def extract_gait_features(input_path: str, output_path: str, config: GaitFeature
     write_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df_windowed)
 
 
-def detect_gait(input_path: str, output_path: str, path_to_classifier_input: str, config: GaitDetectionConfig) -> None:
+def detect_gait(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: GaitDetectionConfig) -> None:
     
     # Load the data
     metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
@@ -69,12 +71,12 @@ def detect_gait(input_path: str, output_path: str, path_to_classifier_input: str
         threshold = float(f.read())
 
     # Prepare the data
-    clf.feature_names_in_ = [f'{x}_power_below_gait' for x in config.l_accel_cols] + \
-                            [f'{x}_power_gait' for x in config.l_accel_cols] + \
-                            [f'{x}_power_tremor' for x in config.l_accel_cols] + \
-                            [f'{x}_power_above_tremor' for x in config.l_accel_cols] + \
-                            ['std_norm_acc'] + [f'cc_{i}_accelerometer' for i in range(1, 13)] + [f'grav_{x}_{y}' for x in config.l_accel_cols for y in ['mean', 'std']] + \
-                            [f'{x}_dominant_frequency' for x in config.l_accel_cols]
+    clf.feature_names_in_ = [f'{x}_power_below_gait' for x in config.l_accelerometer_cols] + \
+                            [f'{x}_power_gait' for x in config.l_accelerometer_cols] + \
+                            [f'{x}_power_tremor' for x in config.l_accelerometer_cols] + \
+                            [f'{x}_power_above_tremor' for x in config.l_accelerometer_cols] + \
+                            ['std_norm_acc'] + [f'cc_{i}_accelerometer' for i in range(1, 13)] + [f'grav_{x}_{y}' for x in config.l_accelerometer_cols for y in ['mean', 'std']] + \
+                            [f'{x}_dominant_frequency' for x in config.l_accelerometer_cols]
     X = df.loc[:, clf.feature_names_in_]
 
     # Make prediction
@@ -98,7 +100,7 @@ def detect_gait(input_path: str, output_path: str, path_to_classifier_input: str
     write_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df)
 
 
-def extract_arm_swing_features(input_path: str, output_path: str, config: ArmSwingFeatureExtractionConfig) -> None:
+def extract_arm_swing_features(input_path: Union[str, Path], output_path: Union[str, Path], config: ArmSwingFeatureExtractionConfig) -> None:
     # load accelerometer and gyroscope data
     l_dfs = []
     for sensor in ['accelerometer', 'gyroscope']:
@@ -120,7 +122,7 @@ def extract_arm_swing_features(input_path: str, output_path: str, config: ArmSwi
     # perform principal component analysis on the gyroscope signals to obtain the angular velocity in the
     # direction of the swing of the arm 
     df[config.velocity_colname] = pca_transform_gyroscope(
-        df=df, 
+        df=df,
         y_gyro_colname=DataColumns.GYROSCOPE_Y,
         z_gyro_colname=DataColumns.GYROSCOPE_Z,
         pred_gait_colname=config.pred_gait_colname
@@ -281,7 +283,7 @@ def extract_arm_swing_features(input_path: str, output_path: str, config: ArmSwi
     write_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df_windowed)
 
 
-def detect_arm_swing(input_path: str, output_path: str, path_to_classifier_input: str, config: ArmSwingDetectionConfig) -> None:
+def detect_arm_swing(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: ArmSwingDetectionConfig) -> None:
     # Load the data
     metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
@@ -290,15 +292,15 @@ def detect_arm_swing(input_path: str, output_path: str, path_to_classifier_input
     clf = pd.read_pickle(os.path.join(path_to_classifier_input, config.classifier_file_name))
 
     # Prepare the data
-    clf.feature_names_in_ = ['std_norm_acc'] + [f'{x}_power_below_gait' for x in config.l_accel_cols] + \
-                            [f'{x}_power_gait' for x in config.l_accel_cols] + \
-                            [f'{x}_power_tremor' for x in config.l_accel_cols] + \
-                            [f'{x}_power_above_tremor' for x in config.l_accel_cols] + \
+    clf.feature_names_in_ = ['std_norm_acc'] + [f'{x}_power_below_gait' for x in config.l_accelerometer_cols] + \
+                            [f'{x}_power_gait' for x in config.l_accelerometer_cols] + \
+                            [f'{x}_power_tremor' for x in config.l_accelerometer_cols] + \
+                            [f'{x}_power_above_tremor' for x in config.l_accelerometer_cols] + \
                             [f'cc_{i}_accelerometer' for i in range(1, 13)] + [f'cc_{i}_gyroscope' for i in range(1, 13)] + \
-                            [f'grav_{x}_mean' for x in config.l_accel_cols] +  [f'grav_{x}_std' for x in config.l_accel_cols] + \
+                            [f'grav_{x}_mean' for x in config.l_accelerometer_cols] +  [f'grav_{x}_std' for x in config.l_accelerometer_cols] + \
                             ['range_of_motion', 'forward_peak_ang_vel_mean', 'backward_peak_ang_vel_mean', 'forward_peak_ang_vel_std', 
                             'backward_peak_ang_vel_std', 'angle_perc_power', 'angle_dominant_frequency'] + \
-                            [f'{x}_dominant_frequency' for x in config.l_accel_cols]
+                            [f'{x}_dominant_frequency' for x in config.l_accelerometer_cols]
                             
     X = df.loc[:, clf.feature_names_in_]
 
@@ -323,7 +325,7 @@ def detect_arm_swing(input_path: str, output_path: str, path_to_classifier_input
     write_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df)
 
 
-def quantify_arm_swing(path_to_feature_input: str, path_to_prediction_input: str, output_path: str, config: ArmSwingQuantificationConfig) -> None:
+def quantify_arm_swing(path_to_feature_input: Union[str, Path], path_to_prediction_input: Union[str, Path], output_path: Union[str, Path], config: ArmSwingQuantificationConfig) -> None:
     # Load the features & predictions
     metadata_time, metadata_samples = read_metadata(path_to_feature_input, config.meta_filename, config.time_filename, config.values_filename)
     df_features = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)

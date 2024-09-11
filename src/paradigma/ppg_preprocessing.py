@@ -3,7 +3,7 @@ import json
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import List
+from typing import List, Union
 from datetime import datetime, timedelta
 
 import tsdf
@@ -31,7 +31,7 @@ def scan_and_sync_segments(input_path_ppg, input_path_imu):
     return metadatas_ppg, metadatas_imu
 
 
-def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TSDFMetadata, output_path: str, ppg_config: PPGPreprocessingConfig, imu_config: IMUPreprocessingConfig):
+def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TSDFMetadata, output_path: Union[str, Path], ppg_config: PPGPreprocessingConfig, imu_config: IMUPreprocessingConfig):
 
     # Load PPG data
     metadata_time_ppg = tsdf_meta_ppg[ppg_config.time_filename]
@@ -53,16 +53,16 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
     df_imu[DataColumns.TIME] = paradigma.imu_preprocessing.transform_time_array(
         time_array=df_imu[DataColumns.TIME],
         scale_factor=1000, 
-        input_unit_type = paradigma.constants.TimeUnit.difference_ms,
-        output_unit_type = paradigma.constants.TimeUnit.absolute_ms,
+        input_unit_type = TimeUnit.DIFFERENCE_MS,
+        output_unit_type = TimeUnit.ABSOLUTE_MS,
         start_time = start_time_ppg)
 
     start_time_imu = parse_iso8601_to_datetime(metadata_time_imu.start_iso8601).timestamp()
     df_ppg[DataColumns.TIME] = paradigma.imu_preprocessing.transform_time_array(
         time_array=df_ppg[DataColumns.TIME],
         scale_factor=1000, 
-        input_unit_type = paradigma.constants.TimeUnit.difference_ms,
-        output_unit_type = paradigma.constants.TimeUnit.absolute_ms,
+        input_unit_type = TimeUnit.DIFFERENCE_MS,
+        output_unit_type = TimeUnit.ABSOLUTE_MS,
         start_time = start_time_imu)
 
     # Extract overlapping segments
@@ -74,7 +74,7 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
     df_imu_proc = paradigma.imu_preprocessing.resample_data(
         df=df_imu_overlapping,
         time_column=DataColumns.TIME,
-        time_unit_type=paradigma.constants.TimeUnit.absolute_ms,
+        time_unit_type=TimeUnit.ABSOLUTE_MS,
         unscaled_column_names = list(imu_config.d_channels_accelerometer.keys()),
         resampling_frequency=imu_config.sampling_frequency,
         scale_factors=metadata_samples_imu.scale_factors[0:3],
@@ -84,7 +84,7 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
     df_ppg_proc = paradigma.imu_preprocessing.resample_data(
         df=df_ppg_overlapping,
         time_column=DataColumns.TIME,
-        time_unit_type=paradigma.constants.TimeUnit.absolute_ms,
+        time_unit_type=TimeUnit.ABSOLUTE_MS,
         unscaled_column_names = list(ppg_config.d_channels_ppg.keys()),
         scale_factors=metadata_samples_imu.scale_factors,
         resampling_frequency=ppg_config.sampling_frequency,
@@ -125,16 +125,16 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
     df_imu_proc[DataColumns.TIME] = paradigma.imu_preprocessing.transform_time_array(
         time_array=df_imu_proc[DataColumns.TIME],
         scale_factor=1,
-        input_unit_type=paradigma.constants.TimeUnit.absolute_ms,
-        output_unit_type=paradigma.constants.TimeUnit.relative_ms,
+        input_unit_type=TimeUnit.ABSOLUTE_MS,
+        output_unit_type=TimeUnit.RELATIVE_MS,
         start_time=start_time_ppg,
     )
 
     df_ppg_proc[DataColumns.TIME] = paradigma.imu_preprocessing.transform_time_array(
         time_array=df_ppg_proc[DataColumns.TIME],
         scale_factor=1,
-        input_unit_type=paradigma.constants.TimeUnit.absolute_ms,
-        output_unit_type=paradigma.constants.TimeUnit.relative_ms,
+        input_unit_type=TimeUnit.ABSOLUTE_MS,
+        output_unit_type=TimeUnit.RELATIVE_MS,
         start_time=start_time_imu,
     )
 
@@ -142,14 +142,14 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
     metadata_samples_imu.channels = list(imu_config.d_channels_accelerometer.keys())
     metadata_samples_imu.units = list(imu_config.d_channels_accelerometer.values())
     metadata_samples_imu.file_name = 'accelerometer_samples.bin'
-    metadata_time_imu.units = [TimeUnit.absolute_ms]
+    metadata_time_imu.units = [TimeUnit.ABSOLUTE_MS]
     metadata_time_imu.file_name = 'accelerometer_time.bin'
     write_data(metadata_time_imu, metadata_samples_imu, output_path, 'accelerometer_meta.json', df_imu_proc)
 
     metadata_samples_ppg.channels = list(ppg_config.d_channels_ppg.keys())
     metadata_samples_ppg.units = list(ppg_config.d_channels_ppg.values())
     metadata_samples_ppg.file_name = 'PPG_samples.bin'
-    metadata_time_ppg.units = [TimeUnit.absolute_ms]
+    metadata_time_ppg.units = [TimeUnit.ABSOLUTE_MS]
     metadata_time_ppg.file_name = 'PPG_time.bin'
     write_data(metadata_time_ppg, metadata_samples_ppg, output_path, 'PPG_meta.json', df_ppg_proc)
 
