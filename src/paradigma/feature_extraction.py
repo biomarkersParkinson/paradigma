@@ -642,6 +642,8 @@ def extract_temporal_domain_features(config: IMUConfig, df_windowed:pd.DataFrame
         cols=config.l_accelerometer_cols
         )
     
+    df_windowed = df_windowed.drop(columns=config.l_gravity_cols)
+    
     return df_windowed
 
 
@@ -676,10 +678,6 @@ def extract_spectral_domain_features(config, df_windowed, sensor, l_sensor_colna
             ), axis=1
         )
 
-    # compute the power summed over the individual axes to obtain the total power per frequency bandwidth
-    for bandwidth in config.d_frequency_bandwidths.keys():
-        df_windowed['total_'+bandwidth] = df_windowed.apply(lambda x: sum(x[y+'_'+bandwidth] for y in l_sensor_colnames), axis=1)
-
     # compute the power summed over the individual frequency bandwidths to obtain the total power
     df_windowed['total_power'] = compute_power(
         df=df_windowed,
@@ -695,6 +693,12 @@ def extract_spectral_domain_features(config, df_windowed, sensor, l_sensor_colna
         n_filters=config.n_dct_filters_cc,
         n_coefficients=config.n_coefficients_cc
         )
+    
+    df_windowed = df_windowed.drop(columns=
+                                   ['total_power'] + \
+                                   [f'{x}_fft' for x in l_sensor_colnames] + \
+                                   [f'{x}_freqs' for x in l_sensor_colnames] + \
+                                   l_sensor_colnames)
 
     df_windowed = pd.concat([df_windowed, cc_cols], axis=1)
 
