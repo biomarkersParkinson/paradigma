@@ -142,27 +142,19 @@ def create_segments(
     pd.DataFrame
         The dataframe with additional columns related to segments
     """
-    array_new_segments = np.where((df[time_colname] - df[time_colname].shift() > minimum_gap_s), 1, 0)
-    df['new_segment_cumsum'] = array_new_segments.cumsum()
-    df_segments = pd.DataFrame(df.groupby('new_segment_cumsum')[time_colname].count()).reset_index()
-    df_segments.columns = [segment_nr_colname, 'length_segment_s']
-    df_segments[segment_nr_colname] += 1
 
-    df = df.drop(columns=['new_segment_cumsum'])
+    # Calculate the difference between consecutive time values
+    time_diff = df[time_colname].diff().dt.total_seconds()
 
-    cols_to_append = [segment_nr_colname, 'length_segment_s']
+    # Identify where the gap exceeds the minimum_gap_s
+    segment_change = (time_diff > minimum_gap_s).astype(int)
+    
+    # Cumulative sum to assign segment IDs
+    df[segment_nr_colname] = segment_change.cumsum() + 1
 
-    for col in cols_to_append:
-        df[col] = 0
-
-    index_start = 0
-    for _, row in df_segments.iterrows():
-        len_segment = row['length_segment_s']
-
-        for col in cols_to_append:
-            df.loc[index_start:index_start+len_segment-1, col] = row[col]
-
-        index_start += len_segment
+    # Calculate segment lengths
+    segment_lengths = df.groupby(segment_nr_colname)[time_colname].count()
+    df['length_segment_s'] = df[segment_nr_colname].map(segment_lengths)
 
     return df
 
@@ -191,17 +183,14 @@ def discard_segments(
     pd.DataFrame
         The dataframe with segments that are longer than the specified length
     """
-    segment_length_bool = df.groupby(segment_nr_colname)[time_colname].apply(lambda x: x.max() - x.min()) > minimum_segment_length_s
+    # Compute segment lengths
+    segment_lengths  = df.groupby(segment_nr_colname)[time_colname].apply(lambda x: x.max() - x.min()).dt.total_seconds()
 
-    df = df.loc[df[segment_nr_colname].isin(segment_length_bool.loc[segment_length_bool.values].index)]
+    # Filter out short segments
+    valid_segments = segment_lengths[segment_lengths > minimum_segment_length_s].index
+    df_filtered = df[df[segment_nr_colname].isin(valid_segments)]
 
-    # reorder the segments - starting at 1
-    for segment_nr in df[segment_nr_colname].unique():
-        df.loc[df[segment_nr_colname]==segment_nr, f'{segment_nr_colname}_ordered'] = np.where(df[segment_nr_colname].unique()==segment_nr)[0][0] + 1
+    # Reorder segments starting at 1
+    df_filtered[segment_nr_colname] = df_filtered[segment_nr_colname].astype('category').cat.codes + 1
 
-    df[f'{segment_nr_colname}_ordered'] = df[f'{segment_nr_colname}_ordered'].astype(int)
-
-    df = df.drop(columns=[segment_nr_colname])
-    df = df.rename(columns={f'{segment_nr_colname}_ordered': segment_nr_colname})
-
-    return df
+    return df_filtered
