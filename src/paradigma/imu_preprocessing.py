@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Union
+from typing import List, Union, Optional, Literal
 import numpy as np
 import pandas as pd
 from scipy import signal
@@ -72,6 +72,7 @@ def preprocess_imu_data(input_path: Union[str, Path], output_path: Union[str, Pa
 
         write_data(metadata_time, metadata_samples, output_path, f'{sensor}_meta.json', df_sensor)
 
+
 def transform_time_array(
     time_array: pd.Series,
     scale_factor: float,
@@ -133,7 +134,7 @@ def resample_data(
     time_unit_type: str,
     unscaled_column_names: List[str],
     resampling_frequency: int,
-    scale_factors: List[float] = [],
+    scale_factors: Optional[List[float]] = None,
     start_time: float = 0.0,
 ) -> pd.DataFrame:
     """
@@ -146,49 +147,59 @@ def resample_data(
     time_column : str
         The name of the time column.
     time_unit_type : str
-        The time unit type of the time array. The method currently works only for `TimeUnit.RELATIVE_MS`.
+        The time unit type of the time array. Should be 'absolute_ms' or 'relative_ms'.
     unscaled_column_names : List[str]
         The names of the columns to resample.
     resampling_frequency : int
-        The frequency to resample the data to.
-    scale_factors : list, optional
-        The scale factors to apply to the values before resampling (default is []).
+        The frequency to resample the data to (Hz).
+    scale_factors : List[float], optional
+        The scale factors to apply to the values before resampling (default is None).
     start_time : float, optional
-        The start time of the time array, which is required if it is in absolute format (default is 0.0).
+        The start time of the time array, which is required if time_unit_type is 'absolute_ms' (default is 0.0).
 
     Returns
     -------
     pd.DataFrame
         The resampled data.
     """
-    # We need a start_time if the time is in absolute time format
+    # Validate input
+    if time_unit_type not in [TimeUnit.ABSOLUTE_MS, TimeUnit.RELATIVE_MS]:
+        raise ValueError("Invalid time_unit_type. Choose 'absolute_ms' or 'relative_ms'.")
+    
     if time_unit_type == TimeUnit.ABSOLUTE_MS and start_time == 0.0:
-        raise ValueError("start_time is required for absolute time format")
+        raise ValueError("start_time is required for absolute time format.")
 
-    # get time and values
-    time_abs_array=np.array(df[time_column])
-    values_unscaled=np.array(df[unscaled_column_names])
+    if scale_factors is None:
+        scale_factors = [1.0] * len(unscaled_column_names)
+    
+    if len(scale_factors) != len(unscaled_column_names):
+        raise ValueError("The length of scale_factors must match the number of unscaled columns.")
 
-    # scale data
-    if len(scale_factors) != 0 and scale_factors is not None:
-        scaled_values = values_unscaled * scale_factors
+    # Extract time and values
+    time_abs_array = df[time_column].values
+    values_unscaled = df[unscaled_column_names].values
 
-    # resample
-    t_resampled = np.arange(start_time, time_abs_array[-1], 1 / resampling_frequency)
+    # Scale data
+    scaled_values = values_unscaled * scale_factors
 
-    # create dataframe
-    df = pd.DataFrame(t_resampled, columns=[time_column])
+    # Determine the resampling intervals
+    if time_unit_type == TimeUnit.ABSOLUTE_MS:
+        t_resampled = np.arange(start_time, time_abs_array[-1], 1000 / resampling_frequency)
+    else:  # RELATIVE_MS
+        t_resampled = np.arange(0, time_abs_array[-1], 1000 / resampling_frequency)
 
-    # interpolate IMU - maybe a separate method?
-    for j, sensor_col in enumerate(unscaled_column_names):
-        if not np.all(np.diff(time_abs_array) > 0):
-            raise ValueError("time_abs_array is not strictly increasing")
+    # Prepare DataFrame for resampled data
+    df_resampled = pd.DataFrame({time_column: t_resampled})
 
-        cs = CubicSpline(time_abs_array, scaled_values.T[j])
-        #TODO: isn't sensor_col of type DataColumns?
-        df[sensor_col] = cs(df[time_column])
+    # Interpolate each sensor column
+    if not np.all(np.diff(time_abs_array) > 0):
+        raise ValueError("Time column is not strictly increasing.")
+    
+    for i, sensor_col in enumerate(unscaled_column_names):
+        cs = CubicSpline(time_abs_array, scaled_values[:, i], bc_type='natural')
+        df_resampled[sensor_col] = cs(df_resampled[time_column])
 
-    return df
+    return df_resampled
 
 
 def butterworth_filter(
@@ -203,22 +214,34 @@ def butterworth_filter(
 
     Parameters
     ----------
-    single_sensor_column: pd.Series
+    single_sensor_column: np.ndarray
         A single column containing sensor data in float format
     order: int
-        The exponential order of the filter
+        The order of the filter
     cutoff_frequency: float or List[float]
-        The frequency at which the gain drops to 1/sqrt(2) that of the passband. If passband is 'band', then cutoff_frequency should be a list of two floats.
+        The cutoff frequency for the filter. For 'band' type, this should be a list of two floats.
     passband: str
-        Type of passband: ['hp', 'lp' or 'band']
+        Type of passband filter: ['hp', 'lp', 'band', 'bs]
     sampling_frequency: int
         The sampling frequency of the sensor data
 
     Returns
     -------
-    sensor_column_filtered: pd.Series
-        The origin sensor column filtered applying a Butterworth filter
+    np.ndarray
+        The filtered sensor column
     """
+
+    # Validate passband type
+    if passband not in ['hp', 'lp', 'band', 'bs']:
+        raise ValueError("Invalid passband type. Choose from ['hp', 'lp', 'band', 'bs']")
+    
+    # Validate cutoff_frequency for bandpass and bandstop
+    if passband in ['band', 'bs']:
+        if not isinstance(cutoff_frequency, list) or len(cutoff_frequency) != 2:
+            raise ValueError("For 'band' and 'bs' passbands, cutoff_frequency must be a list of two frequencies.")
+    else:
+        if isinstance(cutoff_frequency, list):
+            raise ValueError("For 'hp' and 'lp' passbands, cutoff_frequency must be a single float.")
 
     sos = signal.butter(
         N=order,
@@ -228,5 +251,7 @@ def butterworth_filter(
         fs=sampling_frequency,
         output="sos",
     )
+    
     return signal.sosfiltfilt(sos, single_sensor_col)
+    
     
