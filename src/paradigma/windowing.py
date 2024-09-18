@@ -184,7 +184,7 @@ def discard_segments(
         The dataframe with segments that are longer than the specified length
     """
     # Compute segment lengths
-    segment_lengths  = df.groupby(segment_nr_colname)[time_colname].apply(lambda x: x.max() - x.min()).dt.total_seconds()
+    segment_lengths  = df.groupby(segment_nr_colname)[time_colname].apply(lambda x: x.max() - x.min())
 
     # Filter out short segments
     valid_segments = segment_lengths[segment_lengths > minimum_segment_length_s].index
