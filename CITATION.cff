@@ -3,7 +3,7 @@
 
 cff-version: 1.2.0
 title: paradigma
-abstract: 'Digital Biomarkers for Parkinson's Disease Toolbox'
+abstract: "Digital Biomarkers for Parkinson's Disease Toolbox"
 message: >-
   If you use this software, please cite it using the
   metadata from this file.
@@ -26,7 +26,6 @@ authors:
       - Radboud University, Institute for Computing and Information Sciences, Department of Data Science, Nijmegen, Netherlands
       - Radboud University Medical Center, Donders Institute for Brain, Cognition and Behaviour, Department of Neurology, Center of Expertise for Parkinson and Movement Disorders, Nijmegen, Netherlands
     orcid: 'https://orcid.org/0000-0002-8241-5087'
-    corresponding: false
   - given-names: Erik
     family-names: Post
     email: erik.post@radboudumc.nl
@@ -46,9 +45,6 @@ authors:
     family-names: Soriano
     email: diogo.soriano@ufabc.edu.br
     affiliation: Center for Engineering, Modeling and Applied Social Sciences (CECS), Federal University of ABC (UFABC), Brazil
-identifiers:
-  - type: doi
-    value: 10.5281/zenodo.7867900
-repository-code: 'https://github.com/biomarkersParkinson/tsdf'
-url: 'https://biomarkersparkinson.github.io/tsdf/'
+repository-code: 'https://github.com/biomarkersParkinson/paradigma'
+url: 'https://biomarkersparkinson.github.io/paradigma/'
 license: Apache-2.0
