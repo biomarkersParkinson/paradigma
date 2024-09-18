@@ -41,23 +41,37 @@ def preprocess_imu_data(input_path: Union[str, Path], output_path: Union[str, Pa
     if config.side_watch == 'left':
         df[DataColumns.ACCELEROMETER_X] *= -1
 
-    for col in config.d_channels_accelerometer.keys():
+    # Extract relevant columns for accelerometer data
+    accel_cols = list(config.d_channels_accelerometer.keys())
 
-        # change to correct units [g]
-        if config.acceleration_units == 'm/s^2':
-            df[col] /= 9.81
+    # Change to correct units [g]
+    df[accel_cols] = df[accel_cols] / 9.81 if config.acceleration_units == 'm/s^2' else df[accel_cols]
 
-        for result, side_pass in zip(['filt', 'grav'], ['hp', 'lp']):
-            df[f'{result}_{col}'] = butterworth_filter(
-                single_sensor_col=np.array(df[col]),
-                order=config.filter_order,
-                cutoff_frequency=config.lower_cutoff_frequency,
-                passband=side_pass,
-                sampling_frequency=config.sampling_frequency,
-                )
-            
-        df = df.drop(columns=[col])
-        df = df.rename(columns={f'filt_{col}': col})
+    # Extract the accelerometer data as a 2D array
+    accel_data = df[accel_cols].values
+
+    # Define filtering passbands
+    passbands = ['hp', 'lp'] 
+    filtered_data = {}
+
+    # Apply Butterworth filter for each passband and result type
+    for result, passband in zip(['filt', 'grav'], passbands):
+        filtered_data[result] = butterworth_filter(
+            sensor_data=accel_data,
+            order=config.filter_order,
+            cutoff_frequency=config.lower_cutoff_frequency,
+            passband=passband,
+            sampling_frequency=config.sampling_frequency
+        )
+
+    # Create DataFrames from filtered data
+    filtered_dfs = {f'{result}_{col}': pd.Series(data[:, i]) for i, col in enumerate(accel_cols) for result, data in filtered_data.items()}
+
+    # Combine filtered columns into DataFrame
+    filtered_df = pd.DataFrame(filtered_dfs)
+
+    # Drop original accelerometer columns and append filtered results
+    df = df.drop(columns=accel_cols).join(filtered_df)
 
     # Store data
     for sensor, units in zip(['accelerometer', 'gyroscope'], ['g', config.rotation_units]):
@@ -203,19 +217,19 @@ def resample_data(
 
 
 def butterworth_filter(
-    single_sensor_col: np.ndarray,
+    sensor_data: np.ndarray,
     order: int,
     cutoff_frequency: Union[float, List[float]],
     passband: str,
     sampling_frequency: int,
-):
+) -> np.ndarray:
     """
     Applies the Butterworth filter to a single sensor column
 
     Parameters
     ----------
-    single_sensor_column: np.ndarray
-        A single column containing sensor data in float format
+    sensor_data: np.ndarray
+        A 2D array where each column contains sensor data.
     order: int
         The order of the filter
     cutoff_frequency: float or List[float]
@@ -228,7 +242,7 @@ def butterworth_filter(
     Returns
     -------
     np.ndarray
-        The filtered sensor column
+        The filtered sensor data
     """
 
     # Validate passband type
@@ -252,6 +266,6 @@ def butterworth_filter(
         output="sos",
     )
     
-    return signal.sosfiltfilt(sos, single_sensor_col)
+    return signal.sosfiltfilt(sos, sensor_data, axis=0)
     
     
