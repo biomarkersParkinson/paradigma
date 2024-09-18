@@ -71,7 +71,7 @@ def preprocess_imu_data(input_path: Union[str, Path], output_path: Union[str, Pa
     filtered_df = pd.DataFrame(filtered_dfs)
 
     # Drop original accelerometer columns and append filtered results
-    df = df.drop(columns=accel_cols).join(filtered_df)
+    df = df.drop(columns=accel_cols).join(filtered_df).rename(columns={col: col.replace('filt_', '') for col in filtered_df.columns})
 
     # Store data
     for sensor, units in zip(['accelerometer', 'gyroscope'], ['g', config.rotation_units]):
