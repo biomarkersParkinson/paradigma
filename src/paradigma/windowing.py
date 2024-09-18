@@ -91,8 +91,8 @@ def tabulate_windows(
     pd.DataFrame
         Dataframe with each row corresponding to an individual window
     """
-    window_length = sampling_frequency * window_length_s
-    window_step_size = sampling_frequency * window_step_size_s
+    window_length = int(sampling_frequency * window_length_s)
+    window_step_size = int(sampling_frequency * window_step_size_s)
 
     df = df.reset_index(drop=True)
 
@@ -115,7 +115,7 @@ def tabulate_windows(
 
     columns = ['window_nr', 'window_start', 'window_end'] + data_point_level_cols
     if segment_nr is not None:
-        columns += [segment_nr_colname]
+        columns = [segment_nr_colname] + columns
             
     return pd.DataFrame(l_windows, columns=columns)
 
@@ -188,7 +188,7 @@ def discard_segments(
 
     # Filter out short segments
     valid_segments = segment_lengths[segment_lengths > minimum_segment_length_s].index
-    df_filtered = df[df[segment_nr_colname].isin(valid_segments)]
+    df_filtered = df[df[segment_nr_colname].isin(valid_segments)].copy()
 
     # Reorder segments starting at 1
     df_filtered[segment_nr_colname] = df_filtered[segment_nr_colname].astype('category').cat.codes + 1
