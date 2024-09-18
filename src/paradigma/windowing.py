@@ -144,7 +144,7 @@ def create_segments(
     """
 
     # Calculate the difference between consecutive time values
-    time_diff = df[time_colname].diff().dt.total_seconds()
+    time_diff = df[time_colname].diff()
 
     # Identify where the gap exceeds the minimum_gap_s
     segment_change = (time_diff > minimum_gap_s).astype(int)
