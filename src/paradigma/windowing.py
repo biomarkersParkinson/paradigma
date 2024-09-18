@@ -96,7 +96,7 @@ def tabulate_windows(
 
     df = df.reset_index(drop=True)
 
-    n_windows = max(0, (df.shape[0] - window_length) // window_step_size + 1)
+    n_windows = int(max(0, (df.shape[0] - window_length) // window_step_size + 1))
     l_windows = [None] * n_windows
 
     for window_nr in range(n_windows):
