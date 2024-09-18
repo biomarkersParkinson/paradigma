@@ -117,7 +117,7 @@ def tabulate_windows(
     if segment_nr is not None:
         columns += [segment_nr_colname]
             
-    return pd.dataFrame(l_windows, columns=columns)
+    return pd.DataFrame(l_windows, columns=columns)
 
 
 def create_segments(
