@@ -2,8 +2,9 @@
 # Visit https://bit.ly/cffinit to generate yours today!
 
 cff-version: 1.2.0
-title: paradigma
-abstract: "Digital Biomarkers for Parkinson's Disease Toolbox"
+title: >-
+  Paradigma: Toolbox for Digital Biomarkers in Parkinson's
+  Disease
 message: >-
   If you use this software, please cite it using the
   metadata from this file.
@@ -22,29 +23,60 @@ authors:
   - given-names: Luc J.W.
     family-names: Evers
     email: luc.evers@radboudumc.nl
-    affiliation: 
-      - Radboud University, Institute for Computing and Information Sciences, Department of Data Science, Nijmegen, Netherlands
-      - Radboud University Medical Center, Donders Institute for Brain, Cognition and Behaviour, Department of Neurology, Center of Expertise for Parkinson and Movement Disorders, Nijmegen, Netherlands
+    affiliation: >-
+      Radboud University, Nijmegen, Netherlands; Radboud
+      University Medical Center, Nijmegen, Netherlands
     orcid: 'https://orcid.org/0000-0002-8241-5087'
   - given-names: Erik
     family-names: Post
     email: erik.post@radboudumc.nl
-    affiliation: 
-      - Radboud University, Institute for Computing and Information Sciences, Department of Data Science, Nijmegen, Netherlands
-      - Radboud University Medical Center, Donders Institute for Brain, Cognition and Behaviour, Department of Neurology, Center of Expertise for Parkinson and Movement Disorders, Nijmegen, Netherlands
+    affiliation: >-
+      Radboud University, Nijmegen, Netherlands; Radboud
+      University Medical Center, Nijmegen, Netherlands
     orcid: 'https://orcid.org/0000-0002-1937-9976'
   - given-names: Kars
     family-names: Veldkamp
     email: Kars.Veldkamp@radboudumc.nl
-    affiliation: Radboud University Medical Center, Nijmegen, Netherlands
+    affiliation: >-
+      Radboud University Medical Center, Nijmegen,
+      Netherlands
   - given-names: Nienke
     family-names: Timmermans
     email: nienke.timmermans@radboudumc.nl
-    affiliation: Radboud University Medical Center, Nijmegen, Netherlands
+    affiliation: >-
+      Radboud University Medical Center, Nijmegen,
+      Netherlands
   - given-names: Diogo
     family-names: Soriano
     email: diogo.soriano@ufabc.edu.br
-    affiliation: Center for Engineering, Modeling and Applied Social Sciences (CECS), Federal University of ABC (UFABC), Brazil
+    affiliation: >-
+      Center for Engineering, Modeling and Applied Social
+      Sciences (CECS), Federal University of ABC (UFABC),
+      Brazil
 repository-code: 'https://github.com/biomarkersParkinson/paradigma'
 url: 'https://biomarkersparkinson.github.io/paradigma/'
+abstract: >-
+  Paradigma: Digital Biomarkers for Parkinson's Disease
+  Toolbox is a Python software package designed for
+  processing wearable sensor data to identify digital
+  biomarkers associated with Parkinson’s disease (PD). The
+  toolbox facilitates the detection and analysis of sensor
+  data, focusing on key gait and photoplethysmography (PPG)
+  features that are critical for PD research. By leveraging
+  the Time Series Data Format (TSDF), a unified and
+  user-friendly format for handling both numerical data and
+  metadata, Paradigma simplifies the process of working with
+  raw binary sensor measurements alongside JSON-based
+  metadata. The toolbox enables researchers to efficiently
+  extract PD biomarkers, aiding in early diagnosis and
+  monitoring. Future updates will introduce tremor detection
+  and expanded feature extraction capabilities, further
+  enhancing its utility for PD research and clinical
+  applications.
+keywords:
+  - parkinson's disease
+  - digital biomarkers
+  - gait analysis
+  - ppg signal
+  - imu data
 license: Apache-2.0
