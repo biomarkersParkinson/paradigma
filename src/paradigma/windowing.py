@@ -145,16 +145,9 @@ def create_segments(
 
     # Calculate the difference between consecutive time values
     time_diff = df[time_colname].diff()
-
-    # Identify where the gap exceeds the minimum_gap_s
-    segment_change = (time_diff > minimum_gap_s).astype(int)
     
-    # Cumulative sum to assign segment IDs
-    df[segment_nr_colname] = segment_change.cumsum() + 1
-
-    # Calculate segment lengths
-    segment_lengths = df.groupby(segment_nr_colname)[time_colname].count()
-    df['length_segment_s'] = df[segment_nr_colname].map(segment_lengths)
+    # Identify where the time gap exceeds the minimum to start a new segment
+    df[segment_nr_colname] = (time_diff > minimum_gap_s).cumsum() + 1
 
     return df
 
@@ -194,3 +187,37 @@ def discard_segments(
     df_filtered[segment_nr_colname] = df_filtered[segment_nr_colname].astype('category').cat.codes + 1
 
     return df_filtered
+
+
+def categorize_segments(
+        df: pd.DataFrame,
+        segment_nr_colname: str,
+        sampling_frequency: int,
+) -> pd.DataFrame:
+    """Categorize segments based on their segment duration.
+    
+    Parameters
+    ----------
+    df: pd.DataFrame
+        The dataframe containing information about the segments
+    segment_nr: str
+        The column name of the column containing the segment numbers
+    sampling_frequency: int
+        The sampling frequency of the data
+    
+    Returns
+    -------
+    pd.DataFrame
+        The dataframe with segments categorized
+    """
+    
+    # Calculate segment durations
+    df['segment_duration_s'] = df.groupby(segment_nr_colname)[segment_nr_colname].transform('size')
+    df['segment_duration_s'] /= sampling_frequency
+    
+    # Categorize segment durations using pd.cut
+    bins = [0, 5, 10, 20, float('inf')]
+    labels = [1, 2, 3, 4]
+    df['segment_duration_category'] = pd.cut(df['segment_duration_s'], bins=bins, labels=labels, right=False)
+    
+    return df
