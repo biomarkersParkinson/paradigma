@@ -211,7 +211,7 @@ def extract_arm_swing_features(input_path: Union[str, Path], output_path: Union[
     )
 
     # determine the extrema (minima and maxima) of the angle signal
-    df_windowed['angle_extrema_values'] = extract_angle_extremes(
+    extract_angle_extremes(
         df=df_windowed,
         angle_colname=config.angle_smooth_colname,
         dominant_frequency_colname='angle_dominant_frequency',
