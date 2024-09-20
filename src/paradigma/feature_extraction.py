@@ -56,9 +56,8 @@ def generate_std_norm(
         The standard deviation of the norm of the accelerometer axes
     """
     return df.apply(
-        lambda x: np.std(np.sqrt(sum(
-            [np.array([y**2 for y in x[col]]) for col in cols]
-        ))), axis=1)
+        lambda x: np.std(np.sqrt(sum(np.array([x[col]**2 for col in cols])))), axis=1
+    )
     
 
 def compute_fft(
