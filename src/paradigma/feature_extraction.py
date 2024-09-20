@@ -60,8 +60,14 @@ def generate_std_norm(
         The standard deviation of the norm of the accelerometer axes
     """
 
-    # Compute the squared norm for each row
-    norms = df[cols].apply(lambda row: np.sqrt(np.sum(np.array(row) ** 2)), axis=1)
+    def calculate_norm(row):
+        # Ensure each entry is converted to a NumPy array
+        vectors = [np.array(row[col]) for col in cols]
+        # Compute the Euclidean norm
+        return np.sqrt(np.sum([vec ** 2 for vec in vectors]))
+
+    # Compute norms for each row
+    norms = df.apply(calculate_norm, axis=1)
     
     # Return the standard deviation of the norms
     return np.std(norms)
