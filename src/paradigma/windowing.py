@@ -41,16 +41,16 @@ def create_window(
     list
         Rows corresponding to single windows
     """
-    t_start_window = df.loc[lower_index, time_column_name]
-
-    df_subset = df.loc[lower_index:upper_index, data_point_level_cols].copy()
+    t_start_window = df[time_column_name].iloc[lower_index]
+    df_subset = df.iloc[lower_index:upper_index + 1, df.columns.get_indexer(data_point_level_cols)]
+    
     t_start = t_start_window
-    t_end = upper_index/sampling_frequency + t_start_window
+    t_end = t_start_window + (upper_index - lower_index) / sampling_frequency
 
     if segment_nr is None:
-        l_subset_squeezed = [window_nr+1, t_start, t_end] + df_subset.values.T.tolist()
+        l_subset_squeezed = [window_nr + 1, t_start, t_end] + df_subset.values.T.tolist()
     else:
-        l_subset_squeezed = [segment_nr, window_nr+1, t_start, t_end] + df_subset.values.T.tolist()
+        l_subset_squeezed = [segment_nr, window_nr + 1, t_start, t_end] + df_subset.values.T.tolist()
 
     return l_subset_squeezed
 
@@ -92,25 +92,22 @@ def tabulate_windows(
     pd.DataFrame
         Dataframe with each row corresponding to an individual window
     """
-    window_length = sampling_frequency * window_length_s - 1
-    window_step_size = sampling_frequency * window_step_size_s
+    window_length = int(sampling_frequency * window_length_s) - 1
+    window_step_size = int(sampling_frequency * window_step_size_s)
 
     df = df.reset_index(drop=True)
 
     if window_step_size <= 0:
-        raise Exception("Step size should be larger than 0.")
+        raise ValueError("Step size should be larger than 0.")
     if window_length > df.shape[0]:
-        return 
+        return pd.DataFrame()
+    
+    n_windows = (len(df) - window_length) // window_step_size + 1
+    window_indices = [(i * window_step_size, i * window_step_size + window_length) for i in range(n_windows)]
 
     l_windows = []
-    n_windows = math.floor(
-        (df.shape[0] - window_length) / 
-         window_step_size
-        ) + 1
-
-    for window_nr in range(n_windows):
-        lower = window_nr * window_step_size
-        upper = window_nr * window_step_size + window_length
+    
+    for window_nr, (lower, upper) in enumerate(window_indices):
         l_windows.append(
             create_window(
                 df=df,
@@ -124,12 +121,86 @@ def tabulate_windows(
             )
         )
 
+    # Construct the dataframe from the windowed data
     if segment_nr is None:
         df_windows = pd.DataFrame(l_windows, columns=['window_nr', 'window_start', 'window_end'] + data_point_level_cols)
     else:
         df_windows = pd.DataFrame(l_windows, columns=[segment_nr_colname, 'window_nr', 'window_start', 'window_end'] + data_point_level_cols)
-            
+
     return df_windows.reset_index(drop=True)
+
+
+def create_windows_vectorized(
+    df: pd.DataFrame,
+    time_column_name: str,
+    data_point_level_cols: list,
+    window_length_s: Union[int, float],
+    window_step_size_s: Union[int, float],
+    sampling_frequency: int = 100,
+    segment_nr_colname: Union[str, None] = None,
+    segment_nr: Union[int, None] = None,
+) -> pd.DataFrame:
+    """
+    Fully vectorized version to create windows across the dataframe.
+    
+    Parameters
+    ----------
+    df: pd.DataFrame
+        The dataframe to window.
+    time_column_name: str
+        Name of the time column.
+    data_point_level_cols: list
+        Columns to include in the windowed data.
+    window_length_s: int | float
+        Duration of each window in seconds.
+    window_step_size_s: int | float
+        Time step between windows in seconds.
+    sampling_frequency: int
+        Sampling frequency in Hz.
+    segment_nr_colname: str, optional
+        Name of the column with segment numbers (optional).
+    segment_nr: int, optional
+        Segment number (optional).
+    
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with windowed data.
+    """
+    
+    window_length = int(window_length_s * sampling_frequency)
+    window_step_size = int(window_step_size_s * sampling_frequency)
+    
+    # Get the number of windows based on the length of the dataframe
+    n_windows = (len(df) - window_length) // window_step_size + 1
+
+    # Prepare indices for windows
+    indices = np.arange(window_length)[None, :] + np.arange(n_windows)[:, None] * window_step_size
+
+    # Use NumPy advanced indexing to gather window data
+    data_windowed = df[data_point_level_cols].values[indices]
+    
+    # Time columns for window start and end
+    t_start = df[time_column_name].values[indices[:, 0]]
+    t_end = df[time_column_name].values[indices[:, -1]]
+
+    # Prepare the final DataFrame structure
+    if segment_nr_colname is None:
+        window_info = np.column_stack([np.arange(1, n_windows + 1), t_start, t_end])
+        column_names = ['window_nr', 'window_start', 'window_end']
+    else:
+        segment_info = np.full((n_windows, 1), segment_nr)
+        window_info = np.column_stack([segment_info, np.arange(1, n_windows + 1), t_start, t_end])
+        column_names = [segment_nr_colname, 'window_nr', 'window_start', 'window_end']
+    
+    # Concatenate window info and data
+    result = np.column_stack([window_info, data_windowed.reshape(n_windows, -1)])
+
+    # Build column names for the final DataFrame
+    final_columns = column_names + data_point_level_cols
+
+    # Return as DataFrame
+    return pd.DataFrame(result, columns=final_columns)
 
 
 def create_segments(
