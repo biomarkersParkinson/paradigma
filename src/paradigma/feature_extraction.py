@@ -129,7 +129,7 @@ def compute_power_in_bandwidth(
         fmax: float,
         sampling_frequency: int = 100,
         window_type: str = 'hann',
-    ) -> list:
+    ) -> float:
     """Computes the power in a specific frequency band for a specified sensor and axis.
     
     Parameters
@@ -667,6 +667,10 @@ def extract_spectral_domain_features(config, df_windowed, sensor, l_sensor_colna
                 fmax=config.spectrum_high_frequency
             ), axis=1
         )
+
+    # compute the power summed over the individual axes to obtain the total power per frequency bandwidth
+    for bandwidth in config.d_frequency_bandwidths.keys():
+        df_windowed['total_'+bandwidth] = df_windowed.apply(lambda x: sum(x[y+'_'+bandwidth] for y in l_sensor_colnames), axis=1)
 
     # Compute the power summed over the individual frequency bandwidths to obtain the total power
     df_windowed['total_power'] = compute_power(
