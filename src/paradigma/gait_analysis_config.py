@@ -155,7 +155,7 @@ class ArmSwingFeatureExtractionConfig(IMUConfig):
         self.sampling_frequency = sampling_frequency
 
         # computing power
-        self.power_band_low_frequency = 0.3
+        self.power_band_low_frequency = 0.2
         self.power_band_high_frequency = 3
         self.spectrum_low_frequency = 0
         self.spectrum_high_frequency = int(sampling_frequency / 2)
@@ -164,7 +164,7 @@ class ArmSwingFeatureExtractionConfig(IMUConfig):
             "power_below_gait": [0.3, 0.7],
             "power_gait": [0.7, 3.5],
             "power_tremor": [3.5, 8],
-            "power_above_tremor": [8, sampling_frequency],
+            "power_above_tremor": [8, self.spectrum_high_frequency],
         }
 
         # cepstral coefficients
