@@ -210,12 +210,8 @@ def extract_arm_swing_features(input_path: Union[str, Path], output_path: Union[
             )
     )
 
-    # note to eScience: why are the columns 'angle_new_minima', 'angle_new_maxima', 
-    # 'angle_minima_deleted' and 'angle_maxima deleted' created here? Should a copy
-    # of 'df_windowed' be created inside 'extract_angle_extremes' to prevent this from
-    # happening?
     # determine the extrema (minima and maxima) of the angle signal
-    extract_angle_extremes(
+    df_windowed['angle_extrema_values'] = extract_angle_extremes(
         df=df_windowed,
         angle_colname=config.angle_smooth_colname,
         dominant_frequency_colname='angle_dominant_frequency',
