@@ -57,20 +57,15 @@ def generate_std_norm(
     Returns
     -------
     pd.Series
-        The standard deviation of the norm of the accelerometer axes
+        The standard deviation of the norm of the accelerometer axes for each row
     """
 
-    def calculate_norm(row):
-        # Combine the lists from the specified columns
-        combined_values = np.concatenate([np.array(row[col]) for col in cols])
-        # Compute the Euclidean norm
-        return np.sqrt(np.sum(combined_values ** 2))
+    def row_std_dev(row):
+        signals = np.vstack([row[col] for col in cols])
+        norms = np.linalg.norm(signals, axis=0)
+        return np.std(norms)
 
-    # Compute norms for each row
-    norms = df.apply(calculate_norm, axis=1)
-    
-    # Return the standard deviation of the norms
-    return np.std(norms)
+    return df.apply(row_std_dev, axis=1)
     
 
 def compute_fft(
