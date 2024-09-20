@@ -128,13 +128,14 @@ def signal_to_ffts(
     tuple
         Lists of FFT values and corresponding frequencies which can be concatenated as column to the dataframe.
     """
-    # Compute the frequencies just once (as they should be identical for all rows)
-    _, l_freqs = compute_fft(sensor_col.iloc[0], window_type, sampling_frequency)
+    # Use list comprehension to compute FFT values and frequencies for each row
+    results = [compute_fft(row, window_type, sampling_frequency) for row in sensor_col]
     
-    # Compute FFT values for all rows
-    l_values_total = [compute_fft(row, window_type, sampling_frequency)[0] for row in sensor_col]
+    # Unzip the results into separate lists for FFT values and frequencies
+    l_values_total, l_freqs_total = zip(*results)
 
-    return l_freqs, l_values_total
+    return list(l_freqs_total), list(l_values_total)
+    
 
 def compute_power_in_bandwidth(
         sensor_col: list,
