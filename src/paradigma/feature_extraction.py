@@ -296,10 +296,12 @@ def compute_power(
     pd.Series
         The power of the FFT values
     """
-    for col in fft_cols:
-        df['{}_power'.format(col)] = df[col].apply(lambda x: np.square(np.abs(x)))
+    # Compute the power for each FFT column and sum them up directly
+    total_power = df[fft_cols].apply(
+        lambda row: sum(np.square(np.abs(row))), axis=1
+    )
 
-    return df.apply(lambda x: sum([np.array([y for y in x[col+'_power']]) for col in fft_cols]), axis=1)
+    return total_power
     
 
 def generate_cepstral_coefficients(
