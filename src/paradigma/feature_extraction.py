@@ -278,32 +278,6 @@ def get_dominant_frequency(
     return signal_freqs_band[dominant_index]
     
 
-def compute_power(
-        df: pd.DataFrame,
-        fft_cols: list
-    ) -> pd.Series:
-    """Compute the power of the FFT values.
-    
-    Parameters
-    ----------
-    df: pd.DataFrame
-        The dataframe containing the FFT values
-    fft_cols: list
-        The names of the columns containing the FFT values
-    
-    Returns
-    -------
-    pd.Series
-        The power of the FFT values
-    """
-    # Compute the power for each FFT column and sum them up directly
-    total_power = df[fft_cols].apply(
-        lambda row: sum(np.square(np.abs(row))), axis=1
-    )
-
-    return total_power
-    
-
 def generate_cepstral_coefficients(
         total_power_col: pd.Series,
         window_length_s: int,
@@ -684,10 +658,11 @@ def extract_spectral_domain_features(config, df_windowed, sensor, l_sensor_colna
             ), axis=1
         )
 
-    # compute the power summed over the individual frequency bandwidths to obtain the total power
-    df_windowed['total_power'] = compute_power(
-        df=df_windowed,
-        fft_cols=[f'{col}_fft' for col in l_sensor_colnames])
+    # Select the columns corresponding to power for each sensor and bandwidth
+    power_columns = df_windowed.filter(like='power_').columns
+
+    # Compute total power by summing the selected columns row-wise
+    df_windowed['total_power'] = df_windowed[power_columns].sum(axis=1)
 
     # compute the cepstral coefficients of the total power signal
     cc_cols = generate_cepstral_coefficients(
