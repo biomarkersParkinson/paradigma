@@ -124,22 +124,18 @@ def signal_to_ffts(
     
 
 def compute_power_in_bandwidth(
-        sensor_col: list,
+        sensor_col: pd.Series,
         fmin: float,
         fmax: float,
         sampling_frequency: int = 100,
         window_type: str = 'hann',
-    ) -> float:
-    """Note: sensor_col is a single cell (which corresponds to a single window) of sensor_col, as it is used with apply function. 
-    Probably we want a smarter way of doing this.
-    
-    Computes the power in a specific frequency band for a specified sensor and axis.
+    ) -> pd.Series:
+    """Computes the power in a specific frequency band for a specified sensor and axis.
     
     Parameters
     ----------
-    sensor_col: list
-        The sensor column to be transformed (e.g. x-axis of accelerometer). This corresponds to a single window, which is a single row of the dataframe, 
-        and contains values of individual timestamps composing the window.
+    ssensor_col: pd.Series
+        A pandas Series where each entry is a list of sensor values for one window.
     fmin: float
         The lower bound of the frequency band
     fmax: float
@@ -152,27 +148,33 @@ def compute_power_in_bandwidth(
     Returns
     -------
     float
-        The power in the specified frequency band,  or NaN if no valid frequencies are found. 
+        The power in the specified frequency band, or NaN if no valid frequencies are found.
     """
-    # Compute the power spectral density (PSD) using periodogram
-    fxx, pxx = signal.periodogram(sensor_col, fs=sampling_frequency, window=window_type)
+    # Function to compute power for a single window
+    def compute_single_window(window: list) -> float:
+        # Compute the power spectral density (PSD) using periodogram
+        fxx, pxx = signal.periodogram(window, fs=sampling_frequency, window=window_type)
+        
+        # Ensure fmin and fmax are within the frequency range
+        if fmin < fxx[0] or fmax > fxx[-1]:
+            return np.nan
+        
+        # Get indices corresponding to fmin and fmax
+        ind_min = np.argmax(fxx >= fmin)
+        ind_max = np.argmax(fxx >= fmax)
+        
+        # Compute power in the specified frequency band
+        band_power = np.trapz(pxx[ind_min:ind_max], fxx[ind_min:ind_max])
+        
+        # Handle log calculation (avoid log(0) or negative values)
+        return np.log10(band_power) if band_power > 0 else np.nan
     
-    # Ensure fmin and fmax are within the frequency range
-    if fmin < fxx[0] or fmax > fxx[-1]:
-        return np.nan
-    
-    # Get indices corresponding to fmin and fmax
-    ind_min = np.argmax(fxx >= fmin)
-    ind_max = np.argmax(fxx >= fmax)
-    
-    # Compute power in the specified frequency band
-    band_power = np.trapz(pxx[ind_min:ind_max], fxx[ind_min:ind_max])
-    
-    # Handle log calculation (avoid log(0) or negative values)
-    return np.log10(band_power) if band_power > 0 else np.nan
+    # Apply the function to each window in the series
+    return sensor_col.apply(compute_single_window)
+
 
 def compute_perc_power(
-        sensor_col: list,
+        sensor_col: pd.Series,
         fmin_band: float,
         fmax_band: float,
         fmin_total: float = 0,
@@ -180,14 +182,13 @@ def compute_perc_power(
         sampling_frequency: int = 100,
         window_type: str = 'hann'
     ) -> float:
-    """Note: sensor_col is a single cell (which corresponds to a single window) of sensor_col, as it is used with apply function.
-
-    Computes the percentage of power in a specific frequency band for a specified sensor and axis.
+    """
+    Computes the percentage of power in a specific frequency band for each window in the sensor_col.
     
     Parameters
     ----------
-    sensor_col: list
-        The sensor column to be transformed (e.g. x-axis of accelerometer). This corresponds to a single window, which is a single row of the dataframe
+    sensor_col: pd.Series
+        A pandas Series, where each entry is a list of sensor values for one window.
     fmin_band: float
         The lower bound of the frequency band
     fmax_band: float
@@ -203,26 +204,34 @@ def compute_perc_power(
     
     Returns
     -------
-    float
-        The percentage of power in the specified frequency band
+    pd.Series
+        A pandas Series containing the percentage of power in the specified frequency band for each window.
     """
-    angle_power_band = compute_power_in_bandwidth(
-        sensor_col=sensor_col,
-        fmin=fmin_band,
-        fmax=fmax_band,
-        sampling_frequency=sampling_frequency,
-        window_type=window_type
+    # Function to compute power percentage for a single window
+    def compute_single_window(window: list) -> float:
+        angle_power_band = compute_power_in_bandwidth(
+            sensor_col=window,
+            fmin=fmin_band,
+            fmax=fmax_band,
+            sampling_frequency=sampling_frequency,
+            window_type=window_type
         )
-    
-    angle_power_total = compute_power_in_bandwidth(
-        sensor_col=sensor_col,
-        fmin=fmin_total,
-        fmax=fmax_total,
-        sampling_frequency=sampling_frequency,
-        window_type=window_type
+        
+        angle_power_total = compute_power_in_bandwidth(
+            sensor_col=window,
+            fmin=fmin_total,
+            fmax=fmax_total,
+            sampling_frequency=sampling_frequency,
+            window_type=window_type
         )
+        
+        if angle_power_total > 0 and not np.isnan(angle_power_total):
+            return angle_power_band / angle_power_total
+        else:
+            return np.nan
     
-    return angle_power_band / angle_power_total
+    # Apply the function to each window in the series
+    return sensor_col.apply(compute_single_window)
 
 
 def get_dominant_frequency(
@@ -655,14 +664,14 @@ def extract_spectral_domain_features(config, df_windowed, sensor, l_sensor_colna
 
         # compute the power in distinct frequency bandwidths
         for bandwidth, frequencies in config.d_frequency_bandwidths.items():
-            df_windowed[col+'_'+bandwidth] = df_windowed.apply(lambda x: compute_power_in_bandwidth(
-                sensor_col=x[col],
+            df_windowed[col + '_' + bandwidth] = compute_power_in_bandwidth(
+                sensor_col=df_windowed[col],
                 fmin=frequencies[0],
                 fmax=frequencies[1],
                 sampling_frequency=config.sampling_frequency,
                 window_type=config.window_type,
-                ), axis=1
             )
+            
 
         # compute the dominant frequency, i.e., the frequency with the highest power
         df_windowed[col+'_dominant_frequency'] = df_windowed.apply(lambda x: get_dominant_frequency(

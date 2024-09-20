@@ -198,22 +198,16 @@ def extract_arm_swing_features(input_path: Union[str, Path], output_path: Union[
     df_windowed = df_windowed.drop(columns=['angle_fft', 'angle_freqs'])
 
     # compute the percentage of power in the frequency band of interest (i.e., the frequency band of the arm swing)
-    df_windowed['angle_perc_power'] = df_windowed[config.angle_smooth_colname].apply(
-        lambda x: compute_perc_power(
-            sensor_col=x,
-            fmin_band=config.power_band_low_frequency,
-            fmax_band=config.power_band_high_frequency,
-            fmin_total=config.spectrum_low_frequency,
-            fmax_total=config.spectrum_high_frequency,
-            sampling_frequency=config.sampling_frequency,
-            window_type=config.window_type
-            )
+    df_windowed['angle_perc_power'] = compute_perc_power(
+        sensor_col=df_windowed[config.angle_smooth_colname],
+        fmin_band=config.power_band_low_frequency,
+        fmax_band=config.power_band_high_frequency,
+        fmin_total=config.spectrum_low_frequency,
+        fmax_total=config.spectrum_high_frequency,
+        sampling_frequency=config.sampling_frequency,
+        window_type=config.window_type
     )
 
-    # note to eScience: why are the columns 'angle_new_minima', 'angle_new_maxima', 
-    # 'angle_minima_deleted' and 'angle_maxima deleted' created here? Should a copy
-    # of 'df_windowed' be created inside 'extract_angle_extremes' to prevent this from
-    # happening?
     # determine the extrema (minima and maxima) of the angle signal
     extract_angle_extremes(
         df=df_windowed,
