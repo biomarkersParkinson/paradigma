@@ -317,6 +317,11 @@ def generate_cepstral_coefficients(
     pd.DataFrame
         A dataframe with a single column corresponding to a single cepstral coefficient
     """
+
+    # Ensure total_power_col is not empty
+    if total_power_col.empty:
+        raise ValueError("The total_power_col must not be empty.")
+    
     window_length = window_length_s * sampling_frequency
     
     # compute filter points
@@ -343,6 +348,10 @@ def generate_cepstral_coefficients(
         dct_filters[i, :] = np.cos(i * samples) * np.sqrt(2.0 / n_filters)
 
     cepstral_coefs = [np.dot(dct_filters, x) for x in log_power_filtered]
+
+    # Ensure cepstral_coefs is not empty before stacking
+    if not cepstral_coefs:
+        raise ValueError("No cepstral coefficients were calculated. Check input data.")
 
     return pd.DataFrame(np.vstack(cepstral_coefs), columns=['cc_{}'.format(j+1) for j in range(n_coefficients)])
 
@@ -645,9 +654,9 @@ def extract_spectral_domain_features(config, df_windowed, sensor, l_sensor_colna
 
         # compute the power in distinct frequency bandwidths
         for bandwidth, frequencies in config.d_frequency_bandwidths.items():
-            df_windowed[col + '_' + bandwidth] = df_windowed[col].apply(
+            df_windowed[col + '_' + bandwidth] = df_windowed.apply(
                 lambda x: compute_power_in_bandwidth(
-                    sensor_col=x,
+                    sensor_col=x[col],
                     fmin=frequencies[0],
                     fmax=frequencies[1],
                     sampling_frequency=config.sampling_frequency,
@@ -666,11 +675,10 @@ def extract_spectral_domain_features(config, df_windowed, sensor, l_sensor_colna
             ), axis=1
         )
 
-    # Compute the power summed over the individual frequency bandwidths to obtain the total power
+    # compute the power summed over the individual frequency bandwidths to obtain the total power
     df_windowed['total_power'] = compute_power(
         df=df_windowed,
-        fft_cols=[f'{col}_fft' for col in l_sensor_colnames]
-    )
+        fft_cols=[f'{col}_fft' for col in l_sensor_colnames])
 
     # compute the cepstral coefficients of the total power signal
     cc_cols = generate_cepstral_coefficients(
