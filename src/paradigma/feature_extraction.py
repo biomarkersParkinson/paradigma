@@ -647,9 +647,9 @@ def extract_spectral_domain_features(config, df_windowed, sensor, l_sensor_colna
 
         # compute the power in distinct frequency bandwidths
         for bandwidth, frequencies in config.d_frequency_bandwidths.items():
-            df_windowed[col + '_' + bandwidth] = df_windowed.apply(
+            df_windowed[col + '_' + bandwidth] = df_windowed[col].apply(
                 lambda x: compute_power_in_bandwidth(
-                    sensor_col=x[col],
+                    sensor_col=x,
                     fmin=frequencies[0],
                     fmax=frequencies[1],
                     sampling_frequency=config.sampling_frequency,
