@@ -154,13 +154,8 @@ def compute_power_in_bandwidth(
     # Compute the power spectral density (PSD) using periodogram
     fxx, pxx = signal.periodogram(sensor_col, fs=sampling_frequency, window=window_type)
         
-    # Ensure fmin and fmax are within the frequency range
-    if fmin < fxx[0] or fmax > fxx[-1]:
-        return np.nan
-    
-    # Get indices corresponding to fmin and fmax
-    ind_min = np.argmax(fxx >= fmin)
-    ind_max = np.argmax(fxx >= fmax)
+    ind_min = np.argmax(fxx > fmin) - 1
+    ind_max = np.argmax(fxx > fmax) - 1
     
     # Compute power in the specified frequency band
     band_power = np.trapz(pxx[ind_min:ind_max], fxx[ind_min:ind_max])
