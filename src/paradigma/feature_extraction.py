@@ -99,7 +99,7 @@ def compute_fft(
     yf = fft.fft(windowed_signal)
 
     # Normalize the FFT
-    yf = 2.0 / len(values) * np.abs(yf[:len(values)//2+1])
+    yf = 2.0 * np.abs(yf[:len(values)//2+1])
 
     # Compute the corresponding frequencies
     xf = fft.fftfreq(len(values), 1/sampling_frequency)[:len(values)//2+1]
