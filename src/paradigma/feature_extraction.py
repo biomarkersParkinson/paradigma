@@ -61,7 +61,7 @@ def generate_std_norm(
     """
 
     # Compute the squared norm for each row
-    norms = df[cols].apply(lambda row: np.sqrt(np.sum(row ** 2)), axis=1)
+    norms = df[cols].apply(lambda row: np.sqrt(np.sum(np.array(row) ** 2)), axis=1)
     
     # Return the standard deviation of the norms
     return np.std(norms)
