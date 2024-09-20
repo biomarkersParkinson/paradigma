@@ -1,4 +1,3 @@
-from typing import List
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
@@ -6,9 +5,6 @@ from sklearn.decomposition import PCA
 from scipy import signal, fft
 from scipy.integrate import cumulative_trapezoid
 from scipy.signal import find_peaks
-
-from paradigma.constants import DataColumns
-from paradigma.gait_analysis_config import IMUConfig
 
 
 def generate_statistics(
@@ -43,7 +39,7 @@ def generate_statistics(
 
 def generate_std_norm(
         df: pd.DataFrame,
-        cols: List[str],
+        cols: list,
     ) -> pd.Series:
     """Generate the standard deviation of the norm of the accelerometer axes.
     
@@ -51,7 +47,7 @@ def generate_std_norm(
     ----------
     df: pd.DataFrame
         The dataframe containing the accelerometer axes
-    cols: List[str]
+    cols: list
         The names of the columns containing the accelerometer axes
         
     Returns
@@ -59,10 +55,10 @@ def generate_std_norm(
     pd.Series
         The standard deviation of the norm of the accelerometer axes
     """
-    return df[cols].apply(
-        lambda row: np.std(np.sqrt(np.sum(row**2))),
-        axis=1
-    )
+    return df.apply(
+        lambda x: np.std(np.sqrt(sum(
+            [np.array([y**2 for y in x[col]]) for col in cols]
+        ))), axis=1)
     
 
 def compute_fft(
@@ -112,9 +108,8 @@ def signal_to_ffts(
     Returns
     -------
     tuple
-        Two lists: (frequencies, FFT values), which can be concatenated as columns to the DataFrame.
+        Lists of FFT values and corresponding frequencies which can be concatenated as column to the dataframe
     """
-    # Use list comprehensions to compute FFT for each window
     l_values_total = []
     l_freqs_total = []
     for row in sensor_col:
@@ -130,20 +125,24 @@ def signal_to_ffts(
 
 def compute_power_in_bandwidth(
         sensor_col: list,
-        fmin: float,
-        fmax: float,
+        fmin: int,
+        fmax: int,
         sampling_frequency: int = 100,
         window_type: str = 'hann',
     ) -> float:
-    """Computes the power in a specific frequency band for a specified sensor and axis.
+    """Note: sensor_col is a single cell (which corresponds to a single window) of sensor_col, as it is used with apply function. 
+    Probably we want a smarter way of doing this.
+    
+    Computes the power in a specific frequency band for a specified sensor and axis.
     
     Parameters
     ----------
     sensor_col: list
-        A single row of the sensor_col columns containing a list of sensor values.
-    fmin: float
+        The sensor column to be transformed (e.g. x-axis of accelerometer). This corresponds to a single window, which is a single row of the dataframe, 
+        and contains values of individual timestamps composing the window.
+    fmin: int
         The lower bound of the frequency band
-    fmax: float
+    fmax: int
         The upper bound of the frequency band
     sampling_frequency: int
         The sampling frequency of the signal (default: 100)
@@ -153,20 +152,26 @@ def compute_power_in_bandwidth(
     Returns
     -------
     float
-        The power in the specified frequency band, or NaN if no valid frequencies are found.
+        The power in the specified frequency band    
     """
     fxx, pxx = signal.periodogram(sensor_col, fs=sampling_frequency, window=window_type)
-    ind_min = np.argmax(fxx > fmin) - 1
-    ind_max = np.argmax(fxx > fmax) - 1
-    return np.log10(np.trapz(pxx[ind_min:ind_max], fxx[ind_min:ind_max]))
+
+    # Find indices for the specified bandwidth
+    ind_min = np.searchsorted(freqs, fmin)
+    ind_max = np.searchsorted(freqs, fmax)
+
+    # Compute the log power in the specified bandwidth
+    log_power = np.log10(np.trapz(pxx[ind_min:ind_max], fxx[ind_min:ind_max]))
+    
+    return log_power
 
 
 def compute_perc_power(
         sensor_col: list,
-        fmin_band: float,
-        fmax_band: float,
-        fmin_total: float = 0,
-        fmax_total: float = 100,
+        fmin_band: int,
+        fmax_band: int,
+        fmin_total: int = 0,
+        fmax_total: int = 100,
         sampling_frequency: int = 100,
         window_type: str = 'hann'
     ) -> float:
@@ -178,13 +183,13 @@ def compute_perc_power(
     ----------
     sensor_col: list
         The sensor column to be transformed (e.g. x-axis of accelerometer). This corresponds to a single window, which is a single row of the dataframe
-    fmin_band: float
+    fmin_band: int
         The lower bound of the frequency band
-    fmax_band: float
+    fmax_band: int
         The upper bound of the frequency band
-    fmin_total: float
+    fmin_total: int
         The lower bound of the frequency spectrum (default: 0)
-    fmax_total: float
+    fmax_total: int
         The upper bound of the frequency spectrum (default: 100)
     sampling_frequency: int
         The sampling frequency of the signal (default: 100)
@@ -218,8 +223,8 @@ def compute_perc_power(
 def get_dominant_frequency(
         signal_ffts: list,
         signal_freqs: list,
-        fmin: float,
-        fmax: float
+        fmin: int,
+        fmax: int
         ) -> float:
     """Note: signal_ffts and signal_freqs are single cells (which corresponds to a single window) of signal_ffts and signal_freqs, as it is used with apply function.
     
@@ -239,25 +244,15 @@ def get_dominant_frequency(
     Returns
     -------
     float
-        The dominant frequency in the specified frequency band, or NaN if no valid frequency is found.
+        The dominant frequency in the specified frequency band
     """
-    # Find the indices of frequencies within the specified band
-    valid_indices = np.where((signal_freqs > fmin) & (signal_freqs < fmax))[0]
-    
-    # If no valid indices are found, return NaN
-    if len(valid_indices) == 0:
-        return np.nan
-    
-    # Extract the corresponding FFT values and frequencies
-    signal_ffts_band = np.abs(signal_ffts[valid_indices])
-    signal_freqs_band = signal_freqs[valid_indices]
-    
-    # Find the index of the maximum FFT magnitude in the band
-    dominant_index = np.argmax(signal_ffts_band)
-    
-    # Return the corresponding frequency as the dominant frequency
-    return signal_freqs_band[dominant_index]
+    valid_indices = np.where((signal_freqs>fmin) & (signal_freqs<fmax))
+    signal_freqs_adjusted = signal_freqs[valid_indices]
+    signal_ffts_adjusted = signal_ffts[valid_indices]
 
+    idx = np.argmax(np.abs(signal_ffts_adjusted))
+    return np.abs(signal_freqs_adjusted[idx])
+    
 
 def compute_power(
         df: pd.DataFrame,
@@ -277,7 +272,6 @@ def compute_power(
     pd.Series
         The power of the FFT values
     """
-
     for col in fft_cols:
         df['{}_power'.format(col)] = df[col].apply(lambda x: np.square(np.abs(x)))
 
@@ -317,11 +311,6 @@ def generate_cepstral_coefficients(
     pd.DataFrame
         A dataframe with a single column corresponding to a single cepstral coefficient
     """
-
-    # Ensure total_power_col is not empty
-    if total_power_col.empty:
-        raise ValueError("The total_power_col must not be empty.")
-    
     window_length = window_length_s * sampling_frequency
     
     # compute filter points
@@ -348,10 +337,6 @@ def generate_cepstral_coefficients(
         dct_filters[i, :] = np.cos(i * samples) * np.sqrt(2.0 / n_filters)
 
     cepstral_coefs = [np.dot(dct_filters, x) for x in log_power_filtered]
-
-    # Ensure cepstral_coefs is not empty before stacking
-    if not cepstral_coefs:
-        raise ValueError("No cepstral coefficients were calculated. Check input data.")
 
     return pd.DataFrame(np.vstack(cepstral_coefs), columns=['cc_{}'.format(j+1) for j in range(n_coefficients)])
 
@@ -460,54 +445,78 @@ def extract_angle_extremes(
     pd.Series
         The extracted angle extremes (peaks)
     """
+    # determine peaks
+    df['angle_maxima'] = df.apply(lambda x: find_peaks(x[angle_colname], distance=sampling_frequency * 0.6 / x[dominant_frequency_colname], prominence=2)[0], axis=1)
+    df['angle_minima'] = df.apply(lambda x: find_peaks([-x for x in x[angle_colname]], distance=sampling_frequency * 0.6 / x[dominant_frequency_colname], prominence=2)[0], axis=1) 
 
-    # Determine gap between peaks based on dominant frequency
-    distances = sampling_frequency * 0.6 / df[dominant_frequency_colname]
+    df['angle_new_minima'] = df['angle_minima'].copy()
+    df['angle_new_maxima'] = df['angle_maxima'].copy()
 
-    # Find peaks (maxima) and troughs (minima)
-    df['angle_maxima'] = df[angle_colname].apply(lambda x: find_peaks(x, distance=distances, prominence=2)[0])
-    df['angle_minima'] = df[angle_colname].apply(lambda x: find_peaks(-x, distance=distances, prominence=2)[0])
+    for index, _ in df.iterrows():
+        i_pks = 0                                       # iterable to keep track of consecutive min-min and max-max versus min-max
+        n_min = df.loc[index, 'angle_new_minima'].size  # number of minima in window
+        n_max = df.loc[index, 'angle_new_maxima'].size  # number of maxima in window
 
-    # Create new columns for extrema that adhere to criteria
-    df['angle_new_minima'] = df['angle_minima']
-    df['angle_new_maxima'] = df['angle_maxima']
+        if n_min > 0 and n_max > 0: 
+            # if the first minimum occurs before the first maximum, start with the minimum
+            if df.loc[index, 'angle_new_maxima'][0] > df.loc[index, 'angle_new_minima'][0]: 
+                # only continue if there are enough minima and maxima to perform operations
+                while i_pks < df.loc[index, 'angle_new_minima'].size - 1 and i_pks < df.loc[index, 'angle_new_maxima'].size: 
 
-    for index, row in df.iterrows():
-        i_pks = 0  # iterable to keep track of consecutive min-min and max-max versus min-max
-        minima = row['angle_new_minima']
-        maxima = row['angle_new_maxima']
+                    # if the next minimum comes before the next maximum, we have two minima in a row, and should keep the larger one
+                    if df.loc[index, 'angle_new_minima'][i_pks+1] < df.loc[index, 'angle_new_maxima'][i_pks]: 
+                        # if the next minimum is smaller than the current minimum, keep the next minimum and discard the current minimum
+                        if df.loc[index, angle_colname][df.loc[index, 'angle_new_minima'][i_pks+1]] < df.loc[index, angle_colname][df.loc[index, 'angle_new_minima'][i_pks]]:
+                            df.at[index, 'angle_new_minima'] = np.delete(df.loc[index, 'angle_new_minima'], i_pks)
+                        # otherwise, keep the current minimum and discard the next minimum
+                        else:
+                            df.at[index, 'angle_new_minima'] = np.delete(df.loc[index, 'angle_new_minima'], i_pks+1)
+                        i_pks -= 1
 
-        # Ensure we have both minima and maxima to compare
-        while i_pks < min(len(minima), len(maxima)):
-            # Check for consecutive minima or maxima and remove the less extreme ones
-            if minima[i_pks] < maxima[i_pks]:  # Start with a minimum
-                # If consecutive minima, keep the smaller one
-                if i_pks + 1 < len(minima) and minima[i_pks + 1] < maxima[i_pks]:
-                    if row[angle_colname][minima[i_pks + 1]] < row[angle_colname][minima[i_pks]]:
-                        minima = np.delete(minima, i_pks)
-                    else:
-                        minima = np.delete(minima, i_pks + 1)
-                else:
+                    # if the current maximum comes before the current minimum, we have two maxima in a row, and should keep the larger one
+                    if i_pks >= 0 and df.loc[index, 'angle_new_minima'][i_pks] > df.loc[index, 'angle_new_maxima'][i_pks]:
+                        # if the current maximum is smaller than the previous maximum, keep the previous maximum and discard the current maximum
+                        if df.loc[index, angle_colname][df.loc[index, 'angle_new_maxima'][i_pks]] < df.loc[index, angle_colname][df.loc[index, 'angle_new_maxima'][i_pks-1]]:
+                            df.at[index, 'angle_new_maxima'] = np.delete(df.loc[index, 'angle_new_maxima'], i_pks) 
+                        # otherwise, keep the current maximum and discard the previous maximum
+                        else:
+                            df.at[index, 'angle_new_maxima'] = np.delete(df.loc[index, 'angle_new_maxima'], i_pks-1) 
+                        i_pks -= 1
                     i_pks += 1
-            else:  # Start with a maximum
-                if i_pks + 1 < len(maxima) and maxima[i_pks + 1] < minima[i_pks]:
-                    if row[angle_colname][maxima[i_pks + 1]] > row[angle_colname][maxima[i_pks]]:
-                        maxima = np.delete(maxima, i_pks)
-                    else:
-                        maxima = np.delete(maxima, i_pks + 1)
-                else:
+
+            # or if the first maximum occurs before the first minimum, start with the maximum
+            elif df.loc[index, 'angle_new_maxima'][0] < df.loc[index, 'angle_new_minima'][0]: 
+                # only continue if there are enough minima and maxima to perform operations
+                while i_pks < df.loc[index, 'angle_new_minima'].size and i_pks < df.loc[index, 'angle_new_maxima'].size-1:
+                    # if the next maximum comes before the current minimum, we have two maxima in a row, and should keep the larger one
+                    if df.loc[index, 'angle_new_minima'][i_pks] > df.loc[index, 'angle_new_maxima'][i_pks+1]:
+                        # if the next maximum is smaller than the current maximum, keep the next maximum and discard the current maximum
+                        if df.loc[index, angle_colname][df.loc[index, 'angle_new_maxima'][i_pks+1]] > df.loc[index, angle_colname][df.loc[index, 'angle_new_maxima'][i_pks]]:
+                            df.at[index, 'angle_new_maxima'] = np.delete(df.loc[index, 'angle_new_maxima'], i_pks) 
+                        # otherwise, keep the current maximum and discard the next maximum
+                        else:
+                            df.at[index, 'angle_new_maxima'] = np.delete(df.loc[index, 'angle_new_maxima'], i_pks+1) 
+                        i_pks -= 1
+
+                    # if the current minimum comes before the current maximum, we have two minima in a row, and should keep the larger one
+                    if i_pks > 0 and df.loc[index, 'angle_new_minima'][i_pks] < df.loc[index, 'angle_new_maxima'][i_pks]:
+                        # if the current minimum is smaller than the previous minimum, keep the previous minimum and discard the current minimum
+                        if df.loc[index, angle_colname][df.loc[index, 'angle_new_minima'][i_pks]] < df.loc[index, angle_colname][df.loc[index, 'angle_new_minima'][i_pks-1]]:
+                            df.at[index, 'angle_new_minima'] = np.delete(df.loc[index, 'angle_new_minima'], i_pks-1) 
+                        # otherwise, keep the current minimum and discard the previous minimum                        
+                        else:
+                            df.at[index, 'angle_new_minima'] = np.delete(df.loc[index, 'angle_new_minima'], i_pks) 
+                        i_pks -= 1
                     i_pks += 1
-        
-        # Store the updated lists
-        df.at[index, 'angle_new_minima'] = minima
-        df.at[index, 'angle_new_maxima'] = maxima
 
-    # Handle any potential scalar/vector issues
-    df['angle_extrema_values'] = df.apply(
-        lambda x: [x[angle_colname][i] for i in sorted(np.concatenate([x['angle_new_minima'], x['angle_new_maxima']]))], axis=1
-    )
+    # for some peculiar reason, if a single item remains in the row for angle_new_minima or
+    # angle_new_maxima, it could be either a scalar or a vector.
+    for col in ['angle_new_minima', 'angle_new_maxima']:
+        df.loc[df.apply(lambda x: type(x[col].tolist())==int, axis=1), col] = df.loc[df.apply(lambda x: type(x[col].tolist())==int, axis=1), col].apply(lambda x: [x])
 
-    return df['angle_extrema_values']
+    df['angle_extrema_values'] = df.apply(lambda x: [x[angle_colname][i] for i in sorted(np.concatenate([x['angle_new_minima'], x['angle_new_maxima']]))], axis=1) 
+
+    return
 
 
 def extract_range_of_motion(
@@ -525,24 +534,31 @@ def extract_range_of_motion(
     pd.Series
         The range of motion
     """
-    def compute_amplitude(extrema_values):
-        # Calculate amplitude for consecutive extrema
-        amplitudes = []
-        for i in range(len(extrema_values) - 1):
-            value, next_value = extrema_values[i], extrema_values[i + 1]
-            if (value > 0 and next_value < 0) or (value < 0 and next_value > 0):
-                # Opposite sign: amplitude is sum of absolute values
-                amplitudes.append(abs(value) + abs(next_value))
-            else:
-                # Same sign: amplitude is the absolute difference
-                amplitudes.append(abs(next_value) - abs(value))
-        return amplitudes
-    
-    # Apply amplitude computation to each row of extrema values
-    angle_amplitudes = angle_extrema_values_col.apply(compute_amplitude)
-    
-    # Flatten the list of amplitudes for each window into a single list
-    return pd.Series([amplitude for sublist in angle_amplitudes for amplitude in sublist])
+    angle_amplitudes = np.empty((len(angle_extrema_values_col), 0)).tolist()
+
+    # for each window
+    for i, extrema_values in enumerate(angle_extrema_values_col):
+        l_amplitudes = []
+        # for each extremum contained in the window
+        for j, value in enumerate(extrema_values):
+            # if the extremum is not the last one in the list of extrema
+            if j < len(extrema_values)-1:
+                # if the current extremum is a maximum and the next one is a minimum, or vice versa
+                if (value > 0 and extrema_values[j+1] < 0) or (value < 0 and extrema_values[j+1] > 0):
+                    # compute the amplitude as the sum of the absolute values of the two extrema
+                    l_amplitudes.append(np.sum(np.abs(value) + np.abs(extrema_values[j+1])))
+                # or if the extrema are both positive or both negative, and the current extremum is closer to 0
+                elif np.abs(value) < np.abs(extrema_values[j+1]):
+                    # compute the amplitude as the difference between the two extrema
+                    l_amplitudes.append(np.subtract(np.abs(extrema_values[j+1]), np.abs(value)))
+                # or if the extrema are both positive and negative, and the current extremum is further away from 0
+                else:
+                    # compute the amplitude as the difference between the two extrema
+                    l_amplitudes.append(np.subtract(np.abs(value), np.abs(extrema_values[j+1])))
+
+        angle_amplitudes[i].append([x for x in l_amplitudes])
+
+    return [y for item in angle_amplitudes for y in item]
 
 
 def extract_peak_angular_velocity(
@@ -569,59 +585,30 @@ def extract_peak_angular_velocity(
     pd.DataFrame
         The dataframe with the forward and backward peak angular velocity
     """
-    def compute_peak_velocity(extrema_indices, velocities, minima, maxima):
-        """Helper function to compute forward and backward peak velocities."""
-        forward_peaks, backward_peaks = [], []
-        
-        for i in range(len(extrema_indices) - 1):
-            peak_index, next_index = extrema_indices[i], extrema_indices[i + 1]
-            
-            # Forward peak: between maxima and next extremum
-            if peak_index in maxima:
-                forward_peaks.append(np.abs(np.min(velocities[peak_index:next_index])))
-            
-            # Backward peak: between minima and next extremum
-            if peak_index in minima:
-                backward_peaks.append(np.abs(np.max(velocities[peak_index:next_index])))
-        
-        return forward_peaks, backward_peaks
+    df['forward_peak_ang_vel'] = np.empty((len(df), 0)).tolist()
+    df['backward_peak_ang_vel'] = np.empty((len(df), 0)).tolist()
 
-    # Apply the peak velocity extraction for each row in the DataFrame
-    result = df.apply(lambda row: compute_peak_velocity(
-        np.sort(np.concatenate([row[angle_minima_colname], row[angle_maxima_colname]])),
-        row[velocity_colname],
-        row[angle_minima_colname],
-        row[angle_maxima_colname]
-    ), axis=1)
+    # for each window
+    for index, row in df.iterrows():
+        # the peak angular velocity can only be computed if there is at least one minimum and one maximum in the window
+        if len(row[angle_minima_colname]) > 0 and len(row[angle_maxima_colname]) > 0:
+            # combine the minima and maxima
+            l_extrema_indices = np.sort(np.concatenate((row[angle_minima_colname], row[angle_maxima_colname])))
+            # for each peak
+            for j, peak_index in enumerate(l_extrema_indices):
+                # if the peak is a maximum and there is another peak after it
+                if peak_index in row[angle_maxima_colname] and j < len(l_extrema_indices) - 1:
+                    # compute the forward peak angular velocity, defined by the maximum negative angular velocity between the two peaks
+                    df.loc[index, 'forward_peak_ang_vel'].append(np.abs(min(row[velocity_colname][l_extrema_indices[j]:l_extrema_indices[j+1]])))
+                # if the peak is a minimum and there is another peak after it
+                elif peak_index in row[angle_minima_colname] and j < len(l_extrema_indices) - 1:
+                    # compute the backward peak angular velocity, defined by the maximum positive angular velocity between the two peaks
+                    df.loc[index, 'backward_peak_ang_vel'].append(np.abs(max(row[velocity_colname][l_extrema_indices[j]:l_extrema_indices[j+1]])))
     
-    # Split the results into two separate columns
-    df['forward_peak_ang_vel'], df['backward_peak_ang_vel'] = zip(*result)
-    
-    return df
+    return
 
 
-def extract_temporal_domain_features(config: IMUConfig, df_windowed:pd.DataFrame, l_gravity_stats=['mean', 'std']) -> pd.DataFrame:
-    """
-    Compute temporal domain features for the accelerometer signal. The features are added to the dataframe. Therefore the original dataframe is modified, and the modified dataframe is returned.
-
-    Parameters
-    ----------
-
-    config: GaitFeatureExtractionConfig
-        The configuration object containing the parameters for the feature extraction
-    
-    df_windowed: pd.DataFrame
-        The dataframe containing the windowed accelerometer signal
-
-    l_gravity_stats: list, optional
-        The statistics to be computed for the gravity component of the accelerometer signal (default: ['mean', 'std'])
-    
-    Returns
-    -------
-    pd.DataFrame
-        The dataframe with the added temporal domain features.
-    """
-    
+def extract_temporal_domain_features(config, df_windowed, l_gravity_stats=['mean', 'std']):
     # compute the mean and standard deviation of the gravity component of the acceleration signal for each axis
     for col in config.l_gravity_cols:
         for stat in l_gravity_stats:
@@ -635,8 +622,6 @@ def extract_temporal_domain_features(config: IMUConfig, df_windowed:pd.DataFrame
         df=df_windowed,
         cols=config.l_accelerometer_cols
         )
-    
-    df_windowed = df_windowed.drop(columns=config.l_gravity_cols)
     
     return df_windowed
 
@@ -654,31 +639,30 @@ def extract_spectral_domain_features(config, df_windowed, sensor, l_sensor_colna
 
         # compute the power in distinct frequency bandwidths
         for bandwidth, frequencies in config.d_frequency_bandwidths.items():
-            df_windowed[col + '_' + bandwidth] = df_windowed[col].apply(
-                lambda x: compute_power_in_bandwidth(
-                    sensor_col=x,
-                    fmin=frequencies[0],
-                    fmax=frequencies[1],
-                    sampling_frequency=config.sampling_frequency,
-                    window_type=config.window_type,
+            df_windowed[col+'_'+bandwidth] = df_windowed[col].apply(lambda x: compute_power_in_bandwidth(
+                sensor_col=x,
+                fmin=frequencies[0],
+                fmax=frequencies[1],
+                sampling_frequency=config.sampling_frequency,
+                window_type=config.window_type,
                 )
             )
-            
 
         # compute the dominant frequency, i.e., the frequency with the highest power
-        df_windowed[col+'_dominant_frequency'] = df_windowed.apply(
-            lambda x: get_dominant_frequency(
-                signal_ffts=x[col+'_fft'], 
-                signal_freqs=x[col+'_freqs'],
-                fmin=config.spectrum_low_frequency,
-                fmax=config.spectrum_high_frequency
+        df_windowed[col+'_dominant_frequency'] = df_windowed.apply(lambda x: get_dominant_frequency(
+            signal_ffts=x[col+'_fft'], 
+            signal_freqs=x[col+'_freqs'],
+            fmin=config.spectrum_low_frequency,
+            fmax=config.spectrum_high_frequency
             ), axis=1
         )
 
+    # compute the power summed over the individual axes to obtain the total power per frequency bandwidth
+    for bandwidth in config.d_frequency_bandwidths.keys():
+        df_windowed['total_'+bandwidth] = df_windowed.apply(lambda x: sum(x[y+'_'+bandwidth] for y in l_sensor_colnames), axis=1)
+
     # compute the power summed over the individual frequency bandwidths to obtain the total power
-    df_windowed['total_power'] = compute_power(
-        df=df_windowed,
-        fft_cols=[f'{col}_fft' for col in l_sensor_colnames])
+    df_windowed['total_power'] = df_windowed[[f'{sensor}_{band_name}_power' for sensor in l_sensor_colnames for band_name in config.d_frequency_bandwidths.keys()]].sum(axis=1)
 
     # compute the cepstral coefficients of the total power signal
     cc_cols = generate_cepstral_coefficients(
@@ -690,12 +674,6 @@ def extract_spectral_domain_features(config, df_windowed, sensor, l_sensor_colna
         n_filters=config.n_dct_filters_cc,
         n_coefficients=config.n_coefficients_cc
         )
-    
-    df_windowed = df_windowed.drop(columns=
-                                   ['total_power'] + \
-                                   [f'{x}_fft' for x in l_sensor_colnames] + \
-                                   [f'{x}_freqs' for x in l_sensor_colnames] + \
-                                   l_sensor_colnames)
 
     df_windowed = pd.concat([df_windowed, cc_cols], axis=1)
 
