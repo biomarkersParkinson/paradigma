@@ -89,9 +89,20 @@ def compute_fft(
     tuple
         The FFT values and the corresponding frequencies
     """
+    # Create the window
     w = signal.get_window(window_type, len(values), fftbins=False)
-    yf = 2*fft.fft(values*w)[:int(len(values)/2+1)]
-    xf = fft.fftfreq(len(values), 1/sampling_frequency)[:int(len(values)/2+1)]
+
+    # Apply the window to the signal
+    windowed_signal = values * w
+
+    # Compute the FFT
+    yf = fft.fft(windowed_signal)
+
+    # Normalize the FFT
+    yf = 2.0 / len(values) * np.abs(yf[:len(values)//2+1])
+
+    # Compute the corresponding frequencies
+    xf = fft.fftfreq(len(values), 1/sampling_frequency)[:len(values)//2+1]
 
     return yf, xf
     
