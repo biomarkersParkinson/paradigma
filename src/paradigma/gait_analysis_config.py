@@ -155,7 +155,7 @@ class ArmSwingFeatureExtractionConfig(IMUConfig):
         self.sampling_frequency = sampling_frequency
 
         # computing power
-        self.power_band_low_frequency = 0.3
+        self.power_band_low_frequency = 0.2
         self.power_band_high_frequency = 3
         self.spectrum_low_frequency = 0
         self.spectrum_high_frequency = int(sampling_frequency / 2)
