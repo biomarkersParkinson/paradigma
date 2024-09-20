@@ -124,12 +124,12 @@ def signal_to_ffts(
     
 
 def compute_power_in_bandwidth(
-        sensor_col: pd.Series,
+        sensor_col: list,
         fmin: float,
         fmax: float,
         sampling_frequency: int = 100,
         window_type: str = 'hann',
-    ) -> pd.Series:
+    ) -> list:
     """Computes the power in a specific frequency band for a specified sensor and axis.
     
     Parameters
@@ -215,10 +215,7 @@ def compute_perc_power(
         window_type=window_type
         )
     
-    if angle_power_total > 0 and not np.isnan(angle_power_total):
-        return angle_power_band / angle_power_total
-    else:
-        return np.nan
+    return angle_power_band / angle_power_total
 
 
 def get_dominant_frequency(
@@ -650,21 +647,24 @@ def extract_spectral_domain_features(config, df_windowed, sensor, l_sensor_colna
 
         # compute the power in distinct frequency bandwidths
         for bandwidth, frequencies in config.d_frequency_bandwidths.items():
-            df_windowed[col + '_' + bandwidth] = compute_power_in_bandwidth(
-                sensor_col=df_windowed[col],
-                fmin=frequencies[0],
-                fmax=frequencies[1],
-                sampling_frequency=config.sampling_frequency,
-                window_type=config.window_type,
+            df_windowed[col + '_' + bandwidth] = df_windowed.apply(
+                lambda x: compute_power_in_bandwidth(
+                    sensor_col=x[col],
+                    fmin=frequencies[0],
+                    fmax=frequencies[1],
+                    sampling_frequency=config.sampling_frequency,
+                    window_type=config.window_type,
+                ), axis=1
             )
             
 
         # compute the dominant frequency, i.e., the frequency with the highest power
-        df_windowed[col+'_dominant_frequency'] = df_windowed.apply(lambda x: get_dominant_frequency(
-            signal_ffts=x[col+'_fft'], 
-            signal_freqs=x[col+'_freqs'],
-            fmin=config.spectrum_low_frequency,
-            fmax=config.spectrum_high_frequency
+        df_windowed[col+'_dominant_frequency'] = df_windowed.apply(
+            lambda x: get_dominant_frequency(
+                signal_ffts=x[col+'_fft'], 
+                signal_freqs=x[col+'_freqs'],
+                fmin=config.spectrum_low_frequency,
+                fmax=config.spectrum_high_frequency
             ), axis=1
         )
 
