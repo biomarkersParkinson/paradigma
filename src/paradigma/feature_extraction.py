@@ -280,10 +280,8 @@ def compute_power(
     pd.Series
         The power of the FFT values
     """
-    for col in fft_cols:
-        df['{}_power'.format(col)] = df[col].apply(lambda x: np.square(np.abs(x)))
 
-    return df.apply(lambda x: sum([np.array([y for y in x[col+'_power']]) for col in fft_cols]), axis=1)
+    return df[fft_cols].apply(lambda x: np.sum(np.square(np.abs(x))), axis=1)
     
 
 def generate_cepstral_coefficients(
@@ -668,14 +666,11 @@ def extract_spectral_domain_features(config, df_windowed, sensor, l_sensor_colna
             ), axis=1
         )
 
-    # compute the power summed over the individual axes to obtain the total power per frequency bandwidth
-    for bandwidth in config.d_frequency_bandwidths.keys():
-        df_windowed['total_'+bandwidth] = df_windowed.apply(lambda x: sum(x[y+'_'+bandwidth] for y in l_sensor_colnames), axis=1)
-
     # Compute the power summed over the individual frequency bandwidths to obtain the total power
     df_windowed['total_power'] = compute_power(
         df=df_windowed,
-        fft_cols=[f'{col}_fft' for col in l_sensor_colnames])
+        fft_cols=[f'{col}_fft' for col in l_sensor_colnames]
+    )
 
     # compute the cepstral coefficients of the total power signal
     cc_cols = generate_cepstral_coefficients(
