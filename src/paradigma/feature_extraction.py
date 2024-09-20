@@ -61,10 +61,10 @@ def generate_std_norm(
     """
 
     def calculate_norm(row):
-        # Ensure each entry is converted to a NumPy array
-        vectors = [np.array(row[col]) for col in cols]
+        # Combine the lists from the specified columns
+        combined_values = np.concatenate([np.array(row[col]) for col in cols])
         # Compute the Euclidean norm
-        return np.sqrt(np.sum([vec ** 2 for vec in vectors]))
+        return np.sqrt(np.sum(combined_values ** 2))
 
     # Compute norms for each row
     norms = df.apply(calculate_norm, axis=1)
