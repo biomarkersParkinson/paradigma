@@ -203,17 +203,19 @@ def discard_segments(
     pd.DataFrame
         The dataframe with segments that are longer than the specified length
     """
+    # Compute segment lengths and filter out the short segments
     segment_length_bool = df.groupby(segment_nr_colname)[time_colname].apply(lambda x: x.max() - x.min()) > minimum_segment_length_s
+    filtered_df = df[df[segment_nr_colname].isin(segment_length_bool[segment_length_bool].index)].copy()
 
-    df = df.loc[df[segment_nr_colname].isin(segment_length_bool.loc[segment_length_bool.values].index)]
+    # Create a new ordered column for segment numbers, starting from 1
+    segment_map = {segment_nr: i+1 for i, segment_nr in enumerate(filtered_df[segment_nr_colname].unique())}
+    filtered_df[f'{segment_nr_colname}_ordered'] = filtered_df[segment_nr_colname].map(segment_map)
 
-    # reorder the segments - starting at 1
-    for segment_nr in df[segment_nr_colname].unique():
-        df.loc[df[segment_nr_colname]==segment_nr, f'{segment_nr_colname}_ordered'] = np.where(df[segment_nr_colname].unique()==segment_nr)[0][0] + 1
+    # Set the new ordered column as the segment column
+    filtered_df[f'{segment_nr_colname}_ordered'] = filtered_df[f'{segment_nr_colname}_ordered'].astype(int)
 
-    df[f'{segment_nr_colname}_ordered'] = df[f'{segment_nr_colname}_ordered'].astype(int)
+    # Drop the old segment number column and rename the new column to the original segment column name
+    filtered_df = filtered_df.drop(columns=[segment_nr_colname])
+    filtered_df = filtered_df.rename(columns={f'{segment_nr_colname}_ordered': segment_nr_colname})
 
-    df = df.drop(columns=[segment_nr_colname])
-    df = df.rename(columns={f'{segment_nr_colname}_ordered': segment_nr_colname})
-
-    return df
+    return filtered_df
