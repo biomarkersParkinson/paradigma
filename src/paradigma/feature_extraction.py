@@ -97,7 +97,7 @@ def signal_to_ffts(
         sensor_col: pd.Series,
         window_type: str = 'hann',
         sampling_frequency: int = 100,
-    ) -> tuple[list[np.ndarray], list[np.ndarray]]:
+    ) -> tuple:
     """Compute the Fast Fourier Transform (FFT) of a signal per window (can probably be combined with compute_fft and simplified).
 
     Parameters
@@ -115,10 +115,15 @@ def signal_to_ffts(
         Two lists: (frequencies, FFT values), which can be concatenated as columns to the DataFrame.
     """
     # Use list comprehensions to compute FFT for each window
-    l_freqs_total = [compute_fft(values=row, window_type=window_type, sampling_frequency=sampling_frequency)[1]
-                     for row in sensor_col]
-    l_values_total = [compute_fft(values=row, window_type=window_type, sampling_frequency=sampling_frequency)[0]
-                      for row in sensor_col]
+    l_values_total = []
+    l_freqs_total = []
+    for row in sensor_col:
+        l_values, l_freqs = compute_fft(
+            values=row,
+            window_type=window_type,
+            sampling_frequency=sampling_frequency)
+        l_values_total.append(l_values)
+        l_freqs_total.append(l_freqs)
 
     return l_freqs_total, l_values_total
     
@@ -150,18 +155,10 @@ def compute_power_in_bandwidth(
     float
         The power in the specified frequency band, or NaN if no valid frequencies are found.
     """
-
-    # Compute the power spectral density (PSD) using periodogram
     fxx, pxx = signal.periodogram(sensor_col, fs=sampling_frequency, window=window_type)
-        
     ind_min = np.argmax(fxx > fmin) - 1
     ind_max = np.argmax(fxx > fmax) - 1
-    
-    # Compute power in the specified frequency band
-    band_power = np.trapz(pxx[ind_min:ind_max], fxx[ind_min:ind_max])
-    
-    # Handle log calculation (avoid log(0) or negative values)
-    return np.log10(band_power) if band_power > 0 else np.nan
+    return np.log10(np.trapz(pxx[ind_min:ind_max], fxx[ind_min:ind_max]))
 
 
 def compute_perc_power(
@@ -654,14 +651,14 @@ def extract_spectral_domain_features(config, df_windowed, sensor, l_sensor_colna
 
         # compute the power in distinct frequency bandwidths
         for bandwidth, frequencies in config.d_frequency_bandwidths.items():
-            df_windowed[col + '_' + bandwidth] = df_windowed.apply(
+            df_windowed[col + '_' + bandwidth] = df_windowed[col].apply(
                 lambda x: compute_power_in_bandwidth(
-                    sensor_col=x[col],
+                    sensor_col=x,
                     fmin=frequencies[0],
                     fmax=frequencies[1],
                     sampling_frequency=config.sampling_frequency,
                     window_type=config.window_type,
-                ), axis=1
+                )
             )
             
 
