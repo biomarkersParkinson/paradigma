@@ -134,8 +134,8 @@ def compute_power_in_bandwidth(
     
     Parameters
     ----------
-    ssensor_col: pd.Series
-        A pandas Series where each entry is a list of sensor values for one window.
+    sensor_col: list
+        A single row of the sensor_col columns containing a list of sensor values.
     fmin: float
         The lower bound of the frequency band
     fmax: float
@@ -150,31 +150,27 @@ def compute_power_in_bandwidth(
     float
         The power in the specified frequency band, or NaN if no valid frequencies are found.
     """
-    # Function to compute power for a single window
-    def compute_single_window(window: list) -> float:
-        # Compute the power spectral density (PSD) using periodogram
-        fxx, pxx = signal.periodogram(window, fs=sampling_frequency, window=window_type)
+
+    # Compute the power spectral density (PSD) using periodogram
+    fxx, pxx = signal.periodogram(sensor_col, fs=sampling_frequency, window=window_type)
         
-        # Ensure fmin and fmax are within the frequency range
-        if fmin < fxx[0] or fmax > fxx[-1]:
-            return np.nan
-        
-        # Get indices corresponding to fmin and fmax
-        ind_min = np.argmax(fxx >= fmin)
-        ind_max = np.argmax(fxx >= fmax)
-        
-        # Compute power in the specified frequency band
-        band_power = np.trapz(pxx[ind_min:ind_max], fxx[ind_min:ind_max])
-        
-        # Handle log calculation (avoid log(0) or negative values)
-        return np.log10(band_power) if band_power > 0 else np.nan
+    # Ensure fmin and fmax are within the frequency range
+    if fmin < fxx[0] or fmax > fxx[-1]:
+        return np.nan
     
-    # Apply the function to each window in the series
-    return sensor_col.apply(compute_single_window)
+    # Get indices corresponding to fmin and fmax
+    ind_min = np.argmax(fxx >= fmin)
+    ind_max = np.argmax(fxx >= fmax)
+    
+    # Compute power in the specified frequency band
+    band_power = np.trapz(pxx[ind_min:ind_max], fxx[ind_min:ind_max])
+    
+    # Handle log calculation (avoid log(0) or negative values)
+    return np.log10(band_power) if band_power > 0 else np.nan
 
 
 def compute_perc_power(
-        sensor_col: pd.Series,
+        sensor_col: list,
         fmin_band: float,
         fmax_band: float,
         fmin_total: float = 0,
@@ -182,13 +178,14 @@ def compute_perc_power(
         sampling_frequency: int = 100,
         window_type: str = 'hann'
     ) -> float:
-    """
-    Computes the percentage of power in a specific frequency band for each window in the sensor_col.
+    """Note: sensor_col is a single cell (which corresponds to a single window) of sensor_col, as it is used with apply function.
+
+    Computes the percentage of power in a specific frequency band for a specified sensor and axis.
     
     Parameters
     ----------
-    sensor_col: pd.Series
-        A pandas Series, where each entry is a list of sensor values for one window.
+    sensor_col: list
+        The sensor column to be transformed (e.g. x-axis of accelerometer). This corresponds to a single window, which is a single row of the dataframe
     fmin_band: float
         The lower bound of the frequency band
     fmax_band: float
@@ -204,34 +201,29 @@ def compute_perc_power(
     
     Returns
     -------
-    pd.Series
-        A pandas Series containing the percentage of power in the specified frequency band for each window.
+    float
+        The percentage of power in the specified frequency band
     """
-    # Function to compute power percentage for a single window
-    def compute_single_window(window: list) -> float:
-        angle_power_band = compute_power_in_bandwidth(
-            sensor_col=window,
-            fmin=fmin_band,
-            fmax=fmax_band,
-            sampling_frequency=sampling_frequency,
-            window_type=window_type
+    angle_power_band = compute_power_in_bandwidth(
+        sensor_col=sensor_col,
+        fmin=fmin_band,
+        fmax=fmax_band,
+        sampling_frequency=sampling_frequency,
+        window_type=window_type
         )
-        
-        angle_power_total = compute_power_in_bandwidth(
-            sensor_col=window,
-            fmin=fmin_total,
-            fmax=fmax_total,
-            sampling_frequency=sampling_frequency,
-            window_type=window_type
-        )
-        
-        if angle_power_total > 0 and not np.isnan(angle_power_total):
-            return angle_power_band / angle_power_total
-        else:
-            return np.nan
     
-    # Apply the function to each window in the series
-    return sensor_col.apply(compute_single_window)
+    angle_power_total = compute_power_in_bandwidth(
+        sensor_col=sensor_col,
+        fmin=fmin_total,
+        fmax=fmax_total,
+        sampling_frequency=sampling_frequency,
+        window_type=window_type
+        )
+    
+    if angle_power_total > 0 and not np.isnan(angle_power_total):
+        return angle_power_band / angle_power_total
+    else:
+        return np.nan
 
 
 def get_dominant_frequency(
@@ -276,6 +268,30 @@ def get_dominant_frequency(
     
     # Return the corresponding frequency as the dominant frequency
     return signal_freqs_band[dominant_index]
+
+
+def compute_power(
+        df: pd.DataFrame,
+        fft_cols: list
+    ) -> pd.Series:
+    """Compute the power of the FFT values.
+    
+    Parameters
+    ----------
+    df: pd.DataFrame
+        The dataframe containing the FFT values
+    fft_cols: list
+        The names of the columns containing the FFT values
+    
+    Returns
+    -------
+    pd.Series
+        The power of the FFT values
+    """
+    for col in fft_cols:
+        df['{}_power'.format(col)] = df[col].apply(lambda x: np.square(np.abs(x)))
+
+    return df.apply(lambda x: sum([np.array([y for y in x[col+'_power']]) for col in fft_cols]), axis=1)
     
 
 def generate_cepstral_coefficients(
@@ -311,39 +327,34 @@ def generate_cepstral_coefficients(
     pd.DataFrame
         A dataframe with a single column corresponding to a single cepstral coefficient
     """
-    # Check for empty or NaN values in the total_power_col
-    if total_power_col.empty or total_power_col.isnull().all():
-        raise ValueError("The total power column is empty or contains only NaN values.")
-
-    # Determine window length in samples
     window_length = window_length_s * sampling_frequency
     
-    # Compute the filter points based on frequency band limits
-    freqs = np.linspace(low_frequency, high_frequency, n_filters + 2)
-    filter_points = np.floor((window_length + 1) / sampling_frequency * freqs).astype(int)
-    
-    # Construct the filterbank
-    filters = np.zeros((n_filters, window_length // 2 + 1))
-    for j in range(n_filters):
-        filters[j, filter_points[j]:filter_points[j+1]] = np.linspace(0, 1, filter_points[j+1] - filter_points[j])
-        filters[j, filter_points[j+1]:filter_points[j+2]] = np.linspace(1, 0, filter_points[j+2] - filter_points[j+1])
-    
-    # Apply filterbank to power spectrum
-    power_filtered = np.dot(np.vstack(total_power_col.values), filters.T)
-    
-    # Take the log of the filtered power (log-mel filtering step)
-    log_power_filtered = 10 * np.log10(np.maximum(power_filtered, 1e-10))  # Avoid log(0) with a small epsilon
-    
-    # Create DCT filters (for the cepstral coefficients)
+    # compute filter points
+    freqs = np.linspace(low_frequency, high_frequency, num=n_filters+2)
+    filter_points = np.floor((window_length + 1) / sampling_frequency * freqs).astype(int)  
+
+    # construct filterbank
+    filters = np.zeros((len(filter_points)-2, int(window_length/2+1)))
+    for j in range(len(filter_points)-2):
+        filters[j, filter_points[j] : filter_points[j+1]] = np.linspace(0, 1, filter_points[j+1] - filter_points[j])
+        filters[j, filter_points[j+1] : filter_points[j+2]] = np.linspace(1, 0, filter_points[j+2] - filter_points[j+1])
+
+    # filter signal
+    power_filtered = [np.dot(filters, x) for x in total_power_col]
+    log_power_filtered = [10.0 * np.log10(x) for x in power_filtered]
+
+    # generate cepstral coefficients
+    dct_filters = np.empty((n_coefficients, n_filters))
+    dct_filters[0, :] = 1.0 / np.sqrt(n_filters)
+
     samples = np.arange(1, 2 * n_filters, 2) * np.pi / (2.0 * n_filters)
-    dct_filters = np.sqrt(2.0 / n_filters) * np.cos(np.outer(np.arange(n_coefficients), samples))
-    dct_filters[0, :] /= np.sqrt(2)  # First row adjustment
-    
-    # Compute cepstral coefficients
-    cepstral_coefs = np.dot(log_power_filtered, dct_filters.T)
-    
-    # Return as a DataFrame with named columns
-    return pd.DataFrame(cepstral_coefs, columns=[f'cc_{i+1}' for i in range(n_coefficients)])
+
+    for i in range(1, n_coefficients):
+        dct_filters[i, :] = np.cos(i * samples) * np.sqrt(2.0 / n_filters)
+
+    cepstral_coefs = [np.dot(dct_filters, x) for x in log_power_filtered]
+
+    return pd.DataFrame(np.vstack(cepstral_coefs), columns=['cc_{}'.format(j+1) for j in range(n_coefficients)])
 
 
 def pca_transform_gyroscope(
@@ -662,14 +673,10 @@ def extract_spectral_domain_features(config, df_windowed, sensor, l_sensor_colna
             ), axis=1
         )
 
-    # Select the columns corresponding to power for each sensor and bandwidth
-    power_columns = df_windowed.filter(like='power_').columns
-
-    # Compute total power by summing the selected columns row-wise
-    df_windowed['total_power'] = df_windowed[power_columns].sum(axis=1)
-
-    print(df_windowed.columns)
-    print(df_windowed['total_power'].shape)
+    # Compute the power summed over the individual frequency bandwidths to obtain the total power
+    df_windowed['total_power'] = compute_power(
+        df=df_windowed,
+        fft_cols=[f'{col}_fft' for col in l_sensor_colnames])
 
     # compute the cepstral coefficients of the total power signal
     cc_cols = generate_cepstral_coefficients(
