@@ -311,6 +311,10 @@ def generate_cepstral_coefficients(
     pd.DataFrame
         A dataframe with a single column corresponding to a single cepstral coefficient
     """
+    # Check for empty or NaN values in the total_power_col
+    if total_power_col.empty or total_power_col.isnull().all():
+        raise ValueError("The total power column is empty or contains only NaN values.")
+
     # Determine window length in samples
     window_length = window_length_s * sampling_frequency
     
@@ -663,6 +667,9 @@ def extract_spectral_domain_features(config, df_windowed, sensor, l_sensor_colna
 
     # Compute total power by summing the selected columns row-wise
     df_windowed['total_power'] = df_windowed[power_columns].sum(axis=1)
+
+    print(df_windowed.columns)
+    print(df_windowed['total_power'].shape)
 
     # compute the cepstral coefficients of the total power signal
     cc_cols = generate_cepstral_coefficients(
