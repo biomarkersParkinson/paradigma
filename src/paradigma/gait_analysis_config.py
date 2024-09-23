@@ -11,6 +11,7 @@ class IMUConfig:
     def __init__(self):
 
         self.time_colname = DataColumns.TIME
+        self.segment_nr_colname = DataColumns.SEGMENT_NR
 
         self.l_accelerometer_cols: List[str] = [
             DataColumns.ACCELEROMETER_X,
