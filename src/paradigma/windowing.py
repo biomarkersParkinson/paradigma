@@ -135,20 +135,20 @@ def discard_segments(df, segment_nr_colname, min_length_segment_s, sampling_freq
     return filtered_df
 
 
-def categorize_segments(df, segment_nr_colname, config):
+def categorize_segments(df, segment_nr_colname, sampling_frequency):
     # Calculate the number of rows corresponding to 5, 10, and 20 seconds
-    short_segments_max = 5 * config.sampling_frequency  # 5 seconds 
-    moderately_long_segments_max = 10 * config.sampling_frequency  # 10 seconds
-    long_segments_max = 20 * config.sampling_frequency  # 20 seconds 
+    short_segments_max_duration = 5 * sampling_frequency  # 5 seconds 
+    moderately_long_segments_max_duration = 10 * sampling_frequency  # 10 seconds
+    long_segments_max_duration = 20 * sampling_frequency  # 20 seconds 
 
     # Group by the segment column and apply the categorization
     def categorize(group):
         segment_size = len(group)
-        if segment_size < short_segments_max:
+        if segment_size < short_segments_max_duration:
             return 1
-        elif segment_size < moderately_long_segments_max:
+        elif segment_size < moderately_long_segments_max_duration:
             return 2
-        elif segment_size < long_segments_max:
+        elif segment_size < long_segments_max_duration:
             return 3
         else:
             return 4
