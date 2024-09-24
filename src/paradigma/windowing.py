@@ -127,7 +127,7 @@ def discard_segments(df, segment_nr_colname, min_length_segment_s, sampling_freq
     valid_segments = segment_sizes[segment_sizes >= min_length_segment_s * sampling_frequency].index
 
     # Filter the DataFrame to retain only valid segments
-    filtered_df = df[df[segment_nr_colname].isin(valid_segments)]
+    filtered_df = df[df[segment_nr_colname].isin(valid_segments)].copy()
 
     # Reset the segment enumeration starting from 1
     filtered_df[segment_nr_colname] = pd.factorize(filtered_df[segment_nr_colname])[0] + 1
@@ -142,8 +142,7 @@ def categorize_segments(df, segment_nr_colname, sampling_frequency):
     long_segments_max_duration = 20 * sampling_frequency  # 20 seconds 
 
     # Group by the segment column and apply the categorization
-    def categorize(group):
-        segment_size = len(group)
+    def categorize(segment_size):
         if segment_size < short_segments_max_duration:
             return 1
         elif segment_size < moderately_long_segments_max_duration:
@@ -154,6 +153,6 @@ def categorize_segments(df, segment_nr_colname, sampling_frequency):
             return 4
 
     # Create the new category column
-    df_segments =  df.groupby(segment_nr_colname).transform(lambda x: categorize(x))
+    segment_sizes = df[segment_nr_colname].value_counts().sort_index()
 
-    return pd.merge(df, df_segments, on=segment_nr_colname)
+    return df[segment_nr_colname].map(segment_sizes).apply(categorize)
