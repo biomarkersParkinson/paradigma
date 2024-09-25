@@ -82,7 +82,7 @@ def tabulate_windows(df, window_size, step_size, time_column_name, single_value_
     return windowed_df[desired_order]
 
 
-def create_segments(df, time_column_name, segment_column_name, gap_threshold_s):
+def create_segments(df, time_column_name, gap_threshold_s):
     """
     Adds a 'segment_nr' column to the dataframe, enumerating segments based on gaps 
     in the specified time column exceeding a given threshold.
@@ -93,7 +93,7 @@ def create_segments(df, time_column_name, segment_column_name, gap_threshold_s):
         gap_threshold (float): The threshold for gaps in seconds.
 
     Returns:
-        pd.DataFrame: The original dataframe with an added 'segment_nr' column.
+        pd.Series: A series of length equal to the input dataframe, containing segment numbers.
     """
     # Calculate the difference between consecutive time values
     time_diff = df[time_column_name].diff().fillna(0.0)
@@ -102,9 +102,18 @@ def create_segments(df, time_column_name, segment_column_name, gap_threshold_s):
     gap_exceeds = time_diff > gap_threshold_s
 
     # Create the segment number based on the cumulative sum of the gap_exceeds mask
-    df[segment_column_name] = gap_exceeds.cumsum() + 1  # +1 to start enumeration from 1
+    segments_series = gap_exceeds.cumsum() + 1  # +1 to start enumeration from 1
 
-    return df[segment_column_name]
+    return segments_series
+
+
+def create_segment_df(df, time_column_name, segment_nr_colname):
+    df_segment_times = df.groupby(segment_nr_colname)[time_column_name].agg(
+        time_start='min',  # Start time (min time in each segment)
+        time_end='max'     # End time (max time in each segment)
+    ).reset_index()
+
+    return df_segment_times
 
 
 def discard_segments(df, segment_nr_colname, min_length_segment_s, sampling_frequency):
