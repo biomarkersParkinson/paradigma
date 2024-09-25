@@ -461,7 +461,7 @@ def extract_angle_extremes(
     )
     df[f'{angle_colname}_minima'] = df.apply(
         lambda row: find_peaks([-x for x in row[angle_colname]], 
-                               distance=sampling_frequency * 0.6 / x[dominant_frequency_colname], 
+                               distance=sampling_frequency * 0.6 / row[dominant_frequency_colname], 
                                prominence=2)[0], axis=1
     ) 
 
