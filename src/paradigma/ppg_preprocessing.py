@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 import tsdf
 from paradigma.constants import DataUnits, TimeUnit, DataColumns
 from paradigma.preprocessing_config import PPGPreprocessingConfig, IMUPreprocessingConfig
-from paradigma.util import parse_iso8601_to_datetime, write_data
+from paradigma.util import parse_iso8601_to_datetime, write_df_data
 import paradigma.imu_preprocessing
 
 
@@ -144,14 +144,14 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
     metadata_samples_imu.file_name = 'accelerometer_samples.bin'
     metadata_time_imu.units = [TimeUnit.ABSOLUTE_MS]
     metadata_time_imu.file_name = 'accelerometer_time.bin'
-    write_data(metadata_time_imu, metadata_samples_imu, output_path, 'accelerometer_meta.json', df_imu_proc)
+    write_df_data(metadata_time_imu, metadata_samples_imu, output_path, 'accelerometer_meta.json', df_imu_proc)
 
     metadata_samples_ppg.channels = list(ppg_config.d_channels_ppg.keys())
     metadata_samples_ppg.units = list(ppg_config.d_channels_ppg.values())
     metadata_samples_ppg.file_name = 'PPG_samples.bin'
     metadata_time_ppg.units = [TimeUnit.ABSOLUTE_MS]
     metadata_time_ppg.file_name = 'PPG_time.bin'
-    write_data(metadata_time_ppg, metadata_samples_ppg, output_path, 'PPG_meta.json', df_ppg_proc)
+    write_df_data(metadata_time_ppg, metadata_samples_ppg, output_path, 'PPG_meta.json', df_ppg_proc)
 
 
 # TODO: ideally something like this should be possible directly in the tsdf library

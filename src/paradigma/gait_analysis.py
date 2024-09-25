@@ -15,7 +15,7 @@ from paradigma.feature_extraction import extract_temporal_domain_features, \
     extract_peak_angular_velocity, signal_to_ffts, get_dominant_frequency, compute_perc_power
 from paradigma.quantification import aggregate_segments
 from paradigma.windowing import tabulate_windows, create_segments, discard_segments
-from paradigma.util import get_end_iso8601, write_data, read_metadata
+from paradigma.util import get_end_iso8601, write_df_data, read_metadata
 
 
 def extract_gait_features(input_path: Union[str, Path], output_path: Union[str, Path], config: GaitFeatureExtractionConfig) -> None:
@@ -56,7 +56,7 @@ def extract_gait_features(input_path: Union[str, Path], output_path: Union[str, 
     metadata_time.units = ['relative_time_ms']
     metadata_time.data_type = np.int64
 
-    write_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df_windowed)
+    write_df_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df_windowed)
 
 
 def detect_gait(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: GaitDetectionConfig) -> None:
@@ -97,7 +97,7 @@ def detect_gait(input_path: Union[str, Path], output_path: Union[str, Path], pat
     metadata_time.data_type = np.int32
     metadata_time.bits = 32
 
-    write_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df)
+    write_df_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df)
 
 
 def extract_arm_swing_features(input_path: Union[str, Path], output_path: Union[str, Path], config: ArmSwingFeatureExtractionConfig) -> None:
@@ -280,7 +280,7 @@ def extract_arm_swing_features(input_path: Union[str, Path], output_path: Union[
     metadata_time.data_type = np.int32
     metadata_time.bits = 32
 
-    write_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df_windowed)
+    write_df_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df_windowed)
 
 
 def detect_arm_swing(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: ArmSwingDetectionConfig) -> None:
@@ -322,7 +322,7 @@ def detect_arm_swing(input_path: Union[str, Path], output_path: Union[str, Path]
     metadata_time.data_type = np.int32
     metadata_time.bits = 32
 
-    write_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df)
+    write_df_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df)
 
 
 def quantify_arm_swing(path_to_feature_input: Union[str, Path], path_to_prediction_input: Union[str, Path], output_path: Union[str, Path], config: ArmSwingQuantificationConfig) -> None:
@@ -407,7 +407,7 @@ def quantify_arm_swing(path_to_feature_input: Union[str, Path], path_to_predicti
     metadata_time.data_type = np.int32
     metadata_time.bits = 32
 
-    write_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df_aggregates)
+    write_df_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df_aggregates)
 
 
 def aggregate_weekly_arm_swing():

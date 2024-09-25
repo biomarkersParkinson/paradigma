@@ -25,6 +25,19 @@ class DataColumns():
     ANGLE_SMOOTH : str = "angle_smooth"
     VELOCITY : str = "velocity"
     SEGMENT_NR : str = "segment_nr"
+
+    # Constants for PPG features
+    VARIANCE: str = "variance"
+    MEAN: str = "mean"
+    MEDIAN: str = "median"
+    KURTOSIS: str = "kurtosis"
+    SKEWNESS: str = "skewness"
+    DOMINANT_FREQUENCY: str = "dominant_frequency"
+    RELATIVE_POWER: str = "relative_power"
+    SPECTRAL_ENTROPY: str = "spectral_entropy"
+    SIGNAL_NOISE_RATIO: str = "signal_noise_ratio"
+    SECOND_HIGHEST_PEAK: str = "second_highest_peak"
+    POWER_RATIO: str = "power_ratio"
     
 @dataclass(frozen=True)
 class DataUnits():

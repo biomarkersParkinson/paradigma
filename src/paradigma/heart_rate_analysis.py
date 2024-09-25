@@ -1,4 +1,3 @@
-from typing import List
 import numpy as np
 from scipy.signal import welch
 from sklearn.preprocessing import StandardScaler
@@ -8,8 +7,8 @@ import tsdf
 import tsdf.constants
 from paradigma.heart_rate_analysis_config import HeartRateFeatureExtractionConfig
 from paradigma.heart_rate_util import extract_ppg_features, calculate_power_ratio, read_PPG_quality_classifier
-from paradigma.util import read_metadata, write_data, get_end_iso8601
-from paradigma.constants import DataColumns, UNIX_TICKS_MS
+from paradigma.util import read_metadata, write_np_data
+from paradigma.constants import DataColumns, UNIX_TICKS_MS, DataUnits, TimeUnit
 
 
 def extract_signal_quality_features(input_path: str, classifier_path: str, output_path: str, config: HeartRateFeatureExtractionConfig) -> None:
@@ -82,24 +81,19 @@ def extract_signal_quality_features(input_path: str, classifier_path: str, outpu
         features_ppg_scaled.append(scaler.transform(features)[0])
 
         # Calculating PSD (power spectral density) of IMU and PPG
-        #hann(pwelchwin_acc)
-        #hann(pwelchwin_ppg)
-        print(pwelchwin_acc, noverlap_acc, len(nfft_acc))
         f1, pxx1 = welch(acc_segment, sampling_frequency_imu, window='hann', nperseg=pwelchwin_acc, noverlap=None, nfft=len(nfft_acc))
-        PSD_imu = np.sum(pxx1, axis=1)  # sum over the three axes
+        PSD_imu = np.sum(pxx1, axis=0)  # sum over the three axes
         f2, pxx2 = welch(ppg_segment, sampling_frequency_ppg, window='hann', nperseg=pwelchwin_ppg, noverlap=None, nfft=len(nfft_ppg))
         PSD_ppg = np.sum(pxx2)  # this does nothing, equal to PSD_ppg = pxx2
 
         # IMU feature extraction
-        print(f1.shape, f2.shape)
         feature_acc.append(calculate_power_ratio(f1, PSD_imu, f2, PSD_ppg))  # Calculate the power ratio of the accelerometer signal in the PPG frequency range
 
         # time channel
-        t_unix_feat_total.append((relative_time_ppg[i] + ppg_start_time) * UNIX_TICKS_MS)  # Save in absolute unix time ms
+        t_unix_feat_total.append((relative_time_ppg[i] + ppg_start_time.timestamp()) * UNIX_TICKS_MS)  # Save in absolute unix time ms
         acc_idx += samples_shift_acc  # update IMU_idx
 
     # Convert lists to numpy arrays
-    print(features_ppg_scaled[0:4])
     features_ppg_scaled = np.array(features_ppg_scaled)
     feature_acc = np.array(feature_acc)
     t_unix_feat_total = np.array(t_unix_feat_total)
@@ -113,15 +107,43 @@ def extract_signal_quality_features(input_path: str, classifier_path: str, outpu
     #     count  # Number of epochs in the segment
     # ])
 
-    metadata_features_ppg = metadata_samples_ppg.copy()
-    metadata_features_ppg.channels = ["variance", "mean", "median", "kurtosis", "skewness", "dominant_frequency", "relative_power", "spectral_entropy", "signal_noise_ratio", "second_highest_peak"]
-    metadata_features_acc = metadata_samples_acc.copy()
-    metadata_features_acc.channels = ["power_ratio"]
-    metadata_time_ppg = metadata_time_ppg.copy()
-    metadata_time_ppg.channels = ["time"]
-    metadata_time_acc = metadata_time_acc.copy()
-    metadata_time_acc.channels = ["time"]
+    metadata_features_ppg = metadata_samples_ppg
+    metadata_features_ppg.channels = [
+    DataColumns.VARIANCE,
+    DataColumns.MEAN,
+    DataColumns.MEDIAN,
+    DataColumns.KURTOSIS,
+    DataColumns.SKEWNESS,
+    DataColumns.DOMINANT_FREQUENCY,
+    DataColumns.RELATIVE_POWER,
+    DataColumns.SPECTRAL_ENTROPY,
+    DataColumns.SIGNAL_NOISE_RATIO,
+    DataColumns.SECOND_HIGHEST_PEAK
+]
+    metadata_features_ppg.units = [
+    DataUnits.NONE,  # variance
+    DataUnits.NONE,  # mean
+    DataUnits.NONE,  # median
+    DataUnits.NONE,  # kurtosis
+    DataUnits.NONE,  # skewness
+    DataUnits.FREQUENCY,  # dominant_frequency (measured in Hz)
+    DataUnits.NONE,  # relative_power (unitless measure)
+    DataUnits.NONE,  # spectral_entropy (unitless measure)
+    DataUnits.NONE,  # signal_noise_ratio (unitless measure)
+    DataUnits.NONE   # second_highest_peak (depends on the feature, assume no unit)
+]
+    metadata_time_ppg.channels = [DataColumns.TIME]
+    metadata_time_ppg.units = [TimeUnit.RELATIVE_MS]
+    
+    metadata_features_acc = metadata_samples_acc
+    metadata_features_acc.channels = [DataColumns.POWER_RATIO]
+    metadata_features_acc.units = [DataUnits.NONE]
 
-    write_data(metadata_time_ppg, metadata_features_ppg, output_path, 'features_ppg_meta.json', features_ppg_scaled)
-    write_data(metadata_time_acc, metadata_features_acc, output_path, 'feature_acc_meta.json', feature_acc)
+    metadata_time_acc.channels = [DataColumns.TIME]
+    metadata_time_acc.units = [TimeUnit.RELATIVE_MS]
+
+    write_np_data(metadata_time_ppg, t_unix_feat_total, metadata_features_ppg, 
+                  features_ppg_scaled, output_path, 'features_ppg_meta.json')
+    write_np_data(metadata_time_acc, t_unix_feat_total, metadata_features_acc,
+                  feature_acc, output_path, 'feature_acc_meta.json')
 
