@@ -460,7 +460,7 @@ def extract_angle_extremes(
                                prominence=2)[0], axis=1
     )
     df[f'{angle_colname}_minima'] = df.apply(
-        lambda row: find_peaks([-x for x in row[angle_colname]], 
+        lambda row: find_peaks([-row[angle_colname]], 
                                distance=sampling_frequency * 0.6 / row[dominant_frequency_colname], 
                                prominence=2)[0], axis=1
     ) 
@@ -491,8 +491,8 @@ def extract_angle_extremes(
     # Apply refinement to each row
     for index, row in df.iterrows():
         minima, maxima = refine_extrema(row[f'{angle_colname}_new_minima'], row[f'{angle_colname}_new_maxima'], row[angle_colname])
-        df.at[index, f'{angle_colname}_new_minima'] = minima
-        df.at[index, f'{angle_colname}_new_maxima'] = maxima
+        df.loc[index, f'{angle_colname}_new_minima'] = minima
+        df.loc[index, f'{angle_colname}_new_maxima'] = maxima
     
     # Ensure scalar values are converted to lists
     df[f'{angle_colname}_new_minima'] = df[f'{angle_colname}_new_minima'].apply(lambda x: [x] if isinstance(x, int) else x)
@@ -500,7 +500,7 @@ def extract_angle_extremes(
 
     # Combine and sort minima and maxima
     df[f'{angle_colname}_extrema_values'] = df.apply(
-        lambda row: [row[angle_colname][i] for i in sorted(np.concatenate([row[f'{angle_colname}_new_minima'], row['fa{angle_colname}new_maxima']]))], axis=1
+        lambda row: [row[angle_colname][i] for i in sorted(np.concatenate([row[f'{angle_colname}_new_minima'], row[f'{angle_colname}new_maxima']]))], axis=1
     )
 
     return df[f'{angle_colname}_extrema_values']
