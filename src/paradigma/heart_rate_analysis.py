@@ -108,6 +108,7 @@ def extract_signal_quality_features(input_path: str, classifier_path: str, outpu
     # ])
 
     metadata_features_ppg = metadata_samples_ppg
+    metadata_features_ppg.file_name = "features_ppg_samples.bin"
     metadata_features_ppg.channels = [
     DataColumns.VARIANCE,
     DataColumns.MEAN,
@@ -132,13 +133,17 @@ def extract_signal_quality_features(input_path: str, classifier_path: str, outpu
     DataUnits.NONE,  # signal_noise_ratio (unitless measure)
     DataUnits.NONE   # second_highest_peak (depends on the feature, assume no unit)
 ]
+    metadata_time_ppg.file_name = "features_ppg_time.bin"
     metadata_time_ppg.channels = [DataColumns.TIME]
     metadata_time_ppg.units = [TimeUnit.RELATIVE_MS]
     
+    
     metadata_features_acc = metadata_samples_acc
+    metadata_features_acc.file_name = "features_acc_samples.bin"
     metadata_features_acc.channels = [DataColumns.POWER_RATIO]
     metadata_features_acc.units = [DataUnits.NONE]
 
+    metadata_time_acc.file_name = "features_acc_time.bin"
     metadata_time_acc.channels = [DataColumns.TIME]
     metadata_time_acc.units = [TimeUnit.RELATIVE_MS]
 
