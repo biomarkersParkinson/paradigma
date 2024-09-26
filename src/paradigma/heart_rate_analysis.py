@@ -4,6 +4,9 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from dateutil import parser
 
+from datetime import datetime
+import os
+
 import tsdf
 import tsdf.constants
 from paradigma.heart_rate_analysis_config import HeartRateFeatureExtractionConfig
@@ -174,15 +177,16 @@ def signal_quality_classification(input_path: str, classifier_path: str, output_
     arr_sigma = clf['sigma'][:, 0]
 
     # Load preprocessed features and scaling model (assuming these are passed in or processed earlier)
-    features_ppg_scaled = np.load(f"{path_to_quality_features}/features_ppg_scaled.npy")
-    feature_acc = np.load(f"{path_to_quality_features}/feature_acc.npy")
-    t_unix_feat_total = np.load(f"{path_to_quality_features}/t_unix_feat_total.npy")
-    v_sync_ppg_total = np.load(f"{path_to_quality_features}/v_sync_ppg_total.npy")
+    # This is auto generated code to import the inputs (we already imported the inputs), this is here just to show the names used
+    features_ppg_scaled = np.load(f"path_to_quality_features/features_ppg_scaled.npy")
+    feature_acc = np.load(f"path_to_quality_features/feature_acc.npy")
+    t_unix_feat_total = np.load(f"path_to_quality_features/t_unix_feat_total.npy")
+    v_sync_ppg_total = np.load(f"path_to_quality_features/v_sync_ppg_total.npy")
 
     threshold_acc = 0.13  # Final threshold
 
     # Calculate posterior probability using Logistic Regression (scikit-learn)
-    ppg_post_prob = classifier.predict_proba(features_ppg_scaled)
+    ppg_post_prob = lr_model.predict_proba(features_ppg_scaled)
     ppg_post_prob_HQ = ppg_post_prob[:, 0]
 
     # IMU classification based on threshold
@@ -253,11 +257,3 @@ def signal_quality_classification(input_path: str, classifier_path: str, output_
 
     # Save the data and metadata
     save_tsdf_data(meta_class, data_class, path_to_signal_quality, mat_metadata_file_name)
-
-# Placeholder function to load the logistic regression model
-def load_classifier(quality_classifier_path):
-    # Load your pre-trained Logistic Regression model (sklearn compatible)
-    # Assuming it is pickled and saved as a .pkl file
-    import joblib
-    classifier = joblib.load(quality_classifier_path)
-    return classifier
