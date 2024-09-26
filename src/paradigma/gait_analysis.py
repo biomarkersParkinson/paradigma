@@ -413,3 +413,38 @@ def quantify_arm_swing(path_to_feature_input: Union[str, Path], path_to_predicti
 def aggregate_weekly_arm_swing():
     pass
 
+def resample_data(input_path: Union[str, Path], output_path: Union[str, Path]) -> None:
+    """
+    Resample the gait data per minute (instead of second).
+
+    Parameters
+    ----------
+    input_path : Union[str, Path]
+        The path to the input data.
+    output_path : Union[str, Path]
+        The path to the output data.
+    """
+
+    # Load the data
+    metadata_time, metadata_samples = read_metadata(input_path, 'gait_meta.json', 'gait_time.bin', 'gait_values.bin')
+    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+
+    # Resample the data per minute (instead of second)
+    df['group'] = (df.index // 60).astype(int)
+    df_aggregated = df.groupby('group').mean()
+
+    # Prepare the metadata
+    metadata_samples.file_name = 'gait_by_minute_values.bin'
+    metadata_time.file_name = 'gait_by_minute_time.bin'
+
+    metadata_samples.channels = ['grav_accelerometer_x_mean']
+    metadata_samples.units = ['m/s^2']
+    metadata_samples.data_type = np.float32
+    metadata_samples.bits = 32
+
+    metadata_time.channels = ['time']
+    metadata_time.units = ['relative_time_ms']
+    metadata_time.data_type = np.int32
+    metadata_time.bits = 32
+
+    write_data(metadata_time, metadata_samples, output_path, 'gait_by_minute_meta.json', df_aggregated)

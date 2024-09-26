@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from paradigma.gait_analysis import detect_arm_swing, detect_gait, extract_arm_swing_features, extract_gait_features, quantify_arm_swing
+from paradigma.gait_analysis import resample_data
 from paradigma.gait_analysis_config import ArmSwingDetectionConfig, ArmSwingFeatureExtractionConfig, ArmSwingQuantificationConfig, GaitDetectionConfig, GaitFeatureExtractionConfig
 from paradigma.imu_preprocessing import preprocess_imu_data
 from paradigma.preprocessing_config import IMUPreprocessingConfig
@@ -143,3 +144,20 @@ def test_6_arm_swing_quantification_output(shared_datadir: Path):
     config = ArmSwingQuantificationConfig()
     quantify_arm_swing(path_to_feature_input, path_to_prediction_input, tested_output_path, config)
     compare_data(reference_output_path, tested_output_path, arm_swing_binaries_pairs)
+
+
+def test_resampling(shared_datadir: Path):
+
+    # Temporary path to store the output of the notebook
+    path_to_input_data = shared_datadir / "3.extracted_features" / "gait"
+    reference_output_path = path_to_input_data
+    tested_output_path = reference_output_path / "test-output"
+
+    resample_data(path_to_input_data, tested_output_path)
+
+    binaries_pairs = [
+        ("gait_by_minute_meta.json", "gait_by_minute_time.bin"),
+        ("gait_by_minute_meta.json", "gait_by_minute_values.bin"),
+    ]
+    compare_data(reference_output_path, tested_output_path, binaries_pairs)
+    
