@@ -477,6 +477,7 @@ def extract_angle_extremes(
                         if df.loc[index, angle_colname][df.loc[index, f'{angle_colname}_new_maxima'][i_pks]] < df.loc[index, angle_colname][df.loc[index, f'{angle_colname}_new_maxima'][i_pks-1]]:
                             df.at[index, f'{angle_colname}_new_maxima'] = np.delete(df.loc[index, f'{angle_colname}_new_maxima'], i_pks) 
                         else:
+                            print(f"HERE: {np.delete(df.loc[index, f'{angle_colname}_new_maxima'], i_pks-1)}")
                             df.at[index, f'{angle_colname}_new_maxima'] = np.delete(df.loc[index, f'{angle_colname}_new_maxima'], i_pks-1) 
                         i_pks -= 1
                     i_pks += 1

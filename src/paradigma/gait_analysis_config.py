@@ -189,7 +189,7 @@ class ArmSwingFeatureExtractionConfig(IMUConfig):
             self.l_accelerometer_cols
             + self.l_gyroscope_cols
             + self.l_gravity_cols
-            + [self.angle_smooth_colname, self.velocity_colname]
+            + [self.angle_colname, self.velocity_colname]
         )
 
     def __init__(self) -> None:
