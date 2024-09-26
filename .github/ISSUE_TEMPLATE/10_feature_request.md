@@ -17,4 +17,4 @@ assignees: ''
 A clear and concise description of the feature you're proposing.
 
 **Problem and Motivation**
-Please describe the problem you are facing or the limitation with the current setup. Explain the motivation behind this feature request. For example, "I'm always frustrated when [...]."
+Please describe the problem you are facing or the limitation with the current setup. Explain the motivation behind this feature request.

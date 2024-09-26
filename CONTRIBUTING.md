@@ -73,20 +73,9 @@ Please follow the coding standards and conventions outlined below when contribut
 1. **Use PEP 8 for Python code**: We follow the [PEP 8](https://www.python.org/dev/peps/pep-0008/) style guide for Python code. You can use tools like `black` to help enforce this.
 
 2. **Naming Conventions**:
-   - Function names: `snake_case`.
-   - Class names: `PascalCase`.
-   - Constants: `UPPER_CASE_WITH_UNDERSCORES`.
-
-## Code Style Guide
-
-Please follow the coding standards and conventions outlined below when contributing to this project.
-
-1. **Use PEP 8 for Python code**: We follow the [PEP 8](https://www.python.org/dev/peps/pep-0008/) style guide for Python code. You can use tools like `black` to help enforce this.
-
-2. **Naming Conventions**:
-   - Function names: `snake_case`.
-   - Class names: `PascalCase`.
-   - Constants: `UPPER_CASE_WITH_UNDERSCORES`.
+   * Function names: `snake_case`.
+   * Class names: `PascalCase`.
+   * Constants: `UPPER_CASE_WITH_UNDERSCORES`.
 
 3. **Docstrings**: All public methods, functions, and classes should have clear and complete docstrings. We use the [NumPy docstring style guide](https://numpydoc.readthedocs.io/en/latest/format.html) for consistency. Here is an example:
 
