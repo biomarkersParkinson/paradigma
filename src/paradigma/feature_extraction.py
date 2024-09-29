@@ -434,100 +434,83 @@ def extract_angle_extremes(
         dominant_frequency_colname: str,
         sampling_frequency: int = 100,
     ) -> pd.DataFrame:
-    """Extract the peaks of the angle (minima and maxima) from the smoothed angle signal that adhere to a set of specific requirements.
+    """Extract the peaks of the angle (minima and maxima) from the smoothed angle signal.
     
     Parameters
     ----------
     df: pd.DataFrame
-        The dataframe containing the angle signal
+        The DataFrame containing the angle signal.
     angle_colname: str
-        The name of the column containing the smoothed angle signal
+        The name of the column containing the smoothed angle signal.
     dominant_frequency_colname: str
-        The name of the column containing the dominant frequency
+        The name of the column containing the dominant frequency.
     sampling_frequency: int
-        The sampling frequency of the data (default: 100)
+        The sampling frequency of the data (default: 100).
 
     Returns
     -------
     pd.DataFrame
-        The dataframe with peaks extracted from the angle signal.
+        The DataFrame with peaks extracted from the angle signal.
     """
-    # determine peaks
+    
+    # Helper function to find peaks
+    def find_peaks_within_bounds(signal_data, distance):
+        peaks, _ = signal.find_peaks(signal_data, distance=distance, prominence=0.5)
+        return peaks.tolist()
+
+    # Calculate peak distances based on sampling frequency and dominant frequency
     df[f'{angle_colname}_maxima'] = df.apply(
-        lambda x: signal.find_peaks(
-            x[angle_colname], 
-            distance=sampling_frequency * 0.6 / x[dominant_frequency_colname], 
-            prominence=0.5
-            )[0].tolist(),
-            axis=1
+        lambda x: find_peaks_within_bounds(x[angle_colname], sampling_frequency * 0.6 / x[dominant_frequency_colname]), axis=1
     )
     df[f'{angle_colname}_minima'] = df.apply(
-        lambda x: signal.find_peaks(
-            [-x for x in x[angle_colname]], 
-            distance=sampling_frequency * 0.6 / x[dominant_frequency_colname], 
-            prominence=0.5)[0].tolist(),
-            axis=1
-        ) 
-    
+        lambda x: find_peaks_within_bounds([-v for v in x[angle_colname]], sampling_frequency * 0.6 / x[dominant_frequency_colname]), axis=1
+    )
+
+    # Initialize new extrema columns
     for extrema in ['minima', 'maxima']:
         df[f'{angle_colname}_new_{extrema}'] = df[f'{angle_colname}_{extrema}'].apply(lambda x: x if isinstance(x, list) else [x])
-        # df[f'{angle_colname}_new_{extrema}'] = df[f'{angle_colname}_new_{extrema}'].astype(object)
     
-    for index, _ in df.iterrows():
-        i_pks = 0                                       # iterable to keep track of consecutive min-min and max-max versus min-max
-        minima_list = df.at[index, f'{angle_colname}_new_minima']
-        maxima_list = df.at[index, f'{angle_colname}_new_maxima']
+    # Function to process minima and maxima
+    def process_extrema(row):
+        minima = row[f'{angle_colname}_new_minima']
+        maxima = row[f'{angle_colname}_new_maxima']
+        
+        # Process consecutive extrema
+        i = 0
+        while i < min(len(minima), len(maxima)):
+            # Check for consecutive minima
+            if i < len(minima) - 1 and minima[i + 1] < maxima[i]:
+                if row[angle_colname][minima[i + 1]] < row[angle_colname][minima[i]]:
+                    minima.pop(i)  # Remove the first minimum
+                else:
+                    minima.pop(i + 1)  # Remove the second minimum
+            # Check for consecutive maxima
+            elif i > 0 and minima[i] > maxima[i]:
+                if row[angle_colname][maxima[i]] < row[angle_colname][maxima[i - 1]]:
+                    maxima.pop(i)  # Remove current maxima
+                else:
+                    maxima.pop(i - 1)  # Remove previous maxima
+            i += 1
+        
+        return pd.Series({
+            f'{angle_colname}_new_minima': minima,
+            f'{angle_colname}_new_maxima': maxima
+        })
 
-        if minima_list and maxima_list: 
-            if minima_list[0] < maxima_list[0]: # if first minimum occurs before first maximum, start with minimum
-                while i_pks < len(minima_list) - 1 and i_pks < len(maxima_list): # only continue if there's enough minima and maxima to perform operations
-                    if minima_list[i_pks + 1] < maxima_list[i_pks]: # if angle of next minimum comes before the current maxima, we have two minima in a row
-                        if df.at[index, angle_colname][minima_list[i_pks + 1]] < df.at[index, angle_colname][minima_list[i_pks]]: 
-                            # Remove the first minimum
-                            minima_list = np.delete(minima_list, i_pks).tolist()
-                        else:
-                            # Remove the second minimum
-                            minima_list = np.delete(minima_list, i_pks + 1).tolist()
-                        df.at[index, f'{angle_colname}_new_minima'] = minima_list
-                        i_pks -= 1
-                    if i_pks >= 0 and minima_list[i_pks] > maxima_list[i_pks]:
-                        if df.at[index, angle_colname][maxima_list[i_pks]] < df.at[index, angle_colname][maxima_list[i_pks - 1]]:
-                            maxima_list = np.delete(maxima_list, i_pks).tolist()
-                        else:
-                            maxima_list = np.delete(maxima_list, i_pks - 1).tolist()
-                        df.at[index, f'{angle_colname}_new_maxima'] = maxima_list
-                        i_pks -= 1
-                    i_pks += 1
+    # Apply the processing function to each row
+    new_extrema = df.apply(process_extrema, axis=1)
+    df[f'{angle_colname}_new_minima'] = new_extrema[f'{angle_colname}_new_minima']
+    df[f'{angle_colname}_new_maxima'] = new_extrema[f'{angle_colname}_new_maxima']
 
-            else: # if the first maximum occurs before the first minimum, start with the maximum
-                while i_pks < len(minima_list) and i_pks < len(maxima_list) - 1:
-                    if minima_list[i_pks] > maxima_list[i_pks + 1]:
-                        if df.at[index, angle_colname][maxima_list[i_pks + 1]] > df.at[index, angle_colname][maxima_list[i_pks]]:
-                            maxima_list = np.delete(maxima_list, i_pks).tolist()
-                        else:
-                            maxima_list = np.delete(maxima_list, i_pks + 1).tolist()
-                        df.at[index, f'{angle_colname}_new_maxima'] = maxima_list
-                        i_pks -= 1
-                    if i_pks > 0 and minima_list[i_pks] < maxima_list[i_pks]:
-                        if df.at[index, angle_colname][minima_list[i_pks]] < df.at[index, angle_colname][minima_list[i_pks - 1]]:
-                            minima_list = np.delete(minima_list, i_pks - 1).tolist()
-                        else:
-                            minima_list = np.delete(minima_list, i_pks).tolist()
-                            df.at[index, f'{angle_colname}_new_minima'] = minima_list if isinstance(minima_list, list) else [minima_list]
-                        df.at[index, f'{angle_colname}_new_minima'] = minima_list
-                        i_pks -= 1
-                    i_pks += 1
-
-    # for some peculiar reason, if a single item remains in the row for {angle_colname}_new_minima or
-    # angle_new_maxima, it could be either a scalar or a vector.
+    # Ensure lists for single items
     for col in [f'{angle_colname}_new_minima', f'{angle_colname}_new_maxima']:
         df[col] = df[col].apply(lambda x: [x] if not isinstance(x, list) else x)
 
-    # extract amplitude
+    # Extract amplitude values
     df[f'{angle_colname}_extrema_values'] = df.apply(
         lambda x: [x[angle_colname][i] for i in sorted(x[f'{angle_colname}_new_minima'] + x[f'{angle_colname}_new_maxima'])],
         axis=1
-    ) 
+    )
 
     return df
 
