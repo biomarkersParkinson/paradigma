@@ -470,11 +470,15 @@ def extract_angle_extremes(
     for extrema in ['minima', 'maxima']:
         df[f'{angle_colname}_{extrema}'] = df[f'{angle_colname}_{extrema}'].apply(lambda x: x if isinstance(x, list) else x.tolist())
         df[f'{angle_colname}_new_{extrema}'] = df[f'{angle_colname}_{extrema}'].copy()
+        df[f'{angle_colname}_new_{extrema}'] = df[f'{angle_colname}_new_{extrema}'].astype(object)
+    
 
     for index, _ in df.iterrows():
         i_pks = 0                                       # iterable to keep track of consecutive min-min and max-max versus min-max
         n_min = len(df.loc[index, f'{angle_colname}_new_minima'])  # number of minima in window
         n_max = len(df.loc[index, f'{angle_colname}_new_maxima'])  # number of maxima in window
+
+        
 
         if n_min > 0 and n_max > 0: 
             if df.loc[index, f'{angle_colname}_new_maxima'][0] > df.loc[index, f'{angle_colname}_new_minima'][0]: # if first minimum occurs before first maximum, start with minimum
