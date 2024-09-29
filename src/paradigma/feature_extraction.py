@@ -470,70 +470,51 @@ def extract_angle_extremes(
         ) 
     
     for extrema in ['minima', 'maxima']:
-        df[f'{angle_colname}_{extrema}'] = df[f'{angle_colname}_{extrema}'].apply(lambda x: x if isinstance(x, list) else x.tolist())
-        df[f'{angle_colname}_new_{extrema}'] = df[f'{angle_colname}_{extrema}'].copy()
-        df[f'{angle_colname}_new_{extrema}'] = df[f'{angle_colname}_new_{extrema}'].astype(object)
+        df[f'{angle_colname}_new_{extrema}'] = df[f'{angle_colname}_{extrema}'].apply(lambda x: x if isinstance(x, list) else [x])
+        # df[f'{angle_colname}_new_{extrema}'] = df[f'{angle_colname}_new_{extrema}'].astype(object)
     
-
     for index, _ in df.iterrows():
         i_pks = 0                                       # iterable to keep track of consecutive min-min and max-max versus min-max
-        n_min = len(df.loc[index, f'{angle_colname}_new_minima'])  # number of minima in window
-        n_max = len(df.loc[index, f'{angle_colname}_new_maxima'])  # number of maxima in window
+        minima_list = df.at[index, f'{angle_colname}_new_minima']
+        maxima_list = df.at[index, f'{angle_colname}_new_maxima']
 
-        
-
-        if n_min > 0 and n_max > 0: 
-            if df.loc[index, f'{angle_colname}_new_maxima'][0] > df.loc[index, f'{angle_colname}_new_minima'][0]: # if first minimum occurs before first maximum, start with minimum
-                while i_pks < n_min - 1 and i_pks < n_max: # only continue if there's enough minima and maxima to perform operations
-                    minima_list = df.at[index, f'{angle_colname}_new_minima']
-                    minima_list if isinstance(minima_list, list) else [minima_list]
-                    maxima_list = df.at[index, f'{angle_colname}_new_maxima']
-                    maxima_list if isinstance(maxima_list, list) else [maxima_list]
-                    if minima_list[i_pks+1] < maxima_list[i_pks]: # if angle of next minimum comes before the current maxima, we have two minima in a row
-                        if df.loc[index, angle_colname][minima_list[i_pks+1]] < df.loc[index, angle_colname][minima_list[i_pks]]: # if second minimum if smaller than first, keep second
+        if minima_list and maxima_list: 
+            if minima_list[0] < maxima_list[0]: # if first minimum occurs before first maximum, start with minimum
+                while i_pks < len(minima_list) - 1 and i_pks < len(maxima_list): # only continue if there's enough minima and maxima to perform operations
+                    if minima_list[i_pks + 1] < maxima_list[i_pks]: # if angle of next minimum comes before the current maxima, we have two minima in a row
+                        if df.at[index, angle_colname][minima_list[i_pks + 1]] < df.at[index, angle_colname][minima_list[i_pks]]: 
                             # Remove the first minimum
                             minima_list = np.delete(minima_list, i_pks).tolist()
-                            df.at[index, f'{angle_colname}_new_minima'] = minima_list if isinstance(minima_list, list) else [minima_list]
                         else:
                             # Remove the second minimum
                             minima_list = np.delete(minima_list, i_pks + 1).tolist()
-                            df.at[index, f'{angle_colname}_new_minima'] = minima_list if isinstance(minima_list, list) else [minima_list]
-                        n_min -= 1
+                        df.at[index, f'{angle_colname}_new_minima'] = minima_list
                         i_pks -= 1
                     if i_pks >= 0 and minima_list[i_pks] > maxima_list[i_pks]:
-                        if df.loc[index, angle_colname][maxima_list[i_pks]] < df.loc[index, angle_colname][maxima_list[i_pks-1]]:
+                        if df.at[index, angle_colname][maxima_list[i_pks]] < df.at[index, angle_colname][maxima_list[i_pks - 1]]:
                             maxima_list = np.delete(maxima_list, i_pks).tolist()
-                            df.at[index, f'{angle_colname}_new_maxima'] = maxima_list if isinstance(maxima_list, list) else [maxima_list]
                         else:
                             maxima_list = np.delete(maxima_list, i_pks - 1).tolist()
-                            df.at[index, f'{angle_colname}_new_maxima'] = maxima_list if isinstance(maxima_list, list) else [maxima_list]
-                        n_max -= 1
+                        df.at[index, f'{angle_colname}_new_maxima'] = maxima_list
                         i_pks -= 1
                     i_pks += 1
 
-            elif df.loc[index, f'{angle_colname}_new_maxima'][0] < df.loc[index, f'{angle_colname}_new_minima'][0]: # if the first maximum occurs before the first minimum, start with the maximum
-                while i_pks < len(df.loc[index, f'{angle_colname}_new_minima']) and i_pks < len(df.loc[index, f'{angle_colname}_new_maxima'])-1:
-                    minima_list = df.at[index, f'{angle_colname}_new_minima']
-                    minima_list if isinstance(minima_list, list) else [minima_list]
-                    maxima_list = df.at[index, f'{angle_colname}_new_maxima']
-                    maxima_list if isinstance(maxima_list, list) else [maxima_list]
-                    if minima_list[i_pks] > maxima_list[i_pks+1]:
-                        if df.loc[index, angle_colname][maxima_list[i_pks+1]] > df.loc[index, angle_colname][maxima_list[i_pks]]:
+            else: # if the first maximum occurs before the first minimum, start with the maximum
+                while i_pks < len(minima_list) and i_pks < len(maxima_list) - 1:
+                    if minima_list[i_pks] > maxima_list[i_pks + 1]:
+                        if df.at[index, angle_colname][maxima_list[i_pks + 1]] > df.at[index, angle_colname][maxima_list[i_pks]]:
                             maxima_list = np.delete(maxima_list, i_pks).tolist()
-                            df.at[index, f'{angle_colname}_new_maxima'] = maxima_list if isinstance(maxima_list, list) else [maxima_list]
                         else:
                             maxima_list = np.delete(maxima_list, i_pks + 1).tolist()
-                            df.at[index, f'{angle_colname}_new_maxima'] = maxima_list if isinstance(maxima_list, list) else [maxima_list]
-                        n_max -= 1
+                        df.at[index, f'{angle_colname}_new_maxima'] = maxima_list
                         i_pks -= 1
                     if i_pks > 0 and minima_list[i_pks] < maxima_list[i_pks]:
-                        if df.loc[index, angle_colname][minima_list[i_pks]] < df.loc[index, angle_colname][minima_list[i_pks-1]]:
+                        if df.at[index, angle_colname][minima_list[i_pks]] < df.at[index, angle_colname][minima_list[i_pks - 1]]:
                             minima_list = np.delete(minima_list, i_pks - 1).tolist()
-                            df.at[index, f'{angle_colname}_new_minima'] = minima_list if isinstance(minima_list, list) else [minima_list]
                         else:
                             minima_list = np.delete(minima_list, i_pks).tolist()
                             df.at[index, f'{angle_colname}_new_minima'] = minima_list if isinstance(minima_list, list) else [minima_list]
-                        n_min -= 1
+                        df.at[index, f'{angle_colname}_new_minima'] = minima_list
                         i_pks -= 1
                     i_pks += 1
 
