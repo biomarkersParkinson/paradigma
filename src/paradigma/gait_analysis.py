@@ -11,7 +11,7 @@ from paradigma.gait_analysis_config import GaitFeatureExtractionConfig, GaitDete
     ArmSwingFeatureExtractionConfig, ArmSwingDetectionConfig, ArmSwingQuantificationConfig
 from paradigma.feature_extraction import extract_temporal_domain_features, \
     extract_spectral_domain_features, pca_transform_gyroscope, compute_angle, \
-    remove_moving_average_angle, process_extrema, extract_range_of_motion, \
+    remove_moving_average_angle, extract_range_of_motion, \
     extract_peak_angular_velocity, signal_to_ffts, get_dominant_frequency, compute_perc_power
 from paradigma.quantification import aggregate_segments
 from paradigma.windowing import tabulate_windows, create_segments, discard_segments
