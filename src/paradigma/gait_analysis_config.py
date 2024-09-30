@@ -11,6 +11,7 @@ class IMUConfig:
     def __init__(self):
 
         self.time_colname = DataColumns.TIME
+        self.segment_nr_colname = DataColumns.SEGMENT_NR
 
         self.l_accelerometer_cols: List[str] = [
             DataColumns.ACCELEROMETER_X,
@@ -71,6 +72,7 @@ class GaitFeatureExtractionConfig (IMUConfig):
 
         self.window_length_s: int = 6
         self.window_step_size_s: int = 1
+        self.segment_gap_s = 1.5
 
         # cepstral coefficients
         self.cc_low_frequency: int = 0
@@ -82,7 +84,7 @@ class GaitFeatureExtractionConfig (IMUConfig):
             "power_below_gait": [0.3, 0.7],
             "power_gait": [0.7, 3.5],
             "power_tremor": [3.5, 8],
-            "power_above_tremor": [8, self.sampling_frequency],
+            "power_above_tremor": [8, 25],
         }
 
 
@@ -150,12 +152,13 @@ class ArmSwingFeatureExtractionConfig(IMUConfig):
         self.window_length_s = window_length_s
         self.window_overlap_s = window_length_s * 0.75
         self.window_step_size_s = window_length_s - self.window_overlap_s
+        self.segment_gap_s = 1.5
 
     def initialize_sampling_frequency_fields(self, sampling_frequency: int) -> None:
         self.sampling_frequency = sampling_frequency
 
         # computing power
-        self.power_band_low_frequency = 0.3
+        self.power_band_low_frequency = 0.2
         self.power_band_high_frequency = 3
         self.spectrum_low_frequency = 0
         self.spectrum_high_frequency = int(sampling_frequency / 2)
@@ -164,7 +167,7 @@ class ArmSwingFeatureExtractionConfig(IMUConfig):
             "power_below_gait": [0.3, 0.7],
             "power_gait": [0.7, 3.5],
             "power_tremor": [3.5, 8],
-            "power_above_tremor": [8, sampling_frequency],
+            "power_above_tremor": [8, 25],
         }
 
         # cepstral coefficients
@@ -188,7 +191,7 @@ class ArmSwingFeatureExtractionConfig(IMUConfig):
             self.l_accelerometer_cols
             + self.l_gyroscope_cols
             + self.l_gravity_cols
-            + [self.angle_smooth_colname, self.velocity_colname]
+            + [self.angle_colname, self.velocity_colname]
         )
 
     def __init__(self) -> None:
@@ -262,5 +265,5 @@ class ArmSwingQuantificationConfig(IMUConfig):
 
         self.window_length_s = 3
         self.window_step_size = 0.75
-        self.segment_gap_s = 3
+        self.segment_gap_s = 1.5
         self.min_segment_length_s = 3
