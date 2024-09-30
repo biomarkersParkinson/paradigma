@@ -11,7 +11,7 @@ from paradigma.gait_analysis_config import GaitFeatureExtractionConfig, GaitDete
     ArmSwingFeatureExtractionConfig, ArmSwingDetectionConfig, ArmSwingQuantificationConfig
 from paradigma.feature_extraction import extract_temporal_domain_features, \
     extract_spectral_domain_features, pca_transform_gyroscope, compute_angle, \
-    remove_moving_average_angle, extract_range_of_motion, \
+    remove_moving_average_angle, extract_range_of_motion, extract_angle_extremes, \
     extract_peak_angular_velocity, signal_to_ffts, get_dominant_frequency, compute_perc_power
 from paradigma.quantification import aggregate_segments
 from paradigma.windowing import tabulate_windows, create_segments, discard_segments
@@ -141,8 +141,7 @@ def extract_arm_swing_features(input_path: Union[str, Path], output_path: Union[
     df[config.segment_nr_colname] = create_segments(
         df=df,
         time_column_name=config.time_colname,
-        segment_column_name=config.segment_nr_colname,
-        gap_threshold_s=config.window_length_s / 2
+        gap_threshold_s=config.segment_gap_s
     )
 
     # remove any segments that do not adhere to predetermined criteria
@@ -172,7 +171,7 @@ def extract_arm_swing_features(input_path: Union[str, Path], output_path: Union[
 
     # transform the angle from the temporal domain to the spectral domain using the fast fourier transform
     df_windowed['angle_freqs'], df_windowed['angle_fft'] = signal_to_ffts(
-        sensor_col=df_windowed[config.angle_smooth_colname],
+        sensor_col=df_windowed[config.angle_colname],
         window_type=config.window_type,
         sampling_frequency=config.sampling_frequency)
 
@@ -189,7 +188,7 @@ def extract_arm_swing_features(input_path: Union[str, Path], output_path: Union[
     df_windowed = df_windowed.drop(columns=['angle_fft', 'angle_freqs'])
 
     # compute the percentage of power in the frequency band of interest (i.e., the frequency band of the arm swing)
-    df_windowed['angle_perc_power'] = df_windowed[config.angle_smooth_colname].apply(
+    df_windowed['angle_perc_power'] = df_windowed[config.angle_colname].apply(
         lambda x: compute_perc_power(
             sensor_col=x,
             fmin_band=config.power_band_low_frequency,
@@ -201,16 +200,12 @@ def extract_arm_swing_features(input_path: Union[str, Path], output_path: Union[
             )
     )
 
-    # determine the extrema (minima and maxima) of the angle signal
-    df_windowed['angle_extrema_values'] = df_windowed.apply(
-        lambda x: process_extrema(
-            angle_colname=config.angle_smooth_colname,
-            dominant_frequency_colname='angle_dominant_frequency',
-            sampling_frequency=config.sampling_frequency
-        )
+    df_windowed = extract_angle_extremes(
+        df=df_windowed,
+        angle_colname=config.angle_colname,
+        dominant_frequency_colname=f'{config.angle_colname}_dominant_frequency',
+        sampling_frequency=config.sampling_frequency
     )
-
-    df_windowed = df_windowed.drop(columns=[config.angle_smooth_colname])
 
     # calculate the change in angle between consecutive extrema (minima and maxima) of the angle signal inside the window
     df_windowed['angle_amplitudes'] = extract_range_of_motion(
@@ -354,7 +349,6 @@ def quantify_arm_swing(path_to_feature_input: Union[str, Path], path_to_predicti
     df_arm_swing[config.segment_nr_colname] = create_segments(
         df=df_arm_swing,
         time_column_name=config.time_colname,
-        segment_column_name=config.segment_nr_colname,
         gap_threshold_s=config.segment_gap_s 
     )
     df_arm_swing = discard_segments(

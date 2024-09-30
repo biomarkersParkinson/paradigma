@@ -72,6 +72,7 @@ class GaitFeatureExtractionConfig (IMUConfig):
 
         self.window_length_s: int = 6
         self.window_step_size_s: int = 1
+        self.segment_gap_s = 1.5
 
         # cepstral coefficients
         self.cc_low_frequency: int = 0
@@ -151,6 +152,7 @@ class ArmSwingFeatureExtractionConfig(IMUConfig):
         self.window_length_s = window_length_s
         self.window_overlap_s = window_length_s * 0.75
         self.window_step_size_s = window_length_s - self.window_overlap_s
+        self.segment_gap_s = 1.5
 
     def initialize_sampling_frequency_fields(self, sampling_frequency: int) -> None:
         self.sampling_frequency = sampling_frequency
