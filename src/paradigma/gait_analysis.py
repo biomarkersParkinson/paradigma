@@ -355,7 +355,7 @@ def quantify_arm_swing(path_to_feature_input: Union[str, Path], path_to_predicti
         df=df_arm_swing,
         time_column_name=config.time_colname,
         segment_column_name=config.segment_nr_colname,
-        gap_threshold_s=config.segment_gap_s / 2
+        gap_threshold_s=config.segment_gap_s 
     )
     df_arm_swing = discard_segments(
         df=df_arm_swing,
