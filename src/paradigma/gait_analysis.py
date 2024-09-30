@@ -52,7 +52,6 @@ def extract_gait_features(input_path: Union[str, Path], output_path: Union[str, 
 
     metadata_time.channels = ['time']
     metadata_time.units = ['relative_time_ms']
-    metadata_time.data_type = np.int64
 
     write_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df_windowed)
 
@@ -87,13 +86,9 @@ def detect_gait(input_path: Union[str, Path], output_path: Union[str, Path], pat
 
     metadata_samples.channels = ['pred_gait_proba']
     metadata_samples.units = ['probability']
-    metadata_samples.data_type = np.float32
-    metadata_samples.bits = 32
 
     metadata_time.channels = [config.time_colname]
     metadata_time.units = ['relative_time_ms']
-    metadata_time.data_type = np.int32
-    metadata_time.bits = 32
 
     write_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df)
 
@@ -265,13 +260,9 @@ def extract_arm_swing_features(input_path: Union[str, Path], output_path: Union[
 
     metadata_samples.channels = list(config.d_channels_values.keys())
     metadata_samples.units = list(config.d_channels_values.values())
-    metadata_samples.data_type = np.float32
-    metadata_samples.bits = 32
 
     metadata_time.channels = [config.time_colname]
     metadata_time.units = ['relative_time_ms']
-    metadata_time.data_type = np.int32
-    metadata_time.bits = 32
 
     write_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df_windowed)
 
@@ -310,13 +301,9 @@ def detect_arm_swing(input_path: Union[str, Path], output_path: Union[str, Path]
 
     metadata_samples.channels = [config.pred_arm_swing]
     metadata_samples.units = ['boolean']
-    metadata_samples.data_type = np.int8
-    metadata_samples.bits = 8
 
     metadata_time.channels = [config.time_colname]
     metadata_time.units = ['relative_time_ms']
-    metadata_time.data_type = np.int32
-    metadata_time.bits = 32
 
     write_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df)
 
@@ -398,17 +385,12 @@ def quantify_arm_swing(path_to_feature_input: Union[str, Path], path_to_predicti
     metadata_samples.channels = ['range_of_motion_median', 'range_of_motion_quantile_95',
                                     'peak_ang_vel_median', 'peak_ang_vel_quantile_95']
     metadata_samples.units = ['deg', 'deg', 'deg/s', 'deg/s']
-    metadata_samples.data_type = np.float32
-    metadata_samples.bits = 32
 
     metadata_time.channels = [config.time_colname, 'segment_duration_ms']
     metadata_time.units = ['relative_time_ms', 'ms']
-    metadata_time.data_type = np.int32
-    metadata_time.bits = 32
 
     write_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df_aggregates)
 
 
 def aggregate_weekly_arm_swing():
     pass
-
