@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from typing import Union
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 
 import tsdf
 
@@ -18,11 +20,7 @@ from paradigma.windowing import tabulate_windows, create_segments, discard_segme
 from paradigma.util import get_end_iso8601, write_data, read_metadata
 
 
-def extract_gait_features(input_path: Union[str, Path], output_path: Union[str, Path], config: GaitFeatureExtractionConfig) -> None:
-    # load data
-    metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
-    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
-
+def extract_gait_features(df: pd.DataFrame, config: GaitFeatureExtractionConfig) -> pd.DataFrame:
     # group sequences of timestamps into windows
     df_windowed = tabulate_windows(
         df=df,
@@ -41,6 +39,18 @@ def extract_gait_features(input_path: Union[str, Path], output_path: Union[str, 
     # and extract spectral features
     df_windowed = extract_spectral_domain_features(config, df_windowed, config.sensor, config.l_accelerometer_cols)
 
+    return df_windowed
+
+
+def extract_gait_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config: GaitFeatureExtractionConfig) -> None:
+    # Load data
+    metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
+    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+
+    # Extract gait features
+    df_windowed = extract_gait_features(df, config)
+
+    # Store data
     end_iso8601 = get_end_iso8601(start_iso8601=metadata_time.start_iso8601,
                                   window_length_seconds=int(df_windowed[config.time_colname][-1:].values[0] + config.window_length_s))
 
@@ -58,12 +68,7 @@ def extract_gait_features(input_path: Union[str, Path], output_path: Union[str, 
     write_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df_windowed)
 
 
-def detect_gait(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: GaitDetectionConfig) -> None:
-    
-    # Load the data
-    metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
-    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
-
+def detect_gait(df: pd.DataFrame, config: GaitDetectionConfig, path_to_classifier_input: Union[str, Path]) -> pd.DataFrame:
     # Initialize the classifier
     clf = pd.read_pickle(os.path.join(path_to_classifier_input, config.classifier_file_name))
     with open(os.path.join(path_to_classifier_input, config.thresholds_file_name), 'r') as f:
@@ -80,7 +85,18 @@ def detect_gait(input_path: Union[str, Path], output_path: Union[str, Path], pat
 
     # Make prediction
     df['pred_gait_proba'] = clf.predict_proba(X)[:, 1]
-    df['pred_gait'] = df['pred_gait_proba'] > threshold
+    df['pred_gait'] = df['pred_gait_proba'] >= threshold
+
+    return df
+
+
+def detect_gait_io(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: GaitDetectionConfig) -> None:
+    
+    # Load the data
+    metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
+    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+
+    df = detect_gait(df, config, path_to_classifier_input)
 
     # Prepare the metadata
     metadata_samples.file_name = 'gait_values.bin'
@@ -95,22 +111,7 @@ def detect_gait(input_path: Union[str, Path], output_path: Union[str, Path], pat
     write_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df)
 
 
-def extract_arm_swing_features(input_path: Union[str, Path], output_path: Union[str, Path], config: ArmSwingFeatureExtractionConfig) -> None:
-    # load accelerometer and gyroscope data
-    l_dfs = []
-    for sensor in ['accelerometer', 'gyroscope']:
-        config.set_sensor(sensor)
-        meta_filename = f'{sensor}_meta.json'
-        values_filename = f'{sensor}_samples.bin'
-        time_filename = f'{sensor}_time.bin'
-
-        metadata_dict = tsdf.load_metadata_from_path(os.path.join(input_path, meta_filename))
-        metadata_time = metadata_dict[time_filename]
-        metadata_samples = metadata_dict[values_filename]
-        l_dfs.append(tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns))
-
-    df = pd.merge(l_dfs[0], l_dfs[1], on=config.time_colname)
-
+def extract_arm_swing_features(df: pd.DataFrame, config: ArmSwingFeatureExtractionConfig) -> pd.DataFrame:
     # temporary add "random" predictions
     df[config.pred_gait_colname] = np.concatenate([np.repeat([1], df.shape[0]//3), np.repeat([0], df.shape[0]//3), np.repeat([1], df.shape[0] + 1 - 2*df.shape[0]//3)], axis=0)
 
@@ -257,6 +258,27 @@ def extract_arm_swing_features(input_path: Union[str, Path], output_path: Union[
     for sensor, l_sensor_colnames in zip(['accelerometer', 'gyroscope'], [config.l_accelerometer_cols, config.l_gyroscope_cols]):
         df_windowed = extract_spectral_domain_features(config, df_windowed, sensor, l_sensor_colnames)
 
+    return df_windowed
+
+
+def extract_arm_swing_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config: ArmSwingFeatureExtractionConfig) -> None:
+    # load accelerometer and gyroscope data
+    l_dfs = []
+    for sensor in ['accelerometer', 'gyroscope']:
+        config.set_sensor(sensor)
+        meta_filename = f'{sensor}_meta.json'
+        values_filename = f'{sensor}_samples.bin'
+        time_filename = f'{sensor}_time.bin'
+
+        metadata_dict = tsdf.load_metadata_from_path(os.path.join(input_path, meta_filename))
+        metadata_time = metadata_dict[time_filename]
+        metadata_samples = metadata_dict[values_filename]
+        l_dfs.append(tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns))
+
+    df = pd.merge(l_dfs[0], l_dfs[1], on=config.time_colname)
+
+    df_windowed = extract_arm_swing_features(df, config)
+
     end_iso8601 = get_end_iso8601(metadata_samples.start_iso8601, 
                                 df_windowed[config.time_colname][-1:].values[0] + config.window_length_s)
 
@@ -274,13 +296,7 @@ def extract_arm_swing_features(input_path: Union[str, Path], output_path: Union[
     write_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df_windowed)
 
 
-def detect_arm_swing(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: ArmSwingDetectionConfig) -> None:
-    # Load the data
-    metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
-    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
-
-    # Initialize the classifier
-    clf = pd.read_pickle(os.path.join(path_to_classifier_input, config.classifier_file_name))
+def detect_arm_swing(df: pd.DataFrame, config: ArmSwingDetectionConfig, clf: Union[LogisticRegression, RandomForestClassifier]) -> pd.DataFrame:
 
     # Prepare the data
     clf.feature_names_in_ = ['std_norm_acc'] + [f'{x}_power_below_gait' for x in config.l_accelerometer_cols] + \
@@ -292,12 +308,22 @@ def detect_arm_swing(input_path: Union[str, Path], output_path: Union[str, Path]
                             ['range_of_motion', 'forward_peak_ang_vel_mean', 'backward_peak_ang_vel_mean', 'forward_peak_ang_vel_std', 
                             'backward_peak_ang_vel_std', 'angle_perc_power', 'angle_dominant_frequency'] + \
                             [f'{x}_dominant_frequency' for x in config.l_accelerometer_cols]
-                            
     X = df.loc[:, clf.feature_names_in_]
 
     # Make prediction
-    # df['pred_arm_swing_proba'] = clf.predict_proba(X)[:, 1]
     df['pred_arm_swing'] = clf.predict(X)
+
+    return df
+
+def detect_arm_swing_io(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: ArmSwingDetectionConfig) -> None:
+    # Load the data
+    metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
+    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+
+    # Load the classifier
+    clf = pd.read_pickle(os.path.join(path_to_classifier_input, config.classifier_file_name))
+
+    df = detect_arm_swing(df, config, clf)
 
     # Prepare the metadata
     metadata_samples.file_name = 'arm_swing_values.bin'
@@ -312,31 +338,7 @@ def detect_arm_swing(input_path: Union[str, Path], output_path: Union[str, Path]
     write_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df)
 
 
-def quantify_arm_swing(path_to_feature_input: Union[str, Path], path_to_prediction_input: Union[str, Path], output_path: Union[str, Path], config: ArmSwingQuantificationConfig) -> None:
-    # Load the features & predictions
-    metadata_time, metadata_samples = read_metadata(path_to_feature_input, config.meta_filename, config.time_filename, config.values_filename)
-    df_features = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
-
-    metadata_dict = tsdf.load_metadata_from_path(os.path.join(path_to_prediction_input, config.meta_filename))
-    metadata_time = metadata_dict[config.time_filename]
-    metadata_samples = metadata_dict[config.values_filename]
-    df_predictions = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
-
-    # Validate
-    # dataframes have same length
-    assert df_features.shape[0] == df_predictions.shape[0]
-
-    # dataframes have same time column
-    assert df_features['time'].equals(df_predictions['time'])
-
-    # Prepare the data
-
-    # subset features
-    l_feature_cols = ['time', 'range_of_motion', 'forward_peak_ang_vel_mean', 'backward_peak_ang_vel_mean']
-    df_features = df_features[l_feature_cols]
-
-    # concatenate features and predictions
-    df = pd.concat([df_features, df_predictions[config.pred_arm_swing_colname]], axis=1)
+def quantify_arm_swing(df: pd.DataFrame, config: ArmSwingQuantificationConfig) -> pd.DataFrame:
 
     # temporarily for testing: manually determine predictions
     df[config.pred_arm_swing_colname] = np.concatenate([np.repeat([1], df.shape[0]//3), np.repeat([0], df.shape[0]//3), np.repeat([1], df.shape[0] - 2*df.shape[0]//3)], axis=0)
@@ -378,6 +380,35 @@ def quantify_arm_swing(path_to_feature_input: Union[str, Path], path_to_predicti
 
     df_aggregates['segment_duration_ms'] = df_aggregates['segment_duration_s'] * 1000
     df_aggregates = df_aggregates.drop(columns=['segment_nr'])
+
+    return df_aggregates
+
+
+def quantify_arm_swing_io(path_to_feature_input: Union[str, Path], path_to_prediction_input: Union[str, Path], output_path: Union[str, Path], config: ArmSwingQuantificationConfig) -> None:
+    # Load the features & predictions
+    metadata_time, metadata_samples = read_metadata(path_to_feature_input, config.meta_filename, config.time_filename, config.values_filename)
+    df_features = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+
+    metadata_dict = tsdf.load_metadata_from_path(os.path.join(path_to_prediction_input, config.meta_filename))
+    metadata_time = metadata_dict[config.time_filename]
+    metadata_samples = metadata_dict[config.values_filename]
+    df_predictions = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+
+    # Validate
+    # Dataframes have same length
+    assert df_features.shape[0] == df_predictions.shape[0]
+
+    # Dataframes have same time column
+    assert df_features['time'].equals(df_predictions['time'])
+
+    # Subset features
+    l_feature_cols = ['time', 'range_of_motion', 'forward_peak_ang_vel_mean', 'backward_peak_ang_vel_mean']
+    df_features = df_features[l_feature_cols]
+
+    # Concatenate features and predictions
+    df = pd.concat([df_features, df_predictions[config.pred_arm_swing_colname]], axis=1)
+
+    df_aggregates = quantify_arm_swing(df, config)
 
     # Store data
     metadata_samples.file_name = 'arm_swing_values.bin'
