@@ -329,8 +329,8 @@ def detect_arm_swing_io(input_path: Union[str, Path], output_path: Union[str, Pa
     metadata_samples.file_name = 'arm_swing_values.bin'
     metadata_time.file_name = 'arm_swing_time.bin'
 
-    metadata_samples.channels = ['pred_arm_swing']
-    metadata_samples.units = ['boolean']
+    metadata_samples.channels = ['pred_arm_swing_proba']
+    metadata_samples.units = ['probability']
 
     metadata_time.channels = ['time']
     metadata_time.units = ['relative_time_ms']
