@@ -311,7 +311,7 @@ def detect_arm_swing(df: pd.DataFrame, config: ArmSwingDetectionConfig, clf: Uni
     X = df.loc[:, clf.feature_names_in_]
 
     # Make prediction
-    df['pred_arm_swing'] = clf.predict(X)
+    df['pred_arm_swing_proba'] = clf.predict_proba(X)[:, 1]
 
     return df
 
