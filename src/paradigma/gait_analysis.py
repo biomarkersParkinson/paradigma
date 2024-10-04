@@ -311,7 +311,7 @@ def detect_arm_swing(df: pd.DataFrame, config: ArmSwingDetectionConfig, clf: Uni
     X = df.loc[:, clf.feature_names_in_]
 
     # Make prediction
-    df['pred_arm_swing_proba'] = clf.predict_proba(X)[:, 1]
+    df[DataColumns.PRED_ARM_SWING_PROBA] = clf.predict_proba(X)[:, 1]
 
     return df
 
@@ -329,7 +329,7 @@ def detect_arm_swing_io(input_path: Union[str, Path], output_path: Union[str, Pa
     metadata_samples.file_name = 'arm_swing_values.bin'
     metadata_time.file_name = 'arm_swing_time.bin'
 
-    metadata_samples.channels = ['pred_arm_swing_proba']
+    metadata_samples.channels = [DataColumns.PRED_ARM_SWING_PROBA]
     metadata_samples.units = ['probability']
 
     metadata_time.channels = [DataColumns.TIME]
