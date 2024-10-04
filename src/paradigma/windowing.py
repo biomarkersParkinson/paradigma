@@ -203,7 +203,7 @@ def discard_segments(
     pd.DataFrame
         The dataframe with segments that are longer than the specified length
     """
-    segment_length_bool = df.groupby(segment_nr_colname)[time_colname].apply(lambda x: x.max() - x.min()) > minimum_segment_length_s
+    segment_length_bool = df.groupby(segment_nr_colname)[time_colname].apply(lambda x: x.max() - x.min()) >= minimum_segment_length_s
 
     df = df.loc[df[segment_nr_colname].isin(segment_length_bool.loc[segment_length_bool.values].index)]
 
