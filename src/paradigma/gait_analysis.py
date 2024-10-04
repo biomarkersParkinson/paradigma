@@ -341,11 +341,11 @@ def detect_arm_swing_io(input_path: Union[str, Path], output_path: Union[str, Pa
 def quantify_arm_swing(df: pd.DataFrame, config: ArmSwingQuantificationConfig) -> pd.DataFrame:
 
     # temporarily for testing: manually determine predictions
-    df[config.pred_arm_swing_proba_colname] = np.concatenate([np.repeat([1], df.shape[0]//3), np.repeat([0], df.shape[0]//3), np.repeat([1], df.shape[0] - 2*df.shape[0]//3)], axis=0)
+    df[DataColumns.PRED_ARM_SWING_PROBA] = np.concatenate([np.repeat([1], df.shape[0]//3), np.repeat([0], df.shape[0]//3), np.repeat([1], df.shape[0] - 2*df.shape[0]//3)], axis=0)
 
     # keep only predicted arm swing
     # TODO: Aggregate overlapping windows for probabilities
-    df_arm_swing = df.loc[df[config.pred_arm_swing_colname]>=0.5].copy().reset_index(drop=True)
+    df_arm_swing = df.loc[df[DataColumns.PRED_ARM_SWING_PROBA]>=0.5].copy().reset_index(drop=True)
 
     del df
 
@@ -407,7 +407,7 @@ def quantify_arm_swing_io(path_to_feature_input: Union[str, Path], path_to_predi
     df_features = df_features[l_feature_cols]
 
     # Concatenate features and predictions
-    df = pd.concat([df_features, df_predictions[config.pred_arm_swing_proba_colname]], axis=1)
+    df = pd.concat([df_features, df_predictions[DataColumns.PRED_ARM_SWING_PROBA]], axis=1)
 
     df_aggregates = quantify_arm_swing(df, config)
 
