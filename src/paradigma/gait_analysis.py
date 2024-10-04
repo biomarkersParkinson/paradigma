@@ -378,7 +378,7 @@ def quantify_arm_swing(df: pd.DataFrame, config: ArmSwingQuantificationConfig) -
         l_quantiles=[0.95]
     )
 
-    df_aggregates['segment_duration_ms'] = df_aggregates['segment_duration_s'] * 1000
+    df_aggregates['segment_duration_ms'] = (df_aggregates['segment_duration_s'] * 1000).round().astype(int)
     df_aggregates = df_aggregates.drop(columns=['segment_nr'])
 
     return df_aggregates
