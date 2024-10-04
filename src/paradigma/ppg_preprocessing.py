@@ -3,7 +3,7 @@ import json
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import List, Union
+from typing import List, Tuple, Union
 from datetime import datetime, timedelta
 
 import tsdf
@@ -31,8 +31,33 @@ def scan_and_sync_segments(input_path_ppg, input_path_imu):
     return metadatas_ppg, metadatas_imu
 
 
-def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TSDFMetadata, output_path: Union[str, Path], ppg_config: PPGPreprocessingConfig, imu_config: IMUPreprocessingConfig):
+def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TSDFMetadata, 
+                        output_path: Union[str, Path], ppg_config: PPGPreprocessingConfig, 
+                        imu_config: IMUPreprocessingConfig, store_locally:bool = True) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Preprocess PPG and IMU data by resampling, filtering, and aligning the data segments.
 
+    Parameters
+    ----------
+    tsdf_meta_ppg : tsdf.TSDFMetadata
+        Metadata for the PPG data.
+    tsdf_meta_imu : tsdf.TSDFMetadata
+        Metadata for the IMU data.
+    output_path : Union[str, Path]
+        Path to store the preprocessed data.
+    ppg_config : PPGPreprocessingConfig
+        Configuration object for PPG preprocessing.
+    imu_config : IMUPreprocessingConfig
+        Configuration object for IMU preprocessing.
+    store_locally : bool, optional
+        Flag to store the preprocessed data locally, by default True.
+    
+    Returns
+    -------
+    Tuple[pd.DataFrame, pd.DataFrame]
+        Preprocessed PPG and IMU data as DataFrames.
+    
+    """
     # Load PPG data
     metadata_time_ppg = tsdf_meta_ppg[ppg_config.time_filename]
     metadata_samples_ppg = tsdf_meta_ppg[ppg_config.values_filename]
@@ -137,21 +162,23 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
         output_unit_type=TimeUnit.RELATIVE_MS,
         start_time=start_time_imu,
     )
+    if store_locally:
+        # Store data
+        metadata_samples_imu.channels = list(imu_config.d_channels_accelerometer.keys())
+        metadata_samples_imu.units = list(imu_config.d_channels_accelerometer.values())
+        metadata_samples_imu.file_name = 'accelerometer_samples.bin'
+        metadata_time_imu.units = [TimeUnit.ABSOLUTE_MS]
+        metadata_time_imu.file_name = 'accelerometer_time.bin'
+        write_df_data(metadata_time_imu, metadata_samples_imu, output_path, 'accelerometer_meta.json', df_imu_proc)
 
-    # Store data
-    metadata_samples_imu.channels = list(imu_config.d_channels_accelerometer.keys())
-    metadata_samples_imu.units = list(imu_config.d_channels_accelerometer.values())
-    metadata_samples_imu.file_name = 'accelerometer_samples.bin'
-    metadata_time_imu.units = [TimeUnit.ABSOLUTE_MS]
-    metadata_time_imu.file_name = 'accelerometer_time.bin'
-    write_df_data(metadata_time_imu, metadata_samples_imu, output_path, 'accelerometer_meta.json', df_imu_proc)
-
-    metadata_samples_ppg.channels = list(ppg_config.d_channels_ppg.keys())
-    metadata_samples_ppg.units = list(ppg_config.d_channels_ppg.values())
-    metadata_samples_ppg.file_name = 'PPG_samples.bin'
-    metadata_time_ppg.units = [TimeUnit.ABSOLUTE_MS]
-    metadata_time_ppg.file_name = 'PPG_time.bin'
-    write_df_data(metadata_time_ppg, metadata_samples_ppg, output_path, 'PPG_meta.json', df_ppg_proc)
+        metadata_samples_ppg.channels = list(ppg_config.d_channels_ppg.keys())
+        metadata_samples_ppg.units = list(ppg_config.d_channels_ppg.values())
+        metadata_samples_ppg.file_name = 'PPG_samples.bin'
+        metadata_time_ppg.units = [TimeUnit.ABSOLUTE_MS]
+        metadata_time_ppg.file_name = 'PPG_time.bin'
+        write_df_data(metadata_time_ppg, metadata_samples_ppg, output_path, 'PPG_meta.json', df_ppg_proc)
+    
+    return df_ppg_proc, df_imu_proc
 
 
 # TODO: ideally something like this should be possible directly in the tsdf library

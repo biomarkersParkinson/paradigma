@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from datetime import timedelta
 from dateutil import parser
-from typing import Tuple
+from typing import List, Tuple
 
 import tsdf
 from tsdf import TSDFMetadata
@@ -112,7 +112,6 @@ def write_df_data(
     tsdf.write_dataframe_to_binaries(output_path, df, [metadata_time, metadata_samples])
     tsdf.write_metadata([metadata_time, metadata_samples], output_filename)
 
-
 def read_metadata(
     input_path: str, meta_filename: str, time_filename: str, values_filename: str
 ) -> Tuple[TSDFMetadata, TSDFMetadata]:
@@ -122,3 +121,28 @@ def read_metadata(
     metadata_time = metadata_dict[time_filename]
     metadata_samples = metadata_dict[values_filename]
     return metadata_time, metadata_samples
+
+def load_metadata_list(
+    dir_path: str, meta_filename: str, filenames: List[str]
+) -> List[TSDFMetadata]:
+    """
+    Load the metadata objects from a metadata file according to the specified binaries.
+
+    Parameters
+    ----------
+    dir_path : str
+        The dir path where the metadata file is stored.
+    meta_filename : str
+        The filename of the metadata file.
+    filenames : List[str]
+        The list of binary files of which the metadata files need to be loaded
+    
+    """	
+    metadata_dict = tsdf.load_metadata_from_path(
+        os.path.join(dir_path, meta_filename)
+    )
+    metadata_list = []
+    for filename in filenames:
+        metadata_list.append(metadata_dict[filename])
+
+    return metadata_list

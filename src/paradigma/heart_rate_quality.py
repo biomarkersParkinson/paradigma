@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from scipy.signal import welch
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
@@ -11,21 +12,41 @@ import tsdf
 import tsdf.constants
 from paradigma.heart_rate_analysis_config import HeartRateFeatureExtractionConfig
 from paradigma.heart_rate_util import extract_ppg_features, calculate_power_ratio, read_PPG_quality_classifier
-from paradigma.util import read_metadata, write_np_data
+from paradigma.ppg_preprocessing import preprocess_ppg_data, scan_and_sync_segments
+from paradigma.preprocessing_config import IMUPreprocessingConfig, PPGPreprocessingConfig
+from paradigma.util import load_metadata_list, read_metadata, write_np_data
 from paradigma.constants import DataColumns, UNIX_TICKS_MS, DataUnits, TimeUnit
 
-
-
-def estimate_heart_rate(input_path: str, raw_input_path: str, output_path: str) -> None:
+def estimate_heart_rate_from_raw(input_path: str, raw_input_path: str, output_path: str, ppg_config:PPGPreprocessingConfig, imu_config: IMUPreprocessingConfig) -> None:
     # Load metadata and sync data (assuming similar steps to your other examples)
-    metadata_time_ppg, metadata_samples_ppg = read_metadata(input_path, "features_ppg_meta.json", "features_ppg_time.bin", "features_ppg_samples.bin")
-    df_ppg = tsdf.load_dataframe_from_binaries([metadata_time_ppg, metadata_samples_ppg], tsdf.constants.ConcatenationType.columns)
-    arr_ppg = df_ppg[DataColumns.PPG].to_numpy()
-    relative_time_ppg = df_ppg[DataColumns.TIME].to_numpy()
+    metadatas_ppg, metadatas_imu = scan_and_sync_segments(os.path.join(raw_input_path, 'ppg'),
+                                                       os.path.join(raw_input_path, 'imu'))
+    df_ppg_preprocessed, _ = preprocess_ppg_data(metadatas_ppg[0], metadatas_imu[0],
+                    "",
+                    ppg_config, imu_config)
+    estimate_heart_rate(input_path, df_ppg_preprocessed, output_path)
+
+
+def estimate_heart_rate_from_raw_preprocessed(input_path: str, raw_input_path: str, output_path: str) -> None:
+    # Load metadata and sync data (assuming similar steps to your other examples)
+    metadata_ppg_list = load_metadata_list(raw_input_path, "PPG_meta.json", ["PPG_time.bin", "PPG_samples.bin"])
+    df_ppg_preprocessed = tsdf.load_dataframe_from_binaries(metadata_ppg_list, tsdf.constants.ConcatenationType.columns)
+
+    estimate_heart_rate(input_path, df_ppg_preprocessed, output_path)
+
+def estimate_heart_rate(input_path: str, df_ppg_preprocessed: pd.DataFrame, output_path: str) -> None:
+    # Load metadata and sync data (assuming similar steps to your other examples)
+    metadata_classification_list = load_metadata_list(input_path, "classification_sqa_meta.json", ["classification_sqa_time.bin", "classification_sqa_ppg.bin", "classification_sqa_imu.bin"])
+    df_classification = tsdf.load_dataframe_from_binaries(metadata_classification_list, tsdf.constants.ConcatenationType.columns)
+    # arr_ppg = df_ppg[DataColumns.PPG].to_numpy()
+    # relative_time_ppg = df_ppg[DataColumns.TIME].to_numpy()
     
     # Other metadata loading steps for sync data (assuming similar to PPG loading)
     # Note: you may need to adjust based on your file structure
-    metadata_sync, data_sync = read_metadata(raw_input_path, "sync_meta.json", "sync_data.bin")
+    metadata_sync_list = load_metadata_list(input_path, "classification_sqa_meta.json", ["classification_sqa_sync.bin"])
+    df_ppg_sync = tsdf.load_dataframe_from_binaries(metadata_sync_list, tsdf.constants.ConcatenationType.columns)
+
+
 
     # Parameters for HR analysis
     min_window_length = 10
