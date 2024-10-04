@@ -62,7 +62,7 @@ def extract_gait_features_io(input_path: Union[str, Path], output_path: Union[st
     metadata_samples.channels = list(config.d_channels_values.keys())
     metadata_samples.units = list(config.d_channels_values.values())
 
-    metadata_time.channels = ['time']
+    metadata_time.channels = [DataColumns.TIME]
     metadata_time.units = ['relative_time_ms']
 
     write_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df_windowed)
@@ -144,7 +144,7 @@ def extract_arm_swing_features(df: pd.DataFrame, config: ArmSwingFeatureExtracti
     df_segments = create_segments(
         df=df,
         time_colname=config.time_colname,
-        segment_nr_colname='segment_nr',
+        segment_nr_colname=DataColumns.SEGMENT_NR,
         minimum_gap_s=3
     )
 
@@ -152,7 +152,7 @@ def extract_arm_swing_features(df: pd.DataFrame, config: ArmSwingFeatureExtracti
     df_segments = discard_segments(
         df=df_segments,
         time_colname=config.time_colname,
-        segment_nr_colname='segment_nr',
+        segment_nr_colname=DataColumns.SEGMENT_NR,
         minimum_segment_length_s=3
     )
 
@@ -332,7 +332,7 @@ def detect_arm_swing_io(input_path: Union[str, Path], output_path: Union[str, Pa
     metadata_samples.channels = ['pred_arm_swing_proba']
     metadata_samples.units = ['probability']
 
-    metadata_time.channels = ['time']
+    metadata_time.channels = [DataColumns.TIME]
     metadata_time.units = ['relative_time_ms']
 
     write_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df)
@@ -341,10 +341,11 @@ def detect_arm_swing_io(input_path: Union[str, Path], output_path: Union[str, Pa
 def quantify_arm_swing(df: pd.DataFrame, config: ArmSwingQuantificationConfig) -> pd.DataFrame:
 
     # temporarily for testing: manually determine predictions
-    df[config.pred_arm_swing_colname] = np.concatenate([np.repeat([1], df.shape[0]//3), np.repeat([0], df.shape[0]//3), np.repeat([1], df.shape[0] - 2*df.shape[0]//3)], axis=0)
+    df[config.pred_arm_swing_proba_colname] = np.concatenate([np.repeat([1], df.shape[0]//3), np.repeat([0], df.shape[0]//3), np.repeat([1], df.shape[0] - 2*df.shape[0]//3)], axis=0)
 
     # keep only predicted arm swing
-    df_arm_swing = df.loc[df[config.pred_arm_swing_colname]==1].copy().reset_index(drop=True)
+    # TODO: Aggregate overlapping windows for probabilities
+    df_arm_swing = df.loc[df[config.pred_arm_swing_colname]>=0.5].copy().reset_index(drop=True)
 
     del df
 
@@ -356,22 +357,22 @@ def quantify_arm_swing(df: pd.DataFrame, config: ArmSwingQuantificationConfig) -
 
     df_arm_swing = create_segments(
         df=df_arm_swing,
-        time_colname='time',
-        segment_nr_colname='segment_nr',
+        time_colname=DataColumns.TIME,
+        segment_nr_colname=DataColumns.SEGMENT_NR,
         minimum_gap_s=config.segment_gap_s
     )
     df_arm_swing = discard_segments(
         df=df_arm_swing,
-        time_colname='time',
-        segment_nr_colname='segment_nr',
+        time_colname=DataColumns.TIME,
+        segment_nr_colname=DataColumns.SEGMENT_NR,
         minimum_segment_length_s=config.min_segment_length_s
     )
 
     # Quantify arm swing
     df_aggregates = aggregate_segments(
         df=df_arm_swing,
-        time_colname='time',
-        segment_nr_colname='segment_nr',
+        time_colname=DataColumns.TIME,
+        segment_nr_colname=DataColumns.SEGMENT_NR,
         window_step_size_s=config.window_step_size,
         l_metrics=['range_of_motion', 'peak_ang_vel'],
         l_aggregates=['median'],
@@ -379,7 +380,7 @@ def quantify_arm_swing(df: pd.DataFrame, config: ArmSwingQuantificationConfig) -
     )
 
     df_aggregates['segment_duration_ms'] = (df_aggregates['segment_duration_s'] * 1000).round().astype(int)
-    df_aggregates = df_aggregates.drop(columns=['segment_nr'])
+    df_aggregates = df_aggregates.drop(columns=[DataColumns.SEGMENT_NR])
 
     return df_aggregates
 
@@ -399,14 +400,14 @@ def quantify_arm_swing_io(path_to_feature_input: Union[str, Path], path_to_predi
     assert df_features.shape[0] == df_predictions.shape[0]
 
     # Dataframes have same time column
-    assert df_features['time'].equals(df_predictions['time'])
+    assert df_features[DataColumns.TIME].equals(df_predictions[DataColumns.TIME])
 
     # Subset features
-    l_feature_cols = ['time', 'range_of_motion', 'forward_peak_ang_vel_mean', 'backward_peak_ang_vel_mean']
+    l_feature_cols = [DataColumns.TIME, 'range_of_motion', 'forward_peak_ang_vel_mean', 'backward_peak_ang_vel_mean']
     df_features = df_features[l_feature_cols]
 
     # Concatenate features and predictions
-    df = pd.concat([df_features, df_predictions[config.pred_arm_swing_colname]], axis=1)
+    df = pd.concat([df_features, df_predictions[config.pred_arm_swing_proba_colname]], axis=1)
 
     df_aggregates = quantify_arm_swing(df, config)
 
@@ -418,7 +419,7 @@ def quantify_arm_swing_io(path_to_feature_input: Union[str, Path], path_to_predi
                                     'peak_ang_vel_median', 'peak_ang_vel_quantile_95']
     metadata_samples.units = ['deg', 'deg', 'deg/s', 'deg/s']
 
-    metadata_time.channels = ['time', 'segment_duration_ms']
+    metadata_time.channels = [DataColumns.TIME, 'segment_duration_ms']
     metadata_time.units = ['relative_time_ms', 'ms']
 
     write_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df_aggregates)
