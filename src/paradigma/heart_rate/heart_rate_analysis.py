@@ -9,8 +9,8 @@ import os
 
 import tsdf
 import tsdf.constants
-from paradigma.heart_rate_analysis_config import HeartRateFeatureExtractionConfig
-from paradigma.heart_rate_util import extract_ppg_features, calculate_power_ratio, read_PPG_quality_classifier
+from paradigma.heart_rate.heart_rate_analysis_config import HeartRateFeatureExtractionConfig
+from paradigma.heart_rate.heart_rate_util import extract_ppg_features, calculate_power_ratio, read_PPG_quality_classifier
 from paradigma.util import read_metadata, write_np_data
 from paradigma.constants import DataColumns, UNIX_TICKS_MS, DataUnits, TimeUnit
 
