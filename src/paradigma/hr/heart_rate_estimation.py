@@ -10,7 +10,6 @@ import os
 
 import tsdf
 import tsdf.constants
-from paradigma.heart_rate_analysis_config import HeartRateFeatureExtractionConfig
 from paradigma.heart_rate_util import extract_ppg_features, calculate_power_ratio, read_PPG_quality_classifier
 from paradigma.ppg_preprocessing import preprocess_ppg_data, scan_and_sync_segments
 from paradigma.preprocessing_config import IMUPreprocessingConfig, PPGPreprocessingConfig
@@ -34,7 +33,7 @@ def estimate_heart_rate_from_raw_preprocessed(input_path: str, raw_input_path: s
 
     estimate_heart_rate(input_path, df_ppg_preprocessed, output_path)
 
-def estimate_heart_rate(input_path: str, df_ppg_preprocessed: pd.DataFrame, output_path: str) -> None:
+def estimate_heart_rate(input_path: str, df_ppg_preprocessed: pd.DataFrame, output_path: str, hr_config:PPGPreprocessingConfig) -> None:
     # Load metadata and sync data (assuming similar steps to your other examples)
     metadata_classification_list = load_metadata_list(input_path, "classification_sqa_meta.json", ["classification_sqa_time.bin", "classification_sqa_ppg.bin", "classification_sqa_imu.bin"])
     df_classification = tsdf.load_dataframe_from_binaries(metadata_classification_list, tsdf.constants.ConcatenationType.columns)
@@ -45,7 +44,6 @@ def estimate_heart_rate(input_path: str, df_ppg_preprocessed: pd.DataFrame, outp
     # Note: you may need to adjust based on your file structure
     metadata_sync_list = load_metadata_list(input_path, "classification_sqa_meta.json", ["classification_sqa_sync.bin"])
     df_ppg_sync = tsdf.load_dataframe_from_binaries(metadata_sync_list, tsdf.constants.ConcatenationType.columns)
-
 
 
     # Parameters for HR analysis

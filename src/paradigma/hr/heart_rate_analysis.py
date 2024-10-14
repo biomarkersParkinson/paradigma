@@ -3,19 +3,20 @@ from scipy.signal import welch
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from dateutil import parser
+from typing import Union
+from pathlib import Path
 
 from datetime import datetime
 import os
 
 import tsdf
 import tsdf.constants
-from paradigma.heart_rate_analysis_config import HeartRateFeatureExtractionConfig
-from paradigma.heart_rate_util import extract_ppg_features, calculate_power_ratio, read_PPG_quality_classifier
-from paradigma.util import read_metadata, write_np_data
+from paradigma.hr.heart_rate_analysis_config import SignalQualityFeatureExtractionConfig, SignalQualityClassificationConfig
+from paradigma.util import read_metadata, write_np_data, write_df_data
 from paradigma.constants import DataColumns, UNIX_TICKS_MS, DataUnits, TimeUnit
 
 
-def extract_signal_quality_features(input_path: str, classifier_path: str, output_path: str, config: HeartRateFeatureExtractionConfig) -> None:
+def extract_signal_quality_features(df: pd.DataFrame, classifier_path: str, output_path: str, config: SignalQualityFeatureExtractionConfig) -> None:
     # load data
     metadata_time_ppg, metadata_samples_ppg = read_metadata(input_path, "PPG_meta.json", "PPG_time.bin", "PPG_samples.bin")
     df_ppg = tsdf.load_dataframe_from_binaries([metadata_time_ppg, metadata_samples_ppg], tsdf.constants.ConcatenationType.columns)
@@ -157,7 +158,31 @@ def extract_signal_quality_features(input_path: str, classifier_path: str, outpu
                   feature_acc, output_path, 'feature_acc_meta.json')
 
 
-def signal_quality_classification(input_path: str, classifier_path: str, output_path: str, config: HeartRateFeatureExtractionConfig) -> None:
+def extract_signal_quality_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config: SignalQualityFeatureExtractionConfig) -> None:
+    metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
+    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+
+    # Extract gait features
+    df_windowed = extract_signal_quality_features(df, config)
+
+    # Store data
+    end_iso8601 = get_end_iso8601(start_iso8601=metadata_time.start_iso8601,
+                                  window_length_seconds=int(df_windowed[config.time_colname][-1:].values[0] + config.window_length_s))
+
+    metadata_samples.end_iso8601 = end_iso8601
+    metadata_samples.file_name = 'gait_values.bin'
+    metadata_time.end_iso8601 = end_iso8601
+    metadata_time.file_name = 'gait_time.bin'
+
+    metadata_samples.channels = list(config.d_channels_values.keys())
+    metadata_samples.units = list(config.d_channels_values.values())
+
+    metadata_time.channels = [DataColumns.TIME]
+    metadata_time.units = ['relative_time_ms']
+
+    write_df_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df_windowed)
+
+def signal_quality_classification(input_path: str, classifier_path: str, output_path: str, config: SignalQualityClassificationConfig) -> None:
     # load data
     metadata_time_ppg, metadata_samples_ppg = read_metadata(input_path, "features_ppg_meta.json", "features_ppg_time.bin", "features_ppg_samples.bin")
     df_ppg = tsdf.load_dataframe_from_binaries([metadata_time_ppg, metadata_samples_ppg], tsdf.constants.ConcatenationType.columns)

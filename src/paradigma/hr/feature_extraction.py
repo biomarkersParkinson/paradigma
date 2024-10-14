@@ -159,22 +159,3 @@ def calculate_power_ratio(f1: np.ndarray, PSD_acc: np.ndarray, f2: np.ndarray, P
 # PSD_ppg = np.array([1, 3, 2, 1, 0.5])
 # result = acc_feature(f1, PSD_acc, f2, PSD_ppg)
 # print(result)
-
-def read_PPG_quality_classifier(classifier_path: str):
-    """
-    Read the PPG quality classifier from a file.
-
-    Parameters
-    ----------
-    classifier_path : str
-        The path to the classifier file.
-
-    Returns
-    -------
-    dict
-        The classifier dictionary.
-    """
-    with open(classifier_path, 'rb') as f:
-        clf = pickle.load(f)
-    return clf
-
