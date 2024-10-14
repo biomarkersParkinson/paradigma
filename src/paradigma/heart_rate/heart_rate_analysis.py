@@ -256,4 +256,4 @@ def signal_quality_classification(input_path: str, classifier_path: str, output_
     mat_metadata_file_name = "classification_sqa_meta.json"
 
     # Save the data and metadata
-    save_tsdf_data(meta_class, data_class, path_to_signal_quality, mat_metadata_file_name)
+    #save_tsdf_data(meta_class, data_class, path_to_signal_quality, mat_metadata_file_name)
