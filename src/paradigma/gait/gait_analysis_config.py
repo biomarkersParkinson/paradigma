@@ -180,6 +180,7 @@ class ArmSwingFeatureExtractionConfig(IMUConfig):
         self
     ) -> None:
 
+        self.pred_gait_proba_colname=DataColumns.PRED_GAIT_PROBA
         self.pred_gait_colname=DataColumns.PRED_GAIT
         self.angle_smooth_colname: str = DataColumns.ANGLE_SMOOTH
         self.angle_colname=DataColumns.ANGLE
@@ -261,6 +262,7 @@ class ArmSwingQuantificationConfig(IMUConfig):
         super().__init__()
         self.set_filenames_values("arm_swing")
 
+        self.pred_arm_swing_proba_colname = DataColumns.PRED_ARM_SWING_PROBA
         self.pred_arm_swing_colname = DataColumns.PRED_ARM_SWING
 
         self.window_length_s = 3

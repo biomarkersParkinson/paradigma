@@ -46,9 +46,6 @@ time_idx_imu = tsdf_values_idx(metadata_list_imu, 'time');
 tr_imu_pre = data_list_imu{time_idx_ppg};
 values_idx_imu = tsdf_values_idx(metadata_list_imu, 'samples');
 v_imu_pre = data_list_imu{values_idx_imu};
-% Nog nodig voor implementatie:
-% [v_ppg_pre, tr_ppg_pre] --> now it is relative?
-% [v_imu_pre, tr_imu_pre] --> now it is relative?
 
 %% 3. Feature extraction
 % Create loop for 6s epochs with 5s overlap

@@ -5,12 +5,14 @@
     "ppp_source_protobuf": "WatchData.PPG.Week104.raw",
     "metadata_version": "0.1",
     "start_iso8601": "2021-06-27T16:52:20Z",
-    "end_iso8601": "2021-06-27T17:03:04Z",
-    "scale_factors": 1,
+    "end_iso8601": "2021-06-27T17:03:05Z",
+    "scale_factors": [
+        1
+    ],
     "rows": 639,
-    "data_type": "float",
     "endianness": "little",
-    "freq_sampling_original": 100.40200019609766,
+    "data_type": "float",
+    "bits": 64,
     "sensors": [
         {
             "file_name": "features_ppg_time.bin",
@@ -18,9 +20,8 @@
                 "time"
             ],
             "units": [
-                "time_absolute_unix_ms"
-            ],
-            "bits": 64
+                "relative_ms"
+            ]
         },
         {
             "file_name": "features_ppg_samples.bin",
@@ -30,11 +31,11 @@
                 "median",
                 "kurtosis",
                 "skewness",
-                "dominant frequency",
-                "relative power",
-                "spectral entropy",
-                "SNR",
-                "correlation peak"
+                "dominant_frequency",
+                "relative_power",
+                "spectral_entropy",
+                "signal_noise_ratio",
+                "second_highest_peak"
             ],
             "units": [
                 "none",
@@ -47,8 +48,7 @@
                 "none",
                 "none",
                 "none"
-            ],
-            "bits": 32
+            ]
         }
     ]
 }

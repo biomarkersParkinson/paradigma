@@ -7,16 +7,11 @@ from scipy.interpolate import CubicSpline
 
 import tsdf
 from paradigma.constants import DataColumns, TimeUnit
-from paradigma.util import write_data, read_metadata
+from paradigma.util import write_df_data, read_metadata
 from paradigma.preprocessing_config import IMUPreprocessingConfig
 
 
-def preprocess_imu_data(input_path: Union[str, Path], output_path: Union[str, Path], config: IMUPreprocessingConfig) -> None:
-
-    # Load data
-    metadata_time, metadata_samples = read_metadata(str(input_path), str(config.meta_filename),
-                                                    str(config.time_filename), str(config.values_filename))
-    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+def preprocess_imu_data(df: pd.DataFrame, config: IMUPreprocessingConfig, scale_factors: list) -> pd.DataFrame:
 
     # Rename columns
     df = df.rename(columns={f'rotation_{a}': f'gyroscope_{a}' for a in ['x', 'y', 'z']})
@@ -35,7 +30,7 @@ def preprocess_imu_data(input_path: Union[str, Path], output_path: Union[str, Pa
         time_column=config.time_colname,
         time_unit_type=TimeUnit.RELATIVE_MS,
         unscaled_column_names = list(config.d_channels_imu.keys()),
-        scale_factors=metadata_samples.scale_factors,
+        scale_factors=scale_factors,
         resampling_frequency=config.sampling_frequency)
     
     if config.side_watch == 'left':
@@ -59,18 +54,33 @@ def preprocess_imu_data(input_path: Union[str, Path], output_path: Union[str, Pa
         df = df.drop(columns=[col])
         df = df.rename(columns={f'filt_{col}': col})
 
+    return df
+
+
+def preprocess_imu_data_io(input_path: Union[str, Path], output_path: Union[str, Path], config: IMUPreprocessingConfig) -> None:
+
+    # Load data
+    metadata_time, metadata_samples = read_metadata(str(input_path), str(config.meta_filename),
+                                                    str(config.time_filename), str(config.values_filename))
+    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+
+    # Preprocess data
+    df = preprocess_imu_data(df=df, config=config, scale_factors=metadata_samples.scale_factors)
+
     # Store data
     for sensor, units in zip(['accelerometer', 'gyroscope'], ['g', config.rotation_units]):
         df_sensor = df[[config.time_colname] + [x for x in df.columns if sensor in x]]
 
         metadata_samples.channels = [x for x in df.columns if sensor in x]
         metadata_samples.units = list(np.repeat(units, len(metadata_samples.channels)))
+        metadata_samples.scale_factors = []
         metadata_samples.file_name = f'{sensor}_samples.bin'
 
         metadata_time.file_name = f'{sensor}_time.bin'
         metadata_time.units = ['time_relative_ms']
 
-        write_data(metadata_time, metadata_samples, output_path, f'{sensor}_meta.json', df_sensor)
+        write_df_data(metadata_time, metadata_samples, output_path, f'{sensor}_meta.json', df_sensor)
+
 
 def transform_time_array(
     time_array: pd.Series,

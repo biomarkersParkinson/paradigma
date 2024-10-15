@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from paradigma.gait_analysis import detect_arm_swing, detect_gait, extract_arm_swing_features, extract_gait_features, quantify_arm_swing
-from paradigma.gait_analysis_config import ArmSwingDetectionConfig, ArmSwingFeatureExtractionConfig, ArmSwingQuantificationConfig, GaitDetectionConfig, GaitFeatureExtractionConfig
-from paradigma.imu_preprocessing import preprocess_imu_data
+from paradigma.gait.gait_analysis import detect_arm_swing_io, detect_gait_io, extract_arm_swing_features_io, extract_gait_features_io, quantify_arm_swing_io
+from paradigma.gait.gait_analysis_config import ArmSwingDetectionConfig, ArmSwingFeatureExtractionConfig, ArmSwingQuantificationConfig, GaitDetectionConfig, GaitFeatureExtractionConfig
+from paradigma.imu_preprocessing import preprocess_imu_data_io
 from paradigma.preprocessing_config import IMUPreprocessingConfig
 from test_notebooks import compare_data
 
@@ -30,22 +30,6 @@ gyroscope_binaries_pairs: list[tuple[str, str]] = [
 imu_binaries_pairs: list[tuple[str, str]] = accelerometer_binaries_pairs + gyroscope_binaries_pairs
 
 
-def test_1_imu_preprocessing_outputs(shared_datadir: Path):
-    """
-    This function is used to evaluate the output of the preprocessing function. It evaluates it by comparing the output to a reference output.
-    """
-    input_dir_name: str = "1.sensor_data"
-    output_dir_name: str = "2.preprocessed_data"
-
-    input_path = shared_datadir / input_dir_name / "imu"
-    reference_output_path = shared_datadir / output_dir_name / "gait"
-    tested_output_path = reference_output_path / "test-output"
-
-    config = IMUPreprocessingConfig()
-    preprocess_imu_data(input_path, tested_output_path, config)
-    compare_data(reference_output_path, tested_output_path, imu_binaries_pairs)
-
-
 def test_2_extract_features_gait_output(shared_datadir: Path):
     """
     This function is used to evaluate the output of the gait feature extraction. It evaluates it by comparing the output to a reference output.
@@ -55,12 +39,12 @@ def test_2_extract_features_gait_output(shared_datadir: Path):
     output_dir_name: str = "3.extracted_features"
     data_type: str = "gait"
 
-    input_path = shared_datadir / input_dir_name / data_type
+    input_path = shared_datadir / input_dir_name / "imu"
     reference_output_path = shared_datadir / output_dir_name / data_type
     tested_output_path = reference_output_path / "test-output"
 
     config = GaitFeatureExtractionConfig()
-    extract_gait_features(input_path, tested_output_path, config)
+    extract_gait_features_io(input_path, tested_output_path, config)
     compare_data(reference_output_path, tested_output_path, gait_binaries_pairs)
 
 
@@ -80,7 +64,7 @@ def test_3_gait_detection_output(shared_datadir: Path):
     tested_output_path = reference_output_path / "test-output"
 
     config = GaitDetectionConfig()
-    detect_gait(input_path, tested_output_path, path_to_classifier_input, config)
+    detect_gait_io(input_path, tested_output_path, path_to_classifier_input, config)
     compare_data(reference_output_path, tested_output_path, gait_binaries_pairs)
 
 
@@ -94,12 +78,12 @@ def test_4_extract_features_arm_swing_output(shared_datadir: Path):
     data_type: str = "gait"
 
     # Temporary path to store the output of the notebook
-    input_path = shared_datadir / input_dir_name / data_type
+    input_path = shared_datadir / input_dir_name / "imu"
     reference_output_path = shared_datadir / output_dir_name / data_type
     tested_output_path = reference_output_path / "test-output"
 
     config = ArmSwingFeatureExtractionConfig()
-    extract_arm_swing_features(input_path, tested_output_path, config)
+    extract_arm_swing_features_io(input_path, tested_output_path, config)
     compare_data(reference_output_path, tested_output_path, arm_swing_binaries_pairs)
 
 
@@ -120,7 +104,7 @@ def test_5_arm_swing_detection_output(shared_datadir: Path):
     tested_output_path = reference_output_path / "test-output"
 
     config = ArmSwingDetectionConfig()
-    detect_arm_swing(input_path, tested_output_path, path_to_classifier_input, config)
+    detect_arm_swing_io(input_path, tested_output_path, path_to_classifier_input, config)
     compare_data(reference_output_path, tested_output_path, arm_swing_binaries_pairs)
 
 
@@ -141,5 +125,5 @@ def test_6_arm_swing_quantification_output(shared_datadir: Path):
     tested_output_path = reference_output_path / "test-output"
 
     config = ArmSwingQuantificationConfig()
-    quantify_arm_swing(path_to_feature_input, path_to_prediction_input, tested_output_path, config)
+    quantify_arm_swing_io(path_to_feature_input, path_to_prediction_input, tested_output_path, config)
     compare_data(reference_output_path, tested_output_path, arm_swing_binaries_pairs)
