@@ -73,6 +73,7 @@ def preprocess_imu_data_io(input_path: Union[str, Path], output_path: Union[str,
 
         metadata_samples.channels = [x for x in df.columns if sensor in x]
         metadata_samples.units = list(np.repeat(units, len(metadata_samples.channels)))
+        metadata_samples.scale_factors = []
         metadata_samples.file_name = f'{sensor}_samples.bin'
 
         metadata_time.file_name = f'{sensor}_time.bin'

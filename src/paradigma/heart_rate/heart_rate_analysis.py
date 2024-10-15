@@ -13,6 +13,9 @@ import tsdf
 import tsdf.constants
 from paradigma.hr.heart_rate_analysis_config import SignalQualityFeatureExtractionConfig, SignalQualityClassificationConfig
 from paradigma.util import read_metadata, write_np_data, write_df_data
+from paradigma.heart_rate.heart_rate_analysis_config import HeartRateFeatureExtractionConfig
+from paradigma.heart_rate.heart_rate_util import extract_ppg_features, calculate_power_ratio, read_PPG_quality_classifier
+from paradigma.util import read_metadata, write_np_data
 from paradigma.constants import DataColumns, UNIX_TICKS_MS, DataUnits, TimeUnit
 
 
@@ -185,100 +188,100 @@ def extract_signal_quality_features_io(input_path: Union[str, Path], output_path
 def signal_quality_classification(input_path: str, classifier_path: str, output_path: str, config: SignalQualityClassificationConfig) -> None:
     # load data
     metadata_time_ppg, metadata_samples_ppg = read_metadata(input_path, "features_ppg_meta.json", "features_ppg_time.bin", "features_ppg_samples.bin")
-    df_ppg = tsdf.load_dataframe_from_binaries([metadata_time_ppg, metadata_samples_ppg], tsdf.constants.ConcatenationType.columns)
-    arr_ppg = df_ppg[DataColumns.PPG].to_numpy()
-    relative_time_ppg = df_ppg[DataColumns.TIME].to_numpy()
+    # df_ppg = tsdf.load_dataframe_from_binaries([metadata_time_ppg, metadata_samples_ppg], tsdf.constants.ConcatenationType.columns)
+    # arr_ppg = df_ppg[DataColumns.PPG].to_numpy()
+    # relative_time_ppg = df_ppg[DataColumns.TIME].to_numpy()
     
-    metadata_time_acc, metadata_samples_acc = read_metadata(input_path, "feature_acc_meta.json", "feature_acc_time.bin", "feature_acc_samples.bin")
-    df_acc = tsdf.load_dataframe_from_binaries([metadata_time_acc, metadata_samples_acc], tsdf.constants.ConcatenationType.columns)
-    arr_acc = df_acc[[DataColumns.ACCELEROMETER_X, DataColumns.ACCELEROMETER_Y, DataColumns.ACCELEROMETER_Z]].to_numpy()
+    # metadata_time_acc, metadata_samples_acc = read_metadata(input_path, "feature_acc_meta.json", "feature_acc_time.bin", "feature_acc_samples.bin")
+    # df_acc = tsdf.load_dataframe_from_binaries([metadata_time_acc, metadata_samples_acc], tsdf.constants.ConcatenationType.columns)
+    # arr_acc = df_acc[[DataColumns.ACCELEROMETER_X, DataColumns.ACCELEROMETER_Y, DataColumns.ACCELEROMETER_Z]].to_numpy()
 
 
 
-    # Read the classifier (it contains mu and sigma)
-    clf = read_PPG_quality_classifier(classifier_path)
-    lr_model = clf['model']
-    arr_mu = clf['mu'][:, 0]
-    arr_sigma = clf['sigma'][:, 0]
+    # # Read the classifier (it contains mu and sigma)
+    # clf = read_PPG_quality_classifier(classifier_path)
+    # lr_model = clf['model']
+    # arr_mu = clf['mu'][:, 0]
+    # arr_sigma = clf['sigma'][:, 0]
 
-    # Load preprocessed features and scaling model (assuming these are passed in or processed earlier)
-    # This is auto generated code to import the inputs (we already imported the inputs), this is here just to show the names used
-    features_ppg_scaled = np.load(f"path_to_quality_features/features_ppg_scaled.npy")
-    feature_acc = np.load(f"path_to_quality_features/feature_acc.npy")
-    t_unix_feat_total = np.load(f"path_to_quality_features/t_unix_feat_total.npy")
-    v_sync_ppg_total = np.load(f"path_to_quality_features/v_sync_ppg_total.npy")
+    # # Load preprocessed features and scaling model (assuming these are passed in or processed earlier)
+    # # This is auto generated code to import the inputs (we already imported the inputs), this is here just to show the names used
+    # features_ppg_scaled = np.load(f"path_to_quality_features/features_ppg_scaled.npy")
+    # feature_acc = np.load(f"path_to_quality_features/feature_acc.npy")
+    # t_unix_feat_total = np.load(f"path_to_quality_features/t_unix_feat_total.npy")
+    # v_sync_ppg_total = np.load(f"path_to_quality_features/v_sync_ppg_total.npy")
 
-    threshold_acc = 0.13  # Final threshold
+    # threshold_acc = 0.13  # Final threshold
 
-    # Calculate posterior probability using Logistic Regression (scikit-learn)
-    ppg_post_prob = lr_model.predict_proba(features_ppg_scaled)
-    ppg_post_prob_HQ = ppg_post_prob[:, 0]
+    # # Calculate posterior probability using Logistic Regression (scikit-learn)
+    # ppg_post_prob = lr_model.predict_proba(features_ppg_scaled)
+    # ppg_post_prob_HQ = ppg_post_prob[:, 0]
 
-    # IMU classification based on threshold
-    acc_label = feature_acc < threshold_acc  # boolean array
+    # # IMU classification based on threshold
+    # acc_label = feature_acc < threshold_acc  # boolean array
 
-    # Storage of classification in tsdf
-    data_class = {}
-    unix_ticks_ms = 1000  # Assuming 1 ms per tick
-    data_class[1] = (t_unix_feat_total / unix_ticks_ms).astype(np.int32)  # 32-bit integer
-    data_class[2] = ppg_post_prob_HQ.astype(np.float32)  # 32-bit float
-    data_class[3] = acc_label.astype(np.int8)  # 8-bit integer
-    data_class[4] = v_sync_ppg_total.astype(np.int32)  # 64-bit integer for synchronization
-    data_class[5] = feature_acc.astype(np.float32)  # 32-bit float
+    # # Storage of classification in tsdf
+    # data_class = {}
+    # unix_ticks_ms = 1000  # Assuming 1 ms per tick
+    # data_class[1] = (t_unix_feat_total / unix_ticks_ms).astype(np.int32)  # 32-bit integer
+    # data_class[2] = ppg_post_prob_HQ.astype(np.float32)  # 32-bit float
+    # data_class[3] = acc_label.astype(np.int8)  # 8-bit integer
+    # data_class[4] = v_sync_ppg_total.astype(np.int32)  # 64-bit integer for synchronization
+    # data_class[5] = feature_acc.astype(np.float32)  # 32-bit float
 
-    # Time and metadata handling
-    start_time_iso = datetime.utcfromtimestamp(t_unix_feat_total[0] / unix_ticks_ms).isoformat() + 'Z'
-    end_time_iso = datetime.utcfromtimestamp(t_unix_feat_total[-1] / unix_ticks_ms).isoformat() + 'Z'
+    # # Time and metadata handling
+    # start_time_iso = datetime.utcfromtimestamp(t_unix_feat_total[0] / unix_ticks_ms).isoformat() + 'Z'
+    # end_time_iso = datetime.utcfromtimestamp(t_unix_feat_total[-1] / unix_ticks_ms).isoformat() + 'Z'
 
-    # Create metadata templates (adjust this as needed for your system)
-    metafile_pre_template = config.metadata_list_ppg[config.values_idx_ppg]  # Load template
+    # # Create metadata templates (adjust this as needed for your system)
+    # metafile_pre_template = config.metadata_list_ppg[config.values_idx_ppg]  # Load template
 
-    metafile_pre_template["start_iso8601"] = start_time_iso
-    metafile_pre_template["end_iso8601"] = end_time_iso
+    # metafile_pre_template["start_iso8601"] = start_time_iso
+    # metafile_pre_template["end_iso8601"] = end_time_iso
 
-    # Define metadata files
-    meta_class = []
+    # # Define metadata files
+    # meta_class = []
 
-    # 1. Time metadata
-    metafile_time = metafile_pre_template.copy()
-    metafile_time["channels"] = ['time']
-    metafile_time["units"] = ['time_absolute_unix_ms']
-    metafile_time["file_name"] = 'classification_sqa_time.bin'
-    meta_class.append(metafile_time)
+    # # 1. Time metadata
+    # metafile_time = metafile_pre_template.copy()
+    # metafile_time["channels"] = ['time']
+    # metafile_time["units"] = ['time_absolute_unix_ms']
+    # metafile_time["file_name"] = 'classification_sqa_time.bin'
+    # meta_class.append(metafile_time)
 
-    # 2. PPG post-probability metadata
-    metafile_values_ppg = metafile_pre_template.copy()
-    metafile_values_ppg["channels"] = ['post probability']
-    metafile_values_ppg["units"] = ['probability']
-    metafile_values_ppg["freq_sampling_original"] = config.fs_ppg_est  # Sampling rate in Hz
-    metafile_values_ppg["file_name"] = 'classification_sqa_ppg.bin'
-    meta_class.append(metafile_values_ppg)
+    # # 2. PPG post-probability metadata
+    # metafile_values_ppg = metafile_pre_template.copy()
+    # metafile_values_ppg["channels"] = ['post probability']
+    # metafile_values_ppg["units"] = ['probability']
+    # metafile_values_ppg["freq_sampling_original"] = config.fs_ppg_est  # Sampling rate in Hz
+    # metafile_values_ppg["file_name"] = 'classification_sqa_ppg.bin'
+    # meta_class.append(metafile_values_ppg)
 
-    # 3. IMU classification metadata
-    metafile_values_imu = metafile_pre_template.copy()
-    metafile_values_imu["channels"] = ['accelerometer classification']
-    metafile_values_imu["units"] = ['boolean_num']
-    metafile_values_imu["freq_sampling_original"] = config.fs_imu_est  # Sampling rate in Hz
-    metafile_values_imu["file_name"] = 'classification_sqa_imu.bin'
-    meta_class.append(metafile_values_imu)
+    # # 3. IMU classification metadata
+    # metafile_values_imu = metafile_pre_template.copy()
+    # metafile_values_imu["channels"] = ['accelerometer classification']
+    # metafile_values_imu["units"] = ['boolean_num']
+    # metafile_values_imu["freq_sampling_original"] = config.fs_imu_est  # Sampling rate in Hz
+    # metafile_values_imu["file_name"] = 'classification_sqa_imu.bin'
+    # meta_class.append(metafile_values_imu)
 
-    # 4. Synchronization metadata
-    metafile_sync = metafile_pre_template.copy()
-    metafile_sync["channels"] = ['ppg start index', 'ppg end index', 'ppg segment index', 'number of windows']
-    metafile_sync["units"] = ['index', 'index', 'index', 'none']
-    metafile_sync["file_name"] = 'classification_sqa_sync.bin'
-    meta_class.append(metafile_sync)
+    # # 4. Synchronization metadata
+    # metafile_sync = metafile_pre_template.copy()
+    # metafile_sync["channels"] = ['ppg start index', 'ppg end index', 'ppg segment index', 'number of windows']
+    # metafile_sync["units"] = ['index', 'index', 'index', 'none']
+    # metafile_sync["file_name"] = 'classification_sqa_sync.bin'
+    # meta_class.append(metafile_sync)
 
-    # 5. IMU feature metadata
-    metafile_values_imu_feat = metafile_pre_template.copy()
-    metafile_values_imu_feat["channels"] = ['Relative power']
-    metafile_values_imu_feat["units"] = ['none']
-    metafile_values_imu_feat["file_name"] = 'classification_sqa_feat_imu.bin'
-    metafile_values_imu_feat["bin_width"] = 2 * config.f_bin_res  # Bin width of the relative power ratio feature
-    meta_class.append(metafile_values_imu_feat)
+    # # 5. IMU feature metadata
+    # metafile_values_imu_feat = metafile_pre_template.copy()
+    # metafile_values_imu_feat["channels"] = ['Relative power']
+    # metafile_values_imu_feat["units"] = ['none']
+    # metafile_values_imu_feat["file_name"] = 'classification_sqa_feat_imu.bin'
+    # metafile_values_imu_feat["bin_width"] = 2 * config.f_bin_res  # Bin width of the relative power ratio feature
+    # meta_class.append(metafile_values_imu_feat)
 
-    # Define metadata file name
-    mat_metadata_file_name = "classification_sqa_meta.json"
+    # # Define metadata file name
+    # mat_metadata_file_name = "classification_sqa_meta.json"
 
     # Save the data and metadata
-    save_tsdf_data(meta_class, data_class, path_to_signal_quality, mat_metadata_file_name)
+    #save_tsdf_data(meta_class, data_class, path_to_signal_quality, mat_metadata_file_name)

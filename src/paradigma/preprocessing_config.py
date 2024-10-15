@@ -1,5 +1,5 @@
 from paradigma.constants import DataColumns, DataUnits
-from paradigma.gait_analysis_config import IMUConfig
+from paradigma.gait.gait_analysis_config import IMUConfig
 
 class BasePreprocessingConfig:
 

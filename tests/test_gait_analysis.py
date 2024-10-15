@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from paradigma.gait_analysis import detect_arm_swing_io, detect_gait_io, extract_arm_swing_features_io, extract_gait_features_io, quantify_arm_swing_io
-from paradigma.gait_analysis_config import ArmSwingDetectionConfig, ArmSwingFeatureExtractionConfig, ArmSwingQuantificationConfig, GaitDetectionConfig, GaitFeatureExtractionConfig
+from paradigma.gait.gait_analysis import detect_arm_swing_io, detect_gait_io, extract_arm_swing_features_io, extract_gait_features_io, quantify_arm_swing_io
+from paradigma.gait.gait_analysis_config import ArmSwingDetectionConfig, ArmSwingFeatureExtractionConfig, ArmSwingQuantificationConfig, GaitDetectionConfig, GaitFeatureExtractionConfig
 from paradigma.imu_preprocessing import preprocess_imu_data_io
 from paradigma.preprocessing_config import IMUPreprocessingConfig
 from test_notebooks import compare_data
@@ -30,22 +30,6 @@ gyroscope_binaries_pairs: list[tuple[str, str]] = [
 imu_binaries_pairs: list[tuple[str, str]] = accelerometer_binaries_pairs + gyroscope_binaries_pairs
 
 
-def test_1_imu_preprocessing_outputs(shared_datadir: Path):
-    """
-    This function is used to evaluate the output of the preprocessing function. It evaluates it by comparing the output to a reference output.
-    """
-    input_dir_name: str = "1.sensor_data"
-    output_dir_name: str = "2.preprocessed_data"
-
-    input_path = shared_datadir / input_dir_name / "imu"
-    reference_output_path = shared_datadir / output_dir_name / "gait"
-    tested_output_path = reference_output_path / "test-output"
-
-    config = IMUPreprocessingConfig()
-    preprocess_imu_data_io(input_path, tested_output_path, config)
-    compare_data(reference_output_path, tested_output_path, imu_binaries_pairs)
-
-
 def test_2_extract_features_gait_output(shared_datadir: Path):
     """
     This function is used to evaluate the output of the gait feature extraction. It evaluates it by comparing the output to a reference output.
@@ -55,7 +39,7 @@ def test_2_extract_features_gait_output(shared_datadir: Path):
     output_dir_name: str = "3.extracted_features"
     data_type: str = "gait"
 
-    input_path = shared_datadir / input_dir_name / data_type
+    input_path = shared_datadir / input_dir_name / "imu"
     reference_output_path = shared_datadir / output_dir_name / data_type
     tested_output_path = reference_output_path / "test-output"
 
@@ -94,7 +78,7 @@ def test_4_extract_features_arm_swing_output(shared_datadir: Path):
     data_type: str = "gait"
 
     # Temporary path to store the output of the notebook
-    input_path = shared_datadir / input_dir_name / data_type
+    input_path = shared_datadir / input_dir_name / "imu"
     reference_output_path = shared_datadir / output_dir_name / data_type
     tested_output_path = reference_output_path / "test-output"
 

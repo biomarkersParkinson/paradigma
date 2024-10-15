@@ -9,13 +9,13 @@ from sklearn.ensemble import RandomForestClassifier
 import tsdf
 
 from paradigma.constants import DataColumns
-from paradigma.gait_analysis_config import GaitFeatureExtractionConfig, GaitDetectionConfig, \
+from paradigma.gait.gait_analysis_config import GaitFeatureExtractionConfig, GaitDetectionConfig, \
     ArmSwingFeatureExtractionConfig, ArmSwingDetectionConfig, ArmSwingQuantificationConfig
-from paradigma.feature_extraction import extract_temporal_domain_features, \
+from paradigma.gait.feature_extraction import extract_temporal_domain_features, \
     extract_spectral_domain_features, pca_transform_gyroscope, compute_angle, \
     remove_moving_average_angle, extract_angle_extremes, extract_range_of_motion, \
     extract_peak_angular_velocity, signal_to_ffts, get_dominant_frequency, compute_perc_power
-from paradigma.quantification import aggregate_segments
+from paradigma.gait.quantification import aggregate_segments
 from paradigma.windowing import tabulate_windows, create_segments, discard_segments
 from paradigma.util import get_end_iso8601, write_df_data, read_metadata
 
