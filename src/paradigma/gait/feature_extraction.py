@@ -8,7 +8,7 @@ from scipy.integrate import cumulative_trapezoid
 from scipy.signal import find_peaks
 
 from paradigma.constants import DataColumns
-from paradigma.gait_analysis_config import IMUConfig
+from paradigma.gait.gait_analysis_config import IMUConfig
 
 
 def generate_statistics(

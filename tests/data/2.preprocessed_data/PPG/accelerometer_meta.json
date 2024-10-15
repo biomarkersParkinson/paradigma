@@ -6,7 +6,7 @@
     "metadata_version": "0.1",
     "start_iso8601": "2021-06-27T16:52:20Z",
     "end_iso8601": "2021-06-27T17:04:31Z",
-    "rows": 639,
+    "rows": 64459,
     "endianness": "little",
     "data_type": "float",
     "bits": 64,
@@ -15,21 +15,25 @@
             "scale_factors": [
                 1
             ],
-            "file_name": "features_acc_time.bin",
+            "file_name": "accelerometer_time.bin",
             "channels": [
                 "time"
             ],
             "units": [
-                "relative_ms"
+                "absolute_ms"
             ]
         },
         {
-            "file_name": "features_acc_samples.bin",
+            "file_name": "accelerometer_samples.bin",
             "channels": [
-                "power_ratio"
+                "accelerometer_x",
+                "accelerometer_y",
+                "accelerometer_z"
             ],
             "units": [
-                "none"
+                "m/s^2",
+                "m/s^2",
+                "m/s^2"
             ],
             "scale_factors": [
                 0.00469378,

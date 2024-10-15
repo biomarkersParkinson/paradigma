@@ -9,15 +9,15 @@ from sklearn.ensemble import RandomForestClassifier
 import tsdf
 
 from paradigma.constants import DataColumns
-from paradigma.gait_analysis_config import GaitFeatureExtractionConfig, GaitDetectionConfig, \
+from paradigma.gait.gait_analysis_config import GaitFeatureExtractionConfig, GaitDetectionConfig, \
     ArmSwingFeatureExtractionConfig, ArmSwingDetectionConfig, ArmSwingQuantificationConfig
-from paradigma.feature_extraction import extract_temporal_domain_features, \
+from paradigma.gait.feature_extraction import extract_temporal_domain_features, \
     extract_spectral_domain_features, pca_transform_gyroscope, compute_angle, \
     remove_moving_average_angle, extract_angle_extremes, extract_range_of_motion, \
     extract_peak_angular_velocity, signal_to_ffts, get_dominant_frequency, compute_perc_power
-from paradigma.quantification import aggregate_segments
+from paradigma.gait.quantification import aggregate_segments
 from paradigma.windowing import tabulate_windows, create_segments, discard_segments
-from paradigma.util import get_end_iso8601, write_data, read_metadata
+from paradigma.util import get_end_iso8601, write_df_data, read_metadata
 
 
 def extract_gait_features(df: pd.DataFrame, config: GaitFeatureExtractionConfig) -> pd.DataFrame:
@@ -65,7 +65,7 @@ def extract_gait_features_io(input_path: Union[str, Path], output_path: Union[st
     metadata_time.channels = [DataColumns.TIME]
     metadata_time.units = ['relative_time_ms']
 
-    write_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df_windowed)
+    write_df_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df_windowed)
 
 
 def detect_gait(df: pd.DataFrame, config: GaitDetectionConfig, path_to_classifier_input: Union[str, Path]) -> pd.DataFrame:
@@ -108,7 +108,7 @@ def detect_gait_io(input_path: Union[str, Path], output_path: Union[str, Path], 
     metadata_time.channels = [config.time_colname]
     metadata_time.units = ['relative_time_ms']
 
-    write_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df)
+    write_df_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df)
 
 
 def extract_arm_swing_features(df: pd.DataFrame, config: ArmSwingFeatureExtractionConfig) -> pd.DataFrame:
@@ -293,7 +293,7 @@ def extract_arm_swing_features_io(input_path: Union[str, Path], output_path: Uni
     metadata_time.channels = [config.time_colname]
     metadata_time.units = ['relative_time_ms']
 
-    write_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df_windowed)
+    write_df_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df_windowed)
 
 
 def detect_arm_swing(df: pd.DataFrame, config: ArmSwingDetectionConfig, clf: Union[LogisticRegression, RandomForestClassifier]) -> pd.DataFrame:
@@ -335,7 +335,7 @@ def detect_arm_swing_io(input_path: Union[str, Path], output_path: Union[str, Pa
     metadata_time.channels = [DataColumns.TIME]
     metadata_time.units = ['relative_time_ms']
 
-    write_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df)
+    write_df_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df)
 
 
 def quantify_arm_swing(df: pd.DataFrame, config: ArmSwingQuantificationConfig) -> pd.DataFrame:
@@ -422,7 +422,7 @@ def quantify_arm_swing_io(path_to_feature_input: Union[str, Path], path_to_predi
     metadata_time.channels = [DataColumns.TIME, 'segment_duration_ms']
     metadata_time.units = ['relative_time_ms', 'ms']
 
-    write_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df_aggregates)
+    write_df_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df_aggregates)
 
 
 def aggregate_weekly_arm_swing():
