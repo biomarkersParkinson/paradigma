@@ -7,14 +7,14 @@ from typing import Union, List
 
 import numpy as np
 
-def tabulate_windows(df, window_size, step_size, time_column_name, single_value_cols=None, list_value_cols=None, agg_func='first'):
+def tabulate_windows(config, df, agg_func='first'):
     """
     Efficiently creates a windowed dataframe from the input dataframe using vectorized operations.
     
     Args:
         df (pd.DataFrame): The input dataframe, where each row represents a timestamp (0.01 sec).
-        window_size (int): The number of rows per window (600 for 6 seconds).
-        step_size (int): The number of rows to shift between windows (100 for 1 second shift).
+        window_size_s (int): The number of seconds per window.
+        step_size_s (int): The number of seconds to shift between windows.
         single_value_cols (list): List of columns where a single value (e.g., mean) is needed.
         list_value_cols (list): List of columns where all 600 values should be stored in a list.
         agg_func (str or function): Aggregation function for single-value columns (e.g., 'mean', 'first').
@@ -23,17 +23,20 @@ def tabulate_windows(df, window_size, step_size, time_column_name, single_value_
         pd.DataFrame: The windowed dataframe.
     """
     # If single_value_cols or list_value_cols is None, default to an empty list
-    if single_value_cols is None:
-        single_value_cols = []
-    if list_value_cols is None:
-        list_value_cols = []
+    if config.single_value_cols is None:
+        config.single_value_cols = []
+    if config.list_value_cols is None:
+        config.list_value_cols = []
+
+    window_length = int(config.window_length_s * config.sampling_frequency)
+    window_step_size = int(config.window_step_size_s * config.sampling_frequency)
 
     n_rows = len(df)
-    if window_size > n_rows:
-        raise ValueError(f"Window size ({window_size}) cannot be greater than the number of rows ({n_rows}) in the dataframe.")
+    if window_length > n_rows:
+        raise ValueError(f"Window size ({window_length}) cannot be greater than the number of rows ({n_rows}) in the dataframe.")
     
     # Create indices for window start positions 
-    window_starts = np.arange(0, n_rows - window_size + 1, step_size)
+    window_starts = np.arange(0, n_rows - window_length + 1, window_step_size)
     
     # Prepare the result for the final DataFrame
     result = []
@@ -52,22 +55,22 @@ def tabulate_windows(df, window_size, step_size, time_column_name, single_value_
 
         
     for window_nr, start in enumerate(window_starts, 1):
-        end = start + window_size
+        end = start + window_length
         window = df.iloc[start:end]
 
         agg_data = {
             'window_nr': window_nr,
-            'window_start': window[time_column_name].iloc[0],
-            'window_end': window[time_column_name].iloc[-1],
+            'window_start': window[config.time_colname].iloc[0],
+            'window_end': window[config.time_colname].iloc[-1],
         }
         
         # Aggregate single-value columns
-        for col in single_value_cols:
+        for col in config.single_value_cols:
             if col in window.columns:  # Only process columns that exist in the window
                 agg_data[col] = agg_func_np(window[col].values)
         
         # Collect list-value columns efficiently using numpy slicing
-        for col in list_value_cols:
+        for col in config.list_value_cols:
             if col in window.columns:  # Only process columns that exist in the window
                 agg_data[col] = window[col].values.tolist()
 
@@ -77,7 +80,7 @@ def tabulate_windows(df, window_size, step_size, time_column_name, single_value_
     windowed_df = pd.DataFrame(result)
     
     # Ensure the column order is as desired: window_nr, window_start, window_end, pre_or_post, and then the rest
-    desired_order = ['window_nr', 'window_start', 'window_end'] + single_value_cols + list_value_cols
+    desired_order = ['window_nr', 'window_start', 'window_end'] + config.single_value_cols + config.list_value_cols
     
     return windowed_df[desired_order]
 

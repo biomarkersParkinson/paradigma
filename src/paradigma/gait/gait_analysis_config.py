@@ -30,6 +30,8 @@ class IMUConfig:
             DataColumns.GRAV_ACCELEROMETER_Z,
         ]
 
+        self.sampling_frequency = 100
+
     def set_sensor(self, sensor: str) -> None:
         """Sets the sensor and derived filenames"""
         self.sensor: str = sensor
@@ -65,7 +67,7 @@ class GaitFeatureExtractionConfig (IMUConfig):
     def __init__(self) -> None:
         super().__init__()
         self.set_sensor("accelerometer")
-        self.set_sampling_frequency(100)
+        self.set_sampling_frequency(self.sampling_frequency)
 
         self.window_type: str = "hann"
         self.verbose: int = 0
@@ -88,13 +90,8 @@ class GaitFeatureExtractionConfig (IMUConfig):
         }
 
 
-        self.l_window_level_cols: List[str] = [
-            "id",
-            "window_nr",
-            "window_start",
-            "window_end",
-        ]
-        self.l_data_point_level_cols: List[str] = (
+        self.single_value_cols: List[str] = None
+        self.list_value_cols: List[str] = (
             self.l_accelerometer_cols + self.l_gravity_cols
         )
 
@@ -187,8 +184,8 @@ class ArmSwingFeatureExtractionConfig(IMUConfig):
         self.velocity_colname=DataColumns.VELOCITY
         self.segment_nr_colname=DataColumns.SEGMENT_NR
 
-
-        self.l_data_point_level_cols: List[str] = (
+        self.single_value_cols: List[str] = [self.segment_nr_colname]
+        self.list_value_cols: List[str] = (
             self.l_accelerometer_cols
             + self.l_gyroscope_cols
             + self.l_gravity_cols
@@ -204,9 +201,7 @@ class ArmSwingFeatureExtractionConfig(IMUConfig):
         # windowing
         self.window_type = "hann"
         self.initialize_window_length_fields(3)
-
-        self.initialize_sampling_frequency_fields(100)
-
+        self.initialize_sampling_frequency_fields(self.sampling_frequency)
         self.initialize_column_names()
 
         self.d_channels_values = {
