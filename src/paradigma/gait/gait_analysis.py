@@ -23,14 +23,10 @@ from paradigma.util import get_end_iso8601, write_df_data, read_metadata
 def extract_gait_features(df: pd.DataFrame, config: GaitFeatureExtractionConfig) -> pd.DataFrame:
     # group sequences of timestamps into windows
     df_windowed = tabulate_windows(
+        config=config,
         df=df,
-        time_column_name=config.time_colname,
-        data_point_level_cols=config.l_data_point_level_cols,
-        window_length_s=config.window_length_s,
-        window_step_size_s=config.window_step_size_s,
-        sampling_frequency=config.sampling_frequency
+        agg_func='first'
         )
-
     
     # compute statistics of the temporal domain signals
     df_windowed = extract_temporal_domain_features(config, df_windowed, l_gravity_stats=['mean', 'std'])
@@ -132,7 +128,7 @@ def extract_arm_swing_features(df: pd.DataFrame, config: ArmSwingFeatureExtracti
 
     # remove the moving average from the angle to account for possible drift caused by the integration
     # of noise in the angular velocity
-    df[config.angle_smooth_colname] = remove_moving_average_angle(
+    df[config.angle_colname] = remove_moving_average_angle(
         angle_col=df[config.angle_colname],
         sampling_frequency=config.sampling_frequency
     )
@@ -141,43 +137,38 @@ def extract_arm_swing_features(df: pd.DataFrame, config: ArmSwingFeatureExtracti
     df = df.loc[df[config.pred_gait_colname]==1].reset_index(drop=True)
 
     # group consecutive timestamps into segments with new segments starting after a pre-specified gap
-    df_segments = create_segments(
+    df[config.segment_nr_colname] = create_segments(
         df=df,
-        time_colname=config.time_colname,
-        segment_nr_colname=DataColumns.SEGMENT_NR,
-        minimum_gap_s=3
+        time_column_name=config.time_colname,
+        gap_threshold_s=config.segment_gap_s
     )
 
     # remove any segments that do not adhere to predetermined criteria
-    df_segments = discard_segments(
-        df=df_segments,
-        time_colname=config.time_colname,
-        segment_nr_colname=DataColumns.SEGMENT_NR,
-        minimum_segment_length_s=3
+    df = discard_segments(
+        df=df,
+        segment_nr_colname=config.segment_nr_colname,
+        min_length_segment_s=config.segment_gap_s,
+        sampling_frequency=config.sampling_frequency
     )
 
     # create windows of a fixed length and step size from the time series per segment
     l_dfs = []
-    for segment_nr in df_segments[config.segment_nr_colname].unique():
-        df_single_segment = df_segments.loc[df_segments[config.segment_nr_colname]==segment_nr].copy().reset_index(drop=True)
+    for segment_nr in df[config.segment_nr_colname].unique():
+        df_single_segment = df.loc[df[config.segment_nr_colname]==segment_nr].copy().reset_index(drop=True)
         l_dfs.append(tabulate_windows(
+            config=config,
             df=df_single_segment,
-            time_column_name=config.time_colname,
-            segment_nr_colname=config.segment_nr_colname,
-            data_point_level_cols=config.l_data_point_level_cols,
-            window_length_s=config.window_length_s,
-            window_step_size_s=config.window_step_size_s,
-            segment_nr=segment_nr,
-            sampling_frequency=config.sampling_frequency,
+            agg_func='first'
             )
         )
+
     df_windowed = pd.concat(l_dfs).reset_index(drop=True)
 
-    del df, df_segments
+    del df
 
     # transform the angle from the temporal domain to the spectral domain using the fast fourier transform
     df_windowed['angle_freqs'], df_windowed['angle_fft'] = signal_to_ffts(
-        sensor_col=df_windowed[config.angle_smooth_colname],
+        sensor_col=df_windowed[config.angle_colname],
         window_type=config.window_type,
         sampling_frequency=config.sampling_frequency)
 
@@ -194,7 +185,7 @@ def extract_arm_swing_features(df: pd.DataFrame, config: ArmSwingFeatureExtracti
     df_windowed = df_windowed.drop(columns=['angle_fft', 'angle_freqs'])
 
     # compute the percentage of power in the frequency band of interest (i.e., the frequency band of the arm swing)
-    df_windowed['angle_perc_power'] = df_windowed[config.angle_smooth_colname].apply(
+    df_windowed['angle_perc_power'] = df_windowed[config.angle_colname].apply(
         lambda x: compute_perc_power(
             sensor_col=x,
             fmin_band=config.power_band_low_frequency,
@@ -213,12 +204,12 @@ def extract_arm_swing_features(df: pd.DataFrame, config: ArmSwingFeatureExtracti
     # determine the extrema (minima and maxima) of the angle signal
     extract_angle_extremes(
         df=df_windowed,
-        angle_colname=config.angle_smooth_colname,
+        angle_colname=config.angle_colname,
         dominant_frequency_colname='angle_dominant_frequency',
         sampling_frequency=config.sampling_frequency
     )
 
-    df_windowed = df_windowed.drop(columns=[config.angle_smooth_colname])
+    df_windowed = df_windowed.drop(columns=[config.angle_colname])
 
     # calculate the change in angle between consecutive extrema (minima and maxima) of the angle signal inside the window
     df_windowed['angle_amplitudes'] = extract_range_of_motion(
@@ -355,17 +346,17 @@ def quantify_arm_swing(df: pd.DataFrame, config: ArmSwingQuantificationConfig) -
 
     # Segmenting
 
-    df_arm_swing = create_segments(
+
+    df_arm_swing[DataColumns.SEGMENT_NR] = create_segments(
         df=df_arm_swing,
-        time_colname=DataColumns.TIME,
-        segment_nr_colname=DataColumns.SEGMENT_NR,
-        minimum_gap_s=config.segment_gap_s
+        time_column_name=DataColumns.TIME,
+        gap_threshold_s=config.segment_gap_s
     )
     df_arm_swing = discard_segments(
         df=df_arm_swing,
-        time_colname=DataColumns.TIME,
         segment_nr_colname=DataColumns.SEGMENT_NR,
-        minimum_segment_length_s=config.min_segment_length_s
+        min_length_segment_s=config.min_segment_length_s,
+        sampling_frequency=config.sampling_frequency
     )
 
     # Quantify arm swing
