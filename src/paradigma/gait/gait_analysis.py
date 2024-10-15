@@ -25,12 +25,11 @@ def extract_gait_features(df: pd.DataFrame, config: GaitFeatureExtractionConfig)
     df_windowed = tabulate_windows(
         df=df,
         time_column_name=config.time_colname,
-        data_point_level_cols=config.l_data_point_level_cols,
-        window_length_s=config.window_length_s,
-        window_step_size_s=config.window_step_size_s,
-        sampling_frequency=config.sampling_frequency
+        list_value_cols=config.l_data_point_level_cols,
+        window_size=config.window_length_s * config.sampling_frequency,
+        step_size=config.window_step_size_s * config.sampling_frequency,
+        agg_func='first'
         )
-
     
     # compute statistics of the temporal domain signals
     df_windowed = extract_temporal_domain_features(config, df_windowed, l_gravity_stats=['mean', 'std'])
@@ -143,9 +142,8 @@ def extract_arm_swing_features(df: pd.DataFrame, config: ArmSwingFeatureExtracti
     # group consecutive timestamps into segments with new segments starting after a pre-specified gap
     df_segments = create_segments(
         df=df,
-        time_colname=config.time_colname,
-        segment_nr_colname=DataColumns.SEGMENT_NR,
-        minimum_gap_s=3
+        time_column_name=config.time_colname,
+        gap_threshold_s=config.segment_gap_s
     )
 
     # remove any segments that do not adhere to predetermined criteria
@@ -153,7 +151,7 @@ def extract_arm_swing_features(df: pd.DataFrame, config: ArmSwingFeatureExtracti
         df=df_segments,
         time_colname=config.time_colname,
         segment_nr_colname=DataColumns.SEGMENT_NR,
-        minimum_segment_length_s=3
+        minimum_segment_length_s=config.segment_gap_s
     )
 
     # create windows of a fixed length and step size from the time series per segment
@@ -163,14 +161,14 @@ def extract_arm_swing_features(df: pd.DataFrame, config: ArmSwingFeatureExtracti
         l_dfs.append(tabulate_windows(
             df=df_single_segment,
             time_column_name=config.time_colname,
-            segment_nr_colname=config.segment_nr_colname,
-            data_point_level_cols=config.l_data_point_level_cols,
-            window_length_s=config.window_length_s,
-            window_step_size_s=config.window_step_size_s,
-            segment_nr=segment_nr,
-            sampling_frequency=config.sampling_frequency,
+            single_value_cols=[config.segment_nr_colname],
+            list_value_cols=config.l_data_point_level_cols,
+            window_size=config.window_length_s * config.sampling_frequency,
+            step_size=config.window_step_size_s * config.sampling_frequency,
+            agg_func='first'
             )
         )
+
     df_windowed = pd.concat(l_dfs).reset_index(drop=True)
 
     del df, df_segments
@@ -355,11 +353,11 @@ def quantify_arm_swing(df: pd.DataFrame, config: ArmSwingQuantificationConfig) -
 
     # Segmenting
 
+
     df_arm_swing = create_segments(
         df=df_arm_swing,
-        time_colname=DataColumns.TIME,
-        segment_nr_colname=DataColumns.SEGMENT_NR,
-        minimum_gap_s=config.segment_gap_s
+        time_column_name=DataColumns.TIME,
+        gap_threshold_s=config.segment_gap_s
     )
     df_arm_swing = discard_segments(
         df=df_arm_swing,
