@@ -26,7 +26,7 @@ def test_gait_analysis(shared_datadir):
     # Parameters and call
     parameters = dict(
             path_to_data = str(shared_datadir),
-            path_to_classifier = str(shared_datadir / '0.classifiers' / 'gait'),
+            path_to_classifier = str(shared_datadir / '0.classification' / 'gait'),
             path_to_sensor_data = str(shared_datadir / '1.sensor_data' / 'imu'),
             path_to_preprocessed_data = str(shared_datadir / '2.preprocessed_data' / 'gait'),
             path_to_extracted_features = str(shared_datadir / '3.extracted_features' / 'gait'),

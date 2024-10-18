@@ -136,14 +136,14 @@ class GaitDetectionConfig(IMUConfig):
 
     def __init__(self) -> None:
         super().__init__()
-        self.classifier_file_name = "gd_classifier.pkl"
-        self.thresholds_file_name = "gd_threshold.txt"
+        self.classifier_file_name = "gait_detection_classifier.pkl"
+        self.thresholds_file_name = "gait_detection_threshold.txt"
 
         self.set_filenames_values("gait")
 
 
 
-class ArmSwingFeatureExtractionConfig(IMUConfig):
+class ArmActivityFeatureExtractionConfig(IMUConfig):
 
     def initialize_window_length_fields(self, window_length_s: int) -> None:
         self.window_length_s = window_length_s
@@ -241,13 +241,13 @@ class ArmSwingFeatureExtractionConfig(IMUConfig):
                 self.d_channels_values[f"cc_{cc_coef}_{sensor}"] = DataUnits.GRAVITY
 
 
-class ArmSwingDetectionConfig(IMUConfig):
+class FilteringGaitConfig(IMUConfig):
 
     def __init__(self) -> None:
         super().__init__()
-        self.classifier_file_name = "asd_classifier.pkl"
+        self.classifier_file_name = "gait_filtering_classifier.pkl"
 
-        self.set_filenames_values("arm_swing")
+        self.set_filenames_values("arm_activity")
 
 
 
@@ -255,10 +255,10 @@ class ArmSwingQuantificationConfig(IMUConfig):
 
     def __init__(self) -> None:
         super().__init__()
-        self.set_filenames_values("arm_swing")
+        self.set_filenames_values("arm_activity")
 
-        self.pred_arm_swing_proba_colname = DataColumns.PRED_ARM_SWING_PROBA
-        self.pred_arm_swing_colname = DataColumns.PRED_ARM_SWING
+        self.pred_other_arm_activity_proba_colname = DataColumns.PRED_OTHER_ARM_ACTIVITY_PROBA
+        self.pred_other_arm_activity_colname = DataColumns.PRED_OTHER_ARM_ACTIVITY
 
         self.window_length_s = 3
         self.window_step_size = 0.75

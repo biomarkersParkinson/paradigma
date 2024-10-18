@@ -10,7 +10,7 @@ import tsdf
 
 from paradigma.constants import DataColumns
 from paradigma.gait.gait_analysis_config import GaitFeatureExtractionConfig, GaitDetectionConfig, \
-    ArmSwingFeatureExtractionConfig, ArmSwingDetectionConfig, ArmSwingQuantificationConfig
+    ArmActivityFeatureExtractionConfig, FilteringGaitConfig, ArmSwingQuantificationConfig
 from paradigma.gait.feature_extraction import extract_temporal_domain_features, \
     extract_spectral_domain_features, pca_transform_gyroscope, compute_angle, \
     remove_moving_average_angle, extract_angle_extremes, extract_range_of_motion, \
@@ -66,8 +66,8 @@ def extract_gait_features_io(input_path: Union[str, Path], output_path: Union[st
 
 def detect_gait(df: pd.DataFrame, config: GaitDetectionConfig, path_to_classifier_input: Union[str, Path]) -> pd.DataFrame:
     # Initialize the classifier
-    clf = pd.read_pickle(os.path.join(path_to_classifier_input, config.classifier_file_name))
-    with open(os.path.join(path_to_classifier_input, config.thresholds_file_name), 'r') as f:
+    clf = pd.read_pickle(os.path.join(path_to_classifier_input, 'classifiers', config.classifier_file_name))
+    with open(os.path.join(path_to_classifier_input, 'thresholds', config.thresholds_file_name), 'r') as f:
         threshold = float(f.read())
 
     # Prepare the data
@@ -80,8 +80,8 @@ def detect_gait(df: pd.DataFrame, config: GaitDetectionConfig, path_to_classifie
     X = df.loc[:, clf.feature_names_in_]
 
     # Make prediction
-    df['pred_gait_proba'] = clf.predict_proba(X)[:, 1]
-    df['pred_gait'] = df['pred_gait_proba'] >= threshold
+    df[DataColumns.PRED_GAIT_PROBA] = clf.predict_proba(X)[:, 1]
+    df[DataColumns.PRED_GAIT] = df[DataColumns.PRED_GAIT_PROBA] >= threshold
 
     return df
 
@@ -107,7 +107,7 @@ def detect_gait_io(input_path: Union[str, Path], output_path: Union[str, Path], 
     write_df_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df)
 
 
-def extract_arm_swing_features(df: pd.DataFrame, config: ArmSwingFeatureExtractionConfig) -> pd.DataFrame:
+def extract_arm_activity_features(df: pd.DataFrame, config: ArmActivityFeatureExtractionConfig) -> pd.DataFrame:
     # temporary add "random" predictions
     df[config.pred_gait_colname] = np.concatenate([np.repeat([1], df.shape[0]//3), np.repeat([0], df.shape[0]//3), np.repeat([1], df.shape[0] + 1 - 2*df.shape[0]//3)], axis=0)
 
@@ -252,7 +252,7 @@ def extract_arm_swing_features(df: pd.DataFrame, config: ArmSwingFeatureExtracti
     return df_windowed
 
 
-def extract_arm_swing_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config: ArmSwingFeatureExtractionConfig) -> None:
+def extract_arm_activity_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config: ArmActivityFeatureExtractionConfig) -> None:
     # load accelerometer and gyroscope data
     l_dfs = []
     for sensor in ['accelerometer', 'gyroscope']:
@@ -268,15 +268,15 @@ def extract_arm_swing_features_io(input_path: Union[str, Path], output_path: Uni
 
     df = pd.merge(l_dfs[0], l_dfs[1], on=config.time_colname)
 
-    df_windowed = extract_arm_swing_features(df, config)
+    df_windowed = extract_arm_activity_features(df, config)
 
     end_iso8601 = get_end_iso8601(metadata_samples.start_iso8601, 
                                 df_windowed[config.time_colname][-1:].values[0] + config.window_length_s)
 
     metadata_samples.end_iso8601 = end_iso8601
-    metadata_samples.file_name = 'arm_swing_values.bin'
+    metadata_samples.file_name = 'arm_activity_values.bin'
     metadata_time.end_iso8601 = end_iso8601
-    metadata_time.file_name = 'arm_swing_time.bin'
+    metadata_time.file_name = 'arm_activity_time.bin'
 
     metadata_samples.channels = list(config.d_channels_values.keys())
     metadata_samples.units = list(config.d_channels_values.values())
@@ -284,10 +284,10 @@ def extract_arm_swing_features_io(input_path: Union[str, Path], output_path: Uni
     metadata_time.channels = [config.time_colname]
     metadata_time.units = ['relative_time_ms']
 
-    write_df_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df_windowed)
+    write_df_data(metadata_time, metadata_samples, output_path, 'arm_activity_meta.json', df_windowed)
 
 
-def detect_arm_swing(df: pd.DataFrame, config: ArmSwingDetectionConfig, clf: Union[LogisticRegression, RandomForestClassifier]) -> pd.DataFrame:
+def detect_other_arm_activities(df: pd.DataFrame, config: FilteringGaitConfig, clf: Union[LogisticRegression, RandomForestClassifier]) -> pd.DataFrame:
 
     # Prepare the data
     clf.feature_names_in_ = ['std_norm_acc'] + [f'{x}_power_below_gait' for x in config.l_accelerometer_cols] + \
@@ -302,58 +302,58 @@ def detect_arm_swing(df: pd.DataFrame, config: ArmSwingDetectionConfig, clf: Uni
     X = df.loc[:, clf.feature_names_in_]
 
     # Make prediction
-    df[DataColumns.PRED_ARM_SWING_PROBA] = clf.predict_proba(X)[:, 1]
+    df[DataColumns.PRED_OTHER_ARM_ACTIVITY_PROBA] = clf.predict_proba(X)[:, 1]
 
     return df
 
-def detect_arm_swing_io(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: ArmSwingDetectionConfig) -> None:
+def detect_other_arm_activities_io(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: FilteringGaitConfig) -> None:
     # Load the data
     metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
 
     # Load the classifier
-    clf = pd.read_pickle(os.path.join(path_to_classifier_input, config.classifier_file_name))
+    clf = pd.read_pickle(os.path.join(path_to_classifier_input, 'classifiers', config.classifier_file_name))
 
-    df = detect_arm_swing(df, config, clf)
+    df = detect_other_arm_activities(df, config, clf)
 
     # Prepare the metadata
-    metadata_samples.file_name = 'arm_swing_values.bin'
-    metadata_time.file_name = 'arm_swing_time.bin'
+    metadata_samples.file_name = 'arm_activity_values.bin'
+    metadata_time.file_name = 'arm_activity_time.bin'
 
-    metadata_samples.channels = [DataColumns.PRED_ARM_SWING_PROBA]
+    metadata_samples.channels = [DataColumns.PRED_OTHER_ARM_ACTIVITY_PROBA]
     metadata_samples.units = ['probability']
 
     metadata_time.channels = [DataColumns.TIME]
     metadata_time.units = ['relative_time_ms']
 
-    write_df_data(metadata_time, metadata_samples, output_path, 'arm_swing_meta.json', df)
+    write_df_data(metadata_time, metadata_samples, output_path, 'arm_activity_meta.json', df)
 
 
 def quantify_arm_swing(df: pd.DataFrame, config: ArmSwingQuantificationConfig) -> pd.DataFrame:
 
     # temporarily for testing: manually determine predictions
-    df[DataColumns.PRED_ARM_SWING_PROBA] = np.concatenate([np.repeat([1], df.shape[0]//3), np.repeat([0], df.shape[0]//3), np.repeat([1], df.shape[0] - 2*df.shape[0]//3)], axis=0)
+    df[DataColumns.PRED_OTHER_ARM_ACTIVITY_PROBA] = np.concatenate([np.repeat([1], df.shape[0]//3), np.repeat([0], df.shape[0]//3), np.repeat([1], df.shape[0] - 2*df.shape[0]//3)], axis=0)
 
     # keep only predicted arm swing
     # TODO: Aggregate overlapping windows for probabilities
-    df_arm_swing = df.loc[df[DataColumns.PRED_ARM_SWING_PROBA]>=0.5].copy().reset_index(drop=True)
+    df_filtered = df.loc[df[DataColumns.PRED_OTHER_ARM_ACTIVITY_PROBA]>=0.5].copy().reset_index(drop=True)
 
     del df
 
     # create peak angular velocity
-    df_arm_swing.loc[:, 'peak_ang_vel'] = df_arm_swing.loc[:, ['forward_peak_ang_vel_mean', 'backward_peak_ang_vel_mean']].mean(axis=1)
-    df_arm_swing = df_arm_swing.drop(columns=['forward_peak_ang_vel_mean', 'backward_peak_ang_vel_mean'])
+    df_filtered.loc[:, 'peak_ang_vel'] = df_filtered.loc[:, ['forward_peak_ang_vel_mean', 'backward_peak_ang_vel_mean']].mean(axis=1)
+    df_filtered = df_filtered.drop(columns=['forward_peak_ang_vel_mean', 'backward_peak_ang_vel_mean'])
 
     # Segmenting
 
 
-    df_arm_swing[DataColumns.SEGMENT_NR] = create_segments(
-        df=df_arm_swing,
+    df_filtered[DataColumns.SEGMENT_NR] = create_segments(
+        df=df_filtered,
         time_column_name=DataColumns.TIME,
         gap_threshold_s=config.segment_gap_s
     )
-    df_arm_swing = discard_segments(
-        df=df_arm_swing,
+    df_filtered = discard_segments(
+        df=df_filtered,
         segment_nr_colname=DataColumns.SEGMENT_NR,
         min_length_segment_s=config.min_segment_length_s,
         sampling_frequency=config.sampling_frequency
@@ -361,7 +361,7 @@ def quantify_arm_swing(df: pd.DataFrame, config: ArmSwingQuantificationConfig) -
 
     # Quantify arm swing
     df_aggregates = aggregate_segments(
-        df=df_arm_swing,
+        df=df_filtered,
         time_colname=DataColumns.TIME,
         segment_nr_colname=DataColumns.SEGMENT_NR,
         window_step_size_s=config.window_step_size,
@@ -398,7 +398,7 @@ def quantify_arm_swing_io(path_to_feature_input: Union[str, Path], path_to_predi
     df_features = df_features[l_feature_cols]
 
     # Concatenate features and predictions
-    df = pd.concat([df_features, df_predictions[DataColumns.PRED_ARM_SWING_PROBA]], axis=1)
+    df = pd.concat([df_features, df_predictions[DataColumns.PRED_OTHER_ARM_ACTIVITY_PROBA]], axis=1)
 
     df_aggregates = quantify_arm_swing(df, config)
 
