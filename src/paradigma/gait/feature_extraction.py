@@ -603,7 +603,7 @@ def extract_peak_angular_velocity(
                     # compute the backward peak angular velocity, defined by the maximum positive angular velocity between the two peaks
                     df.loc[index, f'backward_peak_{velocity_colname}'].append(np.abs(max(row[velocity_colname][l_extrema_indices[j]:l_extrema_indices[j+1]])))
     
-    return
+    return df
 
 
 def extract_temporal_domain_features(config: IMUConfig, df_windowed:pd.DataFrame, l_gravity_stats=['mean', 'std']) -> pd.DataFrame:

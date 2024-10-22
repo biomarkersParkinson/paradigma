@@ -224,7 +224,7 @@ def extract_arm_activity_features(df: pd.DataFrame, config: ArmActivityFeatureEx
     df_windowed = df_windowed.drop(columns=[f'{config.angle_colname}_amplitudes'])
 
     # compute the forward and backward peak angular velocity using the extrema of the angular velocity
-    extract_peak_angular_velocity(
+    df_windowed = extract_peak_angular_velocity(
         df=df_windowed,
         velocity_colname=config.velocity_colname,
         angle_minima_colname=f'{config.angle_colname}_minima',
@@ -296,7 +296,7 @@ def detect_other_arm_activities(df: pd.DataFrame, config: FilteringGaitConfig, c
                             [f'{x}_power_above_tremor' for x in config.l_accelerometer_cols] + \
                             [f'cc_{i}_accelerometer' for i in range(1, 13)] + [f'cc_{i}_gyroscope' for i in range(1, 13)] + \
                             [f'grav_{x}_mean' for x in config.l_accelerometer_cols] +  [f'grav_{x}_std' for x in config.l_accelerometer_cols] + \
-                            ['range_of_motion', f'forward_peak_{config.velocity_colname}_mean', f'backward_peak_{config.velocity_colname}_mean', 'forward_peak_{config.velocity_colname}_std', 
+                            ['range_of_motion', f'forward_peak_{config.velocity_colname}_mean', f'backward_peak_{config.velocity_colname}_mean', f'forward_peak_{config.velocity_colname}_std', 
                             f'backward_peak_{config.velocity_colname}_std', f'{config.angle_colname}_perc_power', f'{config.angle_colname}_dominant_frequency'] + \
                             [f'{x}_dominant_frequency' for x in config.l_accelerometer_cols]
     X = df.loc[:, clf.feature_names_in_]
@@ -341,8 +341,8 @@ def quantify_arm_swing(df: pd.DataFrame, config: ArmSwingQuantificationConfig) -
     del df
 
     # create peak angular velocity
-    df_filtered.loc[:, 'peak_{config.velocity_colname}'] = df_filtered.loc[:, ['forward_peak_{config.velocity_colname}_mean', 'backward_peak_{config.velocity_colname}_mean']].mean(axis=1)
-    df_filtered = df_filtered.drop(columns=['forward_peak_{config.velocity_colname}_mean', 'backward_peak_{config.velocity_colname}_mean'])
+    df_filtered.loc[:, f'peak_{config.velocity_colname}'] = df_filtered.loc[:, [f'forward_peak_{config.velocity_colname}_mean', f'backward_peak_{config.velocity_colname}_mean']].mean(axis=1)
+    df_filtered = df_filtered.drop(columns=[f'forward_peak_{config.velocity_colname}_mean', f'backward_peak_{config.velocity_colname}_mean'])
 
     # Segmenting
 
@@ -365,7 +365,7 @@ def quantify_arm_swing(df: pd.DataFrame, config: ArmSwingQuantificationConfig) -
         time_colname=DataColumns.TIME,
         segment_nr_colname=DataColumns.SEGMENT_NR,
         window_step_size_s=config.window_step_size,
-        l_metrics=['range_of_motion', 'peak_{config.velocity_colname}'],
+        l_metrics=['range_of_motion', f'peak_{config.velocity_colname}'],
         l_aggregates=['median'],
         l_quantiles=[0.95]
     )
@@ -394,7 +394,7 @@ def quantify_arm_swing_io(path_to_feature_input: Union[str, Path], path_to_predi
     assert df_features[DataColumns.TIME].equals(df_predictions[DataColumns.TIME])
 
     # Subset features
-    l_feature_cols = [DataColumns.TIME, 'range_of_motion', 'forward_peak_{config.velocity_colname}_mean', 'backward_peak_{config.velocity_colname}_mean']
+    l_feature_cols = [DataColumns.TIME, 'range_of_motion', f'forward_peak_{config.velocity_colname}_mean', f'backward_peak_{config.velocity_colname}_mean']
     df_features = df_features[l_feature_cols]
 
     # Concatenate features and predictions
@@ -407,7 +407,7 @@ def quantify_arm_swing_io(path_to_feature_input: Union[str, Path], path_to_predi
     metadata_time.file_name = 'arm_swing_time.bin'
 
     metadata_samples.channels = ['range_of_motion_median', 'range_of_motion_quantile_95',
-                                    'peak_{config.velocity_colname}_median', 'peak_{config.velocity_colname}_quantile_95']
+                                    f'peak_{config.velocity_colname}_median', f'peak_{config.velocity_colname}_quantile_95']
     metadata_samples.units = ['deg', 'deg', 'deg/s', 'deg/s']
 
     metadata_time.channels = [DataColumns.TIME, 'segment_duration_ms']
