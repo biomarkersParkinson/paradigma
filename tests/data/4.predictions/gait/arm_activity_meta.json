@@ -15,7 +15,7 @@
             "scale_factors": [
                 1
             ],
-            "file_name": "arm_swing_time.bin",
+            "file_name": "arm_activity_time.bin",
             "channels": [
                 "time"
             ],
@@ -24,21 +24,14 @@
             ]
         },
         {
-            "file_name": "arm_swing_values.bin",
+            "file_name": "arm_activity_values.bin",
             "channels": [
-                "pred_arm_swing_proba"
+                "pred_other_arm_activity_proba"
             ],
             "units": [
                 "probability"
             ],
-            "scale_factors": [
-                0.00469378,
-                0.00469378,
-                0.00469378,
-                0.06097561,
-                0.06097561,
-                0.06097561
-            ]
+            "scale_factors": []
         }
     ]
 }
