@@ -512,7 +512,7 @@ def extract_angle_extremes(
     for col in [f'{angle_colname}_new_minima', f'{angle_colname}_new_maxima']:
         df.loc[df.apply(lambda x: type(x[col].tolist())==int, axis=1), col] = df.loc[df.apply(lambda x: type(x[col].tolist())==int, axis=1), col].apply(lambda x: [x])
 
-    df[f'{angle_colname}_extrema_values'] = df.apply(lambda x: [x[angle_colname][i] for i in np.concatenate([x[f'{angle_colname}_new_minima'], x[f'{angle_colname}_new_maxima']])], axis=1) 
+    df[f'{angle_colname}_extrema_values'] = df.apply(lambda x: [x[angle_colname][i] for i in sorted(np.concatenate([x[f'{angle_colname}_new_minima'], x[f'{angle_colname}_new_maxima']]))], axis=1) 
 
     return
 
