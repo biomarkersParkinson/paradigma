@@ -205,12 +205,12 @@ class ArmActivityFeatureExtractionConfig(IMUConfig):
         self.initialize_column_names()
 
         self.d_channels_values = {
-            "angle_perc_power": "proportion",
+            f"{self.angle_colname}_perc_power": "proportion",
             "range_of_motion": "deg",
-            "forward_peak_ang_vel_mean": DataUnits.ROTATION,
-            "forward_peak_ang_vel_std": DataUnits.ROTATION,
-            "backward_peak_ang_vel_mean": DataUnits.ROTATION,
-            "backward_peak_ang_vel_std": DataUnits.ROTATION,
+            f"forward_peak_{self.velocity_colname}_mean": DataUnits.ROTATION,
+            f"forward_peak_{self.velocity_colname}_std": DataUnits.ROTATION,
+            f"backward_peak_{self.velocity_colname}_mean": DataUnits.ROTATION,
+            f"backward_peak_{self.velocity_colname}_std": DataUnits.ROTATION,
             "std_norm_acc": DataUnits.GRAVITY,
             "grav_accelerometer_x_mean": DataUnits.GRAVITY,
             "grav_accelerometer_x_std": DataUnits.GRAVITY,
@@ -233,7 +233,7 @@ class ArmActivityFeatureExtractionConfig(IMUConfig):
             "accelerometer_z_power_tremor": "X",
             "accelerometer_z_power_above_tremor": "X",
             "accelerometer_z_dominant_frequency": DataUnits.FREQUENCY,
-            "angle_dominant_frequency": DataUnits.FREQUENCY,
+            f"{self.angle_colname}_dominant_frequency": DataUnits.FREQUENCY,
         }
 
         for sensor in ["accelerometer", "gyroscope"]:
@@ -243,11 +243,19 @@ class ArmActivityFeatureExtractionConfig(IMUConfig):
 
 class FilteringGaitConfig(IMUConfig):
 
+    def initialize_column_names(
+        self
+    ) -> None:
+        
+        self.angle_colname=DataColumns.ANGLE
+        self.velocity_colname=DataColumns.VELOCITY
+
     def __init__(self) -> None:
         super().__init__()
         self.classifier_file_name = "gait_filtering_classifier.pkl"
 
         self.set_filenames_values("arm_activity")
+        self.initialize_column_names()
 
 
 
@@ -257,6 +265,8 @@ class ArmSwingQuantificationConfig(IMUConfig):
         super().__init__()
         self.set_filenames_values("arm_activity")
 
+        self.angle_colname = DataColumns.ANGLE
+        self.velocity_colname = DataColumns.VELOCITY
         self.pred_other_arm_activity_proba_colname = DataColumns.PRED_OTHER_ARM_ACTIVITY_PROBA
         self.pred_other_arm_activity_colname = DataColumns.PRED_OTHER_ARM_ACTIVITY
 

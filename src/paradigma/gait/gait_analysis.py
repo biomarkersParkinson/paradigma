@@ -167,25 +167,25 @@ def extract_arm_activity_features(df: pd.DataFrame, config: ArmActivityFeatureEx
     del df
 
     # transform the angle from the temporal domain to the spectral domain using the fast fourier transform
-    df_windowed['angle_freqs'], df_windowed['angle_fft'] = signal_to_ffts(
+    df_windowed[f'{config.angle_colname}_freqs'], df_windowed[f'{config.angle_colname}_fft'] = signal_to_ffts(
         sensor_col=df_windowed[config.angle_colname],
         window_type=config.window_type,
         sampling_frequency=config.sampling_frequency)
 
     # obtain the dominant frequency of the angle signal in the frequency band of interest
     # defined by the highest peak in the power spectrum
-    df_windowed['angle_dominant_frequency'] = df_windowed.apply(
-        lambda x: get_dominant_frequency(signal_ffts=x['angle_fft'],
-                                        signal_freqs=x['angle_freqs'],
+    df_windowed[f'{config.angle_colname}_dominant_frequency'] = df_windowed.apply(
+        lambda x: get_dominant_frequency(signal_ffts=x[f'{config.angle_colname}_fft'],
+                                        signal_freqs=x[f'{config.angle_colname}_freqs'],
                                         fmin=config.power_band_low_frequency,
                                         fmax=config.power_band_high_frequency
                                         ), axis=1
     )
 
-    df_windowed = df_windowed.drop(columns=['angle_fft', 'angle_freqs'])
+    df_windowed = df_windowed.drop(columns=[f'{config.angle_colname}_fft', f'{config.angle_colname}_freqs'])
 
     # compute the percentage of power in the frequency band of interest (i.e., the frequency band of the arm swing)
-    df_windowed['angle_perc_power'] = df_windowed[config.angle_colname].apply(
+    df_windowed[f'{config.angle_colname}_perc_power'] = df_windowed[config.angle_colname].apply(
         lambda x: compute_perc_power(
             sensor_col=x,
             fmin_band=config.power_band_low_frequency,
@@ -197,49 +197,49 @@ def extract_arm_activity_features(df: pd.DataFrame, config: ArmActivityFeatureEx
             )
     )
 
-    # note to eScience: why are the columns 'angle_new_minima', 'angle_new_maxima', 
-    # 'angle_minima_deleted' and 'angle_maxima deleted' created here? Should a copy
+    # note to eScience: why are the columns f'{config.angle_colname}_new_minima', f'{config.angle_colname}_new_maxima', 
+    # f'{config.angle_colname}_minima_deleted' and f'{config.angle_colname}_maxima deleted' created here? Should a copy
     # of 'df_windowed' be created inside 'extract_angle_extremes' to prevent this from
     # happening?
     # determine the extrema (minima and maxima) of the angle signal
     extract_angle_extremes(
         df=df_windowed,
         angle_colname=config.angle_colname,
-        dominant_frequency_colname='angle_dominant_frequency',
+        dominant_frequency_colname=f'{config.angle_colname}_dominant_frequency',
         sampling_frequency=config.sampling_frequency
     )
 
     df_windowed = df_windowed.drop(columns=[config.angle_colname])
 
     # calculate the change in angle between consecutive extrema (minima and maxima) of the angle signal inside the window
-    df_windowed['angle_amplitudes'] = extract_range_of_motion(
-        angle_extrema_values_col=df_windowed['angle_extrema_values']
+    df_windowed[f'{config.angle_colname}_amplitudes'] = extract_range_of_motion(
+        angle_extrema_values_col=df_windowed[f'{config.angle_colname}_extrema_values']
     )
 
-    df_windowed = df_windowed.drop(columns=['angle_extrema_values'])
+    df_windowed = df_windowed.drop(columns=[f'{config.angle_colname}_extrema_values'])
 
     # aggregate the changes in angle between consecutive extrema to obtain the range of motion
-    df_windowed['range_of_motion'] = df_windowed['angle_amplitudes'].apply(lambda x: np.mean(x) if len(x) > 0 else 0).replace(np.nan, 0)
+    df_windowed['range_of_motion'] = df_windowed[f'{config.angle_colname}_amplitudes'].apply(lambda x: np.mean(x) if len(x) > 0 else 0).replace(np.nan, 0)
 
-    df_windowed = df_windowed.drop(columns=['angle_amplitudes'])
+    df_windowed = df_windowed.drop(columns=[f'{config.angle_colname}_amplitudes'])
 
     # compute the forward and backward peak angular velocity using the extrema of the angular velocity
-    extract_peak_angular_velocity(
+    df_windowed = extract_peak_angular_velocity(
         df=df_windowed,
         velocity_colname=config.velocity_colname,
-        angle_minima_colname='angle_minima',
-        angle_maxima_colname='angle_maxima'
+        angle_minima_colname=f'{config.angle_colname}_minima',
+        angle_maxima_colname=f'{config.angle_colname}_maxima'
     )
 
-    df_windowed = df_windowed.drop(columns=['angle_minima','angle_maxima', 'angle_new_minima',
-                                            'angle_new_maxima', config.velocity_colname])
+    df_windowed = df_windowed.drop(columns=[f'{config.angle_colname}_minima',f'{config.angle_colname}_maxima', f'{config.angle_colname}_new_minima',
+                                            f'{config.angle_colname}_new_maxima', config.velocity_colname])
 
     # compute aggregated measures of the peak angular velocity
     for dir in ['forward', 'backward']:
-        df_windowed[f'{dir}_peak_ang_vel_mean'] = df_windowed[f'{dir}_peak_ang_vel'].apply(lambda x: np.mean(x) if len(x) > 0 else 0)
-        df_windowed[f'{dir}_peak_ang_vel_std'] = df_windowed[f'{dir}_peak_ang_vel'].apply(lambda x: np.std(x) if len(x) > 0 else 0)
+        df_windowed[f'{dir}_peak_{config.velocity_colname}_mean'] = df_windowed[f'{dir}_peak_{config.velocity_colname}'].apply(lambda x: np.mean(x) if len(x) > 0 else 0)
+        df_windowed[f'{dir}_peak_{config.velocity_colname}_std'] = df_windowed[f'{dir}_peak_{config.velocity_colname}'].apply(lambda x: np.std(x) if len(x) > 0 else 0)
 
-        df_windowed = df_windowed.drop(columns=[f'{dir}_peak_ang_vel'])
+        df_windowed = df_windowed.drop(columns=[f'{dir}_peak_{config.velocity_colname}'])
 
     # compute statistics of the temporal domain accelerometer signals
     df_windowed = extract_temporal_domain_features(config, df_windowed, l_gravity_stats=['mean', 'std'])
@@ -296,8 +296,8 @@ def detect_other_arm_activities(df: pd.DataFrame, config: FilteringGaitConfig, c
                             [f'{x}_power_above_tremor' for x in config.l_accelerometer_cols] + \
                             [f'cc_{i}_accelerometer' for i in range(1, 13)] + [f'cc_{i}_gyroscope' for i in range(1, 13)] + \
                             [f'grav_{x}_mean' for x in config.l_accelerometer_cols] +  [f'grav_{x}_std' for x in config.l_accelerometer_cols] + \
-                            ['range_of_motion', 'forward_peak_ang_vel_mean', 'backward_peak_ang_vel_mean', 'forward_peak_ang_vel_std', 
-                            'backward_peak_ang_vel_std', 'angle_perc_power', 'angle_dominant_frequency'] + \
+                            ['range_of_motion', f'forward_peak_{config.velocity_colname}_mean', f'backward_peak_{config.velocity_colname}_mean', f'forward_peak_{config.velocity_colname}_std', 
+                            f'backward_peak_{config.velocity_colname}_std', f'{config.angle_colname}_perc_power', f'{config.angle_colname}_dominant_frequency'] + \
                             [f'{x}_dominant_frequency' for x in config.l_accelerometer_cols]
     X = df.loc[:, clf.feature_names_in_]
 
@@ -341,8 +341,8 @@ def quantify_arm_swing(df: pd.DataFrame, config: ArmSwingQuantificationConfig) -
     del df
 
     # create peak angular velocity
-    df_filtered.loc[:, 'peak_ang_vel'] = df_filtered.loc[:, ['forward_peak_ang_vel_mean', 'backward_peak_ang_vel_mean']].mean(axis=1)
-    df_filtered = df_filtered.drop(columns=['forward_peak_ang_vel_mean', 'backward_peak_ang_vel_mean'])
+    df_filtered.loc[:, f'peak_{config.velocity_colname}'] = df_filtered.loc[:, [f'forward_peak_{config.velocity_colname}_mean', f'backward_peak_{config.velocity_colname}_mean']].mean(axis=1)
+    df_filtered = df_filtered.drop(columns=[f'forward_peak_{config.velocity_colname}_mean', f'backward_peak_{config.velocity_colname}_mean'])
 
     # Segmenting
 
@@ -365,7 +365,7 @@ def quantify_arm_swing(df: pd.DataFrame, config: ArmSwingQuantificationConfig) -
         time_colname=DataColumns.TIME,
         segment_nr_colname=DataColumns.SEGMENT_NR,
         window_step_size_s=config.window_step_size,
-        l_metrics=['range_of_motion', 'peak_ang_vel'],
+        l_metrics=['range_of_motion', f'peak_{config.velocity_colname}'],
         l_aggregates=['median'],
         l_quantiles=[0.95]
     )
@@ -394,7 +394,7 @@ def quantify_arm_swing_io(path_to_feature_input: Union[str, Path], path_to_predi
     assert df_features[DataColumns.TIME].equals(df_predictions[DataColumns.TIME])
 
     # Subset features
-    l_feature_cols = [DataColumns.TIME, 'range_of_motion', 'forward_peak_ang_vel_mean', 'backward_peak_ang_vel_mean']
+    l_feature_cols = [DataColumns.TIME, 'range_of_motion', f'forward_peak_{config.velocity_colname}_mean', f'backward_peak_{config.velocity_colname}_mean']
     df_features = df_features[l_feature_cols]
 
     # Concatenate features and predictions
@@ -407,7 +407,7 @@ def quantify_arm_swing_io(path_to_feature_input: Union[str, Path], path_to_predi
     metadata_time.file_name = 'arm_swing_time.bin'
 
     metadata_samples.channels = ['range_of_motion_median', 'range_of_motion_quantile_95',
-                                    'peak_ang_vel_median', 'peak_ang_vel_quantile_95']
+                                    f'peak_{config.velocity_colname}_median', f'peak_{config.velocity_colname}_quantile_95']
     metadata_samples.units = ['deg', 'deg', 'deg/s', 'deg/s']
 
     metadata_time.channels = [DataColumns.TIME, 'segment_duration_ms']

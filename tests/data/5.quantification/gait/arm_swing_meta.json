@@ -30,8 +30,8 @@
             "channels": [
                 "range_of_motion_median",
                 "range_of_motion_quantile_95",
-                "peak_ang_vel_median",
-                "peak_ang_vel_quantile_95"
+                "peak_velocity_median",
+                "peak_velocity_quantile_95"
             ],
             "units": [
                 "deg",
