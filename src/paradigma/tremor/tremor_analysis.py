@@ -1,4 +1,3 @@
-import os
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -17,10 +16,10 @@ from paradigma.util import get_end_iso8601, write_df_data, read_metadata
 def extract_tremor_features(df: pd.DataFrame, config: TremorFeatureExtractionConfig) -> pd.DataFrame:
     # group sequences of timestamps into windows
     df_windowed = tabulate_windows(config,df)
-    
+
     # transform the signals from the temporal domain to the spectral domain using the fast fourier transform
     # and extract spectral features
-    df_windowed = extract_spectral_domain_features(config, df_windowed,config.l_gyroscope_cols)
+    df_windowed = extract_spectral_domain_features(config, df_windowed)
 
     return df_windowed
 
@@ -30,6 +29,7 @@ def extract_tremor_features_io(input_path: Union[str, Path], output_path: Union[
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
 
     # Extract tremor features
+    
     df_windowed = extract_tremor_features(df, config)
 
     # Store data

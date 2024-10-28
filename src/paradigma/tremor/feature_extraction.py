@@ -1,91 +1,94 @@
+from typing import List
 import numpy as np
 import pandas as pd
 
-from scipy import signal, fft
+from scipy import signal
 
-def compute_fft(
+from paradigma.constants import DataColumns
+
+def compute_welch_periodogram(
         values: list,
-        window_type: str = 'hann',
         sampling_frequency: int = 100,
-    ) -> tuple:
-    """Compute the Fast Fourier Transform (FFT) of a signal.
+        window_type = 'hann',
+        segment_length_s = 2,
+        overlap_s: int = 0.5,
+        spectral_resolution: int = 0.25
+    )-> tuple:
+    """Estimate power spectral density of the gyroscope signal using Welch's method.
     
     Parameters
     ----------
-    values: list
-        The values of the signal (e.g., accelerometer data) of a single window.
+    values: List
+        The values of the signal (e.g., gyroscope data) of a single window.
     window_type: str
-        The type of window to be used for the FFT (default: 'hann')
+        The type of window to be used for the PSD (default: 'hann')
     sampling_frequency: int
         The sampling frequency of the signal (default: 100)
+    segment_length_s: int
+        The length of each segment in seconds
+    overlap_s: int
+        The overlap between segments in seconds
+    spectral_resolution: int
+        The frequency resolution in Hz
         
     Returns
     -------
     tuple
-        The FFT values and the corresponding frequencies
+        Lists of PSD values and the corresponding frequencies
     """
-    w = signal.get_window(window_type, len(values), fftbins=False)
-    yf = 2*fft.fft(values*w)[:int(len(values)/2+1)]
-    xf = fft.fftfreq(len(values), 1/sampling_frequency)[:int(len(values)/2+1)]
 
-    return yf, xf
+    segment_length_n = sampling_frequency*segment_length_s
+    overlap_n = sampling_frequency*overlap_s
+    window = signal.get_window(window_type, segment_length_n, fftbins=False)
+    nfft = sampling_frequency/spectral_resolution
+    
+    f, Pxx = signal.welch(values,sampling_frequency,window,segment_length_n,
+                          overlap_n,nfft,detrend=False)
 
-def signal_to_ffts(
+    return f, Pxx
+
+def signal_to_PSD(
         sensor_col: pd.Series,
-        window_type: str = 'hann',
         sampling_frequency: int = 100,
+        window_type = 'hann',
+        segment_length_s = 2,
+        overlap_s: int = 0.5,
+        spectral_resolution = 0.25
     ) -> tuple:
-    """Compute the Fast Fourier Transform (FFT) of a signal per window (can probably be combined with compute_fft and simplified).
+    """Compute the PSD (welch's method) of a signal per window.
 
     Parameters
     ----------
     sensor_col: pd.Series
         The sensor column to be transformed (e.g. x-axis of gyroscope)
     window_type: str
-        The type of window to be used for the FFT (default: 'hann')
+        The type of window to be used for the PSD (default: 'hann')
     sampling_frequency: int
         The sampling frequency of the signal (default: 100)
+    segment_length_s: int
+        The length of each segment in seconds
+    overlap_s: int
+        The overlap between segments in seconds
     
     Returns
     -------
     tuple
-        Lists of FFT values and corresponding frequencies which can be concatenated as column to the dataframe
+        Lists of PSD values and corresponding frequencies which can be concatenated as column to the dataframe
     """
     l_values_total = []
     l_freqs_total = []
     for row in sensor_col:
-        l_values, l_freqs = compute_fft(
+        l_freqs, l_values = compute_welch_periodogram(
             values=row,
             window_type=window_type,
-            sampling_frequency=sampling_frequency)
+            sampling_frequency=sampling_frequency,
+            segment_length_s = segment_length_s,
+            overlap_s = overlap_s,
+            spectral_resolution = spectral_resolution)
         l_values_total.append(l_values)
         l_freqs_total.append(l_freqs)
 
     return l_freqs_total, l_values_total
-    
-def compute_power(
-        df: pd.DataFrame,
-        fft_cols: list
-    ) -> pd.Series:
-    """Compute the power of the FFT values.
-    
-    Parameters
-    ----------
-    df: pd.DataFrame
-        The dataframe containing the FFT values
-    fft_cols: list
-        The names of the columns containing the FFT values
-    
-    Returns
-    -------
-    pd.Series
-        The power of the FFT values
-    """
-    for col in fft_cols:
-        df['{}_power'.format(col)] = df[col].apply(lambda x: np.square(np.abs(x)))
-
-    return df.apply(lambda x: sum([np.array([y for y in x[col+'_power']]) for col in fft_cols]), axis=1)
-
 
 def melscale(x):
     y = 64.875 * np.log10(1 + x/17.5)
@@ -110,7 +113,7 @@ def generate_mel_frequency_cepstral_coefficients(
     Parameters
     ----------
     total_power_col: pd.Series
-        The total power of the signal, extracted using compute_power
+        The total power of the signal, extracted using fourier
     window_length_s: int
         The number of seconds a window constitutes
     sampling_frequency: int
@@ -160,25 +163,25 @@ def generate_mel_frequency_cepstral_coefficients(
     return pd.DataFrame(np.vstack(cepstral_coefs), columns=['mfcc_{}'.format(j+1) for j in range(n_coefficients)])
 
 
-def extract_spectral_domain_features(config, df_windowed,l_sensor_colnames):
+def extract_spectral_domain_features(config, df_windowed):
 
-    for col in l_sensor_colnames:
-
-        # transform the temporal signal to the spectral domain using the fast fourier transform
-        df_windowed[f'{col}_freqs'], df_windowed[f'{col}_fft'] = signal_to_ffts(
-            sensor_col=df_windowed[col],
-            window_type=config.window_type,
-            sampling_frequency=config.sampling_frequency
+    # transform the temporal signal to the spectral domain using Welch's method
+    for col in config.l_gyroscope_cols:
+        df_windowed[f'{col}_freqs'], df_windowed[f'{col}_PSD'] = signal_to_PSD(
+            sensor_col = df_windowed[col], 
+            sampling_frequency = config.sampling_frequency,
+            window_type = config.window_type, 
+            segment_length_s = config.segment_length_s,
+            overlap_s = config.overlap_s
             )
     
-    # compute the power summed over the individual axes
-    df_windowed['total_power'] = compute_power(
-        df=df_windowed,
-        fft_cols=[f'{col}_fft' for col in l_sensor_colnames])
+    df_windowed['total_PSD'] = df_windowed.apply(lambda x: sum(x[y+'_PSD'] for y in config.l_gyroscope_cols), axis=1)
+
+    print(df_windowed['gyroscope_x_freqs'][0])
 
     # compute the cepstral coefficients of the total power signal
     mfcc_cols = generate_mel_frequency_cepstral_coefficients(
-        total_power_col=df_windowed['total_power'],
+        total_power_col=df_windowed['total_PSD'],
         window_length_s=config.window_length_s,
         sampling_frequency=config.sampling_frequency,
         low_frequency=config.spectrum_low_frequency,
@@ -188,6 +191,9 @@ def extract_spectral_domain_features(config, df_windowed,l_sensor_colnames):
         )
     
     df_windowed = pd.concat([df_windowed, mfcc_cols], axis=1)
+
+    df_windowed = df_windowed.rename(columns={'window_start': DataColumns.TIME})
+
     
     return df_windowed
     

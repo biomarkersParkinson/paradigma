@@ -70,8 +70,11 @@ class TremorFeatureExtractionConfig (IMUConfig):
         self.single_value_cols: List[str] = None
         self.list_value_cols: List[str] = (self.l_gyroscope_cols)
 
-        self.window_type: str = "hann"
-        self.verbose: int = 0
+        # power spectral density
+        self.window_type = 'hann'
+        self.segment_length_s: int = 2
+        self.overlap_s: int = 0.5
+        self.spectral_resolution: int = 0.25
 
         # cepstral coefficients
         self.cc_low_frequency: int = 0
@@ -79,7 +82,10 @@ class TremorFeatureExtractionConfig (IMUConfig):
         self.n_dct_filters_cc: int = 20
         self.n_coefficients_cc: int = 12
 
-
+        # TODO: generate this dictionary using object attributes (self.X) and parameters (e.g., n_dct_filters for cc)
+        self.d_channels_values: Dict[str, str] = {}
+        for cc_coef in range(1, self.n_coefficients_cc + 1):
+            self.d_channels_values[f"mfcc_{cc_coef}"] = "g"
 
     def set_sampling_frequency(self, sampling_frequency: int) -> None:
         """Sets the sampling frequency and derived variables"""
