@@ -15,7 +15,7 @@
             "scale_factors": [
                 1
             ],
-            "file_name": "arm_swing_time.bin",
+            "file_name": "arm_activity_time.bin",
             "channels": [
                 "time"
             ],
@@ -24,14 +24,14 @@
             ]
         },
         {
-            "file_name": "arm_swing_values.bin",
+            "file_name": "arm_activity_values.bin",
             "channels": [
                 "angle_perc_power",
                 "range_of_motion",
-                "forward_peak_ang_vel_mean",
-                "forward_peak_ang_vel_std",
-                "backward_peak_ang_vel_mean",
-                "backward_peak_ang_vel_std",
+                "forward_peak_velocity_mean",
+                "forward_peak_velocity_std",
+                "backward_peak_velocity_mean",
+                "backward_peak_velocity_std",
                 "std_norm_acc",
                 "grav_accelerometer_x_mean",
                 "grav_accelerometer_x_std",
@@ -135,14 +135,7 @@
                 "g",
                 "g"
             ],
-            "scale_factors": [
-                0.00469378,
-                0.00469378,
-                0.00469378,
-                0.06097561,
-                0.06097561,
-                0.06097561
-            ]
+            "scale_factors": []
         }
     ]
 }

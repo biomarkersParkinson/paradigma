@@ -7,7 +7,7 @@ from scipy.interpolate import CubicSpline
 
 import tsdf
 from paradigma.constants import DataColumns, TimeUnit
-from paradigma.util import write_data, read_metadata
+from paradigma.util import write_df_data, read_metadata
 from paradigma.preprocessing_config import IMUPreprocessingConfig
 
 
@@ -33,8 +33,10 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUPreprocessingConfig, scale_
         scale_factors=scale_factors,
         resampling_frequency=config.sampling_frequency)
     
-    if config.side_watch == 'left':
+    if config.side_watch == 'right':
         df[DataColumns.ACCELEROMETER_X] *= -1
+        df[DataColumns.GYROSCOPE_Y] *= -1
+        df[DataColumns.GYROSCOPE_Z] *= -1
 
     for col in config.d_channels_accelerometer.keys():
 
@@ -79,7 +81,7 @@ def preprocess_imu_data_io(input_path: Union[str, Path], output_path: Union[str,
         metadata_time.file_name = f'{sensor}_time.bin'
         metadata_time.units = ['time_relative_ms']
 
-        write_data(metadata_time, metadata_samples, output_path, f'{sensor}_meta.json', df_sensor)
+        write_df_data(metadata_time, metadata_samples, output_path, f'{sensor}_meta.json', df_sensor)
 
 
 def transform_time_array(

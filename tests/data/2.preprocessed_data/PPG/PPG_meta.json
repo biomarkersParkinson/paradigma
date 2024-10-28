@@ -2,36 +2,35 @@
     "study_id": "PPP",
     "device_id": "Verily Study Watch",
     "subject_id": "X",
-    "ppp_source_protobuf": "WatchData.IMU.Week104.raw",
+    "ppp_source_protobuf": "WatchData.PPG.Week104.raw",
     "metadata_version": "0.1",
     "start_iso8601": "2021-06-27T16:52:20Z",
-    "end_iso8601": "2021-06-27T17:04:30Z",
-    "rows": 725,
+    "end_iso8601": "2021-06-27T17:03:05Z",
+    "scale_factors": [
+        1
+    ],
+    "rows": 19338,
     "endianness": "little",
     "data_type": "float",
     "bits": 64,
     "sensors": [
         {
-            "scale_factors": [
-                1
-            ],
-            "file_name": "gait_time.bin",
+            "file_name": "PPG_time.bin",
             "channels": [
                 "time"
             ],
             "units": [
-                "relative_time_ms"
+                "absolute_ms"
             ]
         },
         {
-            "file_name": "gait_values.bin",
+            "file_name": "PPG_samples.bin",
             "channels": [
-                "pred_gait_proba"
+                "green"
             ],
             "units": [
-                "probability"
-            ],
-            "scale_factors": []
+                "none"
+            ]
         }
     ]
 }

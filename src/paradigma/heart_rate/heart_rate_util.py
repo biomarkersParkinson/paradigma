@@ -1,5 +1,6 @@
 from typing import List, Tuple, Union
 import pickle
+from scipy.signal import find_peaks
 import pandas as pd
 import numpy as np
 from scipy.signal import welch, find_peaks
@@ -52,16 +53,22 @@ def extract_ppg_features(arr_ppg: np.ndarray, sampling_frequency: int) -> np.nda
     ppg_series = pd.Series(arr_ppg)
     autocorrelations = [ppg_series.autocorr(lag=i) for i in range(sampling_frequency*3)]
     
-    # Finding peaks in autocorrelation
-    peaks, _ = peakdet(np.array(autocorrelations), delta=0.01)
-    sorted_peaks = np.sort(peaks)
-    #TODO: double check if this is correct
-    print(sorted_peaks)
-    
+    autocorrelations = np.array(autocorrelations)
+
+    # Detect peaks using scipy
+    peaks, _ = find_peaks(autocorrelations, height=0.01)  # peaks will be the indices of the peaks
+
+    # Get the peak values from autocorrelations using the peak indices
+    peak_values = autocorrelations[peaks]  # Get peak values using the peak indices
+
+    # Sort the peak values in descending order
+    sorted_peaks = np.sort(peak_values)[::-1]
+
+    # Check if there is more than one peak
     if len(sorted_peaks) > 1:
-        features_ppg[9] = sorted_peaks[1]  # Feature 10: the second highest peak
+        features_ppg[9] = sorted_peaks[1]  # The second highest peak
     else:
-        features_ppg[9] = 0  # Set to 0 if there is no clear second peak
+        features_ppg[9] = 0  # If no second peak, set to 0
     
     return features_ppg
 
