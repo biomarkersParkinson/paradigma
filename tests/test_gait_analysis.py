@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from paradigma.gait.gait_analysis import detect_other_arm_activities_io, detect_gait_io, extract_arm_activity_features_io, extract_gait_features_io, quantify_arm_swing_io
+from paradigma.gait.gait_analysis import filter_gait_io, detect_gait_io, extract_arm_activity_features_io, extract_gait_features_io, quantify_arm_swing_io
 from paradigma.gait.gait_analysis_config import FilteringGaitConfig, ArmActivityFeatureExtractionConfig, ArmSwingQuantificationConfig, GaitDetectionConfig, GaitFeatureExtractionConfig
 from paradigma.imu_preprocessing import preprocess_imu_data_io
 from paradigma.preprocessing_config import IMUPreprocessingConfig
@@ -109,7 +109,7 @@ def test_5_arm_swing_detection_output(shared_datadir: Path):
     tested_output_path = reference_output_path / "test-output"
 
     config = FilteringGaitConfig()
-    detect_other_arm_activities_io(input_path, tested_output_path, path_to_classifier_input, config)
+    filter_gait_io(input_path, tested_output_path, path_to_classifier_input, config)
     compare_data(reference_output_path, tested_output_path, arm_activity_binaries_pairs)
 
 
