@@ -1,3 +1,4 @@
 *.ipynb filter=nbstripout
 *.zpln filter=nbstripout
 *.ipynb diff=ipynb
+* text=auto # Ensures files always use LF endings
