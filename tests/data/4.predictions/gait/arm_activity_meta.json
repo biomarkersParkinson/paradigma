@@ -26,7 +26,7 @@
         {
             "file_name": "arm_activity_values.bin",
             "channels": [
-                "pred_other_arm_activity_proba"
+                "pred_no_other_arm_activity_proba"
             ],
             "units": [
                 "probability"
