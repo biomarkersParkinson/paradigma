@@ -287,7 +287,7 @@ def extract_arm_activity_features_io(input_path: Union[str, Path], output_path: 
     write_df_data(metadata_time, metadata_samples, output_path, 'arm_activity_meta.json', df_windowed)
 
 
-def detect_other_arm_activities(df: pd.DataFrame, config: FilteringGaitConfig, clf: Union[LogisticRegression, RandomForestClassifier]) -> pd.DataFrame:
+def filter_gait(df: pd.DataFrame, config: FilteringGaitConfig, clf: Union[LogisticRegression, RandomForestClassifier]) -> pd.DataFrame:
 
     # Prepare the data
     clf.feature_names_in_ = ['std_norm_acc'] + [f'{x}_power_below_gait' for x in config.l_accelerometer_cols] + \
@@ -302,11 +302,11 @@ def detect_other_arm_activities(df: pd.DataFrame, config: FilteringGaitConfig, c
     X = df.loc[:, clf.feature_names_in_]
 
     # Make prediction
-    df[DataColumns.PRED_OTHER_ARM_ACTIVITY_PROBA] = clf.predict_proba(X)[:, 1]
+    df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] = clf.predict_proba(X)[:, 1]
 
     return df
 
-def detect_other_arm_activities_io(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: FilteringGaitConfig) -> None:
+def filter_gait_io(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: FilteringGaitConfig) -> None:
     # Load the data
     metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
@@ -314,13 +314,13 @@ def detect_other_arm_activities_io(input_path: Union[str, Path], output_path: Un
     # Load the classifier
     clf = pd.read_pickle(os.path.join(path_to_classifier_input, 'classifiers', config.classifier_file_name))
 
-    df = detect_other_arm_activities(df, config, clf)
+    df = filter_gait(df, config, clf)
 
     # Prepare the metadata
     metadata_samples.file_name = 'arm_activity_values.bin'
     metadata_time.file_name = 'arm_activity_time.bin'
 
-    metadata_samples.channels = [DataColumns.PRED_OTHER_ARM_ACTIVITY_PROBA]
+    metadata_samples.channels = [DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]
     metadata_samples.units = ['probability']
 
     metadata_time.channels = [DataColumns.TIME]
@@ -332,11 +332,11 @@ def detect_other_arm_activities_io(input_path: Union[str, Path], output_path: Un
 def quantify_arm_swing(df: pd.DataFrame, config: ArmSwingQuantificationConfig) -> pd.DataFrame:
 
     # temporarily for testing: manually determine predictions
-    df[DataColumns.PRED_OTHER_ARM_ACTIVITY_PROBA] = np.concatenate([np.repeat([1], df.shape[0]//3), np.repeat([0], df.shape[0]//3), np.repeat([1], df.shape[0] - 2*df.shape[0]//3)], axis=0)
+    df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] = np.concatenate([np.repeat([1], df.shape[0]//3), np.repeat([0], df.shape[0]//3), np.repeat([1], df.shape[0] - 2*df.shape[0]//3)], axis=0)
 
     # keep only predicted arm swing
     # TODO: Aggregate overlapping windows for probabilities
-    df_filtered = df.loc[df[DataColumns.PRED_OTHER_ARM_ACTIVITY_PROBA]>=0.5].copy().reset_index(drop=True)
+    df_filtered = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]>=0.5].copy().reset_index(drop=True)
 
     del df
 
@@ -398,7 +398,7 @@ def quantify_arm_swing_io(path_to_feature_input: Union[str, Path], path_to_predi
     df_features = df_features[l_feature_cols]
 
     # Concatenate features and predictions
-    df = pd.concat([df_features, df_predictions[DataColumns.PRED_OTHER_ARM_ACTIVITY_PROBA]], axis=1)
+    df = pd.concat([df_features, df_predictions[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]], axis=1)
 
     df_aggregates = quantify_arm_swing(df, config)
 
