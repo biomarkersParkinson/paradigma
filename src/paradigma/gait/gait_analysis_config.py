@@ -267,8 +267,8 @@ class ArmSwingQuantificationConfig(IMUConfig):
 
         self.angle_colname = DataColumns.ANGLE
         self.velocity_colname = DataColumns.VELOCITY
-        self.pred_other_arm_activity_proba_colname = DataColumns.PRED_OTHER_ARM_ACTIVITY_PROBA
-        self.pred_other_arm_activity_colname = DataColumns.PRED_OTHER_ARM_ACTIVITY
+        self.pred_other_arm_activity_proba_colname = DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA
+        self.pred_other_arm_activity_colname = DataColumns.PRED_NO_OTHER_ARM_ACTIVITY
 
         self.window_length_s = 3
         self.window_step_size = 0.75
