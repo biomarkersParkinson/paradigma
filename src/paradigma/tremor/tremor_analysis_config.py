@@ -63,8 +63,7 @@ class TremorFeatureExtractionConfig (IMUConfig):
         super().__init__()
 
         self.set_sensor("gyroscope")
-        self.set_sampling_frequency(100)
-
+        self.sampling_frequency: int=100
         self.window_length_s: int = 4
         self.window_step_size_s: int = 4
         self.single_value_cols: List[str] = None
@@ -72,24 +71,17 @@ class TremorFeatureExtractionConfig (IMUConfig):
 
         # power spectral density
         self.window_type = 'hann'
-        self.segment_length_s: int = 2
-        self.overlap_s: int = 0.5
-        self.spectral_resolution: int = 0.25
+        self.overlap: int = 0.8
+        self.segment_length_s_psd: int = 2
+        self.spectral_resolution_psd: int = 0.25
 
         # cepstral coefficients
-        self.cc_low_frequency: int = 0
-        self.cc_high_frequency: int = 25
-        self.n_dct_filters_cc: int = 20
-        self.n_coefficients_cc: int = 12
+        self.segment_length_s_mfcc: int = 2
+        self.mfcc_low_frequency: int = 0
+        self.mfcc_high_frequency: int = 25
+        self.n_dct_filters_mfcc: int = 15
+        self.n_coefficients_mfcc: int = 12
 
-        # TODO: generate this dictionary using object attributes (self.X) and parameters (e.g., n_dct_filters for cc)
         self.d_channels_values: Dict[str, str] = {}
-        for cc_coef in range(1, self.n_coefficients_cc + 1):
-            self.d_channels_values[f"mfcc_{cc_coef}"] = "g"
-
-    def set_sampling_frequency(self, sampling_frequency: int) -> None:
-        """Sets the sampling frequency and derived variables"""
-        self.sampling_frequency: int = sampling_frequency
-        self.spectrum_low_frequency: int = 0  # Hz
-        self.spectrum_high_frequency: int = int(self.sampling_frequency / 2)  # Hz
-        self.filter_length: int = self.spectrum_high_frequency - 1
+        for mfcc_coef in range(1, self.n_coefficients_mfcc + 1):
+            self.d_channels_values[f"mfcc_{mfcc_coef}"] = "unitless"

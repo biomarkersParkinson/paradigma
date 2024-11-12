@@ -40,18 +40,18 @@
                 "mfcc_12"
             ],
             "units": [
-                "g",
-                "g",
-                "g",
-                "g",
-                "g",
-                "g",
-                "g",
-                "g",
-                "g",
-                "g",
-                "g",
-                "g"
+                "unitless",
+                "unitless",
+                "unitless",
+                "unitless",
+                "unitless",
+                "unitless",
+                "unitless",
+                "unitless",
+                "unitless",
+                "unitless",
+                "unitless",
+                "unitless"
             ],
             "scale_factors": []
         }
