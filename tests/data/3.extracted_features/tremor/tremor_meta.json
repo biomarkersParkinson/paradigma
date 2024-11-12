@@ -37,7 +37,10 @@
                 "mfcc_9",
                 "mfcc_10",
                 "mfcc_11",
-                "mfcc_12"
+                "mfcc_12",
+                "freq_peak",
+                "low_freq_power",
+                "tremor_power"
             ],
             "units": [
                 "unitless",
@@ -51,7 +54,10 @@
                 "unitless",
                 "unitless",
                 "unitless",
-                "unitless"
+                "unitless",
+                "Hz",
+                "(deg/s)^2",
+                "(deg/s)^2"
             ],
             "scale_factors": []
         }

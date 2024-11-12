@@ -8,9 +8,9 @@ from paradigma.constants import DataColumns
 
 def compute_welch_periodogram(
         values: list,
-        sampling_frequency: int = 100,
         window_type = 'hann',
-        segment_length_s = 2,
+        sampling_frequency: int = 100,
+        segment_length_s = 3,
         overlap: int = 0.8,
         spectral_resolution: int = 0.25
     )-> tuple:
@@ -29,7 +29,7 @@ def compute_welch_periodogram(
     overlap: int
         The overlap between segments 
     spectral_resolution: int
-        The frequency resolution in Hz
+        The spectral resolution of the PSD in Hz
         
     Returns
     -------
@@ -39,21 +39,21 @@ def compute_welch_periodogram(
 
     segment_length_n = sampling_frequency*segment_length_s
     overlap_n = segment_length_n*overlap
-    window = signal.get_window(window_type, segment_length_n, fftbins=False)
+    window = signal.get_window(window_type, segment_length_n,fftbins=False)
     nfft = sampling_frequency/spectral_resolution
     
     f, Pxx = signal.welch(values,sampling_frequency,window,segment_length_n,
-                          overlap_n,nfft,detrend=False)
+                          overlap_n,nfft,detrend=False,scaling='density')
 
     return f, Pxx
 
 def signal_to_PSD(
         sensor_col: pd.Series,
-        sampling_frequency: int = 100,
         window_type = 'hann',
-        segment_length_s = 2,
+        sampling_frequency: int = 100,
+        segment_length_s = 3,
         overlap: int = 0.8,
-        spectral_resolution = 0.25
+        spectral_resolution: int = 0.25
     ) -> tuple:
     """Compute the PSD (welch's method) of a signal per window.
 
@@ -69,6 +69,8 @@ def signal_to_PSD(
         The length of each segment in seconds
     overlap: int
         The overlap between segments
+    spectral_resolution: int
+        The spectral resolution of the PSD in Hz
     
     Returns
     -------
@@ -239,6 +241,62 @@ def generate_mel_frequency_cepstral_coefficients(
 
     return pd.DataFrame(cepstral_coefs_total, columns=['mfcc_{}'.format(j+1) for j in range(n_coefficients)])
 
+def extract_frequency_peak(
+    total_psd: pd.Series,
+    freq_vect: pd.Series,
+    min_frequency: int = 1,
+    max_frequency: int = 25
+    ):
+
+    frequency_peak = []
+    
+    freq_range = freq_vect[0]
+    freq_idx = np.where((freq_range>=min_frequency) & (freq_range<=max_frequency))
+    for psd_window in total_psd: 
+        peak_idx = np.argmax(psd_window[freq_idx])
+        freq_peak = freq_range[peak_idx]+min_frequency
+        frequency_peak.append(freq_peak)
+
+    return frequency_peak
+
+def extract_low_freq_power(
+    total_psd: pd.Series,
+    freq_vect: pd.Series,
+    min_frequency: int = 0.5,
+    max_frequency: int = 3,
+    spectral_resolution: int = 0.25
+    ):
+
+    low_freq_power = []
+    
+    freq_range = freq_vect[0]
+    freq_idx = np.where((freq_range>=min_frequency) & (freq_range<max_frequency))
+    for psd_window in total_psd: 
+        bandpower = spectral_resolution*np.sum(psd_window[freq_idx])
+        low_freq_power.append(bandpower)
+
+    return low_freq_power
+
+def extract_tremor_power(
+    total_psd: pd.Series,
+    freq_vect: pd.Series,
+    min_frequency: int = 3,
+    max_frequency: int = 7,
+    spectral_resolution: int = 0.25
+    ):
+
+    tremor_power = []
+    
+    freq_range = freq_vect[0]
+    freq_idx = np.where((freq_range>=min_frequency) & (freq_range<=max_frequency))
+    for psd_window in total_psd: 
+        peak_idx = np.argmax(psd_window[freq_idx]) + np.min(freq_idx)
+        left_idx =  np.max([0,int(peak_idx - 0.5/spectral_resolution)])
+        right_idx = int(peak_idx + 0.5/spectral_resolution)
+        peak_power = spectral_resolution*np.sum(psd_window[left_idx:right_idx+1])
+        tremor_power.append(peak_power)
+
+    return tremor_power
 
 def extract_spectral_domain_features(config, df_windowed):
 
@@ -249,7 +307,8 @@ def extract_spectral_domain_features(config, df_windowed):
             sampling_frequency = config.sampling_frequency,
             window_type = config.window_type, 
             segment_length_s = config.segment_length_s_psd,
-            overlap = config.overlap
+            overlap = config.overlap,
+            spectral_resolution = config.spectral_resolution_psd
             )
         df_windowed[f'{col}_spectrogram'] = signal_to_spectrogram(
             sensor_col = df_windowed[col], 
@@ -259,7 +318,7 @@ def extract_spectral_domain_features(config, df_windowed):
             overlap = config.overlap
             )
     
-    df_windowed['total_PSD'] = df_windowed.apply(lambda x: sum(x[y+'_PSD'] for y in config.l_gyroscope_cols), axis=1) # sum PSD over the axes
+    df_windowed['total_PSD'] = df_windowed.apply(lambda x: sum(x[y+'_PSD'] for y in config.l_gyroscope_cols), axis=1) # sum PSD over the axes   
     df_windowed['total_spectrogram'] = df_windowed.apply(lambda x: sum(x[y+'_spectrogram'] for y in config.l_gyroscope_cols), axis=1) # sum spectrogram over the axes
 
     # compute the cepstral coefficients of the total power signal
@@ -274,6 +333,30 @@ def extract_spectral_domain_features(config, df_windowed):
         )
     
     df_windowed = pd.concat([df_windowed, mfcc_cols], axis=1)
+
+    # compute the frequency of the peak in the PSD
+    df_windowed['freq_peak'] = extract_frequency_peak(
+        total_psd = df_windowed['total_PSD'],
+        freq_vect = df_windowed['gyroscope_x_freqs_PSD'],
+        min_frequency = config.peak_min_frequency,
+        max_frequency = config.peak_max_frequency
+    )
+    
+    df_windowed['low_freq_power'] = extract_low_freq_power(
+        total_psd = df_windowed['total_PSD'],
+        freq_vect = df_windowed['gyroscope_x_freqs_PSD'],
+        min_frequency = config.low_power_min_frequency,
+        max_frequency = config.low_power_max_frequency,
+        spectral_resolution = config.spectral_resolution_psd
+    )
+
+    df_windowed['tremor_power'] = extract_tremor_power(
+        total_psd = df_windowed['total_PSD'],
+        freq_vect = df_windowed['gyroscope_x_freqs_PSD'],
+        min_frequency = config.tremor_power_min_frequency,
+        max_frequency = config.tremor_power_max_frequency,
+        spectral_resolution = config.spectral_resolution_psd 
+    )
 
     df_windowed = df_windowed.rename(columns={'window_start': DataColumns.TIME})
 

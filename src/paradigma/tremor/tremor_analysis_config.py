@@ -72,8 +72,14 @@ class TremorFeatureExtractionConfig (IMUConfig):
         # power spectral density
         self.window_type = 'hann'
         self.overlap: int = 0.8
-        self.segment_length_s_psd: int = 2
+        self.segment_length_s_psd: int = 3
         self.spectral_resolution_psd: int = 0.25
+        self.peak_min_frequency: int = 1
+        self.peak_max_frequency: int = 25
+        self.low_power_min_frequency: int = 0.5
+        self.low_power_max_frequency: int = 3
+        self.tremor_power_min_frequency: int = 3
+        self.tremor_power_max_frequency: int = 7
 
         # cepstral coefficients
         self.segment_length_s_mfcc: int = 2
@@ -85,3 +91,7 @@ class TremorFeatureExtractionConfig (IMUConfig):
         self.d_channels_values: Dict[str, str] = {}
         for mfcc_coef in range(1, self.n_coefficients_mfcc + 1):
             self.d_channels_values[f"mfcc_{mfcc_coef}"] = "unitless"
+        self.d_channels_values["freq_peak"] = "Hz"
+        self.d_channels_values["low_freq_power"] = "(deg/s)^2"
+        self.d_channels_values["tremor_power"] = "(deg/s)^2"
+        
