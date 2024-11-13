@@ -133,7 +133,7 @@ def signal_to_spectrogram(
         sampling_frequency: int = 100,
         segment_length_s: float = 2,
         overlap: float = 0.8,
-    ) -> tuple:
+    ) -> list:
     
     """Compute the spectrogram (using short time fourier transform) of a signal per window.
 
