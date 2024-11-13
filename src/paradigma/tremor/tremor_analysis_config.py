@@ -64,27 +64,27 @@ class TremorFeatureExtractionConfig (IMUConfig):
 
         self.set_sensor("gyroscope")
         self.sampling_frequency: int=100
-        self.window_length_s: int = 4
-        self.window_step_size_s: int = 4
+        self.window_length_s: float = 4
+        self.window_step_size_s: float = 4
         self.single_value_cols: List[str] = None
         self.list_value_cols: List[str] = (self.l_gyroscope_cols)
 
         # power spectral density
         self.window_type = 'hann'
-        self.overlap: int = 0.8
-        self.segment_length_s_psd: int = 3
-        self.spectral_resolution_psd: int = 0.25
-        self.peak_min_frequency: int = 1
-        self.peak_max_frequency: int = 25
-        self.low_power_min_frequency: int = 0.5
-        self.low_power_max_frequency: int = 3
-        self.tremor_power_min_frequency: int = 3
-        self.tremor_power_max_frequency: int = 7
+        self.overlap: float = 0.8
+        self.segment_length_s_psd: float = 3
+        self.spectral_resolution_psd: float = 0.25
+        self.fmin_peak: float = 1
+        self.fmax_peak: float = 25
+        self.fmin_low_power: float = 0.5
+        self.fmax_low_power: float = 3
+        self.fmin_tremor_power: float = 3
+        self.fmax_tremor_power: float = 7
 
         # cepstral coefficients
-        self.segment_length_s_mfcc: int = 2
-        self.mfcc_low_frequency: int = 0
-        self.mfcc_high_frequency: int = 25
+        self.segment_length_s_mfcc: float = 2
+        self.fmin_mfcc: float = 0
+        self.fmax_mfcc: float = 25
         self.n_dct_filters_mfcc: int = 15
         self.n_coefficients_mfcc: int = 12
 

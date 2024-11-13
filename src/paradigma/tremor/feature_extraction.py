@@ -1,18 +1,15 @@
-from typing import List
 import numpy as np
 import pandas as pd
-
 from scipy import signal
-
 from paradigma.constants import DataColumns
 
 def compute_welch_periodogram(
         values: list,
-        window_type = 'hann',
+        window_type: str = 'hann',
         sampling_frequency: int = 100,
-        segment_length_s = 3,
-        overlap: int = 0.8,
-        spectral_resolution: int = 0.25
+        segment_length_s: float = 3,
+        overlap: float = 0.8,
+        spectral_resolution: float = 0.25
     )-> tuple:
     """Estimate power spectral density of the gyroscope signal using Welch's method.
     
@@ -24,12 +21,12 @@ def compute_welch_periodogram(
         The type of window to be used for the PSD (default: 'hann')
     sampling_frequency: int
         The sampling frequency of the signal (default: 100)
-    segment_length_s: int
-        The length of each segment in seconds
-    overlap: int
-        The overlap between segments 
-    spectral_resolution: int
-        The spectral resolution of the PSD in Hz
+    segment_length_s: float
+        The length of each segment in seconds (default: 3)
+    overlap: float
+        The overlap between segments as fraction (default: 0.8)
+    spectral_resolution: float
+        The spectral resolution of the PSD in Hz (default: 0.25)
         
     Returns
     -------
@@ -49,13 +46,13 @@ def compute_welch_periodogram(
 
 def signal_to_PSD(
         sensor_col: pd.Series,
-        window_type = 'hann',
+        window_type: str = 'hann',
         sampling_frequency: int = 100,
-        segment_length_s = 3,
-        overlap: int = 0.8,
-        spectral_resolution: int = 0.25
+        segment_length_s: float = 3,
+        overlap: float = 0.8,
+        spectral_resolution: float = 0.25
     ) -> tuple:
-    """Compute the PSD (welch's method) of a signal per window.
+    """Estimate the power spectral density (Welch's method) of a signal per window.
 
     Parameters
     ----------
@@ -65,12 +62,12 @@ def signal_to_PSD(
         The type of window to be used for the PSD (default: 'hann')
     sampling_frequency: int
         The sampling frequency of the signal (default: 100)
-    segment_length_s: int
-        The length of each segment in seconds
-    overlap: int
-        The overlap between segments
-    spectral_resolution: int
-        The spectral resolution of the PSD in Hz
+    segment_length_s: float
+        The length of each segment in seconds (default: 3)
+    overlap: float
+        The overlap between segments as fraction (default: 0.8)
+    spectral_resolution: float
+        The spectral resolution of the PSD in Hz (default: 0.25)
     
     Returns
     -------
@@ -94,26 +91,26 @@ def signal_to_PSD(
 
 def compute_spectrogram(
         values: list,
-        window_type = 'hann',
+        window_type: str = 'hann',
         sampling_frequency: int = 100,
-        segment_length_s = 2,
-        overlap: int = 0.8,
+        segment_length_s: float = 2,
+        overlap: float = 0.8,
     )-> tuple:
     
-    """Compute the spectrogram of the gyroscope signal
+    """Compute the spectrogram (using short time fourier transform) of the gyroscope signal
     
     Parameters
     ----------
     values: List
-        The sensor column to be transformed (e.g. x-axis of gyroscope)
+        The values of the signal (e.g., gyroscope data) of a single window.
     window_type: str
         The type of window to be used for the spectrogram (default: 'hann')
     sampling_frequency: int
         The sampling frequency of the signal (default: 100)
-    segment_length_s: int
-        The length of each segment in seconds
-    overlap: int
-        The overlap between segments (fraction)
+    segment_length_s: float
+        The length of each segment in seconds (default: 2)
+    overlap: float
+        The overlap between segments as fraction (default: 0.8)
         
     Returns
     -------
@@ -125,18 +122,20 @@ def compute_spectrogram(
     overlap_n = segment_length_n*overlap
     window = signal.get_window(window_type,segment_length_n)
 
-    f, t, S1 = signal.stft(values, fs=sampling_frequency, window=window, nperseg=segment_length_n, noverlap=overlap_n,boundary=None)
+    f, t, S1 = signal.stft(values, fs=sampling_frequency, window=window, nperseg=segment_length_n, 
+                           noverlap=overlap_n,boundary=None)
     S = np.abs(S1)*sampling_frequency 
     return S
 
 def signal_to_spectrogram(
         sensor_col: pd.Series,
-        window_type = 'hann',
+        window_type: str = 'hann',
         sampling_frequency: int = 100,
-        segment_length_s = 2,
-        overlap: int = 0.8,
+        segment_length_s: float = 2,
+        overlap: float = 0.8,
     ) -> tuple:
-    """Spectrogram of a signal per window.
+    
+    """Compute the spectrogram (using short time fourier transform) of a signal per window.
 
     Parameters
     ----------
@@ -146,10 +145,10 @@ def signal_to_spectrogram(
         The type of window to be used for the spectrogram (default: 'hann')
     sampling_frequency: int
         The sampling frequency of the signal (default: 100)
-    segment_length_s: int
-        The length of each segment in seconds
-    overlap: int
-        The overlap between segments (fraction)
+    segment_length_s: float
+        The length of each segment in seconds (default: 2)
+    overlap: float
+        The overlap between segments as fraction (default: 0.8)
     
     Returns
     -------
@@ -170,38 +169,40 @@ def signal_to_spectrogram(
     return spectrogram
 
 def melscale(x):
+    "Maps values of x to the melscale"
     y = 64.875 * np.log10(1 + x/17.5)
     return y
 
 def inverse_melscale(x):
+    "Inverse of the melscale"
     y = 17.5 * (10**(x/64.875) - 1)
     return y
     
 def generate_mel_frequency_cepstral_coefficients(
         spectrogram: pd.Series,
-        segment_length_s: 2,
+        segment_length_s: float = 2,
         sampling_frequency: int = 100,
-        low_frequency: int = 0,
-        high_frequency: int = 25,
+        fmin: float = 0,
+        fmax: float = 25,
         n_filters: int = 15,
         n_coefficients: int = 12,
         ) -> pd.DataFrame:
-    """Generate mel-frequency cepstral coefficients from the total power of the signal.
+    """Generate mel-frequency cepstral coefficients from the total spectrogram of the gyroscope signal.
     
     Parameters
     ----------
     spectrogram: pd.Series
-        The total spectrogram of the signal, extracted using stft
-    window_length_s: int
-        The number of seconds a segment constitutes
+        The total spectrogram of the gyroscope signal, extracted using stft
+    segment_length_s: float
+        The number of seconds a segment constitutes (default: 2)
     sampling_frequency: int
         The sampling frequency of the data (default: 100)
-    low_frequency: int
+    fmin: float
         The lower bound of the frequency band (default: 0)
-    high_frequency: int
+    fmax: float
         The upper bound of the frequency band (default: 25)
     n_filters: int
-        The number of DCT filters (default: 15)
+        The number of filters (default: 15)
     n_coefficients: int
         The number of coefficients to extract (default: 12)
     
@@ -212,10 +213,10 @@ def generate_mel_frequency_cepstral_coefficients(
     """
     cepstral_coefs_total = []
     
-    # construct filterbank
-    segment_length = segment_length_s * sampling_frequency 
-    freqs = np.linspace(melscale(low_frequency), melscale(high_frequency), num=n_filters+2) # equal intervals in mel scale
+    # construct mel-scale filters
+    freqs = np.linspace(melscale(fmin), melscale(fmax), num=n_filters+2) # equal intervals in mel scale
     freqs_melscale = inverse_melscale(freqs) # convert to frequency domain
+    segment_length = segment_length_s * sampling_frequency 
     filter_points = np.round((segment_length / sampling_frequency * freqs_melscale)).astype(int) + 1 # rounding the filter edges
 
     filters = np.zeros((len(filter_points)-2, int(segment_length/2+1)))
@@ -223,7 +224,7 @@ def generate_mel_frequency_cepstral_coefficients(
         filters[j, filter_points[j] : filter_points[j+2]] = signal.windows.triang(filter_points[j+2] - filter_points[j]) # triangular filters based on edges
         filters[j,:] /= (sampling_frequency/segment_length * np.sum(filters[j,:])) # normalization of the filter coefficients
     
-    # construct dct filter
+    # construct discrete cosine transform filters
     dct_filters = np.empty((n_coefficients, n_filters))
     dct_filters[0, :] = 1.0 / np.sqrt(n_filters)
     samples = np.arange(1, 2 * n_filters, 2) * np.pi / (2.0 * n_filters)
@@ -231,12 +232,16 @@ def generate_mel_frequency_cepstral_coefficients(
         dct_filters[i, :] = np.cos(i * samples) * np.sqrt(2.0 / n_filters)
 
     for spectrogram_window in spectrogram:
-        # filter signal
+        # mel-filtering
         power_filtered = np.array([np.dot(filters, spectrogram_window[:, i]) for i in range(spectrogram_window.shape[1])])
+        
+        # taking the logarithm
         log_power_filtered = np.log10(power_filtered)
 
         # generate cepstral coefficients
         cepstral_coefs = np.array([np.dot(dct_filters, x) for x in log_power_filtered])
+
+        # average coefficients over segments in window
         cepstral_coefs_total.append(np.transpose(np.mean(cepstral_coefs,axis=0)))
 
     return pd.DataFrame(cepstral_coefs_total, columns=['mfcc_{}'.format(j+1) for j in range(n_coefficients)])
@@ -244,17 +249,35 @@ def generate_mel_frequency_cepstral_coefficients(
 def extract_frequency_peak(
     total_psd: pd.Series,
     freq_vect: pd.Series,
-    min_frequency: int = 1,
-    max_frequency: int = 25
-    ):
+    fmin: float = 1,
+    fmax: float = 25
+    ) -> pd.Series:
 
+    """Extract the frequency of the peak in the power spectral density within the specified frequency band.
+    
+    Parameters
+    ----------
+    total_psd: pd.Series
+        The total power spectral density of the gyroscope signal
+    freq_vect: pd.Series
+        Frequency vector corresponding to the power spectral density
+    fmin: float
+        The lower bound of the frequency band in Hz (default: 1)
+    fmax: float
+        The upper bound of the frequency band in Hz (default: 25)
+        
+    Returns
+    -------
+    pd.Series
+        The frequency of the peak across windows
+    """
     frequency_peak = []
     
     freq_range = freq_vect[0]
-    freq_idx = np.where((freq_range>=min_frequency) & (freq_range<=max_frequency))
+    freq_idx = np.where((freq_range>=fmin) & (freq_range<=fmax))
     for psd_window in total_psd: 
         peak_idx = np.argmax(psd_window[freq_idx])
-        freq_peak = freq_range[peak_idx]+min_frequency
+        freq_peak = freq_range[peak_idx]+fmin
         frequency_peak.append(freq_peak)
 
     return frequency_peak
@@ -262,15 +285,36 @@ def extract_frequency_peak(
 def extract_low_freq_power(
     total_psd: pd.Series,
     freq_vect: pd.Series,
-    min_frequency: int = 0.5,
-    max_frequency: int = 3,
-    spectral_resolution: int = 0.25
-    ):
+    fmin: float = 0.5,
+    fmax: float = 3,
+    spectral_resolution: float = 0.25
+    ) -> pd.Series:
+
+    """Computes the power in the low frequency power range across windows (for slow arm movement detection).
+    
+    Parameters
+    ----------
+    total_psd: pd.Series
+        The total power spectral density of the gyroscope signal
+    freq_vect: pd.Series
+        Frequency vector corresponding to the power spectral density
+    fmin: float
+        The lower bound of the frequency band in Hz (default: 0.5)
+    fmax: float
+        The upper bound of the frequency band in Hz (default: 3)
+    spectral_resolution: float
+        The spectral resolution of the PSD in Hz (default: 0.25)
+        
+    Returns
+    -------
+    pd.Series
+        The power in the low frequency power range across windows
+    """
 
     low_freq_power = []
     
     freq_range = freq_vect[0]
-    freq_idx = np.where((freq_range>=min_frequency) & (freq_range<max_frequency))
+    freq_idx = np.where((freq_range>=fmin) & (freq_range<fmax))
     for psd_window in total_psd: 
         bandpower = spectral_resolution*np.sum(psd_window[freq_idx])
         low_freq_power.append(bandpower)
@@ -280,15 +324,36 @@ def extract_low_freq_power(
 def extract_tremor_power(
     total_psd: pd.Series,
     freq_vect: pd.Series,
-    min_frequency: int = 3,
-    max_frequency: int = 7,
-    spectral_resolution: int = 0.25
-    ):
+    fmin: float = 3,
+    fmax: float = 7,
+    spectral_resolution: float = 0.25
+    ) -> pd.Series:
+
+    """Computes the tremor power (1.25 Hz around the peak within the tremor frequency band)
+    
+    Parameters
+    ----------
+    total_psd: pd.Series
+        The total power spectral density of the gyroscope signal
+    freq_vect: pd.Series
+        Frequency vector corresponding to the power spectral density
+    fmin: float
+        The lower bound of the tremor frequency band in Hz (default: 3)
+    fmax: float
+        The upper bound of the tremor frequency band in Hz (default: 7)
+    spectral_resolution: float
+        The spectral resolution of the PSD in Hz (default: 0.25)
+        
+    Returns
+    -------
+    pd.Series
+        The tremor power across windows
+    """
 
     tremor_power = []
     
     freq_range = freq_vect[0]
-    freq_idx = np.where((freq_range>=min_frequency) & (freq_range<=max_frequency))
+    freq_idx = np.where((freq_range>=fmin) & (freq_range<=fmax))
     for psd_window in total_psd: 
         peak_idx = np.argmax(psd_window[freq_idx]) + np.min(freq_idx)
         left_idx =  np.max([0,int(peak_idx - 0.5/spectral_resolution)])
@@ -300,7 +365,7 @@ def extract_tremor_power(
 
 def extract_spectral_domain_features(config, df_windowed):
 
-    # transform the temporal signal to the spectral domain using Welch's method
+    # transform the temporal signal to the spectral domain using Welch's method and short time fourier transform
     for col in config.l_gyroscope_cols:
         df_windowed[f'{col}_freqs_PSD'], df_windowed[f'{col}_PSD'] = signal_to_PSD(
             sensor_col = df_windowed[col], 
@@ -318,48 +383,49 @@ def extract_spectral_domain_features(config, df_windowed):
             overlap = config.overlap
             )
     
+    # compute the total PSD and spectrogram (summed across the 3 gyroscope axes)
     df_windowed['total_PSD'] = df_windowed.apply(lambda x: sum(x[y+'_PSD'] for y in config.l_gyroscope_cols), axis=1) # sum PSD over the axes   
     df_windowed['total_spectrogram'] = df_windowed.apply(lambda x: sum(x[y+'_spectrogram'] for y in config.l_gyroscope_cols), axis=1) # sum spectrogram over the axes
 
-    # compute the cepstral coefficients of the total power signal
+    # compute the cepstral coefficients
     mfcc_cols = generate_mel_frequency_cepstral_coefficients(
         spectrogram=df_windowed['total_spectrogram'],
         segment_length_s = config.segment_length_s_mfcc,
         sampling_frequency=config.sampling_frequency,
-        low_frequency=config.mfcc_low_frequency,
-        high_frequency=config.mfcc_high_frequency,
+        fmin=config.fmin_mfcc,
+        fmax=config.fmax_mfcc,
         n_filters=config.n_dct_filters_mfcc,
         n_coefficients=config.n_coefficients_mfcc
         )
-    
     df_windowed = pd.concat([df_windowed, mfcc_cols], axis=1)
 
     # compute the frequency of the peak in the PSD
     df_windowed['freq_peak'] = extract_frequency_peak(
         total_psd = df_windowed['total_PSD'],
         freq_vect = df_windowed['gyroscope_x_freqs_PSD'],
-        min_frequency = config.peak_min_frequency,
-        max_frequency = config.peak_max_frequency
+        fmin = config.fmin_peak,
+        fmax = config.fmax_peak
     )
     
+    # compute the low frequency power (for detection of slow arm movement)
     df_windowed['low_freq_power'] = extract_low_freq_power(
         total_psd = df_windowed['total_PSD'],
         freq_vect = df_windowed['gyroscope_x_freqs_PSD'],
-        min_frequency = config.low_power_min_frequency,
-        max_frequency = config.low_power_max_frequency,
+        fmin = config.fmin_low_power,
+        fmax = config.fmax_low_power,
         spectral_resolution = config.spectral_resolution_psd
     )
 
+    # compute the tremor power
     df_windowed['tremor_power'] = extract_tremor_power(
         total_psd = df_windowed['total_PSD'],
         freq_vect = df_windowed['gyroscope_x_freqs_PSD'],
-        min_frequency = config.tremor_power_min_frequency,
-        max_frequency = config.tremor_power_max_frequency,
+        fmin = config.fmin_tremor_power,
+        fmax = config.fmax_tremor_power,
         spectral_resolution = config.spectral_resolution_psd 
     )
 
     df_windowed = df_windowed.rename(columns={'window_start': DataColumns.TIME})
 
-    
     return df_windowed
     
