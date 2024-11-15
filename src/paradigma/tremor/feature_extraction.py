@@ -8,7 +8,7 @@ def compute_welch_periodogram(
         window_type: str = 'hann',
         sampling_frequency: int = 100,
         segment_length_s: float = 3,
-        overlap: float = 0.8,
+        overlap_fraction: float = 0.8,
         spectral_resolution: float = 0.25
     )-> tuple:
     """Estimate power spectral density of the gyroscope signal using Welch's method.
@@ -23,7 +23,7 @@ def compute_welch_periodogram(
         The sampling frequency of the signal (default: 100)
     segment_length_s: float
         The length of each segment in seconds (default: 3)
-    overlap: float
+    overlap_fraction: float
         The overlap between segments as fraction (default: 0.8)
     spectral_resolution: float
         The spectral resolution of the PSD in Hz (default: 0.25)
@@ -35,12 +35,12 @@ def compute_welch_periodogram(
     """
 
     segment_length_n = sampling_frequency*segment_length_s
-    overlap_n = segment_length_n*overlap
+    overlap_n = segment_length_n*overlap_fraction
     window = signal.get_window(window_type, segment_length_n,fftbins=False)
     nfft = sampling_frequency/spectral_resolution
     
-    f, Pxx = signal.welch(values,sampling_frequency,window,segment_length_n,
-                          overlap_n,nfft,detrend=False,scaling='density')
+    f, Pxx = signal.welch(x=values, fs=sampling_frequency, window=window, nperseg=segment_length_n,
+                          noverlap=overlap_n, nfft=nfft, detrend=False, scaling='density')
 
     return f, Pxx
 
@@ -49,7 +49,7 @@ def signal_to_PSD(
         window_type: str = 'hann',
         sampling_frequency: int = 100,
         segment_length_s: float = 3,
-        overlap: float = 0.8,
+        overlap_fraction: float = 0.8,
         spectral_resolution: float = 0.25
     ) -> tuple:
     """Estimate the power spectral density (Welch's method) of a signal per window.
@@ -64,7 +64,7 @@ def signal_to_PSD(
         The sampling frequency of the signal (default: 100)
     segment_length_s: float
         The length of each segment in seconds (default: 3)
-    overlap: float
+    overlap_fraction: float
         The overlap between segments as fraction (default: 0.8)
     spectral_resolution: float
         The spectral resolution of the PSD in Hz (default: 0.25)
@@ -82,7 +82,7 @@ def signal_to_PSD(
             window_type=window_type,
             sampling_frequency=sampling_frequency,
             segment_length_s = segment_length_s,
-            overlap = overlap,
+            overlap_fraction = overlap_fraction,
             spectral_resolution = spectral_resolution)
         l_values_total.append(l_values)
         l_freqs_total.append(l_freqs)
@@ -94,7 +94,7 @@ def compute_spectrogram(
         window_type: str = 'hann',
         sampling_frequency: int = 100,
         segment_length_s: float = 2,
-        overlap: float = 0.8,
+        overlap_fraction: float = 0.8,
     )-> tuple:
     
     """Compute the spectrogram (using short time fourier transform) of the gyroscope signal
@@ -109,7 +109,7 @@ def compute_spectrogram(
         The sampling frequency of the signal (default: 100)
     segment_length_s: float
         The length of each segment in seconds (default: 2)
-    overlap: float
+    overlap_fraction: float
         The overlap between segments as fraction (default: 0.8)
         
     Returns
@@ -119,20 +119,20 @@ def compute_spectrogram(
     """
 
     segment_length_n = sampling_frequency*segment_length_s
-    overlap_n = segment_length_n*overlap
+    overlap_n = segment_length_n*overlap_fraction
     window = signal.get_window(window_type,segment_length_n)
 
-    f, t, S1 = signal.stft(values, fs=sampling_frequency, window=window, nperseg=segment_length_n, 
+    f, t, S1 = signal.stft(x=values, fs=sampling_frequency, window=window, nperseg=segment_length_n, 
                            noverlap=overlap_n,boundary=None)
-    S = np.abs(S1)*sampling_frequency 
-    return S
+
+    return np.abs(S1)*sampling_frequency 
 
 def signal_to_spectrogram(
         sensor_col: pd.Series,
         window_type: str = 'hann',
         sampling_frequency: int = 100,
         segment_length_s: float = 2,
-        overlap: float = 0.8,
+        overlap_fraction: float = 0.8,
     ) -> list:
     
     """Compute the spectrogram (using short time fourier transform) of a signal per window.
@@ -147,7 +147,7 @@ def signal_to_spectrogram(
         The sampling frequency of the signal (default: 100)
     segment_length_s: float
         The length of each segment in seconds (default: 2)
-    overlap: float
+    overlap_fraction: float
         The overlap between segments as fraction (default: 0.8)
     
     Returns
@@ -162,7 +162,7 @@ def signal_to_spectrogram(
             window_type=window_type,
             sampling_frequency=sampling_frequency,
             segment_length_s = segment_length_s,
-            overlap = overlap
+            overlap_fraction = overlap_fraction
             )
         spectrogram.append(spectrogram_values)
 
@@ -170,13 +170,11 @@ def signal_to_spectrogram(
 
 def melscale(x):
     "Maps values of x to the melscale"
-    y = 64.875 * np.log10(1 + x/17.5)
-    return y
+    return 64.875 * np.log10(1 + x / 17.5)
 
 def inverse_melscale(x):
     "Inverse of the melscale"
-    y = 17.5 * (10**(x/64.875) - 1)
-    return y
+    return 17.5 * (10 ** (x / 64.875) - 1)
     
 def generate_mel_frequency_cepstral_coefficients(
         spectrogram: pd.Series,
@@ -372,7 +370,7 @@ def extract_spectral_domain_features(config, df_windowed):
             sampling_frequency = config.sampling_frequency,
             window_type = config.window_type, 
             segment_length_s = config.segment_length_s_psd,
-            overlap = config.overlap,
+            overlap_fraction = config.overlap_fraction,
             spectral_resolution = config.spectral_resolution_psd
             )
         df_windowed[f'{col}_spectrogram'] = signal_to_spectrogram(
@@ -380,12 +378,12 @@ def extract_spectral_domain_features(config, df_windowed):
             sampling_frequency = config.sampling_frequency,
             window_type = config.window_type, 
             segment_length_s = config.segment_length_s_mfcc,
-            overlap = config.overlap
+            overlap_fraction = config.overlap_fraction
             )
     
     # compute the total PSD and spectrogram (summed across the 3 gyroscope axes)
-    df_windowed['total_PSD'] = df_windowed.apply(lambda x: sum(x[y+'_PSD'] for y in config.l_gyroscope_cols), axis=1) # sum PSD over the axes   
-    df_windowed['total_spectrogram'] = df_windowed.apply(lambda x: sum(x[y+'_spectrogram'] for y in config.l_gyroscope_cols), axis=1) # sum spectrogram over the axes
+    df_windowed['total_PSD'] = df_windowed[[f"{y}_PSD" for y in config.l_gyroscope_cols]].sum(axis=1)
+    df_windowed['total_spectrogram'] = df_windowed[[f"{y}_spectrogram"for y in config.l_gyroscope_cols]].sum(axis=1) 
 
     # compute the cepstral coefficients
     mfcc_cols = generate_mel_frequency_cepstral_coefficients(

@@ -1,10 +1,8 @@
-import numpy as np
+import tsdf
 import pandas as pd
 from pathlib import Path
 from typing import Union
 from sklearn.linear_model import LogisticRegression
-
-import tsdf
 
 from paradigma.constants import DataColumns
 from paradigma.tremor.tremor_analysis_config import TremorFeatureExtractionConfig
@@ -29,7 +27,6 @@ def extract_tremor_features_io(input_path: Union[str, Path], output_path: Union[
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
 
     # Extract tremor features
-    
     df_windowed = extract_tremor_features(df, config)
 
     # Store data

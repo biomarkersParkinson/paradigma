@@ -63,15 +63,15 @@ class TremorFeatureExtractionConfig (IMUConfig):
         super().__init__()
 
         self.set_sensor("gyroscope")
-        self.sampling_frequency: int=100
+        self.sampling_frequency: int = 100
         self.window_length_s: float = 4
         self.window_step_size_s: float = 4
         self.single_value_cols: List[str] = None
-        self.list_value_cols: List[str] = (self.l_gyroscope_cols)
+        self.list_value_cols: List[str] = self.l_gyroscope_cols
 
         # power spectral density
         self.window_type = 'hann'
-        self.overlap: float = 0.8
+        self.overlap_fraction: float = 0.8
         self.segment_length_s_psd: float = 3
         self.spectral_resolution_psd: float = 0.25
         self.fmin_peak: float = 1
