@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from paradigma.constants import DataColumns, DataUnits
+from paradigma.constants import DataColumns
 
 class IMUConfig:
     """
@@ -95,3 +95,25 @@ class TremorFeatureExtractionConfig (IMUConfig):
         self.d_channels_values["low_freq_power"] = "(deg/s)^2"
         self.d_channels_values["tremor_power"] = "(deg/s)^2"
         
+
+class TremorDetectionConfig(IMUConfig):
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.coefficients_file_name = "tremor_detection_coefficients.txt"
+        self.thresholds_file_name = "tremor_detection_threshold.txt"
+        self.mean_scaling_file_name = "tremor_detection_mean_scaling.txt"
+        self.std_scaling_file_name = "tremor_detection_std_scaling.txt"
+
+        self.fmin_peak: float = 3
+        self.fmax_peak: float = 7
+        self.movement_treshold: float = 50.1
+
+        self.d_channels_values = {
+        "pred_tremor_proba": "probability",
+        "pred_tremor_logreg": "boolean",
+        "pred_tremor_checked": "boolean"
+        }
+
+        self.set_filenames_values("tremor")
+
