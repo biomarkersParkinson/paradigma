@@ -55,7 +55,7 @@ def detect_tremor(df: pd.DataFrame, config: TremorDetectionConfig, path_to_class
     coefficients = np.loadtxt(os.path.join(path_to_classifier_input, config.coefficients_file_name))
     threshold = np.loadtxt(os.path.join(path_to_classifier_input, config.thresholds_file_name))
 
-    # Prepare the data
+    # Scale the mfcc's
     mean_scaling = np.loadtxt(os.path.join(path_to_classifier_input, config.mean_scaling_file_name))
     std_scaling = np.loadtxt(os.path.join(path_to_classifier_input, config.std_scaling_file_name))
     mfcc = df.loc[:, df.columns.str.startswith('mfcc')]
@@ -70,16 +70,17 @@ def detect_tremor(df: pd.DataFrame, config: TremorDetectionConfig, path_to_class
     log_reg.feature_names_in_ = mfcc.columns
 
     # Get the tremor probability 
-    df[DataColumns.PRED_TREMOR_PROBA] = log_reg.predict_proba(mfcc_scaled)[:, 1]  # Probability for tremor
+    df[DataColumns.PRED_TREMOR_PROBA] = log_reg.predict_proba(mfcc_scaled)[:, 1] 
 
     # Make prediction based on pre-defined threshold
     df[DataColumns.PRED_TREMOR_LOGREG] = df[DataColumns.PRED_TREMOR_PROBA] >= threshold
-    df[DataColumns.PRED_TREMOR_LOGREG] = df[DataColumns.PRED_TREMOR_LOGREG].astype(int)
-    # Perform extra checks for rest tremor (peak within 3-7 Hz and no non-tremor arm movement)
-    peak_check = (df['freq_peak'] >= config.fmin_peak) & (df['freq_peak']<=config.fmax_peak)
-    movement_check = df['low_freq_power'] <= config.movement_treshold
+    df[DataColumns.PRED_TREMOR_LOGREG] = df[DataColumns.PRED_TREMOR_LOGREG].astype(int) # save as int
+
+    # Perform extra checks for rest tremor 
+    peak_check = (df['freq_peak'] >= config.fmin_peak) & (df['freq_peak']<=config.fmax_peak) # peak within 3-7 Hz
+    movement_check = df['low_freq_power'] <= config.movement_treshold # little non-tremor arm movement
     df[DataColumns.PRED_TREMOR_CHECKED] = (df[DataColumns.PRED_TREMOR_LOGREG]==1) & (peak_check==True) & (movement_check == True)
-    df[DataColumns.PRED_TREMOR_CHECKED] = df[DataColumns.PRED_TREMOR_CHECKED].astype(int)
+    df[DataColumns.PRED_TREMOR_CHECKED] = df[DataColumns.PRED_TREMOR_CHECKED].astype(int) # save as int
     return df
 
 
