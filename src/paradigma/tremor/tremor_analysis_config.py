@@ -107,7 +107,7 @@ class TremorDetectionConfig(IMUConfig):
 
         self.fmin_peak: float = 3
         self.fmax_peak: float = 7
-        self.movement_treshold: float = 50.1
+        self.movement_treshold: float = 50
 
         self.d_channels_values = {
         "pred_tremor_proba": "probability",
