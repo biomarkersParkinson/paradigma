@@ -73,12 +73,12 @@ def detect_tremor(df: pd.DataFrame, config: TremorDetectionConfig, path_to_class
     df[DataColumns.PRED_TREMOR_PROBA] = log_reg.predict_proba(mfcc_scaled)[:, 1] 
 
     # Make prediction based on pre-defined threshold
-    df[DataColumns.PRED_TREMOR_LOGREG] = int(df[DataColumns.PRED_TREMOR_PROBA] >= threshold)
+    df[DataColumns.PRED_TREMOR_LOGREG] = (df[DataColumns.PRED_TREMOR_PROBA] >= threshold).astype(int)
 
     # Perform extra checks for rest tremor 
     peak_check = (df['freq_peak'] >= config.fmin_peak) & (df['freq_peak']<=config.fmax_peak) # peak within 3-7 Hz
     movement_check = df['low_freq_power'] <= config.movement_treshold # little non-tremor arm movement
-    df[DataColumns.PRED_TREMOR_CHECKED] = int((df[DataColumns.PRED_TREMOR_LOGREG]==1) & (peak_check==True) & (movement_check == True))
+    df[DataColumns.PRED_TREMOR_CHECKED] = ((df[DataColumns.PRED_TREMOR_LOGREG]==1) & (peak_check==True) & (movement_check == True)).astype(int)
     
     return df
 
