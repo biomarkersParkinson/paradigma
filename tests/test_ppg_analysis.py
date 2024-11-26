@@ -1,12 +1,7 @@
 from pathlib import Path
 
-<<<<<<< HEAD
-from paradigma.signal_quality_analysis import extract_signal_quality_features
-from paradigma.heart_rate_analysis_config import HeartRateFeatureExtractionConfig
-=======
 from paradigma.heart_rate.heart_rate_analysis import extract_signal_quality_features
-from paradigma.heart_rate.heart_rate_analysis_config import HeartRateFeatureExtractionConfig
->>>>>>> cbf031c055bfdd9cafef46a7bc3de22d15b0776d
+from paradigma.heart_rate.heart_rate_analysis_config import SignalQualityFeatureExtractionConfig
 from paradigma.preprocessing_config import PPGPreprocessingConfig, IMUPreprocessingConfig
 from paradigma.ppg_preprocessing import preprocess_ppg_data, scan_and_sync_segments
 from test_notebooks import compare_data
