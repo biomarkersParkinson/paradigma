@@ -66,6 +66,6 @@ class PPGPreprocessingConfig(BasePreprocessingConfig):
         # filtering
         self.sampling_frequency = 30
         self.lower_cutoff_frequency = 0.4
-        #self.upper_cutoff_frequency = 3.5
-        self.filter_order = 6
+        self.upper_cutoff_frequency = 3.5
+        self.filter_order = 4
         
