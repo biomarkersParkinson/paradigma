@@ -1,0 +1,40 @@
+{
+    "study_id": "PPP",
+    "device_id": "Verily Study Watch",
+    "subject_id": "X",
+    "ppp_source_protobuf": "WatchData.IMU.Week104.raw",
+    "metadata_version": "0.1",
+    "start_iso8601": "2021-06-27T16:52:20Z",
+    "end_iso8601": "2021-06-27T17:04:28Z",
+    "rows": 1,
+    "endianness": "little",
+    "bits": 64,
+    "sensors": [
+        {
+            "data_type": "int",
+            "scale_factors": [
+                1
+            ],
+            "file_name": "weekly_tremor_time.bin",
+            "channels": "week_number",
+            "units": ""
+        },
+        {
+            "data_type": "float",
+            "file_name": "weekly_tremor_values.bin",
+            "channels": [
+                "tremor_time",
+                "tremor_power_median",
+                "tremor_power_mode",
+                "tremor_power_90th_perc"
+            ],
+            "units": [
+                "percentage",
+                "",
+                "",
+                ""
+            ],
+            "scale_factors": []
+        }
+    ]
+}
