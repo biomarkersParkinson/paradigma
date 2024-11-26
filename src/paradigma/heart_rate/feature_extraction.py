@@ -40,7 +40,7 @@ def generate_statistics(
 
 def compute_signal_to_noise_ratio(
         ppg_segments: np.ndarray
-    ) -> np.ndarray:
+    ) -> list:
     """
     Compute the signal to noise ratio of the PPG signal.
     
@@ -62,7 +62,7 @@ def compute_signal_to_noise_ratio(
 def compute_auto_correlation(
         ppg_segments: np.ndarray, 
         fs: int
-    ) -> np.ndarray:
+    ) -> list:
     """
     Compute the autocorrelation of the PPG signal.
     
