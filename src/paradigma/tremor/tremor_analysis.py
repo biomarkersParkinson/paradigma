@@ -191,13 +191,13 @@ def quantify_tremor_io(path_to_feature_input: Union[str, Path], path_to_predicti
     df_aggregates = quantify_tremor(df, config, local_start_time)
     
     # Prepare the metadata
-    metadata_samples.file_name = 'weekly_tremor_values.bin'
-    metadata_time.file_name = 'weekly_tremor_time.bin'
+    metadata_samples.file_name = 'tremor_values.bin'
+    metadata_time.file_name = 'tremor_time.bin'
 
     metadata_samples.channels = list(config.d_channels_values.keys())
     metadata_samples.units = list(config.d_channels_values.values())
 
-    metadata_time.channels = 'week_number'
-    metadata_time.units = ''
+    metadata_time.channels = ['week_number']
+    metadata_time.units = ['number']
 
-    write_df_data(metadata_time, metadata_samples, output_path, 'weekly_tremor_meta.json', df_aggregates)
+    write_df_data(metadata_time, metadata_samples, output_path, 'tremor_meta.json', df_aggregates)

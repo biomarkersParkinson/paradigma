@@ -15,13 +15,17 @@
             "scale_factors": [
                 1
             ],
-            "file_name": "weekly_tremor_time.bin",
-            "channels": "week_number",
-            "units": ""
+            "file_name": "tremor_time.bin",
+            "channels": [
+                "week_number"
+            ],
+            "units": [
+                "number"
+            ]
         },
         {
             "data_type": "float",
-            "file_name": "weekly_tremor_values.bin",
+            "file_name": "tremor_values.bin",
             "channels": [
                 "tremor_time",
                 "tremor_power_median",
@@ -30,9 +34,9 @@
             ],
             "units": [
                 "percentage",
-                "",
-                "",
-                ""
+                "log((deg/s)**2",
+                "log((deg/s)**2",
+                "log((deg/s)**2"
             ],
             "scale_factors": []
         }

@@ -131,9 +131,9 @@ class TremorQuantificationConfig(IMUConfig):
 
         self.d_channels_values = {
         "tremor_time": "percentage",
-        "tremor_power_median": "",
-        "tremor_power_mode": "",
-        "tremor_power_90th_perc": ""
+        "tremor_power_median": "log((deg/s)**2",
+        "tremor_power_mode": "log((deg/s)**2",
+        "tremor_power_90th_perc": "log((deg/s)**2"
         }
 
         self.set_filenames_values("tremor")
