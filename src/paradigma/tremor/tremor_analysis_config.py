@@ -123,17 +123,10 @@ class TremorQuantificationConfig(IMUConfig):
         super().__init__()
 
         self.window_length_s: float = 4
-        self.valid_day_threshold: float = 0
+        self.valid_day_threshold_hr: float = 0 # change to 10 later!
         self.daytime_hours_lower_bound: float = 8
         self.daytime_hours_upper_bound: float = 22
         self.movement_threshold: float = 50
         self.percentile_tremor_power: float = 0.9
-
-        self.d_channels_values = {
-        "tremor_time": "percentage",
-        "tremor_power_median": "log((deg/s)**2",
-        "tremor_power_mode": "log((deg/s)**2",
-        "tremor_power_90th_perc": "log((deg/s)**2"
-        }
-
+        
         self.set_filenames_values("tremor")

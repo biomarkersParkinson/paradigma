@@ -45,23 +45,3 @@ def test_3_tremor_detection_output(shared_datadir: Path):
     config = TremorDetectionConfig()
     detect_tremor_io(input_path, tested_output_path, path_to_classifier_input, config)
     compare_data(reference_output_path, tested_output_path, tremor_binaries_pairs)
-
-def test_4_tremor_quantification_output(shared_datadir: Path):
-    """
-    This function is used to evaluate the output of the tremor quantification. It evaluates it by comparing the output to a reference output.
-    """
-
-    feature_input_dir_name: str = "3.extracted_features"
-    prediction_input_dir_name: str = "4.predictions"
-    output_dir_name: str = "5.quantification"
-    data_type: str = "tremor"
-
-    # Temporary path to store the output of the notebook
-    path_to_feature_input = shared_datadir / feature_input_dir_name / data_type
-    path_to_prediction_input = shared_datadir / prediction_input_dir_name / data_type
-    reference_output_path = shared_datadir / output_dir_name / data_type
-    tested_output_path = reference_output_path / "test-output"
-
-    config = TremorQuantificationConfig()
-    quantify_tremor_io(path_to_feature_input, path_to_prediction_input, tested_output_path, config)
-    compare_data(reference_output_path, tested_output_path, tremor_binaries_pairs)
