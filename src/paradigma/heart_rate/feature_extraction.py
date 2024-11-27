@@ -127,7 +127,8 @@ def compute_dominant_frequency(
 
 def compute_relative_power(
         freqs: np.ndarray, 
-        psd: np.ndarray, config: PPGconfig
+        psd: np.ndarray, 
+        config
     ) -> float:
     """
     Calculate relative power within the dominant frequency band in the physiological range (0.75 - 3 Hz).
