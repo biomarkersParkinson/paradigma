@@ -1,27 +1,13 @@
 {
     "metadata": {
-        "nr_valid_days": {
-            "0": 1
-        },
-        "nr_windows_daytime": {
-            "0": 182
-        },
-        "nr_windows_daytime_rest": {
-            "0": 89
-        }
+        "nr_valid_days": 1,
+        "nr_windows_daytime": 182,
+        "nr_windows_daytime_rest": 89
     },
     "weekly_tremor_measures": {
-        "tremor_time": {
-            "0": 16.853932584269664
-        },
-        "tremor_power_median": {
-            "0": 0.4242462829851576
-        },
-        "tremor_power_90th_perc": {
-            "0": 0.8001855655603588
-        },
-        "tremor_power_mode": {
-            "0": 0.42
-        }
+        "tremor_time": 16.853932584269664,
+        "tremor_power_median": 0.4242462829851576,
+        "tremor_power_mode": 0.42,
+        "tremor_power_90th_perc": 0.8001855655603588
     }
 }

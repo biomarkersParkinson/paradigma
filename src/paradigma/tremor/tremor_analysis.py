@@ -127,35 +127,50 @@ def aggregate_tremor_power(tremor_power: pd.Series, config: TremorQuantification
     return tremor_power_median, tremor_power_90th_perc, tremor_power_mode
 
 
-def quantify_tremor(df: pd.DataFrame, config: TremorQuantificationConfig, start_time: datetime) -> pd.DataFrame:
+def quantify_tremor(df: pd.DataFrame, config: TremorQuantificationConfig, start_time: datetime):
 
-    time = [start_time + timedelta(seconds=x) for x in df.time]
+    # Create time array in local time zone
+    utc_start_time = datetime.strptime(start_time, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=pytz.UTC)
+    local_start_time = utc_start_time.astimezone(pytz.timezone("Europe/Amsterdam"))
+    time = [local_start_time + timedelta(seconds=x) for x in df.time]
 
     # determine valid days
     daytime_hours = range(config.daytime_hours_lower_bound,config.daytime_hours_upper_bound)
     nr_windows_per_day = Counter([dt.date() for dt in time if dt.hour in daytime_hours])
     valid_days = [day for day, count in nr_windows_per_day.items() 
                   if count * config.window_length_s / 3600 >= config.valid_day_threshold_hr]
-    df_aggregates = pd.DataFrame({'nr_valid_days': [len(valid_days)]}) # save number of valid days
+    nr_valid_days = len(valid_days)
 
     # remove windows during non-valid days, non-daytime hours and non-tremor arm movement
     df_filtered = df.loc[[dt.date() in valid_days for dt in time]]
     df_filtered = df_filtered.loc[[dt.hour in daytime_hours for dt in time]]
-    df_aggregates['nr_windows_daytime'] = df_filtered.shape[0] # save number of windows during daytime on valid days
+    nr_windows_daytime = df_filtered.shape[0] # number of windows during daytime on valid days
     df_filtered = df_filtered.loc[df_filtered.low_freq_power <= config.movement_threshold]
-    df_aggregates['nr_windows_daytime_rest'] = df_filtered.shape[0] # save number of windows during daytime on valid days without non-tremor arm movement
+    nr_windows_daytime_rest = df_filtered.shape[0] # number of windows during daytime on valid days without non-tremor arm movement
 
     # calculate weekly tremor time
-    df_aggregates['tremor_time'] = np.sum(df_filtered['pred_tremor_checked']) / df_filtered.shape[0] * 100
+    tremor_time= np.sum(df_filtered['pred_tremor_checked']) / df_filtered.shape[0] * 100
 
     # calculate weekly tremor power measures
-    tremor_power = df_filtered['tremor_power'][df_filtered['pred_tremor_checked']==1]
+    tremor_power = df_filtered.loc[df_filtered['pred_tremor_checked'] == 1, 'tremor_power']
     tremor_power_median, tremor_power_90th_perc, tremor_power_mode = aggregate_tremor_power(tremor_power,config)
-    df_aggregates['tremor_power_median'] = tremor_power_median
-    df_aggregates['tremor_power_mode'] = tremor_power_mode
-    df_aggregates['tremor_power_90th_perc'] = tremor_power_90th_perc
+    
+    # store aggregates in json format
+    d_aggregates = {
+        'metadata': {
+            'nr_valid_days': nr_valid_days,
+            'nr_windows_daytime': nr_windows_daytime,
+            'nr_windows_daytime_rest': nr_windows_daytime_rest
+        },
+        'weekly_tremor_measures': {
+            'tremor_time': tremor_time,
+            'tremor_power_median': tremor_power_median,
+            'tremor_power_mode': tremor_power_mode,
+            'tremor_power_90th_perc': tremor_power_90th_perc
+        }
+    }
 
-    return df_aggregates
+    return d_aggregates
 
 
 def quantify_tremor_io(path_to_feature_input: Union[str, Path], path_to_prediction_input: Union[str, Path], output_path: Union[str, Path], config: TremorQuantificationConfig) -> None:
@@ -177,28 +192,14 @@ def quantify_tremor_io(path_to_feature_input: Union[str, Path], path_to_predicti
     assert df_features[DataColumns.TIME].equals(df_predictions[DataColumns.TIME])
 
     # Subset features
-    l_feature_cols = ['tremor_power','low_freq_power']
-    df_features = df_features[l_feature_cols]
+    df_features = df_features[['tremor_power', 'low_freq_power']]
 
     # Concatenate predictions and tremor power
     df = pd.concat([df_predictions, df_features], axis=1)
 
-    # Convert start date and time to local timezone
-    utc_start_time = datetime.strptime(metadata_time.start_iso8601, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=pytz.UTC)
-    local_start_time = utc_start_time.astimezone(pytz.timezone("Europe/Amsterdam"))
-
     # Compute weekly aggregated tremor measures
-    df_aggregates = quantify_tremor(df, config, local_start_time)
-    
-    # Save as json
-    metadata = df_aggregates[['nr_valid_days','nr_windows_daytime','nr_windows_daytime_rest']].to_dict()
-    weekly_tremor_measures = df_aggregates[['tremor_time','tremor_power_median', 'tremor_power_90th_perc',
-                                    'tremor_power_mode']].to_dict() 
+    d_aggregates = quantify_tremor(df, config, start_time = metadata_time.start_iso8601)
 
-    output = {
-        "metadata": metadata,
-        "weekly_tremor_measures": weekly_tremor_measures
-    }
-
+    # Save output
     with open(os.path.join(output_path,"weekly_tremor.json"), 'w') as json_file:
-        json.dump(output, json_file, indent=4)
+        json.dump(d_aggregates, json_file, indent=4)
