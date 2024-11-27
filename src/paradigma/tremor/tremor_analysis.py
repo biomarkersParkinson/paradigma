@@ -127,10 +127,10 @@ def aggregate_tremor_power(tremor_power: pd.Series, config: TremorQuantification
     return tremor_power_median, tremor_power_90th_perc, tremor_power_mode
 
 
-def quantify_tremor(df: pd.DataFrame, config: TremorQuantificationConfig, start_time: datetime):
+def quantify_tremor(df: pd.DataFrame, config: TremorQuantificationConfig, utc_start_time: str):
 
     # Create time array in local time zone
-    utc_start_time = datetime.strptime(start_time, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=pytz.UTC)
+    utc_start_time = datetime.strptime(utc_start_time, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=pytz.UTC) # convert to datetime
     local_start_time = utc_start_time.astimezone(pytz.timezone("Europe/Amsterdam"))
     time = [local_start_time + timedelta(seconds=x) for x in df.time]
 
@@ -184,13 +184,6 @@ def quantify_tremor_io(path_to_feature_input: Union[str, Path], path_to_predicti
     metadata_samples = metadata_dict[config.values_filename]
     df_predictions = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
 
-    # Validate
-    # Dataframes have same length
-    assert df_features.shape[0] == df_predictions.shape[0]
-
-    # Dataframes have same time column
-    assert df_features[DataColumns.TIME].equals(df_predictions[DataColumns.TIME])
-
     # Subset features
     df_features = df_features[['tremor_power', 'low_freq_power']]
 
@@ -198,7 +191,7 @@ def quantify_tremor_io(path_to_feature_input: Union[str, Path], path_to_predicti
     df = pd.concat([df_predictions, df_features], axis=1)
 
     # Compute weekly aggregated tremor measures
-    d_aggregates = quantify_tremor(df, config, start_time = metadata_time.start_iso8601)
+    d_aggregates = quantify_tremor(df, config, utc_start_time = metadata_time.start_iso8601)
 
     # Save output
     with open(os.path.join(output_path,"weekly_tremor.json"), 'w') as json_file:
