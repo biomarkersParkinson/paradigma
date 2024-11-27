@@ -190,8 +190,8 @@ def extract_temporal_domain_features(
     return df_windowed
 
 def extract_spectral_domain_features(
-        config: PPGconfig, 
-        df_windowed:pd.DataFrame
+        config, 
+        df_windowed: pd.DataFrame
     ) -> pd.DataFrame:
     """
     Calculate the spectral features (dominant frequency, relative power, and spectral entropy)
