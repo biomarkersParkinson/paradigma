@@ -45,7 +45,7 @@ def compute_signal_to_noise_ratio(
     Compute the signal to noise ratio of the PPG signal.
     
     Args:
-    arr_ppg (numpy.ndarray): PPG signal.
+    ppg_segments: PPG signal of shape ...
     
     Returns:
     list: Signal to noise ratio of the PPG windows.
@@ -67,7 +67,7 @@ def compute_auto_correlation(
     Compute the autocorrelation of the PPG signal.
     
     Args:
-        ppg_signal (np.ndarray): 2D array where each row is a segment of the PPG signal.
+        ppg_segments: 2D array where each row is a segment of the PPG signal.
         fs (int): Sampling frequency of the PPG signal.
     
     
@@ -98,13 +98,12 @@ def biased_autocorrelation(
     is the length of the original signal, and boundary effects are considered.
     
     Args:
-        x (np.ndarray): Input signal (1D array).
+        x: Input signal (1D array).
         max_lag (int): Maximum lag to compute autocorrelation.
     
     Returns:
         np.ndarray: Biased autocorrelation values for lags 0 to max_lag.
     """
-    x = np.array(x) # Ensure x is a numpy array instead of a list
     x = x - np.mean(x) # Remove the mean of the signal to make it zero-mean
     N = len(x)
     autocorr_values = np.zeros(max_lag + 1)
@@ -128,16 +127,16 @@ def compute_dominant_frequency(
 
 def compute_relative_power(
         freqs: np.ndarray, 
-        psd: np.ndarray
+        psd: np.ndarray, config: PPGconfig
     ) -> float:
     """
     Calculate relative power within the dominant frequency band in the physiological range (0.75 - 3 Hz).
     """
-    hr_range_idx = np.where((freqs >= 0.75) & (freqs <= 3))[0]
+    hr_range_idx = np.where((freqs >= config.freq_band_physio[0]) & (freqs <= config.freq_band_physio[1]))[0]
     peak_idx = np.argmax(psd[hr_range_idx])
     peak_freq = freqs[hr_range_idx[peak_idx]]
     
-    dom_band_idx = np.where((freqs >= peak_freq - 0.2) & (freqs <= peak_freq + 0.2))[0]
+    dom_band_idx = np.where((freqs >= peak_freq - config.bandwidth) & (freqs <= peak_freq + config.bandwidth))[0]
     rel_power = np.trapz(psd[dom_band_idx], freqs[dom_band_idx]) / np.trapz(psd, freqs)
     return rel_power
 
@@ -154,8 +153,8 @@ def compute_spectral_entropy(
 
 def extract_temporal_domain_features(
         config: PPGconfig, 
-        df_windowed:pd.DataFrame, 
-        l_quality_stats=['mean', 'std']
+        df_windowed: pd.DataFrame, 
+        l_quality_stats: List[str] = ['mean', 'std']
     ) -> pd.DataFrame:
     """
     Compute temporal domain features for the ppg signal. The features are added to the dataframe. Therefore the original dataframe is modified, and the modified dataframe is returned.
@@ -185,10 +184,8 @@ def extract_temporal_domain_features(
             statistic=stat
             )
     
-
-    df_windowed[f'signal_to_noise'] = compute_signal_to_noise_ratio(df_windowed[config.ppg_colname])  # feature 9
-    df_windowed[f'auto_corr'] = compute_auto_correlation(df_windowed[config.ppg_colname], config.sampling_frequency) # feature 10
-
+    df_windowed['signal_to_noise'] = compute_signal_to_noise_ratio(df_windowed[config.ppg_colname])  # feature 9
+    df_windowed['auto_corr'] = compute_auto_correlation(df_windowed[config.ppg_colname], config.sampling_frequency) # feature 10
     return df_windowed
 
 def extract_spectral_domain_features(
@@ -215,13 +212,11 @@ def extract_spectral_domain_features(
     """
     fs = config.sampling_frequency
     ppg_segments = df_windowed[config.ppg_colname]
-    win_len = 3 * fs  # 3-second window for Welch's method
-    window = hamming(win_len, sym=True)  # Hamming window for spectral estimation
-    overlap = win_len // 2  # 50% overlap
 
     l_dominant_frequencies = []
     l_relative_powers = []
     l_spectral_entropies = []
+    window = hamming(config.window_length_welch, sym = True)
 
     for segment in ppg_segments:
         # Compute power spectral density (PSD) once using Welch's method
@@ -229,19 +224,19 @@ def extract_spectral_domain_features(
             segment,
             fs=fs,
             window=window,
-            noverlap=overlap,
+            noverlap=config.overlap_welch_window,
             nfft=max(256, 2 ** int(np.log2(len(segment)))),
             detrend=False
         )
 
         # Calculate each feature using the computed PSD and frequency array
         l_dominant_frequencies.append(compute_dominant_frequency(freqs, psd))
-        l_relative_powers.append(compute_relative_power(freqs, psd))
+        l_relative_powers.append(compute_relative_power(freqs, psd, config))
         l_spectral_entropies.append(compute_spectral_entropy(psd, len(segment)))
 
-    df_windowed[f'f_dom'] = l_dominant_frequencies
-    df_windowed[f'rel_power'] = l_relative_powers
-    df_windowed[f'spectral_entropy'] = l_spectral_entropies
+    df_windowed['f_dom'] = l_dominant_frequencies
+    df_windowed['rel_power'] = l_relative_powers
+    df_windowed['spectral_entropy'] = l_spectral_entropies
 
     return df_windowed
 

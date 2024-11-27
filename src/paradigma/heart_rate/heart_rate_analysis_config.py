@@ -1,6 +1,5 @@
 from typing import Dict, List
 from paradigma.constants import DataColumns, DataUnits
-from scipy.signal.windows import hamming
 
 class IMUconfig:
     """
@@ -67,9 +66,6 @@ class PPGconfig:
 
         self.time_colname = DataColumns.TIME
         self.segment_nr_colname = DataColumns.SEGMENT_NR
-        # self.ppg_colname: List[str] = [
-        #     DataColumns.PPG
-        # ]
         self.ppg_colname = DataColumns.PPG
         self.sampling_frequency = 30
 
@@ -102,26 +98,23 @@ class PPGconfig:
         self.time_filename = f"{prefix}_time.bin"
         self.values_filename = f"{prefix}_values.bin"
 
-class SignalQualityFeatureExtractionConfig (PPGconfig):
+class SignalQualityFeatureExtractionConfig(PPGconfig):
 
     def __init__(self) -> None:
         super().__init__()
         self.set_sensor("PPG")
-        self.set_sampling_frequency(self.sampling_frequency)
-
-        self.window_type: str = "hann"
-        self.verbose: int = 0
 
         self.window_length_s: int = 6
         self.window_step_size_s: int = 1
         self.segment_gap_s = 1.5
         self.window_length_welch = 3*self.sampling_frequency
-        self.window = hamming(self.window_length_welch, sym = True)
-        self.overlap = self.window_length_welch // 2
+        self.overlap_welch_window = self.window_length_welch // 2
 
-        
-        self.sampling_frequency_imu = 100
-        self.sampling_frequency_ppg = 30
+        self.freq_band_physio = [0.75, 3] # Hz
+        self.bandwidth = 0.2   # Hz
+
+        config_imu = IMUconfig()
+        self.sampling_frequency_imu = config_imu.sampling_frequency
 
         self.single_value_cols: List[str] = None
         self.list_value_cols: List[str] = [
@@ -147,19 +140,18 @@ class SignalQualityClassificationConfig(PPGconfig):
 class HeartRateExtractionConfig(PPGconfig):
 
     def __init__(self) -> None:
-        
-        self.sampling_frequency_ppg = 30
+        super().__init__()
          # Parameters for HR analysis
         self.sqa_window_length_s: int = 6
         self.sqa_window_overlap_s: int = 5
         self.sqa_window_step_size_s: int = 1
         min_window_length = 10
-        self.min_hr_samples = min_window_length * self.sampling_frequency_ppg
+        self.min_hr_samples = min_window_length * self.sampling_frequency
         self.threshold_sqa = 0.5
 
         # Heart rate estimation parameters
         hr_est_length = 2
-        self.hr_est_samples = hr_est_length * self.sampling_frequency_ppg
+        self.hr_est_samples = hr_est_length * self.sampling_frequency
 
         # Time-frequency distribution parameters
         self.tfd_length = 10
@@ -168,8 +160,8 @@ class HeartRateExtractionConfig(PPGconfig):
         win_type_lag = 'hamm'
         win_length_doppler = 1
         win_length_lag = 8
-        doppler_samples = self.sampling_frequency_ppg * win_length_doppler
-        lag_samples = win_length_lag * self.sampling_frequency_ppg
+        doppler_samples = self.sampling_frequency * win_length_doppler
+        lag_samples = win_length_lag * self.sampling_frequency
         self.kern_params = [{'doppler_samples': doppler_samples, 'win_type_doppler': win_type_doppler}, 
                     {'lag_samples': lag_samples, 'win_type_lag': win_type_lag}]
             
