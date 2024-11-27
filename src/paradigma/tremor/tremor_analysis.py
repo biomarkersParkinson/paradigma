@@ -109,7 +109,7 @@ def detect_tremor_io(input_path: Union[str, Path], output_path: Union[str, Path]
     write_df_data(metadata_time, metadata_samples, output_path, 'tremor_meta.json', df)
 
 
-def aggregate_tremor_power(tremor_power: pd.Series, config: TremorQuantificationConfig) -> list:
+def aggregate_tremor_power(tremor_power: pd.Series, config: TremorQuantificationConfig):
 
     tremor_power = np.log10(tremor_power+1) # convert to log scale
     
