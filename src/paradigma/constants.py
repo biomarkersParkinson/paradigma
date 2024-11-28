@@ -28,6 +28,11 @@ class DataColumns():
     VELOCITY : str = "velocity"
     SEGMENT_NR : str = "segment_nr"
 
+    # The following are used in tremor analysis
+    PRED_TREMOR_PROBA: str = "pred_tremor_proba"
+    PRED_TREMOR_LOGREG : str = "pred_tremor_logreg"
+    PRED_TREMOR_CHECKED : str = "pred_tremor_checked"
+
     # Constants for PPG features
     VARIANCE: str = "variance"
     MEAN: str = "mean"
