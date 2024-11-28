@@ -77,10 +77,10 @@ class GaitFeatureExtractionConfig (IMUConfig):
         self.segment_gap_s = 1.5
 
         # cepstral coefficients
-        self.cc_low_frequency: int = 0
-        self.cc_high_frequency: int = 25
-        self.n_dct_filters_cc: int = 20
-        self.n_coefficients_cc: int = 12
+        self.mfcc_low_frequency: int = 0
+        self.mfcc_high_frequency: int = 25
+        self.mfcc_n_dct_filters: int = 15
+        self.mfcc_n_coefficients: int = 12
 
         self.d_frequency_bandwidths: Dict[str, List[float]] = {
             "power_below_gait": [0.3, 0.7],
@@ -97,12 +97,13 @@ class GaitFeatureExtractionConfig (IMUConfig):
 
         # TODO: generate this dictionary using object attributes (self.X) and parameters (e.g., n_dct_filters for cc)
         self.d_channels_values: Dict[str, str] = {
-            f"grav_{self.sensor}_x_mean": DataUnits.GRAVITY,
-            f"grav_{self.sensor}_y_mean": DataUnits.GRAVITY,
-            f"grav_{self.sensor}_z_mean": DataUnits.GRAVITY,
-            f"grav_{self.sensor}_x_std": DataUnits.GRAVITY,
-            f"grav_{self.sensor}_y_std": DataUnits.GRAVITY,
-            f"grav_{self.sensor}_z_std": DataUnits.GRAVITY,
+            f"{self.sensor}_std_norm": DataUnits.GRAVITY,
+            f"{self.sensor}_x_grav_mean": DataUnits.GRAVITY,
+            f"{self.sensor}_y_grav_mean": DataUnits.GRAVITY,
+            f"{self.sensor}_z_grav_mean": DataUnits.GRAVITY,
+            f"{self.sensor}_x_grav_std": DataUnits.GRAVITY,
+            f"{self.sensor}_y_grav_std": DataUnits.GRAVITY,
+            f"{self.sensor}_z_grav_std": DataUnits.GRAVITY,
             f"{self.sensor}_x_power_below_gait": DataUnits.POWER_SPECTRAL_DENSITY,
             f"{self.sensor}_y_power_below_gait": DataUnits.POWER_SPECTRAL_DENSITY,
             f"{self.sensor}_z_power_below_gait": DataUnits.POWER_SPECTRAL_DENSITY,
@@ -118,11 +119,10 @@ class GaitFeatureExtractionConfig (IMUConfig):
             f"{self.sensor}_x_dominant_frequency": DataUnits.FREQUENCY,
             f"{self.sensor}_y_dominant_frequency": DataUnits.FREQUENCY,
             f"{self.sensor}_z_dominant_frequency": DataUnits.FREQUENCY,
-            "std_norm_acc": DataUnits.GRAVITY,
         }
 
-        for cc_coef in range(1, self.n_coefficients_cc + 1):
-            self.d_channels_values[f"cc_{cc_coef}_{self.sensor}"] = "g"
+        for mfcc_coef in range(1, self.mfcc_n_coefficients + 1):
+            self.d_channels_values[f"{self.sensor}_mffc_{mfcc_coef}"] = "g"
 
     def set_sampling_frequency(self, sampling_frequency: int) -> None:
         """Sets the sampling frequency and derived variables"""
@@ -168,10 +168,10 @@ class ArmActivityFeatureExtractionConfig(IMUConfig):
         }
 
         # cepstral coefficients
-        self.cc_low_frequency = 0
-        self.cc_high_frequency = 25
-        self.n_dct_filters_cc: int = 20
-        self.n_coefficients_cc: int = 12
+        self.mfcc_low_frequency = 0
+        self.mfcc_high_frequency = 25
+        self.mfcc_n_dct_filters: int = 15
+        self.mfcc_n_coefficients: int = 12
 
     def initialize_column_names(
         self
@@ -179,7 +179,6 @@ class ArmActivityFeatureExtractionConfig(IMUConfig):
 
         self.pred_gait_proba_colname=DataColumns.PRED_GAIT_PROBA
         self.pred_gait_colname=DataColumns.PRED_GAIT
-        self.angle_smooth_colname: str = DataColumns.ANGLE_SMOOTH
         self.angle_colname=DataColumns.ANGLE
         self.velocity_colname=DataColumns.VELOCITY
         self.segment_nr_colname=DataColumns.SEGMENT_NR
@@ -204,41 +203,42 @@ class ArmActivityFeatureExtractionConfig(IMUConfig):
         self.initialize_sampling_frequency_fields(self.sampling_frequency)
         self.initialize_column_names()
 
+        sensor = 'accelerometer'
+
         self.d_channels_values = {
-            f"{self.angle_colname}_perc_power": "proportion",
             "range_of_motion": "deg",
             f"forward_peak_{self.velocity_colname}_mean": DataUnits.ROTATION,
             f"forward_peak_{self.velocity_colname}_std": DataUnits.ROTATION,
             f"backward_peak_{self.velocity_colname}_mean": DataUnits.ROTATION,
             f"backward_peak_{self.velocity_colname}_std": DataUnits.ROTATION,
-            "std_norm_acc": DataUnits.GRAVITY,
-            "grav_accelerometer_x_mean": DataUnits.GRAVITY,
-            "grav_accelerometer_x_std": DataUnits.GRAVITY,
-            "grav_accelerometer_y_mean": DataUnits.GRAVITY,
-            "grav_accelerometer_y_std": DataUnits.GRAVITY,
-            "grav_accelerometer_z_mean": DataUnits.GRAVITY,
-            "grav_accelerometer_z_std": DataUnits.GRAVITY,
-            "accelerometer_x_power_below_gait": "X",
-            "accelerometer_x_power_gait": "X",
-            "accelerometer_x_power_tremor": "X",
-            "accelerometer_x_power_above_tremor": "X",
-            "accelerometer_x_dominant_frequency": DataUnits.FREQUENCY,
-            "accelerometer_y_power_below_gait": "X",
-            "accelerometer_y_power_gait": "X",
-            "accelerometer_y_power_tremor": "X",
-            "accelerometer_y_power_above_tremor": "X",
-            "accelerometer_y_dominant_frequency": DataUnits.FREQUENCY,
-            "accelerometer_z_power_below_gait": "X",
-            "accelerometer_z_power_gait": "X",
-            "accelerometer_z_power_tremor": "X",
-            "accelerometer_z_power_above_tremor": "X",
-            "accelerometer_z_dominant_frequency": DataUnits.FREQUENCY,
+            f"{sensor}_std_norm": DataUnits.GRAVITY,
+            f"{sensor}_x_grav_mean": DataUnits.GRAVITY,
+            f"{sensor}_x_grav_std": DataUnits.GRAVITY,
+            f"{sensor}_y_grav_mean": DataUnits.GRAVITY,
+            f"{sensor}_y_grav_std": DataUnits.GRAVITY,
+            f"{sensor}_z_grav_mean": DataUnits.GRAVITY,
+            f"{sensor}_z_grav_std": DataUnits.GRAVITY,
+            f"{sensor}_x_power_below_gait": "X",
+            f"{sensor}_x_power_gait": "X",
+            f"{sensor}_x_power_tremor": "X",
+            f"{sensor}_x_power_above_tremor": "X",
+            f"{sensor}_x_dominant_frequency": DataUnits.FREQUENCY,
+            f"{sensor}_y_power_below_gait": "X",
+            f"{sensor}_y_power_gait": "X",
+            f"{sensor}_y_power_tremor": "X",
+            f"{sensor}_y_power_above_tremor": "X",
+            f"{sensor}_y_dominant_frequency": DataUnits.FREQUENCY,
+            f"{sensor}_z_power_below_gait": "X",
+            f"{sensor}_z_power_gait": "X",
+            f"{sensor}_z_power_tremor": "X",
+            f"{sensor}_z_power_above_tremor": "X",
+            f"{sensor}_z_dominant_frequency": DataUnits.FREQUENCY,
             f"{self.angle_colname}_dominant_frequency": DataUnits.FREQUENCY,
         }
 
         for sensor in ["accelerometer", "gyroscope"]:
-            for cc_coef in range(1, self.n_coefficients_cc + 1):
-                self.d_channels_values[f"cc_{cc_coef}_{sensor}"] = DataUnits.GRAVITY
+            for mfcc_coef in range(1, self.mfcc_n_coefficients + 1):
+                self.d_channels_values[f"{sensor}_mfcc_{mfcc_coef}"] = DataUnits.GRAVITY
 
 
 class FilteringGaitConfig(IMUConfig):

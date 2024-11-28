@@ -3,7 +3,7 @@ from typing import List, Union
 import numpy as np
 import pandas as pd
 from scipy import signal
-from scipy.interpolate import CubicSpline
+from scipy.interpolate import interp1d
 
 import tsdf
 from paradigma.constants import DataColumns, TimeUnit
@@ -38,23 +38,30 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUPreprocessingConfig, scale_
         df[DataColumns.GYROSCOPE_Y] *= -1
         df[DataColumns.GYROSCOPE_Z] *= -1
 
-    for col in config.d_channels_accelerometer.keys():
+    # Convert accelerometer data to correct units if necessary
+    if config.acceleration_units == 'm/s^2':
+        df[config.l_accelerometer_cols] /= 9.81
+        
+    # Extract accelerometer data
+    accel_data = df[config.l_accelerometer_cols].values
 
-        # change to correct units [g]
-        if config.acceleration_units == 'm/s^2':
-            df[col] /= 9.81
+    filter_configs = {
+        "hp": {"result_columns": config.l_accelerometer_cols, "replace_original": True},
+        "lp": {"result_columns": [f'grav_{col}' for col in config.l_accelerometer_cols], "replace_original": False},
+    }
 
-        for result, side_pass in zip(['filt', 'grav'], ['hp', 'lp']):
-            df[f'{result}_{col}'] = butterworth_filter(
-                single_sensor_col=np.array(df[col]),
-                order=config.filter_order,
-                cutoff_frequency=config.lower_cutoff_frequency,
-                passband=side_pass,
-                sampling_frequency=config.sampling_frequency,
-                )
-            
-        df = df.drop(columns=[col])
-        df = df.rename(columns={f'filt_{col}': col})
+    # Apply filters in a loop
+    for passband, filter_config in filter_configs.items():
+        filtered_data = butterworth_filter(
+            data=accel_data,
+            order=config.filter_order,
+            cutoff_frequency=config.lower_cutoff_frequency,
+            passband=passband,
+            sampling_frequency=config.sampling_frequency,
+        )
+
+        # Replace or add new columns based on configuration
+        df[filter_config["result_columns"]] = filtered_data
 
     return df
 
@@ -178,45 +185,46 @@ def resample_data(
         raise ValueError("start_time is required for absolute time format")
 
     # get time and values
-    time_abs_array=np.array(df[time_column])
-    values_unscaled=np.array(df[unscaled_column_names])
+    time_abs_array = np.array(df[time_column])
+    values_array = np.array(df[unscaled_column_names])
 
     # scale data
-    if len(scale_factors) != 0 and scale_factors is not None:
-        scaled_values = values_unscaled * scale_factors
+    if scale_factors:
+        values_array = values_array * scale_factors
 
     # resample
     t_resampled = np.arange(start_time, time_abs_array[-1], 1 / resampling_frequency)
 
-    # create dataframe
-    df = pd.DataFrame(t_resampled, columns=[time_column])
+    # Ensure the time array is strictly increasing
+    if not np.all(np.diff(time_abs_array) > 0):
+        raise ValueError("time_abs_array is not strictly increasing")
+    
+    # Perform vectorized interpolation
+    interpolator = interp1d(time_abs_array, values_array, axis=0, kind="cubic")
+    resampled_values = interpolator(t_resampled)
 
-    # interpolate IMU - maybe a separate method?
-    for j, sensor_col in enumerate(unscaled_column_names):
-        if not np.all(np.diff(time_abs_array) > 0):
-            raise ValueError("time_abs_array is not strictly increasing")
+    # Create the output DataFrame
+    df_resampled = pd.DataFrame(resampled_values, columns=unscaled_column_names)
+    df_resampled[time_column] = t_resampled
 
-        cs = CubicSpline(time_abs_array, scaled_values.T[j])
-        #TODO: isn't sensor_col of type DataColumns?
-        df[sensor_col] = cs(df[time_column])
-
-    return df
+    # Return the reordered DataFrame
+    return df_resampled[[time_column] + unscaled_column_names]
 
 
 def butterworth_filter(
-    single_sensor_col: np.ndarray,
+    data: np.ndarray,
     order: int,
     cutoff_frequency: Union[float, List[float]],
     passband: str,
     sampling_frequency: int,
 ):
     """
-    Applies the Butterworth filter to a single sensor column
+    Applies the Butterworth filter to 2D sensor data
 
     Parameters
     ----------
-    single_sensor_column: pd.Series
-        A single column containing sensor data in float format
+    data : np.ndarray
+        2D-array containing sensor data (e.g., accelerometer axes).
     order: int
         The exponential order of the filter
     cutoff_frequency: float or List[float]
@@ -228,8 +236,8 @@ def butterworth_filter(
 
     Returns
     -------
-    sensor_column_filtered: pd.Series
-        The origin sensor column filtered applying a Butterworth filter
+    sensor_data_filtered: np.ndarray
+        The filtered sensor data after applying the Butterworth filter.
     """
 
     sos = signal.butter(
@@ -240,5 +248,6 @@ def butterworth_filter(
         fs=sampling_frequency,
         output="sos",
     )
-    return signal.sosfiltfilt(sos, single_sensor_col)
+
+    return signal.sosfiltfilt(sos, data, axis=0)
     

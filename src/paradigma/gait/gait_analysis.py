@@ -12,30 +12,44 @@ from paradigma.constants import DataColumns
 from paradigma.gait.gait_analysis_config import GaitFeatureExtractionConfig, GaitDetectionConfig, \
     ArmActivityFeatureExtractionConfig, FilteringGaitConfig, ArmSwingQuantificationConfig
 from paradigma.gait.feature_extraction import extract_temporal_domain_features, \
-    extract_spectral_domain_features, pca_transform_gyroscope, compute_angle, \
-    remove_moving_average_angle, extract_angle_extremes, extract_range_of_motion, \
-    extract_peak_angular_velocity, signal_to_ffts, get_dominant_frequency, compute_perc_power
+    extract_spectral_domain_features, compute_angle_and_velocity_from_gyro, extract_angle_features
 from paradigma.gait.quantification import aggregate_segments
-from paradigma.windowing import tabulate_windows, create_segments, discard_segments
+from paradigma.src.paradigma.segmenting import tabulate_windows, create_segments, discard_segments
 from paradigma.util import get_end_iso8601, write_df_data, read_metadata
 
 
 def extract_gait_features(df: pd.DataFrame, config: GaitFeatureExtractionConfig) -> pd.DataFrame:
     # group sequences of timestamps into windows
-    df_windowed = tabulate_windows(
-        config=config,
-        df=df,
-        agg_func='first'
-        )
+    l_window_cols = [config.time_colname] + config.l_accelerometer_cols + config.l_gravity_cols
+    data_windowed = tabulate_windows(config, df, l_window_cols)
+
+    start_time = np.min(data_windowed[:, :, 0], axis=1)
+    accel_windowed = data_windowed[:, :, 1:4]
+    grav_windowed = data_windowed[:, :, 4:7]
+
+    df_features = pd.DataFrame(start_time, columns=[config.time_colname])
     
     # compute statistics of the temporal domain signals
-    df_windowed = extract_temporal_domain_features(config, df_windowed, l_gravity_stats=['mean', 'std'])
+    df_temporal_features = extract_temporal_domain_features(
+        config=config, 
+        windowed_acc=accel_windowed,
+        windowed_grav=grav_windowed,
+        l_grav_stats=['mean', 'std']
+    )
+
+    df_features= pd.concat([df_features, df_temporal_features], axis=1)
 
     # transform the signals from the temporal domain to the spectral domain using the fast fourier transform
     # and extract spectral features
-    df_windowed = extract_spectral_domain_features(config, df_windowed, config.sensor, config.l_accelerometer_cols)
+    df_spectral_features = extract_spectral_domain_features(
+        config=config, 
+        sensor='accelerometer', 
+        windowed_data=accel_windowed
+    )
 
-    return df_windowed
+    df_features = pd.concat([df_features, df_spectral_features], axis=1)
+
+    return df_features
 
 
 def extract_gait_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config: GaitFeatureExtractionConfig) -> None:
@@ -44,24 +58,24 @@ def extract_gait_features_io(input_path: Union[str, Path], output_path: Union[st
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
 
     # Extract gait features
-    df_windowed = extract_gait_features(df, config)
+    df_features = extract_gait_features(df, config)
 
     # Store data
     end_iso8601 = get_end_iso8601(start_iso8601=metadata_time.start_iso8601,
-                                  window_length_seconds=int(df_windowed[config.time_colname][-1:].values[0] + config.window_length_s))
+                                  window_length_seconds=int(df_features[config.time_colname][-1:].values[0] + config.window_length_s))
 
-    metadata_samples.end_iso8601 = end_iso8601
     metadata_samples.file_name = 'gait_values.bin'
-    metadata_time.end_iso8601 = end_iso8601
     metadata_time.file_name = 'gait_time.bin'
-
+    metadata_samples.end_iso8601 = end_iso8601
+    metadata_time.end_iso8601 = end_iso8601
+    
     metadata_samples.channels = list(config.d_channels_values.keys())
     metadata_samples.units = list(config.d_channels_values.values())
 
     metadata_time.channels = [DataColumns.TIME]
     metadata_time.units = ['relative_time_ms']
 
-    write_df_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df_windowed)
+    write_df_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df_features)
 
 
 def detect_gait(df: pd.DataFrame, config: GaitDetectionConfig, path_to_classifier_input: Union[str, Path]) -> pd.DataFrame:
@@ -108,148 +122,80 @@ def detect_gait_io(input_path: Union[str, Path], output_path: Union[str, Path], 
 
 
 def extract_arm_activity_features(df: pd.DataFrame, config: ArmActivityFeatureExtractionConfig) -> pd.DataFrame:
+
     # temporary add "random" predictions
     df[config.pred_gait_colname] = np.concatenate([np.repeat([1], df.shape[0]//3), np.repeat([0], df.shape[0]//3), np.repeat([1], df.shape[0] + 1 - 2*df.shape[0]//3)], axis=0)
-
-    # perform principal component analysis on the gyroscope signals to obtain the angular velocity in the
-    # direction of the swing of the arm 
-    df[config.velocity_colname] = pca_transform_gyroscope(
-        df=df,
-        y_gyro_colname=DataColumns.GYROSCOPE_Y,
-        z_gyro_colname=DataColumns.GYROSCOPE_Z,
-        pred_gait_colname=config.pred_gait_colname
-    )
-
-    # integrate the angular velocity to obtain an estimation of the angle
-    df[config.angle_colname] = compute_angle(
-        velocity_col=df[config.velocity_colname],
-        time_col=df[config.time_colname]
-    )
-
-    # remove the moving average from the angle to account for possible drift caused by the integration
-    # of noise in the angular velocity
-    df[config.angle_colname] = remove_moving_average_angle(
-        angle_col=df[config.angle_colname],
-        sampling_frequency=config.sampling_frequency
-    )
+    
+    df[config.angle_colname], df[config.velocity_colname] = compute_angle_and_velocity_from_gyro(config, df)
 
     # use only predicted gait for the subsequent steps
     df = df.loc[df[config.pred_gait_colname]==1].reset_index(drop=True)
 
     # group consecutive timestamps into segments with new segments starting after a pre-specified gap
     df[config.segment_nr_colname] = create_segments(
-        df=df,
-        time_column_name=config.time_colname,
-        gap_threshold_s=config.segment_gap_s
+        config=config,
+        df=df
     )
 
     # remove any segments that do not adhere to predetermined criteria
     df = discard_segments(
-        df=df,
-        segment_nr_colname=config.segment_nr_colname,
-        min_length_segment_s=config.segment_gap_s,
-        sampling_frequency=config.sampling_frequency
+        config=config,
+        df=df
     )
 
     # create windows of a fixed length and step size from the time series per segment
-    l_dfs = []
-    for segment_nr in df[config.segment_nr_colname].unique():
-        df_single_segment = df.loc[df[config.segment_nr_colname]==segment_nr].copy().reset_index(drop=True)
-        l_dfs.append(tabulate_windows(
+    windowed_data = []
+    df_grouped = df.groupby(config.segment_nr_colname)
+    l_windowed_cols = (
+        config.l_accelerometer_cols + 
+        config.l_gravity_cols + 
+        config.l_gyroscope_cols + 
+        [config.angle_colname, config.velocity_colname]
+    )
+
+    for _, group in df_grouped:
+        windows = tabulate_windows(
             config=config,
-            df=df_single_segment,
-            agg_func='first'
-            )
+            df=group,
+            columns=l_windowed_cols
         )
+        if len(windows) > 0:  # Skip if no windows are created
+            windowed_data.append(windows)
 
-    df_windowed = pd.concat(l_dfs).reset_index(drop=True)
+    if len(windowed_data) > 0:
+        windowed_data = np.concatenate(windowed_data, axis=0)
+    else:
+        raise ValueError("No windows were created from the given data.")
 
-    del df
+    n_acc_cols = len(config.l_accelerometer_cols)
+    n_grav_cols = len(config.l_gravity_cols)
+    n_gyro_cols = len(config.l_gyroscope_cols)
 
-    # transform the angle from the temporal domain to the spectral domain using the fast fourier transform
-    df_windowed[f'{config.angle_colname}_freqs'], df_windowed[f'{config.angle_colname}_fft'] = signal_to_ffts(
-        sensor_col=df_windowed[config.angle_colname],
-        window_type=config.window_type,
-        sampling_frequency=config.sampling_frequency)
+    idx_acc = slice(0, n_acc_cols)
+    idx_grav = slice(n_acc_cols, n_acc_cols + n_grav_cols)
+    idx_gyro = slice(n_acc_cols + n_grav_cols, n_acc_cols + n_grav_cols + n_gyro_cols)
+    idx_angle = -2
+    idx_velocity = -1
 
-    # obtain the dominant frequency of the angle signal in the frequency band of interest
-    # defined by the highest peak in the power spectrum
-    df_windowed[f'{config.angle_colname}_dominant_frequency'] = df_windowed.apply(
-        lambda x: get_dominant_frequency(signal_ffts=x[f'{config.angle_colname}_fft'],
-                                        signal_freqs=x[f'{config.angle_colname}_freqs'],
-                                        fmin=config.power_band_low_frequency,
-                                        fmax=config.power_band_high_frequency
-                                        ), axis=1
-    )
+    windowed_acc = windowed_data[:, :, idx_acc]
+    windowed_grav = windowed_data[:, :, idx_grav]
+    windowed_gyro = windowed_data[:, :, idx_gyro]
+    windowed_angle = windowed_data[:, :, idx_angle]
+    windowed_velocity = windowed_data[:, :, idx_velocity]
 
-    df_windowed = df_windowed.drop(columns=[f'{config.angle_colname}_fft', f'{config.angle_colname}_freqs'])
-
-    # compute the percentage of power in the frequency band of interest (i.e., the frequency band of the arm swing)
-    df_windowed[f'{config.angle_colname}_perc_power'] = df_windowed[config.angle_colname].apply(
-        lambda x: compute_perc_power(
-            sensor_col=x,
-            fmin_band=config.power_band_low_frequency,
-            fmax_band=config.power_band_high_frequency,
-            fmin_total=config.spectrum_low_frequency,
-            fmax_total=config.spectrum_high_frequency,
-            sampling_frequency=config.sampling_frequency,
-            window_type=config.window_type
-            )
-    )
-
-    # note to eScience: why are the columns f'{config.angle_colname}_new_minima', f'{config.angle_colname}_new_maxima', 
-    # f'{config.angle_colname}_minima_deleted' and f'{config.angle_colname}_maxima deleted' created here? Should a copy
-    # of 'df_windowed' be created inside 'extract_angle_extremes' to prevent this from
-    # happening?
-    # determine the extrema (minima and maxima) of the angle signal
-    extract_angle_extremes(
-        df=df_windowed,
-        angle_colname=config.angle_colname,
-        dominant_frequency_colname=f'{config.angle_colname}_dominant_frequency',
-        sampling_frequency=config.sampling_frequency
-    )
-
-    df_windowed = df_windowed.drop(columns=[config.angle_colname])
-
-    # calculate the change in angle between consecutive extrema (minima and maxima) of the angle signal inside the window
-    df_windowed[f'{config.angle_colname}_amplitudes'] = extract_range_of_motion(
-        angle_extrema_values_col=df_windowed[f'{config.angle_colname}_extrema_values']
-    )
-
-    df_windowed = df_windowed.drop(columns=[f'{config.angle_colname}_extrema_values'])
-
-    # aggregate the changes in angle between consecutive extrema to obtain the range of motion
-    df_windowed['range_of_motion'] = df_windowed[f'{config.angle_colname}_amplitudes'].apply(lambda x: np.mean(x) if len(x) > 0 else 0).replace(np.nan, 0)
-
-    df_windowed = df_windowed.drop(columns=[f'{config.angle_colname}_amplitudes'])
-
-    # compute the forward and backward peak angular velocity using the extrema of the angular velocity
-    df_windowed = extract_peak_angular_velocity(
-        df=df_windowed,
-        velocity_colname=config.velocity_colname,
-        angle_minima_colname=f'{config.angle_colname}_minima',
-        angle_maxima_colname=f'{config.angle_colname}_maxima'
-    )
-
-    df_windowed = df_windowed.drop(columns=[f'{config.angle_colname}_minima',f'{config.angle_colname}_maxima', f'{config.angle_colname}_new_minima',
-                                            f'{config.angle_colname}_new_maxima', config.velocity_colname])
-
-    # compute aggregated measures of the peak angular velocity
-    for dir in ['forward', 'backward']:
-        df_windowed[f'{dir}_peak_{config.velocity_colname}_mean'] = df_windowed[f'{dir}_peak_{config.velocity_colname}'].apply(lambda x: np.mean(x) if len(x) > 0 else 0)
-        df_windowed[f'{dir}_peak_{config.velocity_colname}_std'] = df_windowed[f'{dir}_peak_{config.velocity_colname}'].apply(lambda x: np.std(x) if len(x) > 0 else 0)
-
-        df_windowed = df_windowed.drop(columns=[f'{dir}_peak_{config.velocity_colname}'])
+    df_features = extract_angle_features(config, windowed_angle, windowed_velocity)    
 
     # compute statistics of the temporal domain accelerometer signals
-    df_windowed = extract_temporal_domain_features(config, df_windowed, l_gravity_stats=['mean', 'std'])
+    df_temporal_features = extract_temporal_domain_features(config, windowed_acc, windowed_grav, l_grav_stats=['mean', 'std'])
+    df_features = pd.concat([df_features, df_temporal_features], axis=1)
 
     # transform the accelerometer and gyroscope signals from the temporal domain to the spectral domain
-    #  using the fast fourier transform and extract spectral features
-    for sensor, l_sensor_colnames in zip(['accelerometer', 'gyroscope'], [config.l_accelerometer_cols, config.l_gyroscope_cols]):
-        df_windowed = extract_spectral_domain_features(config, df_windowed, sensor, l_sensor_colnames)
+    # using the fast fourier transform and extract spectral features
+    for sensor_name, windowed_sensor in zip(['accelerometer', 'gyroscope'], [windowed_acc, windowed_gyro]):
+        df_spectral_features = extract_spectral_domain_features(config, sensor_name, windowed_sensor)
+        df_features = pd.concat([df_features, df_spectral_features], axis=1)
 
-    return df_windowed
+    return df_features
 
 
 def extract_arm_activity_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config: ArmActivityFeatureExtractionConfig) -> None:
@@ -268,10 +214,12 @@ def extract_arm_activity_features_io(input_path: Union[str, Path], output_path: 
 
     df = pd.merge(l_dfs[0], l_dfs[1], on=config.time_colname)
 
-    df_windowed = extract_arm_activity_features(df, config)
+    # TODO: Load gait prediction and merge
+
+    df_features = extract_arm_activity_features(df, config)
 
     end_iso8601 = get_end_iso8601(metadata_samples.start_iso8601, 
-                                df_windowed[config.time_colname][-1:].values[0] + config.window_length_s)
+                                df_features[config.time_colname][-1:].values[0] + config.window_length_s)
 
     metadata_samples.end_iso8601 = end_iso8601
     metadata_samples.file_name = 'arm_activity_values.bin'
@@ -284,7 +232,7 @@ def extract_arm_activity_features_io(input_path: Union[str, Path], output_path: 
     metadata_time.channels = [config.time_colname]
     metadata_time.units = ['relative_time_ms']
 
-    write_df_data(metadata_time, metadata_samples, output_path, 'arm_activity_meta.json', df_windowed)
+    write_df_data(metadata_time, metadata_samples, output_path, 'arm_activity_meta.json', df_features)
 
 
 def filter_gait(df: pd.DataFrame, config: FilteringGaitConfig, clf: Union[LogisticRegression, RandomForestClassifier]) -> pd.DataFrame:
@@ -296,9 +244,7 @@ def filter_gait(df: pd.DataFrame, config: FilteringGaitConfig, clf: Union[Logist
                             [f'{x}_power_above_tremor' for x in config.l_accelerometer_cols] + \
                             [f'cc_{i}_accelerometer' for i in range(1, 13)] + [f'cc_{i}_gyroscope' for i in range(1, 13)] + \
                             [f'grav_{x}_mean' for x in config.l_accelerometer_cols] +  [f'grav_{x}_std' for x in config.l_accelerometer_cols] + \
-                            ['range_of_motion', f'forward_peak_{config.velocity_colname}_mean', f'backward_peak_{config.velocity_colname}_mean', f'forward_peak_{config.velocity_colname}_std', 
-                            f'backward_peak_{config.velocity_colname}_std', f'{config.angle_colname}_perc_power', f'{config.angle_colname}_dominant_frequency'] + \
-                            [f'{x}_dominant_frequency' for x in config.l_accelerometer_cols]
+                            [f'{config.angle_colname}_dominant_frequency'] + [f'{x}_dominant_frequency' for x in config.l_accelerometer_cols]
     X = df.loc[:, clf.feature_names_in_]
 
     # Make prediction

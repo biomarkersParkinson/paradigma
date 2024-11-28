@@ -7,7 +7,16 @@ from typing import Union, List
 
 import numpy as np
 
-def tabulate_windows(config, df, agg_func='first'):
+def tabulate_windows(config, df, columns):
+    window_size = int(config.window_length_s * config.sampling_frequency)
+    window_step_size = int(config.window_step_length_s * config.sampling_frequency)
+    n_columns = len(columns)
+
+    data = df[columns].values
+    windows = np.lib.stride_tricks.sliding_window_view(data, window_shape=(window_size, n_columns))[::window_step_size].squeeze()
+    return windows
+
+def tabulate_windows_legacy(config, df, agg_func='first'):
     """
     Efficiently creates a windowed dataframe from the input dataframe using vectorized operations.
     
@@ -85,33 +94,32 @@ def tabulate_windows(config, df, agg_func='first'):
     return windowed_df[desired_order]
 
 
-def create_segments(df, time_column_name, gap_threshold_s):
+def create_segments(config, df):
     """
-    Adds a 'segment_nr' column to the dataframe, enumerating segments based on gaps 
-    in the specified time column exceeding a given threshold.
+    Creates segments by detecting time gaps using Pandas operations.
 
     Args:
-        df (pd.DataFrame): The input dataframe with a time column.
-        time_column_name (str): The name of the time column to check for gaps.
-        gap_threshold (float): The threshold for gaps in seconds.
+        df (pd.DataFrame): Input DataFrame with time column.
+        time_column_name (str): Name of the time column.
+        gap_threshold_s (float): Threshold for gap size in seconds.
 
     Returns:
-        pd.Series: A series of length equal to the input dataframe, containing segment numbers.
+        pd.Series: Segment numbers.
     """
     # Calculate the difference between consecutive time values
-    time_diff = df[time_column_name].diff().fillna(0.0)
+    time_diff = df[config.time_colname].diff().fillna(0.0)
 
     # Create a boolean mask for where the gap exceeds the threshold
-    gap_exceeds = time_diff > gap_threshold_s
+    gap_exceeds = time_diff > config.max_segment_gap_s
 
     # Create the segment number based on the cumulative sum of the gap_exceeds mask
-    segments_series = gap_exceeds.cumsum() + 1  # +1 to start enumeration from 1
+    segments = gap_exceeds.cumsum() + 1  # +1 to start enumeration from 1
 
-    return segments_series
+    return segments
 
 
-def create_segment_df(df, time_column_name, segment_nr_colname):
-    df_segment_times = df.groupby(segment_nr_colname)[time_column_name].agg(
+def create_segment_df(config, df):
+    df_segment_times = df.groupby(config.segment_nr_colname)[config.time_colname].agg(
         time_start='min',  # Start time (min time in each segment)
         time_end='max'     # End time (max time in each segment)
     ).reset_index()
@@ -119,7 +127,7 @@ def create_segment_df(df, time_column_name, segment_nr_colname):
     return df_segment_times
 
 
-def discard_segments(df, segment_nr_colname, min_length_segment_s, sampling_frequency):
+def discard_segments(config, df):
     """
     Removes segments from the dataframe that are smaller than a specified size,
     and resets the segment enumeration to start from 1.
@@ -132,19 +140,22 @@ def discard_segments(df, segment_nr_colname, min_length_segment_s, sampling_freq
     Returns:
         pd.DataFrame: The filtered dataframe with small segments removed and segment numbers reset.
     """
-    # Count the size of each segment
-    segment_sizes = df[segment_nr_colname].value_counts()
+    # Minimum segment size in number of samples
+    min_samples = config.min_segment_length_s * config.sampling_frequency
 
-    # Identify segments that are larger than or equal to the minimum size
-    valid_segments = segment_sizes[segment_sizes >= min_length_segment_s * sampling_frequency].index
+    # Group by segment and filter out small segments in one step
+    valid_segment_mask = (
+        df.groupby(config.segment_nr_colname)[config.segment_nr_colname]
+        .transform('size') >= min_samples
+    )
 
-    # Filter the DataFrame to retain only valid segments
-    filtered_df = df[df[segment_nr_colname].isin(valid_segments)].copy()
+    df = df[valid_segment_mask].copy()
 
-    # Reset the segment enumeration starting from 1
-    filtered_df[segment_nr_colname] = pd.factorize(filtered_df[segment_nr_colname])[0] + 1
+    # Reset segment numbers in a single step
+    unique_segments = pd.factorize(df[config.segment_nr_colname])[0] + 1
+    df[config.segment_nr_colname] = unique_segments
 
-    return filtered_df
+    return df
 
 
 def categorize_segments(df, segment_nr_colname, sampling_frequency):

@@ -14,13 +14,13 @@ from scipy.stats import gaussian_kde
 from paradigma.constants import DataColumns
 from paradigma.tremor.tremor_analysis_config import TremorFeatureExtractionConfig, TremorDetectionConfig, TremorQuantificationConfig
 from paradigma.tremor.feature_extraction import extract_spectral_domain_features
-from paradigma.windowing import tabulate_windows
+from paradigma.src.paradigma.segmenting import tabulate_windows_legacy
 from paradigma.util import get_end_iso8601, write_df_data, read_metadata
 
 
 def extract_tremor_features(df: pd.DataFrame, config: TremorFeatureExtractionConfig) -> pd.DataFrame:
     # group sequences of timestamps into windows
-    df_windowed = tabulate_windows(config,df)
+    df_windowed = tabulate_windows_legacy(config,df)
 
     # transform the signals from the temporal domain to the spectral domain using the fast fourier transform
     # and extract spectral features
