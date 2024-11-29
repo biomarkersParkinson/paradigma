@@ -21,6 +21,11 @@ def tabulate_windows(config, df, columns):
     windows = np.lib.stride_tricks.sliding_window_view(
         data, window_shape=(window_size, n_columns)
         )[::window_step_size].squeeze()
+    
+    # Ensure 3D shape (n_windows, window_size, n_columns)
+    if windows.ndim == 2:  # Single window case
+        windows = windows[np.newaxis, :, :]  # Add a new axis at the start
+
     return windows
 
 def tabulate_windows_legacy(config, df, agg_func='first'):
