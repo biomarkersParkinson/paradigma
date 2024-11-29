@@ -107,7 +107,7 @@ class TremorDetectionConfig(IMUConfig):
 
         self.fmin_peak: float = 3
         self.fmax_peak: float = 7
-        self.movement_treshold: float = 50
+        self.movement_threshold: float = 50
 
         self.d_channels_values = {
         "pred_tremor_proba": "probability",
@@ -117,3 +117,16 @@ class TremorDetectionConfig(IMUConfig):
 
         self.set_filenames_values("tremor")
 
+
+class TremorQuantificationConfig(IMUConfig):
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.window_length_s: float = 4
+        self.valid_day_threshold_hr: float = 0 # change to 10 later!
+        self.daytime_hours_lower_bound: float = 8
+        self.daytime_hours_upper_bound: float = 22
+        self.movement_threshold: float = 50
+        self.percentile_tremor_power: float = 0.9
+        
+        self.set_filenames_values("tremor")
