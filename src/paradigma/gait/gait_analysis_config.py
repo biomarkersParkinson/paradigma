@@ -13,6 +13,8 @@ class IMUConfig:
         self.time_colname = DataColumns.TIME
         self.segment_nr_colname = DataColumns.SEGMENT_NR
 
+        self.l_axes = ["x", "y", "z"]
+
         self.l_accelerometer_cols: List[str] = [
             DataColumns.ACCELEROMETER_X,
             DataColumns.ACCELEROMETER_Y,
@@ -62,7 +64,7 @@ class IMUConfig:
         self.values_filename = f"{prefix}_values.bin"
 
 
-class GaitFeatureExtractionConfig (IMUConfig):
+class GaitFeatureExtractionConfig(IMUConfig):
 
     def __init__(self) -> None:
         super().__init__()
@@ -73,8 +75,9 @@ class GaitFeatureExtractionConfig (IMUConfig):
         self.verbose: int = 0
 
         self.window_length_s: int = 6
-        self.window_step_size_s: int = 1
-        self.segment_gap_s = 1.5
+        self.window_step_length_s: int = 1
+        self.max_segment_gap_s = 1.5
+        self.min_segment_length_s = 1.5
 
         # cepstral coefficients
         self.mfcc_low_frequency: int = 0
@@ -88,7 +91,6 @@ class GaitFeatureExtractionConfig (IMUConfig):
             "power_tremor": [3.5, 8],
             "power_above_tremor": [8, 25],
         }
-
 
         self.single_value_cols: List[str] = None
         self.list_value_cols: List[str] = (
@@ -122,7 +124,7 @@ class GaitFeatureExtractionConfig (IMUConfig):
         }
 
         for mfcc_coef in range(1, self.mfcc_n_coefficients + 1):
-            self.d_channels_values[f"{self.sensor}_mffc_{mfcc_coef}"] = "g"
+            self.d_channels_values[f"{self.sensor}_mfcc_{mfcc_coef}"] = "g"
 
     def set_sampling_frequency(self, sampling_frequency: int) -> None:
         """Sets the sampling frequency and derived variables"""
@@ -148,8 +150,9 @@ class ArmActivityFeatureExtractionConfig(IMUConfig):
     def initialize_window_length_fields(self, window_length_s: int) -> None:
         self.window_length_s = window_length_s
         self.window_overlap_s = window_length_s * 0.75
-        self.window_step_size_s = window_length_s - self.window_overlap_s
-        self.segment_gap_s = 1.5
+        self.window_step_length_s = window_length_s - self.window_overlap_s
+        self.max_segment_gap_s = 1.5
+        self.min_segment_length_s = 1.5
 
     def initialize_sampling_frequency_fields(self, sampling_frequency: int) -> None:
         self.sampling_frequency = sampling_frequency
@@ -271,6 +274,6 @@ class ArmSwingQuantificationConfig(IMUConfig):
         self.pred_other_arm_activity_colname = DataColumns.PRED_NO_OTHER_ARM_ACTIVITY
 
         self.window_length_s = 3
-        self.window_step_size = 0.75
+        self.window_step_length = 0.75
         self.segment_gap_s = 1.5
         self.min_segment_length_s = 3

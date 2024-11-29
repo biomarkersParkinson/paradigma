@@ -27,11 +27,11 @@
             "file_name": "accelerometer_samples.bin",
             "channels": [
                 "accelerometer_x",
-                "grav_accelerometer_x",
                 "accelerometer_y",
-                "grav_accelerometer_y",
                 "accelerometer_z",
-                "grav_accelerometer_z"
+                "accelerometer_x_grav",
+                "accelerometer_y_grav",
+                "accelerometer_z_grav"
             ],
             "units": [
                 "g",

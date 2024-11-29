@@ -44,6 +44,9 @@ class IMUPreprocessingConfig(BasePreprocessingConfig):
         self.acceleration_units = DataUnits.ACCELERATION
         self.rotation_units = DataUnits.ROTATION
 
+        self.l_accelerometer_cols = [DataColumns.ACCELEROMETER_X, DataColumns.ACCELEROMETER_Y, DataColumns.ACCELEROMETER_Z]
+        self.l_gyroscope_cols = [DataColumns.GYROSCOPE_X, DataColumns.GYROSCOPE_Y, DataColumns.GYROSCOPE_Z]
+
         self.d_channels_accelerometer = {
             DataColumns.ACCELEROMETER_X: self.acceleration_units,
             DataColumns.ACCELEROMETER_Y: self.acceleration_units,

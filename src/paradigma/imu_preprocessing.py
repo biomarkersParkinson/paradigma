@@ -47,7 +47,7 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUPreprocessingConfig, scale_
 
     filter_configs = {
         "hp": {"result_columns": config.l_accelerometer_cols, "replace_original": True},
-        "lp": {"result_columns": [f'grav_{col}' for col in config.l_accelerometer_cols], "replace_original": False},
+        "lp": {"result_columns": [f'{col}_grav' for col in config.l_accelerometer_cols], "replace_original": False},
     }
 
     # Apply filters in a loop

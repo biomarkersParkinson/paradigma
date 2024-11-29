@@ -13,7 +13,14 @@ def tabulate_windows(config, df, columns):
     n_columns = len(columns)
 
     data = df[columns].values
-    windows = np.lib.stride_tricks.sliding_window_view(data, window_shape=(window_size, n_columns))[::window_step_size].squeeze()
+
+    # Check if data length is sufficient
+    if len(data) < window_size:
+        return np.empty((0, window_size, n_columns))  # Return an empty array if insufficient data
+    
+    windows = np.lib.stride_tricks.sliding_window_view(
+        data, window_shape=(window_size, n_columns)
+        )[::window_step_size].squeeze()
     return windows
 
 def tabulate_windows_legacy(config, df, agg_func='first'):

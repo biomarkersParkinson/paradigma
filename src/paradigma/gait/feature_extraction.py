@@ -516,7 +516,7 @@ def extract_temporal_domain_features(
             df_features[f'{col}_{stat}'] = stats_result[:, i]
 
     # Compute standard deviation of the norm
-    df_features['std_norm'] = compute_std_euclidean_norm(windowed_acc)
+    df_features[f'{config.sensor}_std_norm'] = compute_std_euclidean_norm(windowed_acc)
 
     return df_features
 
@@ -548,7 +548,7 @@ def extract_spectral_domain_features(
         total_power_array=total_power_psd,
     )
 
-    df_features = pd.concat([df_features, pd.DataFrame(mfccs, columns=[f'{sensor}_mfcc_{x}' for x in range(1, mfccs.shape[1]+1)])], axis=1)
+    df_features = pd.concat([df_features, pd.DataFrame(mfccs, columns=[f'{sensor}_mfcc_{x}' for x in range(1, config.mfcc_n_coefficients+1)])], axis=1)
 
     return df_features
 
@@ -570,7 +570,7 @@ def extract_angle_features(
         fmax=config.angle_fmax
     )
 
-    df_features['dominant_frequency'] = compute_dominant_frequency(
+    df_features[f'{config.angle_colname}_dominant_frequency'] = compute_dominant_frequency(
         psd=psd,
         freqs=freqs,
         fmin=config.spectrum_low_frequency,
@@ -587,7 +587,7 @@ def extract_angle_features(
     # calculate the change in angle between consecutive extrema (minima and maxima) of the angle signal inside the window
     df_features['range_of_motion'] = compute_range_of_motion(
         windowed_angle=windowed_angle,
-        angle_extrema_indices=angle_extrema_indices,
+        windowed_extrema_indices=angle_extrema_indices,
     )
 
     # compute the forward and backward peak angular velocity using the extrema of the angular velocity

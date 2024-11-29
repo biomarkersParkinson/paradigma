@@ -14,7 +14,7 @@ from paradigma.gait.gait_analysis_config import GaitFeatureExtractionConfig, Gai
 from paradigma.gait.feature_extraction import extract_temporal_domain_features, \
     extract_spectral_domain_features, compute_angle_and_velocity_from_gyro, extract_angle_features
 from paradigma.gait.quantification import aggregate_segments
-from paradigma.src.paradigma.segmenting import tabulate_windows, create_segments, discard_segments
+from paradigma.segmenting import tabulate_windows, create_segments, discard_segments
 from paradigma.util import get_end_iso8601, write_df_data, read_metadata
 
 
