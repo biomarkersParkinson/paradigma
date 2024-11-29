@@ -206,6 +206,10 @@ class ArmActivityFeatureExtractionConfig(IMUConfig):
         self.initialize_sampling_frequency_fields(self.sampling_frequency)
         self.initialize_column_names()
 
+        # dominant frequency of first harmonic
+        self.angle_fmin = 0.5
+        self.angle_fmax = 1.5
+
         sensor = 'accelerometer'
 
         self.d_channels_values = {
