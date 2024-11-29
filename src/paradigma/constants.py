@@ -45,6 +45,9 @@ class DataColumns():
     SIGNAL_NOISE_RATIO: str = "signal_noise_ratio"
     SECOND_HIGHEST_PEAK: str = "second_highest_peak"
     POWER_RATIO: str = "power_ratio"
+
+    PRED_SQA_PROBA: str = "pred_sqa_proba"
+    PRED_SQA: str = "pred_sqa"
     
 @dataclass(frozen=True)
 class DataUnits():
