@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from paradigma.tremor.tremor_analysis import extract_tremor_features_io, detect_tremor_io
-from paradigma.tremor.tremor_analysis_config import TremorFeatureExtractionConfig, TremorDetectionConfig
+from paradigma.tremor.tremor_analysis import extract_tremor_features_io, detect_tremor_io, quantify_tremor_io
+from paradigma.tremor.tremor_analysis_config import TremorFeatureExtractionConfig, TremorDetectionConfig, TremorQuantificationConfig
 from test_notebooks import compare_data
 
 
@@ -29,7 +29,7 @@ def test_2_extract_features_tremor_output(shared_datadir: Path):
 
 def test_3_tremor_detection_output(shared_datadir: Path):
     """
-    This function is used to evaluate the output of the gait detection. It evaluates it by comparing the output to a reference output.
+    This function is used to evaluate the output of the tremor detection. It evaluates it by comparing the output to a reference output.
     """
 
     input_dir_name: str = "3.extracted_features"
@@ -37,7 +37,7 @@ def test_3_tremor_detection_output(shared_datadir: Path):
     data_type: str = "tremor"
 
     # Temporary path to store the output of the notebook
-    path_to_classifier_input = shared_datadir / '0.classification' / 'tremor'
+    path_to_classifier_input = shared_datadir / '0.classification' / data_type
     input_path = shared_datadir / input_dir_name / data_type
     reference_output_path = shared_datadir / output_dir_name / data_type
     tested_output_path = reference_output_path / "test-output"
