@@ -9,19 +9,7 @@ class BasePreprocessingConfig:
         self.values_filename = ''
         self.time_filename = ''
 
-        self.acceleration_units = DataUnits.ACCELERATION
-        self.rotation_units = DataUnits.ROTATION
-
         self.time_colname = DataColumns.TIME
-
-        # participant information
-        self.side_watch = 'right'
-
-        # filtering
-        self.sampling_frequency = 100
-        self.lower_cutoff_frequency = 0.2
-        self.upper_cutoff_frequency = 3.5
-        self.filter_order = 4
 
     def set_filenames(self, prefix: str) -> None:
         """Sets the filenames based on the prefix. This method is duplicated from `gaits_analysis_config.py`.
@@ -55,6 +43,15 @@ class IMUPreprocessingConfig(BasePreprocessingConfig):
             DataColumns.GYROSCOPE_Z: self.rotation_units,
         }
         self.d_channels_imu = {**self.d_channels_accelerometer, **self.d_channels_gyroscope}
+        
+        # participant information
+        self.side_watch = 'right'
+
+        # filtering
+        self.sampling_frequency = 100
+        self.lower_cutoff_frequency = 0.2
+        self.upper_cutoff_frequency = 3.5
+        self.filter_order = 4
 
 class PPGPreprocessingConfig(BasePreprocessingConfig):
 
@@ -66,4 +63,9 @@ class PPGPreprocessingConfig(BasePreprocessingConfig):
             DataColumns.PPG: DataUnits.NONE
         }
 
+        # filtering
         self.sampling_frequency = 30
+        self.lower_cutoff_frequency = 0.4
+        self.upper_cutoff_frequency = 3.5
+        self.filter_order = 4
+        
