@@ -279,5 +279,5 @@ class ArmSwingQuantificationConfig(IMUConfig):
 
         self.window_length_s = 3
         self.window_step_length = 0.75
-        self.segment_gap_s = 1.5
+        self.max_segment_gap_s = 1.5
         self.min_segment_length_s = 3
