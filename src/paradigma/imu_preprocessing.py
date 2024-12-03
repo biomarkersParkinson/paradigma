@@ -45,13 +45,13 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUPreprocessingConfig, scale_
     # Extract accelerometer data
     accel_data = df[config.l_accelerometer_cols].values
 
-    filter_configs = {
+    filter_renaming_configs = {
         "hp": {"result_columns": config.l_accelerometer_cols, "replace_original": True},
         "lp": {"result_columns": [f'{col}_grav' for col in config.l_accelerometer_cols], "replace_original": False},
     }
 
     # Apply filters in a loop
-    for passband, filter_config in filter_configs.items():
+    for passband, filter_config in filter_renaming_configs.items():
         filtered_data = butterworth_filter(
             data=accel_data,
             order=config.filter_order,
@@ -188,16 +188,16 @@ def resample_data(
     time_abs_array = np.array(df[time_column])
     values_array = np.array(df[unscaled_column_names])
 
+    # Ensure the time array is strictly increasing
+    if not np.all(np.diff(time_abs_array) > 0):
+        raise ValueError("time_abs_array is not strictly increasing")
+
     # scale data
     if scale_factors:
         values_array = values_array * scale_factors
 
     # resample
     t_resampled = np.arange(start_time, time_abs_array[-1], 1 / resampling_frequency)
-
-    # Ensure the time array is strictly increasing
-    if not np.all(np.diff(time_abs_array) > 0):
-        raise ValueError("time_abs_array is not strictly increasing")
     
     # Perform vectorized interpolation
     interpolator = interp1d(time_abs_array, values_array, axis=0, kind="cubic")
@@ -236,7 +236,7 @@ def butterworth_filter(
 
     Returns
     -------
-    sensor_data_filtered: np.ndarray
+    np.ndarray
         The filtered sensor data after applying the Butterworth filter.
     """
 
