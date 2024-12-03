@@ -655,9 +655,9 @@ def compute_range_of_motion(
 
 def compute_peak_angular_velocity(
     velocity_window: np.ndarray,
-    angle_extrema_indices: List[List[int]],
-    minima_indices: List[List[int]],
-    maxima_indices: List[List[int]],
+    angle_extrema_indices: List[np.ndarray],
+    minima_indices: np.ndarray,
+    maxima_indices: np.ndarray,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     Calculate the forward and backward peak angular velocities for each window.
@@ -673,17 +673,19 @@ def compute_peak_angular_velocity(
         number of velocity values per window. Each row represents a window containing 
         velocity data.
         
-    angle_extrema_indices : list of list of int
+    angle_extrema_indices : list of np.ndarray
         A list of N lists, where each list contains the indices of the extrema 
         (peaks) in the velocity data for the corresponding window.
         
-    minima_indices : list of list of int
-        A list of N lists, where each list contains the indices of the minimum 
-        extrema for the corresponding window.
+    minima_indices : np.ndarray
+       A 1D numpy array of objects, where each element is a numpy array
+        containing the indices of the minima extrema for the corresponding
+        window after processing.
         
-    maxima_indices : list of list of int
-        A list of N lists, where each list contains the indices of the maximum 
-        extrema for the corresponding window.
+    maxima_indices : np.ndarray
+        A 1D numpy array of objects, where each element is a numpy array
+        containing the indices of the maxima extrema for the corresponding
+        window after processing.
 
     Returns
     -------
