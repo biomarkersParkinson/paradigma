@@ -18,7 +18,45 @@ from paradigma.util import get_end_iso8601, write_df_data, read_metadata
 
 
 def extract_gait_features(df: pd.DataFrame, config: GaitFeatureExtractionConfig) -> pd.DataFrame:
-    # group sequences of timestamps into windows
+    """
+    Extracts gait features from accelerometer and gravity sensor data in the input DataFrame by computing temporal and spectral features.
+
+    This function performs the following steps:
+    1. Groups sequences of timestamps into windows, using accelerometer and gravity data.
+    2. Computes temporal domain features such as mean and standard deviation for accelerometer and gravity data.
+    3. Transforms the signals from the temporal domain to the spectral domain using the Fast Fourier Transform (FFT).
+    4. Computes spectral domain features for the accelerometer data.
+    5. Combines both temporal and spectral features into a final DataFrame.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The input DataFrame containing gait data, which includes time, accelerometer, and gravity sensor data. The data should be
+        structured with the necessary columns as specified in the `config`.
+
+    config : GaitFeatureExtractionConfig
+        Configuration object containing parameters for feature extraction, including column names for time, accelerometer data, and
+        gravity data, as well as settings for windowing, and feature computation.
+
+    Returns
+    -------
+    pd.DataFrame
+        A DataFrame containing extracted gait features, including temporal and spectral domain features. The DataFrame will have
+        columns corresponding to time, statistical features of the accelerometer and gravity data, and spectral features of the
+        accelerometer data.
+    
+    Notes
+    -----
+    - This function groups the data into windows based on timestamps and applies Fast Fourier Transform to compute spectral features.
+    - The temporal features are extracted from the accelerometer and gravity data, and include statistics like mean and standard deviation.
+    - The input DataFrame must include columns as specified in the `config` object for proper feature extraction.
+
+    Raises
+    ------
+    ValueError
+        If the input DataFrame does not contain the required columns as specified in the configuration or if any step in the feature extraction fails.
+    """
+    # Group sequences of timestamps into windows
     window_cols = [config.time_colname] + config.accelerometer_cols + config.gravity_cols
     data_windowed = tabulate_windows(config, df, window_cols)
 
@@ -26,13 +64,14 @@ def extract_gait_features(df: pd.DataFrame, config: GaitFeatureExtractionConfig)
     idx_acc = slice(1, 4)
     idx_grav = slice(4, 7)
 
+    # Extract the start time, accelerometer, and gravity data from the windowed data
     start_time = np.min(data_windowed[:, :, idx_time], axis=1)
     accel_windowed = data_windowed[:, :, idx_acc]
     grav_windowed = data_windowed[:, :, idx_grav]
 
     df_features = pd.DataFrame(start_time, columns=[config.time_colname])
     
-    # compute statistics of the temporal domain signals
+    # Compute statistics of the temporal domain signals (mean, std) for accelerometer and gravity
     df_temporal_features = extract_temporal_domain_features(
         config=config, 
         windowed_acc=accel_windowed,
@@ -40,16 +79,17 @@ def extract_gait_features(df: pd.DataFrame, config: GaitFeatureExtractionConfig)
         grav_stats=['mean', 'std']
     )
 
+    # Combine temporal features with the start time
     df_features= pd.concat([df_features, df_temporal_features], axis=1)
 
-    # transform the signals from the temporal domain to the spectral domain using the fast fourier transform
-    # and extract spectral features
+    # Transform the accelerometer data to the spectral domain using FFT and extract spectral features
     df_spectral_features = extract_spectral_domain_features(
         config=config, 
         sensor='accelerometer', 
         windowed_data=accel_windowed
     )
 
+    # Combine the spectral features with the previously computed temporal features
     df_features = pd.concat([df_features, df_spectral_features], axis=1)
 
     return df_features
@@ -82,12 +122,56 @@ def extract_gait_features_io(input_path: Union[str, Path], output_path: Union[st
 
 
 def detect_gait(df: pd.DataFrame, config: GaitDetectionConfig, path_to_classifier_input: Union[str, Path]) -> pd.DataFrame:
+    """
+    Detects gait activity in the input DataFrame using a pre-trained classifier and applies a threshold to the predicted probabilities.
+
+    This function performs the following steps:
+    1. Loads the pre-trained classifier and scaling parameters from the provided directory.
+    2. Scales the relevant features in the input DataFrame (`df`) using the loaded scaling parameters.
+    3. Makes predictions using the classifier to estimate the probability of gait activity.
+    4. Applies a threshold to the predicted probabilities to classify whether gait activity is detected or not.
+    5. Adds the predicted probabilities and the classification result to the DataFrame.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The input DataFrame containing features extracted from gait data. The DataFrame must include
+        the necessary columns as specified in the classifier's feature names.
+
+    config : GaitDetectionConfig
+        Configuration object containing the classifier file name, threshold file name, and other settings for gait detection.
+
+    path_to_classifier_input : Union[str, Path]
+        The path to the directory containing the classifier file, threshold value, scaler parameters, and other necessary input
+        files for gait detection.
+
+    Returns
+    -------
+    pd.DataFrame
+        The input DataFrame (`df`) with two additional columns:
+        - `PRED_GAIT_PROBA`: Predicted probability of gait activity based on the classifier.
+        - `PRED_GAIT`: Binary classification result (True for gait, False for no gait), based on the threshold applied to `PRED_GAIT_PROBA`.
+    
+    Notes
+    -----
+    - The classifier should output probabilities for gait activity, which are used to filter the gait data.
+    - The threshold used to classify gait activity is loaded from a file and applied to the predicted probabilities.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the classifier, scaler, or threshold files are not found at the specified paths.
+    ValueError
+        If the DataFrame does not contain the expected features for prediction or if the prediction fails.
+    """
     # Initialize the classifier
     clf = pd.read_pickle(os.path.join(path_to_classifier_input, 'classifiers', config.classifier_file_name))
+
+    # Load the threshold for gait detection
     with open(os.path.join(path_to_classifier_input, 'thresholds', config.thresholds_file_name), 'r') as f:
         threshold = float(f.read())
 
-    # Scale features
+    # Load and apply scaling parameters
     with open(os.path.join(path_to_classifier_input, 'scalers', 'gait_detection_scaler_params.json'), 'r') as f:
         scaler_params = json.load(f)
 
@@ -97,13 +181,16 @@ def detect_gait(df: pd.DataFrame, config: GaitDetectionConfig, path_to_classifie
     scaler.scale_ = scaler_params['scale']
     scaler.feature_names_in_ = scaler_params['features']
 
+    # Scale the features in the DataFrame
     df[scaler_params['features']] = scaler.transform(df[scaler_params['features']])
 
-    # Prepare the data
+    # Extract the relevant features for prediction
     X = df.loc[:, clf.feature_names_in_]
 
-    # Make prediction
+    # Make prediction and add the probability of gait activity to the DataFrame
     df[DataColumns.PRED_GAIT_PROBA] = clf.predict_proba(X)[:, 1]
+
+    # Classify based on the threshold and add the result to the DataFrame
     df[DataColumns.PRED_GAIT] = df[DataColumns.PRED_GAIT_PROBA] >= threshold
 
     return df
@@ -130,29 +217,57 @@ def detect_gait_io(input_path: Union[str, Path], output_path: Union[str, Path], 
     write_df_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df)
 
 
-def extract_arm_activity_features(df: pd.DataFrame, config: ArmActivityFeatureExtractionConfig) -> pd.DataFrame:
+def extract_arm_activity_features(
+        df: pd.DataFrame, 
+        config: ArmActivityFeatureExtractionConfig
+    ) -> pd.DataFrame:
+    """
+    Extract features related to arm activity from a time-series DataFrame.
 
-    # temporary add "random" predictions
-    df[config.pred_gait_colname] = np.concatenate([np.repeat([1], df.shape[0]//3), np.repeat([0], df.shape[0]//3), np.repeat([1], df.shape[0] + 1 - 2*df.shape[0]//3)], axis=0)
+    This function processes a DataFrame containing accelerometer, gravity, and gyroscope signals, 
+    and extracts features related to arm activity by performing the following steps:
+    1. Adds a "random" prediction of gait.
+    2. Computes the angle and velocity from gyroscope data.
+    3. Filters the data to include only predicted gait segments.
+    4. Groups the data into segments based on consecutive timestamps and pre-specified gaps.
+    5. Removes segments that do not meet predefined criteria.
+    6. Creates fixed-length windows from the time series data.
+    7. Extracts angle-related features, temporal domain features, and spectral domain features.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        A DataFrame containing the raw sensor data, including accelerometer, gravity, and gyroscope columns.
     
+    config : ArmActivityFeatureExtractionConfig
+        Configuration object containing column names and parameters for feature extraction.
+    
+    Returns
+    -------
+    pd.DataFrame
+        A DataFrame containing the extracted arm activity features, including angle, velocity, 
+        temporal, and spectral features.
+    """
+    # Temporary add "random" predictions for gait
+    df[config.pred_gait_colname] = np.concatenate(
+        [np.repeat([1], df.shape[0] // 3), 
+         np.repeat([0], df.shape[0] // 3), 
+         np.repeat([1], df.shape[0] + 1 - 2 * df.shape[0] // 3)], axis=0
+    )
+    
+    # Compute angle and velocity from gyroscope data
     df[config.angle_colname], df[config.velocity_colname] = compute_angle_and_velocity_from_gyro(config, df)
 
-    # use only predicted gait for the subsequent steps
+    # Filter the DataFrame to only include predicted gait (1)
     df = df.loc[df[config.pred_gait_colname]==1].reset_index(drop=True)
 
-    # group consecutive timestamps into segments with new segments starting after a pre-specified gap
-    df[config.segment_nr_colname] = create_segments(
-        config=config,
-        df=df
-    )
+    # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
+    df[config.segment_nr_colname] = create_segments(config=config, df=df)
 
-    # remove any segments that do not adhere to predetermined criteria
-    df = discard_segments(
-        config=config,
-        df=df
-    )
+    # Remove segments that do not meet predetermined criteria
+    df = discard_segments(config=config, df=df)
 
-    # create windows of a fixed length and step size from the time series per segment
+    # Create windows of fixed length and step size from the time series per segment
     windowed_data = []
     df_grouped = df.groupby(config.segment_nr_colname)
     windowed_cols = (
@@ -163,20 +278,20 @@ def extract_arm_activity_features(df: pd.DataFrame, config: ArmActivityFeatureEx
         [config.angle_colname, config.velocity_colname]
     )
 
+    # Collect windows from all segments in a list for faster concatenation
     for _, group in df_grouped:
-        windows = tabulate_windows(
-            config=config,
-            df=group,
-            columns=windowed_cols
-        )
+        windows = tabulate_windows(config=config, df=group, columns=windowed_cols)
         if len(windows) > 0:  # Skip if no windows are created
             windowed_data.append(windows)
 
-    if len(windowed_data) > 0:
-        windowed_data = np.concatenate(windowed_data, axis=0)
-    else:
+    # If no windows were created, raise an error
+    if not windowed_data:
         raise ValueError("No windows were created from the given data.")
 
+    # Concatenate the windows into one array at the end
+    windowed_data = np.concatenate(windowed_data, axis=0)
+
+    # Slice columns for accelerometer, gravity, gyroscope, angle, and velocity
     n_acc_cols = len(config.accelerometer_cols)
     n_grav_cols = len(config.gravity_cols)
     n_gyro_cols = len(config.gyroscope_cols)
@@ -188,6 +303,7 @@ def extract_arm_activity_features(df: pd.DataFrame, config: ArmActivityFeatureEx
     idx_angle = windowed_cols.index(config.angle_colname)
     idx_velocity = windowed_cols.index(config.velocity_colname)
 
+    # Extract windows for accelerometer, gravity, gyroscope, angle, and velocity
     start_time = np.min(windowed_data[:, :, idx_time], axis=1)
     windowed_acc = windowed_data[:, :, idx_acc]
     windowed_grav = windowed_data[:, :, idx_grav]
@@ -195,17 +311,18 @@ def extract_arm_activity_features(df: pd.DataFrame, config: ArmActivityFeatureEx
     windowed_angle = windowed_data[:, :, idx_angle]
     windowed_velocity = windowed_data[:, :, idx_velocity]
 
+    # Initialize DataFrame for features
     df_features = pd.DataFrame(start_time, columns=[config.time_colname])
 
+    # Extract angle features
     df_angle_features = extract_angle_features(config, windowed_angle, windowed_velocity)    
     df_features = pd.concat([df_features, df_angle_features], axis=1)
 
-    # compute statistics of the temporal domain accelerometer signals
+    # Extract temporal domain features (e.g., mean, std for accelerometer and gravity)
     df_temporal_features = extract_temporal_domain_features(config, windowed_acc, windowed_grav, grav_stats=['mean', 'std'])
     df_features = pd.concat([df_features, df_temporal_features], axis=1)
 
-    # transform the accelerometer and gyroscope signals from the temporal domain to the spectral domain
-    # using the fast fourier transform and extract spectral features
+    # Extract spectral domain features for accelerometer and gyroscope signals
     for sensor_name, windowed_sensor in zip(['accelerometer', 'gyroscope'], [windowed_acc, windowed_gyro]):
         df_spectral_features = extract_spectral_domain_features(config, sensor_name, windowed_sensor)
         df_features = pd.concat([df_features, df_spectral_features], axis=1)
@@ -251,10 +368,50 @@ def extract_arm_activity_features_io(input_path: Union[str, Path], output_path: 
 
 
 def filter_gait(df: pd.DataFrame, config: FilteringGaitConfig, path_to_classifier_input: Union[str, Path]) -> pd.DataFrame:
+    """
+    Filters gait data using a pre-trained classifier and scales the features before making predictions.
+
+    This function performs the following steps:
+    1. Loads the pre-trained classifier and feature scaling parameters from the provided directory.
+    2. Scales the relevant features in the input DataFrame (`df`) using the loaded scaling parameters.
+    3. Makes predictions using the classifier to filter gait data based on the model's classification.
+    4. Adds the predicted probabilities (for gait activity) to the DataFrame as a new column.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The input DataFrame containing features extracted from gait data. The DataFrame must include
+        the necessary columns as specified in the classifier's feature names.
+
+    config : FilteringGaitConfig
+        Configuration object containing the classifier file name and other settings for gait filtering.
+
+    path_to_classifier_input : Union[str, Path]
+        The path to the directory containing the classifier file, scaler parameters, and other necessary input
+        files for filtering gait activity.
+
+    Returns
+    -------
+    pd.DataFrame
+        The input DataFrame (`df`) with an additional column containing the predicted probabilities of gait activity
+        based on the classifier's output. The new column is labeled according to `DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA`.
+    
+    Notes
+    -----
+    - The function expects the pre-trained classifier and scaling parameters to be located at the specified paths.
+    - The classifier should output probabilities for gait activity, which are used to filter the gait data.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the classifier or scaler parameter files are not found at the specified paths.
+    ValueError
+        If the DataFrame does not contain the expected features for prediction.
+    """
     # Initialize the classifier
     clf = pd.read_pickle(os.path.join(path_to_classifier_input, 'classifiers', config.classifier_file_name))
 
-    # Scale features
+    # Load and apply scaling parameters
     with open(os.path.join(path_to_classifier_input, 'scalers', 'gait_filtering_scaler_params.json'), 'r') as f:
         scaler_params = json.load(f)
 
@@ -264,23 +421,13 @@ def filter_gait(df: pd.DataFrame, config: FilteringGaitConfig, path_to_classifie
     scaler.scale_ = scaler_params['scale']
     scaler.feature_names_in_ = scaler_params['features']
 
+    # Scale the features in the DataFrame
     df[scaler_params['features']] = scaler.transform(df[scaler_params['features']])
 
-    # Scale features
-    with open(os.path.join(path_to_classifier_input, 'scalers', 'gait_filtering_scaler_params.json'), 'r') as f:
-        scaler_params = json.load(f)
-
-    scaler = StandardScaler()
-    scaler.mean_ = scaler_params['mean']
-    scaler.var_ = scaler_params['var']
-    scaler.scale_ = scaler_params['scale']
-    scaler.feature_names_in_ = scaler_params['features']
-
-    df[scaler_params['features']] = scaler.transform(df[scaler_params['features']])
-
+    # Extract the relevant features for prediction
     X = df.loc[:, clf.feature_names_in_]
 
-    # Make prediction
+    # Make prediction and add the probability of gait activity to the DataFrame
     df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] = clf.predict_proba(X)[:, 1]
 
     return df

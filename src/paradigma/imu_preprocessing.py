@@ -12,19 +12,49 @@ from paradigma.preprocessing_config import IMUPreprocessingConfig
 
 
 def preprocess_imu_data(df: pd.DataFrame, config: IMUPreprocessingConfig, scale_factors: list) -> pd.DataFrame:
+    """
+    Preprocesses IMU data by renaming columns, transforming time units, resampling, and applying filters.
 
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The DataFrame containing IMU data with raw accelerometer and gyroscope data.
+    config : IMUPreprocessingConfig
+        Configuration object containing various settings, such as time column name, accelerometer columns,
+        filter settings, and sampling frequency.
+    scale_factors : list
+        List of scale factors for each of the IMU channels, to be applied before resampling.
+
+    Returns
+    -------
+    pd.DataFrame
+        The preprocessed IMU data with the following transformations:
+        - Renamed columns for accelerometer and gyroscope data.
+        - Transformed time column to relative time in milliseconds.
+        - Resampled data at the specified frequency.
+        - Adjustments based on the specified `side_watch` (left/right).
+        - Accelerometer data converted to the correct units, if necessary.
+        - Filtered accelerometer data with high-pass and low-pass filtering applied.
+    
+    Notes
+    -----
+    - The function applies Butterworth filters to accelerometer data, both high-pass and low-pass.
+    - The time column is converted from delta milliseconds to relative milliseconds.
+    - Adjustments for the right-hand side watch are made by flipping the signs of specific columns.
+    - If the accelerometer data is in 'm/s^2', it will be converted from 'g' to 'm/s^2' using gravity's constant (9.81 m/s^2).
+    """
     # Rename columns
     df = df.rename(columns={f'rotation_{a}': f'gyroscope_{a}' for a in ['x', 'y', 'z']})
     df = df.rename(columns={f'acceleration_{a}': f'accelerometer_{a}' for a in ['x', 'y', 'z']})
 
-    # convert to relative seconds from delta milliseconds
+    # Convert to relative seconds from delta milliseconds
     df[config.time_colname] = transform_time_array(
         time_array=df[config.time_colname],
         scale_factor=1000, 
         input_unit_type = TimeUnit.DIFFERENCE_MS,
         output_unit_type = TimeUnit.RELATIVE_MS)
     
-
+    # Resample the data to the specified frequency
     df = resample_data(
         df=df,
         time_column=config.time_colname,
@@ -33,6 +63,7 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUPreprocessingConfig, scale_
         scale_factors=scale_factors,
         resampling_frequency=config.sampling_frequency)
     
+    # Flip signs for right-side watch
     if config.side_watch == 'right':
         df[DataColumns.ACCELEROMETER_X] *= -1
         df[DataColumns.GYROSCOPE_Y] *= -1
@@ -42,9 +73,10 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUPreprocessingConfig, scale_
     if config.acceleration_units == 'm/s^2':
         df[config.accelerometer_cols] /= 9.81
         
-    # Extract accelerometer data
+    # Extract accelerometer data for filtering
     accel_data = df[config.accelerometer_cols].values
 
+    # Define filter configurations for high-pass and low-pass
     filter_renaming_configs = {
         "hp": {"result_columns": config.accelerometer_cols, "replace_original": True},
         "lp": {"result_columns": [f'{col}_grav' for col in config.accelerometer_cols], "replace_original": False},
@@ -116,8 +148,14 @@ def transform_time_array(
 
     Returns
     -------
-    time_array
+    np.ndarray
         The transformed time array in milliseconds, with the specified time unit type.
+
+    Notes
+    -----
+    - The function handles different time units (`TimeUnit.DIFFERENCE_MS`, `TimeUnit.ABSOLUTE_MS`, `TimeUnit.RELATIVE_MS`).
+    - The transformation allows for scaling of the time array, converting between time unit types (e.g., relative, absolute, or difference).
+    - When converting to `TimeUnit.RELATIVE_MS`, the function calculates the relative time starting from the provided or default start time.
     """
     # Scale time array and transform to relative time (`TimeUnit.RELATIVE_MS`) 
     if input_unit_type == TimeUnit.DIFFERENCE_MS:
@@ -156,35 +194,50 @@ def resample_data(
     start_time: float = 0.0,
 ) -> pd.DataFrame:
     """
-    Resamples the IMU data to the resampling frequency. The data is scaled before resampling.
-    
+    Resamples IMU data to the specified frequency, scaling values before resampling.
+
+    This function takes in sensor data, scales the data if scale factors are provided,
+    and resamples the data to a specified frequency using cubic interpolation.
+
     Parameters
     ----------
     df : pd.DataFrame
-        The data to resample.
+        The input DataFrame containing the sensor data.
     time_column : str
-        The name of the time column.
+        The name of the column containing the time data.
     time_unit_type : str
-        The time unit type of the time array. The method currently works only for `TimeUnit.RELATIVE_MS`.
+        The time unit type of the time array. This should be 'relative_ms' or 'absolute_ms'.
     unscaled_column_names : List[str]
-        The names of the columns to resample.
+        A list of column names that should be resampled.
     resampling_frequency : int
-        The frequency to resample the data to.
-    scale_factors : list, optional
-        The scale factors to apply to the values before resampling (default is []).
+        The frequency to which the data should be resampled (in Hz).
+    scale_factors : List[float], optional
+        A list of scale factors to apply to the column values before resampling (default is an empty list).
     start_time : float, optional
-        The start time of the time array, which is required if it is in absolute format (default is 0.0).
+        The start time of the time array, used for absolute time formats. Default is 0.0.
 
     Returns
     -------
     pd.DataFrame
-        The resampled data.
+        A DataFrame with the resampled data, where each column contains resampled values.
+        The time column will reflect the new resampling frequency.
+
+    Raises
+    ------
+    ValueError
+        If the time array is not strictly increasing.
+        If the start_time is missing when using absolute time format.
+
+    Notes
+    -----
+    The function uses cubic interpolation to resample the data to the specified frequency.
+    It requires the input time array to be strictly increasing.
     """
-    # We need a start_time if the time is in absolute time format
+    # Validate that start_time is provided if time_unit_type is 'absolute_ms'
     if time_unit_type == TimeUnit.ABSOLUTE_MS and start_time == 0.0:
         raise ValueError("start_time is required for absolute time format")
 
-    # get time and values
+    # Extract time and values from DataFrame
     time_abs_array = np.array(df[time_column])
     values_array = np.array(df[unscaled_column_names])
 
@@ -192,22 +245,22 @@ def resample_data(
     if not np.all(np.diff(time_abs_array) > 0):
         raise ValueError("time_abs_array is not strictly increasing")
 
-    # scale data
+    # Apply scale factors if provided
     if scale_factors:
         values_array = values_array * scale_factors
 
-    # resample
+    # Resample the time data using the specified frequency
     t_resampled = np.arange(start_time, time_abs_array[-1], 1 / resampling_frequency)
     
-    # Perform vectorized interpolation
+    # Interpolate the data using cubic interpolation
     interpolator = interp1d(time_abs_array, values_array, axis=0, kind="cubic")
     resampled_values = interpolator(t_resampled)
 
-    # Create the output DataFrame
+    # Create a DataFrame with the resampled data
     df_resampled = pd.DataFrame(resampled_values, columns=unscaled_column_names)
     df_resampled[time_column] = t_resampled
 
-    # Return the reordered DataFrame
+    # Return the DataFrame with columns in the correct order
     return df_resampled[[time_column] + unscaled_column_names]
 
 
@@ -219,27 +272,47 @@ def butterworth_filter(
     sampling_frequency: int,
 ):
     """
-    Applies the Butterworth filter to 2D sensor data
+    Applies a Butterworth filter to 1D or 2D sensor data.
+
+    This function applies a low-pass, high-pass, or band-pass Butterworth filter to the 
+    input data. The filter is designed using the specified order, cutoff frequency, 
+    and passband type. The function can handle both 1D and 2D data arrays.
 
     Parameters
     ----------
     data : np.ndarray
-        Array containing sensor data. Can be 1D (e.g., a single signal) or 2D (e.g., multi-axis sensor data).
-    order: int
-        The exponential order of the filter
-    cutoff_frequency: float or List[float]
-        The frequency at which the gain drops to 1/sqrt(2) that of the passband. If passband is 'band', then cutoff_frequency should be a list of two floats.
-    passband: str
-        Type of passband: ['hp', 'lp' or 'band']
-    sampling_frequency: int
-        The sampling frequency of the sensor data
+        The sensor data to be filtered. Can be 1D (e.g., a single signal) or 2D 
+        (e.g., multi-axis sensor data).
+    order : int
+        The order of the Butterworth filter. Higher values result in a steeper roll-off.
+    cutoff_frequency : float or List[float]
+        The cutoff frequency (or frequencies) for the filter. For a low-pass or high-pass filter, 
+        this is a single float. For a band-pass filter, this should be a list of two floats, 
+        specifying the lower and upper cutoff frequencies.
+    passband : str
+        The type of passband to apply. Options are:
+        - 'hp' : high-pass filter
+        - 'lp' : low-pass filter
+        - 'band' : band-pass filter
+    sampling_frequency : int
+        The sampling frequency of the data in Hz. This is used to normalize the cutoff frequency.
 
     Returns
     -------
     np.ndarray
-        The filtered sensor data after applying the Butterworth filter.
-    """
+        The filtered sensor data. The shape of the output is the same as the input data.
 
+    Raises
+    ------
+    ValueError
+        If the input data has more than two dimensions, or if an invalid passband is specified.
+
+    Notes
+    -----
+    The function uses `scipy.signal.butter` to design the filter and `scipy.signal.sosfiltfilt`
+    to apply it using second-order sections (SOS) to improve numerical stability.
+    """
+    # Design the filter using second-order sections (SOS)
     sos = signal.butter(
         N=order,
         Wn=cutoff_frequency,
@@ -249,10 +322,10 @@ def butterworth_filter(
         output="sos",
     )
 
-    # Apply the filter, handling both 1D and 2D data
-    if data.ndim == 1:  # 1D case
+    # Apply the filter to the data
+    if data.ndim == 1:  # 1D data case
         return signal.sosfiltfilt(sos, data)
-    elif data.ndim == 2:  # 2D case
+    elif data.ndim == 2:  # 2D data case
         return signal.sosfiltfilt(sos, data, axis=0)
     else:
         raise ValueError("Data must be either 1D or 2D.")
