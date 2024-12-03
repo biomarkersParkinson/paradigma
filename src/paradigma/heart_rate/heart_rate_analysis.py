@@ -7,12 +7,12 @@ import tsdf
 import tsdf.constants 
 from paradigma.heart_rate.heart_rate_analysis_config import SignalQualityFeatureExtractionConfig
 from paradigma.util import read_metadata
-from paradigma.windowing import tabulate_windows
+from paradigma.segmenting import tabulate_windows_legacy
 from paradigma.heart_rate.feature_extraction import extract_temporal_domain_features, extract_spectral_domain_features
 
 def extract_signal_quality_features(df: pd.DataFrame, config: SignalQualityFeatureExtractionConfig) -> pd.DataFrame:
     # Group sequences of timestamps into windows
-    df_windowed = tabulate_windows(config, df)
+    df_windowed = tabulate_windows_legacy(config, df)
 
     # Compute statistics of the temporal domain signals
     df_windowed = extract_temporal_domain_features(config, df_windowed, l_quality_stats=['var','mean', 'median', 'kurtosis', 'skewness'])
