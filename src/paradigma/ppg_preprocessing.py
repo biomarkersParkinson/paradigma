@@ -122,7 +122,7 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
 
         for result, side_pass in zip(['filt', 'grav'], ['hp', 'lp']):
             df_imu_proc[f'{result}_{col}'] = paradigma.imu_preprocessing.butterworth_filter(
-                single_sensor_col=np.array(df_imu_proc[col]),
+                data=np.array(df_imu_proc[col]),
                 order=imu_config.filter_order,
                 cutoff_frequency=imu_config.lower_cutoff_frequency,
                 passband=side_pass,
@@ -134,7 +134,7 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
 
     for col in ppg_config.d_channels_ppg.keys():
         df_ppg_proc[f'filt_{col}'] = paradigma.imu_preprocessing.butterworth_filter(
-            single_sensor_col=np.array(df_ppg_proc[col]),
+            data=np.array(df_ppg_proc[col]),
             order=ppg_config.filter_order,
             cutoff_frequency=[ppg_config.lower_cutoff_frequency, ppg_config.upper_cutoff_frequency],
             passband='band',

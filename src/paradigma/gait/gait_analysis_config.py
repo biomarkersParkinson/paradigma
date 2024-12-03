@@ -13,18 +13,20 @@ class IMUConfig:
         self.time_colname = DataColumns.TIME
         self.segment_nr_colname = DataColumns.SEGMENT_NR
 
-        self.l_accelerometer_cols: List[str] = [
+        self.axes = ["x", "y", "z"]
+
+        self.accelerometer_cols: List[str] = [
             DataColumns.ACCELEROMETER_X,
             DataColumns.ACCELEROMETER_Y,
             DataColumns.ACCELEROMETER_Z,
         ]
-        self.l_gyroscope_cols: List[str] = [
+        self.gyroscope_cols: List[str] = [
             DataColumns.GYROSCOPE_X,
             DataColumns.GYROSCOPE_Y,
             DataColumns.GYROSCOPE_Z,
         ]
 
-        self.l_gravity_cols: List[str] = [
+        self.gravity_cols: List[str] = [
             DataColumns.GRAV_ACCELEROMETER_X,
             DataColumns.GRAV_ACCELEROMETER_Y,
             DataColumns.GRAV_ACCELEROMETER_Z,
@@ -62,7 +64,7 @@ class IMUConfig:
         self.values_filename = f"{prefix}_values.bin"
 
 
-class GaitFeatureExtractionConfig (IMUConfig):
+class GaitFeatureExtractionConfig(IMUConfig):
 
     def __init__(self) -> None:
         super().__init__()
@@ -73,14 +75,15 @@ class GaitFeatureExtractionConfig (IMUConfig):
         self.verbose: int = 0
 
         self.window_length_s: int = 6
-        self.window_step_size_s: int = 1
-        self.segment_gap_s = 1.5
+        self.window_step_length_s: int = 1
+        self.max_segment_gap_s = 1.5
+        self.min_segment_length_s = 1.5
 
         # cepstral coefficients
-        self.cc_low_frequency: int = 0
-        self.cc_high_frequency: int = 25
-        self.n_dct_filters_cc: int = 20
-        self.n_coefficients_cc: int = 12
+        self.mfcc_low_frequency: int = 0
+        self.mfcc_high_frequency: int = 25
+        self.mfcc_n_dct_filters: int = 15
+        self.mfcc_n_coefficients: int = 12
 
         self.d_frequency_bandwidths: Dict[str, List[float]] = {
             "power_below_gait": [0.3, 0.7],
@@ -89,20 +92,15 @@ class GaitFeatureExtractionConfig (IMUConfig):
             "power_above_tremor": [8, 25],
         }
 
-
-        self.single_value_cols: List[str] = None
-        self.list_value_cols: List[str] = (
-            self.l_accelerometer_cols + self.l_gravity_cols
-        )
-
         # TODO: generate this dictionary using object attributes (self.X) and parameters (e.g., n_dct_filters for cc)
         self.d_channels_values: Dict[str, str] = {
-            f"grav_{self.sensor}_x_mean": DataUnits.GRAVITY,
-            f"grav_{self.sensor}_y_mean": DataUnits.GRAVITY,
-            f"grav_{self.sensor}_z_mean": DataUnits.GRAVITY,
-            f"grav_{self.sensor}_x_std": DataUnits.GRAVITY,
-            f"grav_{self.sensor}_y_std": DataUnits.GRAVITY,
-            f"grav_{self.sensor}_z_std": DataUnits.GRAVITY,
+            f"{self.sensor}_std_norm": DataUnits.GRAVITY,
+            f"{self.sensor}_x_grav_mean": DataUnits.GRAVITY,
+            f"{self.sensor}_y_grav_mean": DataUnits.GRAVITY,
+            f"{self.sensor}_z_grav_mean": DataUnits.GRAVITY,
+            f"{self.sensor}_x_grav_std": DataUnits.GRAVITY,
+            f"{self.sensor}_y_grav_std": DataUnits.GRAVITY,
+            f"{self.sensor}_z_grav_std": DataUnits.GRAVITY,
             f"{self.sensor}_x_power_below_gait": DataUnits.POWER_SPECTRAL_DENSITY,
             f"{self.sensor}_y_power_below_gait": DataUnits.POWER_SPECTRAL_DENSITY,
             f"{self.sensor}_z_power_below_gait": DataUnits.POWER_SPECTRAL_DENSITY,
@@ -118,11 +116,10 @@ class GaitFeatureExtractionConfig (IMUConfig):
             f"{self.sensor}_x_dominant_frequency": DataUnits.FREQUENCY,
             f"{self.sensor}_y_dominant_frequency": DataUnits.FREQUENCY,
             f"{self.sensor}_z_dominant_frequency": DataUnits.FREQUENCY,
-            "std_norm_acc": DataUnits.GRAVITY,
         }
 
-        for cc_coef in range(1, self.n_coefficients_cc + 1):
-            self.d_channels_values[f"cc_{cc_coef}_{self.sensor}"] = "g"
+        for mfcc_coef in range(1, self.mfcc_n_coefficients + 1):
+            self.d_channels_values[f"{self.sensor}_mfcc_{mfcc_coef}"] = "g"
 
     def set_sampling_frequency(self, sampling_frequency: int) -> None:
         """Sets the sampling frequency and derived variables"""
@@ -148,8 +145,9 @@ class ArmActivityFeatureExtractionConfig(IMUConfig):
     def initialize_window_length_fields(self, window_length_s: int) -> None:
         self.window_length_s = window_length_s
         self.window_overlap_s = window_length_s * 0.75
-        self.window_step_size_s = window_length_s - self.window_overlap_s
-        self.segment_gap_s = 1.5
+        self.window_step_length_s = window_length_s - self.window_overlap_s
+        self.max_segment_gap_s = 1.5
+        self.min_segment_length_s = 1.5
 
     def initialize_sampling_frequency_fields(self, sampling_frequency: int) -> None:
         self.sampling_frequency = sampling_frequency
@@ -168,10 +166,10 @@ class ArmActivityFeatureExtractionConfig(IMUConfig):
         }
 
         # cepstral coefficients
-        self.cc_low_frequency = 0
-        self.cc_high_frequency = 25
-        self.n_dct_filters_cc: int = 20
-        self.n_coefficients_cc: int = 12
+        self.mfcc_low_frequency = 0
+        self.mfcc_high_frequency = 25
+        self.mfcc_n_dct_filters: int = 15
+        self.mfcc_n_coefficients: int = 12
 
     def initialize_column_names(
         self
@@ -179,18 +177,9 @@ class ArmActivityFeatureExtractionConfig(IMUConfig):
 
         self.pred_gait_proba_colname=DataColumns.PRED_GAIT_PROBA
         self.pred_gait_colname=DataColumns.PRED_GAIT
-        self.angle_smooth_colname: str = DataColumns.ANGLE_SMOOTH
         self.angle_colname=DataColumns.ANGLE
         self.velocity_colname=DataColumns.VELOCITY
         self.segment_nr_colname=DataColumns.SEGMENT_NR
-
-        self.single_value_cols: List[str] = [self.segment_nr_colname]
-        self.list_value_cols: List[str] = (
-            self.l_accelerometer_cols
-            + self.l_gyroscope_cols
-            + self.l_gravity_cols
-            + [self.angle_colname, self.velocity_colname]
-        )
 
     def __init__(self) -> None:
         super().__init__()
@@ -204,41 +193,46 @@ class ArmActivityFeatureExtractionConfig(IMUConfig):
         self.initialize_sampling_frequency_fields(self.sampling_frequency)
         self.initialize_column_names()
 
+        # dominant frequency of first harmonic
+        self.angle_fmin = 0.5
+        self.angle_fmax = 1.5
+
+        sensor = 'accelerometer'
+
         self.d_channels_values = {
-            f"{self.angle_colname}_perc_power": "proportion",
             "range_of_motion": "deg",
             f"forward_peak_{self.velocity_colname}_mean": DataUnits.ROTATION,
             f"forward_peak_{self.velocity_colname}_std": DataUnits.ROTATION,
             f"backward_peak_{self.velocity_colname}_mean": DataUnits.ROTATION,
             f"backward_peak_{self.velocity_colname}_std": DataUnits.ROTATION,
-            "std_norm_acc": DataUnits.GRAVITY,
-            "grav_accelerometer_x_mean": DataUnits.GRAVITY,
-            "grav_accelerometer_x_std": DataUnits.GRAVITY,
-            "grav_accelerometer_y_mean": DataUnits.GRAVITY,
-            "grav_accelerometer_y_std": DataUnits.GRAVITY,
-            "grav_accelerometer_z_mean": DataUnits.GRAVITY,
-            "grav_accelerometer_z_std": DataUnits.GRAVITY,
-            "accelerometer_x_power_below_gait": "X",
-            "accelerometer_x_power_gait": "X",
-            "accelerometer_x_power_tremor": "X",
-            "accelerometer_x_power_above_tremor": "X",
-            "accelerometer_x_dominant_frequency": DataUnits.FREQUENCY,
-            "accelerometer_y_power_below_gait": "X",
-            "accelerometer_y_power_gait": "X",
-            "accelerometer_y_power_tremor": "X",
-            "accelerometer_y_power_above_tremor": "X",
-            "accelerometer_y_dominant_frequency": DataUnits.FREQUENCY,
-            "accelerometer_z_power_below_gait": "X",
-            "accelerometer_z_power_gait": "X",
-            "accelerometer_z_power_tremor": "X",
-            "accelerometer_z_power_above_tremor": "X",
-            "accelerometer_z_dominant_frequency": DataUnits.FREQUENCY,
+            f"{sensor}_std_norm": DataUnits.GRAVITY,
+            f"{sensor}_x_grav_mean": DataUnits.GRAVITY,
+            f"{sensor}_x_grav_std": DataUnits.GRAVITY,
+            f"{sensor}_y_grav_mean": DataUnits.GRAVITY,
+            f"{sensor}_y_grav_std": DataUnits.GRAVITY,
+            f"{sensor}_z_grav_mean": DataUnits.GRAVITY,
+            f"{sensor}_z_grav_std": DataUnits.GRAVITY,
+            f"{sensor}_x_power_below_gait": "X",
+            f"{sensor}_x_power_gait": "X",
+            f"{sensor}_x_power_tremor": "X",
+            f"{sensor}_x_power_above_tremor": "X",
+            f"{sensor}_x_dominant_frequency": DataUnits.FREQUENCY,
+            f"{sensor}_y_power_below_gait": "X",
+            f"{sensor}_y_power_gait": "X",
+            f"{sensor}_y_power_tremor": "X",
+            f"{sensor}_y_power_above_tremor": "X",
+            f"{sensor}_y_dominant_frequency": DataUnits.FREQUENCY,
+            f"{sensor}_z_power_below_gait": "X",
+            f"{sensor}_z_power_gait": "X",
+            f"{sensor}_z_power_tremor": "X",
+            f"{sensor}_z_power_above_tremor": "X",
+            f"{sensor}_z_dominant_frequency": DataUnits.FREQUENCY,
             f"{self.angle_colname}_dominant_frequency": DataUnits.FREQUENCY,
         }
 
         for sensor in ["accelerometer", "gyroscope"]:
-            for cc_coef in range(1, self.n_coefficients_cc + 1):
-                self.d_channels_values[f"cc_{cc_coef}_{sensor}"] = DataUnits.GRAVITY
+            for mfcc_coef in range(1, self.mfcc_n_coefficients + 1):
+                self.d_channels_values[f"{sensor}_mfcc_{mfcc_coef}"] = DataUnits.GRAVITY
 
 
 class FilteringGaitConfig(IMUConfig):
@@ -271,6 +265,6 @@ class ArmSwingQuantificationConfig(IMUConfig):
         self.pred_other_arm_activity_colname = DataColumns.PRED_NO_OTHER_ARM_ACTIVITY
 
         self.window_length_s = 3
-        self.window_step_size = 0.75
-        self.segment_gap_s = 1.5
+        self.window_step_length_s = 0.25 * self.window_length_s
+        self.max_segment_gap_s = 1.5
         self.min_segment_length_s = 3

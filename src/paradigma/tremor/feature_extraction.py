@@ -74,20 +74,20 @@ def signal_to_PSD(
     tuple
         Lists of PSD values and corresponding frequencies which can be concatenated as column to the dataframe
     """
-    l_values_total = []
-    l_freqs_total = []
+    values_total = []
+    freqs_total = []
     for row in sensor_col:
-        l_freqs, l_values = compute_welch_periodogram(
+        freqs, values = compute_welch_periodogram(
             values=row,
             window_type=window_type,
             sampling_frequency=sampling_frequency,
             segment_length_s = segment_length_s,
             overlap_fraction = overlap_fraction,
             spectral_resolution = spectral_resolution)
-        l_values_total.append(l_values)
-        l_freqs_total.append(l_freqs)
+        values_total.append(values)
+        freqs_total.append(freqs)
 
-    return l_freqs_total, l_values_total
+    return freqs_total, values_total
 
 def compute_spectrogram(
         values: list,
@@ -364,7 +364,7 @@ def extract_tremor_power(
 def extract_spectral_domain_features(config, df_windowed):
 
     # transform the temporal signal to the spectral domain using Welch's method and short time fourier transform
-    for col in config.l_gyroscope_cols:
+    for col in config.gyroscope_cols:
         df_windowed[f'{col}_freqs_PSD'], df_windowed[f'{col}_PSD'] = signal_to_PSD(
             sensor_col = df_windowed[col], 
             sampling_frequency = config.sampling_frequency,
@@ -382,8 +382,8 @@ def extract_spectral_domain_features(config, df_windowed):
             )
     
     # compute the total PSD and spectrogram (summed across the 3 gyroscope axes)
-    df_windowed['total_PSD'] = df_windowed[[f"{y}_PSD" for y in config.l_gyroscope_cols]].sum(axis=1)
-    df_windowed['total_spectrogram'] = df_windowed[[f"{y}_spectrogram"for y in config.l_gyroscope_cols]].sum(axis=1) 
+    df_windowed['total_PSD'] = df_windowed[[f"{y}_PSD" for y in config.gyroscope_cols]].sum(axis=1)
+    df_windowed['total_spectrogram'] = df_windowed[[f"{y}_spectrogram"for y in config.gyroscope_cols]].sum(axis=1) 
 
     # compute the cepstral coefficients
     mfcc_cols = generate_mel_frequency_cepstral_coefficients(

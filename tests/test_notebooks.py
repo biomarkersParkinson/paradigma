@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 import numpy as np
 import papermill as pm
@@ -6,8 +5,8 @@ import papermill as pm
 import tsdf
 
 arm_swing_binaries_pairs: list[tuple[str, str]] = [
-        ("arm_swing_meta.json", "arm_swing_values.bin"),
-        ("arm_swing_meta.json", "arm_swing_time.bin"),
+        ("arm_activity_meta.json", "arm_activity_values.bin"),
+        ("arm_activity_meta.json", "arm_activity_time.bin"),
     ]
 
 # Tolerance for the np.allclose function
@@ -20,7 +19,7 @@ notebooks_dir: str = "docs/notebooks/gait"
 
 def test_gait_analysis(shared_datadir):
     # Paths
-    reference_output = shared_datadir / '5.quantification' / 'gait'
+    reference_output = shared_datadir / '4.predictions' / 'gait'
     tested_output = reference_output / 'test-output'
 
     # Parameters and call
@@ -30,8 +29,7 @@ def test_gait_analysis(shared_datadir):
             path_to_sensor_data = str(shared_datadir / '1.sensor_data' / 'imu'),
             path_to_preprocessed_data = str(shared_datadir / '2.preprocessed_data' / 'gait'),
             path_to_extracted_features = str(shared_datadir / '3.extracted_features' / 'gait'),
-            path_to_predictions = str(shared_datadir / '4.predictions' / 'gait'),
-            path_to_quantification = str(tested_output)
+            path_to_predictions = str(tested_output),
         )
     execute_notebook("gait_analysis", parameters)
 
