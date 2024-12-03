@@ -186,14 +186,6 @@ class ArmActivityFeatureExtractionConfig(IMUConfig):
         self.velocity_colname=DataColumns.VELOCITY
         self.segment_nr_colname=DataColumns.SEGMENT_NR
 
-        self.single_value_cols: List[str] = [self.segment_nr_colname]
-        self.list_value_cols: List[str] = (
-            self.l_accelerometer_cols
-            + self.l_gyroscope_cols
-            + self.l_gravity_cols
-            + [self.angle_colname, self.velocity_colname]
-        )
-
     def __init__(self) -> None:
         super().__init__()
         # general
@@ -278,6 +270,6 @@ class ArmSwingQuantificationConfig(IMUConfig):
         self.pred_other_arm_activity_colname = DataColumns.PRED_NO_OTHER_ARM_ACTIVITY
 
         self.window_length_s = 3
-        self.window_step_length = 0.75
+        self.window_step_length_s = 0.25 * self.window_length_s
         self.max_segment_gap_s = 1.5
         self.min_segment_length_s = 3

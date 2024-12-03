@@ -269,8 +269,8 @@ def compute_angle_and_velocity_from_gyro(
 
     # integrate the angular velocity to obtain an estimation of the angle
     df[config.angle_colname] = compute_angle(
-        velocity_col=df[config.velocity_colname],
-        time_col=df[config.time_colname]
+        config=config,
+        df=df
     )
 
     # remove the moving average from the angle to account for possible drift caused by the integration
@@ -516,7 +516,7 @@ def extract_temporal_domain_features(
             df_features[f'{col}_{stat}'] = stats_result[:, i]
 
     # Compute standard deviation of the norm
-    df_features[f'{config.sensor}_std_norm'] = compute_std_euclidean_norm(windowed_acc)
+    df_features['accelerometer_std_norm'] = compute_std_euclidean_norm(windowed_acc)
 
     return df_features
 
