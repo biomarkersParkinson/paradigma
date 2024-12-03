@@ -639,15 +639,16 @@ def compute_range_of_motion(
     np.ndarray
         A 1D numpy array where each element is the mean range of motion for the corresponding window.
     """    
-    # Vectorized extraction of angle amplitudes (minima and maxima values)
-    angle_amplitudes = windowed_angle[np.arange(windowed_angle.shape[0])[:, None], windowed_extrema_indices]
+    # Extract angle amplitudes (minima and maxima values)
+    angle_amplitudes = [
+        windowed_angle[window_idx][windowed_extrema_indices[window_idx]] for window_idx in range(windowed_angle.shape[0])
+    ]
 
     # Compute the differences (range of motion) across all windows at once using np.diff
-    range_of_motion = np.abs(np.diff(angle_amplitudes, axis=1))
+    range_of_motion = np.asarray([np.abs(np.diff(window)) for window in angle_amplitudes], dtype=object)
 
     # Compute the mean range of motion for each window (if no extrema found, the result will be 0)
-    mean_rom = np.mean(range_of_motion, axis=1)
-    mean_rom[np.isnan(mean_rom)] = 0  # Set NaN values to 0 (if no extrema found)
+    mean_rom = np.array([np.mean(window) if len(window) > 0 else 0 for window in range_of_motion])
 
     return mean_rom
 
@@ -837,7 +838,7 @@ def extract_spectral_domain_features(
     )
 
     # Add dominant frequency features to the feature_dict
-    for axis, freq in zip(config.axes, dominant_frequencies):
+    for axis, freq in zip(config.axes, dominant_frequencies.T):
         feature_dict[f'{sensor}_{axis}_dominant_frequency'] = freq
 
     # Compute total power in the PSD
