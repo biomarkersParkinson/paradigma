@@ -287,7 +287,7 @@ def extract_angle_extremes(
         config,
         windowed_angle: np.ndarray,
         dominant_frequencies: np.ndarray,
-    ) -> tuple[np.ndarray, list[np.ndarray], np.ndarray, np.ndarray]:
+    ) -> tuple[list[np.ndarray], np.ndarray, np.ndarray]:
     """
     Extract angle extrema (minima and maxima) from smoothed angle signals,
     adhering to specific criteria. This function removes consecutive
@@ -413,7 +413,7 @@ def compute_peak_angular_velocity(
         angle_extrema_indices,
         minima_indices,
         maxima_indices,
-) -> np.ndarray:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     Calculate the forward and backward peak velocities for each window of data.
 
