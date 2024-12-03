@@ -79,7 +79,7 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
         time_array=df_imu[DataColumns.TIME],
         scale_factor=1000, 
         input_unit_type = TimeUnit.DIFFERENCE_MS,
-        output_unit_type = TimeUnit.ABSOLUTE_MS,
+        output_unit_type = TimeUnit.RELATIVE_MS,
         start_time = start_time_ppg)
 
     start_time_imu = parse_iso8601_to_datetime(metadata_time_imu.start_iso8601).timestamp()
@@ -87,7 +87,7 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
         time_array=df_ppg[DataColumns.TIME],
         scale_factor=1000, 
         input_unit_type = TimeUnit.DIFFERENCE_MS,
-        output_unit_type = TimeUnit.ABSOLUTE_MS,
+        output_unit_type = TimeUnit.RELATIVE_MS,
         start_time = start_time_imu)
 
     # Extract overlapping segments
@@ -99,22 +99,19 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
     df_imu_proc = paradigma.imu_preprocessing.resample_data(
         df=df_imu_overlapping,
         time_column=DataColumns.TIME,
-        time_unit_type=TimeUnit.ABSOLUTE_MS,
+        time_unit_type=TimeUnit.RELATIVE_MS,
         unscaled_column_names = list(imu_config.d_channels_accelerometer.keys()),
-        resampling_frequency=imu_config.sampling_frequency,
         scale_factors=metadata_samples_imu.scale_factors[0:3],
-        start_time=start_time_imu)
+        resampling_frequency=imu_config.sampling_frequency)
 
     # metadata_samples_ppg.scale_factors - the data specifies 1, but it is not an obligatory tsdf field, maybe it should be optional parameter in `resample_data`
     df_ppg_proc = paradigma.imu_preprocessing.resample_data(
         df=df_ppg_overlapping,
         time_column=DataColumns.TIME,
-        time_unit_type=TimeUnit.ABSOLUTE_MS,
+        time_unit_type=TimeUnit.RELATIVE_MS,
         unscaled_column_names = list(ppg_config.d_channels_ppg.keys()),
-        scale_factors=metadata_samples_imu.scale_factors,
-        resampling_frequency=ppg_config.sampling_frequency,
-        start_time = start_time_imu
-        )
+        scale_factors=metadata_samples_ppg.scale_factors,
+        resampling_frequency=ppg_config.sampling_frequency)
 
     # apply Butterworth filter to accelerometer data
     for col in imu_config.d_channels_accelerometer.keys():
@@ -135,33 +132,18 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
         df_imu_proc = df_imu_proc.drop(columns=[col])
         df_imu_proc = df_imu_proc.rename(columns={f'filt_{col}': col})
 
-        for col in ppg_config.d_channels_ppg.keys():
-            df_ppg_proc[f'filt_{col}'] = paradigma.imu_preprocessing.butterworth_filter(
-                single_sensor_col=np.array(df_ppg_proc[col]),
-                order=ppg_config.filter_order,
-                cutoff_frequency=[ppg_config.lower_cutoff_frequency, ppg_config.upper_cutoff_frequency],
-                passband='band',
-                sampling_frequency=ppg_config.sampling_frequency,
-            )
+    for col in ppg_config.d_channels_ppg.keys():
+        df_ppg_proc[f'filt_{col}'] = paradigma.imu_preprocessing.butterworth_filter(
+            single_sensor_col=np.array(df_ppg_proc[col]),
+            order=ppg_config.filter_order,
+            cutoff_frequency=[ppg_config.lower_cutoff_frequency, ppg_config.upper_cutoff_frequency],
+            passband='band',
+            sampling_frequency=ppg_config.sampling_frequency,
+        )
 
-            df_ppg_proc = df_ppg_proc.drop(columns=[col])
-            df_ppg_proc = df_ppg_proc.rename(columns={f'filt_{col}': col})
+        df_ppg_proc = df_ppg_proc.drop(columns=[col])
+        df_ppg_proc = df_ppg_proc.rename(columns={f'filt_{col}': col})
 
-    df_imu_proc[DataColumns.TIME] = paradigma.imu_preprocessing.transform_time_array(
-        time_array=df_imu_proc[DataColumns.TIME],
-        scale_factor=1,
-        input_unit_type=TimeUnit.ABSOLUTE_MS,
-        output_unit_type=TimeUnit.RELATIVE_MS,
-        start_time=start_time_ppg,
-    )
-
-    df_ppg_proc[DataColumns.TIME] = paradigma.imu_preprocessing.transform_time_array(
-        time_array=df_ppg_proc[DataColumns.TIME],
-        scale_factor=1,
-        input_unit_type=TimeUnit.ABSOLUTE_MS,
-        output_unit_type=TimeUnit.RELATIVE_MS,
-        start_time=start_time_imu,
-    )
     if store_locally:
         # Store data
         metadata_samples_imu.channels = list(imu_config.d_channels_accelerometer.keys())
