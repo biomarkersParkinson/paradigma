@@ -183,9 +183,8 @@ def discard_segments(config, df):
     and resets the segment enumeration to start from 1.
 
     Args:
+        config: A configuration object containing `min_segment_length_s` and `sampling_frequency`.
         df: The input dataframe with a segment column.
-        segment_col: The name of the column that contains segment numbers.
-        min_length_segment_s: The minimum length a segment must have (in seconds) to be retained.
 
     Returns:
         The filtered dataframe with small segments removed and segment numbers reset.
