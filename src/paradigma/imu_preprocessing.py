@@ -40,14 +40,14 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUPreprocessingConfig, scale_
 
     # Convert accelerometer data to correct units if necessary
     if config.acceleration_units == 'm/s^2':
-        df[config.l_accelerometer_cols] /= 9.81
+        df[config.accelerometer_cols] /= 9.81
         
     # Extract accelerometer data
-    accel_data = df[config.l_accelerometer_cols].values
+    accel_data = df[config.accelerometer_cols].values
 
     filter_renaming_configs = {
-        "hp": {"result_columns": config.l_accelerometer_cols, "replace_original": True},
-        "lp": {"result_columns": [f'{col}_grav' for col in config.l_accelerometer_cols], "replace_original": False},
+        "hp": {"result_columns": config.accelerometer_cols, "replace_original": True},
+        "lp": {"result_columns": [f'{col}_grav' for col in config.accelerometer_cols], "replace_original": False},
     }
 
     # Apply filters in a loop

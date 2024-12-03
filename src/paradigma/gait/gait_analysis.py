@@ -4,28 +4,25 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from typing import Union
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 
 import tsdf
 
 from paradigma.constants import DataColumns
 from paradigma.gait.gait_analysis_config import GaitFeatureExtractionConfig, GaitDetectionConfig, \
-    ArmActivityFeatureExtractionConfig, FilteringGaitConfig, ArmSwingQuantificationConfig
+    ArmActivityFeatureExtractionConfig, FilteringGaitConfig
 from paradigma.gait.feature_extraction import extract_temporal_domain_features, \
     extract_spectral_domain_features, compute_angle_and_velocity_from_gyro, extract_angle_features
-from paradigma.gait.quantification import aggregate_segments
 from paradigma.segmenting import tabulate_windows, create_segments, discard_segments
 from paradigma.util import get_end_iso8601, write_df_data, read_metadata
 
 
 def extract_gait_features(df: pd.DataFrame, config: GaitFeatureExtractionConfig) -> pd.DataFrame:
     # group sequences of timestamps into windows
-    l_window_cols = [config.time_colname] + config.l_accelerometer_cols + config.l_gravity_cols
-    data_windowed = tabulate_windows(config, df, l_window_cols)
+    window_cols = [config.time_colname] + config.accelerometer_cols + config.gravity_cols
+    data_windowed = tabulate_windows(config, df, window_cols)
 
-    idx_time = l_window_cols.index(config.time_colname)
+    idx_time = window_cols.index(config.time_colname)
     idx_acc = slice(1, 4)
     idx_grav = slice(4, 7)
 
@@ -40,7 +37,7 @@ def extract_gait_features(df: pd.DataFrame, config: GaitFeatureExtractionConfig)
         config=config, 
         windowed_acc=accel_windowed,
         windowed_grav=grav_windowed,
-        l_grav_stats=['mean', 'std']
+        grav_stats=['mean', 'std']
     )
 
     df_features= pd.concat([df_features, df_temporal_features], axis=1)
@@ -158,11 +155,11 @@ def extract_arm_activity_features(df: pd.DataFrame, config: ArmActivityFeatureEx
     # create windows of a fixed length and step size from the time series per segment
     windowed_data = []
     df_grouped = df.groupby(config.segment_nr_colname)
-    l_windowed_cols = (
+    windowed_cols = (
         [config.time_colname] + 
-        config.l_accelerometer_cols + 
-        config.l_gravity_cols + 
-        config.l_gyroscope_cols + 
+        config.accelerometer_cols + 
+        config.gravity_cols + 
+        config.gyroscope_cols + 
         [config.angle_colname, config.velocity_colname]
     )
 
@@ -170,7 +167,7 @@ def extract_arm_activity_features(df: pd.DataFrame, config: ArmActivityFeatureEx
         windows = tabulate_windows(
             config=config,
             df=group,
-            columns=l_windowed_cols
+            columns=windowed_cols
         )
         if len(windows) > 0:  # Skip if no windows are created
             windowed_data.append(windows)
@@ -180,16 +177,16 @@ def extract_arm_activity_features(df: pd.DataFrame, config: ArmActivityFeatureEx
     else:
         raise ValueError("No windows were created from the given data.")
 
-    n_acc_cols = len(config.l_accelerometer_cols)
-    n_grav_cols = len(config.l_gravity_cols)
-    n_gyro_cols = len(config.l_gyroscope_cols)
+    n_acc_cols = len(config.accelerometer_cols)
+    n_grav_cols = len(config.gravity_cols)
+    n_gyro_cols = len(config.gyroscope_cols)
 
-    idx_time = l_windowed_cols.index(config.time_colname)
+    idx_time = windowed_cols.index(config.time_colname)
     idx_acc = slice(0, n_acc_cols)
     idx_grav = slice(n_acc_cols, n_acc_cols + n_grav_cols)
     idx_gyro = slice(n_acc_cols + n_grav_cols, n_acc_cols + n_grav_cols + n_gyro_cols)
-    idx_angle = l_windowed_cols.index(config.angle_colname)
-    idx_velocity = l_windowed_cols.index(config.velocity_colname)
+    idx_angle = windowed_cols.index(config.angle_colname)
+    idx_velocity = windowed_cols.index(config.velocity_colname)
 
     start_time = np.min(windowed_data[:, :, idx_time], axis=1)
     windowed_acc = windowed_data[:, :, idx_acc]
@@ -204,7 +201,7 @@ def extract_arm_activity_features(df: pd.DataFrame, config: ArmActivityFeatureEx
     df_features = pd.concat([df_features, df_angle_features], axis=1)
 
     # compute statistics of the temporal domain accelerometer signals
-    df_temporal_features = extract_temporal_domain_features(config, windowed_acc, windowed_grav, l_grav_stats=['mean', 'std'])
+    df_temporal_features = extract_temporal_domain_features(config, windowed_acc, windowed_grav, grav_stats=['mean', 'std'])
     df_features = pd.concat([df_features, df_temporal_features], axis=1)
 
     # transform the accelerometer and gyroscope signals from the temporal domain to the spectral domain
@@ -218,7 +215,7 @@ def extract_arm_activity_features(df: pd.DataFrame, config: ArmActivityFeatureEx
 
 def extract_arm_activity_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config: ArmActivityFeatureExtractionConfig) -> None:
     # load accelerometer and gyroscope data
-    l_dfs = []
+    dfs = []
     for sensor in ['accelerometer', 'gyroscope']:
         config.set_sensor(sensor)
         meta_filename = f'{sensor}_meta.json'
@@ -228,9 +225,9 @@ def extract_arm_activity_features_io(input_path: Union[str, Path], output_path: 
         metadata_dict = tsdf.load_metadata_from_path(os.path.join(input_path, meta_filename))
         metadata_time = metadata_dict[time_filename]
         metadata_samples = metadata_dict[values_filename]
-        l_dfs.append(tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns))
+        dfs.append(tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns))
 
-    df = pd.merge(l_dfs[0], l_dfs[1], on=config.time_colname)
+    df = pd.merge(dfs[0], dfs[1], on=config.time_colname)
 
     # TODO: Load gait prediction and merge
 
@@ -341,9 +338,9 @@ def filter_gait_io(input_path: Union[str, Path], output_path: Union[str, Path], 
 #         time_colname=DataColumns.TIME,
 #         segment_nr_colname=DataColumns.SEGMENT_NR,
 #         window_step_size_s=config.window_step_length_s,
-#         l_metrics=['range_of_motion', f'peak_{config.velocity_colname}'],
-#         l_aggregates=['median'],
-#         l_quantiles=[0.95]
+#         metrics=['range_of_motion', f'peak_{config.velocity_colname}'],
+#         aggregates=['median'],
+#         quantiles=[0.95]
 #     )
 
 #     df_segment_aggregates['segment_duration_ms'] = (df_segment_aggregates['segment_duration_s'] * 1000).round().astype(int)
@@ -374,8 +371,8 @@ def filter_gait_io(input_path: Union[str, Path], output_path: Union[str, Path], 
 #     assert df_features[DataColumns.TIME].equals(df_predictions[DataColumns.TIME])
 
 #     # Subset features
-#     l_feature_cols = [DataColumns.TIME, 'range_of_motion', f'forward_peak_{config.velocity_colname}_mean', f'backward_peak_{config.velocity_colname}_mean']
-#     df_features = df_features[l_feature_cols]
+#     feature_cols = [DataColumns.TIME, 'range_of_motion', f'forward_peak_{config.velocity_colname}_mean', f'backward_peak_{config.velocity_colname}_mean']
+#     df_features = df_features[feature_cols]
 
 #     # Concatenate features and predictions
 #     df = pd.concat([df_features, df_predictions[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]], axis=1)

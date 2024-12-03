@@ -10,18 +10,18 @@ class IMUConfig:
 
         self.time_colname = DataColumns.TIME
 
-        self.l_accelerometer_cols: List[str] = [
+        self.accelerometer_cols: List[str] = [
             DataColumns.ACCELEROMETER_X,
             DataColumns.ACCELEROMETER_Y,
             DataColumns.ACCELEROMETER_Z,
         ]
-        self.l_gyroscope_cols: List[str] = [
+        self.gyroscope_cols: List[str] = [
             DataColumns.GYROSCOPE_X,
             DataColumns.GYROSCOPE_Y,
             DataColumns.GYROSCOPE_Z,
         ]
 
-        self.l_gravity_cols: List[str] = [
+        self.gravity_cols: List[str] = [
             DataColumns.GRAV_ACCELEROMETER_X,
             DataColumns.GRAV_ACCELEROMETER_Y,
             DataColumns.GRAV_ACCELEROMETER_Z,
@@ -67,7 +67,7 @@ class TremorFeatureExtractionConfig (IMUConfig):
         self.window_length_s: float = 4
         self.window_step_size_s: float = 4
         self.single_value_cols: List[str] = None
-        self.list_value_cols: List[str] = self.l_gyroscope_cols
+        self.list_value_cols: List[str] = self.gyroscope_cols
 
         # power spectral density
         self.window_type = 'hann'

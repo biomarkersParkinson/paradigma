@@ -1,13 +1,52 @@
 import pandas as pd
 import numpy as np
-import math
 
-from typing import Union, List
+from typing import List
 
 
 import numpy as np
 
-def tabulate_windows(config, df, columns):
+def tabulate_windows(
+        config, 
+        df: pd.DataFrame, 
+        columns: List[str]
+    ) -> np.ndarray:
+    """
+    Splits the given DataFrame into overlapping windows of specified length and step size.
+
+    This function extracts windows of data from the specified columns of the DataFrame, based on
+    the window length and step size provided in the configuration. The windows are returned in
+    a 3D numpy array, where the first dimension represents the window index, the second dimension
+    represents the time steps within the window, and the third dimension represents the columns 
+    of the data.
+
+    Args:
+        config: A configuration object containing `window_length_s` (window length in seconds), 
+            `window_step_length_s` (step size in seconds), and `sampling_frequency` (sampling frequency in Hz).
+        df: The input DataFrame containing the data to be windowed.
+        columns: A list of column names from the DataFrame that will be used for windowing.
+
+    Returns:
+        A 3D numpy array of shape (n_windows, window_size, n_columns), where:
+            - `n_windows` is the number of windows that can be formed from the data.
+            - `window_size` is the length of each window in terms of the number of time steps.
+            - `n_columns` is the number of columns in the input DataFrame specified by `columns`.
+        
+        If the length of the data is shorter than the specified window size, an empty array is returned.
+
+    Notes
+    -----
+    The function uses `np.lib.stride_tricks.sliding_window_view` to generate sliding windows of data.
+    The step size is applied to extract windows at intervals.
+    If the data is insufficient for at least one window, an empty array will be returned.
+    
+    Example
+    -------
+    config = Config(window_length_s=5, window_step_length_s=1, sampling_frequency=100)
+    df = pd.DataFrame({'col1': np.random.randn(100), 'col2': np.random.randn(100)})
+    columns = ['col1', 'col2']
+    windows = tabulate_windows(config, df, columns)
+    """
     window_size = int(config.window_length_s * config.sampling_frequency)
     window_step_size = int(config.window_step_length_s * config.sampling_frequency)
     n_columns = len(columns)
@@ -33,15 +72,15 @@ def tabulate_windows_legacy(config, df, agg_func='first'):
     Efficiently creates a windowed dataframe from the input dataframe using vectorized operations.
     
     Args:
-        df (pd.DataFrame): The input dataframe, where each row represents a timestamp (0.01 sec).
-        window_size_s (int): The number of seconds per window.
-        step_size_s (int): The number of seconds to shift between windows.
-        single_value_cols (list): List of columns where a single value (e.g., mean) is needed.
-        list_value_cols (list): List of columns where all 600 values should be stored in a list.
-        agg_func (str or function): Aggregation function for single-value columns (e.g., 'mean', 'first').
+        df: The input dataframe, where each row represents a timestamp (0.01 sec).
+        window_size_s: The number of seconds per window.
+        step_size_s: The number of seconds to shift between windows.
+        single_value_cols: List of columns where a single value (e.g., mean) is needed.
+        list_value_cols: List of columns where all 600 values should be stored in a list.
+        agg_func: Aggregation function for single-value columns (e.g., 'mean', 'first').
         
     Returns:
-        pd.DataFrame: The windowed dataframe.
+        The windowed dataframe.
     """
     # If single_value_cols or list_value_cols is None, default to an empty list
     if config.single_value_cols is None:
@@ -111,12 +150,11 @@ def create_segments(config, df):
     Creates segments by detecting time gaps using Pandas operations.
 
     Args:
-        df (pd.DataFrame): Input DataFrame with time column.
-        time_column_name (str): Name of the time column.
-        gap_threshold_s (float): Threshold for gap size in seconds.
+        config: A configuration object containing `time_colname` and `max_segment_gap_s`.
+        df: Input DataFrame with time column.
 
     Returns:
-        pd.Series: Segment numbers.
+        A series of segment numbers.
     """
     # Calculate the difference between consecutive time values
     time_diff = df[config.time_colname].diff().fillna(0.0)
@@ -145,12 +183,12 @@ def discard_segments(config, df):
     and resets the segment enumeration to start from 1.
 
     Args:
-        df (pd.DataFrame): The input dataframe with a segment column.
-        segment_col (str): The name of the column that contains segment numbers.
-        min_length_segment_s (int): The minimum length a segment must have (in seconds) to be retained.
+        df: The input dataframe with a segment column.
+        segment_col: The name of the column that contains segment numbers.
+        min_length_segment_s: The minimum length a segment must have (in seconds) to be retained.
 
     Returns:
-        pd.DataFrame: The filtered dataframe with small segments removed and segment numbers reset.
+        The filtered dataframe with small segments removed and segment numbers reset.
     """
     # Minimum segment size in number of samples
     min_samples = config.min_segment_length_s * config.sampling_frequency

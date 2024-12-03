@@ -13,20 +13,20 @@ class IMUConfig:
         self.time_colname = DataColumns.TIME
         self.segment_nr_colname = DataColumns.SEGMENT_NR
 
-        self.l_axes = ["x", "y", "z"]
+        self.axes = ["x", "y", "z"]
 
-        self.l_accelerometer_cols: List[str] = [
+        self.accelerometer_cols: List[str] = [
             DataColumns.ACCELEROMETER_X,
             DataColumns.ACCELEROMETER_Y,
             DataColumns.ACCELEROMETER_Z,
         ]
-        self.l_gyroscope_cols: List[str] = [
+        self.gyroscope_cols: List[str] = [
             DataColumns.GYROSCOPE_X,
             DataColumns.GYROSCOPE_Y,
             DataColumns.GYROSCOPE_Z,
         ]
 
-        self.l_gravity_cols: List[str] = [
+        self.gravity_cols: List[str] = [
             DataColumns.GRAV_ACCELEROMETER_X,
             DataColumns.GRAV_ACCELEROMETER_Y,
             DataColumns.GRAV_ACCELEROMETER_Z,
@@ -91,11 +91,6 @@ class GaitFeatureExtractionConfig(IMUConfig):
             "power_tremor": [3.5, 8],
             "power_above_tremor": [8, 25],
         }
-
-        self.single_value_cols: List[str] = None
-        self.list_value_cols: List[str] = (
-            self.l_accelerometer_cols + self.l_gravity_cols
-        )
 
         # TODO: generate this dictionary using object attributes (self.X) and parameters (e.g., n_dct_filters for cc)
         self.d_channels_values: Dict[str, str] = {

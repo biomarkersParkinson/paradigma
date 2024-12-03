@@ -502,7 +502,7 @@ def extract_temporal_domain_features(
         config, 
         windowed_acc: np.ndarray, 
         windowed_grav: np.ndarray, 
-        l_grav_stats: List[str] = ['mean']
+        grav_stats: List[str] = ['mean']
         ) -> pd.DataFrame:
     """
     Compute temporal domain features for the accelerometer signal.
@@ -510,9 +510,9 @@ def extract_temporal_domain_features(
     df_features = pd.DataFrame()
 
     # Compute statistics for gravity columns
-    for stat in l_grav_stats:
+    for stat in grav_stats:
         stats_result = compute_statistics(windowed_grav, statistic=stat)
-        for i, col in enumerate(config.l_gravity_cols):
+        for i, col in enumerate(config.gravity_cols):
             df_features[f'{col}_{stat}'] = stats_result[:, i]
 
     # Compute standard deviation of the norm
@@ -533,7 +533,7 @@ def extract_spectral_domain_features(
 
     df_features = compute_power_in_bandwidth(config, psd, freqs)
 
-    freq_colnames = [f'{sensor}_{axis}_dominant_frequency' for axis in config.l_axes]
+    freq_colnames = [f'{sensor}_{axis}_dominant_frequency' for axis in config.axes]
     df_features[freq_colnames] = compute_dominant_frequency(
         psd=psd, 
         freqs=freqs, 
