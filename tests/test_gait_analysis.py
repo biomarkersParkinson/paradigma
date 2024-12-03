@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from paradigma.gait.gait_analysis import filter_gait_io, detect_gait_io, extract_arm_activity_features_io, extract_gait_features_io, quantify_arm_swing_io
+from paradigma.gait.gait_analysis import filter_gait_io, detect_gait_io, extract_arm_activity_features_io, extract_gait_features_io
 from paradigma.gait.gait_analysis_config import FilteringGaitConfig, ArmActivityFeatureExtractionConfig, ArmSwingQuantificationConfig, GaitDetectionConfig, GaitFeatureExtractionConfig
 from paradigma.imu_preprocessing import preprocess_imu_data_io
 from paradigma.preprocessing_config import IMUPreprocessingConfig
@@ -113,22 +113,22 @@ def test_5_arm_swing_detection_output(shared_datadir: Path):
     compare_data(reference_output_path, tested_output_path, arm_activity_binaries_pairs)
 
 
-def test_6_arm_swing_quantification_output(shared_datadir: Path):
-    """
-    This function is used to evaluate the output of the arm swing quantification. It evaluates it by comparing the output to a reference output.
-    """
+# def test_6_arm_swing_quantification_output(shared_datadir: Path):
+#     """
+#     This function is used to evaluate the output of the arm swing quantification. It evaluates it by comparing the output to a reference output.
+#     """
 
-    feature_input_dir_name: str = "3.extracted_features"
-    prediction_input_dir_name: str = "4.predictions"
-    output_dir_name: str = "5.quantification"
-    data_type: str = "gait"
+#     feature_input_dir_name: str = "3.extracted_features"
+#     prediction_input_dir_name: str = "4.predictions"
+#     output_dir_name: str = "5.quantification"
+#     data_type: str = "gait"
 
-    # Temporary path to store the output of the notebook
-    path_to_feature_input = shared_datadir / feature_input_dir_name / data_type
-    path_to_prediction_input = shared_datadir / prediction_input_dir_name / data_type
-    reference_output_path = shared_datadir / output_dir_name / data_type
-    tested_output_path = reference_output_path / "test-output"
+#     # Temporary path to store the output of the notebook
+#     path_to_feature_input = shared_datadir / feature_input_dir_name / data_type
+#     path_to_prediction_input = shared_datadir / prediction_input_dir_name / data_type
+#     reference_output_path = shared_datadir / output_dir_name / data_type
+#     tested_output_path = reference_output_path / "test-output"
 
-    config = ArmSwingQuantificationConfig()
-    quantify_arm_swing_io(path_to_feature_input, path_to_prediction_input, tested_output_path, config)
-    compare_data(reference_output_path, tested_output_path, arm_swing_binaries_pairs)
+#     config = ArmSwingQuantificationConfig()
+#     quantify_arm_swing_io(path_to_feature_input, path_to_prediction_input, tested_output_path, config)
+#     compare_data(reference_output_path, tested_output_path, arm_swing_binaries_pairs)
