@@ -31,7 +31,7 @@ def extract_signal_quality_features_io(input_path: Union[str, Path], output_path
     metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
     
-    # Extract gait features
+    # Extract signal quality features
     df_windowed = extract_signal_quality_features(df, config)
     return df_windowed
 

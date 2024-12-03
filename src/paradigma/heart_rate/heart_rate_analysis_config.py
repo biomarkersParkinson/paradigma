@@ -162,8 +162,8 @@ class HeartRateExtractionConfig(PPGconfig):
         win_length_lag = 8
         doppler_samples = self.sampling_frequency * win_length_doppler
         lag_samples = win_length_lag * self.sampling_frequency
-        self.kern_params = [{'doppler_samples': doppler_samples, 'win_type_doppler': win_type_doppler}, 
-                    {'lag_samples': lag_samples, 'win_type_lag': win_type_lag}]
+        #self.kern_params = [{'doppler_samples': doppler_samples, 'win_type_doppler': win_type_doppler}, 
+                    # {'lag_samples': lag_samples, 'win_type_lag': win_type_lag}]
         
         self.kern_params = {
             'doppler': {
@@ -173,17 +173,6 @@ class HeartRateExtractionConfig(PPGconfig):
             'lag': {
                 'samples': lag_samples,
                 'win_type': win_type_lag,
-            }
-        }
-
-        self.kern_params = {
-            'samples': {
-                'doppler': doppler_samples,
-                'lag': lag_samples,
-            },
-            'win_type': {
-                'doppler': win_type_doppler,
-                'lag': win_type_lag,
             }
         }
             
