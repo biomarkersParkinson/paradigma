@@ -224,7 +224,7 @@ def butterworth_filter(
     Parameters
     ----------
     data : np.ndarray
-        2D-array containing sensor data (e.g., accelerometer axes).
+        Array containing sensor data. Can be 1D (e.g., a single signal) or 2D (e.g., multi-axis sensor data).
     order: int
         The exponential order of the filter
     cutoff_frequency: float or List[float]
@@ -249,5 +249,11 @@ def butterworth_filter(
         output="sos",
     )
 
-    return signal.sosfiltfilt(sos, data, axis=0)
+    # Apply the filter, handling both 1D and 2D data
+    if data.ndim == 1:  # 1D case
+        return signal.sosfiltfilt(sos, data)
+    elif data.ndim == 2:  # 2D case
+        return signal.sosfiltfilt(sos, data, axis=0)
+    else:
+        raise ValueError("Data must be either 1D or 2D.")
     
