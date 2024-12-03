@@ -36,6 +36,10 @@ sphinx-autoapi = "^3.0.0"
 sphinx-rtd-theme = "^2.0.0"
 sphinx-serve = "^1.0.1"
 
+
+[tool.poetry.group.dev.dependencies]
+pytype = "^2024.10.11"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
