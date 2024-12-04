@@ -56,6 +56,22 @@ class IMUPreprocessingConfig(BasePreprocessingConfig):
         self.upper_cutoff_frequency = 3.5
         self.filter_order = 4
 
+class GyroPreprocessingConfig(BasePreprocessingConfig):
+
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.set_filenames('IMU')
+
+        self.rotation_units = DataUnits.ROTATION
+        self.gyroscope_cols = [DataColumns.GYROSCOPE_X, DataColumns.GYROSCOPE_Y, DataColumns.GYROSCOPE_Z]
+
+        self.d_channels_gyroscope = {
+            DataColumns.GYROSCOPE_X: self.rotation_units,
+            DataColumns.GYROSCOPE_Y: self.rotation_units,
+            DataColumns.GYROSCOPE_Z: self.rotation_units,
+        }
+
 class PPGPreprocessingConfig(BasePreprocessingConfig):
 
     def __init__(self) -> None:

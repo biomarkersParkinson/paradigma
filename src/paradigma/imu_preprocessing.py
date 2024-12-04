@@ -8,7 +8,7 @@ from scipy.interpolate import interp1d
 import tsdf
 from paradigma.constants import DataColumns, TimeUnit
 from paradigma.util import write_df_data, read_metadata
-from paradigma.preprocessing_config import IMUPreprocessingConfig
+from paradigma.preprocessing_config import IMUPreprocessingConfig, GyroPreprocessingConfig
 
 
 def preprocess_imu_data(df: pd.DataFrame, config: IMUPreprocessingConfig, scale_factors: list) -> pd.DataFrame:
@@ -122,6 +122,55 @@ def preprocess_imu_data_io(input_path: Union[str, Path], output_path: Union[str,
 
         write_df_data(metadata_time, metadata_samples, output_path, f'{sensor}_meta.json', df_sensor)
 
+def preprocess_gyro_data(df: pd.DataFrame, config: GyroPreprocessingConfig, scale_factors: list) -> pd.DataFrame:
+    """
+    Preprocesses gyroscope data by renaming columns, transforming time units, and resampling.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The DataFrame containing raw IMU or gyroscope data.
+    config : GyroPreprocessingConfig
+        Configuration object containing various settings, such as time column name and gyroscope columns.
+    scale_factors : list
+        List of scale factors for the IMU or gyroscope channels, to be applied before resampling.
+
+    Returns
+    -------
+    pd.DataFrame
+        The preprocessed gyroscope data with the following transformations:
+        - Renamed columns for gyroscope data.
+        - Transformed time column to relative time in milliseconds.
+        - Resampled data at the specified frequency.
+    
+    Notes
+    -----
+    The time column is converted from delta milliseconds to relative milliseconds.
+
+    """
+    # Select gyroscope time and gyroscope columns
+    
+
+    # Rename columns
+    df = df.rename(columns={f'rotation_{a}': f'gyroscope_{a}' for a in ['x', 'y', 'z']})
+
+    # Convert to relative seconds from delta milliseconds
+    df[config.time_colname] = transform_time_array(
+        time_array=df[config.time_colname],
+        scale_factor=1000, 
+        input_unit_type = TimeUnit.DIFFERENCE_MS,
+        output_unit_type = TimeUnit.RELATIVE_MS)
+    
+    # Resample the data to the specified frequency
+    df = resample_data(
+        df=df,
+        time_column=config.time_colname,
+        time_unit_type=TimeUnit.RELATIVE_MS,
+        unscaled_column_names = list(config.d_channels_imu.keys()),
+        scale_factors=scale_factors,
+        resampling_frequency=config.sampling_frequency)
+
+    return df
 
 def transform_time_array(
     time_array: pd.Series,
