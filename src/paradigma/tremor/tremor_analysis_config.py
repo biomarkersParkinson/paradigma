@@ -123,7 +123,7 @@ class TremorQuantificationConfig(IMUConfig):
         super().__init__()
 
         self.window_length_s: float = 4
-        self.valid_day_threshold_hr: float = 0 # change to 10 later!
+        self.valid_day_threshold_hr: float = 10 
         self.daytime_hours_lower_bound: float = 8
         self.daytime_hours_upper_bound: float = 22
         self.movement_threshold: float = 50
