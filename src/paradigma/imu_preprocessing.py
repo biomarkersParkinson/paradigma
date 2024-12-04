@@ -149,12 +149,14 @@ def preprocess_gyro_data(df: pd.DataFrame, config: GyroPreprocessingConfig, scal
     The time column is converted from delta milliseconds to relative milliseconds.
 
     """
-    # Select gyroscope time and gyroscope columns
-    scale_factors = scale_factors[df.columns.get_loc(config.gyroscope_cols)]
-    df = df[[config.time_colname,config.gyroscope_cols]]
 
     # Rename columns
     df = df.rename(columns={f'rotation_{a}': f'gyroscope_{a}' for a in ['x', 'y', 'z']})
+
+    # Select gyroscope time and gyroscope columns
+    idx_gyro = [df.columns.get_loc(col) for col in config.gyroscope_cols]
+    scale_factors = [scale_factors[i-1] for i in idx_gyro]
+    df = df[[config.time_colname,*config.gyroscope_cols]]
 
     # Convert to relative seconds from delta milliseconds
     df[config.time_colname] = transform_time_array(
@@ -173,6 +175,31 @@ def preprocess_gyro_data(df: pd.DataFrame, config: GyroPreprocessingConfig, scal
         resampling_frequency=config.sampling_frequency)
 
     return df
+
+def preprocess_gyro_data_io(input_path: Union[str, Path], output_path: Union[str, Path], config: GyroPreprocessingConfig) -> None:
+
+    # Load data
+    metadata_time, metadata_samples = read_metadata(str(input_path), str(config.meta_filename),
+                                                    str(config.time_filename), str(config.values_filename))
+    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+
+    # Preprocess data
+    df = preprocess_gyro_data(df=df, config=config, scale_factors=metadata_samples.scale_factors)
+
+    # Store data
+    for sensor, units in zip(['gyroscope'], [config.rotation_units]):
+        df_sensor = df[[config.time_colname] + [x for x in df.columns if sensor in x]]
+
+        metadata_samples.channels = [x for x in df.columns if sensor in x]
+        metadata_samples.units = list(np.repeat(units, len(metadata_samples.channels)))
+        metadata_samples.scale_factors = []
+        metadata_samples.file_name = f'{sensor}_samples.bin'
+
+        metadata_time.file_name = f'{sensor}_time.bin'
+        metadata_time.units = ['time_relative_ms']
+
+        write_df_data(metadata_time, metadata_samples, output_path, f'{sensor}_meta.json', df_sensor)
+
 
 def transform_time_array(
     time_array: pd.Series,
