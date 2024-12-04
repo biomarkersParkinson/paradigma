@@ -1,5 +1,5 @@
 from typing import Dict, List
-from paradigma.constants import DataColumns, DataUnits
+from paradigma.constants import DataColumns
 
 class IMUconfig:
     """
@@ -10,18 +10,18 @@ class IMUconfig:
         self.time_colname = DataColumns.TIME
         self.segment_nr_colname = DataColumns.SEGMENT_NR
 
-        self.l_accelerometer_cols: List[str] = [
+        self.accelerometer_cols: List[str] = [
             DataColumns.ACCELEROMETER_X,
             DataColumns.ACCELEROMETER_Y,
             DataColumns.ACCELEROMETER_Z,
         ]
-        self.l_gyroscope_cols: List[str] = [
+        self.gyroscope_cols: List[str] = [
             DataColumns.GYROSCOPE_X,
             DataColumns.GYROSCOPE_Y,
             DataColumns.GYROSCOPE_Z,
         ]
 
-        self.l_gravity_cols: List[str] = [
+        self.gravity_cols: List[str] = [
             DataColumns.GRAV_ACCELEROMETER_X,
             DataColumns.GRAV_ACCELEROMETER_Y,
             DataColumns.GRAV_ACCELEROMETER_Z,

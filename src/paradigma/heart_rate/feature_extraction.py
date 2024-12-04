@@ -50,14 +50,14 @@ def compute_signal_to_noise_ratio(
     Returns:
     list: Signal to noise ratio of the PPG windows.
     """
-    l_signal_to_noise_ratios = []
+    signal_to_noise_ratios = []
     for segment in ppg_segments:
         arr_signal = np.var(segment)
         arr_noise = np.var(np.abs(segment))
         signal_to_noise_ratio = arr_signal / arr_noise
-        l_signal_to_noise_ratios.append(signal_to_noise_ratio)
+        signal_to_noise_ratios.append(signal_to_noise_ratio)
     
-    return l_signal_to_noise_ratios
+    return signal_to_noise_ratios
 
 def compute_auto_correlation(
         ppg_segments: np.ndarray, 
@@ -74,7 +74,7 @@ def compute_auto_correlation(
     Returns:
         list: Autocorrelation of the PPG segments.
     """
-    l_auto_correlations = []
+    auto_correlations = []
 
     for segment in ppg_segments:
         autocorrelations = biased_autocorrelation(segment, fs*3)
@@ -85,9 +85,9 @@ def compute_auto_correlation(
             auto_corr = sorted_peaks[0]
         else:
             auto_corr = 0
-        l_auto_correlations.append(auto_corr)
+        auto_correlations.append(auto_corr)
 
-    return l_auto_correlations
+    return auto_correlations
 
 def biased_autocorrelation(
         x: np.ndarray, 
@@ -155,7 +155,7 @@ def compute_spectral_entropy(
 def extract_temporal_domain_features(
         config: PPGconfig, 
         df_windowed: pd.DataFrame, 
-        l_quality_stats: List[str] = ['mean', 'std']
+        quality_stats: List[str] = ['mean', 'std']
     ) -> pd.DataFrame:
     """
     Compute temporal domain features for the ppg signal. The features are added to the dataframe. Therefore the original dataframe is modified, and the modified dataframe is returned.
@@ -169,7 +169,7 @@ def extract_temporal_domain_features(
     df_windowed: pd.DataFrame
         The dataframe containing the windowed accelerometer signal
 
-    l_gravity_stats: list, optional
+    quality_stats: list, optional
         The statistics to be computed for the gravity component of the accelerometer signal (default: ['mean', 'std'])
     
     Returns
@@ -179,7 +179,7 @@ def extract_temporal_domain_features(
     """
     
     
-    for stat in l_quality_stats:
+    for stat in quality_stats:
         df_windowed[f'{stat}'] = generate_statistics(
             sensor_col=df_windowed[config.ppg_colname],
             statistic=stat
@@ -214,9 +214,9 @@ def extract_spectral_domain_features(
     fs = config.sampling_frequency
     ppg_segments = df_windowed[config.ppg_colname]
 
-    l_dominant_frequencies = []
-    l_relative_powers = []
-    l_spectral_entropies = []
+    dominant_frequencies = []
+    relative_powers = []
+    spectral_entropies = []
     window = hamming(config.window_length_welch, sym = True)
 
     for segment in ppg_segments:
@@ -231,13 +231,13 @@ def extract_spectral_domain_features(
         )
 
         # Calculate each feature using the computed PSD and frequency array
-        l_dominant_frequencies.append(compute_dominant_frequency(freqs, psd))
-        l_relative_powers.append(compute_relative_power(freqs, psd, config))
-        l_spectral_entropies.append(compute_spectral_entropy(psd, len(segment)))
+        dominant_frequencies.append(compute_dominant_frequency(freqs, psd))
+        relative_powers.append(compute_relative_power(freqs, psd, config))
+        spectral_entropies.append(compute_spectral_entropy(psd, len(segment)))
 
-    df_windowed['f_dom'] = l_dominant_frequencies
-    df_windowed['rel_power'] = l_relative_powers
-    df_windowed['spectral_entropy'] = l_spectral_entropies
+    df_windowed['f_dom'] =dominant_frequencies
+    df_windowed['rel_power'] = relative_powers
+    df_windowed['spectral_entropy'] = spectral_entropies
 
     return df_windowed
 

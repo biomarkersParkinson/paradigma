@@ -14,19 +14,19 @@ class DataColumns():
     GYROSCOPE_Z : str = "gyroscope_z"
     PPG : str = "green"
     TIME : str = "time"
+    SEGMENT_NR : str = "segment_nr"
 
     # The following are used in gait analysis
-    GRAV_ACCELEROMETER_X : str = "grav_accelerometer_x"
-    GRAV_ACCELEROMETER_Y : str = "grav_accelerometer_y"
-    GRAV_ACCELEROMETER_Z : str = "grav_accelerometer_z"
+    GRAV_ACCELEROMETER_X : str = "accelerometer_x_grav"
+    GRAV_ACCELEROMETER_Y : str = "accelerometer_y_grav"
+    GRAV_ACCELEROMETER_Z : str = "accelerometer_z_grav"
     PRED_GAIT_PROBA: str = "pred_gait_proba"
     PRED_GAIT : str = "pred_gait"
     PRED_NO_OTHER_ARM_ACTIVITY_PROBA: str = "pred_no_other_arm_activity_proba"
     PRED_NO_OTHER_ARM_ACTIVITY : str = "pred_no_other_arm_activity"
     ANGLE : str = "angle"
-    ANGLE_SMOOTH : str = "angle_smooth"
     VELOCITY : str = "velocity"
-    SEGMENT_NR : str = "segment_nr"
+    DOMINANT_FREQUENCY: str = "dominant_frequency"
 
     # The following are used in tremor analysis
     PRED_TREMOR_PROBA: str = "pred_tremor_proba"
