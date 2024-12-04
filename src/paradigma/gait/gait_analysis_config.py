@@ -70,6 +70,7 @@ class GaitFeatureExtractionConfig(IMUConfig):
         super().__init__()
         self.set_sensor("accelerometer")
         self.set_sampling_frequency(self.sampling_frequency)
+        self.initialize_column_names()
 
         self.window_type: str = "hann"
         self.verbose: int = 0
@@ -127,6 +128,13 @@ class GaitFeatureExtractionConfig(IMUConfig):
         self.spectrum_low_frequency: int = 0  # Hz
         self.spectrum_high_frequency: int = int(self.sampling_frequency / 2)  # Hz
         self.filter_length: int = self.spectrum_high_frequency - 1
+
+    def initialize_column_names(
+        self
+    ) -> None:
+
+        self.pred_gait_proba_colname=DataColumns.PRED_GAIT_PROBA
+        self.pred_gait_colname=DataColumns.PRED_GAIT
 
 
 class GaitDetectionConfig(IMUConfig):

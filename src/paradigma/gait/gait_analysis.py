@@ -167,10 +167,6 @@ def detect_gait(df: pd.DataFrame, config: GaitDetectionConfig, path_to_classifie
     # Initialize the classifier
     clf = pd.read_pickle(os.path.join(path_to_classifier_input, 'classifiers', config.classifier_file_name))
 
-    # Load the threshold for gait detection
-    with open(os.path.join(path_to_classifier_input, 'thresholds', config.thresholds_file_name), 'r') as f:
-        threshold = float(f.read())
-
     # Load and apply scaling parameters
     with open(os.path.join(path_to_classifier_input, 'scalers', 'gait_detection_scaler_params.json'), 'r') as f:
         scaler_params = json.load(f)
@@ -189,9 +185,6 @@ def detect_gait(df: pd.DataFrame, config: GaitDetectionConfig, path_to_classifie
 
     # Make prediction and add the probability of gait activity to the DataFrame
     df[DataColumns.PRED_GAIT_PROBA] = clf.predict_proba(X)[:, 1]
-
-    # Classify based on the threshold and add the result to the DataFrame
-    df[DataColumns.PRED_GAIT] = df[DataColumns.PRED_GAIT_PROBA] >= threshold
 
     return df
 
@@ -218,8 +211,10 @@ def detect_gait_io(input_path: Union[str, Path], output_path: Union[str, Path], 
 
 
 def extract_arm_activity_features(
-        df: pd.DataFrame, 
-        config: ArmActivityFeatureExtractionConfig
+        df_timestamps: pd.DataFrame, 
+        df_predictions: pd.DataFrame,
+        config: ArmActivityFeatureExtractionConfig,
+        input_path_classifiers: Union[str, Path],
     ) -> pd.DataFrame:
     """
     Extract features related to arm activity from a time-series DataFrame.
@@ -241,6 +236,9 @@ def extract_arm_activity_features(
     
     config : ArmActivityFeatureExtractionConfig
         Configuration object containing column names and parameters for feature extraction.
+
+    classification_threshold : float
+        The threshold value used to classify a window as gait based on the predicted probabilities.
     
     Returns
     -------
@@ -248,12 +246,18 @@ def extract_arm_activity_features(
         A DataFrame containing the extracted arm activity features, including angle, velocity, 
         temporal, and spectral features.
     """
-    # Temporary add "random" predictions for gait
-    df[config.pred_gait_colname] = np.concatenate(
-        [np.repeat([1], df.shape[0] // 3), 
-         np.repeat([0], df.shape[0] // 3), 
-         np.repeat([1], df.shape[0] + 1 - 2 * df.shape[0] // 3)], axis=0
-    )
+
+    # Load classification threshold
+    gait_detection_config = GaitDetectionConfig()
+    with open(os.path.join(input_path_classifiers, 'thresholds', gait_detection_config.thresholds_file_name), 'r') as f:
+        classification_threshold = float(f.read())
+
+    # Merge gait predictions with timestamps
+    gait_preprocessing_config = GaitFeatureExtractionConfig()
+    df = merge_predictions_with_timestamps(df_timestamps, df_predictions, gait_preprocessing_config)
+
+    # Add a column for predicted gait based on a fitted threshold
+    df[config.pred_gait_colname] = (df[config.pred_gait_proba_colname] >= classification_threshold).astype(int)
     
     # Compute angle and velocity from gyroscope data
     df[config.angle_colname], df[config.velocity_colname] = compute_angle_and_velocity_from_gyro(config, df)
@@ -330,41 +334,51 @@ def extract_arm_activity_features(
     return df_features
 
 
-def extract_arm_activity_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config: ArmActivityFeatureExtractionConfig) -> None:
-    # load accelerometer and gyroscope data
+def extract_arm_activity_features_io(input_path_timestamps: Union[str, Path], input_path_predictions: Union[str, Path], input_path_classifiers: Union[str, Path], output_path: Union[str, Path], config: ArmActivityFeatureExtractionConfig) -> None:
+    # Load accelerometer and gyroscope data
     dfs = []
     for sensor in ['accelerometer', 'gyroscope']:
         config.set_sensor(sensor)
-        meta_filename = f'{sensor}_meta.json'
-        values_filename = f'{sensor}_samples.bin'
-        time_filename = f'{sensor}_time.bin'
+        meta_ts_filename = f'{sensor}_meta.json'
+        values_ts_filename = f'{sensor}_samples.bin'
+        time_ts_filename = f'{sensor}_time.bin'
 
-        metadata_dict = tsdf.load_metadata_from_path(os.path.join(input_path, meta_filename))
-        metadata_time = metadata_dict[time_filename]
-        metadata_samples = metadata_dict[values_filename]
-        dfs.append(tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns))
+        metadata_ts_dict = tsdf.load_metadata_from_path(os.path.join(input_path_timestamps, meta_ts_filename))
+        metadata_ts_time = metadata_ts_dict[time_ts_filename]
+        metadata_ts_samples = metadata_ts_dict[values_ts_filename]
+        dfs.append(tsdf.load_dataframe_from_binaries([metadata_ts_time, metadata_ts_samples], tsdf.constants.ConcatenationType.columns))
 
-    df = pd.merge(dfs[0], dfs[1], on=config.time_colname)
+    df_ts = pd.merge(dfs[0], dfs[1], on=config.time_colname)
 
-    # TODO: Load gait prediction and merge
+    # Load gait predictions
+    meta_pred_filename = 'gait_meta.json'
+    values_pred_filename = 'gait_values.bin'
+    time_pred_filename = 'gait_time.bin'
 
-    df_features = extract_arm_activity_features(df, config)
+    metadata_pred_dict = tsdf.load_metadata_from_path(os.path.join(input_path_predictions, meta_pred_filename))
+    metadata_pred_time = metadata_pred_dict[time_pred_filename]
+    metadata_pred_samples = metadata_pred_dict[values_pred_filename]
 
-    end_iso8601 = get_end_iso8601(metadata_samples.start_iso8601, 
+    df_pred_gait = tsdf.load_dataframe_from_binaries([metadata_pred_time, metadata_pred_samples], tsdf.constants.ConcatenationType.columns)
+
+    # Extract arm activity features
+    df_features = extract_arm_activity_features(df_ts, df_pred_gait, config, input_path_classifiers)
+
+    end_iso8601 = get_end_iso8601(metadata_ts_samples.start_iso8601, 
                                 df_features[config.time_colname][-1:].values[0] + config.window_length_s)
 
-    metadata_samples.end_iso8601 = end_iso8601
-    metadata_samples.file_name = 'arm_activity_values.bin'
-    metadata_time.end_iso8601 = end_iso8601
-    metadata_time.file_name = 'arm_activity_time.bin'
+    metadata_ts_samples.end_iso8601 = end_iso8601
+    metadata_ts_samples.file_name = 'arm_activity_values.bin'
+    metadata_ts_time.end_iso8601 = end_iso8601
+    metadata_ts_time.file_name = 'arm_activity_time.bin'
 
-    metadata_samples.channels = list(config.d_channels_values.keys())
-    metadata_samples.units = list(config.d_channels_values.values())
+    metadata_ts_samples.channels = list(config.d_channels_values.keys())
+    metadata_ts_samples.units = list(config.d_channels_values.values())
 
-    metadata_time.channels = [config.time_colname]
-    metadata_time.units = ['relative_time_ms']
+    metadata_ts_time.channels = [config.time_colname]
+    metadata_ts_time.units = ['relative_time_ms']
 
-    write_df_data(metadata_time, metadata_samples, output_path, 'arm_activity_meta.json', df_features)
+    write_df_data(metadata_ts_time, metadata_ts_samples, output_path, 'arm_activity_meta.json', df_features)
 
 
 def filter_gait(df: pd.DataFrame, config: FilteringGaitConfig, path_to_classifier_input: Union[str, Path]) -> pd.DataFrame:
@@ -533,3 +547,64 @@ def filter_gait_io(input_path: Union[str, Path], output_path: Union[str, Path], 
 
 # def aggregate_weekly_arm_swing():
 #     pass
+
+def merge_predictions_with_timestamps(df_ts, df_predictions, config):
+    """
+    Merges prediction probabilities with timestamps by expanding overlapping windows 
+    into individual timestamps and averaging probabilities per unique timestamp.
+
+    Parameters:
+    ----------
+    df_ts : pd.DataFrame
+        DataFrame containing timestamps to be merged with predictions.
+        Must include the timestamp column specified in `config.time_colname`.
+    df_predictions : pd.DataFrame
+        DataFrame containing prediction windows with start times and probabilities.
+        Must include:
+        - A column for window start times (defined by `config.time_colname`).
+        - A column for prediction probabilities (defined by `config.pred_gait_proba_colname`).
+    config : object
+        Configuration object containing the following attributes:
+        - time_colname (str): Column name for timestamps.
+        - pred_gait_proba_colname (str): Column name for prediction probabilities.
+        - window_length_s (float): Length of each prediction window in seconds.
+        - sampling_frequency (float): Frequency of data sampling (Hz).
+
+    Returns:
+    -------
+    pd.DataFrame
+        Updated `df_ts` with an additional column for averaged prediction probabilities.
+
+    Steps:
+    ------
+    1. Expand prediction windows into individual timestamps.
+    2. Round timestamps to mitigate floating-point inaccuracies.
+    3. Aggregate probabilities by unique timestamps.
+    4. Merge the aggregated probabilities with the input `df_ts`.
+
+    Notes:
+    ------
+    - Ensure that timestamps in `df_ts` and `df_predictions` align appropriately before merging.
+    """
+    # Step 1: Expand each window into individual timestamps
+    expanded_data = []
+    for _, row in df_predictions.iterrows():
+        start_time = row[config.time_colname]
+        proba = row[config.pred_gait_proba_colname]
+        timestamps = np.arange(start_time, start_time + config.window_length_s, 1/config.sampling_frequency)
+        expanded_data.extend(zip(timestamps, [proba] * len(timestamps)))
+
+    # Create a new DataFrame with expanded timestamps
+    expanded_df = pd.DataFrame(expanded_data, columns=[config.time_colname, config.pred_gait_proba_colname])
+
+    # Step 2: Round timestamps to avoid floating-point inaccuracies
+    expanded_df[config.time_colname] = expanded_df[config.time_colname].round(2)
+    df_ts[config.time_colname] = df_ts[config.time_colname].round(2)
+
+    # Step 3: Aggregate by unique timestamps and calculate the mean probability
+    expanded_df = expanded_df.groupby(config.time_colname, as_index=False)[config.pred_gait_proba_colname].mean()
+
+    df_ts = pd.merge(left=df_ts, right=expanded_df, how='left', on=config.time_colname)
+    df_ts = df_ts.dropna(subset=[config.pred_gait_proba_colname])
+
+    return df_ts
