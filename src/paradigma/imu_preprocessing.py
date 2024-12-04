@@ -131,7 +131,8 @@ def preprocess_gyro_data(df: pd.DataFrame, config: GyroPreprocessingConfig, scal
     df : pd.DataFrame
         The DataFrame containing raw IMU or gyroscope data.
     config : GyroPreprocessingConfig
-        Configuration object containing various settings, such as time column name and gyroscope columns.
+        Configuration object containing various settings, such as time column name,
+        gyroscope columns and sampling frequency.
     scale_factors : list
         List of scale factors for the IMU or gyroscope channels, to be applied before resampling.
 
@@ -149,7 +150,8 @@ def preprocess_gyro_data(df: pd.DataFrame, config: GyroPreprocessingConfig, scal
 
     """
     # Select gyroscope time and gyroscope columns
-    
+    scale_factors = scale_factors[df.columns.get_loc(config.gyroscope_cols)]
+    df = df[[config.time_colname,config.gyroscope_cols]]
 
     # Rename columns
     df = df.rename(columns={f'rotation_{a}': f'gyroscope_{a}' for a in ['x', 'y', 'z']})
@@ -166,7 +168,7 @@ def preprocess_gyro_data(df: pd.DataFrame, config: GyroPreprocessingConfig, scal
         df=df,
         time_column=config.time_colname,
         time_unit_type=TimeUnit.RELATIVE_MS,
-        unscaled_column_names = list(config.d_channels_imu.keys()),
+        unscaled_column_names = list(config.d_channels_gyroscope.keys()),
         scale_factors=scale_factors,
         resampling_frequency=config.sampling_frequency)
 

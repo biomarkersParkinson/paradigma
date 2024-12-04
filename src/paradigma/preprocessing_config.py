@@ -72,6 +72,8 @@ class GyroPreprocessingConfig(BasePreprocessingConfig):
             DataColumns.GYROSCOPE_Z: self.rotation_units,
         }
 
+        self.sampling_frequency = 100
+
 class PPGPreprocessingConfig(BasePreprocessingConfig):
 
     def __init__(self) -> None:
