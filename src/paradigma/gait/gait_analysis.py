@@ -221,7 +221,7 @@ def extract_arm_activity_features(
 
     This function processes a DataFrame containing accelerometer, gravity, and gyroscope signals, 
     and extracts features related to arm activity by performing the following steps:
-    1. Adds a "random" prediction of gait.
+    1. Merges the gait predictions with timestamps by expanding overlapping windows into individual timestamps.
     2. Computes the angle and velocity from gyroscope data.
     3. Filters the data to include only predicted gait segments.
     4. Groups the data into segments based on consecutive timestamps and pre-specified gaps.
@@ -231,14 +231,17 @@ def extract_arm_activity_features(
 
     Parameters
     ----------
-    df : pd.DataFrame
+    df_timestamps : pd.DataFrame
         A DataFrame containing the raw sensor data, including accelerometer, gravity, and gyroscope columns.
+
+    df_predictions : pd.DataFrame
+        A DataFrame containing the predicted probabilities for gait activity per window.
     
     config : ArmActivityFeatureExtractionConfig
         Configuration object containing column names and parameters for feature extraction.
 
-    classification_threshold : float
-        The threshold value used to classify a window as gait based on the predicted probabilities.
+    input_path_classifiers : Union[str, Path]
+        The path to the directory containing the classifier files and other necessary input files for feature extraction.
     
     Returns
     -------
