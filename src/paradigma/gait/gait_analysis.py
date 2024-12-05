@@ -9,7 +9,7 @@ from sklearn.preprocessing import StandardScaler
 import tsdf
 
 from paradigma.constants import DataColumns
-from paradigma.gait.gait_analysis_config import GaitFeatureExtractionConfig, GaitDetectionConfig, \
+from paradigma.config import GaitFeatureExtractionConfig, GaitDetectionConfig, \
     ArmActivityFeatureExtractionConfig, FilteringGaitConfig
 from paradigma.gait.feature_extraction import extract_temporal_domain_features, \
     extract_spectral_domain_features, compute_angle_and_velocity_from_gyro, extract_angle_features

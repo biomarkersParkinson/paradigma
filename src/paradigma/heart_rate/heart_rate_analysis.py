@@ -6,11 +6,10 @@ import os
 
 import tsdf
 import tsdf.constants 
-from paradigma.heart_rate.heart_rate_analysis_config import SignalQualityFeatureExtractionConfig
+from paradigma.config import SignalQualityFeatureExtractionConfig, SignalQualityClassificationConfig
 from paradigma.util import read_metadata
 from paradigma.segmenting import tabulate_windows_legacy
 from paradigma.heart_rate.feature_extraction import extract_temporal_domain_features, extract_spectral_domain_features
-from paradigma.heart_rate.heart_rate_analysis_config import SignalQualityClassificationConfig
 from paradigma.constants import DataColumns
 
 
