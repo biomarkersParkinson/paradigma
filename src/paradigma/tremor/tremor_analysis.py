@@ -30,8 +30,8 @@ def extract_tremor_features(df: pd.DataFrame, config: TremorFeatureExtractionCon
 
 def extract_tremor_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config: TremorFeatureExtractionConfig) -> None:
     # Load data
-    metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
-    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+    metadata_time, metadata_values = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
+    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
     # Extract tremor features
     df_windowed = extract_tremor_features(df, config)
@@ -40,18 +40,18 @@ def extract_tremor_features_io(input_path: Union[str, Path], output_path: Union[
     end_iso8601 = get_end_iso8601(start_iso8601=metadata_time.start_iso8601,
                                   window_length_seconds=int(df_windowed[config.time_colname][-1:].values[0] + config.window_length_s))
 
-    metadata_samples.end_iso8601 = end_iso8601
-    metadata_samples.file_name = 'tremor_values.bin'
+    metadata_values.end_iso8601 = end_iso8601
+    metadata_values.file_name = 'tremor_values.bin'
     metadata_time.end_iso8601 = end_iso8601
     metadata_time.file_name = 'tremor_time.bin'
 
-    metadata_samples.channels = list(config.d_channels_values.keys())
-    metadata_samples.units = list(config.d_channels_values.values())
+    metadata_values.channels = list(config.d_channels_values.keys())
+    metadata_values.units = list(config.d_channels_values.values())
 
     metadata_time.channels = [DataColumns.TIME]
     metadata_time.units = ['relative_time_ms']
 
-    write_df_data(metadata_time, metadata_samples, output_path, 'tremor_meta.json', df_windowed)
+    write_df_data(metadata_time, metadata_values, output_path, 'tremor_meta.json', df_windowed)
 
 
 def detect_tremor(df: pd.DataFrame, config: TremorDetectionConfig, path_to_classifier_input: Union[str, Path]) -> pd.DataFrame:
@@ -91,22 +91,22 @@ def detect_tremor(df: pd.DataFrame, config: TremorDetectionConfig, path_to_class
 def detect_tremor_io(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: TremorDetectionConfig) -> None:
     
     # Load the data
-    metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
-    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+    metadata_time, metadata_values = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
+    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
     df = detect_tremor(df, config, path_to_classifier_input)
 
     # Prepare the metadata
-    metadata_samples.file_name = 'tremor_values.bin'
+    metadata_values.file_name = 'tremor_values.bin'
     metadata_time.file_name = 'tremor_time.bin'
 
-    metadata_samples.channels = list(config.d_channels_values.keys())
-    metadata_samples.units = list(config.d_channels_values.values())
+    metadata_values.channels = list(config.d_channels_values.keys())
+    metadata_values.units = list(config.d_channels_values.values())
 
     metadata_time.channels = [config.time_colname]
     metadata_time.units = ['relative_time_ms']
 
-    write_df_data(metadata_time, metadata_samples, output_path, 'tremor_meta.json', df)
+    write_df_data(metadata_time, metadata_values, output_path, 'tremor_meta.json', df)
 
 
 def aggregate_tremor_power(tremor_power: pd.Series, config: TremorQuantificationConfig):
@@ -176,13 +176,13 @@ def quantify_tremor(df: pd.DataFrame, config: TremorQuantificationConfig, utc_st
 def quantify_tremor_io(path_to_feature_input: Union[str, Path], path_to_prediction_input: Union[str, Path], output_path: Union[str, Path], config: TremorQuantificationConfig) -> None:
     
     # Load the features & predictions
-    metadata_time, metadata_samples = read_metadata(path_to_feature_input, config.meta_filename, config.time_filename, config.values_filename)
-    df_features = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+    metadata_time, metadata_values = read_metadata(path_to_feature_input, config.meta_filename, config.time_filename, config.values_filename)
+    df_features = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
     metadata_dict = tsdf.load_metadata_from_path(os.path.join(path_to_prediction_input, config.meta_filename))
     metadata_time = metadata_dict[config.time_filename]
-    metadata_samples = metadata_dict[config.values_filename]
-    df_predictions = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+    metadata_values = metadata_dict[config.values_filename]
+    df_predictions = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
     # Subset features
     df_features = df_features[['tremor_power', 'low_freq_power']]
