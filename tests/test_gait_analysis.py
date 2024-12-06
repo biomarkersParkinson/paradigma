@@ -82,12 +82,14 @@ def test_4_extract_features_arm_activity_output(shared_datadir: Path):
     data_type: str = "gait"
 
     # Temporary path to store the output of the notebook
-    input_path = shared_datadir / input_dir_name / "imu"
+    input_ts_path = shared_datadir / input_dir_name / "imu"
+    input_pred_path = shared_datadir / "4.predictions" / "gait"
+    input_classifation_path = shared_datadir / "0.classification" / "gait"
     reference_output_path = shared_datadir / output_dir_name / data_type
     tested_output_path = reference_output_path / "test-output"
 
     config = ArmActivityFeatureExtractionConfig()
-    extract_arm_activity_features_io(input_path, tested_output_path, config)
+    extract_arm_activity_features_io(input_ts_path, input_pred_path, input_classifation_path, tested_output_path, config)
     compare_data(reference_output_path, tested_output_path, arm_activity_binaries_pairs)
 
 
