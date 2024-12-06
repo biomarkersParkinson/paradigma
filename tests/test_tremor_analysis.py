@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from paradigma.tremor.tremor_analysis import extract_tremor_features_io, detect_tremor_io, quantify_tremor_io
-from paradigma.tremor.tremor_analysis_config import TremorFeatureExtractionConfig, TremorDetectionConfig, TremorQuantificationConfig
+from paradigma.config import TremorFeatureExtractionConfig, TremorDetectionConfig, TremorQuantificationConfig
 from test_notebooks import compare_data
 
 

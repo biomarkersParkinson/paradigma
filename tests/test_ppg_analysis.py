@@ -1,8 +1,7 @@
 from pathlib import Path
 
 from paradigma.heart_rate.heart_rate_analysis import extract_signal_quality_features
-from paradigma.heart_rate.heart_rate_analysis_config import SignalQualityFeatureExtractionConfig
-from paradigma.preprocessing_config import PPGPreprocessingConfig, IMUPreprocessingConfig
+from paradigma.config import PPGConfig, IMUConfig, SignalQualityFeatureExtractionConfig
 from paradigma.ppg_preprocessing import preprocess_ppg_data, scan_and_sync_segments
 from test_notebooks import compare_data
 
@@ -10,20 +9,20 @@ from test_notebooks import compare_data
 # Mappings between the metadata and binary files
 
 accelerometer_preproc_pairs: list[tuple[str, str]] = [
-    ("accelerometer_meta.json", "accelerometer_samples.bin"),
+    ("accelerometer_meta.json", "accelerometer_values.bin"),
     ("accelerometer_meta.json", "accelerometer_time.bin"),
 ]
 ppg_preproc_pairs: list[tuple[str, str]] = [
-    ("PPG_meta.json", "PPG_samples.bin"),
+    ("PPG_meta.json", "PPG_values.bin"),
     ("PPG_meta.json", "PPG_time.bin"),
 ]
 ppg_features_pairs: list[tuple[str, str]] = [
-    ("features_ppg_meta.json", "features_ppg_samples.bin"),
+    ("features_ppg_meta.json", "features_ppg_values.bin"),
     ("features_ppg_meta.json", "features_ppg_time.bin"),
 ]
 
 accelerometer_features_pairs: list[tuple[str, str]] = [
-    ("features_acc_meta.json", "features_acc_samples.bin"),
+    ("features_acc_meta.json", "features_acc_values.bin"),
     ("features_acc_meta.json", "features_acc_time.bin"),
 ]
 
@@ -49,8 +48,8 @@ def compare_ppg_preprocessing(
     reference_output_path = shared_datadir / output_dir_name / "ppg"
     tested_output_path = reference_output_path / "test-output"
 
-    ppg_config = PPGPreprocessingConfig()
-    imu_config = IMUPreprocessingConfig()
+    ppg_config = PPGConfig()
+    imu_config = IMUConfig()
     metadatas_ppg, metadatas_imu = scan_and_sync_segments(
         input_path_ppg, input_path_imu
     )

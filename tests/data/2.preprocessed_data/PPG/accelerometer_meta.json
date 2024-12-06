@@ -24,7 +24,7 @@
             ]
         },
         {
-            "file_name": "accelerometer_samples.bin",
+            "file_name": "accelerometer_values.bin",
             "channels": [
                 "accelerometer_x",
                 "accelerometer_y",

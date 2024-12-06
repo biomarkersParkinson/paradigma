@@ -24,7 +24,7 @@
             ]
         },
         {
-            "file_name": "features_ppg_samples.bin",
+            "file_name": "features_ppg_values.bin",
             "channels": [
                 "variance",
                 "mean",

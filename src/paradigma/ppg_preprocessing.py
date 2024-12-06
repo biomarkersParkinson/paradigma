@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 
 import tsdf
 from paradigma.constants import DataUnits, TimeUnit, DataColumns
-from paradigma.preprocessing_config import PPGPreprocessingConfig, IMUPreprocessingConfig
+from paradigma.config import PPGConfig, IMUConfig
 from paradigma.util import parse_iso8601_to_datetime, write_df_data
 import paradigma.imu_preprocessing
 
@@ -32,8 +32,8 @@ def scan_and_sync_segments(input_path_ppg, input_path_imu):
 
 
 def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TSDFMetadata, 
-                        output_path: Union[str, Path], ppg_config: PPGPreprocessingConfig, 
-                        imu_config: IMUPreprocessingConfig, store_locally:bool = True) -> Tuple[pd.DataFrame, pd.DataFrame]:
+                        output_path: Union[str, Path], ppg_config: PPGConfig, 
+                        imu_config: IMUConfig, store_locally:bool = True) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Preprocess PPG and IMU data by resampling, filtering, and aligning the data segments.
 
@@ -60,13 +60,13 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
     """
     # Load PPG data
     metadata_time_ppg = tsdf_meta_ppg[ppg_config.time_filename]
-    metadata_samples_ppg = tsdf_meta_ppg[ppg_config.values_filename]
-    df_ppg = tsdf.load_dataframe_from_binaries([metadata_time_ppg, metadata_samples_ppg], tsdf.constants.ConcatenationType.columns)
+    metadata_values_ppg = tsdf_meta_ppg[ppg_config.values_filename]
+    df_ppg = tsdf.load_dataframe_from_binaries([metadata_time_ppg, metadata_values_ppg], tsdf.constants.ConcatenationType.columns)
 
     # Load IMU data
     metadata_time_imu = tsdf_meta_imu[imu_config.time_filename]
-    metadata_samples_imu = tsdf_meta_imu[imu_config.values_filename]
-    df_imu = tsdf.load_dataframe_from_binaries([metadata_time_imu, metadata_samples_imu], tsdf.constants.ConcatenationType.columns)
+    metadata_values_imu = tsdf_meta_imu[imu_config.values_filename]
+    df_imu = tsdf.load_dataframe_from_binaries([metadata_time_imu, metadata_values_imu], tsdf.constants.ConcatenationType.columns)
 
     # Drop the gyroscope columns from the IMU data
     cols_to_drop = df_imu.filter(regex='^rotation_').columns
@@ -101,16 +101,16 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
         time_column=DataColumns.TIME,
         time_unit_type=TimeUnit.RELATIVE_MS,
         unscaled_column_names = list(imu_config.d_channels_accelerometer.keys()),
-        scale_factors=metadata_samples_imu.scale_factors[0:3],
+        scale_factors=metadata_values_imu.scale_factors[0:3],
         resampling_frequency=imu_config.sampling_frequency)
 
-    # metadata_samples_ppg.scale_factors - the data specifies 1, but it is not an obligatory tsdf field, maybe it should be optional parameter in `resample_data`
+    # metadata_values_ppg.scale_factors - the data specifies 1, but it is not an obligatory tsdf field, maybe it should be optional parameter in `resample_data`
     df_ppg_proc = paradigma.imu_preprocessing.resample_data(
         df=df_ppg_overlapping,
         time_column=DataColumns.TIME,
         time_unit_type=TimeUnit.RELATIVE_MS,
         unscaled_column_names = list(ppg_config.d_channels_ppg.keys()),
-        scale_factors=metadata_samples_ppg.scale_factors,
+        scale_factors=metadata_values_ppg.scale_factors,
         resampling_frequency=ppg_config.sampling_frequency)
 
     # apply Butterworth filter to accelerometer data
@@ -146,19 +146,19 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
 
     if store_locally:
         # Store data
-        metadata_samples_imu.channels = list(imu_config.d_channels_accelerometer.keys())
-        metadata_samples_imu.units = list(imu_config.d_channels_accelerometer.values())
-        metadata_samples_imu.file_name = 'accelerometer_samples.bin'
+        metadata_values_imu.channels = list(imu_config.d_channels_accelerometer.keys())
+        metadata_values_imu.units = list(imu_config.d_channels_accelerometer.values())
+        metadata_values_imu.file_name = 'accelerometer_values.bin'
         metadata_time_imu.units = [TimeUnit.ABSOLUTE_MS]
         metadata_time_imu.file_name = 'accelerometer_time.bin'
-        write_df_data(metadata_time_imu, metadata_samples_imu, output_path, 'accelerometer_meta.json', df_imu_proc)
+        write_df_data(metadata_time_imu, metadata_values_imu, output_path, 'accelerometer_meta.json', df_imu_proc)
 
-        metadata_samples_ppg.channels = list(ppg_config.d_channels_ppg.keys())
-        metadata_samples_ppg.units = list(ppg_config.d_channels_ppg.values())
-        metadata_samples_ppg.file_name = 'PPG_samples.bin'
+        metadata_values_ppg.channels = list(ppg_config.d_channels_ppg.keys())
+        metadata_values_ppg.units = list(ppg_config.d_channels_ppg.values())
+        metadata_values_ppg.file_name = 'PPG_values.bin'
         metadata_time_ppg.units = [TimeUnit.ABSOLUTE_MS]
         metadata_time_ppg.file_name = 'PPG_time.bin'
-        write_df_data(metadata_time_ppg, metadata_samples_ppg, output_path, 'PPG_meta.json', df_ppg_proc)
+        write_df_data(metadata_time_ppg, metadata_values_ppg, output_path, 'PPG_meta.json', df_ppg_proc)
     
     return df_ppg_proc, df_imu_proc
 

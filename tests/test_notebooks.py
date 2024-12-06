@@ -25,7 +25,7 @@ def test_gait_analysis(shared_datadir):
     # Parameters and call
     parameters = dict(
             path_to_data = str(shared_datadir),
-            path_to_classifier = str(shared_datadir / '0.classification' / 'gait'),
+            path_to_classifiers = str(shared_datadir / '0.classification' / 'gait'),
             path_to_sensor_data = str(shared_datadir / '1.sensor_data' / 'imu'),
             path_to_preprocessed_data = str(shared_datadir / '2.preprocessed_data' / 'gait'),
             path_to_extracted_features = str(shared_datadir / '3.extracted_features' / 'gait'),
@@ -82,14 +82,14 @@ def compare_data(
         reference_metadata = tsdf.load_metadata_from_path(
             reference_dir / metadata
         )
-        ref_metadata_samples = reference_metadata[binary]
-        ref_data = tsdf.load_ndarray_from_binary(ref_metadata_samples)
+        ref_metadata_values = reference_metadata[binary]
+        ref_data = tsdf.load_ndarray_from_binary(ref_metadata_values)
         # load the generated data
         tested_metadata = tsdf.load_metadata_from_path(
             tested_dir / metadata
         )
-        tested_metadata_samples = tested_metadata[binary]
-        tested_data = tsdf.load_ndarray_from_binary(tested_metadata_samples)
+        tested_metadata_values = tested_metadata[binary]
+        tested_data = tsdf.load_ndarray_from_binary(tested_metadata_values)
 
         print(tested_data.shape, ref_data.shape)
         # Check if the data is the same

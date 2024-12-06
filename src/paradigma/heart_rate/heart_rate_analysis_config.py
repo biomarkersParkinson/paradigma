@@ -68,6 +68,7 @@ class PPGconfig:
         self.segment_nr_colname = DataColumns.SEGMENT_NR
         self.ppg_colname = DataColumns.PPG
         self.sampling_frequency = 30
+        self.unix_ticks_ms = 1000
 
     def set_sensor(self, sensor: str) -> None:
         """Sets the sensor and derived filenames"""
@@ -158,21 +159,19 @@ class HeartRateExtractionConfig(PPGconfig):
         self.kern_type = 'sep'
         win_type_doppler = 'hamm'
         win_type_lag = 'hamm'
-        win_length_doppler = 1
-        win_length_lag = 8
+        win_length_doppler = 8
+        win_length_lag = 1
         doppler_samples = self.sampling_frequency * win_length_doppler
         lag_samples = win_length_lag * self.sampling_frequency
-        #self.kern_params = [{'doppler_samples': doppler_samples, 'win_type_doppler': win_type_doppler}, 
-                    # {'lag_samples': lag_samples, 'win_type_lag': win_type_lag}]
         
         self.kern_params = {
             'doppler': {
-                'samples': doppler_samples,
+                'win_length': doppler_samples,
                 'win_type': win_type_doppler,
             },
             'lag': {
-                'samples': lag_samples,
+                'win_length': lag_samples,
                 'win_type': win_type_lag,
             }
         }
-            
+        
