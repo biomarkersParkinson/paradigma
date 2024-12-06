@@ -18,7 +18,7 @@ def extract_signal_quality_features(df: pd.DataFrame, config: SignalQualityFeatu
     df_windowed = tabulate_windows_legacy(config, df)
 
     # Compute statistics of the temporal domain signals
-    df_windowed = extract_temporal_domain_features(config, df_windowed, quality_stats=['var','mean', 'median', 'kurtosis', 'skewness'])
+    df_windowed = extract_temporal_domain_features(config, df_windowed, quality_stats=['var', 'mean', 'median', 'kurtosis', 'skewness'])
     
     # Compute statistics of the spectral domain signals
     df_windowed = extract_spectral_domain_features(config, df_windowed)

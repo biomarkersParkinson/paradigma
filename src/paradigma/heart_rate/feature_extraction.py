@@ -153,7 +153,7 @@ def compute_spectral_entropy(
     return spectral_entropy
 
 def extract_temporal_domain_features(
-        config: PPGconfig, 
+        config, 
         df_windowed: pd.DataFrame, 
         quality_stats: List[str] = ['mean', 'std']
     ) -> pd.DataFrame:
