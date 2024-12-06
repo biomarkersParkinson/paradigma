@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pandas as pd
 import os
+import numpy as np
 
 import tsdf
 import tsdf.constants 
@@ -115,28 +116,28 @@ def estimate_heart_rate(df: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame, con
     v_start_idx, v_end_idx = extract_hr_segments(sqa_label, config.min_hr_samples)
     
     fs = config.sampling_frequency
+    v_hr_ppg = []
+    t_hr_unix = []
 
-    for i in range(len(v_start_idx)):
-            # Relevant PPG segment
-            rel_segment = df_ppg_preprocessed[v_start_idx[i]:v_end_idx[i]]
+    for start_idx, end_idx in zip(v_start_idx, end_idx):
+        # Skip if the epoch cannot be extended by 2s on both sides
+        if start_idx < 2 * fs or end_idx > len(df_ppg_preprocessed) - 2 * fs:
+            continue
+        
+        # Extract the extended PPG segment for HR estimation
+        extended_ppg_segment = df_ppg_preprocessed[DataColumns.PPG][start_idx - 2 * fs : end_idx + 2 * fs]
+
+        # Perform HR estimation
+        hr_est = extract_hr_from_segment(extended_ppg_segment, config.tfd_length, fs, config.kern_type, config.kern_params)
+
+        # Generate HR estimation time array
+        rel_segment_time = df_ppg_preprocessed.time[start_idx:end_idx]
+        n_full_segments = len(rel_segment_time) // config.hr_est_samples
+        hr_time = rel_segment_time[:n_full_segments * config.hr_est_samples : config.hr_est_samples]
+
+        # Save output
+        v_hr_ppg.append(hr_est)
+        t_hr_unix.append(hr_time)
 
 
-            # Check whether the epoch can be extended by 2s on both sides 
-            if v_start_idx[i] < 2 * fs or v_end_idx[i] > len(df_ppg_preprocessed) - 2 * fs:
-                continue
-
-            # Extract relevant PPG segment for HR estimation by adding 2s on both sides to overcome edge effects of the time-frequency method
-            v_ppg_spwvd = df_ppg_preprocessed[DataColumns.PPG][v_start_idx[i] - 2 * fs : v_end_idx[i] + 2 * fs]
-
-            hr_est = extract_hr_from_segment(v_ppg_spwvd, config.tfd_length, fs, config.kern_type, config.kern_params)
-
-            # Corresponding HR estimation time array
-            hr_time = rel_time[::hr_est_samples]
-            t_epoch_unix = np.array(hr_time) * config.unix_ticks_ms + ts_sync
-
-            # Save output
-            v_hr_ppg.append(hr_est)
-            t_hr_unix.append(t_epoch_unix)
-    
-
-    return df_hr_est
+    return v_hr_ppg, t_hr_unix
