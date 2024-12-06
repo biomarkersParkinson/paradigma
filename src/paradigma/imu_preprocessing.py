@@ -8,9 +8,10 @@ from scipy.interpolate import interp1d
 import tsdf
 from paradigma.constants import DataColumns, TimeUnit
 from paradigma.util import write_df_data, read_metadata
-from paradigma.preprocessing_config import IMUPreprocessingConfig
+from paradigma.config import IMUConfig
 
-def preprocess_imu_data(df: pd.DataFrame, config: IMUPreprocessingConfig, scale_factors: list, sensor: str) -> pd.DataFrame:
+
+def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, scale_factors: list, sensor: str) -> pd.DataFrame:
     """
     Preprocesses IMU data by renaming columns, transforming time units, resampling, and applying filters.
 
@@ -104,34 +105,30 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUPreprocessingConfig, scale_
     return df
 
 
-def preprocess_imu_data_io(input_path: Union[str, Path], output_path: Union[str, Path], config: IMUPreprocessingConfig, sensor: str) -> None:
+def preprocess_imu_data_io(input_path: Union[str, Path], output_path: Union[str, Path], config: IMUConfig, sensor: str) -> None:
 
     # Load data
-    metadata_time, metadata_samples = read_metadata(str(input_path), str(config.meta_filename),
+    metadata_time, metadata_values = read_metadata(str(input_path), str(config.meta_filename),
                                                     str(config.time_filename), str(config.values_filename))
-    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
-
-    # Rename columns
-    df = df.rename(columns={f'rotation_{a}': f'gyroscope_{a}' for a in ['x', 'y', 'z']})
-    df = df.rename(columns={f'acceleration_{a}': f'accelerometer_{a}' for a in ['x', 'y', 'z']})
+    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
     # Preprocess data
-    df = preprocess_imu_data(df=df, config=config, scale_factors=metadata_samples.scale_factors, sensor=sensor)
+    df = preprocess_imu_data(df=df, config=config, scale_factors=metadata_values.scale_factors, sensor=sensor)
 
     # Store data
     for sensor, units in zip(['accelerometer', 'gyroscope'], ['g', config.rotation_units]):
         if sensor in df.columns:
             df_sensor = df[[config.time_colname] + [x for x in df.columns if sensor in x]]
 
-            metadata_samples.channels = [x for x in df.columns if sensor in x]
-            metadata_samples.units = list(np.repeat(units, len(metadata_samples.channels)))
-            metadata_samples.scale_factors = []
-            metadata_samples.file_name = f'{sensor}_samples.bin'
+            metadata_values.channels = [x for x in df.columns if sensor in x]
+            metadata_values.units = list(np.repeat(units, len(metadata_values.channels)))
+            metadata_values.scale_factors = []
+            metadata_values.file_name = f'{sensor}_values.bin'
 
             metadata_time.file_name = f'{sensor}_time.bin'
             metadata_time.units = ['time_relative_ms']
 
-            write_df_data(metadata_time, metadata_samples, output_path, f'{sensor}_meta.json', df_sensor)
+            write_df_data(metadata_time, metadata_values, output_path, f'{sensor}_meta.json', df_sensor)
 
 
 def transform_time_array(

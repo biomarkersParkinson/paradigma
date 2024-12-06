@@ -41,7 +41,7 @@
         },
         {
             "endianness": "little",
-            "file_name": "IMU_samples.bin",
+            "file_name": "IMU_values.bin",
             "channels": [
                 "acceleration_x",
                 "acceleration_y",

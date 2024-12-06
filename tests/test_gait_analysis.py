@@ -1,9 +1,8 @@
 from pathlib import Path
 
 from paradigma.gait.gait_analysis import filter_gait_io, detect_gait_io, extract_arm_activity_features_io, extract_gait_features_io
-from paradigma.gait.gait_analysis_config import FilteringGaitConfig, ArmActivityFeatureExtractionConfig, ArmSwingQuantificationConfig, GaitDetectionConfig, GaitFeatureExtractionConfig
+from paradigma.config import FilteringGaitConfig, ArmActivityFeatureExtractionConfig, ArmSwingQuantificationConfig, GaitDetectionConfig, GaitFeatureExtractionConfig
 from paradigma.imu_preprocessing import preprocess_imu_data_io
-from paradigma.preprocessing_config import IMUPreprocessingConfig
 from test_notebooks import compare_data
 
 
@@ -25,11 +24,11 @@ arm_swing_binaries_pairs: list[tuple[str, str]] = [
     ]
 
 accelerometer_binaries_pairs: list[tuple[str, str]] = [
-        ("accelerometer_meta.json", "accelerometer_samples.bin"),
+        ("accelerometer_meta.json", "accelerometer_values.bin"),
         ("accelerometer_meta.json", "accelerometer_time.bin"),
     ]
 gyroscope_binaries_pairs: list[tuple[str, str]] = [
-        ("gyroscope_meta.json", "gyroscope_samples.bin"),
+        ("gyroscope_meta.json", "gyroscope_values.bin"),
         ("gyroscope_meta.json", "gyroscope_time.bin"),
     ]
 imu_binaries_pairs: list[tuple[str, str]] = accelerometer_binaries_pairs + gyroscope_binaries_pairs
@@ -83,12 +82,14 @@ def test_4_extract_features_arm_activity_output(shared_datadir: Path):
     data_type: str = "gait"
 
     # Temporary path to store the output of the notebook
-    input_path = shared_datadir / input_dir_name / "imu"
+    input_ts_path = shared_datadir / input_dir_name / "imu"
+    input_pred_path = shared_datadir / "4.predictions" / "gait"
+    input_classifation_path = shared_datadir / "0.classification" / "gait"
     reference_output_path = shared_datadir / output_dir_name / data_type
     tested_output_path = reference_output_path / "test-output"
 
     config = ArmActivityFeatureExtractionConfig()
-    extract_arm_activity_features_io(input_path, tested_output_path, config)
+    extract_arm_activity_features_io(input_ts_path, input_pred_path, input_classifation_path, tested_output_path, config)
     compare_data(reference_output_path, tested_output_path, arm_activity_binaries_pairs)
 
 
