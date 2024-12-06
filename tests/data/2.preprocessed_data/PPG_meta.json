@@ -23,7 +23,7 @@
             ]
         },
         {
-            "file_name": "PPG_samples.bin",
+            "file_name": "PPG_values.bin",
             "channels": [
                 "green"
             ],

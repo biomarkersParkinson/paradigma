@@ -1,9 +1,8 @@
 from pathlib import Path
 
 from paradigma.gait.gait_analysis import filter_gait_io, detect_gait_io, extract_arm_activity_features_io, extract_gait_features_io
-from paradigma.gait.gait_analysis_config import FilteringGaitConfig, ArmActivityFeatureExtractionConfig, ArmSwingQuantificationConfig, GaitDetectionConfig, GaitFeatureExtractionConfig
+from paradigma.config import FilteringGaitConfig, ArmActivityFeatureExtractionConfig, ArmSwingQuantificationConfig, GaitDetectionConfig, GaitFeatureExtractionConfig
 from paradigma.imu_preprocessing import preprocess_imu_data_io
-from paradigma.preprocessing_config import IMUPreprocessingConfig
 from test_notebooks import compare_data
 
 
@@ -25,11 +24,11 @@ arm_swing_binaries_pairs: list[tuple[str, str]] = [
     ]
 
 accelerometer_binaries_pairs: list[tuple[str, str]] = [
-        ("accelerometer_meta.json", "accelerometer_samples.bin"),
+        ("accelerometer_meta.json", "accelerometer_values.bin"),
         ("accelerometer_meta.json", "accelerometer_time.bin"),
     ]
 gyroscope_binaries_pairs: list[tuple[str, str]] = [
-        ("gyroscope_meta.json", "gyroscope_samples.bin"),
+        ("gyroscope_meta.json", "gyroscope_values.bin"),
         ("gyroscope_meta.json", "gyroscope_time.bin"),
     ]
 imu_binaries_pairs: list[tuple[str, str]] = accelerometer_binaries_pairs + gyroscope_binaries_pairs

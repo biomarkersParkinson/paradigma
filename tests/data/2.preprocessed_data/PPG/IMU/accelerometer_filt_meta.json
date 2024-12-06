@@ -23,7 +23,7 @@
             "freq_sampling_original": 100.49069555614177
         },
         {
-            "file_name": "accelerometer_filt_samples.bin",
+            "file_name": "accelerometer_filt_values.bin",
             "channels": [
                 "accelerometer_x",
                 "accelerometer_y",

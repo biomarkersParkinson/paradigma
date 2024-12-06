@@ -5,7 +5,7 @@ import numpy as np
 from scipy.signal import welch, find_peaks
 from scipy.signal.windows import hamming
 from scipy.stats import kurtosis, skew
-from paradigma.heart_rate.heart_rate_analysis_config import PPGconfig
+from paradigma.config import SignalQualityFeatureExtractionConfig
 
 def generate_statistics(
         sensor_col: pd.Series,
@@ -153,7 +153,7 @@ def compute_spectral_entropy(
     return spectral_entropy
 
 def extract_temporal_domain_features(
-        config: PPGconfig, 
+        config: SignalQualityFeatureExtractionConfig, 
         df_windowed: pd.DataFrame, 
         quality_stats: List[str] = ['mean', 'std']
     ) -> pd.DataFrame:
@@ -163,7 +163,7 @@ def extract_temporal_domain_features(
     Parameters
     ----------
 
-    config: GaitFeatureExtractionConfig
+    config: SignalQualityFeatureExtractionConfig
         The configuration object containing the parameters for the feature extraction
     
     df_windowed: pd.DataFrame
@@ -190,7 +190,7 @@ def extract_temporal_domain_features(
     return df_windowed
 
 def extract_spectral_domain_features(
-        config, 
+        config: SignalQualityFeatureExtractionConfig, 
         df_windowed: pd.DataFrame
     ) -> pd.DataFrame:
     """
@@ -200,7 +200,7 @@ def extract_spectral_domain_features(
 
     Parameters
     ----------
-    config: PPGconfig
+    config: SignalQualityFeatureExtractionConfig
         The configuration object containing the parameters for the feature extraction
 
     df_windowed: pd.DataFrame

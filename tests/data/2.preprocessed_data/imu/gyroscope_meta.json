@@ -24,7 +24,7 @@
             ]
         },
         {
-            "file_name": "gyroscope_samples.bin",
+            "file_name": "gyroscope_values.bin",
             "channels": [
                 "gyroscope_x",
                 "gyroscope_y",

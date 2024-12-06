@@ -82,14 +82,14 @@ def compare_data(
         reference_metadata = tsdf.load_metadata_from_path(
             reference_dir / metadata
         )
-        ref_metadata_samples = reference_metadata[binary]
-        ref_data = tsdf.load_ndarray_from_binary(ref_metadata_samples)
+        ref_metadata_values = reference_metadata[binary]
+        ref_data = tsdf.load_ndarray_from_binary(ref_metadata_values)
         # load the generated data
         tested_metadata = tsdf.load_metadata_from_path(
             tested_dir / metadata
         )
-        tested_metadata_samples = tested_metadata[binary]
-        tested_data = tsdf.load_ndarray_from_binary(tested_metadata_samples)
+        tested_metadata_values = tested_metadata[binary]
+        tested_data = tsdf.load_ndarray_from_binary(tested_metadata_values)
 
         print(tested_data.shape, ref_data.shape)
         # Check if the data is the same

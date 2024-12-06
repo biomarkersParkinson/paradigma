@@ -9,7 +9,7 @@ from sklearn.preprocessing import StandardScaler
 import tsdf
 
 from paradigma.constants import DataColumns
-from paradigma.gait.gait_analysis_config import GaitFeatureExtractionConfig, GaitDetectionConfig, \
+from paradigma.config import GaitFeatureExtractionConfig, GaitDetectionConfig, \
     ArmActivityFeatureExtractionConfig, FilteringGaitConfig
 from paradigma.gait.feature_extraction import extract_temporal_domain_features, \
     extract_spectral_domain_features, compute_angle_and_velocity_from_gyro, extract_angle_features
@@ -97,8 +97,8 @@ def extract_gait_features(df: pd.DataFrame, config: GaitFeatureExtractionConfig)
 
 def extract_gait_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config: GaitFeatureExtractionConfig) -> None:
     # Load data
-    metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
-    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+    metadata_time, metadata_values = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
+    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
     # Extract gait features
     df_features = extract_gait_features(df, config)
@@ -107,18 +107,18 @@ def extract_gait_features_io(input_path: Union[str, Path], output_path: Union[st
     end_iso8601 = get_end_iso8601(start_iso8601=metadata_time.start_iso8601,
                                   window_length_seconds=int(df_features[config.time_colname][-1:].values[0] + config.window_length_s))
 
-    metadata_samples.file_name = 'gait_values.bin'
+    metadata_values.file_name = 'gait_values.bin'
     metadata_time.file_name = 'gait_time.bin'
-    metadata_samples.end_iso8601 = end_iso8601
+    metadata_values.end_iso8601 = end_iso8601
     metadata_time.end_iso8601 = end_iso8601
     
-    metadata_samples.channels = list(config.d_channels_values.keys())
-    metadata_samples.units = list(config.d_channels_values.values())
+    metadata_values.channels = list(config.d_channels_values.keys())
+    metadata_values.units = list(config.d_channels_values.values())
 
     metadata_time.channels = [DataColumns.TIME]
     metadata_time.units = ['relative_time_ms']
 
-    write_df_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df_features)
+    write_df_data(metadata_time, metadata_values, output_path, 'gait_meta.json', df_features)
 
 
 def detect_gait(df: pd.DataFrame, config: GaitDetectionConfig, path_to_classifier_input: Union[str, Path]) -> pd.DataFrame:
@@ -192,22 +192,22 @@ def detect_gait(df: pd.DataFrame, config: GaitDetectionConfig, path_to_classifie
 def detect_gait_io(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: GaitDetectionConfig) -> None:
     
     # Load the data
-    metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
-    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+    metadata_time, metadata_values = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
+    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
     df = detect_gait(df, config, path_to_classifier_input)
 
     # Prepare the metadata
-    metadata_samples.file_name = 'gait_values.bin'
+    metadata_values.file_name = 'gait_values.bin'
     metadata_time.file_name = 'gait_time.bin'
 
-    metadata_samples.channels = ['pred_gait_proba']
-    metadata_samples.units = ['probability']
+    metadata_values.channels = ['pred_gait_proba']
+    metadata_values.units = ['probability']
 
     metadata_time.channels = [config.time_colname]
     metadata_time.units = ['relative_time_ms']
 
-    write_df_data(metadata_time, metadata_samples, output_path, 'gait_meta.json', df)
+    write_df_data(metadata_time, metadata_values, output_path, 'gait_meta.json', df)
 
 
 def extract_arm_activity_features(
@@ -343,13 +343,13 @@ def extract_arm_activity_features_io(input_path_timestamps: Union[str, Path], in
     for sensor in ['accelerometer', 'gyroscope']:
         config.set_sensor(sensor)
         meta_ts_filename = f'{sensor}_meta.json'
-        values_ts_filename = f'{sensor}_samples.bin'
+        values_ts_filename = f'{sensor}_values.bin'
         time_ts_filename = f'{sensor}_time.bin'
 
         metadata_ts_dict = tsdf.load_metadata_from_path(os.path.join(input_path_timestamps, meta_ts_filename))
         metadata_ts_time = metadata_ts_dict[time_ts_filename]
-        metadata_ts_samples = metadata_ts_dict[values_ts_filename]
-        dfs.append(tsdf.load_dataframe_from_binaries([metadata_ts_time, metadata_ts_samples], tsdf.constants.ConcatenationType.columns))
+        metadata_ts_values = metadata_ts_dict[values_ts_filename]
+        dfs.append(tsdf.load_dataframe_from_binaries([metadata_ts_time, metadata_ts_values], tsdf.constants.ConcatenationType.columns))
 
     df_ts = pd.merge(dfs[0], dfs[1], on=config.time_colname)
 
@@ -360,28 +360,28 @@ def extract_arm_activity_features_io(input_path_timestamps: Union[str, Path], in
 
     metadata_pred_dict = tsdf.load_metadata_from_path(os.path.join(input_path_predictions, meta_pred_filename))
     metadata_pred_time = metadata_pred_dict[time_pred_filename]
-    metadata_pred_samples = metadata_pred_dict[values_pred_filename]
+    metadata_pred_values = metadata_pred_dict[values_pred_filename]
 
-    df_pred_gait = tsdf.load_dataframe_from_binaries([metadata_pred_time, metadata_pred_samples], tsdf.constants.ConcatenationType.columns)
+    df_pred_gait = tsdf.load_dataframe_from_binaries([metadata_pred_time, metadata_pred_values], tsdf.constants.ConcatenationType.columns)
 
     # Extract arm activity features
     df_features = extract_arm_activity_features(df_ts, df_pred_gait, config, input_path_classifiers)
 
-    end_iso8601 = get_end_iso8601(metadata_ts_samples.start_iso8601, 
+    end_iso8601 = get_end_iso8601(metadata_ts_values.start_iso8601, 
                                 df_features[config.time_colname][-1:].values[0] + config.window_length_s)
 
-    metadata_ts_samples.end_iso8601 = end_iso8601
-    metadata_ts_samples.file_name = 'arm_activity_values.bin'
+    metadata_ts_values.end_iso8601 = end_iso8601
+    metadata_ts_values.file_name = 'arm_activity_values.bin'
     metadata_ts_time.end_iso8601 = end_iso8601
     metadata_ts_time.file_name = 'arm_activity_time.bin'
 
-    metadata_ts_samples.channels = list(config.d_channels_values.keys())
-    metadata_ts_samples.units = list(config.d_channels_values.values())
+    metadata_ts_values.channels = list(config.d_channels_values.keys())
+    metadata_ts_values.units = list(config.d_channels_values.values())
 
     metadata_ts_time.channels = [config.time_colname]
     metadata_ts_time.units = ['relative_time_ms']
 
-    write_df_data(metadata_ts_time, metadata_ts_samples, output_path, 'arm_activity_meta.json', df_features)
+    write_df_data(metadata_ts_time, metadata_ts_values, output_path, 'arm_activity_meta.json', df_features)
 
 
 def filter_gait(df: pd.DataFrame, config: FilteringGaitConfig, path_to_classifier_input: Union[str, Path]) -> pd.DataFrame:
@@ -451,22 +451,22 @@ def filter_gait(df: pd.DataFrame, config: FilteringGaitConfig, path_to_classifie
 
 def filter_gait_io(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: FilteringGaitConfig) -> None:
     # Load the data
-    metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
-    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+    metadata_time, metadata_values = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
+    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
     df = filter_gait(df, config, path_to_classifier_input)
 
     # Prepare the metadata
-    metadata_samples.file_name = 'arm_activity_values.bin'
+    metadata_values.file_name = 'arm_activity_values.bin'
     metadata_time.file_name = 'arm_activity_time.bin'
 
-    metadata_samples.channels = [DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]
-    metadata_samples.units = ['probability']
+    metadata_values.channels = [DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]
+    metadata_values.units = ['probability']
 
     metadata_time.channels = [DataColumns.TIME]
     metadata_time.units = ['relative_time_ms']
 
-    write_df_data(metadata_time, metadata_samples, output_path, 'arm_activity_meta.json', df)
+    write_df_data(metadata_time, metadata_values, output_path, 'arm_activity_meta.json', df)
 
 
 # def quantify_arm_swing(df: pd.DataFrame, config: ArmSwingQuantificationConfig) -> pd.DataFrame:
@@ -519,13 +519,13 @@ def filter_gait_io(input_path: Union[str, Path], output_path: Union[str, Path], 
 
 # def quantify_arm_swing_io(path_to_feature_input: Union[str, Path], path_to_prediction_input: Union[str, Path], output_path: Union[str, Path], config: ArmSwingQuantificationConfig) -> None:
 #     # Load the features & predictions
-#     metadata_time, metadata_samples = read_metadata(path_to_feature_input, config.meta_filename, config.time_filename, config.values_filename)
-#     df_features = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+#     metadata_time, metadata_values = read_metadata(path_to_feature_input, config.meta_filename, config.time_filename, config.values_filename)
+#     df_features = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
 #     metadata_dict = tsdf.load_metadata_from_path(os.path.join(path_to_prediction_input, config.meta_filename))
 #     metadata_time = metadata_dict[config.time_filename]
-#     metadata_samples = metadata_dict[config.values_filename]
-#     df_predictions = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+#     metadata_values = metadata_dict[config.values_filename]
+#     df_predictions = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
 #     # Validate
 #     # Dataframes have same length

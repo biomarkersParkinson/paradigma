@@ -6,11 +6,10 @@ import os
 
 import tsdf
 import tsdf.constants 
-from paradigma.heart_rate.heart_rate_analysis_config import SignalQualityFeatureExtractionConfig
+from paradigma.config import SignalQualityFeatureExtractionConfig, SignalQualityClassificationConfig
 from paradigma.util import read_metadata
 from paradigma.segmenting import tabulate_windows_legacy
 from paradigma.heart_rate.feature_extraction import extract_temporal_domain_features, extract_spectral_domain_features
-from paradigma.heart_rate.heart_rate_analysis_config import SignalQualityClassificationConfig
 from paradigma.constants import DataColumns
 
 
@@ -19,7 +18,7 @@ def extract_signal_quality_features(df: pd.DataFrame, config: SignalQualityFeatu
     df_windowed = tabulate_windows_legacy(config, df)
 
     # Compute statistics of the temporal domain signals
-    df_windowed = extract_temporal_domain_features(config, df_windowed, quality_stats=['var','mean', 'median', 'kurtosis', 'skewness'])
+    df_windowed = extract_temporal_domain_features(config, df_windowed, quality_stats=['var', 'mean', 'median', 'kurtosis', 'skewness'])
     
     # Compute statistics of the spectral domain signals
     df_windowed = extract_spectral_domain_features(config, df_windowed)
@@ -29,8 +28,8 @@ def extract_signal_quality_features(df: pd.DataFrame, config: SignalQualityFeatu
 
 
 def extract_signal_quality_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config: SignalQualityFeatureExtractionConfig) -> None:
-    metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
-    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+    metadata_time, metadata_values = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
+    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
     
     # Extract gait features
     df_windowed = extract_signal_quality_features(df, config)
@@ -83,7 +82,7 @@ def signal_quality_classification(df: pd.DataFrame, config: SignalQualityClassif
 def signal_quality_classification_io(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: SignalQualityClassificationConfig) -> None:
     
     # Load the data
-    metadata_time, metadata_samples = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
-    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_samples], tsdf.constants.ConcatenationType.columns)
+    metadata_time, metadata_values = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
+    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
     df = signal_quality_classification(df, config, path_to_classifier_input)

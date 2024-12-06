@@ -26,8 +26,8 @@ def get_end_iso8601(start_iso8601, window_length_seconds):
 def write_np_data(
     metadata_time: TSDFMetadata,
     np_array_time: np.ndarray, 
-    metadata_samples: TSDFMetadata,
-    np_array_samples: np.ndarray,
+    metadata_values: TSDFMetadata,
+    np_array_values: np.ndarray,
     output_path: str,
     output_filename: str,
 ):
@@ -40,9 +40,9 @@ def write_np_data(
         Metadata for the time column.
     np_array_time : np.ndarray
         The numpy array for the time column.
-    metadata_samples : TSDFMetadata
+    metadata_values : TSDFMetadata
         Metadata for the samples columns.
-    np_array_samples : np.ndarray
+    np_array_values : np.ndarray
         The numpy array for the samples columns.
     output_path : str
         The path where the files will be stored.
@@ -56,19 +56,19 @@ def write_np_data(
 
     # TODO: improve the way the metadata is stored at a different location
     metadata_time.file_dir_path = output_path
-    metadata_samples.file_dir_path = output_path
+    metadata_values.file_dir_path = output_path
 
     # store binaries and metadata
     time_tsdf = tsdf.write_binary_file(file_dir=output_path, file_name=metadata_time.file_name, data=np_array_time, metadata=metadata_time.get_plain_tsdf_dict_copy())
 
-    samples_tsdf = tsdf.write_binary_file(file_dir=output_path, file_name=metadata_samples.file_name, data=np_array_samples, metadata=metadata_samples.get_plain_tsdf_dict_copy())
+    samples_tsdf = tsdf.write_binary_file(file_dir=output_path, file_name=metadata_values.file_name, data=np_array_values, metadata=metadata_values.get_plain_tsdf_dict_copy())
 
     tsdf.write_metadata([time_tsdf, samples_tsdf], output_filename)
 
 
 def write_df_data(
     metadata_time: TSDFMetadata,
-    metadata_samples: TSDFMetadata,
+    metadata_values: TSDFMetadata,
     output_path: str,
     output_filename: str,
     df: pd.DataFrame,
@@ -80,7 +80,7 @@ def write_df_data(
     ----------
     metadata_time : TSDFMetadata
         Metadata for the time column.
-    metadata_samples : TSDFMetadata
+    metadata_values : TSDFMetadata
         Metadata for the samples columns.
     output_path : str
         The path where the files will be stored.
@@ -99,18 +99,18 @@ def write_df_data(
     metadata_time.start_iso8601 = format_datetime_to_iso8601(start_date)
     end_date = parser.parse(metadata_time.end_iso8601)
     metadata_time.end_iso8601 = format_datetime_to_iso8601(end_date)
-    start_date = parser.parse(metadata_samples.start_iso8601)
-    metadata_samples.start_iso8601 = format_datetime_to_iso8601(start_date)
-    end_date = parser.parse(metadata_samples.end_iso8601)
-    metadata_samples.end_iso8601 = format_datetime_to_iso8601(end_date)
+    start_date = parser.parse(metadata_values.start_iso8601)
+    metadata_values.start_iso8601 = format_datetime_to_iso8601(start_date)
+    end_date = parser.parse(metadata_values.end_iso8601)
+    metadata_values.end_iso8601 = format_datetime_to_iso8601(end_date)
 
     # TODO: improve the way the metadata is stored at a different location
     metadata_time.file_dir_path = output_path
-    metadata_samples.file_dir_path = output_path
+    metadata_values.file_dir_path = output_path
 
     # store binaries and metadata
-    tsdf.write_dataframe_to_binaries(output_path, df, [metadata_time, metadata_samples])
-    tsdf.write_metadata([metadata_time, metadata_samples], output_filename)
+    tsdf.write_dataframe_to_binaries(output_path, df, [metadata_time, metadata_values])
+    tsdf.write_metadata([metadata_time, metadata_values], output_filename)
 
 def read_metadata(
     input_path: str, meta_filename: str, time_filename: str, values_filename: str
@@ -119,8 +119,8 @@ def read_metadata(
         os.path.join(input_path, meta_filename)
     )
     metadata_time = metadata_dict[time_filename]
-    metadata_samples = metadata_dict[values_filename]
-    return metadata_time, metadata_samples
+    metadata_values = metadata_dict[values_filename]
+    return metadata_time, metadata_values
 
 def load_metadata_list(
     dir_path: str, meta_filename: str, filenames: List[str]
