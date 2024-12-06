@@ -40,6 +40,8 @@ class IMUConfig(BaseConfig):
         self.acceleration_units = DataUnits.ACCELERATION
         self.rotation_units = DataUnits.ROTATION
 
+        self.side_watch = 'right'
+
         self.axes = ["x", "y", "z"]
 
         self.accelerometer_cols: List[str] = [
@@ -113,6 +115,9 @@ class GaitBaseConfig(IMUConfig):
         self.window_type: str = "hann"
         self.max_segment_gap_s = 1.5
         self.min_segment_length_s = 1.5
+
+        self.spectrum_low_frequency: int = 0
+        self.spectrum_high_frequency: int = int(self.sampling_frequency / 2)
 
         # feature parameters
         self.mfcc_low_frequency: int = 0

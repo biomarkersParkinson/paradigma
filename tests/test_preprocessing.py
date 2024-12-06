@@ -7,11 +7,11 @@ from test_notebooks import compare_data
 
 # Mappings between the metadata and binary files
 accelerometer_binaries_pairs: list[tuple[str, str]] = [
-        ("accelerometer_meta.json", "accelerometer_samples.bin"),
+        ("accelerometer_meta.json", "accelerometer_values.bin"),
         ("accelerometer_meta.json", "accelerometer_time.bin"),
     ]
 gyroscope_binaries_pairs: list[tuple[str, str]] = [
-        ("gyroscope_meta.json", "gyroscope_samples.bin"),
+        ("gyroscope_meta.json", "gyroscope_values.bin"),
         ("gyroscope_meta.json", "gyroscope_time.bin"),
     ]
 imu_binaries_pairs: list[tuple[str, str]] = accelerometer_binaries_pairs + gyroscope_binaries_pairs

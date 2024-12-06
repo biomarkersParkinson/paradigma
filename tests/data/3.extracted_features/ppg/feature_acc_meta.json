@@ -24,7 +24,7 @@
             ]
         },
         {
-            "file_name": "features_acc_samples.bin",
+            "file_name": "features_acc_values.bin",
             "channels": [
                 "power_ratio"
             ],
