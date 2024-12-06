@@ -257,7 +257,8 @@ def extract_hr_from_segment(ppg: np.ndarray, tfd_length: int, fs: int, kern_type
         The moving average window length.
     kern_type : str
         Type of TFD kernel to use (e.g., 'wvd' for Wigner-Ville distribution).
-    Parameters for the specified kernel. Not required for 'wvd', but relevant for other 
+    kern_params : dict
+        Parameters for the specified kernel. Not required for 'wvd', but relevant for other 
         kernels like 'spwvd' or 'swvd'. Default is None.
 
     Returns
@@ -265,8 +266,6 @@ def extract_hr_from_segment(ppg: np.ndarray, tfd_length: int, fs: int, kern_type
     np.ndarray
         The estimated heart rate.
     """
-    if kern_params is None:
-        kern_params = {}
 
     # Constants to handle boundary effects
     edge_padding = 4  # Additional 4 seconds (2 seconds on both sides)
@@ -275,7 +274,7 @@ def extract_hr_from_segment(ppg: np.ndarray, tfd_length: int, fs: int, kern_type
     # Calculate the actual segment length without padding
     original_segment_length = (len(ppg) - edge_padding * fs) / fs
 
-    # Determine the number of 30-second segments
+    # Determine the number of tfd_length-second segments
     if original_segment_length > extended_epoch_length:
         num_segments = int(original_segment_length // tfd_length)
     else:
@@ -295,7 +294,7 @@ def extract_hr_from_segment(ppg: np.ndarray, tfd_length: int, fs: int, kern_type
     hr_est_from_ppg = []
     for segment in ppg_segments:
     # Calculate the time-frequency distribution
-        hr_tfd = extract_hr_with_tfd(ppg, fs, kern_type, kern_params)
+        hr_tfd = extract_hr_with_tfd(segment, fs, kern_type, kern_params)
         hr_est_from_ppg.extend(hr_tfd)
 
     return hr_est_from_ppg
