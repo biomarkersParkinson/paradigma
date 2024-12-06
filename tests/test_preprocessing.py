@@ -29,5 +29,5 @@ def test_1_imu_preprocessing_outputs(shared_datadir: Path):
     tested_output_path = reference_output_path / "test-output"
 
     config = IMUConfig()
-    preprocess_imu_data_io(input_path, tested_output_path, config)
+    preprocess_imu_data_io(input_path, tested_output_path, config, sensor='imu')
     compare_data(reference_output_path, tested_output_path, imu_binaries_pairs)

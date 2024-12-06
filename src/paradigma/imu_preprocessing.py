@@ -11,24 +11,26 @@ from paradigma.util import write_df_data, read_metadata
 from paradigma.config import IMUConfig
 
 
-def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, scale_factors: list) -> pd.DataFrame:
+def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, scale_factors: list, sensor: str) -> pd.DataFrame:
     """
     Preprocesses IMU data by renaming columns, transforming time units, resampling, and applying filters.
 
     Parameters
     ----------
     df : pd.DataFrame
-        The DataFrame containing IMU data with raw accelerometer and gyroscope data.
-    config : IMUConfig
-        Configuration object containing various settings, such as time column name, accelerometer columns,
+        The DataFrame containing raw accelerometer and/or gyroscope data.
+    config : IMUPreprocessingConfig
+        Configuration object containing various settings, such as time column name, accelerometer and or gyroscope columns,
         filter settings, and sampling frequency.
     scale_factors : list
         List of scale factors for each of the IMU channels, to be applied before resampling.
+    sensor: str
+        Name of the sensor data to be preprocessed (IMU (gyroscope and accelerometer), gyroscope or accelerometer)
 
     Returns
     -------
     pd.DataFrame
-        The preprocessed IMU data with the following transformations:
+        The preprocessed accelerometer and or gyroscope data with the following transformations:
         - Renamed columns for accelerometer and gyroscope data.
         - Transformed time column to relative time in milliseconds.
         - Resampled data at the specified frequency.
@@ -46,14 +48,14 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, scale_factors: list
     # Rename columns
     df = df.rename(columns={f'rotation_{a}': f'gyroscope_{a}' for a in ['x', 'y', 'z']})
     df = df.rename(columns={f'acceleration_{a}': f'accelerometer_{a}' for a in ['x', 'y', 'z']})
-
+    
     # Convert to relative seconds from delta milliseconds
     df[config.time_colname] = transform_time_array(
         time_array=df[config.time_colname],
         scale_factor=1000, 
         input_unit_type = TimeUnit.DIFFERENCE_MS,
         output_unit_type = TimeUnit.RELATIVE_MS)
-    
+        
     # Resample the data to the specified frequency
     df = resample_data(
         df=df,
@@ -63,42 +65,50 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, scale_factors: list
         scale_factors=scale_factors,
         resampling_frequency=config.sampling_frequency)
     
-    # Flip signs for right-side watch
-    if config.side_watch == 'right':
-        df[DataColumns.ACCELEROMETER_X] *= -1
-        df[DataColumns.GYROSCOPE_Y] *= -1
-        df[DataColumns.GYROSCOPE_Z] *= -1
+    if sensor in ['IMU','imu','accel','accelerometer']:
 
-    # Convert accelerometer data to correct units if necessary
-    if config.acceleration_units == 'm/s^2':
-        df[config.accelerometer_cols] /= 9.81
+        # Flip signs for right-side watch
+        if config.side_watch == 'right':
+            df[DataColumns.ACCELEROMETER_X] *= -1
+            df[DataColumns.GYROSCOPE_Y] *= -1
+            df[DataColumns.GYROSCOPE_Z] *= -1
+
+        # Convert accelerometer data to correct units if necessary
+        if config.acceleration_units == 'm/s^2':
+            df[config.accelerometer_cols] /= 9.81
         
-    # Extract accelerometer data for filtering
-    accel_data = df[config.accelerometer_cols].values
+        # Extract accelerometer data for filtering
+        accel_data = df[config.accelerometer_cols].values
 
-    # Define filter configurations for high-pass and low-pass
-    filter_renaming_configs = {
+        # Define filter configurations for high-pass and low-pass
+        filter_renaming_configs = {
         "hp": {"result_columns": config.accelerometer_cols, "replace_original": True},
         "lp": {"result_columns": [f'{col}_grav' for col in config.accelerometer_cols], "replace_original": False},
-    }
+        }
 
-    # Apply filters in a loop
-    for passband, filter_config in filter_renaming_configs.items():
-        filtered_data = butterworth_filter(
+        # Apply filters in a loop
+        for passband, filter_config in filter_renaming_configs.items():
+            filtered_data = butterworth_filter(
             data=accel_data,
             order=config.filter_order,
             cutoff_frequency=config.lower_cutoff_frequency,
             passband=passband,
             sampling_frequency=config.sampling_frequency,
-        )
+            )
 
-        # Replace or add new columns based on configuration
-        df[filter_config["result_columns"]] = filtered_data
+            # Replace or add new columns based on configuration
+            df[filter_config["result_columns"]] = filtered_data
+
+
+    if sensor in ['accel','accelerometer']:
+        df = df[[config.time_colname,*config.accelerometer_cols]]
+    elif sensor in ['gyrco','gyroscope']:
+        df = df[[config.time_colname,*config.gyroscope_cols]]
 
     return df
 
 
-def preprocess_imu_data_io(input_path: Union[str, Path], output_path: Union[str, Path], config: IMUConfig) -> None:
+def preprocess_imu_data_io(input_path: Union[str, Path], output_path: Union[str, Path], config: IMUConfig, sensor: str) -> None:
 
     # Load data
     metadata_time, metadata_values = read_metadata(str(input_path), str(config.meta_filename),
@@ -106,21 +116,22 @@ def preprocess_imu_data_io(input_path: Union[str, Path], output_path: Union[str,
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
     # Preprocess data
-    df = preprocess_imu_data(df=df, config=config, scale_factors=metadata_values.scale_factors)
+    df = preprocess_imu_data(df=df, config=config, scale_factors=metadata_values.scale_factors, sensor=sensor)
 
     # Store data
     for sensor, units in zip(['accelerometer', 'gyroscope'], ['g', config.rotation_units]):
-        df_sensor = df[[config.time_colname] + [x for x in df.columns if sensor in x]]
+        if sensor in df.columns:
+            df_sensor = df[[config.time_colname] + [x for x in df.columns if sensor in x]]
 
-        metadata_values.channels = [x for x in df.columns if sensor in x]
-        metadata_values.units = list(np.repeat(units, len(metadata_values.channels)))
-        metadata_values.scale_factors = []
-        metadata_values.file_name = f'{sensor}_values.bin'
+            metadata_values.channels = [x for x in df.columns if sensor in x]
+            metadata_values.units = list(np.repeat(units, len(metadata_values.channels)))
+            metadata_values.scale_factors = []
+            metadata_values.file_name = f'{sensor}_values.bin'
 
-        metadata_time.file_name = f'{sensor}_time.bin'
-        metadata_time.units = ['time_relative_ms']
+            metadata_time.file_name = f'{sensor}_time.bin'
+            metadata_time.units = ['time_relative_ms']
 
-        write_df_data(metadata_time, metadata_values, output_path, f'{sensor}_meta.json', df_sensor)
+            write_df_data(metadata_time, metadata_values, output_path, f'{sensor}_meta.json', df_sensor)
 
 
 def transform_time_array(
