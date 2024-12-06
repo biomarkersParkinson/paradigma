@@ -45,7 +45,10 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, scale_factors: list
     - Adjustments for the right-hand side watch are made by flipping the signs of specific columns.
     - If the accelerometer data is in 'm/s^2', it will be converted from 'g' to 'm/s^2' using gravity's constant (9.81 m/s^2).
     """
-
+    # Rename columns
+    df = df.rename(columns={f'rotation_{a}': f'gyroscope_{a}' for a in ['x', 'y', 'z']})
+    df = df.rename(columns={f'acceleration_{a}': f'accelerometer_{a}' for a in ['x', 'y', 'z']})
+    
     # Convert to relative seconds from delta milliseconds
     df[config.time_colname] = transform_time_array(
         time_array=df[config.time_colname],
