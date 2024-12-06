@@ -19,7 +19,7 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, scale_factors: list
     ----------
     df : pd.DataFrame
         The DataFrame containing IMU data with raw accelerometer and gyroscope data.
-    config : IMUPreprocessingConfig
+    config : IMUConfig
         Configuration object containing various settings, such as time column name, accelerometer columns,
         filter settings, and sampling frequency.
     scale_factors : list
