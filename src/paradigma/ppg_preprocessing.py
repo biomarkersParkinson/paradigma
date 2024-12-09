@@ -95,22 +95,23 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
     df_ppg_overlapping, df_imu_overlapping = extract_overlapping_segments(df_ppg, df_imu)
     print("Shape of the overlapping segments:", df_ppg_overlapping.shape, df_imu_overlapping.shape)
 
-    # The following method is failing
+    # Apply scale factors
+    df_imu_overlapping[list(imu_config.d_channels_imu.keys())] *= metadata_values_imu.scale_factors
+
+    # Resample accelerometer data
     df_imu_proc = paradigma.imu_preprocessing.resample_data(
         df=df_imu_overlapping,
         time_column=DataColumns.TIME,
         time_unit_type=TimeUnit.RELATIVE_MS,
-        unscaled_column_names = list(imu_config.d_channels_accelerometer.keys()),
-        scale_factors=metadata_values_imu.scale_factors[0:3],
+        values_column_names = list(imu_config.d_channels_accelerometer.keys()),
         resampling_frequency=imu_config.sampling_frequency)
 
-    # metadata_values_ppg.scale_factors - the data specifies 1, but it is not an obligatory tsdf field, maybe it should be optional parameter in `resample_data`
+    # Resample PPG data
     df_ppg_proc = paradigma.imu_preprocessing.resample_data(
         df=df_ppg_overlapping,
         time_column=DataColumns.TIME,
         time_unit_type=TimeUnit.RELATIVE_MS,
-        unscaled_column_names = list(ppg_config.d_channels_ppg.keys()),
-        scale_factors=metadata_values_ppg.scale_factors,
+        values_column_names = list(ppg_config.d_channels_ppg.keys()),
         resampling_frequency=ppg_config.sampling_frequency)
 
     # apply Butterworth filter to accelerometer data
