@@ -125,11 +125,11 @@ def test_5_arm_swing_detection_output(shared_datadir: Path):
 #     data_type: str = "gait"
 
 #     # Temporary path to store the output of the notebook
-#     path_to_to_feature_input = shared_datadir / feature_input_dir_name / data_type
-#     path_to_to_prediction_input = shared_datadir / prediction_input_dir_name / data_type
+#     path_to_feature_input = shared_datadir / feature_input_dir_name / data_type
+#     path_to_prediction_input = shared_datadir / prediction_input_dir_name / data_type
 #     reference_output_path = shared_datadir / output_dir_name / data_type
 #     tested_output_path = reference_output_path / "test-output"
 
 #     config = ArmSwingQuantificationConfig()
-#     quantify_arm_swing_io(path_to_to_feature_input, path_to_to_prediction_input, tested_output_path, config)
+#     quantify_arm_swing_io(path_to_feature_input, path_to_prediction_input, tested_output_path, config)
 #     compare_data(reference_output_path, tested_output_path, arm_swing_binaries_pairs)
