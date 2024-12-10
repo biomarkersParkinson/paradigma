@@ -19,13 +19,13 @@ def test_2_extract_features_tremor_output(shared_datadir: Path):
     output_dir_name: str = "3.extracted_features"
     data_type: str = "tremor"
 
-    input_path = shared_datadir / input_dir_name / "imu"
-    reference_output_path = shared_datadir / output_dir_name / data_type
-    tested_output_path = reference_output_path / "test-output"
+    path_to_imu_input = shared_datadir / input_dir_name / "imu"
+    path_to_reference_output = shared_datadir / output_dir_name / data_type
+    path_to_tested_output = path_to_reference_output / "test-output"
 
     config = TremorFeatureExtractionConfig()
-    extract_tremor_features_io(input_path, tested_output_path, config)
-    compare_data(reference_output_path, tested_output_path, tremor_binaries_pairs)
+    extract_tremor_features_io(path_to_imu_input, path_to_tested_output, config)
+    compare_data(path_to_reference_output, path_to_tested_output, tremor_binaries_pairs)
 
 def test_3_tremor_detection_output(shared_datadir: Path):
     """
@@ -38,10 +38,10 @@ def test_3_tremor_detection_output(shared_datadir: Path):
 
     # Temporary path to store the output of the notebook
     path_to_classifier_input = shared_datadir / '0.classification' / data_type
-    input_path = shared_datadir / input_dir_name / data_type
-    reference_output_path = shared_datadir / output_dir_name / data_type
-    tested_output_path = reference_output_path / "test-output"
+    path_to_feature_input = shared_datadir / input_dir_name / data_type
+    path_to_reference_output = shared_datadir / output_dir_name / data_type
+    path_to_tested_output = path_to_reference_output / "test-output"
 
     config = TremorDetectionConfig()
-    detect_tremor_io(input_path, tested_output_path, path_to_classifier_input, config)
-    compare_data(reference_output_path, tested_output_path, tremor_binaries_pairs)
+    detect_tremor_io(path_to_feature_input, path_to_tested_output, path_to_classifier_input, config)
+    compare_data(path_to_reference_output, path_to_tested_output, tremor_binaries_pairs)

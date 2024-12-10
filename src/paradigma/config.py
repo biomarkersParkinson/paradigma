@@ -9,9 +9,6 @@ class BaseConfig:
         self.values_filename = ''
         self.time_filename = ''
 
-        self.time_colname = DataColumns.TIME
-        self.segment_nr_colname = DataColumns.SEGMENT_NR
-
     def set_sensor(self, sensor: str) -> None:
         """Sets the sensor and derived filenames"""
         self.sensor: str = sensor
@@ -105,13 +102,6 @@ class GaitBaseConfig(IMUConfig):
 
         self.set_sensor('accelerometer')
 
-        self.pred_gait_proba_colname = DataColumns.PRED_GAIT_PROBA
-        self.pred_gait_colname=DataColumns.PRED_GAIT
-        self.pred_no_other_arm_activity_proba_colname = DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA
-        self.pred_no_other_arm_activity_colname = DataColumns.PRED_NO_OTHER_ARM_ACTIVITY
-        self.angle_colname=DataColumns.ANGLE
-        self.velocity_colname=DataColumns.VELOCITY
-
         self.window_type: str = "hann"
         self.max_segment_gap_s = 1.5
         self.min_segment_length_s = 1.5
@@ -203,6 +193,8 @@ class ArmActivityFeatureExtractionConfig(GaitBaseConfig):
     def __init__(self) -> None:
         super().__init__()
 
+        self.set_filenames('arm_activity')
+
         # segmenting
         self.window_length_s: float = 3
         self.window_step_length_s: float = self.window_length_s * 0.25
@@ -214,10 +206,10 @@ class ArmActivityFeatureExtractionConfig(GaitBaseConfig):
         # channels
         self.d_channels_values = {
             "range_of_motion": "deg",
-            f"forward_peak_{self.velocity_colname}_mean": DataUnits.ROTATION,
-            f"forward_peak_{self.velocity_colname}_std": DataUnits.ROTATION,
-            f"backward_peak_{self.velocity_colname}_mean": DataUnits.ROTATION,
-            f"backward_peak_{self.velocity_colname}_std": DataUnits.ROTATION,
+            f"forward_peak_{DataColumns.VELOCITY}_mean": DataUnits.ROTATION,
+            f"forward_peak_{DataColumns.VELOCITY}_std": DataUnits.ROTATION,
+            f"backward_peak_{DataColumns.VELOCITY}_mean": DataUnits.ROTATION,
+            f"backward_peak_{DataColumns.VELOCITY}_std": DataUnits.ROTATION,
             f"{self.sensor}_std_norm": DataUnits.GRAVITY,
             f"{self.sensor}_x_grav_mean": DataUnits.GRAVITY,
             f"{self.sensor}_x_grav_std": DataUnits.GRAVITY,
@@ -240,7 +232,7 @@ class ArmActivityFeatureExtractionConfig(GaitBaseConfig):
             f"{self.sensor}_z_power_tremor": "X",
             f"{self.sensor}_z_power_above_tremor": "X",
             f"{self.sensor}_z_dominant_frequency": DataUnits.FREQUENCY,
-            f"{self.angle_colname}_dominant_frequency": DataUnits.FREQUENCY,
+            f"{DataColumns.ANGLE}_dominant_frequency": DataUnits.FREQUENCY,
         }
 
         for sensor in ["accelerometer", "gyroscope"]:
@@ -357,7 +349,7 @@ class SignalQualityClassificationConfig(HeartRateBaseConfig):
 
 
 # Quantification
-class ArmSwingQuantificationConfig(GaitBaseConfig):
+class ArmSwingQuantificationConfig(ArmActivityFeatureExtractionConfig):
 
     def __init__(self) -> None:
         super().__init__()

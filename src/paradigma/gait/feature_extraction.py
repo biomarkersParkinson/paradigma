@@ -388,7 +388,7 @@ def pca_transform_gyroscope(
     z_gyro_array = df[DataColumns.GYROSCOPE_Z].to_numpy()
 
     # Filter data based on predicted gait
-    gait_mask = df[config.pred_gait_colname] == 1
+    gait_mask = df[DataColumns.PRED_GAIT] == 1
     y_gyro_gait_array = y_gyro_array[gait_mask]
     z_gyro_gait_array = z_gyro_array[gait_mask]
 
@@ -427,8 +427,8 @@ def compute_angle(
         The output represents the angle, which is always non-negative due to the use of the absolute value.
     """
     # Ensure input is a NumPy array
-    velocity_array = np.asarray(df[config.velocity_colname])
-    time_array = np.asarray(df[config.time_colname])
+    velocity_array = np.asarray(df[DataColumns.VELOCITY])
+    time_array = np.asarray(df[DataColumns.TIME])
 
     # Perform integration and apply absolute value
     angle_array = cumulative_trapezoid(velocity_array, time_array, initial=0)
@@ -459,9 +459,9 @@ def remove_moving_average_angle(
         which accounts for potential drift in the signal.
     """
     window_size = int(2 * (config.sampling_frequency * 0.5) + 1)
-    angle_ma = df[config.angle_colname].rolling(window=window_size, min_periods=1, center=True, closed='both').mean()
+    angle_ma = df[DataColumns.ANGLE].rolling(window=window_size, min_periods=1, center=True, closed='both').mean()
     
-    return df[config.angle_colname] - angle_ma
+    return df[DataColumns.ANGLE] - angle_ma
 
 
 def compute_angle_and_velocity_from_gyro(
@@ -493,24 +493,24 @@ def compute_angle_and_velocity_from_gyro(
         - The second `pd.Series` corresponds to the velocity computed from the gyroscope signal using PCA.
     """
     # Compute the velocity using PCA
-    df[config.velocity_colname] = pca_transform_gyroscope(
+    df[DataColumns.VELOCITY] = pca_transform_gyroscope(
         config=config,
         df=df,
     )
 
     # Integrate angular velocity to obtain the angle
-    df[config.angle_colname] = compute_angle(
+    df[DataColumns.ANGLE] = compute_angle(
         config=config,
         df=df
     )
 
     # Remove moving average from the angle to correct for drift
-    df[config.angle_colname] = remove_moving_average_angle(
+    df[DataColumns.ANGLE] = remove_moving_average_angle(
         config=config,
         df=df
     )
 
-    return df[config.angle_colname], df[config.velocity_colname]
+    return df[DataColumns.ANGLE], df[DataColumns.VELOCITY]
 
 
 def extract_angle_extremes(
@@ -916,7 +916,7 @@ def extract_angle_features(
         fmin=config.spectrum_low_frequency,
         fmax=config.spectrum_high_frequency
     )
-    feature_dict[f'{config.angle_colname}_dominant_frequency'] = dominant_freqs_angle_broad
+    feature_dict[f'{DataColumns.ANGLE}_dominant_frequency'] = dominant_freqs_angle_broad
 
     # Extract extrema (minima and maxima) indices for the angle signal
     angle_extrema_indices, minima_indices, maxima_indices = extract_angle_extremes(
