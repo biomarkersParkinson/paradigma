@@ -189,13 +189,13 @@ def detect_gait(df: pd.DataFrame, config: GaitDetectionConfig, path_to_classifie
     return df
 
 
-def detect_gait_io(path_to_input_features: Union[str, Path], path_to_output: Union[str, Path], path_classifier_input: Union[str, Path], config: GaitDetectionConfig) -> None:
+def detect_gait_io(path_to_input_features: Union[str, Path], path_to_output: Union[str, Path], path_to_classifier_input: Union[str, Path], config: GaitDetectionConfig) -> None:
     
     # Load the data
     metadata_time, metadata_values = read_metadata(path_to_input_features, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
-    df = detect_gait(df, config, path_classifier_input)
+    df = detect_gait(df, config, path_to_classifier_input)
 
     # Prepare the metadata
     metadata_values.file_name = 'gait_values.bin'
