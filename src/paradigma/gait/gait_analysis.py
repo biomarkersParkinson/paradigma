@@ -189,7 +189,7 @@ def detect_gait(df: pd.DataFrame, config: GaitDetectionConfig, path_to_classifie
     return df
 
 
-def detect_gait_io(path_input_features: Union[str, Path], path_output: Union[str, Path], path_classifier_input: Union[str, Path], config: GaitDetectionConfig) -> None:
+def detect_gait_io(path_input_features: Union[str, Path], path_to_output: Union[str, Path], path_classifier_input: Union[str, Path], config: GaitDetectionConfig) -> None:
     
     # Load the data
     metadata_time, metadata_values = read_metadata(path_input_features, config.meta_filename, config.time_filename, config.values_filename)
@@ -207,7 +207,7 @@ def detect_gait_io(path_input_features: Union[str, Path], path_output: Union[str
     metadata_time.channels = [DataColumns.TIME]
     metadata_time.units = ['relative_time_ms']
 
-    write_df_data(metadata_time, metadata_values, path_output, 'gait_meta.json', df)
+    write_df_data(metadata_time, metadata_values, path_to_output, 'gait_meta.json', df)
 
 
 def extract_arm_activity_features(
