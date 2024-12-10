@@ -20,11 +20,14 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str) -> pd.
     df : pd.DataFrame
         The DataFrame containing raw accelerometer and/or gyroscope data.
     config : IMUConfig
-        Configuration object containing various settings, such as time column name, accelerometer and or gyroscope columns,
+        Configuration object containing various settings, such as time column name, accelerometer and/or gyroscope columns,
         filter settings, and sampling frequency.
     sensor: str
-        Name of the sensor data to be preprocessed
-        Options: accelerometer, gyroscope, both
+        Name of the sensor data to be preprocessed. Must be one of:
+        - "accelerometer": Preprocess accelerometer data only.
+        - "gyroscope": Preprocess gyroscope data only.
+        - "both": Preprocess both accelerometer and gyroscope data.
+
     Returns
     -------
     pd.DataFrame
@@ -43,6 +46,16 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str) -> pd.
     - Adjustments for the right-hand side watch are made by flipping the signs of specific columns.
     - If the accelerometer data is in 'm/s^2', it will be converted from 'g' to 'm/s^2' using gravity's constant (9.81 m/s^2).
     """
+
+    # Extract sensor column
+    if sensor == 'accelerometer':
+        values_colnames = config.accelerometer_cols
+    elif sensor == 'gyroscope':
+        values_colnames = config.gyroscope_cols
+    elif sensor == 'both':
+        values_colnames = config.accelerometer_cols + config.gyroscope_cols
+    else:
+        raise('Sensor should be either accelerometer, gyroscope, or both')
     
     # Convert to relative seconds from delta milliseconds
     df[config.time_colname] = transform_time_array(
@@ -50,23 +63,13 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str) -> pd.
         scale_factor=1000, 
         input_unit_type = TimeUnit.DIFFERENCE_MS,
         output_unit_type = TimeUnit.RELATIVE_MS)
-    
-    # Extract sensor column
-    if sensor == 'accelerometer':
-        cols_values = config.accelerometer_cols
-    elif sensor == 'gyroscope':
-        cols_values = config.gyroscope_cols
-    elif sensor == 'both':
-        cols_values = config.accelerometer_cols + config.gyroscope_cols
-    else:
-        raise('Sensor should be either accelerometer, gyroscope, or both')
         
     # Resample the data to the specified frequency
     df = resample_data(
         df=df,
         time_column=config.time_colname,
         time_unit_type=TimeUnit.RELATIVE_MS,
-        values_column_names = cols_values,
+        values_column_names = values_colnames,
         resampling_frequency=config.sampling_frequency)
     
     if sensor in ['gyroscope', 'both']:
@@ -107,9 +110,9 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str) -> pd.
             # Replace or add new columns based on configuration
             df[filter_config["result_columns"]] = filtered_data
 
-        cols_values += config.gravity_cols
+        values_colnames += config.gravity_cols
 
-    df = df[[config.time_colname, *cols_values]]
+    df = df[[config.time_colname, *values_colnames]]
 
     return df
 
