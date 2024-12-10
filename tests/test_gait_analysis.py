@@ -62,7 +62,7 @@ def test_3_gait_detection_output(shared_datadir: Path):
     data_type: str = "gait"
 
     # Temporary path to store the output of the notebook
-    path_to_classifier_input = shared_datadir / '0.classification' / 'gait'
+    path_to_classifier_input = shared_datadir / '0.classification' / data_type
     path_to_feature_input = shared_datadir / input_dir_name / data_type
     path_to_reference_output = shared_datadir / output_dir_name / data_type
     path_to_tested_output = path_to_reference_output / "test-output"
@@ -83,8 +83,8 @@ def test_4_extract_features_arm_activity_output(shared_datadir: Path):
 
     # Temporary path to store the output of the notebook
     path_to_timestamp_input = shared_datadir / input_dir_name / "imu"
-    path_to_prediction_input = shared_datadir / "4.predictions" / "gait"
-    path_to_classifier_input = shared_datadir / "0.classification" / "gait"
+    path_to_prediction_input = shared_datadir / "4.predictions" / data_type
+    path_to_classifier_input = shared_datadir / "0.classification" / data_type
     path_to_reference_output = shared_datadir / output_dir_name / data_type
     path_to_tested_output = path_to_reference_output / "test-output"
 
@@ -104,7 +104,7 @@ def test_5_arm_swing_detection_output(shared_datadir: Path):
     data_type: str = "gait"
 
     # Temporary path to store the output of the notebook
-    path_to_classifier_input = shared_datadir / '0.classification' / 'gait'
+    path_to_classifier_input = shared_datadir / '0.classification' / data_type
     path_to_prediction_input = shared_datadir / input_dir_name / data_type
     path_to_reference_output = shared_datadir / output_dir_name / data_type
     path_to_tested_output = path_to_reference_output / "test-output"
