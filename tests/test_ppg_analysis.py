@@ -43,20 +43,20 @@ def compare_ppg_preprocessing(
     input_dir_name: str = "1.sensor_data"
     output_dir_name: str = "2.preprocessed_data"
 
-    input_path_imu = shared_datadir / input_dir_name / "imu"
-    input_path_ppg = shared_datadir / input_dir_name / "ppg"
-    reference_output_path = shared_datadir / output_dir_name / "ppg"
-    tested_output_path = reference_output_path / "test-output"
+    path_to_imu_input = shared_datadir / input_dir_name / "imu"
+    path_to_ppg_input = shared_datadir / input_dir_name / "ppg"
+    path_to_reference_output = shared_datadir / output_dir_name / "ppg"
+    path_to_tested_output = path_to_reference_output / "test-output"
 
     ppg_config = PPGConfig()
     imu_config = IMUConfig()
     metadatas_ppg, metadatas_imu = scan_and_sync_segments(
-        input_path_ppg, input_path_imu
+        path_to_ppg_input, path_to_imu_input
     )
     preprocess_ppg_data(
-        metadatas_ppg[0], metadatas_imu[0], tested_output_path, ppg_config, imu_config
+        metadatas_ppg[0], metadatas_imu[0], path_to_tested_output, ppg_config, imu_config
     )
-    compare_data(reference_output_path, tested_output_path, binaries_pairs)
+    compare_data(path_to_reference_output, path_to_tested_output, binaries_pairs)
 
 
 # def test_accelerometer_preprocessing(shared_datadir: Path):

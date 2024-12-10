@@ -19,8 +19,8 @@ notebooks_dir: str = "docs/notebooks/gait"
 
 def test_gait_analysis(shared_datadir):
     # Paths
-    reference_output = shared_datadir / '4.predictions' / 'gait'
-    tested_output = reference_output / 'test-output'
+    path_to_reference_output = shared_datadir / '4.predictions' / 'gait'
+    path_to_tested_output = path_to_reference_output / 'test-output'
 
     # Parameters and call
     parameters = dict(
@@ -29,12 +29,12 @@ def test_gait_analysis(shared_datadir):
             path_to_sensor_data = str(shared_datadir / '1.sensor_data' / 'imu'),
             path_to_preprocessed_data = str(shared_datadir / '2.preprocessed_data' / 'gait'),
             path_to_extracted_features = str(shared_datadir / '3.extracted_features' / 'gait'),
-            path_to_predictions = str(tested_output),
+            path_to_predictions = str(path_to_reference_output),
         )
     execute_notebook("gait_analysis", parameters)
 
     # Compare the output
-    compare_data(reference_output, tested_output, arm_swing_binaries_pairs)
+    compare_data(path_to_reference_output, path_to_tested_output, arm_swing_binaries_pairs)
 
 
 def execute_notebook(name: str, parameters: dict[str, str]):

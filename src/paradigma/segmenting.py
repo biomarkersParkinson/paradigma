@@ -127,8 +127,8 @@ def tabulate_windows_legacy(config, df, agg_func='first'):
 
         agg_data = {
             'window_nr': window_nr,
-            'window_start': window[config.time_colname].iloc[0],
-            'window_end': window[config.time_colname].iloc[-1],
+            'window_start': window[DataColumns.TIME].iloc[0],
+            'window_end': window[DataColumns.TIME].iloc[-1],
         }
         
         # Aggregate single-value columns
@@ -190,7 +190,7 @@ def create_segments(config, df: pd.DataFrame):
     # Result: Series([1, 1, 2, 2, 3, 3, 3])
     """
     # Calculate the difference between consecutive time values
-    time_diff = df[config.time_colname].diff().fillna(0.0)
+    time_diff = df[DataColumns.TIME].diff().fillna(0.0)
 
     # Create a boolean mask for where the gap exceeds the threshold
     gap_exceeds = time_diff > config.max_segment_gap_s
@@ -239,7 +239,7 @@ def create_segment_df(config, df: pd.DataFrame):
     # 0           1           0         5
     # 1           2          10        15
     """
-    df_segment_times = df.groupby(config.segment_nr_colname)[config.time_colname].agg(
+    df_segment_times = df.groupby(DataColumns.SEGMENT_NR)[DataColumns.TIME].agg(
         time_start='min',  # Start time (min time in each segment)
         time_end='max'     # End time (max time in each segment)
     ).reset_index()
@@ -298,15 +298,15 @@ def discard_segments(config, df, format='timestamps'):
 
     # Group by segment and filter out small segments in one step
     valid_segment_mask = (
-        df.groupby(config.segment_nr_colname)[config.segment_nr_colname]
+        df.groupby(DataColumns.SEGMENT_NR)[DataColumns.SEGMENT_NR]
         .transform('size') >= min_samples
     )
 
     df = df[valid_segment_mask].copy()
 
     # Reset segment numbers in a single step
-    unique_segments = pd.factorize(df[config.segment_nr_colname])[0] + 1
-    df[config.segment_nr_colname] = unique_segments
+    unique_segments = pd.factorize(df[DataColumns.SEGMENT_NR])[0] + 1
+    df[DataColumns.SEGMENT_NR] = unique_segments
 
     return df
 
