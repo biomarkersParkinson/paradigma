@@ -142,7 +142,7 @@ class TremorBaseConfig(IMUConfig):
 
         self.window_type = 'hann'
         self.window_length_s: float = 4
-        self.window_step_size_s: float = 4
+        self.window_step_length_s: float = 4
 
         self.fmin_tremor_power: float = 3
         self.fmax_tremor_power: float = 7
@@ -155,7 +155,7 @@ class HeartRateBaseConfig(PPGConfig):
         super().__init__()
 
         self.window_length_s: int = 6
-        self.window_step_size_s: int = 1
+        self.window_step_length_s: int = 1
         self.segment_gap_s = 1.5
 
 
@@ -384,7 +384,7 @@ class HeartRateExtractionConfig(HeartRateBaseConfig):
 
          # Parameters for HR analysis
         self.window_length_s: int = 6
-        self.window_step_size_s: int = 1
+        self.window_step_length_s: int = 1
         self.min_hr_samples = min_window_length * self.sampling_frequency
         self.threshold_sqa = 0.5
 
