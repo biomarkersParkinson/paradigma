@@ -472,6 +472,7 @@ def filter_gait_io(path_to_feature_input: Union[str, Path], path_to_classifier_i
 def quantify_arm_swing(df_features: pd.DataFrame, df_predictions: pd.DataFrame, config: ArmSwingQuantificationConfig, path_to_classifier_input: Union[str, Path]) -> pd.DataFrame:
 
     # Expand prediction windows from start time to start time + window length
+    # This is done to ensure that each timestamp has a corresponding probability
     expanded_data = []
     for _, row in df_predictions.iterrows():
         start_time = row[DataColumns.TIME]
@@ -485,7 +486,7 @@ def quantify_arm_swing(df_features: pd.DataFrame, df_predictions: pd.DataFrame, 
     # Aggregate overlapping windows
     df_predictions = expanded_df.groupby(DataColumns.TIME, as_index=False)[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA].mean()
 
-    # Keep only predicted arm swing
+    # Keep only predicted arm swing based on a classification threshold
     filtering_gait_config = FilteringGaitConfig()
     with open(os.path.join(path_to_classifier_input, 'thresholds', filtering_gait_config.thresholds_file_name), 'r') as f:
         classification_threshold = float(f.read())
@@ -500,26 +501,29 @@ def quantify_arm_swing(df_features: pd.DataFrame, df_predictions: pd.DataFrame, 
     # Merge features into predictions
     df_filtered = pd.merge(df_filtered, df_features, on=DataColumns.TIME)
 
-    # create peak angular velocity
+    # Construct peak angular velocity from the forward and backward velocities
     df_filtered.loc[:, DataColumns.PEAK_VELOCITY] = df_filtered.loc[:, [f'forward_peak_{DataColumns.VELOCITY}_mean', f'backward_peak_{DataColumns.VELOCITY}_mean']].mean(axis=1)
     df_filtered = df_filtered.drop(columns=[f'forward_peak_{DataColumns.VELOCITY}_mean', f'backward_peak_{DataColumns.VELOCITY}_mean'])
 
-    # Aggregate arm swing parameters per segment to obtain estimates for varying segment durations
+    # Create segments of predicted gait without other arm activities
     df_segments = df_filtered.copy()
     df_segments[DataColumns.SEGMENT_NR] = create_segments(
         config=config,
         df=df_segments
     )
 
+    # Discard segments that are too short 
     df_segments = discard_segments(
         config=config,
         df=df_segments,
         format='windows'
     )
 
+    # Categorize segments based on segment duration
     df_segments[DataColumns.SEGMENT_CAT] = categorize_segments(df_segments, config, 'windows')
 
-    # Quantify arm swing
+    # Quantify the arm swing using the median and 95th percentile for the range of motion and the peak velocity
+    # of each segment category
     df_segment_cat_aggregates = df_segments.groupby(DataColumns.SEGMENT_CAT).agg({
         DataColumns.RANGE_OF_MOTION: ['median', lambda x: np.percentile(x, 95)],
         DataColumns.PEAK_VELOCITY: ['median', lambda x: np.percentile(x, 95)],
@@ -531,7 +535,7 @@ def quantify_arm_swing(df_features: pd.DataFrame, df_predictions: pd.DataFrame, 
         f'{DataColumns.PEAK_VELOCITY}_median', f'{DataColumns.PEAK_VELOCITY}_95p'
     ]
 
-    # Compute total aggregates (all segments combined)
+    # Compute total aggregates of all segments combined
     total_aggregates = pd.Series({
         f'{DataColumns.RANGE_OF_MOTION}_median': df_segments[DataColumns.RANGE_OF_MOTION].median(),
         f'{DataColumns.RANGE_OF_MOTION}_95p': np.percentile(df_segments[DataColumns.RANGE_OF_MOTION], 95),
