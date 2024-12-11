@@ -112,7 +112,7 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str) -> pd.
 
         values_colnames += config.gravity_cols
 
-    df = df[[config.time_colname, *values_colnames]]
+    df = df[[DataColumns.TIME, *values_colnames]]
 
     return df
 
