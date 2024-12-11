@@ -24,10 +24,10 @@ def test_1_imu_preprocessing_outputs(shared_datadir: Path):
     input_dir_name: str = "1.sensor_data"
     output_dir_name: str = "2.preprocessed_data"
 
-    input_path = shared_datadir / input_dir_name / "imu"
-    reference_output_path = shared_datadir / output_dir_name / "imu"
-    tested_output_path = reference_output_path / "test-output"
+    path_to_imu_input = shared_datadir / input_dir_name / "imu"
+    path_to_reference_output = shared_datadir / output_dir_name / "imu"
+    path_to_tested_output = path_to_reference_output / "test-output"
 
     config = IMUConfig()
-    preprocess_imu_data_io(input_path, tested_output_path, config, sensor='both')
-    compare_data(reference_output_path, tested_output_path, imu_binaries_pairs)
+    preprocess_imu_data_io(path_to_imu_input, path_to_tested_output, config, sensor='both')
+    compare_data(path_to_reference_output, path_to_tested_output, imu_binaries_pairs)

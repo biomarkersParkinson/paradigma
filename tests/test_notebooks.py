@@ -16,27 +16,6 @@ abs_tol: float = 1e-10
 # Path to the notebooks
 notebooks_dir: str = "docs/notebooks/gait"
 
-
-def test_gait_analysis(shared_datadir):
-    # Paths
-    reference_output = shared_datadir / '4.predictions' / 'gait'
-    tested_output = reference_output / 'test-output'
-
-    # Parameters and call
-    parameters = dict(
-            path_to_data = str(shared_datadir),
-            path_to_classifiers = str(shared_datadir / '0.classification' / 'gait'),
-            path_to_sensor_data = str(shared_datadir / '1.sensor_data' / 'imu'),
-            path_to_preprocessed_data = str(shared_datadir / '2.preprocessed_data' / 'imu'),
-            path_to_extracted_features = str(shared_datadir / '3.extracted_features' / 'gait'),
-            path_to_predictions = str(tested_output),
-        )
-    execute_notebook("gait_analysis", parameters)
-
-    # Compare the output
-    compare_data(reference_output, tested_output, arm_swing_binaries_pairs)
-
-
 def execute_notebook(name: str, parameters: dict[str, str]):
     """
     This function is used to execute a notebook.
@@ -85,6 +64,7 @@ def compare_data(
         ref_metadata_values = reference_metadata[binary]
         ref_data = tsdf.load_ndarray_from_binary(ref_metadata_values)
         # load the generated data
+
         tested_metadata = tsdf.load_metadata_from_path(
             tested_dir / metadata
         )

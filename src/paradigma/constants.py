@@ -15,8 +15,9 @@ class DataColumns():
     PPG : str = "green"
     TIME : str = "time"
     SEGMENT_NR : str = "segment_nr"
+    SEGMENT_CAT: str = "segment_category"
 
-    # The following are used in gait analysis
+    # Gait 
     GRAV_ACCELEROMETER_X : str = "accelerometer_x_grav"
     GRAV_ACCELEROMETER_Y : str = "accelerometer_y_grav"
     GRAV_ACCELEROMETER_Z : str = "accelerometer_z_grav"
@@ -27,6 +28,8 @@ class DataColumns():
     ANGLE : str = "angle"
     VELOCITY : str = "velocity"
     DOMINANT_FREQUENCY: str = "dominant_frequency"
+    RANGE_OF_MOTION: str = "range_of_motion"
+    PEAK_VELOCITY: str = "peak_velocity"
 
     # The following are used in tremor analysis
     PRED_TREMOR_PROBA: str = "pred_tremor_proba"

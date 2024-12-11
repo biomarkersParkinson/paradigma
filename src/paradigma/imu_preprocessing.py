@@ -45,8 +45,8 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str) -> pd.
     """
     
     # Convert to relative seconds from delta milliseconds
-    df[config.time_colname] = transform_time_array(
-        time_array=df[config.time_colname],
+    df[DataColumns.TIME] = transform_time_array(
+        time_array=df[DataColumns.TIME],
         scale_factor=1000, 
         input_unit_type = TimeUnit.DIFFERENCE_MS,
         output_unit_type = TimeUnit.RELATIVE_MS)
@@ -64,7 +64,7 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str) -> pd.
     # Resample the data to the specified frequency
     df = resample_data(
         df=df,
-        time_column=config.time_colname,
+        time_column=DataColumns.TIME,
         time_unit_type=TimeUnit.RELATIVE_MS,
         values_column_names = cols_values,
         resampling_frequency=config.sampling_frequency)
@@ -134,7 +134,7 @@ def preprocess_imu_data_io(input_path: Union[str, Path], output_path: Union[str,
     # Store data
     for sensor, units in zip(['accelerometer', 'gyroscope'], ['g', config.rotation_units]):
         if any(sensor in col for col in df.columns):
-            df_sensor = df[[config.time_colname] + [x for x in df.columns if sensor in x]]
+            df_sensor = df[[DataColumns.TIME] + [x for x in df.columns if sensor in x]]
 
             metadata_values.channels = [x for x in df.columns if sensor in x]
             metadata_values.units = list(np.repeat(units, len(metadata_values.channels)))
