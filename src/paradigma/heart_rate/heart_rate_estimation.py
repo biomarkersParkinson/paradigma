@@ -136,11 +136,11 @@ def extract_hr_from_segment(ppg: np.ndarray, tfd_length: int, fs: int, kern_type
             end_idx = len(ppg)
         ppg_segments.append(ppg[start_idx:end_idx])
 
-    hr_est_from_ppg = []
+    hr_est_from_ppg = np.array([])
     for segment in ppg_segments:
     # Calculate the time-frequency distribution
         hr_tfd = extract_hr_with_tfd(segment, fs, kern_type, kern_params)
-        hr_est_from_ppg.extend(hr_tfd)
+        hr_est_from_ppg = np.concatenate((hr_est_from_ppg, hr_tfd))  # Append the HR estimates
 
     return hr_est_from_ppg
 
@@ -176,10 +176,10 @@ def extract_hr_with_tfd(ppg: np.ndarray, fs: int, kern_type: str, kern_params: d
     # Estimate HR by identifying the max frequency in the TFD
     max_freq_indices = np.argmax(tfd, axis=0)
 
-    hr_smooth_tfd = []
+    hr_smooth_tfd = np.array([])
     for i in range(2, int(len(ppg) / fs) - 4, 2):  # Skip the first and last 2 seconds
         relevant_indices = (time_axis >= i) & (time_axis < i + 2)
         avg_frequency = np.mean(freq_axis[max_freq_indices[relevant_indices]])
-        hr_smooth_tfd.append(60 * avg_frequency)  # Convert frequency to BPM
+        hr_smooth_tfd = np.concatenate((hr_smooth_tfd, [60 * avg_frequency]))  # Convert frequency to BPM
 
     return hr_smooth_tfd
