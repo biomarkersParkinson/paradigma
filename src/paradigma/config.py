@@ -361,9 +361,6 @@ class TremorQuantificationConfig(TremorBaseConfig):
     def __init__(self) -> None:
         super().__init__()
 
-        self.valid_day_threshold_hr: float = 0 # change to 10 later!
-        self.daytime_hours_lower_bound: float = 8
-        self.daytime_hours_upper_bound: float = 22
         self.percentile_tremor_power: float = 0.9
 
         self.set_filenames('tremor')
