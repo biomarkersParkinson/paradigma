@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Tuple
 
-from paradigma.heart_rate.heart_rate_analysis_config import HeartRateExtractionConfig
+from paradigma.config import HeartRateExtractionConfig
 from paradigma.heart_rate.tfd import nonsep_gdtfd
 
 def assign_sqa_label(ppg_prob, config: HeartRateExtractionConfig, acc_label=None) -> np.ndarray:
