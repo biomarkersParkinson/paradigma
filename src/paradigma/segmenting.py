@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 
 from typing import List
+from paradigma.constants import DataColumns
 
 
 import numpy as np
@@ -126,8 +127,8 @@ def tabulate_windows_legacy(config, df, agg_func='first'):
 
         agg_data = {
             'window_nr': window_nr,
-            'window_start': window[config.time_colname].iloc[0],
-            'window_end': window[config.time_colname].iloc[-1],
+            'window_start': window[DataColumns.TIME].iloc[0],
+            'window_end': window[DataColumns.TIME].iloc[-1],
         }
         
         # Aggregate single-value columns
@@ -189,7 +190,7 @@ def create_segments(config, df: pd.DataFrame):
     # Result: Series([1, 1, 2, 2, 3, 3, 3])
     """
     # Calculate the difference between consecutive time values
-    time_diff = df[config.time_colname].diff().fillna(0.0)
+    time_diff = df[DataColumns.TIME].diff().fillna(0.0)
 
     # Create a boolean mask for where the gap exceeds the threshold
     gap_exceeds = time_diff > config.max_segment_gap_s
@@ -238,7 +239,7 @@ def create_segment_df(config, df: pd.DataFrame):
     # 0           1           0         5
     # 1           2          10        15
     """
-    df_segment_times = df.groupby(config.segment_nr_colname)[config.time_colname].agg(
+    df_segment_times = df.groupby(DataColumns.SEGMENT_NR)[DataColumns.TIME].agg(
         time_start='min',  # Start time (min time in each segment)
         time_end='max'     # End time (max time in each segment)
     ).reset_index()
@@ -246,7 +247,7 @@ def create_segment_df(config, df: pd.DataFrame):
     return df_segment_times
 
 
-def discard_segments(config, df):
+def discard_segments(config, df, format='timestamps'):
     """
     Remove segments smaller than a specified size and reset segment enumeration.
 
@@ -262,6 +263,8 @@ def discard_segments(config, df):
         - `sampling_frequency`: The sampling frequency in Hz.
     df : pd.DataFrame
         The input DataFrame containing a segment column and time series data.
+    format : str, optional
+        The format of the input data, either 'timestamps' or 'windows'.
 
     Returns
     -------
@@ -286,24 +289,29 @@ def discard_segments(config, df):
     # 4       2     4
     """
     # Minimum segment size in number of samples
-    min_samples = config.min_segment_length_s * config.sampling_frequency
+    if format == 'timestamps':
+        min_samples = config.min_segment_length_s * config.sampling_frequency
+    elif format == 'windows':
+        min_samples = config.min_segment_length_s
+    else:
+        raise ValueError("Invalid format. Must be 'timestamps' or 'windows'.")
 
     # Group by segment and filter out small segments in one step
     valid_segment_mask = (
-        df.groupby(config.segment_nr_colname)[config.segment_nr_colname]
+        df.groupby(DataColumns.SEGMENT_NR)[DataColumns.SEGMENT_NR]
         .transform('size') >= min_samples
     )
 
     df = df[valid_segment_mask].copy()
 
     # Reset segment numbers in a single step
-    unique_segments = pd.factorize(df[config.segment_nr_colname])[0] + 1
-    df[config.segment_nr_colname] = unique_segments
+    unique_segments = pd.factorize(df[DataColumns.SEGMENT_NR])[0] + 1
+    df[DataColumns.SEGMENT_NR] = unique_segments
 
     return df
 
 
-def categorize_segments(df, segment_nr_colname: str, sampling_frequency: float):
+def categorize_segments(df, config, format='timestamps'):
     """
     Categorize segments based on their duration.
 
@@ -321,54 +329,48 @@ def categorize_segments(df, segment_nr_colname: str, sampling_frequency: float):
     ----------
     df : pd.DataFrame
         The input DataFrame containing the segment column with segment numbers.
-    segment_nr_colname : str
-        The name of the column containing the segment numbers.
-    sampling_frequency : float
-        The sampling frequency of the data in Hz, used to calculate segment durations.
+    config : object
+        A configuration object containing `sampling_frequency`.
+    format : str, optional
+        The format of the input data, either 'timestamps' or 'windows'.
 
     Returns
     -------
     pd.Series
-        A Series containing the category for each segment, with categories:
-        - 1 for segments < 5 seconds
-        - 2 for segments between 5 and 10 seconds
-        - 3 for segments between 10 and 20 seconds
-        - 4 for segments > 20 seconds
-
-    Example
-    -------
-    df = pd.DataFrame({
-        'segment': [1, 1, 2, 2, 3, 3, 3],
-        'time': [0, 1, 2, 3, 4, 5, 6]
-    })
-    categorized = categorize_segments(df, 'segment', sampling_frequency=1)
-    # Result:
-    # segment
-    # 1    1
-    # 1    1
-    # 2    2
-    # 2    2
-    # 3    3
-    # 3    3
-    # 3    3
+        A Series containing the category for each segment:
+        - 'short' for segments < 5 seconds
+        - 'moderately_long' for segments between 5 and 10 seconds
+        - 'long' for segments between 10 and 20 seconds
+        - 'very_long' for segments > 20 seconds
     """
-    # Calculate the number of rows corresponding to 5, 10, and 20 seconds
-    short_segments_max_duration = 5 * sampling_frequency  # 5 seconds 
-    moderately_long_segments_max_duration = 10 * sampling_frequency  # 10 seconds
-    long_segments_max_duration = 20 * sampling_frequency  # 20 seconds 
+    # Define duration thresholds in seconds
+    d_max_duration = {
+        'short': 5,
+        'moderately_long': 10,
+        'long': 20
+    }
+    
+    # Convert thresholds to rows if format is 'timestamps'
+    if format == 'timestamps':
+        d_max_duration = {k: v * config.sampling_frequency for k, v in d_max_duration.items()}
+
+    # Count rows per segment
+    segment_sizes = df[DataColumns.SEGMENT_NR].value_counts()
+
+    # Convert segment sizes to duration in seconds
+    if format == 'windows':
+        segment_sizes *= config.window_step_length_s
 
     # Group by the segment column and apply the categorization
     def categorize(segment_size):
-        if segment_size < short_segments_max_duration:
-            return 1
-        elif segment_size < moderately_long_segments_max_duration:
-            return 2
-        elif segment_size < long_segments_max_duration:
-            return 3
+        if segment_size < d_max_duration['short']:
+            return 'short'
+        elif segment_size < d_max_duration['moderately_long']:
+            return 'moderately_long'
+        elif segment_size < d_max_duration['long']:
+            return 'long'
         else:
-            return 4
+            return 'very_long'
 
-    # Create the new category column
-    segment_sizes = df[segment_nr_colname].value_counts().sort_index()
-
-    return df[segment_nr_colname].map(segment_sizes).apply(categorize)
+    # Apply categorization to the DataFrame
+    return df[DataColumns.SEGMENT_NR].map(segment_sizes).map(categorize)

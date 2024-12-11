@@ -38,7 +38,7 @@ def extract_tremor_features_io(input_path: Union[str, Path], output_path: Union[
 
     # Store data
     end_iso8601 = get_end_iso8601(start_iso8601=metadata_time.start_iso8601,
-                                  window_length_seconds=int(df_windowed[config.time_colname][-1:].values[0] + config.window_length_s))
+                                  window_length_seconds=int(df_windowed[DataColumns.TIME][-1:].values[0] + config.window_length_s))
 
     metadata_values.end_iso8601 = end_iso8601
     metadata_values.file_name = 'tremor_values.bin'
@@ -103,7 +103,7 @@ def detect_tremor_io(input_path: Union[str, Path], output_path: Union[str, Path]
     metadata_values.channels = list(config.d_channels_values.keys())
     metadata_values.units = list(config.d_channels_values.values())
 
-    metadata_time.channels = [config.time_colname]
+    metadata_time.channels = [DataColumns.TIME]
     metadata_time.units = ['relative_time_ms']
 
     write_df_data(metadata_time, metadata_values, output_path, 'tremor_meta.json', df)
