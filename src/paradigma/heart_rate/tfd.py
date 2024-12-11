@@ -33,9 +33,76 @@ def nonsep_gdtfd(x, kern_type=None, kern_params=None):
         Input signal to be analyzed.
     kern_type : str, optional
         Type of kernel to be used for TFD computation. Default is None.
-    kern_params : list, optional
-        List of parameters specific to the kernel type. Default is None.
+        Currently supported kernels are:
+            wvd  - kernel for Wigner-Ville distribution
+            swvd - kernel for smoothed Wigner-Ville distribution
+                   (lag-independent kernel)
+            pwvd - kernel for pseudo Wigner-Ville distribution
+                   (Doppler-independent kernel)
+            sep  - kernel for separable kernel (combintation of SWVD and PWVD)
 
+kern_params : dict, optional
+    Dictionary of parameters specific to the kernel type. Default is None.
+    The structure of the dictionary depends on the selected kernel type:
+        - wvd:
+          An empty dictionary, as no additional parameters are required.
+        - swvd:
+          Dictionary with the following keys:
+            'win_length': Length of the smoothing window.
+            'win_type': Type of window function (e.g., 'hamm', 'hann').
+            'win_param' (optional): Additional parameters for the window.
+            'win_param2' (optional): 0 for time-domain window or 1 for Doppler-domain window.
+
+        Example:
+          ```python
+          kern_params = {
+              'win_length': 11,
+              'win_type': 'hamm',
+              'win_param': 0,
+              'domain': 1
+          }
+          ```
+        - pwvd:
+          Dictionary with the following keys:
+            'win_length': Length of the smoothing window.
+            'win_type': Type of window function (e.g., 'cosh').
+            'win_param' (optional): Additional parameters for the window.
+            'win_param2' (optional): 0 for time-domain window or 1 for Doppler-domain window.
+          Example:
+          ```python
+          kern_params = {
+              'win_length': 200,
+              'win_type': 'cosh',
+              'win_param': 0.1
+          }
+          ```
+        - sep:
+          Dictionary containing two nested dictionaries, one for the Doppler window and one for the lag window:
+            'doppler': {
+                'win_length': Length of the Doppler-domain window.
+                'win_type': Type of Doppler-domain window function.
+                'win_param' (optional): Additional parameters for the Doppler window.
+                'win_param2' (optional): 0 for time-domain window or 1 for Doppler-domain window.
+            }
+            'lag': {
+                'win_length': Length of the lag-domain window.
+                'win_type': Type of lag-domain window function.
+                'win_param' (optional): Additional parameters for the lag window.
+                'win_param2' (optional): 0 for time-domain window or 1 for Doppler-domain window.
+            }
+          Example:
+          ```python
+          kern_params = {
+              'doppler': {
+                  'win_length': doppler_samples,
+                  'win_type': win_type_doppler,
+              },
+              'lag': {
+                  'win_length': lag_samples,
+                  'win_type': win_type_lag,
+              }
+          }
+          ```
     Returns:
     --------
     tfd : ndarray
@@ -158,7 +225,7 @@ def multiply_kernel_signal(tfd, kern_type, kern_params, N, Nh):
         Time-frequency distribution.
     kern_type : str
         Kernel type to be applied.
-    kern_params : list
+    kern_params : dict
         Kernel parameters specific to the kernel type.
     N : int
         Length of the signal.
@@ -195,7 +262,7 @@ def gen_doppler_lag_kern(kern_type, kern_params, N, lag_index):
     -----------
     kern_type : str
         Type of kernel (e.g., 'wvd', 'swvd', 'pwvd', etc.).
-    kern_params : list
+    kern_params : dict
         Parameters for the kernel.
     N : int
         Signal length.
@@ -209,16 +276,13 @@ def gen_doppler_lag_kern(kern_type, kern_params, N, lag_index):
     """
     g = np.zeros(N, dtype=complex)  # Initialize the kernel
 
-    if not isinstance(kern_params, list):
-        kern_params = [kern_params]  # Ensure parameters are in a list
-
     # Get kernel based on the type
     g = get_kern(g, lag_index, kern_type, kern_params, N)
 
     return np.real(g) # All kernels are real valued
 
 
-def get_kern(g, lag_index, kernel_type, kernel_params, N):
+def get_kern(g, lag_index, kern_type, kern_params, N):
     """
     Get the kernel based on the provided kernel type.
 
@@ -228,9 +292,9 @@ def get_kern(g, lag_index, kernel_type, kernel_params, N):
         Kernel to be filled.
     lag_index : int
         Lag index.
-    kernel_type : str
+    kern_type : str
         Type of kernel ('wvd', 'swvd', 'pwvd', 'sep').
-    kernel_params : list
+    kern_params : dict
         Parameters for the kernel.
     N : int
         Signal length.
@@ -240,19 +304,20 @@ def get_kern(g, lag_index, kernel_type, kernel_params, N):
     g : ndarray
         Kernel function at the current lag.
     """
-    l = len(kernel_params)
+    l = len(kern_params)
 
-    if kernel_type == 'wvd':
+    if kern_type == 'wvd':
         g[:] = 1 # WVD kernel is the equal to 1 for all lags
 
-    elif kernel_type == 'swvd':
+    elif kern_type == 'swvd':
+        key = 'lag'  # Key for the lag-independent kernel
         # Smoothed Wigner-Ville Distribution (Lag Independent kernel)
         if l < 2:
             raise ValueError("Need at least two window parameters for SWVD")
-        win_length = kernel_params[0]
-        win_type = kernel_params[1]
-        win_param = kernel_params[2] if l >= 3 else 0
-        win_param2 = kernel_params[3] if l >= 4 else 1
+        win_length = kern_params['win_length']
+        win_type = kern_params['win_type']
+        win_param = kern_params['win_param'] if l >= 3 else 0
+        win_param2 = kern_params['win_param2'] if l >= 4 else 1
 
         G1 = get_window(win_length, win_type, win_param)
         G1 = pad_window(G1, N)
@@ -264,14 +329,15 @@ def get_kern(g, lag_index, kernel_type, kernel_params, N):
 
         g[:] = G1 # Assign the window to the kernel
 
-    elif kernel_type == 'pwvd':
+    elif kern_type == 'pwvd':
+        key = 'doppler'
         # Pseudo-Wigner-Ville Distribution (Doppler Independent kernel)
         if l < 2:
             raise ValueError("Need at least two window parameters for PWVD") 
-        win_length = kernel_params[0]  
-        win_type = kernel_params[1] 
-        win_param = kernel_params[2] if l >= 3 else 0
-        win_param2 = kernel_params[3] if l >= 4 else 0
+        win_length = kern_params['win_length']
+        win_type = kern_params['win_type']
+        win_param = kern_params['win_param'] if l >= 3 else 0
+        win_param2 = kern_params['win_param2'] if l >= 4 else 0
 
         G2 = get_window(win_length, win_type, win_param) # Generate the window, same per lag iteration
         G2 = pad_window(G2, N)      # Zero-pad the window to the length of the signal
@@ -279,18 +345,18 @@ def get_kern(g, lag_index, kernel_type, kernel_params, N):
 
         g[:] = G2 # Assign the window to the kernel
 
-    elif kernel_type == 'sep':
+    elif kern_type == 'sep':
         # Separable Kernel
         g1 = np.copy(g)  # Create a new array for g1
         g2 = np.copy(g)  # Create a new array for g2
         
         # Call recursively to obtain g1 and g2 kernels (no in-place modification of g)
-        g1 = get_kern(g1, lag_index, 'swvd', kernel_params[0], N) # Generate the first kernel
-        g2 = get_kern(g2, lag_index, 'pwvd', kernel_params[1], N) # Generate the second kernel
+        g1 = get_kern(g1, lag_index, 'swvd', kern_params['lag'], N) # Generate the first kernel
+        g2 = get_kern(g2, lag_index, 'pwvd', kern_params['doppler'], N) # Generate the second kernel
         g = g1 * g2 # Multiply the two kernels to obtain the separable kernel
 
     else:
-        raise ValueError(f"Unknown kernel type: {kernel_type}")
+        raise ValueError(f"Unknown kernel type: {kern_type}")
 
     return g
 
@@ -485,5 +551,3 @@ def compute_tfd(N, Nh, tfd):
     tfd = tfd / N  # Normalize the TFD
     tfd = tfd.transpose()  # Transpose the TFD to have the time on the x-axis and frequency on the y-axis   
     return tfd
-
-

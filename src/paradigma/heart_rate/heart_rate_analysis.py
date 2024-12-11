@@ -117,10 +117,11 @@ def estimate_heart_rate(df: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame, con
     v_start_idx, v_end_idx = extract_hr_segments(sqa_label, config.min_hr_samples)
     
     fs = config.sampling_frequency
-    v_hr_ppg = []
-    t_hr_unix = []
 
-    for start_idx, end_idx in zip(v_start_idx, end_idx):
+    v_hr_rel = np.array([])
+    t_hr_rel = np.array([])
+
+    for start_idx, end_idx in zip(v_start_idx, v_end_idx):
         # Skip if the epoch cannot be extended by 2s on both sides
         if start_idx < 2 * fs or end_idx > len(df_ppg_preprocessed) - 2 * fs:
             continue
@@ -132,13 +133,14 @@ def estimate_heart_rate(df: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame, con
         hr_est = extract_hr_from_segment(extended_ppg_segment, config.tfd_length, fs, config.kern_type, config.kern_params)
 
         # Generate HR estimation time array
-        rel_segment_time = df_ppg_preprocessed.time[start_idx:end_idx]
+        rel_segment_time = df_ppg_preprocessed.time[start_idx:end_idx].values
         n_full_segments = len(rel_segment_time) // config.hr_est_samples
-        hr_time = rel_segment_time[:n_full_segments * config.hr_est_samples : config.hr_est_samples]
+        hr_time = rel_segment_time[:n_full_segments * config.hr_est_samples : config.hr_est_samples] # relative time in seconds after the start of the segment
 
-        # Save output
-        v_hr_ppg.append(hr_est)
-        t_hr_unix.append(hr_time)
+        # Concatenate HR estimations and times
+        v_hr_rel = np.concatenate((v_hr_rel, hr_est))
+        t_hr_rel = np.concatenate((t_hr_rel, hr_time))
 
+    df_hr = pd.DataFrame({"rel_time": t_hr_rel, "heart_rate": v_hr_rel})
 
-    return v_hr_ppg, t_hr_unix
+    return df_hr
