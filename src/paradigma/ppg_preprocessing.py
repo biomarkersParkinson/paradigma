@@ -71,12 +71,16 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
     # Drop the gyroscope columns from the IMU data
     cols_to_drop = df_imu.filter(regex='^rotation_').columns
     df_imu.drop(cols_to_drop, axis=1, inplace=True)
-    df_imu = df_imu.rename(columns={f'acceleration_{a}': f'accelerometer_{a}' for a in ['x', 'y', 'z']})
+    df_acc = df_imu.rename(columns={f'acceleration_{a}': f'accelerometer_{a}' for a in ['x', 'y', 'z']})
+
+    # Apply scale factors to accelerometer data only
+    acc_columns = list(imu_config.d_channels_accelerometer.keys())
+    df_acc[acc_columns] *= metadata_values_imu.scale_factors[:3]
 
     # Transform the time arrays to absolute milliseconds
     start_time_ppg = parse_iso8601_to_datetime(metadata_time_ppg.start_iso8601).timestamp()
-    df_imu[DataColumns.TIME] = paradigma.imu_preprocessing.transform_time_array(
-        time_array=df_imu[DataColumns.TIME],
+    df_acc[DataColumns.TIME] = paradigma.imu_preprocessing.transform_time_array(
+        time_array=df_acc[DataColumns.TIME],
         scale_factor=1000, 
         input_unit_type = TimeUnit.DIFFERENCE_MS,
         output_unit_type = TimeUnit.RELATIVE_MS,
@@ -91,16 +95,13 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
         start_time = start_time_imu)
 
     # Extract overlapping segments
-    print("Shape of the original data:", df_ppg.shape, df_imu.shape)
-    df_ppg_overlapping, df_imu_overlapping = extract_overlapping_segments(df_ppg, df_imu)
-    print("Shape of the overlapping segments:", df_ppg_overlapping.shape, df_imu_overlapping.shape)
-
-    # Apply scale factors
-    df_imu_overlapping[list(imu_config.d_channels_imu.keys())] *= metadata_values_imu.scale_factors
-
+    print("Shape of the original data:", df_ppg.shape, df_acc.shape)
+    df_ppg_overlapping, df_acc_overlapping = extract_overlapping_segments(df_ppg, df_acc)
+    print("Shape of the overlapping segments:", df_ppg_overlapping.shape, df_acc_overlapping.shape)
+    
     # Resample accelerometer data
-    df_imu_proc = paradigma.imu_preprocessing.resample_data(
-        df=df_imu_overlapping,
+    df_acc_proc = paradigma.imu_preprocessing.resample_data(
+        df=df_acc_overlapping,
         time_column=DataColumns.TIME,
         time_unit_type=TimeUnit.RELATIVE_MS,
         values_column_names = list(imu_config.d_channels_accelerometer.keys()),
@@ -119,19 +120,19 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
 
         # change to correct units [g]
         if imu_config.acceleration_units == DataUnits.ACCELERATION:
-            df_imu_proc[col] /= 9.81
+            df_acc_proc[col] /= 9.81
 
         for result, side_pass in zip(['filt', 'grav'], ['hp', 'lp']):
-            df_imu_proc[f'{result}_{col}'] = paradigma.imu_preprocessing.butterworth_filter(
-                data=np.array(df_imu_proc[col]),
+            df_acc_proc[f'{result}_{col}'] = paradigma.imu_preprocessing.butterworth_filter(
+                data=np.array(df_acc_proc[col]),
                 order=imu_config.filter_order,
                 cutoff_frequency=imu_config.lower_cutoff_frequency,
                 passband=side_pass,
                 sampling_frequency=imu_config.sampling_frequency,
                 )
 
-        df_imu_proc = df_imu_proc.drop(columns=[col])
-        df_imu_proc = df_imu_proc.rename(columns={f'filt_{col}': col})
+        df_acc_proc = df_acc_proc.drop(columns=[col])
+        df_acc_proc = df_acc_proc.rename(columns={f'filt_{col}': col})
 
     for col in ppg_config.d_channels_ppg.keys():
         df_ppg_proc[f'filt_{col}'] = paradigma.imu_preprocessing.butterworth_filter(
@@ -152,7 +153,7 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
         metadata_values_imu.file_name = 'accelerometer_values.bin'
         metadata_time_imu.units = [TimeUnit.ABSOLUTE_MS]
         metadata_time_imu.file_name = 'accelerometer_time.bin'
-        write_df_data(metadata_time_imu, metadata_values_imu, output_path, 'accelerometer_meta.json', df_imu_proc)
+        write_df_data(metadata_time_imu, metadata_values_imu, output_path, 'accelerometer_meta.json', df_acc_proc)
 
         metadata_values_ppg.channels = list(ppg_config.d_channels_ppg.keys())
         metadata_values_ppg.units = list(ppg_config.d_channels_ppg.values())
@@ -161,7 +162,7 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
         metadata_time_ppg.file_name = 'PPG_time.bin'
         write_df_data(metadata_time_ppg, metadata_values_ppg, output_path, 'PPG_meta.json', df_ppg_proc)
     
-    return df_ppg_proc, df_imu_proc
+    return df_ppg_proc, df_acc_proc
 
 
 # TODO: ideally something like this should be possible directly in the tsdf library
@@ -288,23 +289,23 @@ def synchronization(ppg_meta, imu_meta):
 
     return segment_ppg_total, segment_imu_total
 
-def extract_overlapping_segments(df_ppg, df_imu, time_column_ppg='time', time_column_imu='time'):
+def extract_overlapping_segments(df_ppg, df_acc, time_column_ppg='time', time_column_imu='time'):
     """
     Extract DataFrames with overlapping data segments between IMU and PPG datasets based on their timestamps.
 
     Parameters:
     df_ppg (pd.DataFrame): DataFrame containing PPG data with a time column in UNIX milliseconds.
-    df_imu (pd.DataFrame): DataFrame containing IMU data with a time column in UNIX milliseconds.
+    df_acc (pd.DataFrame): DataFrame containing IMU accelerometer data with a time column in UNIX milliseconds.
     time_column_ppg (str): Column name of the timestamp in the PPG DataFrame.
     time_column_imu (str): Column name of the timestamp in the IMU DataFrame.
 
     Returns:
-    tuple: Tuple containing two DataFrames (df_ppg_overlapping, df_imu_overlapping) that contain only the data
+    tuple: Tuple containing two DataFrames (df_ppg_overlapping, df_acc_overlapping) that contain only the data
     within the overlapping time segments.
     """
     # Convert UNIX milliseconds to seconds
     ppg_time = df_ppg[time_column_ppg] / 1000  # Convert milliseconds to seconds
-    imu_time = df_imu[time_column_imu] / 1000  # Convert milliseconds to seconds
+    imu_time = df_acc[time_column_imu] / 1000  # Convert milliseconds to seconds
 
     # Determine the overlapping time interval
     start_time = max(ppg_time.iloc[0], imu_time.iloc[0])
@@ -318,6 +319,6 @@ def extract_overlapping_segments(df_ppg, df_imu, time_column_ppg='time', time_co
 
     # Extract overlapping segments from DataFrames
     df_ppg_overlapping = df_ppg.iloc[ppg_start_index:ppg_end_index + 1]
-    df_imu_overlapping = df_imu.iloc[imu_start_index:imu_end_index + 1]
+    df_acc_overlapping = df_acc.iloc[imu_start_index:imu_end_index + 1]
 
-    return df_ppg_overlapping, df_imu_overlapping
+    return df_ppg_overlapping, df_acc_overlapping
