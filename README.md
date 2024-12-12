@@ -18,9 +18,12 @@ And analyses of the following signs:
 * Pulse rate
 
 ## More about ParaDigMa
-The components of ParaDigMa are visually shown in the diagram below. ParaDigMa can best be understood by categorizing the sequential processes:
+The components of ParaDigMa are visually shown in the diagram below.
 
-### Processes
+![Pipeline Architecture](https://raw.githubusercontent.com/biomarkersParkinson/paradigma/update-readme/docs/source/_static/img/pipeline-architecture.png)
+
+ParaDigMa can best be understood by categorizing the sequential processes:
+
 | Process | Description |
 | ---- | ---- |
 | Preprocessing | Ensuring that the sensor data is ready for further processing | 
@@ -29,8 +32,6 @@ The components of ParaDigMa are visually shown in the diagram below. ParaDigMa c
 | Quantification | Selecting specific features of interest |
 | Aggregation | Aggregating the features at a specified time-level |
 
-
-![Pipeline Architecture](https://raw.githubusercontent.com/biomarkersParkinson/paradigma/update-readme/docs/source/_static/img/pipeline-architecture.png)
 
 ## Installation
 
