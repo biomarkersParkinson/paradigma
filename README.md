@@ -1,4 +1,4 @@
-![ParaDigMa logo](https://raw.githubusercontent.com/biomarkersParkinson/paradigma/update-readme/docs/source/_static/img/paradigma-logo-banner.png)
+![ParaDigMa logo](https://github.com/biomarkersParkinson/paradigma/raw/main/docs/source/_static/img/paradigma-logo-banner.png)
 
 | Badges | |
 |:----:|----|
