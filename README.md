@@ -12,16 +12,17 @@ ParaDigMa is a Python package for processing time series data of wrist-worn sens
 * Inertial Measurement Units (accelerometer, gyroscope)
 * Photoplethysmogram (PPG)
 
-And analyses of the following signs:
+And analyses of the following motor and non-motor domains:
 * Gait
 * Tremor
-* Pulse rate
+* Heart Rate
 
 ## More about ParaDigMa
 The components of ParaDigMa are visually shown in the diagram below.
 
 ![Pipeline Architecture](https://raw.githubusercontent.com/biomarkersParkinson/paradigma/update-readme/docs/source/_static/img/pipeline-architecture.png)
 
+#### Processes
 ParaDigMa can best be understood by categorizing the sequential processes:
 
 | Process | Description |
@@ -31,6 +32,16 @@ ParaDigMa can best be understood by categorizing the sequential processes:
 | Classification | Making predictions using developed and validated classifiers | 
 | Quantification | Selecting specific features of interest |
 | Aggregation | Aggregating the features at a specified time-level |
+
+#### Domain requirements
+ParaDigMa can be used to extract aggregations related to a single or multiple domain(s). Each domain has its specific data requirements. Strict requirements for the domain are marked by X, soft requirements (for some additional functionalities) are marked by O.
+
+| | Gait | Tremor | Heart Rate |
+|----------|:-----------:|:-----------:|:-----------:|
+| **Accelerometer** | X | | O | 
+| **Gyroscope** | X | X | | 
+| **PPG** | | | X | 
+
 
 
 ## Installation
