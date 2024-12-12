@@ -18,7 +18,7 @@ And analyses of the following signs:
 * Pulse rate
 
 ## More about ParaDigMa
-The components of ParaDigMa are visually shown in the diagram below. ParaDigMa can best be understood by examining processes (rows) and domains (columns) separately:
+The components of ParaDigMa are visually shown in the diagram below. ParaDigMa can best be understood by categorizing the sequential processes:
 
 ### Processes
 | Process | Description |
@@ -28,13 +28,6 @@ The components of ParaDigMa are visually shown in the diagram below. ParaDigMa c
 | Classification | Making predictions using developed and validated classifiers | 
 | Quantification | Selecting specific features of interest |
 | Aggregation | Aggregating the features at a specified time-level |
-
-### Domains
-| Domain |  
-| ---- | 
-| Gait | 
-| Tremor | 
-| Pulse rate |
 
 
 ![Pipeline Architecture](https://raw.githubusercontent.com/biomarkersParkinson/paradigma/update-readme/docs/source/_static/img/pipeline-architecture.png)
