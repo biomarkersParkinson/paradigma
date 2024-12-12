@@ -374,7 +374,7 @@ class HeartRateExtractionConfig(HeartRateBaseConfig):
 
          # Parameters for HR analysis
         self.window_overlap_s = self.window_length_s - self.window_step_size_s
-        self.min_hr_samples = min_window_length * self.sampling_frequency
+        self.min_hr_samples = int(min_window_length * self.sampling_frequency)
         self.threshold_sqa = 0.5
 
         # Heart rate estimation parameters
