@@ -194,6 +194,15 @@ def transform_time_array(
     - The transformation allows for scaling of the time array, converting between time unit types (e.g., relative, absolute, or difference).
     - When converting to `TimeUnit.RELATIVE_MS`, the function calculates the relative time starting from the provided or default start time.
     """
+    if input_units == output_units:
+        scale_factor = 1
+    elif input_units == 's' and output_units == 'ms':
+        scale_factor = 1e3
+    elif input_units == 'ms' and output_units == 's':
+        scale_factor = 1 / 1e3
+    else:
+        raise ValueError(f"Unsupported time units conversion: {input_units} to {output_units}")
+    
     # Transform to relative time (`TimeUnit.RELATIVE_MS`) 
     if input_unit_type == TimeUnit.DIFFERENCE:
     # Convert a series of differences into cumulative sum to reconstruct original time series.
@@ -215,7 +224,8 @@ def transform_time_array(
     elif output_unit_type == TimeUnit.RELATIVE:
         # The array is already in relative format, do nothing.
         pass
-    return time_array
+
+    return time_array * scale_factor
 
 
 def convert_units_accelerometer(data: np.ndarray, units: str) -> np.ndarray:

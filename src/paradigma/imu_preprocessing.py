@@ -56,19 +56,12 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str) -> pd.
         values_colnames = config.accelerometer_cols + config.gyroscope_cols
     else:
         raise('Sensor should be either accelerometer, gyroscope, or both')
-    
-    # Convert to relative seconds from delta milliseconds
-    df[DataColumns.TIME] = transform_time_array(
-        time_array=df[DataColumns.TIME],
-        scale_factor=1000, 
-        input_unit_type = TimeUnit.DIFFERENCE_MS,
-        output_unit_type = TimeUnit.RELATIVE_MS)
         
     # Resample the data to the specified frequency
     df = resample_data(
         df=df,
         time_column=DataColumns.TIME,
-        time_unit_type=TimeUnit.RELATIVE_MS,
+        time_unit_type=TimeUnit.RELATIVE,
         values_column_names = values_colnames,
         resampling_frequency=config.sampling_frequency)
     
@@ -110,13 +103,6 @@ def preprocess_imu_data_io(input_path: Union[str, Path], output_path: Union[str,
                                                     str(config.time_filename), str(config.values_filename))
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
-    # Rename columns
-    df = df.rename(columns={f'rotation_{a}': f'gyroscope_{a}' for a in ['x', 'y', 'z']})
-    df = df.rename(columns={f'acceleration_{a}': f'accelerometer_{a}' for a in ['x', 'y', 'z']})
-
-    # Apply scale factors 
-    df[list(config.d_channels_imu.keys())] *= metadata_values.scale_factors
-
     # Preprocess data
     df = preprocess_imu_data(df=df, config=config, sensor=sensor)
 
@@ -134,67 +120,6 @@ def preprocess_imu_data_io(input_path: Union[str, Path], output_path: Union[str,
             metadata_time.units = ['time_relative_ms']
 
             write_df_data(metadata_time, metadata_values, output_path, f'{sensor}_meta.json', df_sensor)
-
-
-def transform_time_array(
-    time_array: pd.Series,
-    scale_factor: float,
-    input_unit_type: str,
-    output_unit_type: str,
-    start_time: float = 0.0,
-) -> np.ndarray:
-    """
-    Transforms the time array to relative time (when defined in delta time) and scales the values.
-
-    Parameters
-    ----------
-    time_array : pd.Series
-        The time array in milliseconds to transform.
-    scale_factor : float
-        The scale factor to apply to the time array.
-    input_unit_type : str
-        The time unit type of the input time array. Raw PPP data was in `TimeUnit.DIFFERENCE_MS`.
-    output_unit_type : str
-        The time unit type of the output time array. The processing is often done in `TimeUnit.RELATIVE_MS`.
-    start_time : float, optional
-        The start time of the time array in UNIX milliseconds (default is 0.0)
-
-    Returns
-    -------
-    np.ndarray
-        The transformed time array in milliseconds, with the specified time unit type.
-
-    Notes
-    -----
-    - The function handles different time units (`TimeUnit.DIFFERENCE_MS`, `TimeUnit.ABSOLUTE_MS`, `TimeUnit.RELATIVE_MS`).
-    - The transformation allows for scaling of the time array, converting between time unit types (e.g., relative, absolute, or difference).
-    - When converting to `TimeUnit.RELATIVE_MS`, the function calculates the relative time starting from the provided or default start time.
-    """
-    # Scale time array and transform to relative time (`TimeUnit.RELATIVE_MS`) 
-    if input_unit_type == TimeUnit.DIFFERENCE_MS:
-    # Convert a series of differences into cumulative sum to reconstruct original time series.
-        time_array = np.cumsum(np.double(time_array)) / scale_factor
-    elif input_unit_type == TimeUnit.ABSOLUTE_MS:
-        # Set the start time if not provided.
-        if np.isclose(start_time, 0.0, rtol=1e-09, atol=1e-09):
-            start_time = time_array[0]
-        # Convert absolute time stamps into a time series relative to start_time.
-        time_array = (time_array - start_time) / scale_factor
-    elif input_unit_type == TimeUnit.RELATIVE_MS:
-        # Scale the relative time series as per the scale_factor.
-        time_array = time_array / scale_factor
-
-    # Transform the time array from `TimeUnit.RELATIVE_MS` to the specified time unit type
-    if output_unit_type == TimeUnit.ABSOLUTE_MS:
-        # Converts time array to absolute time by adding the start time to each element.
-        time_array = time_array + start_time
-    elif output_unit_type == TimeUnit.DIFFERENCE_MS:
-        # Creates a new array starting with 0, followed by the differences between consecutive elements.
-        time_array = np.diff(np.insert(time_array, 0, start_time))
-    elif output_unit_type == TimeUnit.RELATIVE_MS:
-        # The array is already in relative format, do nothing.
-        pass
-    return time_array
 
 
 def resample_data(
@@ -244,7 +169,7 @@ def resample_data(
     It requires the input time array to be strictly increasing.
     """
     # Validate that start_time is provided if time_unit_type is 'absolute_ms'
-    if time_unit_type == TimeUnit.ABSOLUTE_MS and start_time == 0.0:
+    if time_unit_type == TimeUnit.ABSOLUTE and start_time == 0.0:
         raise ValueError("start_time is required for absolute time format")
 
     # Extract time and values from DataFrame
