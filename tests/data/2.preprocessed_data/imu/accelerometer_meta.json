@@ -20,7 +20,7 @@
                 "time"
             ],
             "units": [
-                "time_relative_ms"
+                "relative_s"
             ]
         },
         {

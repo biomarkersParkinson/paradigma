@@ -1,6 +1,8 @@
+import json
 import os
 import numpy as np
 import pandas as pd
+from pathlib import Path
 from datetime import timedelta
 from dateutil import parser
 from typing import List, Tuple
@@ -160,12 +162,47 @@ def load_metadata_list(
 
     return metadata_list
 
+# TODO: ideally something like this should be possible directly in the tsdf library
+def extract_meta_from_tsdf_files(tsdf_data_dir : str) -> List[dict]:
+    """
+    For each given TSDF directory, transcribe TSDF metadata contents to a list of dictionaries.
+    
+    Parameters
+    ----------
+    tsdf_data_dir : str
+        Path to the directory containing TSDF metadata files.
+
+    Returns
+    -------
+    List[Dict]
+        List of dictionaries with metadata from each JSON file in the directory.
+
+    Examples
+    --------
+    >>> extract_meta_from_tsdf_files('/path/to/tsdf_data')
+    [{'start_iso8601': '2021-06-27T16:52:20Z', 'end_iso8601': '2021-06-27T17:52:20Z'}, ...]
+    """
+    metas = []
+    
+    # Collect all metadata JSON files in the specified directory
+    meta_list = list(Path(tsdf_data_dir).rglob('*_meta.json'))
+    for meta_file in meta_list:
+        with open(meta_file, 'r') as file:
+            json_obj = json.load(file)
+            meta_data = {
+                'tsdf_meta_fullpath': str(meta_file),
+                'subject_id': json_obj['subject_id'],
+                'start_iso8601': json_obj['start_iso8601'],
+                'end_iso8601': json_obj['end_iso8601']
+            }
+            metas.append(meta_data)
+    
+    return metas
+
 
 def transform_time_array(
     time_array: pd.Series,
-    input_units: str,
     input_unit_type: str,
-    output_units: str,
     output_unit_type: str,
     start_time: float = 0.0,
 ) -> np.ndarray:
@@ -179,7 +216,7 @@ def transform_time_array(
     input_unit_type : str
         The time unit type of the input time array.
     output_unit_type : str
-        The time unit type of the output time array. ParaDigMa expects `TimeUnit.RELATIVE_MS`.
+        The time unit type of the output time array. ParaDigMa expects `TimeUnit.RELATIVE_S`.
     start_time : float, optional
         The start time of the time array in UNIX seconds (default is 0.0)
 
@@ -190,10 +227,13 @@ def transform_time_array(
 
     Notes
     -----
-    - The function handles different time units (`TimeUnit.DIFFERENCE_MS`, `TimeUnit.ABSOLUTE_MS`, `TimeUnit.RELATIVE_MS`).
+    - The function handles different time units (`TimeUnit.RELATIVE_MS`, `TimeUnit.RELATIVE_S`, `TimeUnit.ABSOLUTE_MS`, `TimeUnit.ABSOLUTE_S`, `TimeUnit.DIFFERENCE_MS`, `TimeUnit.DIFFERENCE_S`).
     - The transformation allows for scaling of the time array, converting between time unit types (e.g., relative, absolute, or difference).
     - When converting to `TimeUnit.RELATIVE_MS`, the function calculates the relative time starting from the provided or default start time.
     """
+    input_units = input_unit_type[-2:].lower()
+    output_units = output_unit_type[-2:].lower()
+
     if input_units == output_units:
         scale_factor = 1
     elif input_units == 's' and output_units == 'ms':
@@ -204,10 +244,10 @@ def transform_time_array(
         raise ValueError(f"Unsupported time units conversion: {input_units} to {output_units}")
     
     # Transform to relative time (`TimeUnit.RELATIVE_MS`) 
-    if input_unit_type == TimeUnit.DIFFERENCE:
+    if input_unit_type == TimeUnit.DIFFERENCE_MS or input_unit_type == TimeUnit.DIFFERENCE_S:
     # Convert a series of differences into cumulative sum to reconstruct original time series.
         time_array = np.cumsum(np.double(time_array))
-    elif input_unit_type == TimeUnit.ABSOLUTE:
+    elif input_unit_type == TimeUnit.ABSOLUTE_MS or input_unit_type == TimeUnit.ABSOLUTE_S:
         # Set the start time if not provided.
         if np.isclose(start_time, 0.0, rtol=1e-09, atol=1e-09):
             start_time = time_array[0]
@@ -215,13 +255,13 @@ def transform_time_array(
         time_array = (time_array - start_time) 
 
     # Transform the time array from `TimeUnit.RELATIVE_MS` to the specified time unit type
-    if output_unit_type == TimeUnit.ABSOLUTE:
+    if output_unit_type == TimeUnit.ABSOLUTE_MS or output_unit_type == TimeUnit.ABSOLUTE_S:
         # Converts time array to absolute time by adding the start time to each element.
         time_array = time_array + start_time
-    elif output_unit_type == TimeUnit.DIFFERENCE:
+    elif output_unit_type == TimeUnit.DIFFERENCE_MS or output_unit_type == TimeUnit.DIFFERENCE_S:
         # Creates a new array starting with 0, followed by the differences between consecutive elements.
         time_array = np.diff(np.insert(time_array, 0, start_time))
-    elif output_unit_type == TimeUnit.RELATIVE:
+    elif output_unit_type == TimeUnit.RELATIVE_MS or output_unit_type == TimeUnit.RELATIVE_S:
         # The array is already in relative format, do nothing.
         pass
 
