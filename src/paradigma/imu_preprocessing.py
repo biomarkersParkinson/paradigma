@@ -32,19 +32,12 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str) -> pd.
     -------
     pd.DataFrame
         The preprocessed accelerometer and or gyroscope data with the following transformations:
-        - Renamed columns for accelerometer and gyroscope data.
-        - Transformed time column to relative time in milliseconds.
         - Resampled data at the specified frequency.
-        - Adjustments based on the specified `side_watch` (left/right).
-        - Accelerometer data converted to the correct units, if necessary.
         - Filtered accelerometer data with high-pass and low-pass filtering applied.
     
     Notes
     -----
     - The function applies Butterworth filters to accelerometer data, both high-pass and low-pass.
-    - The time column is converted from delta milliseconds to relative milliseconds.
-    - Adjustments for the right-hand side watch are made by flipping the signs of specific columns.
-    - If the accelerometer data is in 'm/s^2', it will be converted from 'g' to 'm/s^2' using gravity's constant (9.81 m/s^2).
     """
 
     # Extract sensor column

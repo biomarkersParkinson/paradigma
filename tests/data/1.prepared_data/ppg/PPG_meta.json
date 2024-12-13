@@ -19,7 +19,7 @@
                 "time"
             ],
             "units": [
-                "time_relative_s"
+                "time_relative_ms"
             ],
             "data_type": "float"
         },
@@ -30,7 +30,9 @@
             "channels": [
                 "green"
             ],
-            "units": "none"
+            "units": [
+                "none"
+            ]
         }
     ]
 }
