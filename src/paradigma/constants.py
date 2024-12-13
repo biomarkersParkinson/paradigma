@@ -81,11 +81,11 @@ class TimeUnit():
     """
     Class containing the `time` channel unit types in `tsdf`.
     """
-    RELATIVE_MS : str = "relative_ms"
-    """ The time is relative to the start time in milliseconds. """
-    ABSOLUTE_MS : str = "absolute_ms"
-    """ The time is absolute in milliseconds. """
-    DIFFERENCE_MS : str = "difference_ms"
-    """ The time is the difference between consecutive samples in milliseconds. """
+    RELATIVE : str = "relative"
+    """ The time is relative to the start time. """
+    ABSOLUTE : str = "absolute"
+    """ The time is absolute. """
+    DIFFERENCE : str = "difference"
+    """ The time is the difference between consecutive samples. """
 
 UNIX_TICKS_MS: int = 1000

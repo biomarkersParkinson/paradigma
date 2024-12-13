@@ -8,6 +8,8 @@ from typing import List, Tuple
 import tsdf
 from tsdf import TSDFMetadata
 
+from paradigma.constants import DataColumns, TimeUnit
+
 
 def parse_iso8601_to_datetime(date_str):
     return parser.parse(date_str)
@@ -122,6 +124,17 @@ def read_metadata(
     metadata_values = metadata_dict[values_filename]
     return metadata_time, metadata_values
 
+def load_tsdf_dataframe(path_to_data, sensor_name):
+    path_to_sensor_data = os.path.join(path_to_data, sensor_name)
+    meta_filename = f"{sensor_name.upper()}_meta.json"
+    time_filename = f"{sensor_name.upper()}_time.bin"
+    values_filename = f"{sensor_name.upper()}_values.bin"
+
+    metadata_time, metadata_values = read_metadata(path_to_sensor_data, meta_filename, time_filename, values_filename)
+    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
+
+    return df, metadata_time, metadata_values
+
 def load_metadata_list(
     dir_path: str, meta_filename: str, filenames: List[str]
 ) -> List[TSDFMetadata]:
@@ -146,3 +159,139 @@ def load_metadata_list(
         metadata_list.append(metadata_dict[filename])
 
     return metadata_list
+
+
+def transform_time_array(
+    time_array: pd.Series,
+    input_units: str,
+    input_unit_type: str,
+    output_units: str,
+    output_unit_type: str,
+    start_time: float = 0.0,
+) -> np.ndarray:
+    """
+    Transforms the time array to relative time (when defined in delta time) and scales the values.
+
+    Parameters
+    ----------
+    time_array : pd.Series
+        The time array to transform.
+    input_unit_type : str
+        The time unit type of the input time array.
+    output_unit_type : str
+        The time unit type of the output time array. ParaDigMa expects `TimeUnit.RELATIVE_MS`.
+    start_time : float, optional
+        The start time of the time array in UNIX seconds (default is 0.0)
+
+    Returns
+    -------
+    np.ndarray
+        The transformed time array in seconds, with the specified time unit type.
+
+    Notes
+    -----
+    - The function handles different time units (`TimeUnit.DIFFERENCE_MS`, `TimeUnit.ABSOLUTE_MS`, `TimeUnit.RELATIVE_MS`).
+    - The transformation allows for scaling of the time array, converting between time unit types (e.g., relative, absolute, or difference).
+    - When converting to `TimeUnit.RELATIVE_MS`, the function calculates the relative time starting from the provided or default start time.
+    """
+    # Transform to relative time (`TimeUnit.RELATIVE_MS`) 
+    if input_unit_type == TimeUnit.DIFFERENCE:
+    # Convert a series of differences into cumulative sum to reconstruct original time series.
+        time_array = np.cumsum(np.double(time_array))
+    elif input_unit_type == TimeUnit.ABSOLUTE:
+        # Set the start time if not provided.
+        if np.isclose(start_time, 0.0, rtol=1e-09, atol=1e-09):
+            start_time = time_array[0]
+        # Convert absolute time stamps into a time series relative to start_time.
+        time_array = (time_array - start_time) 
+
+    # Transform the time array from `TimeUnit.RELATIVE_MS` to the specified time unit type
+    if output_unit_type == TimeUnit.ABSOLUTE:
+        # Converts time array to absolute time by adding the start time to each element.
+        time_array = time_array + start_time
+    elif output_unit_type == TimeUnit.DIFFERENCE:
+        # Creates a new array starting with 0, followed by the differences between consecutive elements.
+        time_array = np.diff(np.insert(time_array, 0, start_time))
+    elif output_unit_type == TimeUnit.RELATIVE:
+        # The array is already in relative format, do nothing.
+        pass
+    return time_array
+
+
+def convert_units_accelerometer(data: np.ndarray, units: str) -> np.ndarray:
+    """
+    Convert acceleration data to g.
+
+    Parameters
+    ----------
+    data : np.ndarray
+        The acceleration data.
+
+    units : str
+        The unit of the data (currently supports g and m/s^2).
+
+    Returns
+    -------
+    np.ndarray
+        The acceleration data in g.
+
+    """
+    if units == "m/s^2":
+        return data / 9.81
+    elif units == "g":
+        return data
+    else:
+        raise ValueError(f"Unsupported unit: {units}")
+    
+
+def convert_units_gyroscope(data: np.ndarray, units: str) -> np.ndarray:
+    """
+    Convert gyroscope data to deg/s.
+    
+    Parameters
+    ----------
+    data : np.ndarray
+        The gyroscope data.
+        
+    units : str
+        The unit of the data (currently supports deg/s and rad/s).
+        
+    Returns
+    -------
+    np.ndarray
+        The gyroscope data in deg/s.
+        
+    """
+    if units == "deg/s":
+        return data
+    elif units == "rad/s":
+        return np.degrees(data)
+    else:
+        raise ValueError(f"Unsupported unit: {units}")
+    
+
+def invert_watch_side(df: pd.DataFrame, side: str) -> np.ndarray:
+    """
+    Invert the data based on the watch side.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The data.
+    side : str
+        The watch side (left or right).
+
+    Returns
+    -------
+    pd.DataFrame
+        The inverted data.
+
+    """
+    if side not in ["left", "right"]:
+        raise ValueError(f"Unsupported side: {side}")
+    elif side == "right":
+        df[DataColumns.GYROSCOPE_Y] *= -1
+        df[DataColumns.GYROSCOPE_Z] *= -1
+        df[DataColumns.ACCELEROMETER_X] *= -1
+
+    return df

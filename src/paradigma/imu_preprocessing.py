@@ -72,22 +72,8 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str) -> pd.
         values_column_names = values_colnames,
         resampling_frequency=config.sampling_frequency)
     
-    if sensor in ['gyroscope', 'both']:
-        # Flip signs for right-side watch
-        if config.side_watch == 'right':
-            df[DataColumns.GYROSCOPE_Y] *= -1
-            df[DataColumns.GYROSCOPE_Z] *= -1
-
     if sensor in ['accelerometer', 'both']:
-
-        # Flip signs for right-side watch
-        if config.side_watch == 'right':
-            df[DataColumns.ACCELEROMETER_X] *= -1
-
-        # Convert accelerometer data to correct units if necessary
-        if config.acceleration_units == 'm/s^2':
-            df[config.accelerometer_cols] /= 9.81
-        
+      
         # Extract accelerometer data for filtering
         accel_data = df[config.accelerometer_cols].values
 

@@ -21,6 +21,7 @@ pytype = "^2024.4.11"
 # for the record: pytype was installed directly with pip (in the poetry environment),
 # because poetry didn't handle the install for different CPU architectures
 nbstripout = "^0.7.1"
+pyarrow = "^18.1.0"
 
 [tool.poetry.group.testing.dependencies]
 ipykernel = "^6.27.1"
