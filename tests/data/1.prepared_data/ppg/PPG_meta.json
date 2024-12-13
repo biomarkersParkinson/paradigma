@@ -11,9 +11,6 @@
     "bits": 64,
     "sensors": [
         {
-            "scale_factors": [
-                1
-            ],
             "file_name": "PPG_time.bin",
             "channels": [
                 "time"
@@ -24,7 +21,6 @@
             "data_type": "float"
         },
         {
-            "scale_factors": [],
             "data_type": "int",
             "file_name": "PPG_values.bin",
             "channels": [

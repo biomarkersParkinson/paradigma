@@ -231,8 +231,8 @@ def transform_time_array(
     - The transformation allows for scaling of the time array, converting between time unit types (e.g., relative, absolute, or difference).
     - When converting to `TimeUnit.RELATIVE_MS`, the function calculates the relative time starting from the provided or default start time.
     """
-    input_units = input_unit_type[-2:].lower()
-    output_units = output_unit_type[-2:].lower()
+    input_units = input_unit_type.split('_')[-1].lower()
+    output_units = output_unit_type.split('_')[-1].lower()
 
     if input_units == output_units:
         scale_factor = 1

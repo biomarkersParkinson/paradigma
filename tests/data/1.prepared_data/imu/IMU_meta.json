@@ -12,9 +12,6 @@
     "bits": 64,
     "sensors": [
         {
-            "scale_factors": [
-                1
-            ],
             "file_name": "IMU_time.bin",
             "channels": [
                 "time"
@@ -40,8 +37,7 @@
                 "deg/s",
                 "deg/s",
                 "deg/s"
-            ],
-            "scale_factors": []
+            ]
         }
     ]
 }
