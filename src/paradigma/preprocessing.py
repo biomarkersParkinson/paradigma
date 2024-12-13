@@ -1,5 +1,3 @@
-import os
-import json
 import numpy as np
 import pandas as pd
 import tsdf
@@ -9,7 +7,7 @@ from scipy import signal
 from scipy.interpolate import interp1d
 from typing import List, Tuple, Union
 
-from paradigma.constants import DataUnits, TimeUnit, DataColumns
+from paradigma.constants import TimeUnit, DataColumns
 from paradigma.config import PPGConfig, IMUConfig
 from paradigma.util import parse_iso8601_to_datetime, write_df_data, transform_time_array, \
     read_metadata, extract_meta_from_tsdf_files
@@ -18,10 +16,8 @@ from paradigma.util import parse_iso8601_to_datetime, write_df_data, transform_t
 def resample_data(
     df: pd.DataFrame,
     time_column : str,
-    time_unit_type: str,
     values_column_names: List[str],
     resampling_frequency: int,
-    start_time: float = 0.0,
 ) -> pd.DataFrame:
     """
     Resamples IMU data to the specified frequency, scaling values before resampling.
@@ -35,14 +31,10 @@ def resample_data(
         The input DataFrame containing the sensor data.
     time_column : str
         The name of the column containing the time data.
-    time_unit_type : str
-        The time unit type of the time array. This should be 'relative_ms' or 'relative_s'.
     values_column_names : List[str]
         A list of column names that should be resampled.
     resampling_frequency : int
         The frequency to which the data should be resampled (in Hz).
-    start_time : float, optional
-        The start time of the time array. Default is 0.0.
 
     Returns
     -------
@@ -54,7 +46,6 @@ def resample_data(
     ------
     ValueError
         If the time array is not strictly increasing.
-        If the start_time is missing when using absolute time format.
 
     Notes
     -----
@@ -71,7 +62,7 @@ def resample_data(
         raise ValueError("time_abs_array is not strictly increasing")
 
     # Resample the time data using the specified frequency
-    t_resampled = np.arange(start_time, time_abs_array[-1], 1 / resampling_frequency)
+    t_resampled = np.arange(0, time_abs_array[-1], 1 / resampling_frequency)
     
     # Interpolate the data using cubic interpolation
     interpolator = interp1d(time_abs_array, values_array, axis=0, kind="cubic")

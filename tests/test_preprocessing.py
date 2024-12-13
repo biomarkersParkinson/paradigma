@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from paradigma.imu_preprocessing import preprocess_imu_data_io
+from paradigma.preprocessing import preprocess_imu_data_io
 from paradigma.config import IMUConfig
 from test_notebooks import compare_data
 
