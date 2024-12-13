@@ -7,8 +7,6 @@ import numpy as np
 from pathlib import Path
 from typing import Union
 from sklearn.linear_model import LogisticRegression
-from datetime import datetime, timedelta
-from collections import Counter
 from scipy.stats import gaussian_kde
 
 from paradigma.constants import DataColumns
