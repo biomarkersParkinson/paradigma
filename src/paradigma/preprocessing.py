@@ -185,7 +185,6 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str) -> pd.
     df = resample_data(
         df=df,
         time_column=DataColumns.TIME,
-        time_unit_type=TimeUnit.RELATIVE_S,
         values_column_names = values_colnames,
         resampling_frequency=config.sampling_frequency)
     
@@ -449,7 +448,6 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
     df_imu_proc = resample_data(
         df=df_imu_overlapping,
         time_column=DataColumns.TIME,
-        time_unit_type=TimeUnit.RELATIVE_S,
         values_column_names = list(imu_config.d_channels_accelerometer.keys()),
         resampling_frequency=imu_config.sampling_frequency)
 
@@ -457,7 +455,6 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
     df_ppg_proc = resample_data(
         df=df_ppg_overlapping,
         time_column=DataColumns.TIME,
-        time_unit_type=TimeUnit.RELATIVE_S,
         values_column_names = list(ppg_config.d_channels_ppg.keys()),
         resampling_frequency=ppg_config.sampling_frequency)
 

@@ -40,7 +40,7 @@ def compare_ppg_preprocessing(
     binaries_pairs : list[tuple[str, str]]
             The list of pairs of metadata and binary files to compare.
     """
-    input_dir_name: str = "1.sensor_data"
+    input_dir_name: str = "1.prepared_data"
     output_dir_name: str = "2.preprocessed_data"
 
     path_to_imu_input = shared_datadir / input_dir_name / "imu"
