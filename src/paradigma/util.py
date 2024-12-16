@@ -126,13 +126,12 @@ def read_metadata(
     metadata_values = metadata_dict[values_filename]
     return metadata_time, metadata_values
 
-def load_tsdf_dataframe(path_to_data, sensor_name):
-    path_to_sensor_data = os.path.join(path_to_data, sensor_name)
-    meta_filename = f"{sensor_name.upper()}_meta.json"
-    time_filename = f"{sensor_name.upper()}_time.bin"
-    values_filename = f"{sensor_name.upper()}_values.bin"
+def load_tsdf_dataframe(path_to_data, prefix):
+    meta_filename = f"{prefix}_meta.json"
+    time_filename = f"{prefix}_time.bin"
+    values_filename = f"{prefix}_values.bin"
 
-    metadata_time, metadata_values = read_metadata(path_to_sensor_data, meta_filename, time_filename, values_filename)
+    metadata_time, metadata_values = read_metadata(path_to_data, meta_filename, time_filename, values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
     return df, metadata_time, metadata_values
