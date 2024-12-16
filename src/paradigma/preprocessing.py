@@ -20,10 +20,7 @@ def resample_data(
     resampling_frequency: int,
 ) -> pd.DataFrame:
     """
-    Resamples IMU data to the specified frequency, scaling values before resampling.
-
-    This function takes in sensor data, scales the data if scale factors are provided,
-    and resamples the data to a specified frequency using cubic interpolation.
+    Resamples sensor data to a specified frequency using cubic interpolation.
 
     Parameters
     ----------
@@ -142,9 +139,10 @@ def butterworth_filter(
     else:
         raise ValueError("Data must be either 1D or 2D.")
 
+
 def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str) -> pd.DataFrame:
     """
-    Preprocesses IMU data by renaming columns, transforming time units, resampling, and applying filters.
+    Preprocesses IMU data by resampling and applying filters.
 
     Parameters
     ----------

@@ -16,7 +16,7 @@
                 "time"
             ],
             "units": [
-                "time_relative_ms"
+                "relative_s"
             ],
             "data_type": "float"
         },
