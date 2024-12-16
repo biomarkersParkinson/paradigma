@@ -6,36 +6,38 @@
     "metadata_version": "0.1",
     "start_iso8601": "2021-06-27T16:52:20Z",
     "end_iso8601": "2021-06-27T17:04:31Z",
-    "rows": 64459,
+    "rows": 72947,
     "endianness": "little",
     "data_type": "float",
     "bits": 64,
     "sensors": [
         {
-            "scale_factors": [
-                1
-            ],
-            "file_name": "accelerometer_time.bin",
+            "file_name": "IMU_time.bin",
             "channels": [
                 "time"
             ],
             "units": [
-                "absolute_s"
+                "relative_s"
             ]
         },
         {
-            "file_name": "accelerometer_values.bin",
+            "file_name": "IMU_values.bin",
             "channels": [
                 "accelerometer_x",
                 "accelerometer_y",
-                "accelerometer_z"
+                "accelerometer_z",
+                "gyroscope_x",
+                "gyroscope_y",
+                "gyroscope_z"
             ],
             "units": [
-                "m/s^2",
-                "m/s^2",
-                "m/s^2"
-            ],
-            "scale_factors": []
+                "g",
+                "g",
+                "g",
+                "deg/s",
+                "deg/s",
+                "deg/s"
+            ]
         }
     ]
 }
