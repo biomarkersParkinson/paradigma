@@ -14,7 +14,7 @@ from paradigma.config import GaitFeatureExtractionConfig, GaitDetectionConfig, \
 from paradigma.gait.feature_extraction import extract_temporal_domain_features, \
     extract_spectral_domain_features, compute_angle_and_velocity_from_gyro, extract_angle_features
 from paradigma.segmenting import tabulate_windows, create_segments, discard_segments, categorize_segments
-from paradigma.util import get_end_iso8601, write_df_data, read_metadata
+from paradigma.util import get_end_iso8601, write_df_data, read_metadata, WindowedDataExtractor
 
 
 def extract_gait_features(df: pd.DataFrame, config: GaitFeatureExtractionConfig) -> pd.DataFrame:
@@ -57,25 +57,27 @@ def extract_gait_features(df: pd.DataFrame, config: GaitFeatureExtractionConfig)
         If the input DataFrame does not contain the required columns as specified in the configuration or if any step in the feature extraction fails.
     """
     # Group sequences of timestamps into windows
-    window_cols = [DataColumns.TIME] + config.accelerometer_cols + config.gravity_cols
-    data_windowed = tabulate_windows(config, df, window_cols)
+    windowed_cols = [DataColumns.TIME] + config.accelerometer_cols + config.gravity_cols
+    windowed_data = tabulate_windows(config, df, windowed_cols)
 
-    idx_time = window_cols.index(DataColumns.TIME)
-    idx_acc = slice(1, 4)
-    idx_grav = slice(4, 7)
+    extractor = WindowedDataExtractor(windowed_cols)
 
-    # Extract the start time, accelerometer, and gravity data from the windowed data
-    start_time = np.min(data_windowed[:, :, idx_time], axis=1)
-    accel_windowed = data_windowed[:, :, idx_acc]
-    grav_windowed = data_windowed[:, :, idx_grav]
+    idx_time = extractor.get_index(DataColumns.TIME)
+    idx_acc = extractor.get_slice(config.accelerometer_cols)
+    idx_grav = extractor.get_slice(config.gravity_cols)
+
+    # Extract data
+    start_time = np.min(windowed_data[:, :, idx_time], axis=1)
+    windowed_acc = windowed_data[:, :, idx_acc]
+    windowed_grav = windowed_data[:, :, idx_grav]
 
     df_features = pd.DataFrame(start_time, columns=[DataColumns.TIME])
     
     # Compute statistics of the temporal domain signals (mean, std) for accelerometer and gravity
     df_temporal_features = extract_temporal_domain_features(
         config=config, 
-        windowed_acc=accel_windowed,
-        windowed_grav=grav_windowed,
+        windowed_acc=windowed_acc,
+        windowed_grav=windowed_grav,
         grav_stats=['mean', 'std']
     )
 
@@ -86,7 +88,7 @@ def extract_gait_features(df: pd.DataFrame, config: GaitFeatureExtractionConfig)
     df_spectral_features = extract_spectral_domain_features(
         config=config, 
         sensor='accelerometer', 
-        windowed_data=accel_windowed
+        windowed_data=windowed_acc
     )
 
     # Combine the spectral features with the previously computed temporal features
@@ -299,18 +301,16 @@ def extract_arm_activity_features(
     windowed_data = np.concatenate(windowed_data, axis=0)
 
     # Slice columns for accelerometer, gravity, gyroscope, angle, and velocity
-    n_acc_cols = len(config.accelerometer_cols)
-    n_grav_cols = len(config.gravity_cols)
-    n_gyro_cols = len(config.gyroscope_cols)
+    extractor = WindowedDataExtractor(windowed_cols)
 
-    idx_time = windowed_cols.index(DataColumns.TIME)
-    idx_acc = slice(0, n_acc_cols)
-    idx_grav = slice(n_acc_cols, n_acc_cols + n_grav_cols)
-    idx_gyro = slice(n_acc_cols + n_grav_cols, n_acc_cols + n_grav_cols + n_gyro_cols)
-    idx_angle = windowed_cols.index(DataColumns.ANGLE)
-    idx_velocity = windowed_cols.index(DataColumns.VELOCITY)
+    idx_time = extractor.get_index(DataColumns.TIME)
+    idx_acc = extractor.get_slice(config.accelerometer_cols)
+    idx_grav = extractor.get_slice(config.gravity_cols)
+    idx_gyro = extractor.get_slice(config.gyroscope_cols)
+    idx_angle = extractor.get_index(DataColumns.ANGLE)
+    idx_velocity = extractor.get_index(DataColumns.VELOCITY)
 
-    # Extract windows for accelerometer, gravity, gyroscope, angle, and velocity
+    # Extract data
     start_time = np.min(windowed_data[:, :, idx_time], axis=1)
     windowed_acc = windowed_data[:, :, idx_acc]
     windowed_grav = windowed_data[:, :, idx_grav]
