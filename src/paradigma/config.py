@@ -110,13 +110,13 @@ class GaitBaseConfig(IMUConfig):
         self.spectrum_high_frequency: int = int(self.sampling_frequency / 2)
 
         # feature parameters
-        self.mfcc_low_frequency: int = 0
+        self.mfcc_low_frequency: int = self.lower_cutoff_frequency
         self.mfcc_high_frequency: int = 25
         self.mfcc_n_dct_filters: int = 15
         self.mfcc_n_coefficients: int = 12
 
         self.d_frequency_bandwidths: Dict[str, List[float]] = {
-            "power_below_gait": [0.3, 0.7],
+            "power_below_gait": [0.2, 0.7],
             "power_gait": [0.7, 3.5],
             "power_tremor": [3.5, 8],
             "power_above_tremor": [8, 25],
