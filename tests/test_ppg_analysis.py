@@ -2,7 +2,7 @@ from pathlib import Path
 
 from paradigma.heart_rate.heart_rate_analysis import extract_signal_quality_features
 from paradigma.config import PPGConfig, IMUConfig, SignalQualityFeatureExtractionConfig
-from paradigma.ppg_preprocessing import preprocess_ppg_data, scan_and_sync_segments
+from paradigma.preprocessing import preprocess_ppg_data, scan_and_sync_segments
 from test_notebooks import compare_data
 
 
@@ -40,7 +40,7 @@ def compare_ppg_preprocessing(
     binaries_pairs : list[tuple[str, str]]
             The list of pairs of metadata and binary files to compare.
     """
-    input_dir_name: str = "1.sensor_data"
+    input_dir_name: str = "1.prepared_data"
     output_dir_name: str = "2.preprocessed_data"
 
     path_to_imu_input = shared_datadir / input_dir_name / "imu"

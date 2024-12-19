@@ -83,9 +83,15 @@ class TimeUnit():
     """
     RELATIVE_MS : str = "relative_ms"
     """ The time is relative to the start time in milliseconds. """
+    RELATIVE_S : str = "relative_s"
+    """ The time is relative to the start time in seconds. """
     ABSOLUTE_MS : str = "absolute_ms"
     """ The time is absolute in milliseconds. """
+    ABSOLUTE_S : str = "absolute_s"
+    """ The time is absolute in seconds. """
     DIFFERENCE_MS : str = "difference_ms"
     """ The time is the difference between consecutive samples in milliseconds. """
+    DIFFERENCE_S : str = "difference_s"
+    """ The time is the difference between consecutive samples in seconds. """
 
 UNIX_TICKS_MS: int = 1000
