@@ -360,8 +360,8 @@ def inverse_melscale(x: np.ndarray) -> np.ndarray:
 
 
 def pca_transform_gyroscope(
-        config,
         df: pd.DataFrame,
+        pred_colname: str,
 ) -> np.ndarray:
     """
     Apply Principal Component Analysis (PCA) to the y-axis and z-axis of the gyroscope signal 
@@ -374,8 +374,8 @@ def pca_transform_gyroscope(
         DataFrame containing the raw gyroscope data and the predicted gait labels. The gyroscope data should include
         columns for the y-axis and z-axis of the gyroscope, and the predicted gait column (boolean).
         
-    config : object
-        Configuration object containing the column name for the predicted gait (`pred_gait_colname`).
+    pred_colname : str
+        The column name for the predicted gait labels in the DataFrame.
 
     Returns
     -------
@@ -388,24 +388,25 @@ def pca_transform_gyroscope(
     z_gyro_array = df[DataColumns.GYROSCOPE_Z].to_numpy()
 
     # Filter data based on predicted gait
-    gait_mask = df[DataColumns.PRED_GAIT] == 1
-    y_gyro_gait_array = y_gyro_array[gait_mask]
-    z_gyro_gait_array = z_gyro_array[gait_mask]
+    pred_mask = df[pred_colname] == 1
+    y_gyro_pred_array = y_gyro_array[pred_mask]
+    z_gyro_pred_array = z_gyro_array[pred_mask]
 
     # Combine columns for PCA
-    gait_data = np.column_stack((y_gyro_gait_array, z_gyro_gait_array))
+    pred_data = np.column_stack((y_gyro_pred_array, z_gyro_pred_array))
     full_data = np.column_stack((y_gyro_array, z_gyro_array))
 
     pca = PCA(n_components=2, svd_solver='auto', random_state=22)
-    pca.fit(gait_data)
+    pca.fit(pred_data)
     velocity = pca.transform(full_data)[:, 0]  # First principal component
 
     return np.asarray(velocity)
 
 
 def compute_angle(
-        config,
         df: pd.DataFrame,
+        time_colname: str,
+        velocity_colname: str,
     ) -> np.ndarray:
     """
     Apply cumulative trapezoidal integration to extract the angle from the angular velocity (gyroscope signal).
@@ -427,8 +428,8 @@ def compute_angle(
         The output represents the angle, which is always non-negative due to the use of the absolute value.
     """
     # Ensure input is a NumPy array
-    velocity_array = np.asarray(df[DataColumns.VELOCITY])
-    time_array = np.asarray(df[DataColumns.TIME])
+    velocity_array = np.asarray(df[time_colname])
+    time_array = np.asarray(df[velocity_colname])
 
     # Perform integration and apply absolute value
     angle_array = cumulative_trapezoid(velocity_array, time_array, initial=0)
@@ -436,21 +437,24 @@ def compute_angle(
 
 
 def remove_moving_average_angle(
-        config,
         df: pd.DataFrame,
+        angle_colname: str,
+        fs: float,
     ) -> pd.Series:
     """
     Remove the moving average from the angle to account for potential drift in the signal.
     This method subtracts a centered moving average from the angle signal to remove low-frequency drift.
 
     Parameters
-    ----------
-    config : object
-        Configuration object containing the angle column name (`angle_colname`) 
-        and sampling frequency (`sampling_frequency`).
-        
+    ----------        
     df : pd.DataFrame
         DataFrame containing the angle data.
+
+    angle_colname : str
+        The column name for the angle data in the DataFrame.
+
+    fs : float
+        The sampling frequency of the data.
 
     Returns
     -------
@@ -458,10 +462,10 @@ def remove_moving_average_angle(
         The estimated angle after removing the moving average, 
         which accounts for potential drift in the signal.
     """
-    window_size = int(2 * (config.sampling_frequency * 0.5) + 1)
-    angle_ma = df[DataColumns.ANGLE].rolling(window=window_size, min_periods=1, center=True, closed='both').mean()
+    window_size = int(2 * (fs * 0.5) + 1)
+    angle_ma = df[angle_colname].rolling(window=window_size, min_periods=1, center=True, closed='both').mean()
     
-    return df[DataColumns.ANGLE] - angle_ma
+    return df[angle_colname] - angle_ma
 
 
 def compute_angle_and_velocity_from_gyro(
