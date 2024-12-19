@@ -8,9 +8,11 @@ from paradigma.constants import DataColumns
 import numpy as np
 
 def tabulate_windows(
-        config, 
         df: pd.DataFrame, 
-        columns: List[str]
+        columns: List[str],
+        window_length_s: float,
+        window_step_length_s: float,
+        sampling_frequency: int,
     ) -> np.ndarray:
     """
     Split the given DataFrame into overlapping windows of specified length and step size.
@@ -23,13 +25,16 @@ def tabulate_windows(
 
     Parameters
     ----------
-    config : object
-        A configuration object containing `window_length_s` (window length in seconds), 
-        `window_step_length_s` (step size in seconds), and `sampling_frequency` (sampling frequency in Hz).
     df : pd.DataFrame
         The input DataFrame containing the data to be windowed.
     columns : list of str
         A list of column names from the DataFrame that will be used for windowing.
+    window_length_s : float
+        The length of each window in seconds.
+    window_step_length_s : float
+        The step size between consecutive windows in seconds.
+    sampling_frequency : int
+        The sampling frequency of the data in Hz.
 
     Returns
     -------
@@ -54,8 +59,8 @@ def tabulate_windows(
     columns = ['col1', 'col2']
     windows = tabulate_windows(config, df, columns)
     """
-    window_size = int(config.window_length_s * config.sampling_frequency)
-    window_step_size = int(config.window_step_length_s * config.sampling_frequency)
+    window_size = int(window_length_s * sampling_frequency)
+    window_step_size = int(window_step_length_s * sampling_frequency)
     n_columns = len(columns)
 
     data = df[columns].values
