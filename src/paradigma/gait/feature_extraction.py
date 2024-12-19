@@ -361,31 +361,13 @@ def inverse_melscale(x: np.ndarray) -> np.ndarray:
 
 def pca_transform_gyroscope(
         df: pd.DataFrame,
+        y_gyro_colname: str,
+        z_gyro_colname: str,
         pred_colname: str,
 ) -> np.ndarray:
-    """
-    Apply Principal Component Analysis (PCA) to the y-axis and z-axis of the gyroscope signal 
-    to extract the velocity in the arm swing direction. PCA is applied only to the data corresponding 
-    to predicted gait timestamps to maximize the similarity to the velocity in the arm swing direction.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        DataFrame containing the raw gyroscope data and the predicted gait labels. The gyroscope data should include
-        columns for the y-axis and z-axis of the gyroscope, and the predicted gait column (boolean).
-        
-    pred_colname : str
-        The column name for the predicted gait labels in the DataFrame.
-
-    Returns
-    -------
-    np.ndarray
-        1D array of the first principal component corresponding to the angular velocity in the arm swing direction. 
-        This represents the projected gyroscope signal along the primary axis of variation identified by PCA.
-    """
     # Convert gyroscope columns to NumPy arrays
-    y_gyro_array = df[DataColumns.GYROSCOPE_Y].to_numpy()
-    z_gyro_array = df[DataColumns.GYROSCOPE_Z].to_numpy()
+    y_gyro_array = df[y_gyro_colname].to_numpy()
+    z_gyro_array = df[z_gyro_colname].to_numpy()
 
     # Filter data based on predicted gait
     pred_mask = df[pred_colname] == 1
@@ -404,32 +386,9 @@ def pca_transform_gyroscope(
 
 
 def compute_angle(
-        df: pd.DataFrame,
-        time_colname: str,
-        velocity_colname: str,
+        time_array: np.ndarray,
+        velocity_array: np.ndarray,
     ) -> np.ndarray:
-    """
-    Apply cumulative trapezoidal integration to extract the angle from the angular velocity (gyroscope signal).
-    The integration is performed over the given time values to obtain the angle estimation.
-
-    Parameters
-    ----------
-    config : object
-        Configuration object containing the column names for velocity (`velocity_colname`) 
-        and time (`time_colname`).
-        
-    df : pd.DataFrame
-        DataFrame containing the velocity (angular velocity) and time data.
-
-    Returns
-    -------
-    np.ndarray
-        1D array of the estimated angle, derived from integrating the angular velocity over time.
-        The output represents the angle, which is always non-negative due to the use of the absolute value.
-    """
-    # Ensure input is a NumPy array
-    velocity_array = np.asarray(df[time_colname])
-    time_array = np.asarray(df[velocity_colname])
 
     # Perform integration and apply absolute value
     angle_array = cumulative_trapezoid(velocity_array, time_array, initial=0)
@@ -437,35 +396,13 @@ def compute_angle(
 
 
 def remove_moving_average_angle(
-        df: pd.DataFrame,
-        angle_colname: str,
+        angle_array: np.ndarray,
         fs: float,
     ) -> pd.Series:
-    """
-    Remove the moving average from the angle to account for potential drift in the signal.
-    This method subtracts a centered moving average from the angle signal to remove low-frequency drift.
-
-    Parameters
-    ----------        
-    df : pd.DataFrame
-        DataFrame containing the angle data.
-
-    angle_colname : str
-        The column name for the angle data in the DataFrame.
-
-    fs : float
-        The sampling frequency of the data.
-
-    Returns
-    -------
-    pd.Series
-        The estimated angle after removing the moving average, 
-        which accounts for potential drift in the signal.
-    """
     window_size = int(2 * (fs * 0.5) + 1)
-    angle_ma = df[angle_colname].rolling(window=window_size, min_periods=1, center=True, closed='both').mean()
+    angle_ma = np.array(pd.Series(angle_array).rolling(window=window_size, min_periods=1, center=True, closed='both').mean())
     
-    return df[angle_colname] - angle_ma
+    return angle_array - angle_ma
 
 
 def compute_angle_and_velocity_from_gyro(
@@ -518,234 +455,109 @@ def compute_angle_and_velocity_from_gyro(
 
 
 def extract_angle_extremes(
-        config,
-        windowed_angle: np.ndarray,
-        dominant_frequencies: np.ndarray,
+        angle_array: np.ndarray,
+        sampling_frequency: float,
+        max_frequency_activity: float = 1.75,
     ) -> tuple[list[np.ndarray], np.ndarray, np.ndarray]:
-    """
-    Extract angle extrema (minima and maxima) from smoothed angle signals,
-    adhering to specific criteria. This function removes consecutive
-    identical extrema, alternates between minima and maxima, and computes
-    the range of motion for each window of data.
 
-    Parameters
-    ----------
-    config : object
-        Configuration object containing relevant parameters, such as the
-        sampling frequency.
-        
-    windowed_angle : np.ndarray
-        A 2D numpy array of shape (N, M) where N is the number of windows,
-        and M is the number of samples per window. Each row represents a
-        smoothed angle signal for a window.
-
-    Returns
-    -------
-    angle_extrema_indices : list of np.ndarray
-        A list of N numpy arrays, where each array contains the sorted
-        indices of the remaining angle extrema (minima and maxima) for the
-        corresponding window.
-        
-    minima_indices : np.ndarray
-        A 1D numpy array of objects, where each element is a numpy array
-        containing the indices of the minima extrema for the corresponding
-        window after processing.
-        
-    maxima_indices : np.ndarray
-        A 1D numpy array of objects, where each element is a numpy array
-        containing the indices of the maxima extrema for the corresponding
-        window after processing.
-    """
-    distances = config.sampling_frequency * 0.6 / dominant_frequencies
+    distance = sampling_frequency / max_frequency_activity
     prominence = 2  
-    n_windows = windowed_angle.shape[0]
 
     # Find minima and maxima indices for each window
-    minima_indices = [
-        find_peaks(-windowed_angle[i], distance=distances[i], prominence=prominence)[0]
-        for i in range(n_windows)
-    ]
-    maxima_indices = [
-        find_peaks(windowed_angle[i], distance=distances[i], prominence=prominence)[0] 
-        for i in range(n_windows)
-    ]
+    minima_indices = find_peaks(-angle_array, distance=distance, prominence=prominence)[0]
+    maxima_indices = find_peaks(angle_array, distance=distance, prominence=prominence)[0]
 
     minima_indices = np.array(minima_indices, dtype=object)
     maxima_indices = np.array(maxima_indices, dtype=object)
 
-    # Process each window to remove consecutive identical extrema and ensure alternation
-    for window_idx in range(n_windows):
-        i_pks = 0
-        if minima_indices[window_idx].size > 0 and maxima_indices[window_idx].size > 0:
-            if maxima_indices[window_idx][0] > minima_indices[window_idx][0]:
-                # Start with a minimum
-                while i_pks < minima_indices[window_idx].size - 1 and i_pks < maxima_indices[window_idx].size:
-                    if minima_indices[window_idx][i_pks + 1] < maxima_indices[window_idx][i_pks]:
-                        if windowed_angle[window_idx][minima_indices[window_idx][i_pks + 1]] < windowed_angle[window_idx][minima_indices[window_idx][i_pks]]:
-                            minima_indices[window_idx] = np.delete(minima_indices[window_idx], i_pks)
-                        else:
-                            minima_indices[window_idx] = np.delete(minima_indices[window_idx], i_pks + 1)
-                        i_pks -= 1
+    i_pks = 0
+    if minima_indices.size > 0 and maxima_indices.size > 0:
+        if maxima_indices[0] > minima_indices[0]:
+            # Start with a minimum
+            while i_pks < minima_indices.size - 1 and i_pks < maxima_indices.size:
+                if minima_indices[i_pks + 1] < maxima_indices[i_pks]:
+                    if angle_array[minima_indices[i_pks + 1]] < angle_array[minima_indices[i_pks]]:
+                        minima_indices = np.delete(minima_indices, i_pks)
+                    else:
+                        minima_indices = np.delete(minima_indices, i_pks + 1)
+                    i_pks -= 1
 
-                    if i_pks >= 0 and minima_indices[window_idx][i_pks] > maxima_indices[window_idx][i_pks]:
-                        if windowed_angle[window_idx][maxima_indices[window_idx][i_pks]] < windowed_angle[window_idx][maxima_indices[window_idx][i_pks - 1]]:
-                            maxima_indices[window_idx] = np.delete(maxima_indices[window_idx], i_pks)
-                        else:
-                            maxima_indices[window_idx] = np.delete(maxima_indices[window_idx], i_pks - 1)
-                        i_pks -= 1
-                    i_pks += 1
+                if i_pks >= 0 and minima_indices[i_pks] > maxima_indices[i_pks]:
+                    if angle_array[maxima_indices[i_pks]] < angle_array[maxima_indices[i_pks - 1]]:
+                        maxima_indices = np.delete(maxima_indices, i_pks)
+                    else:
+                        maxima_indices = np.delete(maxima_indices, i_pks - 1)
+                    i_pks -= 1
+                i_pks += 1
 
-            elif maxima_indices[window_idx][0] < minima_indices[window_idx][0]:
-                # Start with a maximum
-                while i_pks < maxima_indices[window_idx].size - 1 and i_pks < minima_indices[window_idx].size:
-                    if maxima_indices[window_idx][i_pks + 1] < minima_indices[window_idx][i_pks]:
-                        if windowed_angle[window_idx][maxima_indices[window_idx][i_pks + 1]] < windowed_angle[window_idx][maxima_indices[window_idx][i_pks]]:
-                            maxima_indices[window_idx] = np.delete(maxima_indices[window_idx], i_pks + 1)
-                        else:
-                            maxima_indices[window_idx] = np.delete(maxima_indices[window_idx], i_pks)
-                        i_pks -= 1
+        elif maxima_indices[0] < minima_indices[0]:
+            # Start with a maximum
+            while i_pks < maxima_indices.size - 1 and i_pks < minima_indices.size:
+                if maxima_indices[i_pks + 1] < minima_indices[i_pks]:
+                    if angle_array[maxima_indices[i_pks + 1]] < angle_array[maxima_indices[i_pks]]:
+                        maxima_indices = np.delete(maxima_indices, i_pks + 1)
+                    else:
+                        maxima_indices = np.delete(maxima_indices, i_pks)
+                    i_pks -= 1
 
-                    if i_pks >= 0 and maxima_indices[window_idx][i_pks] > minima_indices[window_idx][i_pks]:
-                        if windowed_angle[window_idx][minima_indices[window_idx][i_pks]] < windowed_angle[window_idx][minima_indices[window_idx][i_pks - 1]]:
-                            minima_indices[window_idx] = np.delete(minima_indices[window_idx], i_pks - 1)
-                        else:
-                            minima_indices[window_idx] = np.delete(minima_indices[window_idx], i_pks)
-                        i_pks -= 1
-                    i_pks += 1
+                if i_pks >= 0 and maxima_indices[i_pks] > minima_indices[i_pks]:
+                    if angle_array[minima_indices[i_pks]] < angle_array[minima_indices[i_pks - 1]]:
+                        minima_indices = np.delete(minima_indices, i_pks - 1)
+                    else:
+                        minima_indices = np.delete(minima_indices, i_pks)
+                    i_pks -= 1
+                i_pks += 1
 
     # Combine remaining extrema and compute range of motion
-    angle_extrema_indices = [
-        np.sort(np.concatenate([minima_indices[window_idx], maxima_indices[window_idx]])) 
-        for window_idx in range(n_windows)
-    ]
+    angle_extrema_indices = np.sort(np.concatenate([minima_indices, maxima_indices]))
 
     return angle_extrema_indices, minima_indices, maxima_indices
 
 
 def compute_range_of_motion(
-        windowed_angle,
-        windowed_extrema_indices,
+        angle_array: np.ndarray,
+        extrema_indices: List[float] | np.ndarray,
 ) -> np.ndarray:
-    """
-    Compute the range of motion (RoM) for each window based on angle extrema.
-
-    Parameters
-    ----------
-    windowed_angle : np.ndarray
-        A 2D numpy array where each row represents a window of angle values.
-
-    windowed_extrema_indices : list of np.ndarray
-        A list where each element contains the indices of the extrema (minima and maxima)
-        for the corresponding window.
-
-    Returns
-    -------
-    np.ndarray
-        A 1D numpy array where each element is the mean range of motion for the corresponding window.
-    """    
     # Extract angle amplitudes (minima and maxima values)
-    angle_amplitudes = [
-        windowed_angle[window_idx][windowed_extrema_indices[window_idx]] for window_idx in range(windowed_angle.shape[0])
-    ]
+    angle_extremas = angle_array[extrema_indices]
 
     # Compute the differences (range of motion) across all windows at once using np.diff
-    range_of_motion = np.asarray([np.abs(np.diff(window)) for window in angle_amplitudes], dtype=object)
+    range_of_motion = np.asarray(np.abs(np.diff(angle_extremas)), dtype=object)
 
-    # Compute the mean range of motion for each window (if no extrema found, the result will be 0)
-    mean_rom = np.array([np.mean(window) if len(window) > 0 else 0 for window in range_of_motion])
-
-    return mean_rom
+    return range_of_motion
 
 
 def compute_peak_angular_velocity(
-    velocity_window: np.ndarray,
+    velocity_array: np.ndarray,
     angle_extrema_indices: List[np.ndarray],
     minima_indices: np.ndarray,
     maxima_indices: np.ndarray,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Calculate the forward and backward peak angular velocities for each window.
 
-    The forward peak velocity is the maximum velocity between a maximum peak 
-    and the next minimum peak, while the backward peak velocity is the maximum 
-    velocity between a minimum peak and the next maximum peak.
-
-    Parameters
-    ----------
-    velocity_window : numpy.ndarray
-        A 2D array of shape (N, M), where N is the number of windows and M is the 
-        number of velocity values per window. Each row represents a window containing 
-        velocity data.
-        
-    angle_extrema_indices : list of np.ndarray
-        A list of N lists, where each list contains the indices of the extrema 
-        (peaks) in the velocity data for the corresponding window.
-        
-    minima_indices : np.ndarray
-       A 1D numpy array of objects, where each element is a numpy array
-        containing the indices of the minima extrema for the corresponding
-        window after processing.
-        
-    maxima_indices : np.ndarray
-        A 1D numpy array of objects, where each element is a numpy array
-        containing the indices of the maxima extrema for the corresponding
-        window after processing.
-
-    Returns
-    -------
-    forward_pav_mean : numpy.ndarray
-        A 1D array containing the mean forward peak velocities for each window.
-        
-    backward_pav_mean : numpy.ndarray
-        A 1D array containing the mean backward peak velocities for each window.
-        
-    forward_pav_std : numpy.ndarray
-        A 1D array containing the standard deviation of forward peak velocities for each window.
-        
-    backward_pav_std : numpy.ndarray
-        A 1D array containing the standard deviation of backward peak velocities for each window.
-    """
     # Initialize lists to store the peak velocities for each window
     forward_pav = []
     backward_pav = []
 
-    for window_idx in range(velocity_window.shape[0]):
-        # Initialize lists for forward and backward peak velocities for the current window
-        window_forward_pav = []  
-        window_backward_pav = [] 
+    if len(minima_indices) == 0 or len(maxima_indices) == 0:
+        raise ValueError("No minima or maxima found in the angle array.")
 
-        if len(minima_indices[window_idx]) > 0 and len(maxima_indices[window_idx]) > 0:
-            # Extract the relevant data for the current window
-            extrema_indices = angle_extrema_indices[window_idx]
-            velocity_array = velocity_window[window_idx]
+    for i in range(len(angle_extrema_indices) - 1):
+        # Get the current and next extrema index
+        current_peak_idx = angle_extrema_indices[i]
+        next_peak_idx = angle_extrema_indices[i + 1]
+        segment = velocity_array[current_peak_idx:next_peak_idx]
 
-            for i in range(len(extrema_indices) - 1):
-                # Get the current and next extrema index
-                current_peak_idx = extrema_indices[i]
-                next_peak_idx = extrema_indices[i + 1]
-                segment = velocity_array[current_peak_idx:next_peak_idx]
-
-                # Check if the current peak is a minimum or maximum and calculate peak velocity accordingly
-                if current_peak_idx in minima_indices[window_idx]:
-                    window_forward_pav.append(np.max(np.abs(segment)))
-                elif current_peak_idx in maxima_indices[window_idx]:
-                    window_backward_pav.append(np.max(np.abs(segment)))
-
-        # Append results of this window to the main lists
-        forward_pav.append(window_forward_pav)
-        backward_pav.append(window_backward_pav)
+        # Check if the current peak is a minimum or maximum and calculate peak velocity accordingly
+        if current_peak_idx in minima_indices:
+            forward_pav.append(np.max(np.abs(segment)))
+        elif current_peak_idx in maxima_indices:
+            backward_pav.append(np.max(np.abs(segment)))
 
     # Convert lists to numpy arrays
-    forward_pav = np.array(forward_pav, dtype=object)
-    backward_pav = np.array(backward_pav, dtype=object)
+    forward_pav = np.array(forward_pav)
+    backward_pav = np.array(backward_pav)
 
-    # Calculate the mean and standard deviation for each window
-    forward_pav_mean = np.array([np.mean(window) if len(window) > 0 else 0 for window in forward_pav])
-    backward_pav_mean = np.array([np.mean(window) if len(window) > 0 else 0 for window in backward_pav])
-    forward_pav_std = np.array([np.std(window) if len(window) > 0 else 0 for window in forward_pav])
-    backward_pav_std = np.array([np.std(window) if len(window) > 0 else 0 for window in backward_pav])
-
-    return forward_pav_mean, backward_pav_mean, forward_pav_std, backward_pav_std
+    return forward_pav, backward_pav
 
 
 def extract_temporal_domain_features(

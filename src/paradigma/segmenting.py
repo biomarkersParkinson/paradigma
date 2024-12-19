@@ -157,48 +157,15 @@ def tabulate_windows_legacy(config, df, agg_func='first'):
     return windowed_df[desired_order]
 
 
-def create_segments(config, df: pd.DataFrame):
-    """
-    Create segments by detecting time gaps using Pandas operations.
-
-    This function divides the input DataFrame into segments by identifying time gaps that 
-    exceed a specified threshold. If the gap between consecutive time points exceeds 
-    `max_segment_gap_s`, a new segment is started. The function returns a series of segment 
-    numbers that correspond to each row in the DataFrame.
-
-    Parameters
-    ----------
-    config : object
-        A configuration object containing `time_colname` (the name of the time column in `df`) 
-        and `max_segment_gap_s` (the maximum gap in seconds that defines a new segment).
-    df : pd.DataFrame
-        The input DataFrame containing the time column specified in `config`.
-
-    Returns
-    -------
-    pd.Series
-        A Pandas Series containing the segment number for each row in the input DataFrame.
-
-    Notes
-    -----
-    - The function assumes that the time column is in ascending order.
-    - If the time difference between consecutive rows exceeds `max_segment_gap_s`, a new segment 
-      is started at that point.
-    - The segment numbering starts at 1, and the same segment number is assigned to rows that are 
-      within the same segment.
-
-    Example
-    -------
-    config = Config(time_colname='time', max_segment_gap_s=2)
-    df = pd.DataFrame({'time': [0, 1, 3, 4, 7, 8, 9]})
-    segments = create_segments(config, df)
-    # Result: Series([1, 1, 2, 2, 3, 3, 3])
-    """
+def create_segments(
+        time_array: np.ndarray,
+        max_segment_gap_s: float,
+    ):
     # Calculate the difference between consecutive time values
-    time_diff = df[DataColumns.TIME].diff().fillna(0.0)
+    time_diff = np.diff(time_array, prepend=0.0)
 
     # Create a boolean mask for where the gap exceeds the threshold
-    gap_exceeds = time_diff > config.max_segment_gap_s
+    gap_exceeds = time_diff > max_segment_gap_s
 
     # Create the segment number based on the cumulative sum of the gap_exceeds mask
     segments = gap_exceeds.cumsum() + 1  # +1 to start enumeration from 1
