@@ -205,11 +205,6 @@ class ArmActivityFeatureExtractionConfig(GaitBaseConfig):
 
         # channels
         self.d_channels_values = {
-            "range_of_motion": "deg",
-            f"forward_peak_{DataColumns.VELOCITY}_mean": DataUnits.ROTATION,
-            f"forward_peak_{DataColumns.VELOCITY}_std": DataUnits.ROTATION,
-            f"backward_peak_{DataColumns.VELOCITY}_mean": DataUnits.ROTATION,
-            f"backward_peak_{DataColumns.VELOCITY}_std": DataUnits.ROTATION,
             f"{self.sensor}_std_norm": DataUnits.GRAVITY,
             f"{self.sensor}_x_grav_mean": DataUnits.GRAVITY,
             f"{self.sensor}_x_grav_std": DataUnits.GRAVITY,
@@ -232,7 +227,6 @@ class ArmActivityFeatureExtractionConfig(GaitBaseConfig):
             f"{self.sensor}_z_power_tremor": "X",
             f"{self.sensor}_z_power_above_tremor": "X",
             f"{self.sensor}_z_dominant_frequency": DataUnits.FREQUENCY,
-            f"{DataColumns.ANGLE}_dominant_frequency": DataUnits.FREQUENCY,
         }
 
         for sensor in ["accelerometer", "gyroscope"]:

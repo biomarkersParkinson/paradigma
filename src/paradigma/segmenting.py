@@ -219,7 +219,13 @@ def create_segment_df(config, df: pd.DataFrame):
     return df_segment_times
 
 
-def discard_segments(config, df, format='timestamps'):
+def discard_segments(
+        df: pd.DataFrame, 
+        segment_nr_colname: str,
+        min_segment_length_s: float,
+        sampling_frequency: int,
+        format: str='timestamps'
+    ) -> pd.DataFrame:
     """
     Remove segments smaller than a specified size and reset segment enumeration.
 
@@ -262,23 +268,23 @@ def discard_segments(config, df, format='timestamps'):
     """
     # Minimum segment size in number of samples
     if format == 'timestamps':
-        min_samples = config.min_segment_length_s * config.sampling_frequency
+        min_samples = min_segment_length_s * sampling_frequency
     elif format == 'windows':
-        min_samples = config.min_segment_length_s
+        min_samples = min_segment_length_s
     else:
         raise ValueError("Invalid format. Must be 'timestamps' or 'windows'.")
 
     # Group by segment and filter out small segments in one step
     valid_segment_mask = (
-        df.groupby(DataColumns.SEGMENT_NR)[DataColumns.SEGMENT_NR]
+        df.groupby(segment_nr_colname)[segment_nr_colname]
         .transform('size') >= min_samples
     )
 
     df = df[valid_segment_mask].copy()
 
     # Reset segment numbers in a single step
-    unique_segments = pd.factorize(df[DataColumns.SEGMENT_NR])[0] + 1
-    df[DataColumns.SEGMENT_NR] = unique_segments
+    unique_segments = pd.factorize(df[segment_nr_colname])[0] + 1
+    df[segment_nr_colname] = unique_segments
 
     return df
 

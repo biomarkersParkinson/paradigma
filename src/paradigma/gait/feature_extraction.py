@@ -518,6 +518,10 @@ def compute_range_of_motion(
         angle_array: np.ndarray,
         extrema_indices: List[float] | np.ndarray,
 ) -> np.ndarray:
+    
+    if not isinstance(extract_angle_extremes, list):
+        extrema_indices = extrema_indices.tolist()
+
     # Extract angle amplitudes (minima and maxima values)
     angle_extremas = angle_array[extrema_indices]
 
@@ -676,10 +680,11 @@ def extract_spectral_domain_features(
     return pd.DataFrame(feature_dict)
 
 
-def extract_angle_features(
-        config,
-        windowed_angle: np.ndarray,
-        windowed_velocity: np.ndarray,
+def quantify_arm_swing(
+        angle_array: np.ndarray,
+        velocity_array: np.ndarray,
+        sampling_frequency: float,
+        max_frequency_activity: float = 1.8,
     ) -> pd.DataFrame:
     """
     Extract angle-related features from windowed angle and velocity data.
@@ -713,52 +718,25 @@ def extract_angle_features(
     # Initialize an empty dictionary to hold the features
     feature_dict = {}
 
-    # Compute the periodogram (power spectral density) of the angle signal
-    freqs, psd = periodogram(windowed_angle, fs=config.sampling_frequency, window=config.window_type, axis=1)
-
-    # Compute dominant frequencies in the angle signal,
-    # which is used when detecting peaks
-    dominant_freqs_angle_narrow = compute_dominant_frequency(
-        psd=psd, 
-        freqs=freqs, 
-        fmin=config.angle_fmin, 
-        fmax=config.angle_fmax
-    )
-
-    # Compute dominant frequencies in the angle signal for a broader frequency range
-    dominant_freqs_angle_broad = compute_dominant_frequency(
-        psd=psd,
-        freqs=freqs,
-        fmin=config.spectrum_low_frequency,
-        fmax=config.spectrum_high_frequency
-    )
-    feature_dict[f'{DataColumns.ANGLE}_dominant_frequency'] = dominant_freqs_angle_broad
-
     # Extract extrema (minima and maxima) indices for the angle signal
     angle_extrema_indices, minima_indices, maxima_indices = extract_angle_extremes(
-        config=config,
-        windowed_angle=windowed_angle,
-        dominant_frequencies=dominant_freqs_angle_narrow,
+        angle_array=angle_array,
+        sampling_frequency=sampling_frequency,
+        max_frequency_activity=max_frequency_activity,
     )
 
     # Calculate range of motion based on extrema indices
     feature_dict['range_of_motion'] = compute_range_of_motion(
-        windowed_angle=windowed_angle,
-        windowed_extrema_indices=angle_extrema_indices,
+        angle_array=angle_array,
+        extrema_indices=list(angle_extrema_indices),
     )
 
     # Compute the forward and backward peak angular velocities
-    forward_peak_velocity_mean, backward_peak_velocity_mean, forward_peak_velocity_std, backward_peak_velocity_std = compute_peak_angular_velocity(
-        velocity_window=windowed_velocity,
+    feature_dict['forward_pav'], feature_dict['backward_pav'] = compute_peak_angular_velocity(
+        velocity_array=velocity_array,
         angle_extrema_indices=angle_extrema_indices,
         minima_indices=minima_indices,
         maxima_indices=maxima_indices,
     )
-
-    # Add the angular velocity features to the dictionary
-    feature_dict['forward_peak_velocity_mean'] = forward_peak_velocity_mean
-    feature_dict['backward_peak_velocity_mean'] = backward_peak_velocity_mean
-    feature_dict['forward_peak_velocity_std'] = forward_peak_velocity_std
-    feature_dict['backward_peak_velocity_std'] = backward_peak_velocity_std
     
-    return pd.DataFrame(feature_dict)
+    return feature_dict
