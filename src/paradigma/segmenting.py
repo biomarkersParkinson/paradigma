@@ -96,7 +96,7 @@ def tabulate_windows_legacy(config, df, agg_func='first'):
         config.list_value_cols = []
 
     window_length = int(config.window_length_s * config.sampling_frequency)
-    window_step_size = int(config.window_step_size_s * config.sampling_frequency)
+    window_step_size = int(config.window_step_length_s * config.sampling_frequency)
 
     n_rows = len(df)
     if window_length > n_rows:

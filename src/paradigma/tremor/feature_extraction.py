@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from scipy import signal
 from paradigma.constants import DataColumns
+from paradigma.gait.feature_extraction import compute_mfccs
 
 def compute_welch_periodogram(
         values: list,
@@ -34,15 +35,52 @@ def compute_welch_periodogram(
         Lists of PSD values and the corresponding frequencies
     """
 
-    segment_length_n = sampling_frequency*segment_length_s
-    overlap_n = segment_length_n*overlap_fraction
-    window = signal.get_window(window_type, segment_length_n,fftbins=False)
-    nfft = sampling_frequency/spectral_resolution
+    segment_length_n = sampling_frequency * segment_length_s
+    overlap_n = segment_length_n * overlap_fraction
+    window = signal.get_window(window_type, segment_length_n, fftbins=False)
+    nfft = sampling_frequency / spectral_resolution
     
     f, Pxx = signal.welch(x=values, fs=sampling_frequency, window=window, nperseg=segment_length_n,
                           noverlap=overlap_n, nfft=nfft, detrend=False, scaling='density')
 
     return f, Pxx
+
+def compute_welch_periodogram_numpy(
+        values: np.ndarray,
+        window: np.ndarray,
+        segment_length_n: int,
+        overlap_n: int,
+        nfft: int,
+        sampling_frequency: int = 100,
+    )-> tuple:
+    """Estimate power spectral density of the gyroscope signal using Welch's method.
+    
+    Parameters
+    ----------
+    values: np.ndarray
+        The values of the signal (e.g., gyroscope data) of a single window.
+    sampling_frequency: int
+        The sampling frequency of the signal (default: 100)
+    window: np.ndarray
+        The window to be used for the PSD
+    segment_length_n: int
+        The length of each segment in samples
+    overlap_n: int
+        The overlap between segments in samples
+    nfft: int
+        The number of points to compute the FFT
+
+    Returns
+    -------
+    tuple
+        Lists of PSD values and the corresponding frequencies
+    """
+    
+    f, Pxx = signal.welch(x=values, fs=sampling_frequency, window=window, nperseg=segment_length_n,
+                          noverlap=overlap_n, nfft=nfft, detrend=False, scaling='density')
+
+    return f, Pxx
+
 
 def signal_to_PSD(
         sensor_col: pd.Series,
@@ -84,6 +122,63 @@ def signal_to_PSD(
             segment_length_s = segment_length_s,
             overlap_fraction = overlap_fraction,
             spectral_resolution = spectral_resolution)
+        values_total.append(values)
+        freqs_total.append(freqs)
+
+    return freqs_total, values_total
+
+
+def signal_to_PSD_numpy(
+        sensor_data: np.ndarray,
+        window_type: str = 'hann',
+        sampling_frequency: int = 100,
+        segment_length_s: float = 3,
+        overlap_fraction: float = 0.8,
+        spectral_resolution: float = 0.25
+    ) -> tuple:
+    """Estimate the power spectral density (Welch's method) of a signal per window.
+
+    Parameters
+    ----------
+    sensor_data: np.ndarray
+        The sensor data to be transformed (one or multiple axes of gyroscope)
+    window_type: str
+        The type of window to be used for the PSD (default: 'hann')
+    sampling_frequency: int
+        The sampling frequency of the signal (default: 100)
+    segment_length_s: float
+        The length of each segment in seconds (default: 3)
+    overlap_fraction: float
+        The overlap between segments as fraction (default: 0.8)
+    spectral_resolution: float
+        The spectral resolution of the PSD in Hz (default: 0.25)
+    
+    Returns
+    -------
+    tuple
+        Lists of PSD values and corresponding frequencies which can be concatenated as column to the dataframe
+    """
+
+    values_total = []
+    freqs_total = []
+
+    # This was previously inside the for loop, but it is the same for all rows
+    # if I'm correct, so I moved it outside the loop
+    segment_length_n = sampling_frequency * segment_length_s
+    overlap_n = segment_length_n * overlap_fraction
+    window = signal.get_window(window_type, segment_length_n, fftbins=False)
+    nfft = sampling_frequency / spectral_resolution
+
+    for row_idx in range(sensor_data.shape[0]):
+        freqs, values = compute_welch_periodogram_numpy(
+            values=sensor_data[row_idx, :, :],
+            sampling_frequency=sampling_frequency,
+            window=window,
+            segment_length_n=segment_length_n,
+            overlap_n=overlap_n,
+            nfft=nfft
+        )
+        
         values_total.append(values)
         freqs_total.append(freqs)
 
@@ -280,6 +375,37 @@ def extract_frequency_peak(
 
     return frequency_peak
 
+def extract_frequency_peak_numpy(
+    total_psd: np.ndarray,
+    freq_vect: np.ndarray,
+    fmin: float = 1,
+    fmax: float = 25
+    ) -> pd.Series:
+
+    """Extract the frequency of the peak in the power spectral density within the specified frequency band.
+    
+    Parameters
+    ----------
+    total_psd: pd.Series
+        The total power spectral density of the gyroscope signal
+    freq_vect: pd.Series
+        Frequency vector corresponding to the power spectral density
+    fmin: float
+        The lower bound of the frequency band in Hz (default: 1)
+    fmax: float
+        The upper bound of the frequency band in Hz (default: 25)
+        
+    Returns
+    -------
+    pd.Series
+        The frequency of the peak across windows
+    """    
+    freq_idx = np.where((freq_vect>=fmin) & (freq_vect<=fmax))
+    peak_idx = np.argmax(total_psd[:, freq_idx], axis=1)
+    frequency_peak = freq_vect[peak_idx] + fmin
+
+    return frequency_peak
+
 def extract_low_freq_power(
     total_psd: pd.Series,
     freq_vect: pd.Series,
@@ -318,6 +444,40 @@ def extract_low_freq_power(
         low_freq_power.append(bandpower)
 
     return low_freq_power
+
+def extract_low_freq_power_numpy(
+    total_psd: np.ndarray,
+    freq_vect: np.ndarray,
+    fmin: float = 0.5,
+    fmax: float = 3,
+    spectral_resolution: float = 0.25
+    ) -> pd.Series:
+
+    """Computes the power in the low frequency power range across windows (for slow arm movement detection).
+    
+    Parameters
+    ----------
+    total_psd: pd.Series
+        The total power spectral density of the gyroscope signal
+    freq_vect: pd.Series
+        Frequency vector corresponding to the power spectral density
+    fmin: float
+        The lower bound of the frequency band in Hz (default: 0.5)
+    fmax: float
+        The upper bound of the frequency band in Hz (default: 3)
+    spectral_resolution: float
+        The spectral resolution of the PSD in Hz (default: 0.25)
+        
+    Returns
+    -------
+    pd.Series
+        The power in the low frequency power range across windows
+    """
+    
+    freq_idx = (freq_vect>=fmin) & (freq_vect<fmax)
+    bandpower = spectral_resolution * np.sum(total_psd[:, freq_idx], axis=1)
+
+    return bandpower
 
 def extract_tremor_power(
     total_psd: pd.Series,
@@ -358,6 +518,50 @@ def extract_tremor_power(
         right_idx = int(peak_idx + 0.5/spectral_resolution)
         peak_power = spectral_resolution*np.sum(psd_window[left_idx:right_idx+1])
         tremor_power.append(peak_power)
+
+    return tremor_power
+
+def extract_tremor_power_numpy(
+    total_psd: np.ndarray,
+    freq_vect: np.ndarray,
+    fmin: float = 3,
+    fmax: float = 7,
+    spectral_resolution: float = 0.25
+    ) -> np.ndarray:
+
+    """Computes the tremor power (1.25 Hz around the peak within the tremor frequency band)
+    
+    Parameters
+    ----------
+    total_psd: pd.Series
+        The total power spectral density of the gyroscope signal
+    freq_vect: pd.Series
+        Frequency vector corresponding to the power spectral density
+    fmin: float
+        The lower bound of the tremor frequency band in Hz (default: 3)
+    fmax: float
+        The upper bound of the tremor frequency band in Hz (default: 7)
+    spectral_resolution: float
+        The spectral resolution of the PSD in Hz (default: 0.25)
+        
+    Returns
+    -------
+    pd.Series
+        The tremor power across windows
+    """
+    
+    freq_idx = (freq_vect>=fmin) & (freq_vect<=fmax)
+    peak_idx = np.argmax(total_psd[:, freq_idx], axis=1) + np.min(np.where(freq_idx)[0])
+    left_idx =  np.maximum((peak_idx - 0.5 / spectral_resolution).astype(int), 0)
+    right_idx = (peak_idx + 0.5 / spectral_resolution).astype(int)
+
+    row_indices = np.arange(total_psd.shape[0])[:, None]
+    left_idx = left_idx[:, None]
+    right_idx = right_idx[:, None]
+
+    mask = (row_indices >= left_idx) & (row_indices <= right_idx)
+
+    tremor_power = spectral_resolution * np.sum(total_psd * mask, axis=0)
 
     return tremor_power
 
@@ -422,6 +626,68 @@ def extract_spectral_domain_features(config, df_windowed):
         fmax = config.fmax_tremor_power,
         spectral_resolution = config.spectral_resolution_psd 
     )
+
+    df_windowed = df_windowed.rename(columns={'window_start': DataColumns.TIME})
+
+    return df_windowed
+
+def extract_spectral_domain_features_numpy(config, data):
+
+    sampling_frequency = 100
+    segment_length_s_psd = 3
+    segment_length_s_mfcc = 2
+    overlap_fraction = 0.8
+    spectral_resolution = 0.25
+    window_type = 'hann'
+
+    segment_length_n = sampling_frequency * segment_length_s_psd
+    overlap_n = segment_length_n * overlap_fraction
+    window = signal.get_window(window_type, segment_length_n, fftbins=False)
+    nfft = sampling_frequency / spectral_resolution
+
+    freqs, psd = signal.welch(
+        x=data, 
+        fs=sampling_frequency, 
+        window=window, 
+        nperseg=segment_length_n,
+        noverlap=overlap_n, 
+        nfft=nfft, 
+        detrend=False, 
+        scaling='density',
+        axis=1
+    )
+
+    segment_length_n = sampling_frequency * segment_length_s_mfcc
+    overlap_n = segment_length_n * overlap_fraction
+    window = signal.get_window(window_type, segment_length_n) # No FFTbins here?
+
+    f, t, S1 = signal.stft(
+        x=data, 
+        fs=sampling_frequency, 
+        window=window, 
+        nperseg=segment_length_n, 
+        noverlap=overlap_n,
+        boundary=None,
+        axis=1
+    )
+
+    total_psd = np.sum(psd, axis=2)
+    total_spectrogram = np.sum(np.abs(S1), axis=2)
+
+    config.mfcc_low_frequency = config.fmin_mfcc
+    config.mfcc_high_frequency = config.fmax_mfcc
+    config.mfcc_n_dct_filters = config.n_dct_filters_mfcc
+    config.mfcc_n_coefficients = config.n_coefficients_mfcc
+
+    mfccs = compute_mfccs(config, total_psd)
+
+    df_features = pd.concat([df_features, pd.DataFrame(mfccs)], axis=1)
+
+    d_spectral_features = {}
+    d_spectral_features['freq_peak'] = extract_frequency_peak_numpy(total_psd, freqs, config.fmin_peak, config.fmax_peak)
+    d_spectral_features['low_freq_power'] = extract_low_freq_power_numpy(total_psd, freqs, config.fmin_low_power, config.fmax_low_power)
+    d_spectral_features['tremor_power'] = extract_tremor_power_numpy(total_psd, freqs, config.fmin_tremor_power, config.fmax_tremor_power)
+
 
     df_windowed = df_windowed.rename(columns={'window_start': DataColumns.TIME})
 
