@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 from scipy import signal
 from paradigma.constants import DataColumns
-from paradigma.gait.feature_extraction import compute_mfccs
 
 def compute_welch_periodogram(
         values: list,
@@ -162,8 +161,6 @@ def signal_to_PSD_numpy(
     values_total = []
     freqs_total = []
 
-    # This was previously inside the for loop, but it is the same for all rows
-    # if I'm correct, so I moved it outside the loop
     segment_length_n = sampling_frequency * segment_length_s
     overlap_n = segment_length_n * overlap_fraction
     window = signal.get_window(window_type, segment_length_n, fftbins=False)
@@ -339,6 +336,68 @@ def generate_mel_frequency_cepstral_coefficients(
 
     return pd.DataFrame(cepstral_coefs_total, columns=['mfcc_{}'.format(j+1) for j in range(n_coefficients)])
 
+def generate_mel_frequency_cepstral_coefficients_numpy(
+        config,
+        total_power_array: np.ndarray,
+        mel_scale: bool = True,
+        ) -> np.ndarray:
+    
+    # Compute window length in samples
+    window_length = config.segment_length_s_mfcc * config.sampling_frequency
+    
+    # Generate filter points
+    if mel_scale:
+        freqs = np.linspace(
+            melscale(config.mfcc_low_frequency), 
+            melscale(config.mfcc_high_frequency), 
+            num=config.mfcc_n_dct_filters + 2
+        )
+        freqs = inverse_melscale(freqs)
+    else:
+        freqs = np.linspace(
+            config.mfcc_low_frequency, 
+            config.mfcc_high_frequency, 
+            num=config.mfcc_n_dct_filters + 2
+        )
+
+    filter_points = np.round(
+        (window_length) / config.sampling_frequency * freqs 
+    ).astype(int) + 1
+
+    # Construct triangular filterbank
+    filters = np.zeros((len(filter_points) - 2, int(window_length / 2 + 1)))
+    for j in range(len(filter_points) - 2):
+        filters[j, filter_points[j] : filter_points[j + 2]] = signal.windows.triang(
+            filter_points[j + 2] - filter_points[j]
+        ) 
+        # Normalize filter coefficients
+        filters[j, :] /= (
+            config.sampling_frequency/window_length * np.sum(filters[j,:])
+        ) 
+
+    # Apply filterbank to total power
+    power_filtered = np.tensordot(total_power_array, filters.T, axes=(1,0)) 
+    
+    # Convert power to logarithmic scale
+    log_power_filtered = np.log10(power_filtered)
+
+    # Generate DCT filters
+    dct_filters = np.empty((config.mfcc_n_coefficients, config.mfcc_n_dct_filters))
+    dct_filters[0, :] = 1.0 / np.sqrt(config.mfcc_n_dct_filters)
+
+    samples = (
+        np.arange(1, 2 * config.mfcc_n_dct_filters, 2) * np.pi / (2.0 * config.mfcc_n_dct_filters)
+    )
+
+    for i in range(1, config.mfcc_n_coefficients):
+        dct_filters[i, :] = np.cos(i * samples) * np.sqrt(2.0 / config.mfcc_n_dct_filters)
+
+    # Compute MFCCs
+    mfccs = np.dot(log_power_filtered, dct_filters.T) 
+
+    return np.mean(mfccs,axis=1)
+
+
 def extract_frequency_peak(
     total_psd: pd.Series,
     freq_vect: pd.Series,
@@ -400,9 +459,9 @@ def extract_frequency_peak_numpy(
     pd.Series
         The frequency of the peak across windows
     """    
-    freq_idx = np.where((freq_vect>=fmin) & (freq_vect<=fmax))
+    freq_idx = np.where((freq_vect>=fmin) & (freq_vect<=fmax))[0]
     peak_idx = np.argmax(total_psd[:, freq_idx], axis=1)
-    frequency_peak = freq_vect[peak_idx] + fmin
+    frequency_peak = freq_vect[freq_idx][peak_idx]
 
     return frequency_peak
 
@@ -555,13 +614,14 @@ def extract_tremor_power_numpy(
     left_idx =  np.maximum((peak_idx - 0.5 / spectral_resolution).astype(int), 0)
     right_idx = (peak_idx + 0.5 / spectral_resolution).astype(int)
 
-    row_indices = np.arange(total_psd.shape[0])[:, None]
+    row_indices = np.arange(total_psd.shape[1])
+    row_indices = np.tile(row_indices, (total_psd.shape[0], 1))
     left_idx = left_idx[:, None]
     right_idx = right_idx[:, None]
 
     mask = (row_indices >= left_idx) & (row_indices <= right_idx)
 
-    tremor_power = spectral_resolution * np.sum(total_psd * mask, axis=0)
+    tremor_power = spectral_resolution * np.sum(total_psd*mask, axis=1)
 
     return tremor_power
 
@@ -633,11 +693,14 @@ def extract_spectral_domain_features(config, df_windowed):
 
 def extract_spectral_domain_features_numpy(config, data):
 
-    sampling_frequency = 100
-    segment_length_s_psd = 3
-    segment_length_s_mfcc = 2
-    overlap_fraction = 0.8
-    spectral_resolution = 0.25
+    # Initialize a dictionary to hold the results
+    feature_dict = {}
+
+    sampling_frequency = config.sampling_frequency
+    segment_length_s_psd = config.segment_length_s_psd
+    segment_length_s_mfcc = config.segment_length_s_mfcc
+    overlap_fraction = config.overlap_fraction
+    spectral_resolution = config.spectral_resolution_psd
     window_type = 'hann'
 
     segment_length_n = sampling_frequency * segment_length_s_psd
@@ -659,7 +722,7 @@ def extract_spectral_domain_features_numpy(config, data):
 
     segment_length_n = sampling_frequency * segment_length_s_mfcc
     overlap_n = segment_length_n * overlap_fraction
-    window = signal.get_window(window_type, segment_length_n) # No FFTbins here?
+    window = signal.get_window(window_type, segment_length_n)
 
     f, t, S1 = signal.stft(
         x=data, 
@@ -672,24 +735,23 @@ def extract_spectral_domain_features_numpy(config, data):
     )
 
     total_psd = np.sum(psd, axis=2)
-    total_spectrogram = np.sum(np.abs(S1), axis=2)
+    total_spectrogram = np.sum(np.abs(S1)*sampling_frequency, axis=2)
 
     config.mfcc_low_frequency = config.fmin_mfcc
     config.mfcc_high_frequency = config.fmax_mfcc
     config.mfcc_n_dct_filters = config.n_dct_filters_mfcc
     config.mfcc_n_coefficients = config.n_coefficients_mfcc
 
-    mfccs = compute_mfccs(config, total_psd)
+    mfccs = generate_mel_frequency_cepstral_coefficients_numpy(config, total_spectrogram)
 
-    df_features = pd.concat([df_features, pd.DataFrame(mfccs)], axis=1)
+    # Combine the MFCCs into the features DataFrame
+    mfcc_colnames = [f'mfcc_{x}' for x in range(1, config.mfcc_n_coefficients + 1)]
+    for i, colname in enumerate(mfcc_colnames):
+        feature_dict[colname] = mfccs[:, i]
 
-    d_spectral_features = {}
-    d_spectral_features['freq_peak'] = extract_frequency_peak_numpy(total_psd, freqs, config.fmin_peak, config.fmax_peak)
-    d_spectral_features['low_freq_power'] = extract_low_freq_power_numpy(total_psd, freqs, config.fmin_low_power, config.fmax_low_power)
-    d_spectral_features['tremor_power'] = extract_tremor_power_numpy(total_psd, freqs, config.fmin_tremor_power, config.fmax_tremor_power)
+    feature_dict['freq_peak'] = extract_frequency_peak_numpy(total_psd, freqs, config.fmin_peak, config.fmax_peak)
+    feature_dict['low_freq_power'] = extract_low_freq_power_numpy(total_psd, freqs, config.fmin_low_power, config.fmax_low_power)
+    feature_dict['tremor_power'] = extract_tremor_power_numpy(total_psd, freqs, config.fmin_tremor_power, config.fmax_tremor_power)
 
-
-    df_windowed = df_windowed.rename(columns={'window_start': DataColumns.TIME})
-
-    return df_windowed
+    return pd.DataFrame(feature_dict)
     
