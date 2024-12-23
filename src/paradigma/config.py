@@ -132,7 +132,7 @@ class TremorBaseConfig(IMUConfig):
 
         self.window_type = 'hann'
         self.window_length_s: float = 4
-        self.window_step_size_s: float = 4
+        self.window_step_length_s: float = 4
 
         self.fmin_tremor_power: float = 3
         self.fmax_tremor_power: float = 7
