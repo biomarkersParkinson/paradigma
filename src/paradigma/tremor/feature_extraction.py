@@ -154,7 +154,7 @@ def extract_frequency_peak(
     return frequency_peak
 
 
-def extract_non_tremor_power(
+def extract_low_freq_power(
     total_psd: np.ndarray,
     freq_vect: np.ndarray,
     fmin: float = 0.5,
@@ -321,7 +321,7 @@ def extract_spectral_domain_features(config, data):
 
     # Compute the frequency of the peak, non-tremor power and tremor power
     feature_dict['freq_peak'] = extract_frequency_peak(total_psd, freqs, config.fmin_peak, config.fmax_peak)
-    feature_dict['non_tremor_power'] = extract_non_tremor_power(total_psd, freqs, config.fmin_low_power, config.fmax_low_power)
+    feature_dict['low_freq_power'] = extract_low_freq_power(total_psd, freqs, config.fmin_low_power, config.fmax_low_power)
     feature_dict['tremor_power'] = extract_tremor_power(total_psd, freqs, config.fmin_tremor_power, config.fmax_tremor_power)
 
     return pd.DataFrame(feature_dict)
