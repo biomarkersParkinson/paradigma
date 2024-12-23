@@ -7,8 +7,6 @@ import numpy as np
 from pathlib import Path
 from typing import Union
 from sklearn.linear_model import LogisticRegression
-from datetime import datetime, timedelta
-from collections import Counter
 from scipy.stats import gaussian_kde
 
 from paradigma.constants import DataColumns
@@ -127,29 +125,16 @@ def aggregate_tremor_power(tremor_power: pd.Series, config: TremorQuantification
     return tremor_power_median, tremor_power_90th_perc, tremor_power_mode
 
 
-def quantify_tremor(df: pd.DataFrame, config: TremorQuantificationConfig, utc_start_time: str):
+def quantify_tremor(df: pd.DataFrame, config: TremorQuantificationConfig):
 
-    # Create time array in local time zone
-    utc_start_time = datetime.strptime(utc_start_time, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=pytz.UTC) # convert to datetime
-    local_start_time = utc_start_time.astimezone(pytz.timezone("Europe/Amsterdam"))
-    time = [local_start_time + timedelta(seconds=x) for x in df.time]
+    nr_windows_total = df.shape[0] 
 
-    # determine valid days
-    daytime_hours = range(config.daytime_hours_lower_bound,config.daytime_hours_upper_bound)
-    nr_windows_per_day = Counter([dt.date() for dt in time if dt.hour in daytime_hours])
-    valid_days = [day for day, count in nr_windows_per_day.items() 
-                  if count * config.window_length_s / 3600 >= config.valid_day_threshold_hr]
-    nr_valid_days = len(valid_days)
-
-    # remove windows during non-valid days, non-daytime hours and non-tremor arm movement
-    df_filtered = df.loc[[dt.date() in valid_days for dt in time]]
-    df_filtered = df_filtered.loc[[dt.hour in daytime_hours for dt in time]]
-    nr_windows_daytime = df_filtered.shape[0] # number of windows during daytime on valid days
-    df_filtered = df_filtered.loc[df_filtered.low_freq_power <= config.movement_threshold]
-    nr_windows_daytime_rest = df_filtered.shape[0] # number of windows during daytime on valid days without non-tremor arm movement
+    # remove windows with detected non-tremor movements to control for the amount of arm activities performed
+    df_filtered = df.loc[df.low_freq_power <= config.movement_threshold]
+    nr_windows_rest = df_filtered.shape[0] # number of windows without non-tremor arm movement
 
     # calculate weekly tremor time
-    tremor_time= np.sum(df_filtered['pred_tremor_checked']) / df_filtered.shape[0] * 100
+    tremor_time= np.sum(df_filtered['pred_tremor_checked']) / nr_windows_rest * 100 # as percentage of total measured time without non-tremor arm movement
 
     # calculate weekly tremor power measures
     tremor_power = df_filtered.loc[df_filtered['pred_tremor_checked'] == 1, 'tremor_power']
@@ -158,9 +143,8 @@ def quantify_tremor(df: pd.DataFrame, config: TremorQuantificationConfig, utc_st
     # store aggregates in json format
     d_aggregates = {
         'metadata': {
-            'nr_valid_days': nr_valid_days,
-            'nr_windows_daytime': nr_windows_daytime,
-            'nr_windows_daytime_rest': nr_windows_daytime_rest
+            'nr_windows_total': nr_windows_total,
+            'nr_windows_rest': nr_windows_rest
         },
         'weekly_tremor_measures': {
             'tremor_time': tremor_time,
@@ -191,7 +175,7 @@ def quantify_tremor_io(path_to_feature_input: Union[str, Path], path_to_predicti
     df = pd.concat([df_predictions, df_features], axis=1)
 
     # Compute weekly aggregated tremor measures
-    d_aggregates = quantify_tremor(df, config, utc_start_time = metadata_time.start_iso8601)
+    d_aggregates = quantify_tremor(df, config)
 
     # Save output
     with open(os.path.join(output_path,"weekly_tremor.json"), 'w') as json_file:
