@@ -150,7 +150,9 @@ def aggregate_tremor_power(tremor_power: pd.Series, config: TremorQuantification
 
 def quantify_tremor(df: pd.DataFrame, config: TremorQuantificationConfig):
 
-    # remove windows with detected non-tremor movements
+    nr_windows_total = df.shape[0] 
+
+    # remove windows with detected non-tremor movements to control for the amount of arm activities performed
     df_filtered = df.loc[df.low_freq_power <= config.movement_threshold]
     nr_windows_rest = df_filtered.shape[0] # number of windows without non-tremor arm movement
 
@@ -164,6 +166,7 @@ def quantify_tremor(df: pd.DataFrame, config: TremorQuantificationConfig):
     # store aggregates in json format
     d_aggregates = {
         'metadata': {
+            'nr_windows_total': nr_windows_total,
             'nr_windows_rest': nr_windows_rest
         },
         'weekly_tremor_measures': {
