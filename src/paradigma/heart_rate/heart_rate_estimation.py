@@ -4,7 +4,7 @@ from typing import Tuple
 from paradigma.config import HeartRateExtractionConfig
 from paradigma.heart_rate.tfd import nonsep_gdtfd
 
-def assign_sqa_label(ppg_prob: np.ndarray, config: HeartRateExtractionConfig, acc_label: np.ndarray=None) -> np.ndarray:
+def assign_sqa_label(ppg_prob: np.ndarray, config: HeartRateExtractionConfig, acc_label=None) -> np.ndarray:
     """
     Assigns a signal quality label to every individual data point.
 
