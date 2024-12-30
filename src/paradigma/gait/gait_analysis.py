@@ -12,7 +12,7 @@ from paradigma.constants import DataColumns
 from paradigma.config import GaitFeatureExtractionConfig, GaitDetectionConfig, \
     ArmActivityFeatureExtractionConfig, FilteringGaitConfig, ArmSwingQuantificationConfig
 from paradigma.gait.feature_extraction import extract_temporal_domain_features, \
-    extract_spectral_domain_features, compute_angle_and_velocity_from_gyro, extract_angle_features
+    extract_spectral_domain_features, compute_angle_and_velocity_from_gyro
 from paradigma.segmenting import tabulate_windows, create_segments, discard_segments, categorize_segments
 from paradigma.util import get_end_iso8601, write_df_data, read_metadata, WindowedDataExtractor
 
@@ -269,9 +269,6 @@ def extract_arm_activity_features(
 
     # Add a column for predicted gait based on a fitted threshold
     df[DataColumns.PRED_GAIT] = (df[DataColumns.PRED_GAIT_PROBA] >= classification_threshold).astype(int)
-    
-    # Compute angle and velocity from gyroscope data
-    df[DataColumns.ANGLE], df[DataColumns.VELOCITY] = compute_angle_and_velocity_from_gyro(config, df)
 
     # Filter the DataFrame to only include predicted gait (1)
     df = df.loc[df[DataColumns.PRED_GAIT]==1].reset_index(drop=True)
@@ -289,8 +286,7 @@ def extract_arm_activity_features(
         [DataColumns.TIME] + 
         config.accelerometer_cols + 
         config.gravity_cols + 
-        config.gyroscope_cols + 
-        [DataColumns.ANGLE, DataColumns.VELOCITY]
+        config.gyroscope_cols
     )
 
     # Collect windows from all segments in a list for faster concatenation
@@ -313,23 +309,15 @@ def extract_arm_activity_features(
     idx_acc = extractor.get_slice(config.accelerometer_cols)
     idx_grav = extractor.get_slice(config.gravity_cols)
     idx_gyro = extractor.get_slice(config.gyroscope_cols)
-    idx_angle = extractor.get_index(DataColumns.ANGLE)
-    idx_velocity = extractor.get_index(DataColumns.VELOCITY)
 
     # Extract data
     start_time = np.min(windowed_data[:, :, idx_time], axis=1)
     windowed_acc = windowed_data[:, :, idx_acc]
     windowed_grav = windowed_data[:, :, idx_grav]
     windowed_gyro = windowed_data[:, :, idx_gyro]
-    windowed_angle = windowed_data[:, :, idx_angle]
-    windowed_velocity = windowed_data[:, :, idx_velocity]
 
     # Initialize DataFrame for features
     df_features = pd.DataFrame(start_time, columns=[DataColumns.TIME])
-
-    # Extract angle features
-    df_angle_features = extract_angle_features(config, windowed_angle, windowed_velocity)    
-    df_features = pd.concat([df_features, df_angle_features], axis=1)
 
     # Extract temporal domain features (e.g., mean, std for accelerometer and gravity)
     df_temporal_features = extract_temporal_domain_features(config, windowed_acc, windowed_grav, grav_stats=['mean', 'std'])
