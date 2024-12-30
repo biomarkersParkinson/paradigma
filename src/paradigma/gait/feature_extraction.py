@@ -516,35 +516,49 @@ def extract_angle_extremes(
 
 def compute_range_of_motion(
         angle_array: np.ndarray,
-        extrema_indices: List[float] | np.ndarray,
+        extrema_indices: List[int],
 ) -> np.ndarray:
     
-    if not isinstance(extract_angle_extremes, list):
-        extrema_indices = extrema_indices.tolist()
+    # Ensure extrema_indices is a NumPy array of integers
+    if not isinstance(extrema_indices, list):
+        raise TypeError("extrema_indices must be a list of integers.")
 
+    # Check bounds
+    if np.any(extrema_indices < 0) or np.any(extrema_indices >= len(angle_array)):
+        raise ValueError("extrema_indices contains out-of-bounds indices.")
+    
     # Extract angle amplitudes (minima and maxima values)
     angle_extremas = angle_array[extrema_indices]
 
     # Compute the differences (range of motion) across all windows at once using np.diff
-    range_of_motion = np.asarray(np.abs(np.diff(angle_extremas)), dtype=object)
+    range_of_motion = np.abs(np.diff(angle_extremas))
 
     return range_of_motion
 
 
 def compute_peak_angular_velocity(
     velocity_array: np.ndarray,
-    angle_extrema_indices: List[np.ndarray],
-    minima_indices: np.ndarray,
-    maxima_indices: np.ndarray,
+    angle_extrema_indices: List[int],
+    minima_indices: List[int],
+    maxima_indices: List[int],
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    
+    if np.any(angle_extrema_indices < 0) or np.any(angle_extrema_indices >= len(velocity_array)):
+        raise ValueError("angle_extrema_indices contains out-of-bounds indices.")
+    
+    if len(angle_extrema_indices) < 2:
+        raise ValueError("angle_extrema_indices must contain at least two indices.")
+    
+    if len(minima_indices) == 0:
+        raise ValueError("No minima indices found.")
+    if len(maxima_indices) == 0:
+        raise ValueError("No maxima indices found.")
 
     # Initialize lists to store the peak velocities for each window
     forward_pav = []
     backward_pav = []
 
-    if len(minima_indices) == 0 or len(maxima_indices) == 0:
-        raise ValueError("No minima or maxima found in the angle array.")
-
+    # Compute peak angular velocities
     for i in range(len(angle_extrema_indices) - 1):
         # Get the current and next extrema index
         current_peak_idx = angle_extrema_indices[i]

@@ -438,9 +438,7 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
         start_time = start_time_imu)
 
     # Extract overlapping segments
-    print("Shape of the original data:", df_ppg.shape, df_imu.shape)
     df_ppg_overlapping, df_imu_overlapping = extract_overlapping_segments(df_ppg, df_imu)
-    print("Shape of the overlapping segments:", df_ppg_overlapping.shape, df_imu_overlapping.shape)
 
     # Resample accelerometer data
     df_imu_proc = resample_data(

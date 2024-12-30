@@ -123,7 +123,7 @@ def extract_gait_features_io(path_to_preprocessed_input: Union[str, Path], path_
     write_df_data(metadata_time, metadata_values, path_to_output, 'gait_meta.json', df_features)
 
 
-def detect_gait(df: pd.DataFrame, config: GaitDetectionConfig, path_to_classifier_input: Union[str, Path]) -> pd.DataFrame:
+def detect_gait(df: pd.DataFrame, config: GaitDetectionConfig, path_to_classifier_input: Union[str, Path], parallel: bool=False) -> pd.DataFrame:
     """
     Detects gait activity in the input DataFrame using a pre-trained classifier and applies a threshold to the predicted probabilities.
 
@@ -147,6 +147,9 @@ def detect_gait(df: pd.DataFrame, config: GaitDetectionConfig, path_to_classifie
         The path to the directory containing the classifier file, threshold value, scaler parameters, and other necessary input
         files for gait detection.
 
+    parallel : bool, optional
+        Whether to run the prediction in parallel, by default False.
+
     Returns
     -------
     pd.DataFrame
@@ -168,6 +171,9 @@ def detect_gait(df: pd.DataFrame, config: GaitDetectionConfig, path_to_classifie
     """
     # Initialize the classifier
     clf = pd.read_pickle(os.path.join(path_to_classifier_input, 'classifiers', config.classifier_file_name))
+
+    if not parallel:
+        clf.n_jobs = 1
 
     # Load and apply scaling parameters
     with open(os.path.join(path_to_classifier_input, 'scalers', 'gait_detection_scaler_params.json'), 'r') as f:
