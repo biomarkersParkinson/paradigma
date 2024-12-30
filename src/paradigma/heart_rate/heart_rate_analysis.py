@@ -9,9 +9,9 @@ import tsdf
 import tsdf.constants 
 from paradigma.config import SignalQualityFeatureExtractionConfig, SignalQualityClassificationConfig, HeartRateExtractionConfig
 from paradigma.util import read_metadata
-from paradigma.segmenting import tabulate_windows_legacy
-from paradigma.heart_rate.feature_extraction import extract_temporal_domain_features, extract_spectral_domain_features
-from paradigma.heart_rate.heart_rate_estimation import assign_sqa_label, extract_hr_segments, extract_hr_from_segment
+from paradigma.segmenting import tabulate_windows, tabulate_windows_legacy
+from paradigma.heart_rate.feature_extraction import extract_temporal_domain_features, extract_spectral_domain_features, \
+    extract_temporal_domain_features_numpy, extract_spectral_domain_features_numpy
 from paradigma.constants import DataColumns
 
 def extract_signal_quality_features(df: pd.DataFrame, config: SignalQualityFeatureExtractionConfig) -> pd.DataFrame:
@@ -26,6 +26,18 @@ def extract_signal_quality_features(df: pd.DataFrame, config: SignalQualityFeatu
 
     df_windowed.drop(columns = ['green'], inplace=True)  # Drop the values channel since it is no longer needed
     return df_windowed
+
+def extract_signal_quality_features_numpy(df: pd.DataFrame, config: SignalQualityFeatureExtractionConfig) -> pd.DataFrame:
+    # Group sequences of timestamps into windows
+    ppg_windowed = tabulate_windows(config, df, columns=[config.ppg_colname])[0]
+
+    # Compute statistics of the temporal domain signals
+    df_temporal_features = extract_temporal_domain_features_numpy(config, ppg_windowed, quality_stats=['var', 'mean', 'median', 'kurtosis', 'skewness'])
+    
+    # Compute statistics of the spectral domain signals
+    df_spectral_features = extract_spectral_domain_features_numpy(config, ppg_windowed)
+
+    return pd.concat([df_temporal_features, df_spectral_features], axis=1)
 
 
 def extract_signal_quality_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config: SignalQualityFeatureExtractionConfig) -> None:
