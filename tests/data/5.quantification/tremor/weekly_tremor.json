@@ -1,8 +1,7 @@
 {
     "metadata": {
-        "nr_valid_days": 1,
-        "nr_windows_daytime": 182,
-        "nr_windows_daytime_rest": 89
+        "nr_windows_total": 182,
+        "nr_windows_rest": 89
     },
     "weekly_tremor_measures": {
         "tremor_time": 16.853932584269664,
