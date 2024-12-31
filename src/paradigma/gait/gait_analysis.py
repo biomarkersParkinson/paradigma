@@ -82,7 +82,7 @@ def extract_gait_features(df: pd.DataFrame, config: GaitFeatureExtractionConfig)
     )
 
     # Combine temporal features with the start time
-    df_features= pd.concat([df_features, df_temporal_features], axis=1)
+    df_features = pd.concat([df_features, df_temporal_features], axis=1)
 
     # Transform the accelerometer data to the spectral domain using FFT and extract spectral features
     df_spectral_features = extract_spectral_domain_features(
@@ -154,10 +154,8 @@ def detect_gait(df: pd.DataFrame, path_to_classifier_input: Union[str, Path],
 
     Returns
     -------
-    pd.DataFrame
-        The input DataFrame (`df`) with two additional columns:
-        - `PRED_GAIT_PROBA`: Predicted probability of gait activity based on the classifier.
-        - `PRED_GAIT`: Binary classification result (True for gait, False for no gait), based on the threshold applied to `PRED_GAIT_PROBA`.
+    pd.Series
+        A Series containing the predicted probabilities of gait activity based on the classifier.
     
     Notes
     -----
@@ -194,9 +192,9 @@ def detect_gait(df: pd.DataFrame, path_to_classifier_input: Union[str, Path],
     X = df.loc[:, clf.feature_names_in_]
 
     # Make prediction and add the probability of gait activity to the DataFrame
-    df[DataColumns.PRED_GAIT_PROBA] = clf.predict_proba(X)[:, 1]
+    pred_gait_proba_series = clf.predict_proba(X)[:, 1]
 
-    return df
+    return pred_gait_proba_series
 
 
 def detect_gait_io(path_to_input_features: Union[str, Path], path_to_output: Union[str, Path], 
@@ -206,7 +204,7 @@ def detect_gait_io(path_to_input_features: Union[str, Path], path_to_output: Uni
     metadata_time, metadata_values = read_metadata(path_to_input_features, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
-    df = detect_gait(df, config, path_to_classifier_input)
+    df[DataColumns.PRED_GAIT_PROBA] = detect_gait(df, config, path_to_classifier_input)
 
     # Prepare the metadata
     metadata_values.file_name = 'gait_values.bin'
@@ -394,13 +392,13 @@ def extract_arm_activity_features_io(path_to_timestamp_input: Union[str, Path], 
 
 def filter_gait(df: pd.DataFrame, config: FilteringGaitConfig, path_to_classifier_input: Union[str, Path]) -> pd.DataFrame:
     """
-    Filters gait data using a pre-trained classifier and scales the features before making predictions.
+    Filters gait data to identify periods with no other arm activity using a pre-trained classifier.
 
     This function performs the following steps:
-    1. Loads the pre-trained classifier and feature scaling parameters from the provided directory.
+    1. Loads a pre-trained classifier and feature scaling parameters from the specified directory.
     2. Scales the relevant features in the input DataFrame (`df`) using the loaded scaling parameters.
-    3. Makes predictions using the classifier to filter gait data based on the model's classification.
-    4. Adds the predicted probabilities (for gait activity) to the DataFrame as a new column.
+    3. Makes predictions with the classifier to estimate the probability of no other arm activity during gait.
+    4. Returns a series containing the predicted probabilities.
 
     Parameters
     ----------
@@ -417,14 +415,13 @@ def filter_gait(df: pd.DataFrame, config: FilteringGaitConfig, path_to_classifie
 
     Returns
     -------
-    pd.DataFrame
-        The input DataFrame (`df`) with an additional column containing the predicted probabilities of gait activity
-        based on the classifier's output. The new column is labeled according to `DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA`.
-    
+    pd.Series
+        A Series containing the predicted probabilities of no other arm activity during gait.
+
     Notes
     -----
     - The function expects the pre-trained classifier and scaling parameters to be located at the specified paths.
-    - The classifier should output probabilities for gait activity, which are used to filter the gait data.
+    - The classifier should output probabilities indicating the likelihood of no other arm activity during gait.
 
     Raises
     ------
@@ -453,9 +450,9 @@ def filter_gait(df: pd.DataFrame, config: FilteringGaitConfig, path_to_classifie
     X = df.loc[:, clf.feature_names_in_]
 
     # Make prediction and add the probability of gait activity to the DataFrame
-    df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] = clf.predict_proba(X)[:, 1]
+    pred_no_other_arm_activity_proba_series = clf.predict_proba(X)[:, 1]
 
-    return df
+    return pred_no_other_arm_activity_proba_series
 
 def filter_gait_io(path_to_feature_input: Union[str, Path], path_to_classifier_input: Union[str, Path], 
                    path_to_output: Union[str, Path], config: FilteringGaitConfig) -> None:
@@ -463,7 +460,7 @@ def filter_gait_io(path_to_feature_input: Union[str, Path], path_to_classifier_i
     metadata_time, metadata_values = read_metadata(path_to_feature_input, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
-    df = filter_gait(df, config, path_to_classifier_input)
+    df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] = filter_gait(df, config, path_to_classifier_input)
 
     # Prepare the metadata
     metadata_values.file_name = 'arm_activity_values.bin'
