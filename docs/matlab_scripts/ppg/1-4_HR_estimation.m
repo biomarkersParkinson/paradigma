@@ -102,7 +102,7 @@ for n = 1:n_segments_sync
     [metadata_list_ppg, data_list_ppg] = load_tsdf_metadata_from_path(meta_path_ppg);
 
     time_idx_ppg = tsdf_values_idx(metadata_list_ppg, 'time');
-    values_idx_ppg = tsdf_values_idx(metadata_list_ppg, 'samples');
+    values_idx_ppg = tsdf_values_idx(metadata_list_ppg, 'values');
 
 
     t_iso_ppg = metadata_list_ppg{time_idx_ppg}.start_iso8601;
@@ -139,7 +139,9 @@ for n = 1:n_segments_sync
     class_acc_segment = imu_label(class_start:class_end);
 
     % Assign the window-level probabilities to the individual samples
-    data_prob_sample = sample_prob_final(class_ppg_segment, class_acc_segment, fs_ppg); 
+    %data_prob_sample = sample_prob_final(class_ppg_segment, fs_ppg, class_acc_segment); 
+    data_prob_sample = sample_prob_final(class_ppg_segment, fs_ppg); 
+
 
     sqa_label = [];
 

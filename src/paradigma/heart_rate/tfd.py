@@ -173,7 +173,11 @@ def gen_analytic(x):
     x_fft = np.fft.fft(x)
 
     # Generate the analytic signal in the frequency domain
-    H = np.concatenate(([1], np.repeat(2, N-1), [1], np.repeat(0, N-1)))
+    H = np.empty(2 * N) # Preallocate an array of size 2*N
+    H[0] = 1 # First element
+    H[1:N] = 2 # Next N-1 elements
+    H[N] = 1 # Middle element
+    H[N+1:] = 0 # Last N-1 elements
     z_cb = np.fft.ifft(x_fft * H)
 
     # Force the second half of the time-domain signal to zero
