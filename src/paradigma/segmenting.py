@@ -173,52 +173,6 @@ def create_segments(
     return segments
 
 
-def create_segment_df(config, df: pd.DataFrame):
-    """
-    Create a DataFrame summarizing the start and end times for each segment.
-
-    This function groups the input DataFrame by segment number and calculates the 
-    start and end times for each segment. The start time is the minimum time 
-    in each segment, and the end time is the maximum time in each segment. 
-    It returns a DataFrame with these segment start and end times.
-
-    Parameters
-    ----------
-    config : object
-        A configuration object containing `segment_nr_colname` (the name of the segment 
-        number column in `df`) and `time_colname` (the name of the time column in `df`).
-    df : pd.DataFrame
-        The input DataFrame containing the segment and time information.
-
-    Returns
-    -------
-    pd.DataFrame
-        A DataFrame with columns:
-        - `segment_nr`: The segment number.
-        - `time_start`: The minimum time value in each segment.
-        - `time_end`: The maximum time value in each segment.
-
-    Example
-    -------
-    config = Config(segment_nr_colname='segment', time_colname='time')
-    df = pd.DataFrame({
-        'segment': [1, 1, 2, 2],
-        'time': [0, 5, 10, 15]
-    })
-    df_segment_times = create_segment_df(config, df)
-    # Result:
-    #   segment_nr  time_start  time_end
-    # 0           1           0         5
-    # 1           2          10        15
-    """
-    df_segment_times = df.groupby(DataColumns.SEGMENT_NR)[DataColumns.TIME].agg(
-        time_start='min',  # Start time (min time in each segment)
-        time_end='max'     # End time (max time in each segment)
-    ).reset_index()
-
-    return df_segment_times
-
-
 def discard_segments(
         df: pd.DataFrame, 
         segment_nr_colname: str,

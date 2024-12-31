@@ -12,7 +12,7 @@ from paradigma.constants import DataColumns
 from paradigma.config import GaitFeatureExtractionConfig, GaitDetectionConfig, \
     ArmActivityFeatureExtractionConfig, FilteringGaitConfig, ArmSwingQuantificationConfig
 from paradigma.gait.feature_extraction import extract_temporal_domain_features, \
-    extract_spectral_domain_features, compute_angle_and_velocity_from_gyro
+    extract_spectral_domain_features
 from paradigma.segmenting import tabulate_windows, create_segments, discard_segments, categorize_segments
 from paradigma.util import get_end_iso8601, write_df_data, read_metadata, WindowedDataExtractor
 
@@ -97,7 +97,8 @@ def extract_gait_features(df: pd.DataFrame, config: GaitFeatureExtractionConfig)
     return df_features
 
 
-def extract_gait_features_io(path_to_preprocessed_input: Union[str, Path], path_to_output: Union[str, Path], config: GaitFeatureExtractionConfig) -> None:
+def extract_gait_features_io(path_to_preprocessed_input: Union[str, Path], path_to_output: Union[str, Path], 
+                             config: GaitFeatureExtractionConfig) -> None:
     # Load data
     metadata_time, metadata_values = read_metadata(path_to_preprocessed_input, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
@@ -123,7 +124,8 @@ def extract_gait_features_io(path_to_preprocessed_input: Union[str, Path], path_
     write_df_data(metadata_time, metadata_values, path_to_output, 'gait_meta.json', df_features)
 
 
-def detect_gait(df: pd.DataFrame, config: GaitDetectionConfig, path_to_classifier_input: Union[str, Path], parallel: bool=False) -> pd.DataFrame:
+def detect_gait(df: pd.DataFrame, config: GaitDetectionConfig, path_to_classifier_input: Union[str, Path], 
+                parallel: bool=False) -> pd.DataFrame:
     """
     Detects gait activity in the input DataFrame using a pre-trained classifier and applies a threshold to the predicted probabilities.
 
@@ -197,7 +199,8 @@ def detect_gait(df: pd.DataFrame, config: GaitDetectionConfig, path_to_classifie
     return df
 
 
-def detect_gait_io(path_to_input_features: Union[str, Path], path_to_output: Union[str, Path], path_to_classifier_input: Union[str, Path], config: GaitDetectionConfig) -> None:
+def detect_gait_io(path_to_input_features: Union[str, Path], path_to_output: Union[str, Path], 
+                   path_to_classifier_input: Union[str, Path], config: GaitDetectionConfig) -> None:
     
     # Load the data
     metadata_time, metadata_values = read_metadata(path_to_input_features, config.meta_filename, config.time_filename, config.values_filename)
@@ -274,10 +277,19 @@ def extract_arm_activity_features(
     df = df.loc[df[DataColumns.PRED_GAIT]==1].reset_index(drop=True)
 
     # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
-    df[DataColumns.SEGMENT_NR] = create_segments(time_array=df[DataColumns.TIME], max_segment_gap_s=config.max_segment_gap_s)
+    df[DataColumns.SEGMENT_NR] = create_segments(
+        time_array=df[DataColumns.TIME], 
+        max_segment_gap_s=config.max_segment_gap_s
+    )
 
     # Remove segments that do not meet predetermined criteria
-    df = discard_segments(config=config, df=df)
+    df = discard_segments(
+        df=df,
+        segment_nr_colname=DataColumns.SEGMENT_NR,
+        min_segment_length_s=config.min_segment_length_s,
+        sampling_frequency=config.sampling_frequency,
+        format='timestamps'
+    )
 
     # Create windows of fixed length and step size from the time series per segment
     windowed_data = []
@@ -331,7 +343,9 @@ def extract_arm_activity_features(
     return df_features
 
 
-def extract_arm_activity_features_io(path_to_timestamp_input: Union[str, Path], path_to_prediction_input: Union[str, Path], path_to_classifier_input: Union[str, Path], path_to_output: Union[str, Path], config: ArmActivityFeatureExtractionConfig) -> None:
+def extract_arm_activity_features_io(path_to_timestamp_input: Union[str, Path], path_to_prediction_input: Union[str, Path], 
+                                     path_to_classifier_input: Union[str, Path], path_to_output: Union[str, Path], 
+                                     config: ArmActivityFeatureExtractionConfig) -> None:
     # Load accelerometer and gyroscope data
     dfs = []
     for sensor in ['accelerometer', 'gyroscope']:
@@ -443,7 +457,8 @@ def filter_gait(df: pd.DataFrame, config: FilteringGaitConfig, path_to_classifie
 
     return df
 
-def filter_gait_io(path_to_feature_input: Union[str, Path], path_to_classifier_input: Union[str, Path], path_to_output: Union[str, Path], config: FilteringGaitConfig) -> None:
+def filter_gait_io(path_to_feature_input: Union[str, Path], path_to_classifier_input: Union[str, Path], 
+                   path_to_output: Union[str, Path], config: FilteringGaitConfig) -> None:
     # Load the data
     metadata_time, metadata_values = read_metadata(path_to_feature_input, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
@@ -463,7 +478,8 @@ def filter_gait_io(path_to_feature_input: Union[str, Path], path_to_classifier_i
     write_df_data(metadata_time, metadata_values, path_to_output, 'arm_activity_meta.json', df)
 
 
-def quantify_arm_swing(df_features: pd.DataFrame, df_predictions: pd.DataFrame, config: ArmSwingQuantificationConfig, path_to_classifier_input: Union[str, Path]) -> pd.DataFrame:
+def quantify_arm_swing(df_features: pd.DataFrame, df_predictions: pd.DataFrame, config: ArmSwingQuantificationConfig,
+                       path_to_classifier_input: Union[str, Path]) -> pd.DataFrame:
 
     # Expand prediction windows from start time to start time + window length
     # This is done to ensure that each timestamp has a corresponding probability
@@ -497,13 +513,15 @@ def quantify_arm_swing(df_features: pd.DataFrame, df_predictions: pd.DataFrame, 
 
     # Construct peak angular velocity from the forward and backward velocities
     df_filtered.loc[:, DataColumns.PEAK_VELOCITY] = df_filtered.loc[:, [f'forward_peak_{DataColumns.VELOCITY}_mean', f'backward_peak_{DataColumns.VELOCITY}_mean']].mean(axis=1)
-    df_filtered = df_filtered.drop(columns=[f'forward_peak_{DataColumns.VELOCITY}_mean', f'backward_peak_{DataColumns.VELOCITY}_mean'])
+    df_filtered = df_filtered.drop(
+        columns=[f'forward_peak_{DataColumns.VELOCITY}_mean', f'backward_peak_{DataColumns.VELOCITY}_mean']
+    )
 
     # Create segments of predicted gait without other arm activities
     df_segments = df_filtered.copy()
     df_segments[DataColumns.SEGMENT_NR] = create_segments(
-        config=config,
-        df=df_segments
+        time_array=df_segments[DataColumns.TIME],
+        max_segment_gap_s=config.max_segment_gap_s
     )
 
     # Discard segments that are too short 
