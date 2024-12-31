@@ -185,11 +185,13 @@ def detect_gait(df: pd.DataFrame, path_to_classifier_input: Union[str, Path],
     scaler.scale_ = scaler_params['scale']
     scaler.feature_names_in_ = scaler_params['features']
 
+    df_scaled = df.copy()
+
     # Scale the features in the DataFrame
-    df[scaler_params['features']] = scaler.transform(df[scaler_params['features']])
+    df_scaled[scaler_params['features']] = scaler.transform(df_scaled[scaler_params['features']])
 
     # Extract the relevant features for prediction
-    X = df.loc[:, clf.feature_names_in_]
+    X = df_scaled.loc[:, clf.feature_names_in_]
 
     # Make prediction and add the probability of gait activity to the DataFrame
     pred_gait_proba_series = clf.predict_proba(X)[:, 1]
