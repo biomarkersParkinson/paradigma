@@ -58,7 +58,13 @@ def extract_gait_features(df: pd.DataFrame, config: GaitFeatureExtractionConfig)
     """
     # Group sequences of timestamps into windows
     windowed_cols = [DataColumns.TIME] + config.accelerometer_cols + config.gravity_cols
-    windowed_data = tabulate_windows(config, df, windowed_cols)
+    windowed_data = tabulate_windows(
+        df=df, 
+        columns=windowed_cols,
+        window_length_s=config.window_length_s,
+        window_step_length_s=config.window_step_length_s,
+        sampling_frequency=config.sampling_frequency
+    )
 
     extractor = WindowedDataExtractor(windowed_cols)
 
@@ -303,7 +309,13 @@ def extract_arm_activity_features(
 
     # Collect windows from all segments in a list for faster concatenation
     for _, group in df_grouped:
-        windows = tabulate_windows(config=config, df=group, columns=windowed_cols)
+        windows = tabulate_windows(
+            df=group, 
+            columns=windowed_cols,
+            window_length_s=config.window_length_s,
+            window_step_length_s=config.window_step_length_s,
+            sampling_frequency=config.sampling_frequency
+        )
         if len(windows) > 0:  # Skip if no windows are created
             windowed_data.append(windows)
 
