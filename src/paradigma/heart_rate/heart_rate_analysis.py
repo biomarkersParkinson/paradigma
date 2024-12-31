@@ -12,6 +12,7 @@ from paradigma.util import read_metadata
 from paradigma.segmenting import tabulate_windows, tabulate_windows_legacy
 from paradigma.heart_rate.feature_extraction import extract_temporal_domain_features, extract_spectral_domain_features, \
     extract_temporal_domain_features_numpy, extract_spectral_domain_features_numpy
+from paradigma.heart_rate.heart_rate_estimation import assign_sqa_label, extract_hr_segments, extract_hr_from_segment
 from paradigma.constants import DataColumns
 
 def extract_signal_quality_features(df: pd.DataFrame, config: SignalQualityFeatureExtractionConfig) -> pd.DataFrame:
