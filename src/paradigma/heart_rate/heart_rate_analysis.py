@@ -51,7 +51,7 @@ def extract_signal_quality_features_io(input_path: Union[str, Path], output_path
     return df_windowed
 
 
-def signal_quality_classification(df_windowed_windowed: pd.DataFrame, config: SignalQualityClassificationConfig, path_to_classifier_input: Union[str, Path]) -> pd.DataFrame:
+def signal_quality_classification(df_windowed: pd.DataFrame, config: SignalQualityClassificationConfig, path_to_classifier_input: Union[str, Path]) -> pd.DataFrame:
     """
     Classify the signal quality of the PPG signal using a logistic regression classifier.
     The classifier is trained on features extracted from the PPG signal.
@@ -79,7 +79,6 @@ def signal_quality_classification(df_windowed_windowed: pd.DataFrame, config: Si
 
     # Prepare the data
     lr_clf.feature_names_in_ = ['var', 'mean', 'median', 'kurtosis', 'skewness', 'f_dom', 'rel_power', 'spectral_entropy', 'signal_to_noise', 'auto_corr']
-    X = df_windowed.loc[:, lr_clf.feature_names_in_]
     X = df_windowed.loc[:, lr_clf.feature_names_in_]
 
     # Normalize features using mu and sigma
