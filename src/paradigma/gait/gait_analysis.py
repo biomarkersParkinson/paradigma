@@ -274,7 +274,7 @@ def extract_arm_activity_features(
     df = df.loc[df[DataColumns.PRED_GAIT]==1].reset_index(drop=True)
 
     # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
-    df[DataColumns.SEGMENT_NR] = create_segments(config=config, df=df)
+    df[DataColumns.SEGMENT_NR] = create_segments(time_array=df[DataColumns.TIME], max_segment_gap_s=config.max_segment_gap_s)
 
     # Remove segments that do not meet predetermined criteria
     df = discard_segments(config=config, df=df)
