@@ -118,10 +118,10 @@ def extract_hr_from_segment(ppg: np.ndarray, tfd_length: int, fs: int, kern_type
     ppg_segments = []
     for i in range(num_segments):
         if i != num_segments - 1:  # For all segments except the last
-            start_idx = int(i * tfd_length * fs)
-            end_idx = int((i + 1) * tfd_length * fs + edge_padding * fs)
+            start_idx = int(i * tfd_length)
+            end_idx = int((i + 1) * tfd_length + edge_padding)
         else:  # For the last segment
-            start_idx = int(i * tfd_length * fs)
+            start_idx = int(i * tfd_length)
             end_idx = len(ppg)
         ppg_segments.append(ppg[start_idx:end_idx])
 
@@ -166,7 +166,7 @@ def extract_hr_with_tfd(ppg: np.ndarray, fs: int, kern_type: str, kern_params: d
     max_freq_indices = np.argmax(tfd, axis=0)
 
     hr_smooth_tfd = np.array([])
-    for i in range(2, int(len(ppg) / fs) - 4, 2):  # Skip the first and last 2 seconds
+    for i in range(2, int(len(ppg) / fs) - 4 + 1, 2):  # Skip the first and last 2 seconds, add 1 to include the last segment (similar behavior as in matlab)
         relevant_indices = (time_axis >= i) & (time_axis < i + 2)
         avg_frequency = np.mean(freq_axis[max_freq_indices[relevant_indices]])
         hr_smooth_tfd = np.concatenate((hr_smooth_tfd, [60 * avg_frequency]))  # Convert frequency to BPM
