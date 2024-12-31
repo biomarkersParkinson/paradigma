@@ -16,7 +16,7 @@
 
 %% Initalization
 % Setting data paths + extracting metafilenames already
-clear all; close all; clc
+clearvars; close all; clc
 addpath(genpath('..\..\..\paradigma-toolbox'))       % Add git repository to the path
 addpath(genpath("..\..\..\\tsdf4matlab"))       % Add wrapper to the path
 warning('off','all')        % Turn off warnings to improve speed in spwvd especially
@@ -25,12 +25,12 @@ warning('off','all')        % Turn off warnings to improve speed in spwvd especi
 unix_ticks_ms = 1000.0;
 fs_ppg = 30;     % Establish the sampling rate desired for resampling PPG --> now chosen to be fixed on 30 Hz
 
-raw_data_root = '..\..\tests\data\1.sensor_data\';
+raw_data_root = '..\..\..\tests\data\1.sensor_data\';
 ppp_data_path_ppg = [raw_data_root 'PPG\'];
 meta_ppg = tsdf_scan_meta(ppp_data_path_ppg);            % tsdf_scan_meta returns metafile struct containing information of all metafiles from all patients in tsdf_dirlist
 n_files_ppg = length(meta_ppg); 
 
-sqa_data_path = '..\..\tests\data\4.predictions\ppg'; % Set the path to the SQA data
+sqa_data_path = '..\..\..\tests\data\4.predictions\ppg'; % Set the path to the SQA data
 sqa_output_list = dir(fullfile(sqa_data_path, '*_meta.json'));              % seperate for the SQA output files
 
 meta_path_sqa = fullfile(sqa_output_list.folder, sqa_output_list.name); % Get the name of the SQA output file
@@ -102,11 +102,11 @@ for n = 1:n_segments_sync
     [metadata_list_ppg, data_list_ppg] = load_tsdf_metadata_from_path(meta_path_ppg);
 
     time_idx_ppg = tsdf_values_idx(metadata_list_ppg, 'time');
-    values_idx_ppg = tsdf_values_idx(metadata_list_ppg, 'samples');
+    values_idx_ppg = tsdf_values_idx(metadata_list_ppg, 'values');
 
 
     t_iso_ppg = metadata_list_ppg{time_idx_ppg}.start_iso8601;
-    datetime_ppg = datetime(t_iso_ppg, 'InputFormat', 'dd-MMM-yyyy HH:mm:ss z', 'TimeZone', 'UTC');
+    datetime_ppg = datetime(t_iso_ppg, 'InputFormat', 'yyyy-MM-dd''T''HH:mm:ssZ', 'TimeZone', 'UTC');
     ts_ppg = posixtime(datetime_ppg) * unix_ticks_ms;
 
     t_ppg = cumsum(double(data_list_ppg{time_idx_ppg})) + ts_ppg;
@@ -139,7 +139,9 @@ for n = 1:n_segments_sync
     class_acc_segment = imu_label(class_start:class_end);
 
     % Assign the window-level probabilities to the individual samples
-    data_prob_sample = sample_prob_final(class_ppg_segment, class_acc_segment, fs_ppg); 
+    %data_prob_sample = sample_prob_final(class_ppg_segment, fs_ppg, class_acc_segment); 
+    data_prob_sample = sample_prob_final(class_ppg_segment, fs_ppg); 
+
 
     sqa_label = [];
 
@@ -218,4 +220,4 @@ meta_class{1} = metafile_time;
 meta_class{2} = metafile_values_hr;
 
 mat_metadata_file_name = "hr_est_meta.json";
-save_tsdf_data(meta_class, data_hr_est, location, mat_metadata_file_name);
+% save_tsdf_data(meta_class, data_hr_est, location, mat_metadata_file_name);
