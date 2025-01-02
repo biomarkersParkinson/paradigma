@@ -4,10 +4,10 @@ function [segment_ppg_total, segment_imu_total] = synchronization(ppg_meta, imu_
 % the synchronized indices
 
 % Convert start and end times to datetime objects
-ppg_start_time = datetime({ppg_meta.start_iso8601}', 'InputFormat', 'dd-MMM-yyyy HH:mm:ss Z', 'Format', 'yyyy-MM-dd''T''HH:mm:ss', 'TimeZone', 'UTC'); 
-imu_start_time = datetime({imu_meta.start_iso8601}', 'InputFormat', 'dd-MMM-yyyy HH:mm:ss Z', 'Format', 'yyyy-MM-dd''T''HH:mm:ss', 'TimeZone', 'UTC');
-ppg_end_time = datetime({ppg_meta.end_iso8601}', 'InputFormat', 'dd-MMM-yyyy HH:mm:ss Z', 'Format', 'yyyy-MM-dd''T''HH:mm:ss', 'TimeZone', 'UTC'); 
-imu_end_time = datetime({imu_meta.end_iso8601}', 'InputFormat', 'dd-MMM-yyyy HH:mm:ss Z', 'Format', 'yyyy-MM-dd''T''HH:mm:ss', 'TimeZone', 'UTC');
+ppg_start_time = datetime({ppg_meta.start_iso8601}', 'InputFormat', 'yyyy-MM-dd''T''HH:mm:ssZ', 'Format', 'yyyy-MM-dd''T''HH:mm:ss', 'TimeZone', 'UTC'); 
+imu_start_time = datetime({imu_meta.start_iso8601}', 'InputFormat', 'yyyy-MM-dd''T''HH:mm:ssZ', 'Format', 'yyyy-MM-dd''T''HH:mm:ss', 'TimeZone', 'UTC');
+ppg_end_time = datetime({ppg_meta.end_iso8601}', 'InputFormat', 'yyyy-MM-dd''T''HH:mm:ssZ', 'Format', 'yyyy-MM-dd''T''HH:mm:ss', 'TimeZone', 'UTC'); 
+imu_end_time = datetime({imu_meta.end_iso8601}', 'InputFormat', 'yyyy-MM-dd''T''HH:mm:ssZ', 'Format', 'yyyy-MM-dd''T''HH:mm:ss', 'TimeZone', 'UTC');
 
 % Create a time vector covering the entire range
 time_vector_total = datetime(min([imu_start_time; ppg_start_time]), 'Format', 'yyyy-MM-dd HH:mm:ss'):seconds(1):datetime(max([imu_end_time; ppg_end_time]), 'Format', 'yyyy-MM-dd HH:mm:ss');
