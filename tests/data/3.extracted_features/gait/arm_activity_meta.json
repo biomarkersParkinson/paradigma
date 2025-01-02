@@ -12,9 +12,6 @@
     "bits": 64,
     "sensors": [
         {
-            "scale_factors": [
-                1
-            ],
             "file_name": "arm_activity_time.bin",
             "channels": [
                 "time"
