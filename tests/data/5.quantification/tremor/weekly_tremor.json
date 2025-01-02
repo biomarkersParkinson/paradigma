@@ -5,7 +5,7 @@
     },
     "weekly_tremor_measures": {
         "tremor_time": 16.853932584269664,
-        "tremor_power_median": 0.4242462829851576,
+        "tremor_power_median": 0.4242462829851575,
         "tremor_power_mode": 0.42,
         "tremor_power_90th_perc": 0.8001855655603588
     }

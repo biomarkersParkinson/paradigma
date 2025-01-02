@@ -302,11 +302,7 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
 
     # Drop the gyroscope columns from the IMU data
     cols_to_drop = df_imu.filter(regex='^gyroscope_').columns
-    df_acc = df_imu.drop(cols_to_drop, axis=1, inplace=True)
-
-    # Apply scale factors to accelerometer data only
-    acc_columns = list(imu_config.d_channels_accelerometer.keys())
-    df_acc[acc_columns] *= metadata_values_imu.scale_factors[:3]
+    df_acc = df_imu.drop(cols_to_drop, axis=1)
 
     # Extract overlapping segments
     print("Shape of the original data:", df_ppg.shape, df_acc.shape)
