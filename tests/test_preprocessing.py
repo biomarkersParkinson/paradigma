@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from paradigma.imu_preprocessing import preprocess_imu_data_io
+from paradigma.preprocessing import preprocess_imu_data_io
 from paradigma.config import IMUConfig
 from test_notebooks import compare_data
 
@@ -21,7 +21,7 @@ def test_1_imu_preprocessing_outputs(shared_datadir: Path):
     """
     This function is used to evaluate the output of the preprocessing function. It evaluates it by comparing the output to a reference output.
     """
-    input_dir_name: str = "1.sensor_data"
+    input_dir_name: str = "1.prepared_data"
     output_dir_name: str = "2.preprocessed_data"
 
     path_to_imu_input = shared_datadir / input_dir_name / "imu"
