@@ -12,15 +12,12 @@
     "bits": 64,
     "sensors": [
         {
-            "scale_factors": [
-                1
-            ],
             "file_name": "accelerometer_time.bin",
             "channels": [
                 "time"
             ],
             "units": [
-                "absolute_s"
+                "absolute_ms"
             ]
         },
         {
@@ -34,8 +31,7 @@
                 "m/s^2",
                 "m/s^2",
                 "m/s^2"
-            ],
-            "scale_factors": []
+            ]
         }
     ]
 }

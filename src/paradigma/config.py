@@ -132,7 +132,7 @@ class TremorBaseConfig(IMUConfig):
 
         self.window_type = 'hann'
         self.window_length_s: float = 4
-        self.window_step_size_s: float = 4
+        self.window_step_length_s: float = 4
 
         self.fmin_tremor_power: float = 3
         self.fmax_tremor_power: float = 7
@@ -146,8 +146,6 @@ class HeartRateBaseConfig(PPGConfig):
 
         self.window_length_s: int = 6
         self.window_step_size_s: int = 1
-        self.segment_gap_s = 1.5
-
 
 # Domain feature extraction configs
 class GaitFeatureExtractionConfig(GaitBaseConfig):
@@ -366,9 +364,8 @@ class HeartRateExtractionConfig(HeartRateBaseConfig):
         super().__init__()
 
          # Parameters for HR analysis
-        self.window_length_s: int = 6
-        self.window_step_size_s: int = 1
-        self.min_hr_samples = min_window_length * self.sampling_frequency
+        self.window_overlap_s = self.window_length_s - self.window_step_size_s
+        self.min_hr_samples = int(round(min_window_length * self.sampling_frequency))
         self.threshold_sqa = 0.5
 
         # Heart rate estimation parameters
@@ -380,12 +377,18 @@ class HeartRateExtractionConfig(HeartRateBaseConfig):
         self.kern_type = 'sep'
         win_type_doppler = 'hamm'
         win_type_lag = 'hamm'
-        win_length_doppler = 1
-        win_length_lag = 8
+        win_length_doppler = 8
+        win_length_lag = 1
         doppler_samples = self.sampling_frequency * win_length_doppler
         lag_samples = win_length_lag * self.sampling_frequency
-        self.kern_params = [
-            {'doppler_samples': doppler_samples, 'win_type_doppler': win_type_doppler}, 
-            {'lag_samples': lag_samples, 'win_type_lag': win_type_lag}
-        ]
+        self.kern_params = {
+            'doppler': {
+                'win_length': doppler_samples,
+                'win_type': win_type_doppler,
+            },
+            'lag': {
+                'win_length': lag_samples,
+                'win_type': win_type_lag,
+            }
+        }
             

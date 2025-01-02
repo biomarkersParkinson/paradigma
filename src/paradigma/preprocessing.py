@@ -1,3 +1,4 @@
+import json
 import numpy as np
 import pandas as pd
 import tsdf
@@ -184,7 +185,8 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str) -> pd.
         df=df,
         time_column=DataColumns.TIME,
         values_column_names = values_colnames,
-        resampling_frequency=config.sampling_frequency)
+        resampling_frequency=config.sampling_frequency
+    )
     
     if sensor in ['accelerometer', 'both']:
       
@@ -259,6 +261,152 @@ def scan_and_sync_segments(input_path_ppg, input_path_imu):
     metadatas_imu = [tsdf.load_metadata_from_path(meta_imu[index]['tsdf_meta_fullpath']) for index in segments_imu]
 
     return metadatas_ppg, metadatas_imu
+
+
+def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TSDFMetadata, 
+                        output_path: Union[str, Path], ppg_config: PPGConfig, 
+                        imu_config: IMUConfig, store_locally:bool = True) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Preprocess PPG and IMU data by resampling, filtering, and aligning the data segments.
+
+    Parameters
+    ----------
+    tsdf_meta_ppg : tsdf.TSDFMetadata
+        Metadata for the PPG data.
+    tsdf_meta_imu : tsdf.TSDFMetadata
+        Metadata for the IMU data.
+    output_path : Union[str, Path]
+        Path to store the preprocessed data.
+    ppg_config : PPGPreprocessingConfig
+        Configuration object for PPG preprocessing.
+    imu_config : IMUPreprocessingConfig
+        Configuration object for IMU preprocessing.
+    store_locally : bool, optional
+        Flag to store the preprocessed data locally, by default True.
+    
+    Returns
+    -------
+    Tuple[pd.DataFrame, pd.DataFrame]
+        Preprocessed PPG and IMU data as DataFrames.
+    
+    """
+    # Load PPG data
+    metadata_time_ppg = tsdf_meta_ppg[ppg_config.time_filename]
+    metadata_values_ppg = tsdf_meta_ppg[ppg_config.values_filename]
+    df_ppg = tsdf.load_dataframe_from_binaries([metadata_time_ppg, metadata_values_ppg], tsdf.constants.ConcatenationType.columns)
+
+    # Load IMU data
+    metadata_time_imu = tsdf_meta_imu[imu_config.time_filename]
+    metadata_values_imu = tsdf_meta_imu[imu_config.values_filename]
+    df_imu = tsdf.load_dataframe_from_binaries([metadata_time_imu, metadata_values_imu], tsdf.constants.ConcatenationType.columns)
+
+    # Drop the gyroscope columns from the IMU data
+    cols_to_drop = df_imu.filter(regex='^gyroscope_').columns
+    df_acc = df_imu.drop(cols_to_drop, axis=1)
+
+    # Extract overlapping segments
+    print("Shape of the original data:", df_ppg.shape, df_acc.shape)
+    df_ppg_overlapping, df_acc_overlapping = extract_overlapping_segments(df_ppg, df_acc)
+    print("Shape of the overlapping segments:", df_ppg_overlapping.shape, df_acc_overlapping.shape)
+    
+    # Resample accelerometer data
+    df_acc_proc = resample_data(
+        df=df_acc_overlapping,
+        time_column=DataColumns.TIME,
+        values_column_names = list(imu_config.d_channels_accelerometer.keys()),
+        resampling_frequency=imu_config.sampling_frequency
+    )
+
+    # Resample PPG data
+    df_ppg_proc = resample_data(
+        df=df_ppg_overlapping,
+        time_column=DataColumns.TIME,
+        values_column_names = list(ppg_config.d_channels_ppg.keys()),
+        resampling_frequency=ppg_config.sampling_frequency
+    )
+
+    # apply Butterworth filter to accelerometer data
+    for col in imu_config.d_channels_accelerometer.keys():
+
+        for result, side_pass in zip(['filt', 'grav'], ['hp', 'lp']):
+            df_acc_proc[f'{result}_{col}'] = butterworth_filter(
+                data=np.array(df_acc_proc[col]),
+                order=imu_config.filter_order,
+                cutoff_frequency=imu_config.lower_cutoff_frequency,
+                passband=side_pass,
+                sampling_frequency=imu_config.sampling_frequency,
+                )
+
+        df_acc_proc = df_acc_proc.drop(columns=[col])
+        df_acc_proc = df_acc_proc.rename(columns={f'filt_{col}': col})
+
+    for col in ppg_config.d_channels_ppg.keys():
+        df_ppg_proc[f'filt_{col}'] = butterworth_filter(
+            data=np.array(df_ppg_proc[col]),
+            order=ppg_config.filter_order,
+            cutoff_frequency=[ppg_config.lower_cutoff_frequency, ppg_config.upper_cutoff_frequency],
+            passband='band',
+            sampling_frequency=ppg_config.sampling_frequency,
+        )
+
+        df_ppg_proc = df_ppg_proc.drop(columns=[col])
+        df_ppg_proc = df_ppg_proc.rename(columns={f'filt_{col}': col})
+
+    if store_locally:
+        # Store data
+        metadata_values_imu.channels = list(imu_config.d_channels_accelerometer.keys())
+        metadata_values_imu.units = list(imu_config.d_channels_accelerometer.values())
+        metadata_values_imu.file_name = 'accelerometer_values.bin'
+        metadata_time_imu.units = [TimeUnit.ABSOLUTE_MS]
+        metadata_time_imu.file_name = 'accelerometer_time.bin'
+        write_df_data(metadata_time_imu, metadata_values_imu, output_path, 'accelerometer_meta.json', df_acc_proc)
+
+        metadata_values_ppg.channels = list(ppg_config.d_channels_ppg.keys())
+        metadata_values_ppg.units = list(ppg_config.d_channels_ppg.values())
+        metadata_values_ppg.file_name = 'PPG_values.bin'
+        metadata_time_ppg.units = [TimeUnit.ABSOLUTE_MS]
+        metadata_time_ppg.file_name = 'PPG_time.bin'
+        write_df_data(metadata_time_ppg, metadata_values_ppg, output_path, 'PPG_meta.json', df_ppg_proc)
+    
+    return df_ppg_proc, df_acc_proc
+
+
+# TODO: ideally something like this should be possible directly in the tsdf library
+def extract_meta_from_tsdf_files(tsdf_data_dir : str) -> List[dict]:
+    """
+    For each given TSDF directory, transcribe TSDF metadata contents to a list of dictionaries.
+    
+    Parameters
+    ----------
+    tsdf_data_dir : str
+        Path to the directory containing TSDF metadata files.
+
+    Returns
+    -------
+    List[Dict]
+        List of dictionaries with metadata from each JSON file in the directory.
+
+    Examples
+    --------
+    >>> extract_meta_from_tsdf_files('/path/to/tsdf_data')
+    [{'start_iso8601': '2021-06-27T16:52:20Z', 'end_iso8601': '2021-06-27T17:52:20Z'}, ...]
+    """
+    metas = []
+    
+    # Collect all metadata JSON files in the specified directory
+    meta_list = list(Path(tsdf_data_dir).rglob('*_meta.json'))
+    for meta_file in meta_list:
+        with open(meta_file, 'r') as file:
+            json_obj = json.load(file)
+            meta_data = {
+                'tsdf_meta_fullpath': str(meta_file),
+                'subject_id': json_obj['subject_id'],
+                'start_iso8601': json_obj['start_iso8601'],
+                'end_iso8601': json_obj['end_iso8601']
+            }
+            metas.append(meta_data)
+    
+    return metas
 
 
 def synchronization(ppg_meta, imu_meta):
@@ -347,22 +495,22 @@ def synchronization(ppg_meta, imu_meta):
 
     return segment_ppg_total, segment_imu_total
 
-def extract_overlapping_segments(df_ppg, df_imu, time_column_ppg='time', time_column_imu='time'):
+def extract_overlapping_segments(df_ppg, df_acc, time_column_ppg='time', time_column_imu='time'):
     """
     Extract DataFrames with overlapping data segments between IMU and PPG datasets based on their timestamps.
 
     Parameters:
     df_ppg (pd.DataFrame): DataFrame containing PPG data with a time column in UNIX seconds.
-    df_imu (pd.DataFrame): DataFrame containing IMU data with a time column in UNIX seconds.
+    df_acc (pd.DataFrame): DataFrame containing IMU accelerometer data with a time column in UNIX seconds.
     time_column_ppg (str): Column name of the timestamp in the PPG DataFrame.
     time_column_imu (str): Column name of the timestamp in the IMU DataFrame.
 
     Returns:
-    tuple: Tuple containing two DataFrames (df_ppg_overlapping, df_imu_overlapping) that contain only the data
+    tuple: Tuple containing two DataFrames (df_ppg_overlapping, df_acc_overlapping) that contain only the data
     within the overlapping time segments.
     """
     ppg_time = df_ppg[time_column_ppg] 
-    imu_time = df_imu[time_column_imu] 
+    imu_time = df_acc[time_column_imu] 
 
     # Determine the overlapping time interval
     start_time = max(ppg_time.iloc[0], imu_time.iloc[0])
@@ -376,125 +524,6 @@ def extract_overlapping_segments(df_ppg, df_imu, time_column_ppg='time', time_co
 
     # Extract overlapping segments from DataFrames
     df_ppg_overlapping = df_ppg.iloc[ppg_start_index:ppg_end_index + 1]
-    df_imu_overlapping = df_imu.iloc[imu_start_index:imu_end_index + 1]
+    df_acc_overlapping = df_acc.iloc[imu_start_index:imu_end_index + 1]
 
-    return df_ppg_overlapping, df_imu_overlapping
-
-
-def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TSDFMetadata, 
-                        output_path: Union[str, Path], ppg_config: PPGConfig, 
-                        imu_config: IMUConfig, store_locally:bool = True) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Preprocess PPG and IMU data by resampling, filtering, and aligning the data segments.
-
-    Parameters
-    ----------
-    tsdf_meta_ppg : tsdf.TSDFMetadata
-        Metadata for the PPG data.
-    tsdf_meta_imu : tsdf.TSDFMetadata
-        Metadata for the IMU data.
-    output_path : Union[str, Path]
-        Path to store the preprocessed data.
-    ppg_config : PPGPreprocessingConfig
-        Configuration object for PPG preprocessing.
-    imu_config : IMUPreprocessingConfig
-        Configuration object for IMU preprocessing.
-    store_locally : bool, optional
-        Flag to store the preprocessed data locally, by default True.
-    
-    Returns
-    -------
-    Tuple[pd.DataFrame, pd.DataFrame]
-        Preprocessed PPG and IMU data as DataFrames.
-    
-    """
-    # Load PPG data
-    metadata_time_ppg = tsdf_meta_ppg[ppg_config.time_filename]
-    metadata_values_ppg = tsdf_meta_ppg[ppg_config.values_filename]
-    df_ppg = tsdf.load_dataframe_from_binaries([metadata_time_ppg, metadata_values_ppg], tsdf.constants.ConcatenationType.columns)
-
-    # Load IMU data
-    metadata_time_imu = tsdf_meta_imu[imu_config.time_filename]
-    metadata_values_imu = tsdf_meta_imu[imu_config.values_filename]
-    df_imu = tsdf.load_dataframe_from_binaries([metadata_time_imu, metadata_values_imu], tsdf.constants.ConcatenationType.columns)
-
-    # Drop the gyroscope columns from the IMU data
-    cols_to_drop = df_imu.filter(regex='^gyroscope_').columns
-    df_imu.drop(cols_to_drop, axis=1, inplace=True)
-
-    # Transform the time arrays to relative milliseconds
-    start_time_ppg = parse_iso8601_to_datetime(metadata_time_ppg.start_iso8601).timestamp()
-    df_imu[DataColumns.TIME] = transform_time_array(
-        time_array=df_imu[DataColumns.TIME],
-        input_unit_type = TimeUnit.RELATIVE_S,
-        output_unit_type = TimeUnit.RELATIVE_S,
-        start_time = start_time_ppg)
-
-    start_time_imu = parse_iso8601_to_datetime(metadata_time_imu.start_iso8601).timestamp()
-    df_ppg[DataColumns.TIME] = transform_time_array(
-        time_array=df_ppg[DataColumns.TIME],
-        input_unit_type = TimeUnit.RELATIVE_S,
-        output_unit_type = TimeUnit.RELATIVE_S,
-        start_time = start_time_imu)
-
-    # Extract overlapping segments
-    df_ppg_overlapping, df_imu_overlapping = extract_overlapping_segments(df_ppg, df_imu)
-
-    # Resample accelerometer data
-    df_imu_proc = resample_data(
-        df=df_imu_overlapping,
-        time_column=DataColumns.TIME,
-        values_column_names = list(imu_config.d_channels_accelerometer.keys()),
-        resampling_frequency=imu_config.sampling_frequency)
-
-    # Resample PPG data
-    df_ppg_proc = resample_data(
-        df=df_ppg_overlapping,
-        time_column=DataColumns.TIME,
-        values_column_names = list(ppg_config.d_channels_ppg.keys()),
-        resampling_frequency=ppg_config.sampling_frequency)
-
-    # apply Butterworth filter to accelerometer data
-    for col in imu_config.d_channels_accelerometer.keys():
-
-        for result, side_pass in zip(['filt', 'grav'], ['hp', 'lp']):
-            df_imu_proc[f'{result}_{col}'] = butterworth_filter(
-                data=np.array(df_imu_proc[col]),
-                order=imu_config.filter_order,
-                cutoff_frequency=imu_config.lower_cutoff_frequency,
-                passband=side_pass,
-                sampling_frequency=imu_config.sampling_frequency,
-                )
-
-        df_imu_proc = df_imu_proc.drop(columns=[col])
-        df_imu_proc = df_imu_proc.rename(columns={f'filt_{col}': col})
-
-    for col in ppg_config.d_channels_ppg.keys():
-        df_ppg_proc[f'filt_{col}'] = butterworth_filter(
-            data=np.array(df_ppg_proc[col]),
-            order=ppg_config.filter_order,
-            cutoff_frequency=[ppg_config.lower_cutoff_frequency, ppg_config.upper_cutoff_frequency],
-            passband='band',
-            sampling_frequency=ppg_config.sampling_frequency,
-        )
-
-        df_ppg_proc = df_ppg_proc.drop(columns=[col])
-        df_ppg_proc = df_ppg_proc.rename(columns={f'filt_{col}': col})
-
-    if store_locally:
-        # Store data
-        metadata_values_imu.channels = list(imu_config.d_channels_accelerometer.keys())
-        metadata_values_imu.units = list(imu_config.d_channels_accelerometer.values())
-        metadata_values_imu.file_name = 'accelerometer_values.bin'
-        metadata_time_imu.units = [TimeUnit.ABSOLUTE_S]
-        metadata_time_imu.file_name = 'accelerometer_time.bin'
-        write_df_data(metadata_time_imu, metadata_values_imu, output_path, 'accelerometer_meta.json', df_imu_proc)
-
-        metadata_values_ppg.channels = list(ppg_config.d_channels_ppg.keys())
-        metadata_values_ppg.units = list(ppg_config.d_channels_ppg.values())
-        metadata_values_ppg.file_name = 'PPG_values.bin'
-        metadata_time_ppg.units = [TimeUnit.ABSOLUTE_S]
-        metadata_time_ppg.file_name = 'PPG_time.bin'
-        write_df_data(metadata_time_ppg, metadata_values_ppg, output_path, 'PPG_meta.json', df_ppg_proc)
-    
-    return df_ppg_proc, df_imu_proc
+    return df_ppg_overlapping, df_acc_overlapping
