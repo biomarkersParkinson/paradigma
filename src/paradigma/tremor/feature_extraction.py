@@ -42,7 +42,7 @@ def compute_mfccs(
             Number of triangular filters in the filterbank (default: 15).
         - mfcc_n_coefficients : int
             Number of coefficients to extract (default: 12).
-    total_power_array : np.ndarray
+    total_spectrogram_array : np.ndarray
         3D array of shape (n_windows, n_frequencies, n_segments) containing the total spectrogram 
         of the signal for each window.
     mel_scale : bool, optional
@@ -235,7 +235,7 @@ def extract_tremor_power(
     return tremor_power
 
 
-def extract_spectral_domain_features(config, data):
+def extract_spectral_domain_features(config, data) -> pd.DataFrame:
     """
     Compute spectral domain features from the gyroscope data.
 
@@ -248,13 +248,13 @@ def extract_spectral_domain_features(config, data):
     config : object
         Configuration object containing settings such as sampling frequency, window type, 
         and MFCC parameters.
-    windowed_data : numpy.ndarray
+    data : numpy.ndarray
         A 2D numpy array where each row corresponds to a window of gyroscope data.
 
     Returns
     -------
-    dict
-        The updated feature dictionary containing the extracted spectral features, including 
+    pd.DataFrame
+        The feature dataframe containing the extracted spectral features, including 
         MFCCs, the frequency of the peak, the tremor power and non-tremor power for each window.
     """
 

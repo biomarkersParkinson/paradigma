@@ -11,9 +11,9 @@ from scipy.stats import gaussian_kde
 
 from paradigma.constants import DataColumns
 from paradigma.config import TremorFeatureExtractionConfig, TremorDetectionConfig, TremorQuantificationConfig
-from paradigma.tremor.feature_extraction import extract_spectral_domain_features, extract_spectral_domain_features
-from paradigma.segmenting import tabulate_windows, tabulate_windows_legacy
-from paradigma.util import get_end_iso8601, write_df_data, read_metadata
+from paradigma.tremor.feature_extraction import extract_spectral_domain_features
+from paradigma.segmenting import tabulate_windows
+from paradigma.util import get_end_iso8601, write_df_data, read_metadata, WindowedDataExtractor
 
 
 def extract_tremor_features(df: pd.DataFrame, config: TremorFeatureExtractionConfig) -> pd.DataFrame:
@@ -47,20 +47,23 @@ def extract_tremor_features(df: pd.DataFrame, config: TremorFeatureExtractionCon
         If the input DataFrame does not contain the required columns as specified in the configuration or if any step in the feature extraction fails.
     """
     # group sequences of timestamps into windows
-    window_cols = [DataColumns.TIME] + config.gyroscope_cols
-    data_windowed = tabulate_windows(config, df, window_cols)
+    windowed_cols = [DataColumns.TIME] + config.gyroscope_cols
+    windowed_data = tabulate_windows(config, df, windowed_cols)
 
-    idx_time = window_cols.index(DataColumns.TIME)
-    idx_gyro = slice(1, 4)
+    extractor = WindowedDataExtractor(windowed_cols)
 
     # Extract the start time and gyroscope data from the windowed data
-    start_time = np.min(data_windowed[:, :, idx_time], axis=1)
-    gyro_windowed = data_windowed[:, :, idx_gyro]
+    idx_time = extractor.get_index(DataColumns.TIME)
+    idx_gyro = extractor.get_slice(config.gyroscope_cols)
+
+    # Extract data
+    start_time = np.min(windowed_data[:, :, idx_time], axis=1)
+    windowed_gyro = windowed_data[:, :, idx_gyro]
 
     df_features = pd.DataFrame(start_time, columns=[DataColumns.TIME])
     
     # transform the signals from the temporal domain to the spectral domain and extract tremor features
-    df_spectral_features = extract_spectral_domain_features(config, gyro_windowed)
+    df_spectral_features = extract_spectral_domain_features(config, windowed_gyro)
 
     # Combine spectral features with the start time
     df_features= pd.concat([df_features, df_spectral_features], axis=1)
