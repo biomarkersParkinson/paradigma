@@ -327,7 +327,8 @@ def extract_arm_activity_features(
 
     # If no windows were created, raise an error
     if not windowed_data:
-        raise ValueError("No windows were created from the given data.")
+        print("No windows were created from the given data.")
+        return pd.DataFrame()
 
     # Concatenate the windows into one array at the end
     windowed_data = np.concatenate(windowed_data, axis=0)
