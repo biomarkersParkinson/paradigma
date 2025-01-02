@@ -17,6 +17,7 @@ end
 Ntime=size(tfd,1);   
     
 ntime=1:Ntime; ntime=ntime./fs-1/fs;       % time array
+ntime=round(ntime, 10);   % to overcome floating point inconsistencies
 Mh=ceil(M);
 k=linspace(0,0.5,Mh);
 k=k.*fs;                                   % frequency array

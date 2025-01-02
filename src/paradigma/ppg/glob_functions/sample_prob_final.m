@@ -1,4 +1,4 @@
-function data_prob = sample_prob_final(ppg_prob, imu_label, fs)
+function data_prob = sample_prob_final(ppg_prob, fs, imu_label)
 % K.I. Veldkamp, PhD student AI4P, 29-02-24
 
 %%--Assign probability to every individual data point!--%%

@@ -146,8 +146,6 @@ class HeartRateBaseConfig(PPGConfig):
 
         self.window_length_s: int = 6
         self.window_step_size_s: int = 1
-        self.segment_gap_s = 1.5
-
 
 # Domain feature extraction configs
 class GaitFeatureExtractionConfig(GaitBaseConfig):
@@ -361,9 +359,6 @@ class TremorQuantificationConfig(TremorBaseConfig):
     def __init__(self) -> None:
         super().__init__()
 
-        self.valid_day_threshold_hr: float = 0 # change to 10 later!
-        self.daytime_hours_lower_bound: float = 8
-        self.daytime_hours_upper_bound: float = 22
         self.percentile_tremor_power: float = 0.9
 
         self.set_filenames('tremor')
@@ -375,9 +370,8 @@ class HeartRateExtractionConfig(HeartRateBaseConfig):
         super().__init__()
 
          # Parameters for HR analysis
-        self.window_length_s: int = 6
-        self.window_step_size_s: int = 1
-        self.min_hr_samples = min_window_length * self.sampling_frequency
+        self.window_overlap_s = self.window_length_s - self.window_step_size_s
+        self.min_hr_samples = int(round(min_window_length * self.sampling_frequency))
         self.threshold_sqa = 0.5
 
         # Heart rate estimation parameters
@@ -389,12 +383,18 @@ class HeartRateExtractionConfig(HeartRateBaseConfig):
         self.kern_type = 'sep'
         win_type_doppler = 'hamm'
         win_type_lag = 'hamm'
-        win_length_doppler = 1
-        win_length_lag = 8
+        win_length_doppler = 8
+        win_length_lag = 1
         doppler_samples = self.sampling_frequency * win_length_doppler
         lag_samples = win_length_lag * self.sampling_frequency
-        self.kern_params = [
-            {'doppler_samples': doppler_samples, 'win_type_doppler': win_type_doppler}, 
-            {'lag_samples': lag_samples, 'win_type_lag': win_type_lag}
-        ]
+        self.kern_params = {
+            'doppler': {
+                'win_length': doppler_samples,
+                'win_type': win_type_doppler,
+            },
+            'lag': {
+                'win_length': lag_samples,
+                'win_type': win_type_lag,
+            }
+        }
             
