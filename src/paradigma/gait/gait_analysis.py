@@ -596,7 +596,7 @@ def quantify_arm_swing_io(path_to_feature_input: Union[str, Path], path_to_predi
 
 def merge_predictions_with_timestamps(df_ts, df_predictions, config):
     """
-    Merges prediction probabilities with timestamps by expanding overlapping windows 
+    Merges prediction probabilities with timestamps by expanding overlapping windows
     into individual timestamps and averaging probabilities per unique timestamp.
 
     Parameters:
@@ -623,34 +623,44 @@ def merge_predictions_with_timestamps(df_ts, df_predictions, config):
 
     Steps:
     ------
-    1. Expand prediction windows into individual timestamps.
-    2. Round timestamps to mitigate floating-point inaccuracies.
-    3. Aggregate probabilities by unique timestamps.
+    1. Expand prediction windows into individual timestamps using NumPy broadcasting.
+    2. Flatten the timestamps and prediction probabilities into single arrays.
+    3. Aggregate probabilities by unique timestamps using pandas `groupby`.
     4. Merge the aggregated probabilities with the input `df_ts`.
 
     Notes:
     ------
-    - Ensure that timestamps in `df_ts` and `df_predictions` align appropriately before merging.
+    - Rounding is applied to timestamps to mitigate floating-point inaccuracies.
+    - Fully vectorized for speed and scalability, avoiding any row-wise operations.
     """
-    # Step 1: Expand each window into individual timestamps
-    expanded_data = []
-    for _, row in df_predictions.iterrows():
-        start_time = row[DataColumns.TIME]
-        proba = row[DataColumns.PRED_GAIT_PROBA]
-        timestamps = np.arange(start_time, start_time + config.window_length_s, 1/config.sampling_frequency)
-        expanded_data.extend(zip(timestamps, [proba] * len(timestamps)))
+    # Step 1: Generate all timestamps for prediction windows using NumPy broadcasting
+    window_length = int(config.window_length_s * config.sampling_frequency)
+    timestamps = (
+        df_predictions[DataColumns.TIME].values[:, None] +
+        np.arange(0, window_length) / config.sampling_frequency
+    )
+    
+    # Flatten timestamps and probabilities into a single array for efficient processing
+    flat_timestamps = timestamps.ravel()
+    flat_proba = np.repeat(
+        df_predictions[DataColumns.PRED_GAIT_PROBA].values,
+        window_length
+    )
 
-    # Create a new DataFrame with expanded timestamps
-    expanded_df = pd.DataFrame(expanded_data, columns=[DataColumns.TIME, DataColumns.PRED_GAIT_PROBA])
+    # Step 2: Create a DataFrame for expanded data
+    expanded_df = pd.DataFrame({
+        DataColumns.TIME: flat_timestamps,
+        DataColumns.PRED_GAIT_PROBA: flat_proba
+    })
 
-    # Step 2: Round timestamps to avoid floating-point inaccuracies
+    # Step 3: Round timestamps and aggregate probabilities
     expanded_df[DataColumns.TIME] = expanded_df[DataColumns.TIME].round(2)
+    mean_proba = expanded_df.groupby(DataColumns.TIME, as_index=False).mean()
+
+    # Step 4: Round timestamps in `df_ts` and merge
     df_ts[DataColumns.TIME] = df_ts[DataColumns.TIME].round(2)
-
-    # Step 3: Aggregate by unique timestamps and calculate the mean probability
-    expanded_df = expanded_df.groupby(DataColumns.TIME, as_index=False)[DataColumns.PRED_GAIT_PROBA].mean()
-
-    df_ts = pd.merge(left=df_ts, right=expanded_df, how='left', on=DataColumns.TIME)
+    df_ts = pd.merge(df_ts, mean_proba, how='left', on=DataColumns.TIME)
     df_ts = df_ts.dropna(subset=[DataColumns.PRED_GAIT_PROBA])
 
     return df_ts
+
