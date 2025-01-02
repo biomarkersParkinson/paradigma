@@ -12,19 +12,15 @@
     "data_type": "float",
     "sensors": [
         {
-            "scale_factors": [
-                1
-            ],
             "file_name": "PPG_time.bin",
             "channels": [
                 "time"
             ],
             "units": [
-                "absolute_s"
+                "absolute_ms"
             ]
         },
         {
-            "scale_factors": [],
             "file_name": "PPG_values.bin",
             "channels": [
                 "green"
