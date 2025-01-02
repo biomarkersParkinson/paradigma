@@ -184,7 +184,8 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str) -> pd.
         df=df,
         time_column=DataColumns.TIME,
         values_column_names = values_colnames,
-        resampling_frequency=config.sampling_frequency)
+        resampling_frequency=config.sampling_frequency
+    )
     
     if sensor in ['accelerometer', 'both']:
       
@@ -315,17 +316,17 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
     df_acc_proc = resample_data(
         df=df_acc_overlapping,
         time_column=DataColumns.TIME,
-        time_unit_type=TimeUnit.RELATIVE_MS,
         values_column_names = list(imu_config.d_channels_accelerometer.keys()),
-        resampling_frequency=imu_config.sampling_frequency)
+        resampling_frequency=imu_config.sampling_frequency
+    )
 
     # Resample PPG data
     df_ppg_proc = resample_data(
         df=df_ppg_overlapping,
         time_column=DataColumns.TIME,
-        time_unit_type=TimeUnit.RELATIVE_MS,
         values_column_names = list(ppg_config.d_channels_ppg.keys()),
-        resampling_frequency=ppg_config.sampling_frequency)
+        resampling_frequency=ppg_config.sampling_frequency
+    )
 
     # apply Butterworth filter to accelerometer data
     for col in imu_config.d_channels_accelerometer.keys():
