@@ -10,7 +10,7 @@ from typing import List, Tuple, Union
 
 from paradigma.constants import TimeUnit, DataColumns
 from paradigma.config import PPGConfig, IMUConfig
-from paradigma.util import parse_iso8601_to_datetime, write_df_data, transform_time_array, \
+from paradigma.util import parse_iso8601_to_datetime, write_df_data, \
     read_metadata, extract_meta_from_tsdf_files
 
 
