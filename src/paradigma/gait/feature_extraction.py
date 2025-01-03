@@ -458,7 +458,7 @@ def extract_angle_extremes(
         angle_array: np.ndarray,
         sampling_frequency: float,
         max_frequency_activity: float = 1.75,
-    ) -> tuple[list[int], np.ndarray, np.ndarray]:
+    ) -> tuple[list[int], List[int], List[int]]:
 
     distance = sampling_frequency / max_frequency_activity
     prominence = 2  
@@ -511,7 +511,7 @@ def extract_angle_extremes(
     # Combine remaining extrema and compute range of motion
     angle_extrema_indices = np.sort(np.concatenate([minima_indices, maxima_indices]))
 
-    return angle_extrema_indices, list(minima_indices), list(maxima_indices)
+    return list(angle_extrema_indices), list(minima_indices), list(maxima_indices)
 
 
 def compute_range_of_motion(
