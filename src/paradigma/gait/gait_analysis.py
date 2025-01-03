@@ -648,28 +648,24 @@ def quantify_arm_swing(df_timestamps: pd.DataFrame, df_predictions: pd.DataFrame
             segment_results[df_name][segment_nr] = feature_dict
 
         segment_cats = current_df[DataColumns.SEGMENT_CAT].dropna().unique()
-        segment_cats = np.append(segment_cats, 'overall')
 
         for segment_cat in segment_cats:
-            relevant_segments = (
-                segment_results[df_name].values() if segment_cat == "overall" else
-                [f for f in segment_results[df_name].values() if f[DataColumns.SEGMENT_CAT] == segment_cat]
-            )
+            relevant_segments = [f for f in segment_results[df_name].values() if f[DataColumns.SEGMENT_CAT] == segment_cat]
 
             if not relevant_segments:
                 continue
 
             cat_results = {
                 'time_s': sum(f['time_s'] for f in relevant_segments),
-                DataColumns.RANGE_OF_MOTION: np.concatenate([
+                DataColumns.RANGE_OF_MOTION: [
                     f[DataColumns.RANGE_OF_MOTION] for f in relevant_segments if DataColumns.RANGE_OF_MOTION in f
-                ]),
-                f'forward_{DataColumns.PEAK_VELOCITY}': np.concatenate([
+                ],
+                f'forward_{DataColumns.PEAK_VELOCITY}': [
                     f[f'forward_{DataColumns.PEAK_VELOCITY}'] for f in relevant_segments if f'forward_{DataColumns.PEAK_VELOCITY}' in f
-                ]),
-                f'backward_{DataColumns.PEAK_VELOCITY}': np.concatenate([
+                ],
+                f'backward_{DataColumns.PEAK_VELOCITY}': [
                     f[f'backward_{DataColumns.PEAK_VELOCITY}'] for f in relevant_segments if f'backward_{DataColumns.PEAK_VELOCITY}' in f
-                ]),
+                ],
             }
 
             segment_results_aggregated[df_name][segment_cat] = cat_results
