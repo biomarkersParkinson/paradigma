@@ -363,7 +363,7 @@ def pca_transform_gyroscope(
         df: pd.DataFrame,
         y_gyro_colname: str,
         z_gyro_colname: str,
-        pred_colname: str,
+        pred_colname: str | None = None,
 ) -> np.ndarray:
     # Convert gyroscope columns to NumPy arrays
     y_gyro_array = df[y_gyro_colname].to_numpy()
@@ -373,13 +373,13 @@ def pca_transform_gyroscope(
     pred_mask = df[pred_colname] == 1
     y_gyro_pred_array = y_gyro_array[pred_mask]
     z_gyro_pred_array = z_gyro_array[pred_mask]
-
+    
     # Combine columns for PCA
-    pred_data = np.column_stack((y_gyro_pred_array, z_gyro_pred_array))
+    fit_data = np.column_stack((y_gyro_pred_array, z_gyro_pred_array))
     full_data = np.column_stack((y_gyro_array, z_gyro_array))
 
     pca = PCA(n_components=2, svd_solver='auto', random_state=22)
-    pca.fit(pred_data)
+    pca.fit(fit_data)
     velocity = pca.transform(full_data)[:, 0]  # First principal component
 
     return np.asarray(velocity)

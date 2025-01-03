@@ -12,7 +12,8 @@ from paradigma.constants import DataColumns
 from paradigma.config import GaitFeatureExtractionConfig, GaitDetectionConfig, \
     ArmActivityFeatureExtractionConfig, FilteringGaitConfig, ArmSwingQuantificationConfig
 from paradigma.gait.feature_extraction import extract_temporal_domain_features, \
-    extract_spectral_domain_features
+    extract_spectral_domain_features, pca_transform_gyroscope, compute_angle, remove_moving_average_angle, \
+    extract_angle_extremes, compute_range_of_motion, compute_peak_angular_velocity
 from paradigma.segmenting import tabulate_windows, create_segments, discard_segments, categorize_segments
 from paradigma.util import get_end_iso8601, write_df_data, read_metadata, WindowedDataExtractor
 
@@ -509,87 +510,143 @@ def filter_gait_io(path_to_feature_input: Union[str, Path], path_to_classifier_i
     write_df_data(metadata_time, metadata_values, path_to_output, 'arm_activity_meta.json', df)
 
 
-def quantify_arm_swing(df_features: pd.DataFrame, df_predictions: pd.DataFrame, config: ArmSwingQuantificationConfig,
-                       path_to_classifier_input: Union[str, Path]) -> pd.DataFrame:
+def quantify_arm_swing(df_timestamps: pd.DataFrame, df_predictions: pd.DataFrame,
+                       classification_threshold: float) -> pd.DataFrame:
 
-    # Expand prediction windows from start time to start time + window length
-    # This is done to ensure that each timestamp has a corresponding probability
-    expanded_data = []
-    for _, row in df_predictions.iterrows():
-        start_time = row[DataColumns.TIME]
-        proba = row[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]
-        timestamps = np.arange(start_time, start_time + config.window_length_s, config.window_step_length_s)
-        expanded_data.extend(zip(timestamps, [proba] * len(timestamps)))
+    # Merge arm activity predictions with timestamps
+    asq_config = ArmSwingQuantificationConfig()
+    df = merge_predictions_with_timestamps(
+        df_ts=df_timestamps, 
+        df_predictions=df_predictions, 
+        window_length_s=asq_config.window_length_s, 
+        sampling_frequency=asq_config.sampling_frequency
+    )
 
-    # Create a new DataFrame with expanded timestamps
-    expanded_df = pd.DataFrame(expanded_data, columns=[DataColumns.TIME, DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA])
+    # Add a column for predicted no other arm activity based on a fitted threshold
+    df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
+        df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= classification_threshold
+    ).astype(int)
 
-    # Aggregate overlapping windows
-    df_predictions = expanded_df.groupby(DataColumns.TIME, as_index=False)[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA].mean()
+    # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
+    # Segments are made based on predicted gait
+    df[DataColumns.SEGMENT_NR] = create_segments(
+        time_array=df[DataColumns.TIME], 
+        max_segment_gap_s=asq_config.max_segment_gap_s
+    )
 
-    # Keep only predicted arm swing based on a classification threshold
-    filtering_gait_config = FilteringGaitConfig()
-    with open(os.path.join(path_to_classifier_input, 'thresholds', filtering_gait_config.thresholds_file_name), 'r') as f:
-        classification_threshold = float(f.read())
+    # Remove segments that do not meet predetermined criteria
+    df = discard_segments(
+        df=df,
+        segment_nr_colname=DataColumns.SEGMENT_NR,
+        min_segment_length_s=asq_config.min_segment_length_s,
+        sampling_frequency=asq_config.sampling_frequency,
+        format='timestamps'
+    )
 
-    df_filtered = df_predictions.loc[df_predictions[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]>=classification_threshold].copy().reset_index(drop=True)
+    df[DataColumns.SEGMENT_CAT] = categorize_segments(
+        config=asq_config,
+        df=df
+    )
+
+    df[DataColumns.VELOCITY] = pca_transform_gyroscope(
+        df=df,
+        y_gyro_colname=DataColumns.GYROSCOPE_Y,
+        z_gyro_colname=DataColumns.GYROSCOPE_Z,
+        pred_colname=DataColumns.PRED_NO_OTHER_ARM_ACTIVITY
+    )
+
+    # Filter the DataFrame to only include predicted no other arm activity (1)
+    df_filtered = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True).copy()
+    df_unfiltered = df
+
+    # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
+    # Now segments are based on predicted no other arm activity for subsequent processes
+    df_filtered[DataColumns.SEGMENT_NR] = create_segments(
+        time_array=df_filtered[DataColumns.TIME], 
+        max_segment_gap_s=asq_config.max_segment_gap_s
+    )
 
     if df_filtered.shape[0] == 0:
-        raise ValueError("No arm swing detected in the input data.")
+        print("No arm swing detected in the input data.")
+        return pd.DataFrame()
     
-    del df_predictions
+    segment_features = {}
+    arm_swing_parameters = {}
+    for df_name, df_object in zip(['unfiltered', 'filtered'], [df_unfiltered, df_filtered]):
+        segment_features[df_name] = {}
+        arm_swing_parameters[df_name] = {}
 
-    # Merge features into predictions
-    df_filtered = pd.merge(df_filtered, df_features, on=DataColumns.TIME)
+        grouped = df_object.groupby(DataColumns.SEGMENT_NR, sort=False)
 
-    # Construct peak angular velocity from the forward and backward velocities
-    df_filtered.loc[:, DataColumns.PEAK_VELOCITY] = df_filtered.loc[:, [f'forward_peak_{DataColumns.VELOCITY}_mean', f'backward_peak_{DataColumns.VELOCITY}_mean']].mean(axis=1)
-    df_filtered = df_filtered.drop(
-        columns=[f'forward_peak_{DataColumns.VELOCITY}_mean', f'backward_peak_{DataColumns.VELOCITY}_mean']
-    )
+        for segment_nr, group in grouped:
+            time_array = np.array(group[DataColumns.TIME])
+            velocity_array = np.array(group[DataColumns.VELOCITY])
 
-    # Create segments of predicted gait without other arm activities
-    df_segments = df_filtered.copy()
-    df_segments[DataColumns.SEGMENT_NR] = create_segments(
-        time_array=df_segments[DataColumns.TIME],
-        max_segment_gap_s=config.max_segment_gap_s
-    )
+            # Integrate the angular velocity to obtain an estimation of the angle
+            angle_array = compute_angle(
+                time_array=time_array,
+                velocity_array=velocity_array,
+            )
 
-    # Discard segments that are too short 
-    df_segments = discard_segments(
-        config=config,
-        df=df_segments,
-        format='windows'
-    )
+            # Remove the moving average from the angle
+            angle_array = remove_moving_average_angle(
+                angle_array=angle_array,
+                fs=asq_config.sampling_frequency,
+            )
 
-    # Categorize segments based on segment duration
-    df_segments[DataColumns.SEGMENT_CAT] = categorize_segments(df_segments, config, 'windows')
+            feature_dict = {
+                'time_s': len(angle_array) / asq_config.sampling_frequency,
+                DataColumns.SEGMENT_NR: segment_nr,
+                DataColumns.SEGMENT_CAT: group[DataColumns.SEGMENT_CAT].iloc[0]
+            }
 
-    # Quantify the arm swing using the median and 95th percentile for the range of motion and the peak velocity
-    # of each segment category
-    df_segment_cat_aggregates = df_segments.groupby(DataColumns.SEGMENT_CAT).agg({
-        DataColumns.RANGE_OF_MOTION: ['median', lambda x: np.percentile(x, 95)],
-        DataColumns.PEAK_VELOCITY: ['median', lambda x: np.percentile(x, 95)],
-    })
+            if len(angle_array) > 0:  # Skip if no windows are created
+                angle_extrema_indices, minima_indices, maxima_indices = extract_angle_extremes(
+                    angle_array=angle_array,
+                    sampling_frequency=asq_config.sampling_frequency,
+                    max_frequency_activity=1.75
+                )
 
-    # Rename the columns for clarity
-    df_segment_cat_aggregates.columns = [
-        f'{DataColumns.RANGE_OF_MOTION}_median', f'{DataColumns.RANGE_OF_MOTION}_95p',
-        f'{DataColumns.PEAK_VELOCITY}_median', f'{DataColumns.PEAK_VELOCITY}_95p'
-    ]
+                if len(angle_extrema_indices) > 1:  # Requires at minimum 2 peaks
+                    feature_dict[DataColumns.RANGE_OF_MOTION] = compute_range_of_motion(
+                        angle_array=angle_array,
+                        extrema_indices=list(angle_extrema_indices),
+                    )
 
-    # Compute total aggregates of all segments combined
-    total_aggregates = pd.Series({
-        f'{DataColumns.RANGE_OF_MOTION}_median': df_segments[DataColumns.RANGE_OF_MOTION].median(),
-        f'{DataColumns.RANGE_OF_MOTION}_95p': np.percentile(df_segments[DataColumns.RANGE_OF_MOTION], 95),
-        f'{DataColumns.PEAK_VELOCITY}_median': df_segments[DataColumns.PEAK_VELOCITY].median(),
-        f'{DataColumns.PEAK_VELOCITY}_95p': np.percentile(df_segments[DataColumns.PEAK_VELOCITY], 95),
-    }, name='total')
+                    forward_pav, backward_pav = compute_peak_angular_velocity(
+                        velocity_array=velocity_array,
+                        angle_extrema_indices=angle_extrema_indices,
+                        minima_indices=minima_indices,
+                        maxima_indices=maxima_indices,
+                    )
 
-    # Append total aggregates to segment-level aggregates
-    df_segment_cat_aggregates = pd.concat([df_segment_cat_aggregates, total_aggregates.to_frame().T])
+                    feature_dict[f'forward_{DataColumns.PEAK_VELOCITY}'] = forward_pav
+                    feature_dict[f'backward_{DataColumns.PEAK_VELOCITY}'] = backward_pav
 
-    return df_segment_cat_aggregates
+            segment_features[df_name][segment_nr] = feature_dict
+
+        segment_cats = df_object[DataColumns.SEGMENT_CAT].dropna().unique()
+        segment_cats = np.append(segment_cats, 'overall')
+
+        for segment_cat in segment_cats:
+            if segment_cat == 'overall':
+                relevant_segments = segment_features[df_name].values()
+            else:
+                relevant_segments = [f for f in segment_features[df_name].values() if f[DataColumns.SEGMENT_CAT] == segment_cat]
+
+            if not relevant_segments:
+                continue
+
+            cat_results = {
+                'time_s': sum(f['time_s'] for f in relevant_segments),
+                DataColumns.RANGE_OF_MOTION: np.concatenate([f[DataColumns.RANGE_OF_MOTION] for f in relevant_segments if DataColumns.RANGE_OF_MOTION in f]),
+                f'forward_{DataColumns.PEAK_VELOCITY}': np.concatenate([f[f'forward_{DataColumns.PEAK_VELOCITY}'] for f in relevant_segments if f'forward_{DataColumns.PEAK_VELOCITY}' in f]),
+                f'backward_{DataColumns.PEAK_VELOCITY}': np.concatenate([f[f'backward_{DataColumns.PEAK_VELOCITY}'] for f in relevant_segments if f'backward_{DataColumns.PEAK_VELOCITY}' in f]),
+            }
+
+            arm_swing_parameters[df_name][segment_cat] = cat_results
+            
+    return arm_swing_parameters
 
 
 def quantify_arm_swing_io(path_to_feature_input: Union[str, Path], path_to_prediction_input: Union[str, Path], path_to_classifier_input: Union[str, Path], path_to_output: Union[str, Path], config: ArmSwingQuantificationConfig) -> None:
@@ -611,10 +668,10 @@ def quantify_arm_swing_io(path_to_feature_input: Union[str, Path], path_to_predi
     # Store data as json
     with open(os.path.join(path_to_output, 'aggregates.json'), 'w') as f:
         json.dump(df_aggregates.to_dict(), f)
-    
 
 
-def merge_predictions_with_timestamps(df_ts, df_predictions, config):
+def merge_predictions_with_timestamps(df_ts, df_predictions, window_length_s,
+                                      sampling_frequency) -> pd.DataFrame:
     """
     Merges prediction probabilities with timestamps by expanding overlapping windows
     into individual timestamps and averaging probabilities per unique timestamp.
@@ -654,10 +711,10 @@ def merge_predictions_with_timestamps(df_ts, df_predictions, config):
     - Fully vectorized for speed and scalability, avoiding any row-wise operations.
     """
     # Step 1: Generate all timestamps for prediction windows using NumPy broadcasting
-    window_length = int(config.window_length_s * config.sampling_frequency)
+    window_length = int(window_length_s * sampling_frequency)
     timestamps = (
         df_predictions[DataColumns.TIME].values[:, None] +
-        np.arange(0, window_length) / config.sampling_frequency
+        np.arange(0, window_length) / sampling_frequency
     )
     
     # Flatten timestamps and probabilities into a single array for efficient processing
