@@ -567,30 +567,30 @@ def quantify_arm_swing(df_timestamps: pd.DataFrame, df_predictions: pd.DataFrame
         pred_colname=DataColumns.PRED_NO_OTHER_ARM_ACTIVITY
     )
 
-    # Filter the DataFrame to only include predicted no other arm activity (1)
-    df_filtered = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True).copy()
-
     # Group and process segments
     segment_results = {}
     segment_results_aggregated = {}
-    for df_name, current_df in zip(['unfiltered', 'filtered'], [df, df_filtered]):
 
-        if current_df.empty:
+    for df_name in ['unfiltered', 'filtered']:    
+
+        if df.empty:
+            print(f"No segments found in {df_name} data.")
             continue
         elif df_name == 'filtered':
+            # Filter the DataFrame to only include predicted no other arm activity (1)
+            df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True)
+
             # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
-            # Now segments are based on predicted no other arm activity for subsequent processes
-            current_df[DataColumns.SEGMENT_NR] = create_segments(
-                time_array=current_df[DataColumns.TIME], 
+            # Now segments are based on predicted gait without other arm activity for subsequent processes
+            df[DataColumns.SEGMENT_NR] = create_segments(
+                time_array=df[DataColumns.TIME], 
                 max_segment_gap_s=asq_config.max_segment_gap_s
             )
 
         segment_results[df_name] = {}
         segment_results_aggregated[df_name] = {}
 
-        grouped = current_df.groupby(DataColumns.SEGMENT_NR, sort=False)
-
-        for segment_nr, group in grouped:
+        for segment_nr, group in df.groupby(DataColumns.SEGMENT_NR, sort=False):
             time_array = group[DataColumns.TIME].to_numpy()
             velocity_array = group[DataColumns.VELOCITY].to_numpy()
 
@@ -647,7 +647,7 @@ def quantify_arm_swing(df_timestamps: pd.DataFrame, df_predictions: pd.DataFrame
 
             segment_results[df_name][segment_nr] = feature_dict
 
-        segment_cats = current_df[DataColumns.SEGMENT_CAT].dropna().unique()
+        segment_cats = df[DataColumns.SEGMENT_CAT].dropna().unique()
 
         for segment_cat in segment_cats:
             relevant_segments = [f for f in segment_results[df_name].values() if f[DataColumns.SEGMENT_CAT] == segment_cat]
