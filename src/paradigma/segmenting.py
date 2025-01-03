@@ -305,4 +305,4 @@ def categorize_segments(df, config, format='timestamps'):
             return 'very_long'
 
     # Apply categorization to the DataFrame
-    return df[DataColumns.SEGMENT_NR].map(segment_sizes).map(categorize)
+    return df[DataColumns.SEGMENT_NR].map(segment_sizes).map(categorize).astype('category')

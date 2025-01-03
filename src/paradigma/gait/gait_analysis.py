@@ -640,7 +640,7 @@ def quantify_arm_swing(df_timestamps: pd.DataFrame, df_predictions: pd.DataFrame
                     except Exception as e:
                         # Handle the error, set velocities to NaN, and log the error
                         print(f"Error computing peak angular velocity for segment {segment_nr}: {e}")
-                        forward_pav, backward_pav = np.array(np.nan), np.array(np.nan)
+                        forward_pav, backward_pav = np.array([np.nan]), np.array([np.nan])
 
                     feature_dict[f'forward_{DataColumns.PEAK_VELOCITY}'] = forward_pav
                     feature_dict[f'backward_{DataColumns.PEAK_VELOCITY}'] = backward_pav
