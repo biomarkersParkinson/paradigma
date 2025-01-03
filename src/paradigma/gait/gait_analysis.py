@@ -585,6 +585,7 @@ def quantify_arm_swing(df_timestamps: pd.DataFrame, df_predictions: pd.DataFrame
     segment_results_aggregated = {}
     for df_name, current_df in zip(['unfiltered', 'filtered'], [df, df_filtered]):
         segment_results[df_name] = {}
+        segment_results_aggregated[df_name] = {}
         grouped = current_df.groupby(DataColumns.SEGMENT_NR, sort=False)
 
         for segment_nr, group in grouped:
