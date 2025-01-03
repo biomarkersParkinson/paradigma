@@ -669,6 +669,8 @@ def quantify_arm_swing(df_timestamps: pd.DataFrame, df_predictions: pd.DataFrame
             }
 
             segment_results_aggregated[df_name][segment_cat] = cat_results
+
+            print(df_name, segment_cat, len(cat_results[DataColumns.RANGE_OF_MOTION]))
             
     return segment_results_aggregated
 
