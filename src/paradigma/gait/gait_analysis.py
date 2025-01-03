@@ -512,9 +512,20 @@ def filter_gait_io(path_to_feature_input: Union[str, Path], path_to_classifier_i
 
 def quantify_arm_swing(df_timestamps: pd.DataFrame, df_predictions: pd.DataFrame,
                        classification_threshold: float) -> pd.DataFrame:
+    """
+    Quantify arm swing parameters for segments of motion based on gyroscopic data.
 
+    Parameters:
+    - df_timestamps: DataFrame containing timestamp information.
+    - df_predictions: DataFrame with predictions, gyroscopic data, and additional metadata.
+    - classification_threshold: Threshold to classify predicted arm activities.
+
+    Returns:
+    - Dictionary containing aggregated arm swing parameters per segment category.
+    """
     # Merge arm activity predictions with timestamps
     asq_config = ArmSwingQuantificationConfig()
+
     df = merge_predictions_with_timestamps(
         df_ts=df_timestamps, 
         df_predictions=df_predictions, 
@@ -557,8 +568,11 @@ def quantify_arm_swing(df_timestamps: pd.DataFrame, df_predictions: pd.DataFrame
 
     # Filter the DataFrame to only include predicted no other arm activity (1)
     df_filtered = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True).copy()
-    df_unfiltered = df
 
+    if df_filtered.empty:
+        print("No arm swing detected in the input data.")
+        return pd.DataFrame()
+    
     # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
     # Now segments are based on predicted no other arm activity for subsequent processes
     df_filtered[DataColumns.SEGMENT_NR] = create_segments(
@@ -566,21 +580,16 @@ def quantify_arm_swing(df_timestamps: pd.DataFrame, df_predictions: pd.DataFrame
         max_segment_gap_s=asq_config.max_segment_gap_s
     )
 
-    if df_filtered.shape[0] == 0:
-        print("No arm swing detected in the input data.")
-        return pd.DataFrame()
-    
-    segment_features = {}
-    arm_swing_parameters = {}
-    for df_name, df_object in zip(['unfiltered', 'filtered'], [df_unfiltered, df_filtered]):
-        segment_features[df_name] = {}
-        arm_swing_parameters[df_name] = {}
-
-        grouped = df_object.groupby(DataColumns.SEGMENT_NR, sort=False)
+    # Group and process segments
+    segment_results = {}
+    segment_results_aggregated = {}
+    for df_name, current_df in zip(['unfiltered', 'filtered'], [df, df_filtered]):
+        segment_results[df_name] = {}
+        grouped = current_df.groupby(DataColumns.SEGMENT_NR, sort=False)
 
         for segment_nr, group in grouped:
-            time_array = np.array(group[DataColumns.TIME])
-            velocity_array = np.array(group[DataColumns.VELOCITY])
+            time_array = group[DataColumns.TIME].to_numpy()
+            velocity_array = group[DataColumns.VELOCITY].to_numpy()
 
             # Integrate the angular velocity to obtain an estimation of the angle
             angle_array = compute_angle(
@@ -588,7 +597,7 @@ def quantify_arm_swing(df_timestamps: pd.DataFrame, df_predictions: pd.DataFrame
                 velocity_array=velocity_array,
             )
 
-            # Remove the moving average from the angle
+            # Detrend angle using moving average
             angle_array = remove_moving_average_angle(
                 angle_array=angle_array,
                 fs=asq_config.sampling_frequency,
@@ -600,7 +609,7 @@ def quantify_arm_swing(df_timestamps: pd.DataFrame, df_predictions: pd.DataFrame
                 DataColumns.SEGMENT_CAT: group[DataColumns.SEGMENT_CAT].iloc[0]
             }
 
-            if len(angle_array) > 0:  # Skip if no windows are created
+            if angle_array.size > 0:  
                 angle_extrema_indices, minima_indices, maxima_indices = extract_angle_extremes(
                     angle_array=angle_array,
                     sampling_frequency=asq_config.sampling_frequency,
@@ -623,30 +632,36 @@ def quantify_arm_swing(df_timestamps: pd.DataFrame, df_predictions: pd.DataFrame
                     feature_dict[f'forward_{DataColumns.PEAK_VELOCITY}'] = forward_pav
                     feature_dict[f'backward_{DataColumns.PEAK_VELOCITY}'] = backward_pav
 
-            segment_features[df_name][segment_nr] = feature_dict
+            segment_results[df_name][segment_nr] = feature_dict
 
-        segment_cats = df_object[DataColumns.SEGMENT_CAT].dropna().unique()
+        segment_cats = current_df[DataColumns.SEGMENT_CAT].dropna().unique()
         segment_cats = np.append(segment_cats, 'overall')
 
         for segment_cat in segment_cats:
-            if segment_cat == 'overall':
-                relevant_segments = segment_features[df_name].values()
-            else:
-                relevant_segments = [f for f in segment_features[df_name].values() if f[DataColumns.SEGMENT_CAT] == segment_cat]
+            relevant_segments = (
+                segment_results[df_name].values() if segment_cat == "overall" else
+                [f for f in segment_results[df_name].values() if f[DataColumns.SEGMENT_CAT] == segment_cat]
+            )
 
             if not relevant_segments:
                 continue
 
             cat_results = {
                 'time_s': sum(f['time_s'] for f in relevant_segments),
-                DataColumns.RANGE_OF_MOTION: np.concatenate([f[DataColumns.RANGE_OF_MOTION] for f in relevant_segments if DataColumns.RANGE_OF_MOTION in f]),
-                f'forward_{DataColumns.PEAK_VELOCITY}': np.concatenate([f[f'forward_{DataColumns.PEAK_VELOCITY}'] for f in relevant_segments if f'forward_{DataColumns.PEAK_VELOCITY}' in f]),
-                f'backward_{DataColumns.PEAK_VELOCITY}': np.concatenate([f[f'backward_{DataColumns.PEAK_VELOCITY}'] for f in relevant_segments if f'backward_{DataColumns.PEAK_VELOCITY}' in f]),
+                DataColumns.RANGE_OF_MOTION: np.concatenate([
+                    f[DataColumns.RANGE_OF_MOTION] for f in relevant_segments if DataColumns.RANGE_OF_MOTION in f
+                ]),
+                f'forward_{DataColumns.PEAK_VELOCITY}': np.concatenate([
+                    f[f'forward_{DataColumns.PEAK_VELOCITY}'] for f in relevant_segments if f'forward_{DataColumns.PEAK_VELOCITY}' in f
+                ]),
+                f'backward_{DataColumns.PEAK_VELOCITY}': np.concatenate([
+                    f[f'backward_{DataColumns.PEAK_VELOCITY}'] for f in relevant_segments if f'backward_{DataColumns.PEAK_VELOCITY}' in f
+                ]),
             }
 
-            arm_swing_parameters[df_name][segment_cat] = cat_results
+            segment_results_aggregated[df_name][segment_cat] = cat_results
             
-    return arm_swing_parameters
+    return segment_results_aggregated
 
 
 def quantify_arm_swing_io(path_to_feature_input: Union[str, Path], path_to_prediction_input: Union[str, Path], path_to_classifier_input: Union[str, Path], path_to_output: Union[str, Path], config: ArmSwingQuantificationConfig) -> None:
