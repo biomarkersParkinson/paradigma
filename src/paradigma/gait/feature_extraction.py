@@ -543,7 +543,7 @@ def compute_peak_angular_velocity(
     maxima_indices: List[int],
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     
-    if np.any(angle_extrema_indices < 0) or np.any(angle_extrema_indices >= len(velocity_array)):
+    if np.any(np.array(angle_extrema_indices) < 0) or np.any(np.array(angle_extrema_indices) >= len(velocity_array)):
         raise ValueError("angle_extrema_indices contains out-of-bounds indices.")
     
     if len(angle_extrema_indices) < 2:
