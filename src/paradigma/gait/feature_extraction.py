@@ -458,7 +458,7 @@ def extract_angle_extremes(
         angle_array: np.ndarray,
         sampling_frequency: float,
         max_frequency_activity: float = 1.75,
-    ) -> tuple[list[np.ndarray], np.ndarray, np.ndarray]:
+    ) -> tuple[list[int], np.ndarray, np.ndarray]:
 
     distance = sampling_frequency / max_frequency_activity
     prominence = 2  
@@ -511,7 +511,7 @@ def extract_angle_extremes(
     # Combine remaining extrema and compute range of motion
     angle_extrema_indices = np.sort(np.concatenate([minima_indices, maxima_indices]))
 
-    return angle_extrema_indices, minima_indices, maxima_indices
+    return angle_extrema_indices, list(minima_indices), list(maxima_indices)
 
 
 def compute_range_of_motion(
@@ -692,65 +692,3 @@ def extract_spectral_domain_features(
         feature_dict[colname] = mfccs[:, i]
 
     return pd.DataFrame(feature_dict)
-
-
-def quantify_arm_swing(
-        angle_array: np.ndarray,
-        velocity_array: np.ndarray,
-        sampling_frequency: float,
-        max_frequency_activity: float = 1.8,
-    ) -> pd.DataFrame:
-    """
-    Extract angle-related features from windowed angle and velocity data.
-
-    This function calculates spectral and temporal features for the angle signal, including:
-    - Dominant frequency of the angle signal in specific frequency ranges.
-    - Range of motion based on consecutive extrema in the angle signal.
-    - Forward and backward peak angular velocities from the velocity signal.
-
-    Parameters
-    ----------
-    config : object
-        Configuration object containing parameters such as sampling frequency, frequency ranges, etc.
-    windowed_angle : np.ndarray
-        Array of windowed angle data.
-    windowed_velocity : np.ndarray
-        Array of windowed velocity data.
-
-    Returns
-    -------
-    pd.DataFrame
-        DataFrame containing the extracted features from angle and velocity data.
-
-    Notes
-    -----
-    - The function computes spectral features using the periodogram (power spectral density) of the angle signal.
-    - Temporal features like range of motion and angular velocities are calculated from the extrema (minima and maxima) in the angle signal.
-    - The extracted features are returned as a DataFrame for easier integration with other data.
-
-    """
-    # Initialize an empty dictionary to hold the features
-    feature_dict = {}
-
-    # Extract extrema (minima and maxima) indices for the angle signal
-    angle_extrema_indices, minima_indices, maxima_indices = extract_angle_extremes(
-        angle_array=angle_array,
-        sampling_frequency=sampling_frequency,
-        max_frequency_activity=max_frequency_activity,
-    )
-
-    # Calculate range of motion based on extrema indices
-    feature_dict['range_of_motion'] = compute_range_of_motion(
-        angle_array=angle_array,
-        extrema_indices=list(angle_extrema_indices),
-    )
-
-    # Compute the forward and backward peak angular velocities
-    feature_dict['forward_pav'], feature_dict['backward_pav'] = compute_peak_angular_velocity(
-        velocity_array=velocity_array,
-        angle_extrema_indices=angle_extrema_indices,
-        minima_indices=minima_indices,
-        maxima_indices=maxima_indices,
-    )
-    
-    return feature_dict
