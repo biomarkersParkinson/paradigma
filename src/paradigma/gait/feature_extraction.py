@@ -524,7 +524,7 @@ def compute_range_of_motion(
         raise TypeError("extrema_indices must be a list of integers.")
 
     # Check bounds
-    if np.any(extrema_indices < 0) or np.any(extrema_indices >= len(angle_array)):
+    if np.any(np.array(extrema_indices) < 0) or np.any(np.array(extrema_indices) >= len(angle_array)):
         raise ValueError("extrema_indices contains out-of-bounds indices.")
     
     # Extract angle amplitudes (minima and maxima values)
