@@ -551,6 +551,7 @@ def compute_peak_angular_velocity(
     
     if len(minima_indices) == 0:
         raise ValueError("No minima indices found.")
+    
     if len(maxima_indices) == 0:
         raise ValueError("No maxima indices found.")
 

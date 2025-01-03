@@ -620,17 +620,27 @@ def quantify_arm_swing(df_timestamps: pd.DataFrame, df_predictions: pd.DataFrame
                 )
 
                 if len(angle_extrema_indices) > 1:  # Requires at minimum 2 peaks
-                    feature_dict[DataColumns.RANGE_OF_MOTION] = compute_range_of_motion(
-                        angle_array=angle_array,
-                        extrema_indices=angle_extrema_indices,
-                    )
+                    try:
+                        feature_dict[DataColumns.RANGE_OF_MOTION] = compute_range_of_motion(
+                            angle_array=angle_array,
+                            extrema_indices=angle_extrema_indices,
+                        )
+                    except Exception as e:
+                        # Handle the error, set ROM to NaN, and log the error
+                        print(f"Error computing range of motion for segment {segment_nr}: {e}")
+                        feature_dict[DataColumns.RANGE_OF_MOTION] = np.nan
 
-                    forward_pav, backward_pav = compute_peak_angular_velocity(
-                        velocity_array=velocity_array,
-                        angle_extrema_indices=angle_extrema_indices,
-                        minima_indices=minima_indices,
-                        maxima_indices=maxima_indices,
-                    )
+                    try:
+                        forward_pav, backward_pav = compute_peak_angular_velocity(
+                            velocity_array=velocity_array,
+                            angle_extrema_indices=angle_extrema_indices,
+                            minima_indices=minima_indices,
+                            maxima_indices=maxima_indices,
+                        )
+                    except Exception as e:
+                        # Handle the error, set velocities to NaN, and log the error
+                        print(f"Error computing peak angular velocity for segment {segment_nr}: {e}")
+                        forward_pav, backward_pav = np.nan, np.nan
 
                     feature_dict[f'forward_{DataColumns.PEAK_VELOCITY}'] = forward_pav
                     feature_dict[f'backward_{DataColumns.PEAK_VELOCITY}'] = backward_pav
