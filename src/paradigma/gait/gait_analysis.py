@@ -570,21 +570,21 @@ def quantify_arm_swing(df_timestamps: pd.DataFrame, df_predictions: pd.DataFrame
     # Filter the DataFrame to only include predicted no other arm activity (1)
     df_filtered = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True).copy()
 
-    if df_filtered.empty:
-        print("No arm swing detected in the input data.")
-        return
-    
-    # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
-    # Now segments are based on predicted no other arm activity for subsequent processes
-    df_filtered[DataColumns.SEGMENT_NR] = create_segments(
-        time_array=df_filtered[DataColumns.TIME], 
-        max_segment_gap_s=asq_config.max_segment_gap_s
-    )
-
     # Group and process segments
     segment_results = {}
     segment_results_aggregated = {}
     for df_name, current_df in zip(['unfiltered', 'filtered'], [df, df_filtered]):
+
+        if current_df.empty:
+            continue
+        elif df_name == 'filtered':
+            # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
+            # Now segments are based on predicted no other arm activity for subsequent processes
+            current_df[DataColumns.SEGMENT_NR] = create_segments(
+                time_array=current_df[DataColumns.TIME], 
+                max_segment_gap_s=asq_config.max_segment_gap_s
+            )
+
         segment_results[df_name] = {}
         segment_results_aggregated[df_name] = {}
 
@@ -628,7 +628,7 @@ def quantify_arm_swing(df_timestamps: pd.DataFrame, df_predictions: pd.DataFrame
                     except Exception as e:
                         # Handle the error, set ROM to NaN, and log the error
                         print(f"Error computing range of motion for segment {segment_nr}: {e}")
-                        feature_dict[DataColumns.RANGE_OF_MOTION] = np.nan
+                        feature_dict[DataColumns.RANGE_OF_MOTION] = np.array([np.nan])
 
                     try:
                         forward_pav, backward_pav = compute_peak_angular_velocity(
@@ -640,7 +640,7 @@ def quantify_arm_swing(df_timestamps: pd.DataFrame, df_predictions: pd.DataFrame
                     except Exception as e:
                         # Handle the error, set velocities to NaN, and log the error
                         print(f"Error computing peak angular velocity for segment {segment_nr}: {e}")
-                        forward_pav, backward_pav = np.nan, np.nan
+                        forward_pav, backward_pav = np.array(np.nan), np.array(np.nan)
 
                     feature_dict[f'forward_{DataColumns.PEAK_VELOCITY}'] = forward_pav
                     feature_dict[f'backward_{DataColumns.PEAK_VELOCITY}'] = backward_pav
