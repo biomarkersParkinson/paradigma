@@ -659,18 +659,16 @@ def quantify_arm_swing(df_timestamps: pd.DataFrame, df_predictions: pd.DataFrame
                 'time_s': sum(f['time_s'] for f in relevant_segments),
                 DataColumns.RANGE_OF_MOTION: np.concatenate([
                     f[DataColumns.RANGE_OF_MOTION] for f in relevant_segments if DataColumns.RANGE_OF_MOTION in f
-                ]),
+                ]).tolist(),
                 f'forward_{DataColumns.PEAK_VELOCITY}': np.concatenate([
                     f[f'forward_{DataColumns.PEAK_VELOCITY}'] for f in relevant_segments if f'forward_{DataColumns.PEAK_VELOCITY}' in f
-                ]),
+                ]).tolist(),
                 f'backward_{DataColumns.PEAK_VELOCITY}': np.concatenate([
                     f[f'backward_{DataColumns.PEAK_VELOCITY}'] for f in relevant_segments if f'backward_{DataColumns.PEAK_VELOCITY}' in f
-                ]),
+                ]).tolist(),
             }
 
             segment_results_aggregated[df_name][segment_cat] = cat_results
-
-            print(df_name, segment_cat, len(cat_results[DataColumns.RANGE_OF_MOTION]))
             
     return segment_results_aggregated
 
