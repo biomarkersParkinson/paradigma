@@ -571,7 +571,7 @@ def quantify_arm_swing(df_timestamps: pd.DataFrame, df_predictions: pd.DataFrame
 
     if df_filtered.empty:
         print("No arm swing detected in the input data.")
-        return pd.DataFrame()
+        return
     
     # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
     # Now segments are based on predicted no other arm activity for subsequent processes
@@ -586,6 +586,7 @@ def quantify_arm_swing(df_timestamps: pd.DataFrame, df_predictions: pd.DataFrame
     for df_name, current_df in zip(['unfiltered', 'filtered'], [df, df_filtered]):
         segment_results[df_name] = {}
         segment_results_aggregated[df_name] = {}
+
         grouped = current_df.groupby(DataColumns.SEGMENT_NR, sort=False)
 
         for segment_nr, group in grouped:
@@ -686,8 +687,8 @@ def quantify_arm_swing_io(path_to_feature_input: Union[str, Path], path_to_predi
         json.dump(df_aggregates.to_dict(), f)
 
 
-def merge_predictions_with_timestamps(df_ts, df_predictions, window_length_s,
-                                      sampling_frequency) -> pd.DataFrame:
+def merge_predictions_with_timestamps(df_ts, df_predictions, pred_proba_colname,
+                                      window_length_s, sampling_frequency) -> pd.DataFrame:
     """
     Merges prediction probabilities with timestamps by expanding overlapping windows
     into individual timestamps and averaging probabilities per unique timestamp.
@@ -736,14 +737,14 @@ def merge_predictions_with_timestamps(df_ts, df_predictions, window_length_s,
     # Flatten timestamps and probabilities into a single array for efficient processing
     flat_timestamps = timestamps.ravel()
     flat_proba = np.repeat(
-        df_predictions[DataColumns.PRED_GAIT_PROBA].values,
+        df_predictions[pred_proba_colname].values,
         window_length
     )
 
     # Step 2: Create a DataFrame for expanded data
     expanded_df = pd.DataFrame({
         DataColumns.TIME: flat_timestamps,
-        DataColumns.PRED_GAIT_PROBA: flat_proba
+        pred_proba_colname: flat_proba
     })
 
     # Step 3: Round timestamps and aggregate probabilities
@@ -753,7 +754,7 @@ def merge_predictions_with_timestamps(df_ts, df_predictions, window_length_s,
     # Step 4: Round timestamps in `df_ts` and merge
     df_ts[DataColumns.TIME] = df_ts[DataColumns.TIME].round(2)
     df_ts = pd.merge(df_ts, mean_proba, how='left', on=DataColumns.TIME)
-    df_ts = df_ts.dropna(subset=[DataColumns.PRED_GAIT_PROBA])
+    df_ts = df_ts.dropna(subset=[pred_proba_colname])
 
     return df_ts
 
