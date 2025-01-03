@@ -622,7 +622,7 @@ def quantify_arm_swing(df_timestamps: pd.DataFrame, df_predictions: pd.DataFrame
                 if len(angle_extrema_indices) > 1:  # Requires at minimum 2 peaks
                     feature_dict[DataColumns.RANGE_OF_MOTION] = compute_range_of_motion(
                         angle_array=angle_array,
-                        extrema_indices=list(angle_extrema_indices),
+                        extrema_indices=angle_extrema_indices,
                     )
 
                     forward_pav, backward_pav = compute_peak_angular_velocity(
