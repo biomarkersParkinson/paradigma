@@ -281,7 +281,7 @@ def extract_arm_activity_features(
 
     # Merge gait predictions with timestamps
     gait_preprocessing_config = GaitFeatureExtractionConfig()
-    df = merge_predictions_with_timestamps(df_timestamps, df_predictions, gait_preprocessing_config)
+    df = merge_predictions_with_timestamps(df_timestamps, df_predictions, DataColumns.PRED_GAIT_PROBA, gait_preprocessing_config)
 
     # Add a column for predicted gait based on a fitted threshold
     df[DataColumns.PRED_GAIT] = (df[DataColumns.PRED_GAIT_PROBA] >= classification_threshold).astype(int)
@@ -529,6 +529,7 @@ def quantify_arm_swing(df_timestamps: pd.DataFrame, df_predictions: pd.DataFrame
     df = merge_predictions_with_timestamps(
         df_ts=df_timestamps, 
         df_predictions=df_predictions, 
+        pred_proba_colname=DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA,
         window_length_s=asq_config.window_length_s, 
         sampling_frequency=asq_config.sampling_frequency
     )
