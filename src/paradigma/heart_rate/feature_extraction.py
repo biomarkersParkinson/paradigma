@@ -108,7 +108,7 @@ def biased_autocorrelation(
 def compute_dominant_frequency(
         freqs: np.ndarray, 
         psd: np.ndarray
-    ) -> float:
+    ) -> list:
     """
     Identify the dominant frequency (peak frequency) in the power spectral density.
     """
@@ -119,7 +119,7 @@ def compute_relative_power(
         freqs: np.ndarray, 
         psd: np.ndarray, 
         config
-    ) -> float:
+    ) -> list:
     """
     Calculate relative power within the dominant frequency band in the physiological range (0.75 - 3 Hz).
     """
@@ -135,7 +135,7 @@ def compute_relative_power(
 def compute_spectral_entropy(
         psd: np.ndarray, 
         n_samples: int
-    ) -> float:
+    ) -> list:
     """
     Calculate the spectral entropy from the normalized power spectral density.
     """
