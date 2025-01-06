@@ -26,7 +26,7 @@ unix_ticks_ms = 1000.0;
 fs_ppg = 30;     % Establish the sampling rate desired for resampling PPG --> now chosen to be fixed on 30 Hz
 fs_imu = 100;    % Establish the sampling rate desired for resampling IMU --> now chosen to be fixed on 30 Hz
 
-raw_data_root = '..\..\..\tests\data\1.sensor_data\';
+raw_data_root = '..\..\..\tests\data\1.prepared_data\';
 ppp_data_path_ppg = [raw_data_root 'PPG\'];
 ppp_data_path_imu = [raw_data_root 'IMU\'];
 
@@ -54,8 +54,8 @@ meta_path_imu = meta_imu(segment_imu(n)).tsdf_meta_fullpath;
 
 time_idx_ppg = tsdf_values_idx(metadata_list_ppg, 'time');    % added for correctness instead of assuming that the idx is the same for every time we use load_tsdf_metadata_from_path --> or is this unnecessary --> assumption it is different for PPG and IMU!!
 time_idx_imu = tsdf_values_idx(metadata_list_imu, 'time');
-values_idx_ppg = tsdf_values_idx(metadata_list_ppg, 'samples');
-values_idx_imu = tsdf_values_idx(metadata_list_imu, 'samples');
+values_idx_ppg = tsdf_values_idx(metadata_list_ppg, 'values');
+values_idx_imu = tsdf_values_idx(metadata_list_imu, 'values');
 
 t_iso_ppg = metadata_list_ppg{time_idx_ppg}.start_iso8601;
 t_iso_imu = metadata_list_imu{time_idx_imu}.start_iso8601;
@@ -77,7 +77,7 @@ tr_imu = (t_imu-ts_imu)/unix_ticks_ms;
 
 v_ppg = data_list_ppg{values_idx_ppg};
 v_imu = data_list_imu{values_idx_imu};             % store data values for every seperate tsdf file in cell
-scale_factors = metadata_list_imu{values_idx_imu}.scale_factors';
+%scale_factors = metadata_list_imu{values_idx_imu}.scale_factors';
 
 %% 4. Data synchronization on right indices
 fs_ppg_est = 1000/median(t_diff_ppg); 
@@ -99,6 +99,7 @@ tr_imu = tr_imu - tr_imu(1);  % update tr_imu by the first relative time point c
 
 %% 5. Data preprocessing
 %%--Preprocessing both IMU and PPG%%  
+scale_factors = 
 v_acc_scaled = scale_factors(1,1:3).*double(v_imu(:,1:3));     % Extract only the accelerometer channels and multiply them using scale factors! --> now based on indices but preferably on channel names in metadata???
 min_window_length = 30;
 

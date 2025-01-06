@@ -2,9 +2,9 @@ from typing import List, Tuple, Union
 import pandas as pd
 import numpy as np
 from scipy.signal import welch, find_peaks
-from scipy.signal.windows import hamming
+from scipy.signal.windows import hamming, hann
 from scipy.stats import kurtosis, skew
-from paradigma.config import SignalQualityFeatureExtractionConfig
+from paradigma.config import SignalQualityFeatureExtractionConfig, SignalQualityFeatureExtractionConfigAcc
 
 def generate_statistics(
         data: np.ndarray,
@@ -220,7 +220,6 @@ def extract_spectral_domain_features(
 
     return pd.DataFrame(d_features)
 
-
 def extract_acc_power_feature(
         f1: np.ndarray, 
         PSD_acc: np.ndarray, 
@@ -261,3 +260,55 @@ def extract_acc_power_feature(
     acc_power_ratio = acc_power_PPG_range / acc_power_total
     
     return acc_power_ratio
+
+def extract_accelerometer_feature(config: SignalQualityFeatureExtractionConfigAcc, acc_windowed: pd.DataFrame, ppg_windowed: pd.DataFrame) -> pd.DataFrame:
+    """
+    Extract accelerometer features from the accelerometer signal in the PPG frequency range.
+    
+    Parameters
+    ----------
+    config: SignalQualityFeatureExtractionConfigAcc
+        The configuration object containing the parameters for the feature extraction
+    
+    acc_windowed: pd.DataFrame
+        The dataframe containing the windowed accelerometer signal
+
+    ppg_windowed: pd.DataFrame
+        The dataframe containing the corresponding windowed ppg signal
+    
+    Returns
+    -------
+    pd.DataFrame
+        The dataframe with the relative power accelerometer feature.
+    """
+    
+    window_acc = hann(config.window_length_welch_acc, sym = True)
+    window_ppg = hann(config.window_length_welch_ppg, sym = True)
+
+    freqs_acc, psd_acc = welch(
+        acc_windowed,
+        fs=config.sampling_frequency,
+        window=window_acc,
+        noverlap=config.overlap_welch_window_acc,
+        nfft=config.nfft_acc,
+        detrend=False,
+        axis=1
+    )
+
+    psd_acc = np.sum(psd_acc, axis=1)
+
+    freqs_ppg, psd_ppg = welch(
+        ppg_windowed,
+        fs=config.sampling_frequency_ppg,
+        window=window_ppg,
+        noverlap=config.overlap_welch_window_ppg,
+        nfft=config.nfft_ppg,
+        detrend=False,
+        axis=1
+    )
+
+    acc_power_ratio = extract_acc_power_feature(freqs_acc, psd_acc, freqs_ppg, psd_ppg)
+
+    return None
+
+

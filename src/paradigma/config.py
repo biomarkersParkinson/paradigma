@@ -1,5 +1,6 @@
 from typing import Dict, List
 from paradigma.constants import DataColumns, DataUnits
+import numpy as np
 
 class BaseConfig:
 
@@ -282,14 +283,27 @@ class SignalQualityFeatureExtractionConfig(HeartRateBaseConfig):
         self.freq_band_physio = [0.75, 3] # Hz
         self.bandwidth = 0.2   # Hz
 
+class SignalQualityFeatureExtractionConfigAcc(HeartRateBaseConfig):
+    
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.set_sensor('accelerometer')
         config_imu = IMUConfig()
-        self.sampling_frequency_imu = config_imu.sampling_frequency
+        config_ppg = PPGConfig()
+        self.sampling_frequency = config_imu.sampling_frequency
+        self.sampling_frequency_ppg = config_ppg.sampling_frequency
+        self.accelerometer_cols = config_imu.accelerometer_cols
 
-        self.single_value_cols: List[str] = None
-        self.list_value_cols: List[str] = [
-            self.ppg_colname
-        ]
+        self.window_length_welch_acc = 3 * self.sampling_frequency
+        self.overlap_welch_window_acc = self.window_length_welch_acc // 2
 
+        self.window_length_welch_ppg = 3 * self.sampling_frequency_ppg
+        self.overlap_welch_window_ppg = self.window_length_welch_ppg // 2
+
+        self.freq_bin_resolution = 0.05 # Hz
+        self.nfft_ppg = len(np.arange(0, self.sampling_frequency_ppg/2, self.freq_bin_resolution))*2
+        self.nfft_acc = len(np.arange(0, self.sampling_frequency/2, self.freq_bin_resolution))*2
 
 # Classification
 class GaitDetectionConfig(GaitBaseConfig):
