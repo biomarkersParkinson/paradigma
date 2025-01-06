@@ -132,7 +132,7 @@ def extract_gait_features_io(path_to_preprocessed_input: Union[str, Path], path_
 
 
 def detect_gait(df: pd.DataFrame, path_to_classifier_input: Union[str, Path], 
-                classifier_filename: str, scaler_filename: str, parallel: bool=False) -> pd.DataFrame:
+                classifier_filename: str, scaler_filename: str, parallel: bool=False) -> np.ndarray:
     """
     Detects gait activity in the input DataFrame using a pre-trained classifier and applies a threshold to classify results.
 
@@ -141,7 +141,7 @@ def detect_gait(df: pd.DataFrame, path_to_classifier_input: Union[str, Path],
     2. Scales the relevant features in the input DataFrame (`df`) using the loaded scaling parameters.
     3. Predicts the probability of gait activity for each sample in the DataFrame using the classifier.
     4. Applies a threshold to the predicted probabilities to determine whether gait activity is present.
-    5. Adds the predicted probabilities and classification results as new columns in the DataFrame.
+    5. Returns the predicted probabilities as a NumPy array.
 
     Parameters
     ----------
@@ -163,25 +163,10 @@ def detect_gait(df: pd.DataFrame, path_to_classifier_input: Union[str, Path],
 
     Returns
     -------
-    pd.DataFrame
-        The input DataFrame with two additional columns:
-        - `gait_probability`: The predicted probabilities of gait activity.
-        - `gait_detected`: A binary classification result (1 for gait detected, 0 otherwise) based on the threshold.
-
-    Notes
-    -----
-    - The function expects the pre-trained classifier and scaling parameters to be located in specific 
-      subdirectories (`classifiers` and `scalers`) under `path_to_classifier_input`.
-    - The threshold used for classification is hardcoded or can be loaded from a configuration file, 
-      depending on implementation.
-
-    Raises
-    ------
-    FileNotFoundError
-        If the classifier or scaler parameter files are not found at the specified paths.
-    ValueError
-        If the DataFrame does not contain the required features for prediction.
+    np.ndarray
+        A NumPy array containing the predicted probabilities of gait activity for each sample in the input DataFrame.
     """
+
     # Initialize the classifier
     clf = pd.read_pickle(os.path.join(path_to_classifier_input, 'classifiers', classifier_filename))
 
@@ -212,14 +197,14 @@ def detect_gait(df: pd.DataFrame, path_to_classifier_input: Union[str, Path],
     return pred_gait_proba_series
 
 
-def detect_gait_io(path_to_input_features: Union[str, Path], path_to_output: Union[str, Path], 
-                   path_to_classifier_input: Union[str, Path], config: GaitDetectionConfig) -> None:
+def detect_gait_io(config: GaitDetectionConfig, path_to_input_features: Union[str, Path], path_to_output: Union[str, Path], 
+                   path_to_classifier_input: Union[str, Path], scaler_filename: str) -> None:
     
     # Load the data
     metadata_time, metadata_values = read_metadata(path_to_input_features, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
-    df[DataColumns.PRED_GAIT_PROBA] = detect_gait(df, config, path_to_classifier_input)
+    df[DataColumns.PRED_GAIT_PROBA] = detect_gait(df, path_to_classifier_input, scaler_filename)
 
     # Prepare the metadata
     metadata_values.file_name = 'gait_values.bin'
@@ -413,7 +398,7 @@ def extract_arm_activity_features_io(path_to_timestamp_input: Union[str, Path], 
 
 
 def filter_gait(df: pd.DataFrame, path_to_classifier_input: Union[str, Path], 
-                classifier_filename: str, scaler_filename: str, parallel: bool=False) -> pd.DataFrame:
+                classifier_filename: str, scaler_filename: str, parallel: bool=False) -> np.ndarray:
     """
     Filters gait data to identify periods with no other arm activity using a pre-trained classifier.
 
@@ -444,23 +429,10 @@ def filter_gait(df: pd.DataFrame, path_to_classifier_input: Union[str, Path],
 
     Returns
     -------
-    pd.Series
-        A Series containing the predicted probabilities of no other arm activity during gait for each sample 
-        in the input DataFrame.
-
-    Notes
-    -----
-    - The function expects the pre-trained classifier and scaling parameters to be located in specific 
-      subdirectories (`classifiers` and `scalers`) under `path_to_classifier_input`.
-    - The classifier should output probabilities indicating the likelihood of no other arm activity during gait.
-
-    Raises
-    ------
-    FileNotFoundError
-        If the classifier or scaler parameter files are not found at the specified paths.
-    ValueError
-        If the DataFrame does not contain the required features for prediction.
+    np.ndarray
+        A NumPy array containing the predicted probabilities of no other arm activity during gait for each sample in the input DataFrame.
     """
+
     # Initialize the classifier
     clf = pd.read_pickle(os.path.join(path_to_classifier_input, 'classifiers', classifier_filename))
 

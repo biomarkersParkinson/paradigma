@@ -389,19 +389,48 @@ def compute_angle(
         time_array: np.ndarray,
         velocity_array: np.ndarray,
     ) -> np.ndarray:
+    """
+    Compute the angle from the angular velocity using cumulative trapezoidal integration.
 
-    # Perform integration and apply absolute value
+    Parameters
+    ----------
+    time_array : np.ndarray
+        The time array corresponding to the angular velocity signal.
+    velocity_array : np.ndarray
+        The angular velocity signal to integrate.
+
+    Returns
+    -------
+    np.ndarray
+        The angle signal obtained by integrating the angular velocity signal.
+    """
     angle_array = cumulative_trapezoid(velocity_array, time_array, initial=0)
+
     return np.abs(angle_array)
 
 
 def remove_moving_average_angle(
         angle_array: np.ndarray,
         fs: float,
-    ) -> pd.Series:
-    window_size = int(2 * (fs * 0.5) + 1)
-    angle_ma = np.array(pd.Series(angle_array).rolling(window=window_size, min_periods=1, center=True, closed='both').mean())
+    ) -> np.ndarray:
+    """
+    Remove drift from the angle signal using a moving average filter.
+
+    Parameters
+    ----------
+    angle_array : np.ndarray
+        The angle signal to process.
+    fs : float
+        The sampling frequency of the signal.
     
+    Returns
+    -------
+    np.ndarray
+        The angle signal with drift removed.
+    """
+    window_size = int(fs + 1)
+    angle_ma = np.array(pd.Series(angle_array).rolling(window=window_size, min_periods=1, center=True, closed='both').mean())
+
     return angle_array - angle_ma
 
 
@@ -456,11 +485,11 @@ def compute_angle_and_velocity_from_gyro(
 
 def extract_angle_extremes(
         angle_array: np.ndarray,
-        sampling_frequency: float,
+        fs: float,
         max_frequency_activity: float = 1.75,
     ) -> tuple[list[int], List[int], List[int]]:
 
-    distance = sampling_frequency / max_frequency_activity
+    distance = fs / max_frequency_activity
     prominence = 2  
 
     # Find minima and maxima indices for each window
@@ -541,8 +570,30 @@ def compute_peak_angular_velocity(
     angle_extrema_indices: List[int],
     minima_indices: List[int],
     maxima_indices: List[int],
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Compute the peak angular velocities for forward and backward segments between angle extrema.
+
+    Parameters
+    ----------
+    velocity_array : np.ndarray
+        The angular velocity signal.
+    angle_extrema_indices : List[int]
+        The indices of the angle extrema.
+    minima_indices : List[int]
+        The indices of the minima.
+    maxima_indices : List[int]
+        The indices of the maxima.
     
+    Returns
+    -------
+    Tuple[np.ndarray, np.ndarray]
+        A tuple containing two NumPy arrays:
+        - The first array contains the peak angular velocities for forward segments.
+        - The second array contains the peak angular velocities for backward segments.
+    """
+    
+    # Validate input
     if np.any(np.array(angle_extrema_indices) < 0) or np.any(np.array(angle_extrema_indices) >= len(velocity_array)):
         raise ValueError("angle_extrema_indices contains out-of-bounds indices.")
     
@@ -554,27 +605,24 @@ def compute_peak_angular_velocity(
     
     if len(maxima_indices) == 0:
         raise ValueError("No maxima indices found.")
+    
+    # Identify segments between consecutive extrema
+    segment_starts = angle_extrema_indices[:-1]
+    segment_ends = angle_extrema_indices[1:]
 
-    # Initialize lists to store the peak velocities for each window
-    forward_pav = []
-    backward_pav = []
+    # Create masks for minima and maxima
+    is_minima = np.isin(angle_extrema_indices[:-1], minima_indices)
+    is_maxima = np.isin(angle_extrema_indices[:-1], maxima_indices)
 
-    # Compute peak angular velocities
-    for i in range(len(angle_extrema_indices) - 1):
-        # Get the current and next extrema index
-        current_peak_idx = angle_extrema_indices[i]
-        next_peak_idx = angle_extrema_indices[i + 1]
-        segment = velocity_array[current_peak_idx:next_peak_idx]
+    # Compute peak angular velocities for each segment
+    segment_peak_values = np.array([
+        np.max(np.abs(velocity_array[start:end]))
+        for start, end in zip(segment_starts, segment_ends)
+    ])
 
-        # Check if the current peak is a minimum or maximum and calculate peak velocity accordingly
-        if current_peak_idx in minima_indices:
-            forward_pav.append(np.max(np.abs(segment)))
-        elif current_peak_idx in maxima_indices:
-            backward_pav.append(np.max(np.abs(segment)))
-
-    # Convert lists to numpy arrays
-    forward_pav = np.array(forward_pav)
-    backward_pav = np.array(backward_pav)
+    # Separate forward and backward peak velocities
+    forward_pav = segment_peak_values[is_minima]
+    backward_pav = segment_peak_values[is_maxima]
 
     return forward_pav, backward_pav
 
