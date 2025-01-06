@@ -285,8 +285,8 @@ def compute_mfccs(
         )
 
     filter_points = np.floor(
-        (window_length + 1) / config.sampling_frequency * freqs
-    ).astype(int)  
+        window_length / config.sampling_frequency * freqs
+    ).astype(int) + 1
 
     # Construct triangular filterbank
     filters = np.zeros((len(filter_points) - 2, int(window_length / 2 + 1)))
