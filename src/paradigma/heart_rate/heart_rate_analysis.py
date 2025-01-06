@@ -15,7 +15,7 @@ from paradigma.segmenting import tabulate_windows
 
 from paradigma.util import read_metadata, WindowedDataExtractor
 
-def extract_signal_quality_features(df_ppg: pd.DataFrame, df_acc: pd.DataFrame, config_ppg: SignalQualityFeatureExtractionConfig, config_acc: SignalQualityFeatureExtractionConfigAcc) -> pd.DataFrame:
+def extract_signal_quality_features(config_ppg: SignalQualityFeatureExtractionConfig, df_ppg: pd.DataFrame, config_acc: SignalQualityFeatureExtractionConfigAcc, df_acc: pd.DataFrame) -> pd.DataFrame:
     """	
     Extract signal quality features from the PPG signal.
     The features are extracted from the temporal and spectral domain of the PPG signal.
@@ -104,7 +104,7 @@ def extract_signal_quality_features_io(input_path: Union[str, Path], output_path
     df_acc = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
     # Extract signal quality features
-    df_windowed = extract_signal_quality_features(df_ppg, df_acc, config_ppg, config_acc)
+    df_windowed = extract_signal_quality_features(config_ppg, df_ppg, config_acc, df_acc)
     
     # Save the extracted features
     #TO BE ADDED
