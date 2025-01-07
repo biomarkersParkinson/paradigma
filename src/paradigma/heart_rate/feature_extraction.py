@@ -70,7 +70,8 @@ def compute_auto_correlation(
         fs: int
     ) -> np.ndarray:
     """
-    Compute the autocorrelation of the PPG signal.
+    Compute the biased autocorrelation of the PPG signal. The autocorrelation is computed up to 3 seconds. The highest peak value is selected as the autocorrelation value. If no peaks are found, the value is set to 0.
+    The biased autocorrelation is computed using the biased_autocorrelation function. It differs from the unbiased autocorrelation in that the normalization factor is the length of the original signal, and boundary effects are considered. This results in a smoother autocorrelation function.
     
     Parameters
     ----------
@@ -85,10 +86,10 @@ def compute_auto_correlation(
         The autocorrelation of the PPG signal.
     """
 
-    auto_correlations = biased_autocorrelation(ppg_windowed, fs*3) # compute the biased autocorrelation of the PPG signal
+    auto_correlations = biased_autocorrelation(ppg_windowed, fs*3) # compute the biased autocorrelation of the PPG signal up to 3 seconds
     peaks = [find_peaks(x, height=0.01)[0] for x in auto_correlations] # find the peaks of the autocorrelation
     sorted_peak_values = [np.sort(auto_correlations[i, indices])[::-1] for i, indices in enumerate(peaks)] # sort the peak values in descending order
-    auto_correlations = [x[0] if len(x) > 0 else 0 for x in sorted_peak_values] # get the highest peak value which is not the first peak (lag 0)
+    auto_correlations = [x[0] if len(x) > 0 else 0 for x in sorted_peak_values] # get the highest peak value if there are any peaks, otherwise set to 0
 
     return np.asarray(auto_correlations)
 
