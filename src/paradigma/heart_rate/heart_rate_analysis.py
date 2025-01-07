@@ -23,7 +23,7 @@ def extract_signal_quality_features(df: pd.DataFrame, config: SignalQualityFeatu
         window_length_s=config.window_length_s,
         window_step_length_s=config.window_step_length_s,
         fs=config.sampling_frequency
-    )
+    )[0]
 
     # Compute statistics of the temporal domain signals
     df_temporal_features = extract_temporal_domain_features(config, ppg_windowed, quality_stats=['var', 'mean', 'median', 'kurtosis', 'skewness'])
