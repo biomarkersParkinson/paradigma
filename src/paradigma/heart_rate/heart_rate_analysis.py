@@ -113,14 +113,15 @@ def extract_signal_quality_features_io(input_path: Union[str, Path], output_path
 
 def signal_quality_classification(df: pd.DataFrame, config: SignalQualityClassificationConfig, path_to_classifier_input: Union[str, Path]) -> pd.DataFrame:
     """
-    Classify the signal quality of the PPG signal using a logistic regression classifier.
-    The classifier is trained on features extracted from the PPG signal.
-    The features are extracted using the extract_signal_quality_features function.
+    Classify the signal quality of the PPG signal using a logistic regression classifier. A probability close to 1 indicates a high-quality signal, while a probability close to 0 indicates a low-quality signal.
+    The classifier is trained on features extracted from the PPG signal. The features are extracted using the extract_signal_quality_features function.
+    The accelerometer signal is used to determine the signal quality based on the power ratio of the accelerometer signal and returns a binary label based on a threshold.
+    A value of 1 on the indicates no/minor periodic motion influence of the accelerometer on the PPG signal, 0 indicates major periodic motion influence.
 
     Parameters
     ----------
     df : pd.DataFrame
-        The DataFrame containing the PPG signal features.
+        The DataFrame containing the PPG features and the accelerometer feature for signal quality classification.
     config : SignalQualityClassificationConfig
         The configuration for the signal quality classification.
     path_to_classifier_input : Union[str, Path]
@@ -129,13 +130,16 @@ def signal_quality_classification(df: pd.DataFrame, config: SignalQualityClassif
     Returns
     -------
     df_sqa pd.DataFrame
-        The DataFrame containing the PPG signal quality predictions.
+        The DataFrame containing the PPG signal quality predictions (both probabilities of the PPG signal quality classification and the accelerometer label based on the threshold).
     """
     
     clf = pd.read_pickle(os.path.join(path_to_classifier_input, 'classifiers', config.classifier_file_name))
     lr_clf = clf['model']  # Load the logistic regression classifier
     mu = clf['mu']  # load the mean, 2D array
     sigma = clf['sigma'] # load the standard deviation, 2D array
+
+    with open(os.path.join(path_to_classifier_input, 'thresholds', config.threshold_file_name), 'r') as file:
+        acc_threshold = float(file.read())  # Load the accelerometer threshold from the file
 
     # Assign feature names to the classifier
     lr_clf.feature_names_in_ = ['var', 'mean', 'median', 'kurtosis', 'skewness', 'f_dom', 'rel_power', 'spectral_entropy', 'signal_to_noise', 'auto_corr']
@@ -145,7 +149,8 @@ def signal_quality_classification(df: pd.DataFrame, config: SignalQualityClassif
 
     # Make predictions for PPG signal quality assessment, and assign the probabilities to the DataFrame and drop the features
     df[DataColumns.PRED_SQA_PROBA] = lr_clf.predict_proba(X_normalized)[:, 0]
-    df_sqa = df[[DataColumns.PRED_SQA_PROBA]] # Return DataFrame with only the predicted probabilities
+    df[DataColumns.PRED_SQA_ACC_LABEL] = (df[DataColumns.ACC_POWER_RATIO] < acc_threshold).astype(int)  # Assign accelerometer label to the DataFrame based on the threshold
+    df_sqa = df[[DataColumns.PRED_SQA_PROBA, DataColumns.PRED_SQA_ACC_LABEL]]  # Select the relevant columns, namely the predicted probabilities for the PPG signal quality and the accelerometer label
     
     return df_sqa   
 
@@ -180,13 +185,13 @@ def estimate_heart_rate(df_sqa: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame,
 
     # Extract NumPy arrays for faster operations
     ppg_post_prob = df_sqa[DataColumns.PRED_SQA_PROBA].to_numpy()
-    #acc_label = df_sqa.loc[:, DataColumns.ACCELEROMETER_LABEL].to_numpy() # Adjust later in data columns to get the correct label, should be first intergrated in feature extraction and classification
+    acc_label = df_sqa.loc[:, DataColumns.PRED_SQA_ACC_LABEL].to_numpy() # Adjust later in data columns to get the correct label, should be first intergrated in feature extraction and classification
     ppg_preprocessed = df_ppg_preprocessed.values 
     time_idx = df_ppg_preprocessed.columns.get_loc(DataColumns.TIME) # Get the index of the time column
     ppg_idx = df_ppg_preprocessed.columns.get_loc(DataColumns.PPG) # Get the index of the PPG column
     
     # Assign window-level probabilities to individual samples
-    sqa_label = assign_sqa_label(ppg_post_prob, config) # assigns a signal quality label to every individual data point
+    sqa_label = assign_sqa_label(ppg_post_prob, config, acc_label) # assigns a signal quality label to every individual data point
     v_start_idx, v_end_idx = extract_hr_segments(sqa_label, config.min_hr_samples) # extracts heart rate segments based on the SQA label
     
     v_hr_rel = np.array([])

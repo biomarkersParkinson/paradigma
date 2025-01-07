@@ -355,7 +355,7 @@ class SignalQualityClassificationConfig(HeartRateBaseConfig):
     def __init__(self) -> None:
         super().__init__()
         self.classifier_file_name = "ppg_quality_classifier.pkl"
-        self.thresholds_file_name = "ppg_acc_quality_threshold.txt"
+        self.threshold_file_name = "ppg_acc_quality_threshold.txt"
 
         self.set_filenames('gait')
 
