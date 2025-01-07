@@ -110,7 +110,7 @@ class GaitBaseConfig(IMUConfig):
         self.spectrum_high_frequency: int = int(self.sampling_frequency / 2)
 
         # feature parameters
-        self.mfcc_low_frequency: int = self.lower_cutoff_frequency
+        self.mfcc_low_frequency: int = 0
         self.mfcc_high_frequency: int = 25
         self.mfcc_n_dct_filters: int = 15
         self.mfcc_n_coefficients: int = 12
