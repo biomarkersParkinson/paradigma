@@ -108,16 +108,16 @@ def extract_gait_features(
 
 
 def extract_gait_features_io(
+        config: GaitFeatureExtractionConfig,
         path_to_preprocessed_input: str | Path, 
-        path_to_output: str | Path, 
-        config: GaitFeatureExtractionConfig
+        path_to_output: str | Path
     ) -> None:
     # Load data
     metadata_time, metadata_values = read_metadata(path_to_preprocessed_input, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
     # Extract gait features
-    df_features = extract_gait_features(df, config)
+    df_features = extract_gait_features(config=config, df=df)
 
     # Store data
     end_iso8601 = get_end_iso8601(start_iso8601=metadata_time.start_iso8601,
@@ -250,10 +250,10 @@ def detect_gait_io(
 
 
 def extract_arm_activity_features(
+        config: ArmActivityFeatureExtractionConfig,
         df_timestamps: pd.DataFrame, 
         df_predictions: pd.DataFrame,
-        config: ArmActivityFeatureExtractionConfig,
-        full_path_to_threshold: str | Path,
+        full_path_to_threshold: str | Path
     ) -> pd.DataFrame:
     """
     Extract features related to arm activity from a time-series DataFrame.
@@ -270,14 +270,14 @@ def extract_arm_activity_features(
 
     Parameters
     ----------
+    config : ArmActivityFeatureExtractionConfig
+        Configuration object containing column names and parameters for feature extraction.
+
     df_timestamps : pd.DataFrame
         A DataFrame containing the raw sensor data, including accelerometer, gravity, and gyroscope columns.
 
     df_predictions : pd.DataFrame
         A DataFrame containing the predicted probabilities for gait activity per window.
-    
-    config : ArmActivityFeatureExtractionConfig
-        Configuration object containing column names and parameters for feature extraction.
 
     path_to_classifier_input : str | Path
         The path to the directory containing the classifier files and other necessary input files for feature extraction.
@@ -372,12 +372,21 @@ def extract_arm_activity_features(
     df_features = pd.DataFrame(start_time, columns=[DataColumns.TIME])
 
     # Extract temporal domain features (e.g., mean, std for accelerometer and gravity)
-    df_temporal_features = extract_temporal_domain_features(config, windowed_acc, windowed_grav, grav_stats=['mean', 'std'])
+    df_temporal_features = extract_temporal_domain_features(
+        config=config, 
+        windowed_acc=windowed_acc, 
+        windowed_grav=windowed_grav, 
+        grav_stats=['mean', 'std']
+    )
     df_features = pd.concat([df_features, df_temporal_features], axis=1)
 
     # Extract spectral domain features for accelerometer and gyroscope signals
     for sensor_name, windowed_sensor in zip(['accelerometer', 'gyroscope'], [windowed_acc, windowed_gyro]):
-        df_spectral_features = extract_spectral_domain_features(config, sensor_name, windowed_sensor)
+        df_spectral_features = extract_spectral_domain_features(
+            config=config, 
+            sensor=sensor_name, 
+            windowed_data=windowed_sensor
+        )
         df_features = pd.concat([df_features, df_spectral_features], axis=1)
 
     return df_features
@@ -417,10 +426,14 @@ def extract_arm_activity_features_io(
     df_pred_gait = tsdf.load_dataframe_from_binaries([metadata_pred_time, metadata_pred_values], tsdf.constants.ConcatenationType.columns)
 
     # Extract arm activity features
-    df_features = extract_arm_activity_features(df_ts, df_pred_gait, config, full_path_to_threshold)
+    df_features = extract_arm_activity_features(
+        config=config,
+        df_timestamps=df_ts, 
+        df_predictions=df_pred_gait, 
+        full_path_to_threshold=full_path_to_threshold
+    )
 
-    end_iso8601 = get_end_iso8601(metadata_ts_values.start_iso8601, 
-                                df_features[DataColumns.TIME][-1:].values[0] + config.window_length_s)
+    end_iso8601 = get_end_iso8601(metadata_ts_values.start_iso8601, df_features[DataColumns.TIME][-1:].values[0] + config.window_length_s)
 
     metadata_ts_values.end_iso8601 = end_iso8601
     metadata_ts_values.file_name = 'arm_activity_values.bin'
@@ -794,14 +807,16 @@ def merge_predictions_with_timestamps(
         Must include:
         - A column for window start times (defined by `DataColumns.TIME`).
         - A column for prediction probabilities (defined by `DataColumns.PRED_GAIT_PROBA`).
-        
-    config : object
-        Configuration object containing the following attributes:
-        - time_colname (str): Column name for timestamps.
-        - pred_gait_proba_colname (str): Column name for prediction probabilities.
-        - window_length_s (float): Length of each prediction window in seconds.
-        - sampling_frequency (float): Frequency of data sampling (Hz).
 
+    pred_proba_colname : str
+        The column name for the prediction probabilities in `df_predictions`.
+
+    window_length_s : float
+        The length of the prediction window in seconds.
+
+    fs : int
+        The sampling frequency of the data.
+        
     Returns:
     -------
     pd.DataFrame
