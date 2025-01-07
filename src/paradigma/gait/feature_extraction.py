@@ -582,7 +582,7 @@ def compute_peak_angular_velocity(
     angle_extrema_indices: List[int],
     minima_indices: List[int],
     maxima_indices: List[int],
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Compute the peak angular velocity of a time series based on the angle extrema.
 
@@ -599,7 +599,7 @@ def compute_peak_angular_velocity(
     
     Returns
     -------
-    Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]
+    Tuple[np.ndarray, np.ndarray]
         A tuple containing the forward and backward peak angular velocities for minima and maxima.
     """
     if np.any(np.array(angle_extrema_indices) < 0) or np.any(np.array(angle_extrema_indices) >= len(velocity_array)):
