@@ -248,15 +248,14 @@ class TremorFeatureExtractionConfig(TremorBaseConfig):
 
         # power spectral density
         self.overlap_fraction: float = 0.8
-        self.segment_length_s_psd: float = 3
-        self.spectral_resolution_psd: float = 0.25
+        self.segment_length_s: float = 3
+        self.spectral_resolution: float = 0.25
         self.fmin_peak: float = 1
         self.fmax_peak: float = 25
         self.fmin_low_power: float = 0.5
         self.fmax_low_power: float = 3
 
         # cepstral coefficients
-        self.segment_length_s_mfcc: float = 2
         self.fmin_mfcc: float = 0
         self.fmax_mfcc: float = 25
         self.n_dct_filters_mfcc: int = 15
