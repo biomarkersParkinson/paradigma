@@ -7,8 +7,6 @@ from scipy import signal
 from scipy.integrate import cumulative_trapezoid
 from scipy.signal import find_peaks, periodogram
 
-from paradigma.constants import DataColumns
-
 
 def compute_statistics(data: np.ndarray, statistic: str) -> np.ndarray:
     """
@@ -213,10 +211,10 @@ def compute_dominant_frequency(
 
 
 def compute_mfccs(
-        config,
-        total_power_array: np.ndarray,
-        mel_scale: bool = True,
-        ) -> np.ndarray:
+        config, 
+        total_power_array: np.ndarray, 
+        mel_scale: bool = True
+    ) -> np.ndarray:
     """
     Generate Mel Frequency Cepstral Coefficients (MFCCs) from the total power of the signal.
 
@@ -365,18 +363,43 @@ def pca_transform_gyroscope(
         z_gyro_colname: str,
         pred_colname: str | None = None,
 ) -> np.ndarray:
+    """
+    Perform principal component analysis (PCA) on gyroscope data to estimate velocity. If pred_colname is provided, 
+    the PCA is fitted on the predicted gait data. Otherwise, the PCA is fitted on the entire dataset.
+    
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The DataFrame containing the gyroscope data.
+    y_gyro_colname : str
+        The column name for the y-axis gyroscope data.
+    z_gyro_colname : str
+        The column name for the z-axis gyroscope data.
+    pred_colname : str, optional
+        The column name for the predicted gait (default is None).
+        
+    Returns
+    -------
+    np.ndarray
+        The estimated velocity based on the principal component of the gyroscope data.
+    """
     # Convert gyroscope columns to NumPy arrays
     y_gyro_array = df[y_gyro_colname].to_numpy()
     z_gyro_array = df[z_gyro_colname].to_numpy()
 
-    # Filter data based on predicted gait
-    pred_mask = df[pred_colname] == 1
-    y_gyro_pred_array = y_gyro_array[pred_mask]
-    z_gyro_pred_array = z_gyro_array[pred_mask]
-    
-    # Combine columns for PCA
-    fit_data = np.column_stack((y_gyro_pred_array, z_gyro_pred_array))
-    full_data = np.column_stack((y_gyro_array, z_gyro_array))
+    # Filter data based on predicted gait if pred_colname is provided
+    if pred_colname is not None:
+        pred_mask = df[pred_colname] == 1
+        y_gyro_fit_array = y_gyro_array[pred_mask]
+        z_gyro_fit_array = z_gyro_array[pred_mask]
+
+        # Fit PCA on predicted gait data
+        fit_data = np.column_stack((y_gyro_fit_array, z_gyro_fit_array))
+        full_data = np.column_stack((y_gyro_array, z_gyro_array))
+    else:
+        # Fit PCA on entire dataset
+        fit_data = np.column_stack((y_gyro_array, z_gyro_array))
+        full_data = fit_data
 
     pca = PCA(n_components=2, svd_solver='auto', random_state=22)
     pca.fit(fit_data)
@@ -385,87 +408,94 @@ def pca_transform_gyroscope(
     return np.asarray(velocity)
 
 
-def compute_angle(
-        time_array: np.ndarray,
-        velocity_array: np.ndarray,
-    ) -> np.ndarray:
-
+def compute_angle(time_array: np.ndarray, velocity_array: np.ndarray) -> np.ndarray:
+    """
+    Compute the angle from the angular velocity using cumulative trapezoidal integration.
+    
+    Parameters
+    ----------
+    time_array : np.ndarray
+        The time array corresponding to the angular velocity data.
+    velocity_array : np.ndarray
+        The angular velocity data to integrate.
+        
+    Returns
+    -------
+    np.ndarray
+        The estimated angle based on the cumulative trapezoidal integration of the angular velocity.
+    """
     # Perform integration and apply absolute value
-    angle_array = cumulative_trapezoid(velocity_array, time_array, initial=0)
+    angle_array = cumulative_trapezoid(
+        y=velocity_array, 
+        x=time_array, 
+        initial=0
+    )
     return np.abs(angle_array)
 
 
-def remove_moving_average_angle(
-        angle_array: np.ndarray,
-        fs: float,
-    ) -> pd.Series:
-    window_size = int(2 * (fs * 0.5) + 1)
-    angle_ma = np.array(pd.Series(angle_array).rolling(window=window_size, min_periods=1, center=True, closed='both').mean())
-    
-    return angle_array - angle_ma
-
-
-def compute_angle_and_velocity_from_gyro(
-        config,
-        df: pd.DataFrame, 
-    ) -> pd.DataFrame:
+def remove_moving_average_angle(angle_array: np.ndarray, fs: float) -> pd.Series:
     """
-    Compute both the angle and velocity from the raw gyroscope signal using principal component 
-    analysis (PCA) for velocity estimation, and cumulative trapezoidal integration for angle estimation.
-
-    This function processes the raw gyroscope signal to obtain two key outputs:
-    1. The velocity, which is extracted from the principal component of the gyroscope's y- and z-axes.
-    2. The angle, which is obtained by integrating the angular velocity and removing any drift using a moving average.
+    Remove the moving average from the angle to correct for drift.
 
     Parameters
     ----------
-    config : object
-        Configuration object containing necessary column names (`velocity_colname`, `angle_colname`) 
-        and other relevant parameters for processing.
-
-    df : pd.DataFrame
-        The DataFrame containing raw gyroscope data with at least the y- and z-axes of the gyroscope.
-
+    angle_array : np.ndarray
+        The angle array to remove the moving average from.
+    fs : float
+        The sampling frequency of the data.
+    
     Returns
     -------
-    pd.Series, pd.Series
-        Two `pd.Series` objects:
-        - The first `pd.Series` corresponds to the estimated angle after integration and drift removal.
-        - The second `pd.Series` corresponds to the velocity computed from the gyroscope signal using PCA.
+    pd.Series
+        The angle array with the moving average removed.
     """
-    # Compute the velocity using PCA
-    df[DataColumns.VELOCITY] = pca_transform_gyroscope(
-        config=config,
-        df=df,
-    )
-
-    # Integrate angular velocity to obtain the angle
-    df[DataColumns.ANGLE] = compute_angle(
-        config=config,
-        df=df
-    )
-
-    # Remove moving average from the angle to correct for drift
-    df[DataColumns.ANGLE] = remove_moving_average_angle(
-        config=config,
-        df=df
-    )
-
-    return df[DataColumns.ANGLE], df[DataColumns.VELOCITY]
+    window_size = int(2 * (fs * 0.5) + 1)
+    angle_ma = np.array(pd.Series(angle_array).rolling(
+        window=window_size, 
+        min_periods=1, 
+        center=True, 
+        closed='both'
+    ).mean())
+    
+    return angle_array - angle_ma
 
 
 def extract_angle_extremes(
         angle_array: np.ndarray,
         sampling_frequency: float,
         max_frequency_activity: float = 1.75,
-    ) -> tuple[list[int], List[int], List[int]]:
-
+    ) -> tuple[List[int], List[int], List[int]]:
+    """
+    Extract extrema (minima and maxima) indices from the angle array.
+    
+    Parameters
+    ----------
+    angle_array : np.ndarray
+        The angle array to extract extrema from.
+    sampling_frequency : float
+        The sampling frequency of the data.
+    max_frequency_activity : float, optional
+        The maximum frequency of human activity (default is 1.75 Hz).
+    
+    Returns
+    -------
+    tuple
+        A tuple containing the indices of the angle extrema, minima, and maxima.
+    """
     distance = sampling_frequency / max_frequency_activity
     prominence = 2  
 
     # Find minima and maxima indices for each window
-    minima_indices = find_peaks(-angle_array, distance=distance, prominence=prominence)[0]
-    maxima_indices = find_peaks(angle_array, distance=distance, prominence=prominence)[0]
+    minima_indices = find_peaks(
+        x=-angle_array, 
+        distance=distance, 
+        prominence=prominence
+    )[0]
+    maxima_indices = find_peaks(
+        x=angle_array, 
+        distance=distance, 
+        prominence=prominence
+    )[0]
 
     minima_indices = np.array(minima_indices, dtype=object)
     maxima_indices = np.array(maxima_indices, dtype=object)
@@ -514,11 +544,22 @@ def extract_angle_extremes(
     return list(angle_extrema_indices), list(minima_indices), list(maxima_indices)
 
 
-def compute_range_of_motion(
-        angle_array: np.ndarray,
-        extrema_indices: List[int],
-) -> np.ndarray:
+def compute_range_of_motion(angle_array: np.ndarray, extrema_indices: List[int]) -> np.ndarray:
+    """
+    Compute the range of motion of a time series based on the angle extrema.
     
+    Parameters
+    ----------
+    angle_array : np.ndarray
+        The angle array to compute the range of motion from.
+    extrema_indices : List[int]
+        The indices of the angle extrema.
+    
+    Returns
+    -------
+    np.ndarray
+        The range of motion of the time series.
+    """
     # Ensure extrema_indices is a NumPy array of integers
     if not isinstance(extrema_indices, list):
         raise TypeError("extrema_indices must be a list of integers.")
@@ -542,7 +583,25 @@ def compute_peak_angular_velocity(
     minima_indices: List[int],
     maxima_indices: List[int],
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Compute the peak angular velocity of a time series based on the angle extrema.
+
+    Parameters
+    ----------
+    velocity_array : np.ndarray
+        The angular velocity array to compute the peak angular velocity from.
+    angle_extrema_indices : List[int]
+        The indices of the angle extrema.
+    minima_indices : List[int]
+        The indices of the minima.
+    maxima_indices : List[int]
+        The indices of the maxima.
     
+    Returns
+    -------
+    Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]
+        A tuple containing the forward and backward peak angular velocities for minima and maxima.
+    """
     if np.any(np.array(angle_extrema_indices) < 0) or np.any(np.array(angle_extrema_indices) >= len(velocity_array)):
         raise ValueError("angle_extrema_indices contains out-of-bounds indices.")
     
@@ -613,12 +672,12 @@ def extract_temporal_domain_features(
     # Compute gravity statistics (e.g., mean, std, etc.)
     feature_dict = {}
     for stat in grav_stats:
-        stats_result = compute_statistics(windowed_grav, statistic=stat)
+        stats_result = compute_statistics(data=windowed_grav, statistic=stat)
         for i, col in enumerate(config.gravity_cols):
             feature_dict[f'{col}_{stat}'] = stats_result[:, i]
 
     # Compute standard deviation of the Euclidean norm of the accelerometer signal
-    feature_dict['accelerometer_std_norm'] = compute_std_euclidean_norm(windowed_acc)
+    feature_dict['accelerometer_std_norm'] = compute_std_euclidean_norm(data=windowed_acc)
 
     return pd.DataFrame(feature_dict)
 
@@ -657,11 +716,19 @@ def extract_spectral_domain_features(
     feature_dict = {}
 
     # Compute periodogram (power spectral density)
-    freqs, psd = periodogram(windowed_data, fs=config.sampling_frequency, 
-                             window=config.window_type, axis=1)
+    freqs, psd = periodogram(
+        x=windowed_data, 
+        fs=config.sampling_frequency, 
+        window=config.window_type, 
+        axis=1
+    )
 
     # Compute power in specified frequency bands
-    band_powers  = compute_power_in_bandwidth(config, psd, freqs)
+    band_powers  = compute_power_in_bandwidth(
+        config=config, 
+        psd=psd, 
+        freqs=freqs
+    )
 
     # Add power band features to the feature_dict
     feature_dict.update(band_powers)
@@ -679,11 +746,11 @@ def extract_spectral_domain_features(
         feature_dict[f'{sensor}_{axis}_dominant_frequency'] = freq
 
     # Compute total power in the PSD
-    total_power_psd = compute_total_power(psd)
+    total_power_psd = compute_total_power(psd=psd)
 
     # Compute MFCCs
     mfccs = compute_mfccs(
-        config,
+        config=config,
         total_power_array=total_power_psd,
     )
 
