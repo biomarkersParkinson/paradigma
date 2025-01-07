@@ -219,8 +219,8 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str) -> pd.
     return df
 
 
-def preprocess_imu_data_io(input_path: Union[str, Path], output_path: Union[str, Path], config: IMUConfig, sensor: str) -> None:
-
+def preprocess_imu_data_io(input_path: str | Path, output_path: str | Path, 
+                           config: IMUConfig, sensor: str) -> None:
     # Load data
     metadata_time, metadata_values = read_metadata(str(input_path), str(config.meta_filename),
                                                     str(config.time_filename), str(config.values_filename))

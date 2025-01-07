@@ -12,7 +12,7 @@ def tabulate_windows(
         columns: List[str],
         window_length_s: float,
         window_step_length_s: float,
-        sampling_frequency: int,
+        fs: int,
     ) -> np.ndarray:
     """
     Split the given DataFrame into overlapping windows of specified length and step size.
@@ -33,7 +33,7 @@ def tabulate_windows(
         The length of each window in seconds.
     window_step_length_s : float
         The step size between consecutive windows in seconds.
-    sampling_frequency : int
+    fs : int
         The sampling frequency of the data in Hz.
 
     Returns
@@ -59,8 +59,8 @@ def tabulate_windows(
     columns = ['col1', 'col2']
     windows = tabulate_windows(config, df, columns)
     """
-    window_size = int(window_length_s * sampling_frequency)
-    window_step_size = int(window_step_length_s * sampling_frequency)
+    window_size = int(window_length_s * fs)
+    window_step_size = int(window_step_length_s * fs)
     n_columns = len(columns)
 
     data = df[columns].values
@@ -78,83 +78,6 @@ def tabulate_windows(
         windows = windows[np.newaxis, :, :]  # Add a new axis at the start
 
     return windows
-
-def tabulate_windows_legacy(config, df, agg_func='first'):
-    """
-    Efficiently creates a windowed dataframe from the input dataframe using vectorized operations.
-    
-    Args:
-        df: The input dataframe, where each row represents a timestamp (0.01 sec).
-        window_size_s: The number of seconds per window.
-        step_size_s: The number of seconds to shift between windows.
-        single_value_cols: List of columns where a single value (e.g., mean) is needed.
-        list_value_cols: List of columns where all 600 values should be stored in a list.
-        agg_func: Aggregation function for single-value columns (e.g., 'mean', 'first').
-        
-    Returns:
-        The windowed dataframe.
-    """
-    # If single_value_cols or list_value_cols is None, default to an empty list
-    if config.single_value_cols is None:
-        config.single_value_cols = []
-    if config.list_value_cols is None:
-        config.list_value_cols = []
-
-    window_length = int(config.window_length_s * config.sampling_frequency)
-    window_step_size = int(config.window_step_length_s * config.sampling_frequency)
-
-    n_rows = len(df)
-    if window_length > n_rows:
-        raise ValueError(f"Window size ({window_length}) cannot be greater than the number of rows ({n_rows}) in the dataframe.")
-    
-    # Create indices for window start positions 
-    window_starts = np.arange(0, n_rows - window_length + 1, window_step_size)
-    
-    # Prepare the result for the final DataFrame
-    result = []
-    
-    # Handle single value columns with vectorized operations
-    agg_func_map = {
-        'mean': np.mean,
-        'first': lambda x: x[0],
-    }
-
-    # Check if agg_func is a callable (custom function) or get the function from the map
-    if callable(agg_func):
-        agg_func_np = agg_func
-    else:
-        agg_func_np = agg_func_map.get(agg_func, agg_func_map['mean'])  # Default to 'mean' if agg_func is not recognized
-
-        
-    for window_nr, start in enumerate(window_starts, 1):
-        end = start + window_length
-        window = df.iloc[start:end]
-
-        agg_data = {
-            'window_nr': window_nr,
-            'window_start': window[DataColumns.TIME].iloc[0],
-            'window_end': window[DataColumns.TIME].iloc[-1],
-        }
-        
-        # Aggregate single-value columns
-        for col in config.single_value_cols:
-            if col in window.columns:  # Only process columns that exist in the window
-                agg_data[col] = agg_func_np(window[col].values)
-        
-        # Collect list-value columns efficiently using numpy slicing
-        for col in config.list_value_cols:
-            if col in window.columns:  # Only process columns that exist in the window
-                agg_data[col] = window[col].values.tolist()
-
-        result.append(agg_data)
-    
-    # Convert result list into a DataFrame
-    windowed_df = pd.DataFrame(result)
-    
-    # Ensure the column order is as desired: window_nr, window_start, window_end, pre_or_post, and then the rest
-    desired_order = ['window_nr', 'window_start', 'window_end'] + config.single_value_cols + config.list_value_cols
-    
-    return windowed_df[desired_order]
 
 
 def create_segments(
@@ -177,7 +100,7 @@ def discard_segments(
         df: pd.DataFrame, 
         segment_nr_colname: str,
         min_segment_length_s: float,
-        sampling_frequency: int,
+        fs: int,
         format: str='timestamps'
     ) -> pd.DataFrame:
     """
@@ -222,7 +145,7 @@ def discard_segments(
     """
     # Minimum segment size in number of samples
     if format == 'timestamps':
-        min_samples = min_segment_length_s * sampling_frequency
+        min_samples = min_segment_length_s * fs
     elif format == 'windows':
         min_samples = min_segment_length_s
     else:
@@ -243,7 +166,7 @@ def discard_segments(
     return df
 
 
-def categorize_segments(df, config, format='timestamps'):
+def categorize_segments(df, fs, format='timestamps', window_step_length_s=None):
     """
     Categorize segments based on their duration.
 
@@ -275,6 +198,9 @@ def categorize_segments(df, config, format='timestamps'):
         - 'long' for segments between 10 and 20 seconds
         - 'very_long' for segments > 20 seconds
     """
+    if format == 'windows' and window_step_length_s is None:
+        raise ValueError("Window step length must be provided for 'windows' format.")
+    
     # Define duration thresholds in seconds
     d_max_duration = {
         'short': 5,
@@ -284,14 +210,14 @@ def categorize_segments(df, config, format='timestamps'):
     
     # Convert thresholds to rows if format is 'timestamps'
     if format == 'timestamps':
-        d_max_duration = {k: v * config.sampling_frequency for k, v in d_max_duration.items()}
+        d_max_duration = {k: v * fs for k, v in d_max_duration.items()}
 
     # Count rows per segment
     segment_sizes = df[DataColumns.SEGMENT_NR].value_counts()
 
     # Convert segment sizes to duration in seconds
     if format == 'windows':
-        segment_sizes *= config.window_step_length_s
+        segment_sizes *= window_step_length_s
 
     # Group by the segment column and apply the categorization
     def categorize(segment_size):
