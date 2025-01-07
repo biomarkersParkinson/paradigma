@@ -60,15 +60,19 @@ def test_3_gait_detection_output(shared_datadir: Path):
     input_dir_name: str = "3.extracted_features"
     output_dir_name: str = "4.predictions"
     data_type: str = "gait"
+    classifier_filename: str = "gait_detection_classifier.pkl"
+    scaler_filename: str = "gait_detection_scaler_params.json"
 
     # Temporary path to store the output of the notebook
-    path_to_classifier_input = shared_datadir / '0.classification' / data_type
     path_to_feature_input = shared_datadir / input_dir_name / data_type
     path_to_reference_output = shared_datadir / output_dir_name / data_type
     path_to_tested_output = path_to_reference_output / "test-output"
 
+    full_path_to_classifier = shared_datadir / '0.classification' / data_type / 'classifiers' / classifier_filename
+    full_path_to_scaler = shared_datadir / '0.classification' / data_type / 'scalers' / scaler_filename
+
     config = GaitDetectionConfig()
-    detect_gait_io(path_to_feature_input, path_to_tested_output, path_to_classifier_input, config)
+    detect_gait_io(config, path_to_feature_input, path_to_tested_output, full_path_to_classifier, full_path_to_scaler)
     compare_data(path_to_reference_output, path_to_tested_output, gait_binaries_pairs)
 
 
@@ -80,37 +84,43 @@ def test_4_extract_features_arm_activity_output(shared_datadir: Path):
     input_dir_name: str = "2.preprocessed_data"
     output_dir_name: str = "3.extracted_features"
     data_type: str = "gait"
+    threshold_filename: str = "gait_detection_threshold.txt"
 
     # Temporary path to store the output of the notebook
     path_to_timestamp_input = shared_datadir / input_dir_name / "imu"
     path_to_prediction_input = shared_datadir / "4.predictions" / data_type
-    path_to_classifier_input = shared_datadir / "0.classification" / data_type
     path_to_reference_output = shared_datadir / output_dir_name / data_type
     path_to_tested_output = path_to_reference_output / "test-output"
 
+    full_path_to_threshold = shared_datadir / "0.classification" / data_type / "thresholds" / threshold_filename
+
     config = ArmActivityFeatureExtractionConfig()
-    extract_arm_activity_features_io(path_to_timestamp_input, path_to_prediction_input, path_to_classifier_input, path_to_tested_output, config)
+    extract_arm_activity_features_io(config, path_to_timestamp_input, path_to_prediction_input, full_path_to_threshold, path_to_tested_output)
     compare_data(path_to_reference_output, path_to_tested_output, arm_activity_binaries_pairs)
 
 
 def test_5_arm_swing_detection_output(shared_datadir: Path):
     """
-    This function is used to evaluate the output of the gait detection. It evaluates it by comparing the output to a reference output.
+    This function is used to evaluate the output of the gait filtering. It evaluates it by comparing the output to a reference output.
     """
 
     # Notebook info
     input_dir_name: str = "3.extracted_features"
     output_dir_name: str = "4.predictions"
     data_type: str = "gait"
+    classifier_filename: str = "gait_filtering_classifier.pkl"
+    scaler_filename: str = "gait_filtering_scaler_params.json"
 
     # Temporary path to store the output of the notebook
-    path_to_classifier_input = shared_datadir / '0.classification' / data_type
     path_to_prediction_input = shared_datadir / input_dir_name / data_type
     path_to_reference_output = shared_datadir / output_dir_name / data_type
     path_to_tested_output = path_to_reference_output / "test-output"
 
+    full_path_to_classifier = shared_datadir / '0.classification' / data_type / 'classifiers' / classifier_filename
+    full_path_to_scaler = shared_datadir / '0.classification' / data_type / 'scalers' / scaler_filename
+
     config = FilteringGaitConfig()
-    filter_gait_io(path_to_prediction_input, path_to_classifier_input, path_to_tested_output, config)
+    filter_gait_io(config, path_to_prediction_input, path_to_tested_output, full_path_to_classifier, full_path_to_scaler)
     compare_data(path_to_reference_output, path_to_tested_output, arm_activity_binaries_pairs)
 
 
