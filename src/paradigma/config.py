@@ -145,7 +145,7 @@ class HeartRateBaseConfig(PPGConfig):
         super().__init__()
 
         self.window_length_s: int = 6
-        self.window_step_size_s: int = 1
+        self.window_step_length_s: int = 1
 
 # Domain feature extraction configs
 class GaitFeatureExtractionConfig(GaitBaseConfig):
@@ -364,7 +364,7 @@ class HeartRateExtractionConfig(HeartRateBaseConfig):
         super().__init__()
 
          # Parameters for HR analysis
-        self.window_overlap_s = self.window_length_s - self.window_step_size_s
+        self.window_overlap_s = self.window_length_s - self.window_step_length_s
         self.min_hr_samples = int(round(min_window_length * self.sampling_frequency))
         self.threshold_sqa = 0.5
 
