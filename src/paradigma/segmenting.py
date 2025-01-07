@@ -80,8 +80,8 @@ def tabulate_windows_legacy(config, df, agg_func='first'):
     
     Args:
         df: The input dataframe, where each row represents a timestamp (0.01 sec).
-        window_size_s: The number of seconds per window.
-        step_size_s: The number of seconds to shift between windows.
+        window_length_s: The number of seconds per window.
+        window_step_length_s: The number of seconds to shift between windows.
         single_value_cols: List of columns where a single value (e.g., mean) is needed.
         list_value_cols: List of columns where all 600 values should be stored in a list.
         agg_func: Aggregation function for single-value columns (e.g., 'mean', 'first').
