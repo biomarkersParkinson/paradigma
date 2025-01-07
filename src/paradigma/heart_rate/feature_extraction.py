@@ -14,15 +14,20 @@ def generate_statistics(
     
     Parameters
     ----------
-    data: pd.np.ndarray
-        The sensor column to be aggregated (e.g. x-axis of accelerometer)
+    data: np.ndarray
+        The sensor column to be aggregated (e.g. green of PPG signal)
     statistic: str
         The statistic to be computed ['mean', 'var', 'median', 'kurtosis', 'skewness']
         
     Returns
     -------
-    list
-        the statistic for the sensor segments
+    np.ndarray
+        The computed statistic for the sensor column
+    
+    Raises
+    ------
+    ValueError
+        If the specified `statistic` is not supported.
     """
     if statistic == 'mean':
         return np.mean(np.abs(data), axis=1)
@@ -39,15 +44,19 @@ def generate_statistics(
 
 def compute_signal_to_noise_ratio(
         ppg_windowed: np.ndarray
-    ) -> list:
+    ) -> np.ndarray:
     """
     Compute the signal to noise ratio of the PPG signal.
     
-    Args:
-    ppg_segments: PPG signal of shape ...
-    
-    Returns:
-    list: Signal to noise ratio of the PPG windows.
+    Parameters
+    ----------
+    ppg_windowed: np.ndarray
+        The windowed PPG signal.
+
+    Returns
+    -------
+    np.ndarray
+        The signal to noise ratio of the PPG signal.
     """
     
     arr_signal = np.var(ppg_windowed, axis=1)
@@ -63,19 +72,23 @@ def compute_auto_correlation(
     """
     Compute the autocorrelation of the PPG signal.
     
-    Args:
-        ppg_segments: 2D array where each row is a segment of the PPG signal.
-        fs (int): Sampling frequency of the PPG signal.
-    
-    
-    Returns:
-        list: Autocorrelation of the PPG segments.
+    Parameters
+    ----------
+    ppg_windowed: np.ndarray
+        The windowed PPG signal.
+    fs: int
+        The sampling frequency of the PPG signal.
+
+    Returns
+    -------
+    np.ndarray
+        The autocorrelation of the PPG signal.
     """
 
-    auto_correlations = biased_autocorrelation(ppg_windowed, fs*3)
-    peaks = [find_peaks(x, height=0.01)[0] for x in auto_correlations]
-    sorted_peak_values = [np.sort(auto_correlations[i, indices])[::-1] for i, indices in enumerate(peaks)]
-    auto_correlations = [x[0] if len(x) > 0 else 0 for x in sorted_peak_values]
+    auto_correlations = biased_autocorrelation(ppg_windowed, fs*3) # compute the biased autocorrelation of the PPG signal
+    peaks = [find_peaks(x, height=0.01)[0] for x in auto_correlations] # find the peaks of the autocorrelation
+    sorted_peak_values = [np.sort(auto_correlations[i, indices])[::-1] for i, indices in enumerate(peaks)] # sort the peak values in descending order
+    auto_correlations = [x[0] if len(x) > 0 else 0 for x in sorted_peak_values] # get the highest peak value which is not the first peak (lag 0)
 
     return np.asarray(auto_correlations)
 
@@ -87,12 +100,18 @@ def biased_autocorrelation(
     Compute the biased autocorrelation of a signal (similar to matlabs autocorr function), where the normalization factor 
     is the length of the original signal, and boundary effects are considered.
     
-    Args:
-        x: Input signal (1D array).
-        max_lag (int): Maximum lag to compute autocorrelation.
-    
-    Returns:
-        np.ndarray: Biased autocorrelation values for lags 0 to max_lag.
+    Parameters
+    ----------
+    ppg_windowed: np.ndarray
+        The windowed PPG signal.
+    max_lag: int
+        The maximum lag for the autocorrelation.
+
+    Returns
+    -------
+    np.ndarray
+        The biased autocorrelation of the PPG signal.
+
     """
     zero_mean_ppg = ppg_windowed - np.mean(ppg_windowed, axis=1, keepdims=True) # Remove the mean of the signal to make it zero-mean
     N = zero_mean_ppg.shape[1]
@@ -108,9 +127,21 @@ def biased_autocorrelation(
 def compute_dominant_frequency(
         freqs: np.ndarray, 
         psd: np.ndarray
-    ) -> list:
+    ) -> np.ndarray:
     """
-    Identify the dominant frequency (peak frequency) in the power spectral density.
+    Calculate the dominant frequency of the power spectral density.
+
+    Parameters
+    ----------
+    freqs: np.ndarray
+        The frequency bins of the power spectral density.
+    psd: np.ndarray
+        The power spectral density of the signal.
+
+    Returns
+    -------
+    np.ndarray
+        The dominant frequency of the power spectral density.
     """
     peak_idx = np.argmax(psd, axis=1)
     return freqs[peak_idx]
@@ -122,6 +153,21 @@ def compute_relative_power(
     ) -> list:
     """
     Calculate relative power within the dominant frequency band in the physiological range (0.75 - 3 Hz).
+
+    Parameters
+    ----------
+    freqs: np.ndarray
+        The frequency bins of the power spectral density.
+    psd: np.ndarray
+        The power spectral density of the signal.
+    config: SignalQualityFeatureExtractionConfig
+        The configuration object containing the parameters for the feature extraction
+
+    Returns
+    -------
+    list
+        The relative power within the dominant frequency band in the physiological range (0.75 - 3 Hz). 
+    
     """
     hr_range_mask = (freqs >= config.freq_band_physio[0]) & (freqs <= config.freq_band_physio[1])
     hr_range_idx = np.where(hr_range_mask)[0]
@@ -135,9 +181,21 @@ def compute_relative_power(
 def compute_spectral_entropy(
         psd: np.ndarray, 
         n_samples: int
-    ) -> list:
+    ) -> np.ndarray:
     """
     Calculate the spectral entropy from the normalized power spectral density.
+
+    Parameters
+    ----------
+    psd: np.ndarray
+        The power spectral density of the signal.   
+    n_samples: int
+        The number of samples in the window.
+
+    Returns
+    -------
+    np.ndarray
+        The spectral entropy of the power spectral density.
     """
     psd_norm = psd / np.sum(psd, axis=1, keepdims=True)
     spectral_entropy = -np.sum(psd_norm * np.log2(psd_norm), axis=1) / np.log2(n_samples)
@@ -157,7 +215,7 @@ def extract_temporal_domain_features(
     config: SignalQualityFeatureExtractionConfig
         The configuration object containing the parameters for the feature extraction
     
-    ppg_windowed: pd.DataFrame
+    ppg_windowed: np.ndarray
         The dataframe containing the windowed accelerometer signal
 
     quality_stats: list, optional
@@ -173,13 +231,13 @@ def extract_temporal_domain_features(
     for stat in quality_stats:
         feature_dict[stat] = generate_statistics(ppg_windowed, stat)
     
-    feature_dict['signal_to_noise'] = compute_signal_to_noise_ratio(ppg_windowed)  # feature 9
-    feature_dict['auto_corr'] = compute_auto_correlation(ppg_windowed, config.sampling_frequency) # feature 10
+    feature_dict['signal_to_noise'] = compute_signal_to_noise_ratio(ppg_windowed)  
+    feature_dict['auto_corr'] = compute_auto_correlation(ppg_windowed, config.sampling_frequency)
     return pd.DataFrame(feature_dict)
 
 def extract_spectral_domain_features(
         config: SignalQualityFeatureExtractionConfig, 
-        ppg_windowed: pd.DataFrame
+        ppg_windowed: np.ndarray
     ) -> pd.DataFrame:
     """
     Calculate the spectral features (dominant frequency, relative power, and spectral entropy)

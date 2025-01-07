@@ -47,7 +47,7 @@ def signal_quality_classification(df: pd.DataFrame, config: SignalQualityClassif
     Parameters
     ----------
     df : pd.DataFrame
-        The DataFrame containing the PPG signal features features.
+        The DataFrame containing the PPG signal features.
     config : SignalQualityClassificationConfig
         The configuration for the signal quality classification.
     path_to_classifier_input : Union[str, Path]
@@ -64,19 +64,17 @@ def signal_quality_classification(df: pd.DataFrame, config: SignalQualityClassif
     mu = clf['mu']  # load the mean, 2D array
     sigma = clf['sigma'] # load the standard deviation, 2D array
 
-    # Prepare the data
+    # Assign feature names to the classifier
     lr_clf.feature_names_in_ = ['var', 'mean', 'median', 'kurtosis', 'skewness', 'f_dom', 'rel_power', 'spectral_entropy', 'signal_to_noise', 'auto_corr']
-    X = df.loc[:, lr_clf.feature_names_in_]
 
     # Normalize features using mu and sigma
-    X_normalized = (X[lr_clf.feature_names_in_] - mu.ravel()) / sigma.ravel()  # Use .ravel() to convert the 2D arrays (mu and sigma) to 1D arrays
+    X_normalized = (df[lr_clf.feature_names_in_] - mu.ravel()) / sigma.ravel()  # Use .ravel() to convert the 2D arrays (mu and sigma) to 1D arrays
 
     # Make predictions for PPG signal quality assessment, and assign the probabilities to the DataFrame and drop the features
     df[DataColumns.PRED_SQA_PROBA] = lr_clf.predict_proba(X_normalized)[:, 0]
-    df_sqa = df.drop(columns=lr_clf.feature_names_in_) # Drop the features used for classification
+    df_sqa = df[[DataColumns.PRED_SQA_PROBA]] # Return DataFrame with only the predicted probabilities
     
     return df_sqa   
-
 
 
 def signal_quality_classification_io(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: SignalQualityClassificationConfig) -> None:
@@ -122,12 +120,13 @@ def estimate_heart_rate(df_sqa: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame,
     t_hr_rel = np.array([])
 
     edge_add = 2 * config.sampling_frequency  # Add 2s on both sides of the segment for HR estimation
+    step_size = config.hr_est_samples  # Step size for HR estimation
 
     # Estimate the maximum size for preallocation
-    valid_segments = (v_start_idx >= edge_add) & (v_end_idx <= len(df_ppg_preprocessed) - edge_add) # check if the segments are valid, e.g. not too close to the edges (2s)
+    valid_segments = (v_start_idx >= edge_add) & (v_end_idx <= len(ppg_preprocessed) - edge_add) # check if the segments are valid, e.g. not too close to the edges (2s)
     valid_start_idx = v_start_idx[valid_segments]   # get the valid start indices
     valid_end_idx = v_end_idx[valid_segments]    # get the valid end indices
-    max_size = np.sum((valid_end_idx - valid_start_idx) // config.hr_est_samples) # maximum size for preallocation
+    max_size = np.sum((valid_end_idx - valid_start_idx) // step_size) # maximum size for preallocation
   
     # Preallocate arrays
     v_hr_rel = np.empty(max_size, dtype=float) 
@@ -148,10 +147,11 @@ def estimate_heart_rate(df_sqa: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame,
             config.kern_type,
             config.kern_params,
         )
-        n_hr = len(hr_est)
+        n_hr = len(hr_est)  # Number of heart rate estimates
+        end_idx_time = n_hr * step_size + start_idx  # Calculate end index for time, different from end_idx since it is always a multiple of step_size, while end_idx is not
 
         # Extract relative time for HR estimates
-        hr_time = ppg_preprocessed[start_idx : start_idx + n_hr * config.hr_est_samples : config.hr_est_samples, time_idx]
+        hr_time = ppg_preprocessed[start_idx : end_idx_time : step_size, time_idx]
 
         # Insert into preallocated arrays
         v_hr_rel[hr_pos:hr_pos + n_hr] = hr_est
