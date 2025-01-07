@@ -555,17 +555,37 @@ def quantify_arm_swing(
         max_segment_gap_s: float, 
         min_segment_length_s: float,
         fs: int
-    ) -> pd.DataFrame:
+    ) -> dict:
     """
-    Quantify arm swing parameters for segments of motion based on gyroscopic data.
+    Quantify arm swing parameters for segments of motion based on gyroscope data.
 
-    Parameters:
-    - df_timestamps: DataFrame containing timestamp information.
-    - df_predictions: DataFrame with predictions, gyroscopic data, and additional metadata.
-    - classification_threshold: Threshold to classify predicted arm activities.
+    Parameters
+    ----------
+    df_timestamps : pd.DataFrame
+        A DataFrame containing the raw sensor data, including gyroscope columns.
 
-    Returns:
-    - Dictionary containing aggregated arm swing parameters per segment category.
+    df_predictions : pd.DataFrame
+        A DataFrame containing the predicted probabilities for no other arm activity per window.
+
+    classification_threshold : float
+        The threshold used to classify no other arm activity based on the predicted probabilities.
+
+    window_length_s : float
+        The length of the window used for feature extraction.
+
+    max_segment_gap_s : float
+        The maximum gap allowed between segments.
+
+    min_segment_length_s : float
+        The minimum length required for a segment to be considered valid.
+
+    fs : int
+        The sampling frequency of the sensor data.
+
+    Returns
+    -------
+    dict
+        A dictionary containing the quantified arm swing parameters for each segment of motion.
     """
     # Merge arm activity predictions with timestamps
     df = merge_predictions_with_timestamps(
@@ -768,11 +788,13 @@ def merge_predictions_with_timestamps(
     df_ts : pd.DataFrame
         DataFrame containing timestamps to be merged with predictions.
         Must include the timestamp column specified in `DataColumns.TIME`.
+
     df_predictions : pd.DataFrame
         DataFrame containing prediction windows with start times and probabilities.
         Must include:
         - A column for window start times (defined by `DataColumns.TIME`).
         - A column for prediction probabilities (defined by `DataColumns.PRED_GAIT_PROBA`).
+        
     config : object
         Configuration object containing the following attributes:
         - time_colname (str): Column name for timestamps.
