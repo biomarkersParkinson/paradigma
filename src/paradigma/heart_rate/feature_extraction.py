@@ -283,19 +283,25 @@ def extract_acc_power_feature(
         PSD_acc: np.ndarray, 
         f2: np.ndarray, 
         PSD_ppg: np.ndarray
-    ) -> float:
+    ) -> np.ndarray:
     """
-    TO BE ADJUSTED
-    Calculates the power ratio of the accelerometer signal in the PPG frequency range.
-    
-    Args:
-    f1 (numpy.ndarray): Frequency bins for the accelerometer signal.
-    PSD_acc (numpy.ndarray): Power Spectral Density of the accelerometer signal.
-    f2 (numpy.ndarray): Frequency bins for the PPG signal.
-    PSD_ppg (numpy.ndarray): Power Spectral Density of the PPG signal.
-    
-    Returns:
-    acc_power_ratio (float): Power ratio of the accelerometer signal in the PPG frequency range.
+    Extract the accelerometer power feature in the PPG frequency range.
+
+    Parameters
+    ----------
+    f1: np.ndarray
+        The frequency bins of the accelerometer signal.
+    PSD_acc: np.ndarray
+        The power spectral density of the accelerometer signal.
+    f2: np.ndarray
+        The frequency bins of the PPG signal.
+    PSD_ppg: np.ndarray
+        The power spectral density of the PPG signal.
+
+    Returns
+    -------
+    np.ndarray
+        The accelerometer power feature in the PPG frequency range
     """
     
     # Find the index of the maximum PSD value in the PPG signal
