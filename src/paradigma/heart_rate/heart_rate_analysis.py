@@ -11,13 +11,19 @@ from paradigma.config import SignalQualityFeatureExtractionConfig, SignalQuality
     HeartRateExtractionConfig, HeartRateExtractionConfig
 from paradigma.heart_rate.feature_extraction import extract_temporal_domain_features, extract_spectral_domain_features
 from paradigma.heart_rate.heart_rate_estimation import assign_sqa_label, extract_hr_segments, extract_hr_from_segment
-from paradigma.segmenting import tabulate_windows, tabulate_windows_legacy
+from paradigma.segmenting import tabulate_windows
 
 from paradigma.util import read_metadata
 
 def extract_signal_quality_features(df: pd.DataFrame, config: SignalQualityFeatureExtractionConfig) -> pd.DataFrame:
     # Group sequences of timestamps into windows
-    ppg_windowed = tabulate_windows(config, df, columns=[config.ppg_colname])[0]
+    ppg_windowed = tabulate_windows(
+        df=df, 
+        columns=[config.ppg_colname],
+        window_length_s=config.window_length_s,
+        window_step_length_s=config.window_step_length_s,
+        fs=config.sampling_frequency
+    )
 
     # Compute statistics of the temporal domain signals
     df_temporal_features = extract_temporal_domain_features(config, ppg_windowed, quality_stats=['var', 'mean', 'median', 'kurtosis', 'skewness'])
