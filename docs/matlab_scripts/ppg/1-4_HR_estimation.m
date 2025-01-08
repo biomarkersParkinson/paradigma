@@ -18,14 +18,14 @@
 % Setting data paths + extracting metafilenames already
 clearvars; close all; clc
 addpath(genpath('..\..\..\paradigma-toolbox'))       % Add git repository to the path
-addpath(genpath("..\..\..\\tsdf4matlab"))       % Add wrapper to the path
+addpath(genpath("..\..\..\tsdf4matlab"))       % Add wrapper to the path
 warning('off','all')        % Turn off warnings to improve speed in spwvd especially
 
 % Setting the data paths
 unix_ticks_ms = 1000.0;
 fs_ppg = 30;     % Establish the sampling rate desired for resampling PPG --> now chosen to be fixed on 30 Hz
 
-raw_data_root = '..\..\..\tests\data\1.sensor_data\';
+raw_data_root = '..\..\..\tests\data\1.prepared_data\';
 ppp_data_path_ppg = [raw_data_root 'PPG\'];
 meta_ppg = tsdf_scan_meta(ppp_data_path_ppg);            % tsdf_scan_meta returns metafile struct containing information of all metafiles from all patients in tsdf_dirlist
 n_files_ppg = length(meta_ppg); 

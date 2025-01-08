@@ -26,7 +26,7 @@ unix_ticks_ms = 1000.0;
 fs_ppg = 30;     % Establish the sampling rate desired for resampling PPG --> now chosen to be fixed on 30 Hz
 fs_imu = 100;    % Establish the sampling rate desired for resampling IMU --> now chosen to be fixed on 30 Hz
 
-raw_data_root = '..\..\..\tests\data\1.sensor_data\';
+raw_data_root = '..\..\..\tests\data\1.prepared_data\';
 ppp_data_path_ppg = [raw_data_root 'PPG\'];
 ppp_data_path_imu = [raw_data_root 'IMU\'];
 
@@ -54,8 +54,8 @@ meta_path_imu = meta_imu(segment_imu(n)).tsdf_meta_fullpath;
 
 time_idx_ppg = tsdf_values_idx(metadata_list_ppg, 'time');    % added for correctness instead of assuming that the idx is the same for every time we use load_tsdf_metadata_from_path --> or is this unnecessary --> assumption it is different for PPG and IMU!!
 time_idx_imu = tsdf_values_idx(metadata_list_imu, 'time');
-values_idx_ppg = tsdf_values_idx(metadata_list_ppg, 'samples');
-values_idx_imu = tsdf_values_idx(metadata_list_imu, 'samples');
+values_idx_ppg = tsdf_values_idx(metadata_list_ppg, 'values');
+values_idx_imu = tsdf_values_idx(metadata_list_imu, 'values');
 
 t_iso_ppg = metadata_list_ppg{time_idx_ppg}.start_iso8601;
 t_iso_imu = metadata_list_imu{time_idx_imu}.start_iso8601;
@@ -63,25 +63,23 @@ t_iso_imu = metadata_list_imu{time_idx_imu}.start_iso8601;
 datetime_ppg = datetime(t_iso_ppg, 'InputFormat', 'yyyy-MM-dd''T''HH:mm:ssZ', 'TimeZone', 'UTC');
 datetime_imu = datetime(t_iso_imu, 'InputFormat', 'yyyy-MM-dd''T''HH:mm:ssZ', 'TimeZone', 'UTC');
 
-t_diff_ppg = data_list_ppg{time_idx_ppg};
-t_diff_imu = data_list_imu{time_idx_imu};
+tr_ppg = data_list_ppg{time_idx_ppg};
+tr_imu = data_list_imu{time_idx_imu};
 
 ts_ppg = posixtime(datetime_ppg) * unix_ticks_ms;      % calculate the unix timestamp in ms
 ts_imu = posixtime(datetime_imu) * unix_ticks_ms;      % calculate the unix timestamp in ms
 
-t_ppg = cumsum(double(data_list_ppg{time_idx_ppg})) + ts_ppg(n);
-t_imu = cumsum(double(data_list_imu{time_idx_imu})) + ts_imu(n);
+t_ppg = tr_ppg + ts_ppg(n);
+t_imu = tr_imu + ts_imu(n);
 
-tr_ppg = (t_ppg-ts_ppg)/unix_ticks_ms;
-tr_imu = (t_imu-ts_imu)/unix_ticks_ms;
 
 v_ppg = data_list_ppg{values_idx_ppg};
 v_imu = data_list_imu{values_idx_imu};             % store data values for every seperate tsdf file in cell
-scale_factors = metadata_list_imu{values_idx_imu}.scale_factors';
+%scale_factors = metadata_list_imu{values_idx_imu}.scale_factors';
 
 %% 4. Data synchronization on right indices
-fs_ppg_est = 1000/median(t_diff_ppg); 
-fs_imu_est = 1000/median(t_diff_imu);
+fs_ppg_est = 1/median(diff(tr_ppg)); 
+fs_imu_est = 1/median(diff(tr_imu));
 [ppg_indices, imu_indices] = extract_overlapping_segments(t_ppg, t_imu); % List of two pairs of indices, e.g., [(0, 1000), (1, 2002)] - they might differ depending on the sampling rate
 
 %%---Update data vectors on synchronized labels---%%
@@ -99,7 +97,7 @@ tr_imu = tr_imu - tr_imu(1);  % update tr_imu by the first relative time point c
 
 %% 5. Data preprocessing
 %%--Preprocessing both IMU and PPG%%  
-v_acc_scaled = scale_factors(1,1:3).*double(v_imu(:,1:3));     % Extract only the accelerometer channels and multiply them using scale factors! --> now based on indices but preferably on channel names in metadata???
+v_acc_scaled = double(v_imu(:,1:3));     % Extract only the accelerometer channels and multiply them using scale factors! --> now based on indices but preferably on channel names in metadata???
 min_window_length = 30;
 
 %%----NEEDS TO BE IMPLEMENTED IN FUNCTION!!--%%
@@ -173,6 +171,7 @@ meta_pre_acc{2} = metafile_values;
 mat_metadata_file_name = "accelerometer_meta.json";
 save_tsdf_data(meta_pre_acc, data_pre_acc, location, mat_metadata_file_name)
 %% 6. Feature extraction
+tic
 % Create loop for 6s epochs with 5s overlap
 epoch_length = 6; % in seconds
 overlap = 5; % in seconds
@@ -220,17 +219,19 @@ for i = 1:samples_shift_ppg:(length(v_ppg_pre) - samples_per_epoch_ppg + 1)
   
         %%--------Feature extraction + scaling--------%%
         % calculate features using ppg_features.m
-        features = ppg_features(ppg_segment, fs_ppg);  % for now PPG_segment --> name can be adjusted!
+        %features = ppg_features(ppg_segment, fs_ppg);  % for now PPG_segment --> name can be adjusted!
         
         % Scaling using z-score 
-        features_ppg_scaled(count,:) = normalize(features, 'center', mu, 'scale', sigma);
+        %features_ppg_scaled(count,:) = normalize(features, 'center', mu, 'scale', sigma);
 
         % Calculating psd (power spectral density) of imu and ppg
         % in the Gait pipeline this is done using the Fourier transformation
-        [pxx1,f1] = pwelch(acc_segment,hann(pwelchwin_acc), noverlap_acc, nfft_acc, fs_imu);
+        % [pxx1,f1] = pwelch(acc_segment,hann(pwelchwin_acc), noverlap_acc, nfft_acc, fs_imu);
+        [pxx1,f1] = pwelch(acc_segment,hann(pwelchwin_acc), noverlap_acc, 2000, fs_imu);
         PSD_imu = sum(pxx1,2);     % sum over the three axis
-        [pxx2,f2] = pwelch(ppg_segment,hann(pwelchwin_ppg), noverlap_ppg, nfft_ppg, fs_ppg);
-        PSD_ppg = sum(pxx2,1); % this does nothing, equal to PSD_ppg = pxx2
+        % [pxx2,f2] = pwelch(ppg_segment,hann(pwelchwin_ppg), noverlap_ppg, nfft_ppg, fs_ppg);
+        [pxx2,f2] = pwelch(ppg_segment,hann(pwelchwin_ppg), noverlap_ppg, 600, fs_ppg);
+        PSD_ppg = pxx2; % this does nothing, equal to PSD_ppg = pxx2
         
         % IMU feature extraction
         feature_acc(count,1) = acc_feature(f1, PSD_imu, f2, PSD_ppg); % Calculate the power ratio of the accelerometer signal in the PPG frequency range and store it as a row in the feature matrix (which has only 1 column)
@@ -240,7 +241,7 @@ for i = 1:samples_shift_ppg:(length(v_ppg_pre) - samples_per_epoch_ppg + 1)
         acc_idx = acc_idx + samples_shift_acc; % update IMU_idx 
 end
 % at this point we have a matrix with features for PPG (10 column), IMU (1 columns), and a time vector
-
+toc
 % THis is stored for later (stage 4)
 v_sync_ppg_total(1,1) = ppg_indices(1); % start index --> needed for HR pipeline
 v_sync_ppg_total(1,2) = ppg_indices(2); % end index --> needed for HR pipeline
