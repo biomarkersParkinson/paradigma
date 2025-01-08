@@ -234,7 +234,7 @@ def compute_mfccs(
         - sampling_frequency : int
             Sampling frequency of the data (default: 100 Hz).
         - mfcc_low_frequency : float
-            Lower bound of the frequency band (default: 0).
+            Lower bound of the frequency band (default: 0 Hz).
         - mfcc_high_frequency : float
             Upper bound of the frequency band (default: 25 Hz).
         - mfcc_n_dct_filters : int

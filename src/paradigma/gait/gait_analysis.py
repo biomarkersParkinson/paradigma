@@ -109,11 +109,11 @@ def extract_gait_features(
 
 def extract_gait_features_io(
         config: GaitFeatureExtractionConfig,
-        path_to_preprocessed_input: str | Path, 
+        path_to_input: str | Path, 
         path_to_output: str | Path
     ) -> None:
     # Load data
-    metadata_time, metadata_values = read_metadata(path_to_preprocessed_input, config.meta_filename, config.time_filename, config.values_filename)
+    metadata_time, metadata_values = read_metadata(path_to_input, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
     # Extract gait features
@@ -142,7 +142,7 @@ def detect_gait(
         full_path_to_classifier: str | Path, 
         full_path_to_scaler: str | Path,
         parallel: bool=False
-    ) -> pd.DataFrame:
+    ) -> pd.Series:
     """
     Detects gait activity in the input DataFrame using a pre-trained classifier and applies a threshold to classify results.
 
@@ -151,7 +151,7 @@ def detect_gait(
     2. Scales the relevant features in the input DataFrame (`df`) using the loaded scaling parameters.
     3. Predicts the probability of gait activity for each sample in the DataFrame using the classifier.
     4. Applies a threshold to the predicted probabilities to determine whether gait activity is present.
-    5. Adds the predicted probabilities and classification results as new columns in the DataFrame.
+    5. Returns predicted probabilities
 
     Parameters
     ----------
@@ -159,31 +159,19 @@ def detect_gait(
         The input DataFrame containing features extracted from gait data. It must include the necessary columns 
         as specified in the classifier's feature names.
 
-    path_to_classifier_input : str | Path
-        The path to the directory containing the classifier, scaler parameters, and other required files.
+    full_path_to_classifier : str
+        The full path of the file containing the pre-trained classifier, located in the `classifiers` subdirectory.
 
-    classifier_filename : str
-        The name of the file containing the pre-trained classifier, located in the `classifiers` subdirectory.
-
-    scaler_filename : str
-        The name of the file containing the scaling parameters, located in the `scalers` subdirectory.
+    full_path_to_scaler : str
+        The full path of the file containing the scaling parameters, located in the `scalers` subdirectory.
 
     parallel : bool, optional, default=False
         If `True`, enables parallel processing during classification. If `False`, the classifier uses a single core.
 
     Returns
     -------
-    pd.DataFrame
-        The input DataFrame with two additional columns:
-        - `gait_probability`: The predicted probabilities of gait activity.
-        - `gait_detected`: A binary classification result (1 for gait detected, 0 otherwise) based on the threshold.
-
-    Notes
-    -----
-    - The function expects the pre-trained classifier and scaling parameters to be located in specific 
-      subdirectories (`classifiers` and `scalers`) under `path_to_classifier_input`.
-    - The threshold used for classification is hardcoded or can be loaded from a configuration file, 
-      depending on implementation.
+    pd.Series
+        A Series containing the predicted probabilities of gait activity for each sample in the input DataFrame.
 
     Raises
     ------
@@ -224,14 +212,14 @@ def detect_gait(
 
 def detect_gait_io(
         config: GaitDetectionConfig, 
-        path_to_input_features: str | Path, 
+        path_to_input: str | Path, 
         path_to_output: str | Path, 
         full_path_to_classifier: str | Path, 
         full_path_to_scaler: str | Path
     ) -> None:
     
     # Load the data
-    metadata_time, metadata_values = read_metadata(path_to_input_features, config.meta_filename, config.time_filename, config.values_filename)
+    metadata_time, metadata_values = read_metadata(path_to_input, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
     df[DataColumns.PRED_GAIT_PROBA] = detect_gait(df, full_path_to_classifier, full_path_to_scaler)
@@ -532,13 +520,13 @@ def filter_gait(
 
 def filter_gait_io(
         config: FilteringGaitConfig, 
-        path_to_feature_input: str | Path, 
+        path_to_input: str | Path, 
         path_to_output: str | Path, 
         full_path_to_classifier: str | Path, 
         full_path_to_scaler: str | Path
     ) -> None:
     # Load the data
-    metadata_time, metadata_values = read_metadata(path_to_feature_input, config.meta_filename, config.time_filename, config.values_filename)
+    metadata_time, metadata_values = read_metadata(path_to_input, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
     df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] = filter_gait(
@@ -598,7 +586,8 @@ def quantify_arm_swing(
     Returns
     -------
     dict
-        A dictionary containing the quantified arm swing parameters for each segment of motion.
+        A dictionary containing arm swing parameters for filtered and unfiltered gait, and per
+        segment length category.
     """
     # Merge arm activity predictions with timestamps
     df = merge_predictions_with_timestamps(

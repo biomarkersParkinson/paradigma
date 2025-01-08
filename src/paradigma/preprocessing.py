@@ -219,10 +219,10 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str) -> pd.
     return df
 
 
-def preprocess_imu_data_io(input_path: str | Path, output_path: str | Path, 
+def preprocess_imu_data_io(path_to_input: str | Path, path_to_output: str | Path, 
                            config: IMUConfig, sensor: str) -> None:
     # Load data
-    metadata_time, metadata_values = read_metadata(str(input_path), str(config.meta_filename),
+    metadata_time, metadata_values = read_metadata(str(path_to_input), str(config.meta_filename),
                                                     str(config.time_filename), str(config.values_filename))
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
@@ -242,7 +242,7 @@ def preprocess_imu_data_io(input_path: str | Path, output_path: str | Path,
             metadata_time.file_name = f'{sensor}_time.bin'
             metadata_time.units = [TimeUnit.RELATIVE_S]
 
-            write_df_data(metadata_time, metadata_values, output_path, f'{sensor}_meta.json', df_sensor)
+            write_df_data(metadata_time, metadata_values, path_to_output, f'{sensor}_meta.json', df_sensor)
 
 
 def scan_and_sync_segments(input_path_ppg, input_path_imu):
