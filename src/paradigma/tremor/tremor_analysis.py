@@ -196,8 +196,8 @@ def detect_tremor_io(input_path: Union[str, Path], output_path: Union[str, Path]
 def aggregate_tremor_power(tremor_power: pd.Series, config: TremorQuantificationConfig):
     
     """
-    Converts the tremor power to the log scale and subsequentyly computes three aggregates of tremor power:
-    the median, mode and perdentile specified in TremorQuantificationConfig.     
+    Converts the tremor power to the log scale and subsequently computes three aggregates of tremor power:
+    the median, mode and percentile specified in TremorQuantificationConfig.     
     """
 
     tremor_power = np.log10(tremor_power+1) # convert to log scale
