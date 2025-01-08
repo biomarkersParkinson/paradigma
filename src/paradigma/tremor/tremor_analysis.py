@@ -264,7 +264,7 @@ def quantify_tremor(df: pd.DataFrame, config: TremorQuantificationConfig):
             'nr_windows_total': nr_windows_total,
             'nr_windows_rest': nr_windows_rest
         },
-        'weekly_tremor_measures': {
+        'aggregated_tremor_measures': {
             'tremor_time': tremor_time,
             'tremor_power_median': tremor_power_median,
             'tremor_power_mode': tremor_power_mode,
