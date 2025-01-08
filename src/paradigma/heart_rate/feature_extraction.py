@@ -4,7 +4,7 @@ import numpy as np
 from scipy.signal import welch, find_peaks
 from scipy.signal.windows import hamming, hann
 from scipy.stats import kurtosis, skew
-from paradigma.config import SignalQualityFeatureExtractionConfig, SignalQualityFeatureExtractionConfigAcc
+from paradigma.config import SignalQualityFeatureExtractionConfig, SignalQualityFeatureExtractionAccConfig
 
 def generate_statistics(
         data: np.ndarray,
@@ -309,12 +309,12 @@ def extract_acc_power_feature(
     max_PPG_psd_idx = np.argmax(PSD_ppg, axis=1)
     max_PPG_freq_psd = f2[max_PPG_psd_idx]
     
-    # Fint the neighboring indices of the maximum PSD value in the PPG signal
+    # Find the neighboring indices of the maximum PSD value in the PPG signal
     df_idx = np.column_stack((max_PPG_psd_idx - 1, max_PPG_psd_idx, max_PPG_psd_idx + 1))    
     
     # Find the index of the closest frequency in the accelerometer signal to the first harmonic of the PPG frequency
     corr_acc_psd_fh_idx = np.argmin(np.abs(f1[:, None] - max_PPG_freq_psd*2), axis=0)
-    fh_idx = np.column_stack((corr_acc_psd_fh_idx-1, corr_acc_psd_fh_idx, corr_acc_psd_fh_idx+1))   
+    fh_idx = np.column_stack((corr_acc_psd_fh_idx - 1, corr_acc_psd_fh_idx, corr_acc_psd_fh_idx + 1))   
     
     # Compute the power in the ranges corresponding to the PPG frequency
     acc_power_PPG_range = (
@@ -330,19 +330,19 @@ def extract_acc_power_feature(
     
     return acc_power_ratio
 
-def extract_accelerometer_feature(config: SignalQualityFeatureExtractionConfigAcc, acc_windowed: pd.DataFrame, ppg_windowed: pd.DataFrame) -> pd.DataFrame:
+def extract_accelerometer_feature(config: SignalQualityFeatureExtractionAccConfig, acc_windowed: np.ndarray, ppg_windowed: np.ndarray) -> pd.DataFrame:
     """
     Extract accelerometer features from the accelerometer signal in the PPG frequency range.
     
     Parameters
     ----------
-    config: SignalQualityFeatureExtractionConfigAcc
+    config: SignalQualityFeatureExtractionAccConfig
         The configuration object containing the parameters for the feature extraction
     
-    acc_windowed: pd.DataFrame
+    acc_windowed: np.ndarray
         The dataframe containing the windowed accelerometer signal
 
-    ppg_windowed: pd.DataFrame
+    ppg_windowed: np.ndarray
         The dataframe containing the corresponding windowed ppg signal
     
     Returns

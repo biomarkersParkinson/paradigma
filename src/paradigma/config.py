@@ -283,7 +283,7 @@ class SignalQualityFeatureExtractionConfig(HeartRateBaseConfig):
         self.freq_band_physio = [0.75, 3] # Hz
         self.bandwidth = 0.2   # Hz
 
-class SignalQualityFeatureExtractionConfigAcc(HeartRateBaseConfig):
+class SignalQualityFeatureExtractionAccConfig(HeartRateBaseConfig):
     
     def __init__(self) -> None:
         super().__init__()

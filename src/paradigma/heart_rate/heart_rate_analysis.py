@@ -24,14 +24,14 @@ def extract_signal_quality_features(config_ppg: SignalQualityFeatureExtractionCo
 
     Parameters
     ----------
-    df_ppg : pd.DataFrame
-        The DataFrame containing the PPG signal.
-    df_acc : pd.DataFrame
-        The DataFrame containing the accelerometer signal.
     config_ppg: SignalQualityFeatureExtractionConfig
         The configuration for the signal quality feature extraction of the ppg signal.
+    df_ppg : pd.DataFrame
+        The DataFrame containing the PPG signal.
     config_acc: SignalQualityFeatureExtractionConfigAcc
         The configuration for the signal quality feature extraction of the accelerometer signal.
+    df_acc : pd.DataFrame
+        The DataFrame containing the accelerometer signal.
 
     Returns
     -------
@@ -57,7 +57,7 @@ def extract_signal_quality_features(config_ppg: SignalQualityFeatureExtractionCo
     df_temporal_features = extract_temporal_domain_features(config_ppg, ppg_windowed, quality_stats=['var', 'mean', 'median', 'kurtosis', 'skewness'])
     
     # Combine temporal features with the start time
-    df_features= pd.concat([df_features, df_temporal_features], axis=1)
+    df_features = pd.concat([df_features, df_temporal_features], axis=1)
 
     # Compute features of the spectral domain of the PPG signal
     df_spectral_features = extract_spectral_domain_features(config_ppg, ppg_windowed)
@@ -74,7 +74,7 @@ def extract_signal_quality_features(config_ppg: SignalQualityFeatureExtractionCo
     return df_features
 
 
-def extract_signal_quality_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config_ppg: SignalQualityFeatureExtractionConfig, config_acc: SignalQualityFeatureExtractionConfigAcc) -> None:
+def extract_signal_quality_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config_ppg: SignalQualityFeatureExtractionConfig, config_acc: SignalQualityFeatureExtractionConfigAcc) -> pd.DataFrame:
     """
     Extract signal quality features from the PPG signal and save them to a file.
 
@@ -150,9 +150,8 @@ def signal_quality_classification(df: pd.DataFrame, config: SignalQualityClassif
     # Make predictions for PPG signal quality assessment, and assign the probabilities to the DataFrame and drop the features
     df[DataColumns.PRED_SQA_PROBA] = lr_clf.predict_proba(X_normalized)[:, 0]
     df[DataColumns.PRED_SQA_ACC_LABEL] = (df[DataColumns.ACC_POWER_RATIO] < acc_threshold).astype(int)  # Assign accelerometer label to the DataFrame based on the threshold
-    df_sqa = df[[DataColumns.PRED_SQA_PROBA, DataColumns.PRED_SQA_ACC_LABEL]]  # Select the relevant columns, namely the predicted probabilities for the PPG signal quality and the accelerometer label
     
-    return df_sqa   
+    return df[[DataColumns.PRED_SQA_PROBA, DataColumns.PRED_SQA_ACC_LABEL]]  # Return only the relevant columns, namely the predicted probabilities for the PPG signal quality and the accelerometer label
 
 
 def signal_quality_classification_io(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: SignalQualityClassificationConfig) -> None:
