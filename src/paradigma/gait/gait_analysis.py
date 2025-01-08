@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Union
+from typing import List
 from sklearn.preprocessing import StandardScaler
 
 import tsdf
@@ -747,7 +747,7 @@ def quantify_arm_swing_io(
         path_to_timestamp_input: str | Path, 
         path_to_prediction_input: str | Path, 
         full_path_to_threshold: str | Path, 
-        path_to_output: str | Path
+        full_path_to_output: str | Path
     ) -> None:
     # Load timestamps
     metadata_time, metadata_values = read_metadata(path_to_timestamp_input, imu_config.meta_filename, imu_config.time_filename, imu_config.values_filename)
@@ -772,10 +772,92 @@ def quantify_arm_swing_io(
     )
 
     # Store data as json
-    os.makedirs(path_to_output, exist_ok=True)
+    os.makedirs(os.path.dirname(full_path_to_output), exist_ok=True)
 
-    with open(os.path.join(path_to_output, 'aggregates.json'), 'w') as f:
+    with open(full_path_to_output, 'w') as f:
         json.dump(quantification_dict, f)
+
+    
+def aggregate_parameter(parameter: np.ndarray, aggregate: str) -> np.ndarray:
+    """
+    Aggregate a parameter based on the specified method.
+    
+    Parameters
+    ----------
+    parameter : np.ndarray
+        The parameter to aggregate.
+        
+    aggregate : str
+        The aggregation method to apply.
+        
+    Returns
+    -------
+    np.ndarray
+        The aggregated parameter.
+    """
+    if aggregate == 'mean':
+        return np.mean(parameter)
+    if aggregate == 'median':
+        return np.median(parameter)
+    elif aggregate == '90p':
+        return np.percentile(parameter, 90)
+    elif aggregate == '95p':
+        return np.percentile(parameter, 95)
+    elif aggregate == '99p':
+        return np.percentile(parameter, 99)
+    elif aggregate == 'std':
+        return np.std(parameter)
+    else:
+        raise ValueError(f"Invalid aggregation method: {aggregate}")
+
+
+def aggregate_quantification_dict(quantification_dict: dict, aggregates: List[str] = ['median']) -> dict:
+    """
+    Aggregate the quantification results for arm swing parameters.
+    
+    Parameters
+    ----------
+    quantification_dict : dict
+        A dictionary containing the quantification results for arm swing parameters, segmented by filtered and unfiltered gait.
+        
+    aggregates : List[str], optional
+        A list of aggregation methods to apply to the quantification results.
+        
+    Returns
+    -------
+    dict
+        A dictionary containing the aggregated quantification results for arm swing parameters.
+    """
+    aggregated_results = {}
+    for df_name, df_dict in quantification_dict.items():
+        aggregated_results[df_name] = {}
+
+        for segment_cat, segment_data in df_dict.items():
+            aggregated_results[df_name][segment_cat] = {
+                'time_s': sum(segment_data['time_s'])
+            }
+            
+            for aggregate in aggregates:
+                aggregated_results[df_name][segment_cat][f'{aggregate}_{DataColumns.RANGE_OF_MOTION}'] = aggregate_parameter(segment_data[DataColumns.RANGE_OF_MOTION], aggregate)
+                aggregated_results[df_name][segment_cat][f'{aggregate}_forward_{DataColumns.PEAK_VELOCITY}'] = aggregate_parameter(segment_data[f'forward_{DataColumns.PEAK_VELOCITY}'], aggregate)
+                aggregated_results[df_name][segment_cat][f'{aggregate}_backward_{DataColumns.PEAK_VELOCITY}'] = aggregate_parameter(segment_data[f'backward_{DataColumns.PEAK_VELOCITY}'], aggregate)
+
+    return aggregated_results
+
+
+def aggregate_quantification_dict_io(full_path_to_input: str | Path, full_path_to_output, aggregates: List[str] = ['median']) -> None:
+    # Load quantification results
+    with open(full_path_to_input, 'r') as f:
+        quantification_dict = json.load(f)
+
+    # Aggregate quantification results
+    aggregated_results = aggregate_quantification_dict(quantification_dict, aggregates)
+
+    # Store aggregated results as json
+    os.makedirs(os.path.dirname(full_path_to_output), exist_ok=True)
+
+    with open(full_path_to_output, 'w') as f:
+        json.dump(aggregated_results, f)
 
 
 def merge_predictions_with_timestamps(

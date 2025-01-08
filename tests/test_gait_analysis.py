@@ -49,7 +49,7 @@ def test_2_extract_features_gait_output(shared_datadir: Path):
     config = GaitFeatureExtractionConfig()
     extract_gait_features_io(
         config=config, 
-        path_to_preprocessed_input=path_to_preprocessed_input, 
+        path_to_input=path_to_preprocessed_input, 
         path_to_output=path_to_tested_output
     )
     compare_data(
@@ -81,7 +81,7 @@ def test_3_gait_detection_output(shared_datadir: Path):
     config = GaitDetectionConfig()
     detect_gait_io(
         config=config, 
-        path_to_input_features=path_to_feature_input, 
+        path_to_input=path_to_feature_input, 
         path_to_output=path_to_tested_output, 
         full_path_to_classifier=full_path_to_classifier, 
         full_path_to_scaler=full_path_to_scaler
@@ -149,7 +149,7 @@ def test_5_arm_swing_detection_output(shared_datadir: Path):
     config = FilteringGaitConfig()
     filter_gait_io(
         config=config, 
-        path_to_feature_input=path_to_prediction_input, 
+        path_to_input=path_to_prediction_input, 
         path_to_output=path_to_tested_output, 
         full_path_to_classifier=full_path_to_classifier, 
         full_path_to_scaler=full_path_to_scaler
