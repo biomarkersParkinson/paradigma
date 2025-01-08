@@ -7,47 +7,121 @@ import numpy as np
 import tsdf
 
 from paradigma.constants import DataColumns
-from paradigma.config import SignalQualityFeatureExtractionConfig, SignalQualityClassificationConfig, \
+from paradigma.config import SignalQualityFeatureExtractionConfig, SignalQualityFeatureExtractionAccConfig, SignalQualityClassificationConfig, \
     HeartRateExtractionConfig, HeartRateExtractionConfig
-from paradigma.heart_rate.feature_extraction import extract_temporal_domain_features, extract_spectral_domain_features
+from paradigma.heart_rate.feature_extraction import extract_temporal_domain_features, extract_spectral_domain_features, extract_accelerometer_feature
 from paradigma.heart_rate.heart_rate_estimation import assign_sqa_label, extract_hr_segments, extract_hr_from_segment
-from paradigma.segmenting import tabulate_windows, tabulate_windows_legacy
+from paradigma.segmenting import tabulate_windows
 
-from paradigma.util import read_metadata
+from paradigma.util import read_metadata, WindowedDataExtractor
 
-def extract_signal_quality_features(df: pd.DataFrame, config: SignalQualityFeatureExtractionConfig) -> pd.DataFrame:
+def extract_signal_quality_features(config_ppg: SignalQualityFeatureExtractionConfig, df_ppg: pd.DataFrame, config_acc: SignalQualityFeatureExtractionAccConfig, df_acc: pd.DataFrame) -> pd.DataFrame:
+    """	
+    Extract signal quality features from the PPG signal.
+    The features are extracted from the temporal and spectral domain of the PPG signal.
+    The temporal domain features include variance, mean, median, kurtosis, skewness, signal-to-noise ratio, and autocorrelation.
+    The spectral domain features include the dominant frequency, relative power, spectral entropy.
+
+    Parameters
+    ----------
+    config_ppg: SignalQualityFeatureExtractionConfig
+        The configuration for the signal quality feature extraction of the ppg signal.
+    df_ppg : pd.DataFrame
+        The DataFrame containing the PPG signal.
+    config_acc: SignalQualityFeatureExtractionAccConfig
+        The configuration for the signal quality feature extraction of the accelerometer signal.
+    df_acc : pd.DataFrame
+        The DataFrame containing the accelerometer signal.
+
+    Returns
+    -------
+    df_features : pd.DataFrame
+        The DataFrame containing the extracted signal quality features.
+    
+    """
     # Group sequences of timestamps into windows
-    ppg_windowed = tabulate_windows(config, df, columns=[config.ppg_colname])[0]
+    ppg_windowed = tabulate_windows(config_ppg, df_ppg, columns=[config_ppg.ppg_colname])[0]
+    acc_windowed_cols = [DataColumns.TIME] + config_acc.accelerometer_cols
+    acc_windowed = tabulate_windows(config_acc, df_acc, acc_windowed_cols)
 
-    # Compute statistics of the temporal domain signals
-    df_temporal_features = extract_temporal_domain_features(config, ppg_windowed, quality_stats=['var', 'mean', 'median', 'kurtosis', 'skewness'])
+    extractor = WindowedDataExtractor(acc_windowed_cols)
+    idx_time = extractor.get_index(DataColumns.TIME)
+    idx_acc = extractor.get_slice(config_acc.accelerometer_cols)
+
+    # Extract data
+    start_time = np.min(acc_windowed[:, :, idx_time], axis=1)
+    acc_values_windowed = acc_windowed[:, :, idx_acc]
+
+    df_features = pd.DataFrame(start_time, columns=[DataColumns.TIME])
+    # Compute features of the temporal domain of the PPG signal
+    df_temporal_features = extract_temporal_domain_features(config_ppg, ppg_windowed, quality_stats=['var', 'mean', 'median', 'kurtosis', 'skewness'])
     
-    # Compute statistics of the spectral domain signals
-    df_spectral_features = extract_spectral_domain_features(config, ppg_windowed)
+    # Combine temporal features with the start time
+    df_features = pd.concat([df_features, df_temporal_features], axis=1)
 
-    return pd.concat([df_temporal_features, df_spectral_features], axis=1)
+    # Compute features of the spectral domain of the PPG signal
+    df_spectral_features = extract_spectral_domain_features(config_ppg, ppg_windowed)
 
-
-def extract_signal_quality_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config: SignalQualityFeatureExtractionConfig) -> None:
-    metadata_time, metadata_values = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
-    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
+    # Combine the spectral features with the previously computed temporal features
+    df_features = pd.concat([df_features, df_spectral_features], axis=1)
     
+    # Compute periodicity feature of the accelerometer signal
+    df_accelerometer_feature = extract_accelerometer_feature(config_acc, acc_values_windowed, ppg_windowed)
+
+    # Combine the accelerometer feature with the previously computed features
+    df_features = pd.concat([df_features, df_accelerometer_feature], axis=1)
+
+    return df_features
+
+
+def extract_signal_quality_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config_ppg: SignalQualityFeatureExtractionConfig, config_acc: SignalQualityFeatureExtractionAccConfig) -> pd.DataFrame:
+    """
+    Extract signal quality features from the PPG signal and save them to a file.
+
+    Parameters
+    ----------
+    input_path : Union[str, Path]
+        The path to the directory containing the preprocessed PPG and accelerometer data.
+    output_path : Union[str, Path]
+        The path to the directory where the extracted features will be saved.
+    config_ppg: SignalQualityFeatureExtractionConfig
+        The configuration for the signal quality feature extraction of the ppg signal.
+    config_acc: SignalQualityFeatureExtractionAccConfig
+        The configuration for the signal quality feature extraction of the accelerometer signal.
+
+    Returns
+    -------
+    df_windowed : pd.DataFrame
+        The DataFrame containing the extracted signal quality features.
+
+    """	
+    # Load PPG data
+    metadata_time, metadata_values = read_metadata(input_path, config_ppg.meta_filename, config_ppg.time_filename, config_ppg.values_filename)
+    df_ppg = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
+    
+    # Load IMU data
+    metadata_time, metadata_values = read_metadata(input_path, config_acc.meta_filename, config_acc.time_filename, config_acc.values_filename)
+    df_acc = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
+
     # Extract signal quality features
-    # Extract signal quality features
-    df_windowed = extract_signal_quality_features(df, config)
+    df_windowed = extract_signal_quality_features(config_ppg, df_ppg, config_acc, df_acc)
+    
+    # Save the extracted features
+    #TO BE ADDED
     return df_windowed
 
 
 def signal_quality_classification(df: pd.DataFrame, config: SignalQualityClassificationConfig, path_to_classifier_input: Union[str, Path]) -> pd.DataFrame:
     """
-    Classify the signal quality of the PPG signal using a logistic regression classifier.
-    The classifier is trained on features extracted from the PPG signal.
-    The features are extracted using the extract_signal_quality_features function.
+    Classify the signal quality of the PPG signal using a logistic regression classifier. A probability close to 1 indicates a high-quality signal, while a probability close to 0 indicates a low-quality signal.
+    The classifier is trained on features extracted from the PPG signal. The features are extracted using the extract_signal_quality_features function.
+    The accelerometer signal is used to determine the signal quality based on the power ratio of the accelerometer signal and returns a binary label based on a threshold.
+    A value of 1 on the indicates no/minor periodic motion influence of the accelerometer on the PPG signal, 0 indicates major periodic motion influence.
 
     Parameters
     ----------
     df : pd.DataFrame
-        The DataFrame containing the PPG signal features.
+        The DataFrame containing the PPG features and the accelerometer feature for signal quality classification.
     config : SignalQualityClassificationConfig
         The configuration for the signal quality classification.
     path_to_classifier_input : Union[str, Path]
@@ -56,13 +130,16 @@ def signal_quality_classification(df: pd.DataFrame, config: SignalQualityClassif
     Returns
     -------
     df_sqa pd.DataFrame
-        The DataFrame containing the PPG signal quality predictions.
+        The DataFrame containing the PPG signal quality predictions (both probabilities of the PPG signal quality classification and the accelerometer label based on the threshold).
     """
     
     clf = pd.read_pickle(os.path.join(path_to_classifier_input, 'classifiers', config.classifier_file_name))
     lr_clf = clf['model']  # Load the logistic regression classifier
     mu = clf['mu']  # load the mean, 2D array
     sigma = clf['sigma'] # load the standard deviation, 2D array
+
+    with open(os.path.join(path_to_classifier_input, 'thresholds', config.threshold_file_name), 'r') as file:
+        acc_threshold = float(file.read())  # Load the accelerometer threshold from the file
 
     # Assign feature names to the classifier
     lr_clf.feature_names_in_ = ['var', 'mean', 'median', 'kurtosis', 'skewness', 'f_dom', 'rel_power', 'spectral_entropy', 'signal_to_noise', 'auto_corr']
@@ -72,9 +149,9 @@ def signal_quality_classification(df: pd.DataFrame, config: SignalQualityClassif
 
     # Make predictions for PPG signal quality assessment, and assign the probabilities to the DataFrame and drop the features
     df[DataColumns.PRED_SQA_PROBA] = lr_clf.predict_proba(X_normalized)[:, 0]
-    df_sqa = df[[DataColumns.PRED_SQA_PROBA]] # Return DataFrame with only the predicted probabilities
+    df[DataColumns.PRED_SQA_ACC_LABEL] = (df[DataColumns.ACC_POWER_RATIO] < acc_threshold).astype(int)  # Assign accelerometer label to the DataFrame based on the threshold
     
-    return df_sqa   
+    return df[[DataColumns.PRED_SQA_PROBA, DataColumns.PRED_SQA_ACC_LABEL]]  # Return only the relevant columns, namely the predicted probabilities for the PPG signal quality and the accelerometer label
 
 
 def signal_quality_classification_io(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: SignalQualityClassificationConfig) -> None:
@@ -107,13 +184,13 @@ def estimate_heart_rate(df_sqa: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame,
 
     # Extract NumPy arrays for faster operations
     ppg_post_prob = df_sqa[DataColumns.PRED_SQA_PROBA].to_numpy()
-    #acc_label = df_sqa.loc[:, DataColumns.ACCELEROMETER_LABEL].to_numpy() # Adjust later in data columns to get the correct label, should be first intergrated in feature extraction and classification
+    acc_label = df_sqa.loc[:, DataColumns.PRED_SQA_ACC_LABEL].to_numpy() # Adjust later in data columns to get the correct label, should be first intergrated in feature extraction and classification
     ppg_preprocessed = df_ppg_preprocessed.values 
     time_idx = df_ppg_preprocessed.columns.get_loc(DataColumns.TIME) # Get the index of the time column
     ppg_idx = df_ppg_preprocessed.columns.get_loc(DataColumns.PPG) # Get the index of the PPG column
     
     # Assign window-level probabilities to individual samples
-    sqa_label = assign_sqa_label(ppg_post_prob, config) # assigns a signal quality label to every individual data point
+    sqa_label = assign_sqa_label(ppg_post_prob, config, acc_label) # assigns a signal quality label to every individual data point
     v_start_idx, v_end_idx = extract_hr_segments(sqa_label, config.min_hr_samples) # extracts heart rate segments based on the SQA label
     
     v_hr_rel = np.array([])

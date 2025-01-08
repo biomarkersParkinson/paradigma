@@ -2,9 +2,9 @@ from typing import List, Tuple, Union
 import pandas as pd
 import numpy as np
 from scipy.signal import welch, find_peaks
-from scipy.signal.windows import hamming
+from scipy.signal.windows import hamming, hann
 from scipy.stats import kurtosis, skew
-from paradigma.config import SignalQualityFeatureExtractionConfig
+from paradigma.config import SignalQualityFeatureExtractionConfig, SignalQualityFeatureExtractionAccConfig
 
 def generate_statistics(
         data: np.ndarray,
@@ -279,44 +279,107 @@ def extract_spectral_domain_features(
 
     return pd.DataFrame(d_features)
 
-
 def extract_acc_power_feature(
         f1: np.ndarray, 
         PSD_acc: np.ndarray, 
         f2: np.ndarray, 
         PSD_ppg: np.ndarray
-    ) -> float:
+    ) -> np.ndarray:
     """
-    TO BE ADJUSTED
-    Calculates the power ratio of the accelerometer signal in the PPG frequency range.
-    
-    Args:
-    f1 (numpy.ndarray): Frequency bins for the accelerometer signal.
-    PSD_acc (numpy.ndarray): Power Spectral Density of the accelerometer signal.
-    f2 (numpy.ndarray): Frequency bins for the PPG signal.
-    PSD_ppg (numpy.ndarray): Power Spectral Density of the PPG signal.
-    
-    Returns:
-    float: The power ratio of the accelerometer signal in the PPG frequency range.
+    Extract the accelerometer power feature in the PPG frequency range.
+
+    Parameters
+    ----------
+    f1: np.ndarray
+        The frequency bins of the accelerometer signal.
+    PSD_acc: np.ndarray
+        The power spectral density of the accelerometer signal.
+    f2: np.ndarray
+        The frequency bins of the PPG signal.
+    PSD_ppg: np.ndarray
+        The power spectral density of the PPG signal.
+
+    Returns
+    -------
+    np.ndarray
+        The accelerometer power feature in the PPG frequency range
     """
     
     # Find the index of the maximum PSD value in the PPG signal
-    max_PPG_psd_idx = np.argmax(PSD_ppg)
+    max_PPG_psd_idx = np.argmax(PSD_ppg, axis=1)
     max_PPG_freq_psd = f2[max_PPG_psd_idx]
     
-    # Find the index of the closest frequency in the accelerometer signal to the dominant PPG frequency
-    corr_acc_psd_df_idx = np.argmin(np.abs(max_PPG_freq_psd - f1))
-    
-    df_idx = np.arange(corr_acc_psd_df_idx-1, corr_acc_psd_df_idx+2)
+    # Find the neighboring indices of the maximum PSD value in the PPG signal
+    df_idx = np.column_stack((max_PPG_psd_idx - 1, max_PPG_psd_idx, max_PPG_psd_idx + 1))    
     
     # Find the index of the closest frequency in the accelerometer signal to the first harmonic of the PPG frequency
-    corr_acc_psd_fh_idx = np.argmin(np.abs(max_PPG_freq_psd*2 - f1))
-    fh_idx = np.arange(corr_acc_psd_fh_idx-1, corr_acc_psd_fh_idx+2)
+    corr_acc_psd_fh_idx = np.argmin(np.abs(f1[:, None] - max_PPG_freq_psd*2), axis=0)
+    fh_idx = np.column_stack((corr_acc_psd_fh_idx - 1, corr_acc_psd_fh_idx, corr_acc_psd_fh_idx + 1))   
     
-    # Calculate the power ratio
-    acc_power_PPG_range = np.trapz(PSD_acc[df_idx], f1[df_idx]) + np.trapz(PSD_acc[fh_idx], f1[fh_idx])
+    # Compute the power in the ranges corresponding to the PPG frequency
+    acc_power_PPG_range = (
+        np.trapz(PSD_acc[np.arange(PSD_acc.shape[0])[:, None], df_idx], f1[df_idx], axis=1) +
+        np.trapz(PSD_acc[np.arange(PSD_acc.shape[0])[:, None], fh_idx], f1[fh_idx], axis=1)
+    )
+
+    # Compute the total power across the entire frequency range
     acc_power_total = np.trapz(PSD_acc, f1)
     
+    # Compute the power ratio of the accelerometer signal in the PPG frequency range
     acc_power_ratio = acc_power_PPG_range / acc_power_total
     
     return acc_power_ratio
+
+def extract_accelerometer_feature(config: SignalQualityFeatureExtractionAccConfig, acc_windowed: np.ndarray, ppg_windowed: np.ndarray) -> pd.DataFrame:
+    """
+    Extract accelerometer features from the accelerometer signal in the PPG frequency range.
+    
+    Parameters
+    ----------
+    config: SignalQualityFeatureExtractionAccConfig
+        The configuration object containing the parameters for the feature extraction
+    
+    acc_windowed: np.ndarray
+        The dataframe containing the windowed accelerometer signal
+
+    ppg_windowed: np.ndarray
+        The dataframe containing the corresponding windowed ppg signal
+    
+    Returns
+    -------
+    pd.DataFrame
+        The dataframe with the relative power accelerometer feature.
+    """
+    
+    d_acc_feature = {}
+
+    window_acc = hann(config.window_length_welch_acc, sym = True)
+    window_ppg = hann(config.window_length_welch_ppg, sym = True)
+
+    freqs_acc, psd_acc = welch(
+        acc_windowed,
+        fs=config.sampling_frequency,
+        window=window_acc,
+        noverlap=config.overlap_welch_window_acc,
+        nfft=config.nfft_acc,
+        detrend=False,
+        axis=1
+    )
+
+    psd_acc = np.sum(psd_acc, axis=2)  # Sum the PSDs of the three axes
+
+    freqs_ppg, psd_ppg = welch(
+        ppg_windowed,
+        fs=config.sampling_frequency_ppg,
+        window=window_ppg,
+        noverlap=config.overlap_welch_window_ppg,
+        nfft=config.nfft_ppg,
+        detrend=False,
+        axis=1
+    )
+
+    d_acc_feature['acc_power_ratio'] = extract_acc_power_feature(freqs_acc, psd_acc, freqs_ppg, psd_ppg)
+
+    return pd.DataFrame(d_acc_feature)
+
+
