@@ -140,7 +140,6 @@ def butterworth_filter(
     else:
         raise ValueError("Data must be either 1D or 2D.")
 
-
 def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str) -> pd.DataFrame:
     """
     Preprocesses IMU data by resampling and applying filters.

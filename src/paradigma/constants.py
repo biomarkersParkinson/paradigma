@@ -49,7 +49,12 @@ class DataColumns():
     SECOND_HIGHEST_PEAK: str = "second_highest_peak"
     POWER_RATIO: str = "power_ratio"
 
+    # Constants for PPG SQA feature using accerometer data
+    ACC_POWER_RATIO: str = "acc_power_ratio"
+
+    # Constants for SQA classification
     PRED_SQA_PROBA: str = "pred_sqa_proba"
+    PRED_SQA_ACC_LABEL: str = "pred_sqa_acc_label"
     PRED_SQA: str = "pred_sqa"
     
 @dataclass(frozen=True)

@@ -20,13 +20,12 @@ def assign_sqa_label(ppg_prob: np.ndarray, config: HeartRateExtractionConfig, ac
     if acc_label is None:
         acc_label = np.ones(len(ppg_prob))
 
-
     # Number of samples in an epoch
     fs = config.sampling_frequency
     samples_per_epoch = config.window_length_s * fs
 
     # Calculate number of samples to shift for each epoch
-    samples_shift = config.window_step_size_s * fs
+    samples_shift = config.window_step_length_s * fs
     n_samples = int(np.round(len(ppg_prob) + config.window_overlap_s) * fs)
     data_prob = np.zeros(n_samples)
     data_label_imu = np.zeros(n_samples, dtype=np.int8)
