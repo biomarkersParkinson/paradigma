@@ -619,6 +619,10 @@ def quantify_arm_swing(
         format='timestamps'
     )
 
+    # If no arm swing data is remaining, return an empty dictionary
+    if df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].empty:
+        return {}
+
     df[DataColumns.SEGMENT_CAT] = categorize_segments(
         df=df,
         fs=fs
