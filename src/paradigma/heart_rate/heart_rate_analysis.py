@@ -7,7 +7,7 @@ import numpy as np
 import tsdf
 
 from paradigma.constants import DataColumns
-from paradigma.config import SignalQualityFeatureExtractionConfig, SignalQualityFeatureExtractionConfigAcc, SignalQualityClassificationConfig, \
+from paradigma.config import SignalQualityFeatureExtractionConfig, SignalQualityFeatureExtractionAccConfig, SignalQualityClassificationConfig, \
     HeartRateExtractionConfig, HeartRateExtractionConfig
 from paradigma.heart_rate.feature_extraction import extract_temporal_domain_features, extract_spectral_domain_features, extract_accelerometer_feature
 from paradigma.heart_rate.heart_rate_estimation import assign_sqa_label, extract_hr_segments, extract_hr_from_segment
@@ -15,7 +15,7 @@ from paradigma.segmenting import tabulate_windows
 
 from paradigma.util import read_metadata, WindowedDataExtractor
 
-def extract_signal_quality_features(config_ppg: SignalQualityFeatureExtractionConfig, df_ppg: pd.DataFrame, config_acc: SignalQualityFeatureExtractionConfigAcc, df_acc: pd.DataFrame) -> pd.DataFrame:
+def extract_signal_quality_features(config_ppg: SignalQualityFeatureExtractionConfig, df_ppg: pd.DataFrame, config_acc: SignalQualityFeatureExtractionAccConfig, df_acc: pd.DataFrame) -> pd.DataFrame:
     """	
     Extract signal quality features from the PPG signal.
     The features are extracted from the temporal and spectral domain of the PPG signal.
@@ -28,7 +28,7 @@ def extract_signal_quality_features(config_ppg: SignalQualityFeatureExtractionCo
         The configuration for the signal quality feature extraction of the ppg signal.
     df_ppg : pd.DataFrame
         The DataFrame containing the PPG signal.
-    config_acc: SignalQualityFeatureExtractionConfigAcc
+    config_acc: SignalQualityFeatureExtractionAccConfig
         The configuration for the signal quality feature extraction of the accelerometer signal.
     df_acc : pd.DataFrame
         The DataFrame containing the accelerometer signal.
@@ -74,7 +74,7 @@ def extract_signal_quality_features(config_ppg: SignalQualityFeatureExtractionCo
     return df_features
 
 
-def extract_signal_quality_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config_ppg: SignalQualityFeatureExtractionConfig, config_acc: SignalQualityFeatureExtractionConfigAcc) -> pd.DataFrame:
+def extract_signal_quality_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config_ppg: SignalQualityFeatureExtractionConfig, config_acc: SignalQualityFeatureExtractionAccConfig) -> pd.DataFrame:
     """
     Extract signal quality features from the PPG signal and save them to a file.
 
@@ -86,7 +86,7 @@ def extract_signal_quality_features_io(input_path: Union[str, Path], output_path
         The path to the directory where the extracted features will be saved.
     config_ppg: SignalQualityFeatureExtractionConfig
         The configuration for the signal quality feature extraction of the ppg signal.
-    config_acc: SignalQualityFeatureExtractionConfigAcc
+    config_acc: SignalQualityFeatureExtractionAccConfig
         The configuration for the signal quality feature extraction of the accelerometer signal.
 
     Returns
