@@ -2,7 +2,6 @@ from pathlib import Path
 
 from paradigma.gait.gait_analysis import filter_gait_io, detect_gait_io, extract_arm_activity_features_io, extract_gait_features_io
 from paradigma.config import FilteringGaitConfig, ArmActivityFeatureExtractionConfig, ArmSwingQuantificationConfig, GaitDetectionConfig, GaitFeatureExtractionConfig
-from paradigma.preprocessing import preprocess_imu_data_io
 from test_notebooks import compare_data
 
 
@@ -48,8 +47,16 @@ def test_2_extract_features_gait_output(shared_datadir: Path):
     path_to_tested_output = path_to_reference_output / "test-output"
 
     config = GaitFeatureExtractionConfig()
-    extract_gait_features_io(path_to_preprocessed_input, path_to_tested_output, config)
-    compare_data(path_to_reference_output, path_to_tested_output, gait_binaries_pairs)
+    extract_gait_features_io(
+        config=config, 
+        path_to_input=path_to_preprocessed_input, 
+        path_to_output=path_to_tested_output
+    )
+    compare_data(
+        reference_dir=path_to_reference_output, 
+        tested_dir=path_to_tested_output, 
+        binaries_pairs=gait_binaries_pairs
+    )
 
 
 def test_3_gait_detection_output(shared_datadir: Path):
@@ -60,16 +67,30 @@ def test_3_gait_detection_output(shared_datadir: Path):
     input_dir_name: str = "3.extracted_features"
     output_dir_name: str = "4.predictions"
     data_type: str = "gait"
+    classifier_filename: str = "gait_detection_classifier.pkl"
+    scaler_filename: str = "gait_detection_scaler_params.json"
 
     # Temporary path to store the output of the notebook
-    path_to_classifier_input = shared_datadir / '0.classification' / data_type
     path_to_feature_input = shared_datadir / input_dir_name / data_type
     path_to_reference_output = shared_datadir / output_dir_name / data_type
     path_to_tested_output = path_to_reference_output / "test-output"
 
+    full_path_to_classifier = shared_datadir / '0.classification' / data_type / 'classifiers' / classifier_filename
+    full_path_to_scaler = shared_datadir / '0.classification' / data_type / 'scalers' / scaler_filename
+
     config = GaitDetectionConfig()
-    detect_gait_io(path_to_feature_input, path_to_tested_output, path_to_classifier_input, config)
-    compare_data(path_to_reference_output, path_to_tested_output, gait_binaries_pairs)
+    detect_gait_io(
+        config=config, 
+        path_to_input=path_to_feature_input, 
+        path_to_output=path_to_tested_output, 
+        full_path_to_classifier=full_path_to_classifier, 
+        full_path_to_scaler=full_path_to_scaler
+    )
+    compare_data(
+        reference_dir=path_to_reference_output, 
+        tested_dir=path_to_tested_output, 
+        binaries_pairs=gait_binaries_pairs
+    )
 
 
 def test_4_extract_features_arm_activity_output(shared_datadir: Path):
@@ -80,38 +101,64 @@ def test_4_extract_features_arm_activity_output(shared_datadir: Path):
     input_dir_name: str = "2.preprocessed_data"
     output_dir_name: str = "3.extracted_features"
     data_type: str = "gait"
+    threshold_filename: str = "gait_detection_threshold.txt"
 
     # Temporary path to store the output of the notebook
     path_to_timestamp_input = shared_datadir / input_dir_name / "imu"
     path_to_prediction_input = shared_datadir / "4.predictions" / data_type
-    path_to_classifier_input = shared_datadir / "0.classification" / data_type
     path_to_reference_output = shared_datadir / output_dir_name / data_type
     path_to_tested_output = path_to_reference_output / "test-output"
 
+    full_path_to_threshold = shared_datadir / "0.classification" / data_type / "thresholds" / threshold_filename
+
     config = ArmActivityFeatureExtractionConfig()
-    extract_arm_activity_features_io(path_to_timestamp_input, path_to_prediction_input, path_to_classifier_input, path_to_tested_output, config)
-    compare_data(path_to_reference_output, path_to_tested_output, arm_activity_binaries_pairs)
+    extract_arm_activity_features_io(
+        config=config, 
+        path_to_timestamp_input=path_to_timestamp_input, 
+        path_to_prediction_input=path_to_prediction_input, 
+        full_path_to_threshold=full_path_to_threshold, 
+        path_to_output=path_to_tested_output
+    )
+    compare_data(
+        reference_dir=path_to_reference_output, 
+        tested_dir=path_to_tested_output, 
+        binaries_pairs=arm_activity_binaries_pairs
+    )
 
 
 def test_5_arm_swing_detection_output(shared_datadir: Path):
     """
-    This function is used to evaluate the output of the gait detection. It evaluates it by comparing the output to a reference output.
+    This function is used to evaluate the output of the gait filtering. It evaluates it by comparing the output to a reference output.
     """
 
     # Notebook info
     input_dir_name: str = "3.extracted_features"
     output_dir_name: str = "4.predictions"
     data_type: str = "gait"
+    classifier_filename: str = "gait_filtering_classifier.pkl"
+    scaler_filename: str = "gait_filtering_scaler_params.json"
 
     # Temporary path to store the output of the notebook
-    path_to_classifier_input = shared_datadir / '0.classification' / data_type
     path_to_prediction_input = shared_datadir / input_dir_name / data_type
     path_to_reference_output = shared_datadir / output_dir_name / data_type
     path_to_tested_output = path_to_reference_output / "test-output"
 
+    full_path_to_classifier = shared_datadir / '0.classification' / data_type / 'classifiers' / classifier_filename
+    full_path_to_scaler = shared_datadir / '0.classification' / data_type / 'scalers' / scaler_filename
+
     config = FilteringGaitConfig()
-    filter_gait_io(path_to_prediction_input, path_to_classifier_input, path_to_tested_output, config)
-    compare_data(path_to_reference_output, path_to_tested_output, arm_activity_binaries_pairs)
+    filter_gait_io(
+        config=config, 
+        path_to_input=path_to_prediction_input, 
+        path_to_output=path_to_tested_output, 
+        full_path_to_classifier=full_path_to_classifier, 
+        full_path_to_scaler=full_path_to_scaler
+    )
+    compare_data(
+        reference_dir=path_to_reference_output, 
+        tested_dir=path_to_tested_output, 
+        binaries_pairs=arm_activity_binaries_pairs
+    )
 
 
 # def test_6_arm_swing_quantification_output(shared_datadir: Path):

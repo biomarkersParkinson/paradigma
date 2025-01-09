@@ -8,9 +8,9 @@ from scipy import signal
 from scipy.interpolate import interp1d
 from typing import List, Tuple, Union
 
-from paradigma.constants import TimeUnit, DataUnits, DataColumns
+from paradigma.constants import TimeUnit, DataColumns
 from paradigma.config import PPGConfig, IMUConfig
-from paradigma.util import parse_iso8601_to_datetime, write_df_data, transform_time_array, \
+from paradigma.util import parse_iso8601_to_datetime, write_df_data, \
     read_metadata, extract_meta_from_tsdf_files
 
 
@@ -218,10 +218,10 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str) -> pd.
     return df
 
 
-def preprocess_imu_data_io(input_path: Union[str, Path], output_path: Union[str, Path], config: IMUConfig, sensor: str) -> None:
-
+def preprocess_imu_data_io(path_to_input: str | Path, path_to_output: str | Path, 
+                           config: IMUConfig, sensor: str) -> None:
     # Load data
-    metadata_time, metadata_values = read_metadata(str(input_path), str(config.meta_filename),
+    metadata_time, metadata_values = read_metadata(str(path_to_input), str(config.meta_filename),
                                                     str(config.time_filename), str(config.values_filename))
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
@@ -241,7 +241,7 @@ def preprocess_imu_data_io(input_path: Union[str, Path], output_path: Union[str,
             metadata_time.file_name = f'{sensor}_time.bin'
             metadata_time.units = [TimeUnit.RELATIVE_S]
 
-            write_df_data(metadata_time, metadata_values, output_path, f'{sensor}_meta.json', df_sensor)
+            write_df_data(metadata_time, metadata_values, path_to_output, f'{sensor}_meta.json', df_sensor)
 
 
 def scan_and_sync_segments(input_path_ppg, input_path_imu):
