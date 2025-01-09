@@ -1,8 +1,6 @@
-import os
 from pathlib import Path
 
 from paradigma.gait.gait_analysis import filter_gait_io, detect_gait_io, extract_arm_activity_features_io, extract_gait_features_io
-from paradigma.classification import ClassifierPackage
 from paradigma.config import FilteringGaitConfig, ArmActivityFeatureExtractionConfig, ArmSwingQuantificationConfig, GaitDetectionConfig, GaitFeatureExtractionConfig
 from test_notebooks import compare_data
 
@@ -102,7 +100,7 @@ def test_4_extract_features_arm_activity_output(shared_datadir: Path):
     input_dir_name: str = "2.preprocessed_data"
     output_dir_name: str = "3.extracted_features"
     data_type: str = "gait"
-    classifier_package_filename: str = "gait_filtering_clf_package.pkl"
+    classifier_package_filename: str = "gait_detection_clf_package.pkl"
 
     # Temporary path to store the output of the notebook
     path_to_timestamp_input = shared_datadir / input_dir_name / "imu"
@@ -136,7 +134,7 @@ def test_5_arm_swing_detection_output(shared_datadir: Path):
     input_dir_name: str = "3.extracted_features"
     output_dir_name: str = "4.predictions"
     data_type: str = "gait"
-    classifier_package_filename: str = "gait_filtering_package.pkl"
+    classifier_package_filename: str = "gait_filtering_clf_package.pkl"
 
     # Temporary path to store the output of the notebook
     path_to_prediction_input = shared_datadir / input_dir_name / data_type

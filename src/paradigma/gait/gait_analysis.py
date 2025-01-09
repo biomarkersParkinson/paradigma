@@ -201,7 +201,7 @@ def detect_gait_io(
     metadata_time, metadata_values = read_metadata(path_to_input, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
-    clf_package = ClassifierPackage.load(filepath=full_path_to_classifier_package)
+    clf_package = ClassifierPackage.load(full_path_to_classifier_package)
 
     df[DataColumns.PRED_GAIT_PROBA] = detect_gait(
         df=df, 
@@ -392,7 +392,7 @@ def extract_arm_activity_features_io(
 
     df_pred_gait = tsdf.load_dataframe_from_binaries([metadata_pred_time, metadata_pred_values], tsdf.constants.ConcatenationType.columns)
 
-    clf_package = ClassifierPackage.load(filepath=full_path_to_classifier_package)
+    clf_package = ClassifierPackage.load(full_path_to_classifier_package)
 
     # Extract arm activity features
     df_features = extract_arm_activity_features(
