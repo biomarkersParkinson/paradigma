@@ -1,7 +1,9 @@
+import numpy as np
+import pickle
+
+from pathlib import Path
 from sklearn.base import BaseEstimator
 from typing import Any, Optional
-import pickle
-import numpy as np
 
 class ClassifierPackage:
     def __init__(self, classifier: Optional[BaseEstimator] = None, 
@@ -92,7 +94,7 @@ class ClassifierPackage:
             pickle.dump(self, f)
 
     @classmethod
-    def load(cls, filepath: str):
+    def load(cls, filepath: str | Path):
         """
         Load a ClassifierPackage from a file.
 
@@ -106,5 +108,11 @@ class ClassifierPackage:
         ClassifierPackage
             The loaded classifier package.
         """
-        with open(filepath, 'rb') as f:
-            return pickle.load(f)
+        filepath_str = str(filepath)
+        print(f"Loading classifier from {filepath_str}")
+
+        try:
+            with open(filepath, 'rb') as f:
+                return pickle.load(f)
+        except Exception as e:
+            raise ValueError(f"Failed to load classifier package: {e}") from e

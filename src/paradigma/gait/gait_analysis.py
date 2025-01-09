@@ -4,10 +4,10 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from typing import List
-from sklearn.preprocessing import StandardScaler
 
 import tsdf
 
+from paradigma.classification import ClassifierPackage
 from paradigma.constants import DataColumns, TimeUnit
 from paradigma.config import IMUConfig, GaitFeatureExtractionConfig, GaitDetectionConfig, \
     ArmActivityFeatureExtractionConfig, FilteringGaitConfig, ArmSwingQuantificationConfig
@@ -158,7 +158,7 @@ def detect_gait(
         The input DataFrame containing features extracted from gait data. It must include the necessary columns 
         as specified in the classifier's feature names.
 
-    full_path_to_classifier_package : str
+    full_path_to_classifier_package : str | Path
         The full path of the file containing the pre-trained classifier, located in the `classifiers` subdirectory.
 
     parallel : bool, optional, default=False
@@ -177,11 +177,11 @@ def detect_gait(
         If the DataFrame does not contain the required features for prediction.
     """
     # Initialize the classifier
-    clf_package = pd.read_pickle(full_path_to_classifier_package)
+    clf_package = ClassifierPackage.load(full_path_to_classifier_package)
 
     # Set classifier
     clf = clf_package.classifier
-    if not parallel:
+    if not parallel and hasattr(clf, 'n_jobs'):
         clf.n_jobs = 1
 
     feature_names_scaling = clf_package.scaler.feature_names_in_
@@ -211,7 +211,10 @@ def detect_gait_io(
     metadata_time, metadata_values = read_metadata(path_to_input, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
-    df[DataColumns.PRED_GAIT_PROBA] = detect_gait(df, full_path_to_classifier_package)
+    df[DataColumns.PRED_GAIT_PROBA] = detect_gait(
+        df=df, 
+        full_path_to_classifier_package=full_path_to_classifier_package
+    )
 
     # Prepare the metadata
     metadata_values.file_name = 'gait_values.bin'
@@ -449,11 +452,11 @@ def filter_gait(
         A Series containing the predicted probabilities.
     """
     # Load the classifier package
-    clf_package = pd.read_pickle(full_path_to_classifier_package)
+    clf_package = ClassifierPackage.load(filepath=full_path_to_classifier_package)
 
     # Set classifier
     clf = clf_package.classifier
-    if not parallel:
+    if not parallel and hasattr(clf, 'n_jobs'):
         clf.n_jobs = 1
 
     feature_names_scaling = clf_package.scaler.feature_names_in_
@@ -698,7 +701,7 @@ def quantify_arm_swing_io(
         asq_config: ArmSwingQuantificationConfig,
         path_to_timestamp_input: str | Path, 
         path_to_prediction_input: str | Path, 
-        full_path_to_threshold: str | Path, 
+        full_path_to_classifier_package: str | Path, 
         full_path_to_output: str | Path
     ) -> None:
     # Load timestamps
@@ -709,14 +712,12 @@ def quantify_arm_swing_io(
     metadata_pred_time, metadata_pred_values = read_metadata(path_to_prediction_input, asq_config.meta_filename, asq_config.time_filename, asq_config.values_filename)
     df_predictions = tsdf.load_dataframe_from_binaries([metadata_pred_time, metadata_pred_values], tsdf.constants.ConcatenationType.columns)
 
-    # Load classification threshold
-    with open(full_path_to_threshold, 'r') as f:
-        threshold = float(f.read())
+    clf_package = ClassifierPackage.load(filepath=full_path_to_classifier_package)
 
     quantification_dict = quantify_arm_swing(
         df_timestamps=df_timestamps, 
         df_predictions=df_predictions, 
-        classification_threshold=threshold,
+        classification_threshold=clf_package.threshold,
         window_length_s=asq_config.window_length_s,
         max_segment_gap_s=asq_config.max_segment_gap_s,
         min_segment_length_s=asq_config.min_segment_length_s,
