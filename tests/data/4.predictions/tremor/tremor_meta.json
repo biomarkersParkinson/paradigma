@@ -12,9 +12,6 @@
     "bits": 64,
     "sensors": [
         {
-            "scale_factors": [
-                1
-            ],
             "file_name": "tremor_time.bin",
             "channels": [
                 "time"
@@ -28,10 +25,12 @@
             "channels": [
                 "pred_tremor_proba",
                 "pred_tremor_logreg",
-                "pred_tremor_checked"
+                "pred_tremor_checked",
+                "pred_arm_at_rest"
             ],
             "units": [
                 "probability",
+                "boolean",
                 "boolean",
                 "boolean"
             ],
