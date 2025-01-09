@@ -32,7 +32,7 @@ gyroscope_binaries_pairs: list[tuple[str, str]] = [
     ]
 imu_binaries_pairs: list[tuple[str, str]] = accelerometer_binaries_pairs + gyroscope_binaries_pairs
 
-path_to_assets = Path('../src/paradigma/assets')
+path_to_assets = Path('src/paradigma/assets')
 
 
 def test_2_extract_features_gait_output(shared_datadir: Path):
