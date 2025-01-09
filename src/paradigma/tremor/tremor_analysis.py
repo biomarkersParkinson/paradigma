@@ -10,10 +10,10 @@ from sklearn.linear_model import LogisticRegression
 from scipy.stats import gaussian_kde
 
 from paradigma.constants import DataColumns
-from paradigma.config import TremorFeatureExtractionConfig, TremorDetectionConfig, TremorQuantificationConfig
+from paradigma.config import TremorFeatureExtractionConfig, TremorDetectionConfig, TremorAggregationConfig
 from paradigma.tremor.feature_extraction import extract_spectral_domain_features
 from paradigma.segmenting import tabulate_windows
-from paradigma.util import get_end_iso8601, write_df_data, read_metadata, WindowedDataExtractor
+from paradigma.util import get_end_iso8601, write_df_data, read_metadata, aggregate_parameter, WindowedDataExtractor
 
 
 def extract_tremor_features(df: pd.DataFrame, config: TremorFeatureExtractionConfig) -> pd.DataFrame:
@@ -105,7 +105,8 @@ def detect_tremor(df: pd.DataFrame, config: TremorDetectionConfig, path_to_class
     2. Scales the relevant features in the input DataFrame (`df`) using the loaded scaling parameters.
     3. Makes predictions using the classifier to estimate the probability of tremor.
     4. Applies a threshold to the predicted probabilities to classify whether tremor is detected or not.
-    5. Adds the predicted probabilities and the classification result to the DataFrame.
+    5. Checks for rest tremor by verifying the frequency of the peak and low-frequency power.
+    6. Adds the predicted probabilities and the classification result to the DataFrame.
 
     Parameters
     ----------
@@ -127,7 +128,8 @@ def detect_tremor(df: pd.DataFrame, config: TremorDetectionConfig, path_to_class
         - `PRED_TREMOR_PROBA`: Predicted probability of tremor based on the classifier.
         - `PRED_TREMOR_LOGREG`: Binary classification result (True for tremor, False for no tremor), based on the threshold applied to `PRED_TREMOR_PROBA`.
         - `PRED_TREMOR_CHECKED`: Binary classification result (True for tremor, False for no tremor), after performing extra checks for rest tremor on `PRED_TREMOR_LOGREG`.
-        
+        - `PRED_ARM_AT_REST`: Binary classification result (True for arm at rest or stable posture, False for significant arm movement), based on the low-frequency power.
+
     Notes
     -----
     - The threshold used to classify tremor is loaded from a file and applied to the predicted probabilities.
@@ -166,8 +168,8 @@ def detect_tremor(df: pd.DataFrame, config: TremorDetectionConfig, path_to_class
 
     # Perform extra checks for rest tremor 
     peak_check = (df['freq_peak'] >= config.fmin_peak) & (df['freq_peak']<=config.fmax_peak) # peak within 3-7 Hz
-    movement_check = df['low_freq_power'] <= config.movement_threshold # little non-tremor arm movement
-    df[DataColumns.PRED_TREMOR_CHECKED] = ((df[DataColumns.PRED_TREMOR_LOGREG]==1) & (peak_check==True) & (movement_check == True)).astype(int)
+    df[DataColumns.PRED_ARM_AT_REST] = df['low_freq_power'] <= config.movement_threshold # little non-tremor arm movement
+    df[DataColumns.PRED_TREMOR_CHECKED] = ((df[DataColumns.PRED_TREMOR_LOGREG]==1) & (peak_check==True) & (df[DataColumns.PRED_ARM_AT_REST] == True)).astype(int)
     
     return df
 
@@ -193,30 +195,7 @@ def detect_tremor_io(input_path: Union[str, Path], output_path: Union[str, Path]
     write_df_data(metadata_time, metadata_values, output_path, 'tremor_meta.json', df)
 
 
-def aggregate_tremor_power(tremor_power: pd.Series, config: TremorQuantificationConfig):
-    
-    """
-    Converts the tremor power to the log scale and subsequently computes three aggregates of tremor power:
-    the median, mode and percentile specified in TremorQuantificationConfig.     
-    """
-
-    tremor_power = np.log10(tremor_power+1) # convert to log scale
-    
-    # calculate median and 90th percentile of tremor power
-    tremor_power_median = tremor_power.median()
-    tremor_power_90th_perc = tremor_power.quantile(config.percentile_tremor_power)
-    
-    # calculate modal tremor power
-    bin_edges = np.linspace(0, 6, 301)
-    kde = gaussian_kde(tremor_power)
-    kde_values = kde(bin_edges)
-    max_index = np.argmax(kde_values)
-    tremor_power_mode = bin_edges[max_index]
-
-    return tremor_power_median, tremor_power_90th_perc, tremor_power_mode
-
-
-def quantify_tremor(df: pd.DataFrame, config: TremorQuantificationConfig):
+def aggregate_tremor(df: pd.DataFrame, config: TremorAggregationConfig):
     """
     Quantifies the amount of tremor time and tremor power, aggregated over all windows in the input dataframe.
     Tremor time is calculated as the number of the detected tremor windows, as percentage of the number of windows 
@@ -229,7 +208,7 @@ def quantify_tremor(df: pd.DataFrame, config: TremorQuantificationConfig):
         The input DataFrame containing extracted tremor features. The DataFrame must include
         the necessary columns as specified in the classifier's feature names.
 
-    config : TremorQuantificationConfig
+    config : TremorAggregationConfig
         Configuration object containing the percentile for aggregating tremor power.
 
     Returns
@@ -247,16 +226,29 @@ def quantify_tremor(df: pd.DataFrame, config: TremorQuantificationConfig):
 
     nr_windows_total = df.shape[0] # number of windows in the input dataframe
 
-    # remove windows with detected non-tremor movements to control for the amount of arm activities performed
-    df_filtered = df.loc[df.low_freq_power <= config.movement_threshold]
+    # remove windows with detected non-tremor arm movements to control for the amount of arm activities performed
+    df_filtered = df.loc[df.pred_arm_at_rest == 1]
     nr_windows_rest = df_filtered.shape[0] # number of windows without non-tremor arm movement
 
-    # calculate weekly tremor time
+    # calculate tremor time
     perc_windows_tremor= np.sum(df_filtered['pred_tremor_checked']) / nr_windows_rest * 100 # as percentage of total measured time without non-tremor arm movement
 
-    # calculate weekly tremor power measures
+    # calculate aggregated tremor power measures
     tremor_power = df_filtered.loc[df_filtered['pred_tremor_checked'] == 1, 'tremor_power']
-    tremor_power_median, tremor_power_90th_perc, tremor_power_mode = aggregate_tremor_power(tremor_power,config)
+    tremor_power = np.log10(tremor_power+1) # convert to log scale
+    aggregated_tremor_power = {}
+
+    # calculate modal tremor power
+    bin_edges = np.linspace(0, 6, 301)
+    kde = gaussian_kde(tremor_power)
+    kde_values = kde(bin_edges)
+    max_index = np.argmax(kde_values)
+    aggregated_tremor_power['modal_tremor_power'] = bin_edges[max_index]
+
+    # calculate te other aggregates (median and 90th percentile) of tremor power
+    for aggregate in config.aggregates_tremor_power:
+        aggregate_name = f"{aggregate}_tremor_power"
+        aggregated_tremor_power[aggregate_name] = aggregate_parameter(tremor_power, aggregate)
     
     # store aggregates in json format
     d_aggregates = {
@@ -266,16 +258,16 @@ def quantify_tremor(df: pd.DataFrame, config: TremorQuantificationConfig):
         },
         'aggregated_tremor_measures': {
             'perc_windows_tremor': perc_windows_tremor,
-            'tremor_power_median': tremor_power_median,
-            'tremor_power_mode': tremor_power_mode,
-            'tremor_power_90th_perc': tremor_power_90th_perc
+            'median_tremor_power': aggregated_tremor_power['median_tremor_power'],
+            'modal_tremor_power': aggregated_tremor_power['modal_tremor_power'],
+            '90p_tremor_power': aggregated_tremor_power['90p_tremor_power']
         }
     }
 
     return d_aggregates
 
 
-def quantify_tremor_io(path_to_feature_input: Union[str, Path], path_to_prediction_input: Union[str, Path], output_path: Union[str, Path], config: TremorQuantificationConfig) -> None:
+def aggregate_tremor_io(path_to_feature_input: Union[str, Path], path_to_prediction_input: Union[str, Path], output_path: Union[str, Path], config: TremorAggregationConfig) -> None:
     
     # Load the features & predictions
     metadata_time, metadata_values = read_metadata(path_to_feature_input, config.meta_filename, config.time_filename, config.values_filename)
@@ -292,9 +284,9 @@ def quantify_tremor_io(path_to_feature_input: Union[str, Path], path_to_predicti
     # Concatenate predictions and tremor power
     df = pd.concat([df_predictions, df_features], axis=1)
 
-    # Compute weekly aggregated tremor measures
-    d_aggregates = quantify_tremor(df, config)
+    # Compute aggregated tremor measures
+    d_aggregates = aggregate_tremor(df, config)
 
     # Save output
-    with open(os.path.join(output_path,"weekly_tremor.json"), 'w') as json_file:
+    with open(os.path.join(output_path,"aggregate_tremor.json"), 'w') as json_file:
         json.dump(d_aggregates, json_file, indent=4)

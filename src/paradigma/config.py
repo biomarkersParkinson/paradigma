@@ -362,11 +362,11 @@ class ArmSwingQuantificationConfig(ArmActivityFeatureExtractionConfig):
         self.min_segment_length_s = 3
 
 
-class TremorQuantificationConfig(TremorBaseConfig):
+class TremorAggregationConfig(TremorBaseConfig):
     def __init__(self) -> None:
         super().__init__()
 
-        self.percentile_tremor_power: float = 0.9
+        self.aggregates_tremor_power: List[str] = ['median', '90p']
 
         self.set_filenames('tremor')
         
