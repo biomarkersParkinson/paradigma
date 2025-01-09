@@ -204,7 +204,6 @@ class ArmActivityFeatureExtractionConfig(GaitBaseConfig):
 
         # channels
         self.d_channels_values = {
-            'bla': 'bla',
             f"{self.sensor}_std_norm": DataUnits.GRAVITY,
             f"{self.sensor}_x_grav_mean": DataUnits.GRAVITY,
             f"{self.sensor}_x_grav_std": DataUnits.GRAVITY,
