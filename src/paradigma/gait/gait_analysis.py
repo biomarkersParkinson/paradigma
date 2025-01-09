@@ -18,8 +18,8 @@ from paradigma.util import get_end_iso8601, write_df_data, read_metadata, Window
 
 
 def extract_gait_features(
-        config: GaitConfig,
-        df: pd.DataFrame
+        df: pd.DataFrame,
+        config: GaitConfig
     ) -> pd.DataFrame:
     """
     Extracts gait features from accelerometer and gravity sensor data in the input DataFrame by computing temporal and spectral features.
@@ -33,13 +33,13 @@ def extract_gait_features(
 
     Parameters
     ----------
-    config : GaitConfig
-        Configuration object containing parameters for feature extraction, including column names for time, accelerometer data, and
-        gravity data, as well as settings for windowing, and feature computation.
-
     df : pd.DataFrame
         The input DataFrame containing gait data, which includes time, accelerometer, and gravity sensor data. The data should be
         structured with the necessary columns as specified in the `config`.
+
+    config : GaitConfig
+        Configuration object containing parameters for feature extraction, including column names for time, accelerometer data, and
+        gravity data, as well as settings for windowing, and feature computation.
 
     Returns
     -------
@@ -47,17 +47,6 @@ def extract_gait_features(
         A DataFrame containing extracted gait features, including temporal and spectral domain features. The DataFrame will have
         columns corresponding to time, statistical features of the accelerometer and gravity data, and spectral features of the
         accelerometer data.
-    
-    Notes
-    -----
-    - This function groups the data into windows based on timestamps and applies Fast Fourier Transform to compute spectral features.
-    - The temporal features are extracted from the accelerometer and gravity data, and include statistics like mean and standard deviation.
-    - The input DataFrame must include columns as specified in the `config` object for proper feature extraction.
-
-    Raises
-    ------
-    ValueError
-        If the input DataFrame does not contain the required columns as specified in the configuration or if any step in the feature extraction fails.
     """
     # Group sequences of timestamps into windows
     windowed_cols = [DataColumns.TIME] + config.accelerometer_cols + config.gravity_cols
@@ -107,9 +96,9 @@ def extract_gait_features(
 
 
 def extract_gait_features_io(
-        config: GaitConfig,
         path_to_input: str | Path, 
-        path_to_output: str | Path
+        path_to_output: str | Path,
+        config: GaitConfig
     ) -> None:
     # Load data
     metadata_time, metadata_values = read_metadata(path_to_input, config.meta_filename, config.time_filename, config.values_filename)
@@ -210,11 +199,11 @@ def detect_gait(
 
 
 def detect_gait_io(
-        config: GaitConfig, 
         path_to_input: str | Path, 
         path_to_output: str | Path, 
         full_path_to_classifier: str | Path, 
-        full_path_to_scaler: str | Path
+        full_path_to_scaler: str | Path,
+        config: GaitConfig
     ) -> None:
     
     # Load the data
@@ -237,11 +226,11 @@ def detect_gait_io(
 
 
 def extract_arm_activity_features(
-        gait_config: GaitConfig,
-        arm_activity_config: GaitConfig,
         df_timestamps: pd.DataFrame, 
         df_predictions: pd.DataFrame,
-        full_path_to_threshold: str | Path
+        full_path_to_threshold: str | Path,
+        gait_config: GaitConfig,
+        arm_activity_config: GaitConfig
     ) -> pd.DataFrame:
     """
     Extract features related to arm activity from a time-series DataFrame.
@@ -258,12 +247,6 @@ def extract_arm_activity_features(
 
     Parameters
     ----------
-    gait_config : GaitConfig
-        Configuration object containing column names and parameters for feature extraction of the gait step.
-
-    arm_activity_config : GaitConfig
-        Configuration object containing column names and parameters for feature extraction of the arm activity step.
-
     df_timestamps : pd.DataFrame
         A DataFrame containing the raw sensor data, including accelerometer, gravity, and gyroscope columns.
 
@@ -273,6 +256,12 @@ def extract_arm_activity_features(
     path_to_classifier_input : str | Path
         The path to the directory containing the classifier files and other necessary input files for feature extraction.
     
+    gait_config : GaitConfig
+        Configuration object containing column names and parameters for feature extraction of the gait step.
+
+    arm_activity_config : GaitConfig
+        Configuration object containing column names and parameters for feature extraction of the arm activity step.
+
     Returns
     -------
     pd.DataFrame
@@ -383,12 +372,12 @@ def extract_arm_activity_features(
 
 
 def extract_arm_activity_features_io(
-        gait_config: GaitConfig,
-        arm_activity_config: GaitConfig, 
         path_to_timestamp_input: str | Path, 
         path_to_prediction_input: str | Path, 
         full_path_to_threshold: str | Path, 
-        path_to_output: str | Path
+        path_to_output: str | Path,
+        gait_config: GaitConfig,
+        arm_activity_config: GaitConfig
     ) -> None:
     # Load accelerometer and gyroscope data
     dfs = []
@@ -449,12 +438,6 @@ def filter_gait(
     """
     Filters gait data to identify periods with no other arm activity using a pre-trained classifier.
 
-    This function performs the following steps:
-    1. Loads a pre-trained classifier and feature scaling parameters from the specified directory.
-    2. Scales the relevant features in the input DataFrame (`df`) using the loaded scaling parameters.
-    3. Makes predictions with the classifier to estimate the probability of no other arm activity during gait.
-    4. Returns a Series containing the predicted probabilities.
-
     Parameters
     ----------
     df : pd.DataFrame
@@ -479,19 +462,6 @@ def filter_gait(
     pd.Series
         A Series containing the predicted probabilities of no other arm activity during gait for each sample 
         in the input DataFrame.
-
-    Notes
-    -----
-    - The function expects the pre-trained classifier and scaling parameters to be located in specific 
-      subdirectories (`classifiers` and `scalers`) under `path_to_classifier_input`.
-    - The classifier should output probabilities indicating the likelihood of no other arm activity during gait.
-
-    Raises
-    ------
-    FileNotFoundError
-        If the classifier or scaler parameter files are not found at the specified paths.
-    ValueError
-        If the DataFrame does not contain the required features for prediction.
     """
     # Initialize the classifier
     clf = pd.read_pickle(full_path_to_classifier)
@@ -522,11 +492,11 @@ def filter_gait(
 
 
 def filter_gait_io(
-        config: GaitConfig, 
         path_to_input: str | Path, 
         path_to_output: str | Path, 
         full_path_to_classifier: str | Path, 
-        full_path_to_scaler: str | Path
+        full_path_to_scaler: str | Path,
+        config: GaitConfig, 
     ) -> None:
     # Load the data
     metadata_time, metadata_values = read_metadata(path_to_input, config.meta_filename, config.time_filename, config.values_filename)

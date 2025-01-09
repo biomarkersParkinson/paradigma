@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from paradigma.gait.gait_analysis import filter_gait_io, detect_gait_io, extract_arm_activity_features_io, extract_gait_features_io
-from paradigma.config import FilteringGaitConfig, ArmActivityFeatureExtractionConfig, ArmSwingQuantificationConfig, GaitDetectionConfig, GaitFeatureExtractionConfig
+from paradigma.config import GaitConfig
 from test_notebooks import compare_data
 
 
@@ -46,11 +46,11 @@ def test_2_extract_features_gait_output(shared_datadir: Path):
     path_to_reference_output = shared_datadir / output_dir_name / data_type
     path_to_tested_output = path_to_reference_output / "test-output"
 
-    config = GaitFeatureExtractionConfig()
+    config = GaitConfig('gait')
     extract_gait_features_io(
-        config=config, 
         path_to_input=path_to_preprocessed_input, 
-        path_to_output=path_to_tested_output
+        path_to_output=path_to_tested_output,
+        config=config
     )
     compare_data(
         reference_dir=path_to_reference_output, 
@@ -78,13 +78,13 @@ def test_3_gait_detection_output(shared_datadir: Path):
     full_path_to_classifier = shared_datadir / '0.classification' / data_type / 'classifiers' / classifier_filename
     full_path_to_scaler = shared_datadir / '0.classification' / data_type / 'scalers' / scaler_filename
 
-    config = GaitDetectionConfig()
+    config = GaitConfig('gait')
     detect_gait_io(
-        config=config, 
         path_to_input=path_to_feature_input, 
         path_to_output=path_to_tested_output, 
         full_path_to_classifier=full_path_to_classifier, 
-        full_path_to_scaler=full_path_to_scaler
+        full_path_to_scaler=full_path_to_scaler,
+        config=config
     )
     compare_data(
         reference_dir=path_to_reference_output, 
@@ -111,13 +111,16 @@ def test_4_extract_features_arm_activity_output(shared_datadir: Path):
 
     full_path_to_threshold = shared_datadir / "0.classification" / data_type / "thresholds" / threshold_filename
 
-    config = ArmActivityFeatureExtractionConfig()
+    gait_config = GaitConfig('gait')
+    arm_activity_config = GaitConfig('arm_activity')
+
     extract_arm_activity_features_io(
-        config=config, 
         path_to_timestamp_input=path_to_timestamp_input, 
         path_to_prediction_input=path_to_prediction_input, 
         full_path_to_threshold=full_path_to_threshold, 
-        path_to_output=path_to_tested_output
+        path_to_output=path_to_tested_output,
+        gait_config=gait_config, 
+        arm_activity_config=arm_activity_config
     )
     compare_data(
         reference_dir=path_to_reference_output, 
@@ -146,13 +149,13 @@ def test_5_arm_swing_detection_output(shared_datadir: Path):
     full_path_to_classifier = shared_datadir / '0.classification' / data_type / 'classifiers' / classifier_filename
     full_path_to_scaler = shared_datadir / '0.classification' / data_type / 'scalers' / scaler_filename
 
-    config = FilteringGaitConfig()
+    config = GaitConfig('arm_activity')
     filter_gait_io(
-        config=config, 
         path_to_input=path_to_prediction_input, 
         path_to_output=path_to_tested_output, 
         full_path_to_classifier=full_path_to_classifier, 
-        full_path_to_scaler=full_path_to_scaler
+        full_path_to_scaler=full_path_to_scaler,
+        config=config
     )
     compare_data(
         reference_dir=path_to_reference_output, 
