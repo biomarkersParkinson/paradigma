@@ -1,6 +1,8 @@
+import os
 from pathlib import Path
 
 from paradigma.gait.gait_analysis import filter_gait_io, detect_gait_io, extract_arm_activity_features_io, extract_gait_features_io
+from paradigma.classification import ClassifierPackage
 from paradigma.config import FilteringGaitConfig, ArmActivityFeatureExtractionConfig, ArmSwingQuantificationConfig, GaitDetectionConfig, GaitFeatureExtractionConfig
 from test_notebooks import compare_data
 
@@ -75,7 +77,7 @@ def test_3_gait_detection_output(shared_datadir: Path):
     path_to_tested_output = path_to_reference_output / "test-output"
     path_to_classifier_package = '../src/paradigma/assets'
 
-    full_path_to_classifier_package = path_to_classifier_package / classifier_package_filename
+    full_path_to_classifier_package = os.path.join(path_to_classifier_package, classifier_package_filename)
 
     config = GaitDetectionConfig()
     detect_gait_io(
@@ -133,24 +135,22 @@ def test_5_arm_swing_detection_output(shared_datadir: Path):
     input_dir_name: str = "3.extracted_features"
     output_dir_name: str = "4.predictions"
     data_type: str = "gait"
-    classifier_filename: str = "gait_filtering_classifier.pkl"
-    scaler_filename: str = "gait_filtering_scaler_params.json"
+    classifier_package_filename: str = "gait_filtering_package.pkl"
 
     # Temporary path to store the output of the notebook
     path_to_prediction_input = shared_datadir / input_dir_name / data_type
     path_to_reference_output = shared_datadir / output_dir_name / data_type
     path_to_tested_output = path_to_reference_output / "test-output"
+    path_to_classifier_package = '../src/paradigma/assets'
 
-    full_path_to_classifier = shared_datadir / '0.classification' / data_type / 'classifiers' / classifier_filename
-    full_path_to_scaler = shared_datadir / '0.classification' / data_type / 'scalers' / scaler_filename
+    full_path_to_classifier_package = full_path_to_classifier_package = os.path.join(path_to_classifier_package, classifier_package_filename)
 
     config = FilteringGaitConfig()
     filter_gait_io(
         config=config, 
         path_to_input=path_to_prediction_input, 
         path_to_output=path_to_tested_output, 
-        full_path_to_classifier=full_path_to_classifier, 
-        full_path_to_scaler=full_path_to_scaler
+        full_path_to_classifier_package=full_path_to_classifier_package, 
     )
     compare_data(
         reference_dir=path_to_reference_output, 

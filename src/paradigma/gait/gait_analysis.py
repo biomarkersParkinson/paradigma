@@ -139,7 +139,7 @@ def extract_gait_features_io(
 
 def detect_gait(
         df: pd.DataFrame, 
-        full_path_to_classifier_package: str | Path, 
+        clf_package: ClassifierPackage, 
         parallel: bool=False
     ) -> pd.Series:
     """
@@ -158,8 +158,8 @@ def detect_gait(
         The input DataFrame containing features extracted from gait data. It must include the necessary columns 
         as specified in the classifier's feature names.
 
-    full_path_to_classifier_package : str | Path
-        The full path of the file containing the pre-trained classifier, located in the `classifiers` subdirectory.
+    clf_package : ClassifierPackage
+        The pre-trained classifier package containing the classifier, threshold, and scaler.
 
     parallel : bool, optional, default=False
         If `True`, enables parallel processing during classification. If `False`, the classifier uses a single core.
@@ -168,17 +168,7 @@ def detect_gait(
     -------
     pd.Series
         A Series containing the predicted probabilities of gait activity for each sample in the input DataFrame.
-
-    Raises
-    ------
-    FileNotFoundError
-        If the classifier or scaler parameter files are not found at the specified paths.
-    ValueError
-        If the DataFrame does not contain the required features for prediction.
     """
-    # Initialize the classifier
-    clf_package = ClassifierPackage.load(full_path_to_classifier_package)
-
     # Set classifier
     clf = clf_package.classifier
     if not parallel and hasattr(clf, 'n_jobs'):
@@ -211,9 +201,11 @@ def detect_gait_io(
     metadata_time, metadata_values = read_metadata(path_to_input, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
+    clf_package = ClassifierPackage.load(filepath=full_path_to_classifier_package)
+
     df[DataColumns.PRED_GAIT_PROBA] = detect_gait(
         df=df, 
-        full_path_to_classifier_package=full_path_to_classifier_package
+        clf_package=clf_package
     )
 
     # Prepare the metadata
@@ -233,7 +225,7 @@ def extract_arm_activity_features(
         config: ArmActivityFeatureExtractionConfig,
         df_timestamps: pd.DataFrame, 
         df_predictions: pd.DataFrame,
-        full_path_to_threshold: str | Path
+        threshold: float
     ) -> pd.DataFrame:
     """
     Extract features related to arm activity from a time-series DataFrame.
@@ -268,11 +260,6 @@ def extract_arm_activity_features(
         A DataFrame containing the extracted arm activity features, including angle, velocity, 
         temporal, and spectral features.
     """
-
-    # Load classification threshold
-    with open(full_path_to_threshold, 'r') as f:
-        classification_threshold = float(f.read())
-
     # Merge gait predictions with timestamps
     gait_preprocessing_config = GaitFeatureExtractionConfig()
     df = merge_predictions_with_timestamps(
@@ -284,7 +271,7 @@ def extract_arm_activity_features(
     )
     
     # Add a column for predicted gait based on a fitted threshold
-    df[DataColumns.PRED_GAIT] = (df[DataColumns.PRED_GAIT_PROBA] >= classification_threshold).astype(int)
+    df[DataColumns.PRED_GAIT] = (df[DataColumns.PRED_GAIT_PROBA] >= threshold).astype(int)
 
     # Filter the DataFrame to only include predicted gait (1)
     df = df.loc[df[DataColumns.PRED_GAIT]==1].reset_index(drop=True)
@@ -376,7 +363,7 @@ def extract_arm_activity_features_io(
         config: ArmActivityFeatureExtractionConfig, 
         path_to_timestamp_input: str | Path, 
         path_to_prediction_input: str | Path, 
-        full_path_to_threshold: str | Path, 
+        full_path_to_classifier_package: str | Path, 
         path_to_output: str | Path
     ) -> None:
     # Load accelerometer and gyroscope data
@@ -405,12 +392,14 @@ def extract_arm_activity_features_io(
 
     df_pred_gait = tsdf.load_dataframe_from_binaries([metadata_pred_time, metadata_pred_values], tsdf.constants.ConcatenationType.columns)
 
+    clf_package = ClassifierPackage.load(filepath=full_path_to_classifier_package)
+
     # Extract arm activity features
     df_features = extract_arm_activity_features(
         config=config,
         df_timestamps=df_ts, 
         df_predictions=df_pred_gait, 
-        full_path_to_threshold=full_path_to_threshold
+        threshold=clf_package.threshold
     )
 
     end_iso8601 = get_end_iso8601(metadata_ts_values.start_iso8601, df_features[DataColumns.TIME][-1:].values[0] + config.window_length_s)
@@ -431,7 +420,7 @@ def extract_arm_activity_features_io(
 
 def filter_gait(
         df: pd.DataFrame, 
-        full_path_to_classifier_package: str | Path, 
+        clf_package: ClassifierPackage, 
         parallel: bool=False
     ) -> pd.Series:
     """
@@ -451,9 +440,6 @@ def filter_gait(
     pd.Series
         A Series containing the predicted probabilities.
     """
-    # Load the classifier package
-    clf_package = ClassifierPackage.load(filepath=full_path_to_classifier_package)
-
     # Set classifier
     clf = clf_package.classifier
     if not parallel and hasattr(clf, 'n_jobs'):
@@ -485,9 +471,11 @@ def filter_gait_io(
     metadata_time, metadata_values = read_metadata(path_to_input, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
+    clf_package = ClassifierPackage.load(filepath=full_path_to_classifier_package)
+
     df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] = filter_gait(
         df=df, 
-        full_path_to_classifier_package=full_path_to_classifier_package, 
+        clf_package=clf_package
     )
 
     # Prepare the metadata

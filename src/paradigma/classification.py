@@ -81,7 +81,7 @@ class ClassifierPackage:
             raise ValueError("Classifier is not loaded.")
         return int(self.predict_proba(X) >= self.threshold)
     
-    def save(self, filepath: str) -> None:
+    def save(self, filepath: str | Path) -> None:
         """
         Save the ClassifierPackage to a file.
 
@@ -108,9 +108,6 @@ class ClassifierPackage:
         ClassifierPackage
             The loaded classifier package.
         """
-        filepath_str = str(filepath)
-        print(f"Loading classifier from {filepath_str}")
-
         try:
             with open(filepath, 'rb') as f:
                 return pickle.load(f)
