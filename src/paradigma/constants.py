@@ -35,6 +35,7 @@ class DataColumns():
     PRED_TREMOR_PROBA: str = "pred_tremor_proba"
     PRED_TREMOR_LOGREG : str = "pred_tremor_logreg"
     PRED_TREMOR_CHECKED : str = "pred_tremor_checked"
+    PRED_ARM_AT_REST: str = "pred_arm_at_rest"
 
     # Constants for PPG features
     VARIANCE: str = "variance"

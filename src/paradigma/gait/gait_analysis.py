@@ -15,7 +15,7 @@ from paradigma.gait.feature_extraction import extract_temporal_domain_features, 
     extract_spectral_domain_features, pca_transform_gyroscope, compute_angle, remove_moving_average_angle, \
     extract_angle_extremes, compute_range_of_motion, compute_peak_angular_velocity
 from paradigma.segmenting import tabulate_windows, create_segments, discard_segments, categorize_segments
-from paradigma.util import get_end_iso8601, write_df_data, read_metadata, WindowedDataExtractor
+from paradigma.util import get_end_iso8601, write_df_data, read_metadata, aggregate_parameter, WindowedDataExtractor
 
 
 def extract_gait_features(
@@ -776,39 +776,6 @@ def quantify_arm_swing_io(
 
     with open(full_path_to_output, 'w') as f:
         json.dump(quantification_dict, f)
-
-    
-def aggregate_parameter(parameter: np.ndarray, aggregate: str) -> np.ndarray:
-    """
-    Aggregate a parameter based on the specified method.
-    
-    Parameters
-    ----------
-    parameter : np.ndarray
-        The parameter to aggregate.
-        
-    aggregate : str
-        The aggregation method to apply.
-        
-    Returns
-    -------
-    np.ndarray
-        The aggregated parameter.
-    """
-    if aggregate == 'mean':
-        return np.mean(parameter)
-    if aggregate == 'median':
-        return np.median(parameter)
-    elif aggregate == '90p':
-        return np.percentile(parameter, 90)
-    elif aggregate == '95p':
-        return np.percentile(parameter, 95)
-    elif aggregate == '99p':
-        return np.percentile(parameter, 99)
-    elif aggregate == 'std':
-        return np.std(parameter)
-    else:
-        raise ValueError(f"Invalid aggregation method: {aggregate}")
 
 
 def aggregate_quantification_dict(quantification_dict: dict, aggregates: List[str] = ['median']) -> dict:
