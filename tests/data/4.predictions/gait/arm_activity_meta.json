@@ -12,6 +12,15 @@
     "bits": 64,
     "sensors": [
         {
+            "file_name": "arm_activity_time.bin",
+            "channels": [
+                "time"
+            ],
+            "units": [
+                "relative_s"
+            ]
+        },
+        {
             "file_name": "arm_activity_values.bin",
             "channels": [
                 "pred_no_other_arm_activity_proba"
@@ -20,15 +29,6 @@
                 "probability"
             ],
             "scale_factors": []
-        },
-        {
-            "file_name": "arm_activity_time.bin",
-            "channels": [
-                "time"
-            ],
-            "units": [
-                "relative_s"
-            ]
         }
     ]
 }

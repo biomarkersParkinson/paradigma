@@ -12,6 +12,15 @@
     "bits": 64,
     "sensors": [
         {
+            "file_name": "arm_activity_time.bin",
+            "channels": [
+                "time"
+            ],
+            "units": [
+                "relative_s"
+            ]
+        },
+        {
             "file_name": "arm_activity_values.bin",
             "channels": [
                 "accelerometer_std_norm",
@@ -110,15 +119,6 @@
                 "g"
             ],
             "scale_factors": []
-        },
-        {
-            "file_name": "arm_activity_time.bin",
-            "channels": [
-                "time"
-            ],
-            "units": [
-                "relative_s"
-            ]
         }
     ]
 }
