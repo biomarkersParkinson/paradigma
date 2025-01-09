@@ -117,7 +117,7 @@ class GaitBaseConfig(IMUConfig):
         self.mfcc_n_coefficients: int = 12
 
         self.d_frequency_bandwidths: Dict[str, List[float]] = {
-            "power_below_gait": [0.3, 0.7],
+            "power_below_gait": [0.2, 0.7],
             "power_gait": [0.7, 3.5],
             "power_tremor": [3.5, 8],
             "power_above_tremor": [8, 25],
@@ -204,11 +204,6 @@ class ArmActivityFeatureExtractionConfig(GaitBaseConfig):
 
         # channels
         self.d_channels_values = {
-            "range_of_motion": "deg",
-            f"forward_peak_{DataColumns.VELOCITY}_mean": DataUnits.ROTATION,
-            f"forward_peak_{DataColumns.VELOCITY}_std": DataUnits.ROTATION,
-            f"backward_peak_{DataColumns.VELOCITY}_mean": DataUnits.ROTATION,
-            f"backward_peak_{DataColumns.VELOCITY}_std": DataUnits.ROTATION,
             f"{self.sensor}_std_norm": DataUnits.GRAVITY,
             f"{self.sensor}_x_grav_mean": DataUnits.GRAVITY,
             f"{self.sensor}_x_grav_std": DataUnits.GRAVITY,
@@ -231,7 +226,6 @@ class ArmActivityFeatureExtractionConfig(GaitBaseConfig):
             f"{self.sensor}_z_power_tremor": "X",
             f"{self.sensor}_z_power_above_tremor": "X",
             f"{self.sensor}_z_dominant_frequency": DataUnits.FREQUENCY,
-            f"{DataColumns.ANGLE}_dominant_frequency": DataUnits.FREQUENCY,
         }
 
         for sensor in ["accelerometer", "gyroscope"]:
