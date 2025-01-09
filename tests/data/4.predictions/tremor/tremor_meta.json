@@ -25,10 +25,12 @@
             "channels": [
                 "pred_tremor_proba",
                 "pred_tremor_logreg",
-                "pred_tremor_checked"
+                "pred_tremor_checked",
+                "pred_arm_at_rest"
             ],
             "units": [
                 "probability",
+                "boolean",
                 "boolean",
                 "boolean"
             ],

@@ -1,5 +1,4 @@
 import os
-import pytz
 import tsdf
 import json
 import pandas as pd
@@ -168,7 +167,7 @@ def detect_tremor(df: pd.DataFrame, config: TremorDetectionConfig, path_to_class
 
     # Perform extra checks for rest tremor 
     peak_check = (df['freq_peak'] >= config.fmin_peak) & (df['freq_peak']<=config.fmax_peak) # peak within 3-7 Hz
-    df[DataColumns.PRED_ARM_AT_REST] = df['low_freq_power'] <= config.movement_threshold # little non-tremor arm movement
+    df[DataColumns.PRED_ARM_AT_REST] = (df['low_freq_power'] <= config.movement_threshold).astype(int) # little non-tremor arm movement
     df[DataColumns.PRED_TREMOR_CHECKED] = ((df[DataColumns.PRED_TREMOR_LOGREG]==1) & (peak_check==True) & (df[DataColumns.PRED_ARM_AT_REST] == True)).astype(int)
     
     return df
@@ -288,5 +287,5 @@ def aggregate_tremor_io(path_to_feature_input: Union[str, Path], path_to_predict
     d_aggregates = aggregate_tremor(df, config)
 
     # Save output
-    with open(os.path.join(output_path,"aggregate_tremor.json"), 'w') as json_file:
+    with open(os.path.join(output_path,"tremor_aggregates.json"), 'w') as json_file:
         json.dump(d_aggregates, json_file, indent=4)

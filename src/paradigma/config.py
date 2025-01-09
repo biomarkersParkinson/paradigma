@@ -337,7 +337,8 @@ class TremorDetectionConfig(TremorBaseConfig):
         self.d_channels_values = {
             DataColumns.PRED_TREMOR_PROBA: "probability",
             DataColumns.PRED_TREMOR_LOGREG: "boolean",
-            DataColumns.PRED_TREMOR_CHECKED: "boolean"
+            DataColumns.PRED_TREMOR_CHECKED: "boolean",
+            DataColumns.PRED_ARM_AT_REST: "boolean"
         }
 
         self.set_filenames('tremor')
