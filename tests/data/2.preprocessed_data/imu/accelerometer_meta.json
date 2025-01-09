@@ -12,6 +12,15 @@
     "bits": 64,
     "sensors": [
         {
+            "file_name": "accelerometer_time.bin",
+            "channels": [
+                "time"
+            ],
+            "units": [
+                "relative_s"
+            ]
+        },
+        {
             "file_name": "accelerometer_values.bin",
             "channels": [
                 "accelerometer_x",
@@ -30,15 +39,6 @@
                 "g"
             ],
             "scale_factors": []
-        },
-        {
-            "file_name": "accelerometer_time.bin",
-            "channels": [
-                "time"
-            ],
-            "units": [
-                "relative_s"
-            ]
         }
     ]
 }

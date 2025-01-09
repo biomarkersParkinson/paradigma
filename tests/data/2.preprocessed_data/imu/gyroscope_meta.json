@@ -12,6 +12,15 @@
     "bits": 64,
     "sensors": [
         {
+            "file_name": "gyroscope_time.bin",
+            "channels": [
+                "time"
+            ],
+            "units": [
+                "relative_s"
+            ]
+        },
+        {
             "file_name": "gyroscope_values.bin",
             "channels": [
                 "gyroscope_x",
@@ -24,15 +33,6 @@
                 "deg/s"
             ],
             "scale_factors": []
-        },
-        {
-            "file_name": "gyroscope_time.bin",
-            "channels": [
-                "time"
-            ],
-            "units": [
-                "relative_s"
-            ]
         }
     ]
 }

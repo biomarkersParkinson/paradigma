@@ -12,29 +12,38 @@
     "bits": 64,
     "sensors": [
         {
+            "file_name": "arm_activity_time.bin",
+            "channels": [
+                "time"
+            ],
+            "units": [
+                "relative_s"
+            ]
+        },
+        {
             "file_name": "arm_activity_values.bin",
             "channels": [
                 "accelerometer_std_norm",
                 "accelerometer_x_grav_mean",
-                "accelerometer_x_grav_std",
                 "accelerometer_y_grav_mean",
-                "accelerometer_y_grav_std",
                 "accelerometer_z_grav_mean",
+                "accelerometer_x_grav_std",
+                "accelerometer_y_grav_std",
                 "accelerometer_z_grav_std",
                 "accelerometer_x_power_below_gait",
-                "accelerometer_x_power_gait",
-                "accelerometer_x_power_tremor",
-                "accelerometer_x_power_above_tremor",
-                "accelerometer_x_dominant_frequency",
                 "accelerometer_y_power_below_gait",
-                "accelerometer_y_power_gait",
-                "accelerometer_y_power_tremor",
-                "accelerometer_y_power_above_tremor",
-                "accelerometer_y_dominant_frequency",
                 "accelerometer_z_power_below_gait",
+                "accelerometer_x_power_gait",
+                "accelerometer_y_power_gait",
                 "accelerometer_z_power_gait",
+                "accelerometer_x_power_tremor",
+                "accelerometer_y_power_tremor",
                 "accelerometer_z_power_tremor",
+                "accelerometer_x_power_above_tremor",
+                "accelerometer_y_power_above_tremor",
                 "accelerometer_z_power_above_tremor",
+                "accelerometer_x_dominant_frequency",
+                "accelerometer_y_dominant_frequency",
                 "accelerometer_z_dominant_frequency",
                 "accelerometer_mfcc_1",
                 "accelerometer_mfcc_2",
@@ -69,20 +78,20 @@
                 "g",
                 "g",
                 "g",
-                "X",
-                "X",
-                "X",
-                "X",
+                "g^2/Hz",
+                "g^2/Hz",
+                "g^2/Hz",
+                "g^2/Hz",
+                "g^2/Hz",
+                "g^2/Hz",
+                "g^2/Hz",
+                "g^2/Hz",
+                "g^2/Hz",
+                "g^2/Hz",
+                "g^2/Hz",
+                "g^2/Hz",
                 "Hz",
-                "X",
-                "X",
-                "X",
-                "X",
                 "Hz",
-                "X",
-                "X",
-                "X",
-                "X",
                 "Hz",
                 "g",
                 "g",
@@ -110,15 +119,6 @@
                 "g"
             ],
             "scale_factors": []
-        },
-        {
-            "file_name": "arm_activity_time.bin",
-            "channels": [
-                "time"
-            ],
-            "units": [
-                "relative_s"
-            ]
         }
     ]
 }

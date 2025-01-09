@@ -9,8 +9,7 @@ from sklearn.preprocessing import StandardScaler
 import tsdf
 
 from paradigma.constants import DataColumns, TimeUnit
-from paradigma.config import IMUConfig, GaitFeatureExtractionConfig, GaitDetectionConfig, \
-    ArmActivityFeatureExtractionConfig, FilteringGaitConfig, ArmSwingQuantificationConfig
+from paradigma.config import IMUConfig, GaitConfig
 from paradigma.gait.feature_extraction import extract_temporal_domain_features, \
     extract_spectral_domain_features, pca_transform_gyroscope, compute_angle, remove_moving_average_angle, \
     extract_angle_extremes, compute_range_of_motion, compute_peak_angular_velocity
@@ -19,7 +18,7 @@ from paradigma.util import get_end_iso8601, write_df_data, read_metadata, Window
 
 
 def extract_gait_features(
-        config: GaitFeatureExtractionConfig,
+        config: GaitConfig,
         df: pd.DataFrame
     ) -> pd.DataFrame:
     """
@@ -34,7 +33,7 @@ def extract_gait_features(
 
     Parameters
     ----------
-    config : GaitFeatureExtractionConfig
+    config : GaitConfig
         Configuration object containing parameters for feature extraction, including column names for time, accelerometer data, and
         gravity data, as well as settings for windowing, and feature computation.
 
@@ -108,7 +107,7 @@ def extract_gait_features(
 
 
 def extract_gait_features_io(
-        config: GaitFeatureExtractionConfig,
+        config: GaitConfig,
         path_to_input: str | Path, 
         path_to_output: str | Path
     ) -> None:
@@ -211,7 +210,7 @@ def detect_gait(
 
 
 def detect_gait_io(
-        config: GaitDetectionConfig, 
+        config: GaitConfig, 
         path_to_input: str | Path, 
         path_to_output: str | Path, 
         full_path_to_classifier: str | Path, 
@@ -238,7 +237,8 @@ def detect_gait_io(
 
 
 def extract_arm_activity_features(
-        config: ArmActivityFeatureExtractionConfig,
+        gait_config: GaitConfig,
+        arm_activity_config: GaitConfig,
         df_timestamps: pd.DataFrame, 
         df_predictions: pd.DataFrame,
         full_path_to_threshold: str | Path
@@ -258,8 +258,11 @@ def extract_arm_activity_features(
 
     Parameters
     ----------
-    config : ArmActivityFeatureExtractionConfig
-        Configuration object containing column names and parameters for feature extraction.
+    gait_config : GaitConfig
+        Configuration object containing column names and parameters for feature extraction of the gait step.
+
+    arm_activity_config : GaitConfig
+        Configuration object containing column names and parameters for feature extraction of the arm activity step.
 
     df_timestamps : pd.DataFrame
         A DataFrame containing the raw sensor data, including accelerometer, gravity, and gyroscope columns.
@@ -282,13 +285,12 @@ def extract_arm_activity_features(
         classification_threshold = float(f.read())
 
     # Merge gait predictions with timestamps
-    gait_preprocessing_config = GaitFeatureExtractionConfig()
     df = merge_predictions_with_timestamps(
         df_ts=df_timestamps, 
         df_predictions=df_predictions, 
         pred_proba_colname=DataColumns.PRED_GAIT_PROBA,
-        window_length_s=gait_preprocessing_config.window_length_s,
-        fs=gait_preprocessing_config.sampling_frequency
+        window_length_s=gait_config.window_length_s,
+        fs=gait_config.sampling_frequency
     )
     
     # Add a column for predicted gait based on a fitted threshold
@@ -300,15 +302,15 @@ def extract_arm_activity_features(
     # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
     df[DataColumns.SEGMENT_NR] = create_segments(
         time_array=df[DataColumns.TIME], 
-        max_segment_gap_s=config.max_segment_gap_s
+        max_segment_gap_s=gait_config.max_segment_gap_s
     )
 
     # Remove segments that do not meet predetermined criteria
     df = discard_segments(
         df=df,
         segment_nr_colname=DataColumns.SEGMENT_NR,
-        min_segment_length_s=config.min_segment_length_s,
-        fs=config.sampling_frequency,
+        min_segment_length_s=gait_config.min_segment_length_s,
+        fs=gait_config.sampling_frequency,
         format='timestamps'
     )
 
@@ -317,9 +319,9 @@ def extract_arm_activity_features(
     df_grouped = df.groupby(DataColumns.SEGMENT_NR)
     windowed_cols = (
         [DataColumns.TIME] + 
-        config.accelerometer_cols + 
-        config.gravity_cols + 
-        config.gyroscope_cols
+        gait_config.accelerometer_cols + 
+        gait_config.gravity_cols + 
+        gait_config.gyroscope_cols
     )
 
     # Collect windows from all segments in a list for faster concatenation
@@ -327,9 +329,9 @@ def extract_arm_activity_features(
         windows = tabulate_windows(
             df=group, 
             columns=windowed_cols,
-            window_length_s=config.window_length_s,
-            window_step_length_s=config.window_step_length_s,
-            fs=config.sampling_frequency
+            window_length_s=arm_activity_config.window_length_s,
+            window_step_length_s=arm_activity_config.window_step_length_s,
+            fs=arm_activity_config.sampling_frequency
         )
         if len(windows) > 0:  # Skip if no windows are created
             windowed_data.append(windows)
@@ -346,9 +348,9 @@ def extract_arm_activity_features(
     extractor = WindowedDataExtractor(windowed_cols)
 
     idx_time = extractor.get_index(DataColumns.TIME)
-    idx_acc = extractor.get_slice(config.accelerometer_cols)
-    idx_grav = extractor.get_slice(config.gravity_cols)
-    idx_gyro = extractor.get_slice(config.gyroscope_cols)
+    idx_acc = extractor.get_slice(arm_activity_config.accelerometer_cols)
+    idx_grav = extractor.get_slice(arm_activity_config.gravity_cols)
+    idx_gyro = extractor.get_slice(arm_activity_config.gyroscope_cols)
 
     # Extract data
     start_time = np.min(windowed_data[:, :, idx_time], axis=1)
@@ -361,7 +363,7 @@ def extract_arm_activity_features(
 
     # Extract temporal domain features (e.g., mean, std for accelerometer and gravity)
     df_temporal_features = extract_temporal_domain_features(
-        config=config, 
+        config=arm_activity_config, 
         windowed_acc=windowed_acc, 
         windowed_grav=windowed_grav, 
         grav_stats=['mean', 'std']
@@ -371,7 +373,7 @@ def extract_arm_activity_features(
     # Extract spectral domain features for accelerometer and gyroscope signals
     for sensor_name, windowed_sensor in zip(['accelerometer', 'gyroscope'], [windowed_acc, windowed_gyro]):
         df_spectral_features = extract_spectral_domain_features(
-            config=config, 
+            config=arm_activity_config, 
             sensor=sensor_name, 
             windowed_data=windowed_sensor
         )
@@ -381,7 +383,8 @@ def extract_arm_activity_features(
 
 
 def extract_arm_activity_features_io(
-        config: ArmActivityFeatureExtractionConfig, 
+        gait_config: GaitConfig,
+        arm_activity_config: GaitConfig, 
         path_to_timestamp_input: str | Path, 
         path_to_prediction_input: str | Path, 
         full_path_to_threshold: str | Path, 
@@ -390,7 +393,6 @@ def extract_arm_activity_features_io(
     # Load accelerometer and gyroscope data
     dfs = []
     for sensor in ['accelerometer', 'gyroscope']:
-        config.set_sensor(sensor)
         meta_ts_filename = f'{sensor}_meta.json'
         values_ts_filename = f'{sensor}_values.bin'
         time_ts_filename = f'{sensor}_time.bin'
@@ -415,21 +417,22 @@ def extract_arm_activity_features_io(
 
     # Extract arm activity features
     df_features = extract_arm_activity_features(
-        config=config,
+        gait_config=gait_config,
+        arm_activity_config=arm_activity_config,
         df_timestamps=df_ts, 
         df_predictions=df_pred_gait, 
         full_path_to_threshold=full_path_to_threshold
     )
 
-    end_iso8601 = get_end_iso8601(metadata_ts_values.start_iso8601, df_features[DataColumns.TIME][-1:].values[0] + config.window_length_s)
+    end_iso8601 = get_end_iso8601(metadata_ts_values.start_iso8601, df_features[DataColumns.TIME][-1:].values[0] + arm_activity_config.window_length_s)
 
     metadata_ts_values.end_iso8601 = end_iso8601
     metadata_ts_values.file_name = 'arm_activity_values.bin'
     metadata_ts_time.end_iso8601 = end_iso8601
     metadata_ts_time.file_name = 'arm_activity_time.bin'
 
-    metadata_ts_values.channels = list(config.d_channels_values.keys())
-    metadata_ts_values.units = list(config.d_channels_values.values())
+    metadata_ts_values.channels = list(arm_activity_config.d_channels_values.keys())
+    metadata_ts_values.units = list(arm_activity_config.d_channels_values.values())
 
     metadata_ts_time.channels = [DataColumns.TIME]
     metadata_ts_time.units = [TimeUnit.RELATIVE_S]
@@ -519,7 +522,7 @@ def filter_gait(
 
 
 def filter_gait_io(
-        config: FilteringGaitConfig, 
+        config: GaitConfig, 
         path_to_input: str | Path, 
         path_to_output: str | Path, 
         full_path_to_classifier: str | Path, 
@@ -743,7 +746,7 @@ def quantify_arm_swing(
 
 def quantify_arm_swing_io(
         imu_config: IMUConfig, 
-        asq_config: ArmSwingQuantificationConfig,
+        asq_config: GaitConfig,
         path_to_timestamp_input: str | Path, 
         path_to_prediction_input: str | Path, 
         full_path_to_threshold: str | Path, 

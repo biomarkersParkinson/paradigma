@@ -96,14 +96,28 @@ class PPGConfig(BaseConfig):
 
 
 # Domain base configs
-class GaitBaseConfig(IMUConfig):
+class GaitConfig(IMUConfig):
 
-    def __init__(self) -> None:
+    def __init__(self, step: str = 'gait') -> None:
         super().__init__()
 
-        self.set_sensor('accelerometer')
+        self.set_filenames(step)
 
         self.window_type: str = "hann"
+
+        if step not in ['gait', 'arm_activity']:
+            raise ValueError(f"Step {step} not recognized. Choose between 'gait' and 'arm_activity'.")
+        elif step == 'gait':           
+            self.window_length_s: float = 6
+            self.window_step_length_s: float = 1
+        else:  
+            self.window_length_s: float = 3
+            self.window_step_length_s: float = self.window_length_s * 0.25
+
+            # dominant frequency of first harmonic of arm swing
+            self.angle_fmin: float = 0.5
+            self.angle_fmax: float = 1.5
+
         self.max_segment_gap_s = 1.5
         self.min_segment_length_s = 1.5
 
@@ -123,6 +137,38 @@ class GaitBaseConfig(IMUConfig):
             "power_above_tremor": [8, 25],
         }
 
+        self.d_channels_values: Dict[str, str] = {
+            "accelerometer_std_norm": DataUnits.GRAVITY,
+            "accelerometer_x_grav_mean": DataUnits.GRAVITY,
+            "accelerometer_y_grav_mean": DataUnits.GRAVITY,
+            "accelerometer_z_grav_mean": DataUnits.GRAVITY,
+            "accelerometer_x_grav_std": DataUnits.GRAVITY,
+            "accelerometer_y_grav_std": DataUnits.GRAVITY,
+            "accelerometer_z_grav_std": DataUnits.GRAVITY,
+            "accelerometer_x_power_below_gait": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_y_power_below_gait": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_z_power_below_gait": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_x_power_gait": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_y_power_gait": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_z_power_gait": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_x_power_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_y_power_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_z_power_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_x_power_above_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_y_power_above_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_z_power_above_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_x_dominant_frequency": DataUnits.FREQUENCY,
+            "accelerometer_y_dominant_frequency": DataUnits.FREQUENCY,
+            "accelerometer_z_dominant_frequency": DataUnits.FREQUENCY,
+        }
+        
+        for mfcc_coef in range(1, self.mfcc_n_coefficients + 1):
+            self.d_channels_values[f"accelerometer_mfcc_{mfcc_coef}"] = DataUnits.GRAVITY
+            
+        if step == 'arm_activity':
+            for mfcc_coef in range(1, self.mfcc_n_coefficients + 1):
+                self.d_channels_values[f"gyroscope_mfcc_{mfcc_coef}"] = DataUnits.GRAVITY
+        
 
 class TremorBaseConfig(IMUConfig):
 
@@ -147,90 +193,6 @@ class HeartRateBaseConfig(PPGConfig):
 
         self.window_length_s: int = 6
         self.window_step_length_s: int = 1
-
-# Domain feature extraction configs
-class GaitFeatureExtractionConfig(GaitBaseConfig):
-
-    def __init__(self) -> None:
-        super().__init__()
-
-        # segmenting
-        self.window_length_s: float = 6
-        self.window_step_length_s: float = 1
-
-        # channels
-        self.d_channels_values: Dict[str, str] = {
-            f"{self.sensor}_std_norm": DataUnits.GRAVITY,
-            f"{self.sensor}_x_grav_mean": DataUnits.GRAVITY,
-            f"{self.sensor}_y_grav_mean": DataUnits.GRAVITY,
-            f"{self.sensor}_z_grav_mean": DataUnits.GRAVITY,
-            f"{self.sensor}_x_grav_std": DataUnits.GRAVITY,
-            f"{self.sensor}_y_grav_std": DataUnits.GRAVITY,
-            f"{self.sensor}_z_grav_std": DataUnits.GRAVITY,
-            f"{self.sensor}_x_power_below_gait": DataUnits.POWER_SPECTRAL_DENSITY,
-            f"{self.sensor}_y_power_below_gait": DataUnits.POWER_SPECTRAL_DENSITY,
-            f"{self.sensor}_z_power_below_gait": DataUnits.POWER_SPECTRAL_DENSITY,
-            f"{self.sensor}_x_power_gait": DataUnits.POWER_SPECTRAL_DENSITY,
-            f"{self.sensor}_y_power_gait": DataUnits.POWER_SPECTRAL_DENSITY,
-            f"{self.sensor}_z_power_gait": DataUnits.POWER_SPECTRAL_DENSITY,
-            f"{self.sensor}_x_power_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
-            f"{self.sensor}_y_power_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
-            f"{self.sensor}_z_power_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
-            f"{self.sensor}_x_power_above_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
-            f"{self.sensor}_y_power_above_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
-            f"{self.sensor}_z_power_above_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
-            f"{self.sensor}_x_dominant_frequency": DataUnits.FREQUENCY,
-            f"{self.sensor}_y_dominant_frequency": DataUnits.FREQUENCY,
-            f"{self.sensor}_z_dominant_frequency": DataUnits.FREQUENCY,
-        }
-
-        for mfcc_coef in range(1, self.mfcc_n_coefficients + 1):
-            self.d_channels_values[f"{self.sensor}_mfcc_{mfcc_coef}"] = DataUnits.GRAVITY
-
-
-class ArmActivityFeatureExtractionConfig(GaitBaseConfig):
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.set_filenames('arm_activity')
-
-        # segmenting
-        self.window_length_s: float = 3
-        self.window_step_length_s: float = self.window_length_s * 0.25
-
-        # dominant frequency of first harmonic of arm swing
-        self.angle_fmin: float = 0.5
-        self.angle_fmax: float = 1.5
-
-        # channels
-        self.d_channels_values = {
-            f"{self.sensor}_std_norm": DataUnits.GRAVITY,
-            f"{self.sensor}_x_grav_mean": DataUnits.GRAVITY,
-            f"{self.sensor}_x_grav_std": DataUnits.GRAVITY,
-            f"{self.sensor}_y_grav_mean": DataUnits.GRAVITY,
-            f"{self.sensor}_y_grav_std": DataUnits.GRAVITY,
-            f"{self.sensor}_z_grav_mean": DataUnits.GRAVITY,
-            f"{self.sensor}_z_grav_std": DataUnits.GRAVITY,
-            f"{self.sensor}_x_power_below_gait": "X",
-            f"{self.sensor}_x_power_gait": "X",
-            f"{self.sensor}_x_power_tremor": "X",
-            f"{self.sensor}_x_power_above_tremor": "X",
-            f"{self.sensor}_x_dominant_frequency": DataUnits.FREQUENCY,
-            f"{self.sensor}_y_power_below_gait": "X",
-            f"{self.sensor}_y_power_gait": "X",
-            f"{self.sensor}_y_power_tremor": "X",
-            f"{self.sensor}_y_power_above_tremor": "X",
-            f"{self.sensor}_y_dominant_frequency": DataUnits.FREQUENCY,
-            f"{self.sensor}_z_power_below_gait": "X",
-            f"{self.sensor}_z_power_gait": "X",
-            f"{self.sensor}_z_power_tremor": "X",
-            f"{self.sensor}_z_power_above_tremor": "X",
-            f"{self.sensor}_z_dominant_frequency": DataUnits.FREQUENCY,
-        }
-
-        for sensor in ["accelerometer", "gyroscope"]:
-            for mfcc_coef in range(1, self.mfcc_n_coefficients + 1):
-                self.d_channels_values[f"{sensor}_mfcc_{mfcc_coef}"] = DataUnits.GRAVITY
 
 
 class TremorFeatureExtractionConfig(TremorBaseConfig):
@@ -299,28 +261,6 @@ class SignalQualityFeatureExtractionAccConfig(HeartRateBaseConfig):
         self.nfft_ppg = len(np.arange(0, self.sampling_frequency_ppg/2, self.freq_bin_resolution))*2
         self.nfft_acc = len(np.arange(0, self.sampling_frequency/2, self.freq_bin_resolution))*2
 
-# Classification
-class GaitDetectionConfig(GaitBaseConfig):
-
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.classifier_file_name = "gait_detection_classifier.pkl"
-        self.thresholds_file_name = "gait_detection_threshold.txt"
-
-        self.set_filenames('gait')
-
-
-class FilteringGaitConfig(GaitBaseConfig):
-
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.classifier_file_name = "gait_filtering_classifier.pkl"
-        self.thresholds_file_name = "gait_filtering_threshold.txt"
-
-        self.set_filenames('arm_activity')
-
 
 class TremorDetectionConfig(TremorBaseConfig):
 
@@ -353,14 +293,6 @@ class SignalQualityClassificationConfig(HeartRateBaseConfig):
 
         self.set_filenames('gait')
 
-
-# Quantification
-class ArmSwingQuantificationConfig(ArmActivityFeatureExtractionConfig):
-
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.min_segment_length_s = 3
 
 
 class TremorQuantificationConfig(TremorBaseConfig):
