@@ -252,7 +252,7 @@ def quantify_tremor(df: pd.DataFrame, config: TremorQuantificationConfig):
     nr_windows_rest = df_filtered.shape[0] # number of windows without non-tremor arm movement
 
     # calculate weekly tremor time
-    tremor_time= np.sum(df_filtered['pred_tremor_checked']) / nr_windows_rest * 100 # as percentage of total measured time without non-tremor arm movement
+    perc_windows_tremor= np.sum(df_filtered['pred_tremor_checked']) / nr_windows_rest * 100 # as percentage of total measured time without non-tremor arm movement
 
     # calculate weekly tremor power measures
     tremor_power = df_filtered.loc[df_filtered['pred_tremor_checked'] == 1, 'tremor_power']
@@ -265,7 +265,7 @@ def quantify_tremor(df: pd.DataFrame, config: TremorQuantificationConfig):
             'nr_windows_rest': nr_windows_rest
         },
         'aggregated_tremor_measures': {
-            'tremor_time': tremor_time,
+            'perc_windows_tremor': perc_windows_tremor,
             'tremor_power_median': tremor_power_median,
             'tremor_power_mode': tremor_power_mode,
             'tremor_power_90th_perc': tremor_power_90th_perc
