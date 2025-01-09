@@ -40,9 +40,22 @@ def extract_signal_quality_features(config_ppg: SignalQualityFeatureExtractionCo
     
     """
     # Group sequences of timestamps into windows
-    ppg_windowed = tabulate_windows(config_ppg, df_ppg, columns=[config_ppg.ppg_colname])[0]
+    ppg_windowed = tabulate_windows(
+        df=df_ppg, 
+        columns=[config_ppg.ppg_colname],
+        window_length_s=config_ppg.window_length_s,
+        window_step_length_s=config_ppg.window_step_length_s,
+        fs=config_ppg.sampling_frequency
+    )[0]
+
     acc_windowed_cols = [DataColumns.TIME] + config_acc.accelerometer_cols
-    acc_windowed = tabulate_windows(config_acc, df_acc, acc_windowed_cols)
+    acc_windowed = tabulate_windows(
+        df=df_acc,
+        columns=acc_windowed_cols,
+        window_length_s=config_acc.window_length_s,
+        window_step_length_s=config_acc.window_step_length_s,
+        fs=config_acc.sampling_frequency
+    )
 
     extractor = WindowedDataExtractor(acc_windowed_cols)
     idx_time = extractor.get_index(DataColumns.TIME)

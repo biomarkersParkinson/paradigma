@@ -48,7 +48,7 @@ def extract_tremor_features(df: pd.DataFrame, config: TremorFeatureExtractionCon
     """
     # group sequences of timestamps into windows
     windowed_cols = [DataColumns.TIME] + config.gyroscope_cols
-    windowed_data = tabulate_windows(config, df, windowed_cols)
+    windowed_data = tabulate_windows(df, windowed_cols, config.window_length_s, config.window_step_length_s, config.sampling_frequency)
 
     extractor = WindowedDataExtractor(windowed_cols)
 

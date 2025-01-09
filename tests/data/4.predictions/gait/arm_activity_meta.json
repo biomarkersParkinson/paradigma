@@ -5,21 +5,12 @@
     "ppp_source_protobuf": "WatchData.IMU.Week104.raw",
     "metadata_version": "0.1",
     "start_iso8601": "2021-06-27T16:52:20Z",
-    "end_iso8601": "2021-06-27T17:04:02Z",
-    "rows": 130,
+    "end_iso8601": "2021-06-27T17:03:01Z",
+    "rows": 49,
     "endianness": "little",
     "data_type": "float",
     "bits": 64,
     "sensors": [
-        {
-            "file_name": "arm_activity_time.bin",
-            "channels": [
-                "time"
-            ],
-            "units": [
-                "relative_time_ms"
-            ]
-        },
         {
             "file_name": "arm_activity_values.bin",
             "channels": [
@@ -29,6 +20,15 @@
                 "probability"
             ],
             "scale_factors": []
+        },
+        {
+            "file_name": "arm_activity_time.bin",
+            "channels": [
+                "time"
+            ],
+            "units": [
+                "relative_s"
+            ]
         }
     ]
 }
