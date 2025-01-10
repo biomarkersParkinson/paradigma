@@ -254,6 +254,7 @@ def estimate_heart_rate(df_sqa: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame,
 
     return df_hr
 
+
 def aggregate_heart_rate(df_hr: pd.DataFrame, aggregates: List[str] = ['mode', '99p']) -> dict:
     """
     Aggregate the heart rate estimates by computing the modal heart rate and maximum heart rate.
@@ -286,6 +287,7 @@ def aggregate_heart_rate(df_hr: pd.DataFrame, aggregates: List[str] = ['mode', '
         aggregated_results['hr_aggregates'][f'{aggregate}_{DataColumns.HEART_RATE}'] = aggregate_parameter(hr_values, aggregate)
 
     return aggregated_results
+
 
 def aggregate_heart_rate_io(full_path_to_input: Union[str, Path], full_path_to_output: Union[str, Path], aggregates: List[str] = ['mode', '99p']) -> None:
     """
