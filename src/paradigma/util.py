@@ -161,81 +161,6 @@ def load_metadata_list(
 
     return metadata_list
 
-class WindowedDataExtractor:
-    """
-    A utility class for extracting specific column indices and slices 
-    from a list of windowed column names.
-    Attributes
-    ----------
-    column_indices : dict
-        A dictionary mapping column names to their indices.
-    Methods
-    -------
-    get_index(col)
-        Returns the index of a specific column.
-    get_slice(cols)
-        Returns a slice object for a range of consecutive columns.
-    """
-
-    def __init__(self, windowed_cols):
-        """
-        Initialize the WindowedDataExtractor.
-        Parameters
-        ----------
-        windowed_cols : list of str
-            A list of column names in the windowed data.
-        Raises
-         ------
-        ValueError
-            If the list of `windowed_cols` is empty.
-        """
-        if not windowed_cols:
-            raise ValueError("The list of windowed columns cannot be empty.")
-        self.column_indices = {col: idx for idx, col in enumerate(windowed_cols)}
-
-    def get_index(self, col):
-        """
-        Get the index of a specific column.
-        Parameters
-        ----------
-        col : str
-            The name of the column to retrieve the index for.
-        Returns
-        -------
-        int
-            The index of the specified column.
-        Raises
-        ------
-        ValueError
-            If the column is not found in the `windowed_cols` list.
-        """
-        if col not in self.column_indices:
-            raise ValueError(f"Column '{col}' not found in windowed_cols.")
-        return self.column_indices[col]
-
-    def get_slice(self, cols):
-        """
-        Get a slice object for a range of consecutive columns.
-        Parameters
-        ----------
-        cols : list of str
-            A list of consecutive column names to define the slice.
-        Returns
-        -------
-        slice
-            A slice object spanning the indices of the given columns.
-        Raises
-        ------
-        ValueError
-            If one or more columns in `cols` are not found in the `windowed_cols` list.
-        """
-        if not all(col in self.column_indices for col in cols):
-            missing = [col for col in cols if col not in self.column_indices]
-            raise ValueError(f"The following columns are missing from windowed_cols: {missing}")
-        start_idx = self.column_indices[cols[0]]
-        end_idx = self.column_indices[cols[-1]] + 1
-        return slice(start_idx, end_idx)
-# TODO: ideally something like this should be possible directly in the tsdf library
 def extract_meta_from_tsdf_files(tsdf_data_dir : str) -> List[dict]:
     """
     For each given TSDF directory, transcribe TSDF metadata contents to a list of dictionaries.
@@ -438,8 +363,11 @@ def aggregate_parameter(parameter: np.ndarray, aggregate: str) -> np.ndarray:
     """
     if aggregate == 'mean':
         return np.mean(parameter)
-    if aggregate == 'median':
+    elif aggregate == 'median':
         return np.median(parameter)
+    elif aggregate == 'mode':
+        unique_values, counts = np.unique(parameter, return_counts=True)
+        return unique_values[np.argmax(counts)]
     elif aggregate == '90p':
         return np.percentile(parameter, 90)
     elif aggregate == '95p':
@@ -450,88 +378,3 @@ def aggregate_parameter(parameter: np.ndarray, aggregate: str) -> np.ndarray:
         return np.std(parameter)
     else:
         raise ValueError(f"Invalid aggregation method: {aggregate}")
-
-class WindowedDataExtractor:
-    """
-    A utility class for extracting specific column indices and slices 
-    from a list of windowed column names.
-
-    Attributes
-    ----------
-    column_indices : dict
-        A dictionary mapping column names to their indices.
-
-    Methods
-    -------
-    get_index(col)
-        Returns the index of a specific column.
-    get_slice(cols)
-        Returns a slice object for a range of consecutive columns.
-    """
-
-    def __init__(self, windowed_cols):
-        """
-        Initialize the WindowedDataExtractor.
-
-        Parameters
-        ----------
-        windowed_cols : list of str
-            A list of column names in the windowed data.
-
-        Raises
-         ------
-        ValueError
-            If the list of `windowed_cols` is empty.
-        """
-        if not windowed_cols:
-            raise ValueError("The list of windowed columns cannot be empty.")
-        self.column_indices = {col: idx for idx, col in enumerate(windowed_cols)}
-
-    def get_index(self, col):
-        """
-        Get the index of a specific column.
-
-        Parameters
-        ----------
-        col : str
-            The name of the column to retrieve the index for.
-
-        Returns
-        -------
-        int
-            The index of the specified column.
-
-        Raises
-        ------
-        ValueError
-            If the column is not found in the `windowed_cols` list.
-        """
-        if col not in self.column_indices:
-            raise ValueError(f"Column '{col}' not found in windowed_cols.")
-        return self.column_indices[col]
-
-    def get_slice(self, cols):
-        """
-        Get a slice object for a range of consecutive columns.
-
-        Parameters
-        ----------
-        cols : list of str
-            A list of consecutive column names to define the slice.
-
-        Returns
-        -------
-        slice
-            A slice object spanning the indices of the given columns.
-
-        Raises
-        ------
-        ValueError
-            If one or more columns in `cols` are not found in the `windowed_cols` list.
-        """
-        if not all(col in self.column_indices for col in cols):
-            missing = [col for col in cols if col not in self.column_indices]
-            raise ValueError(f"The following columns are missing from windowed_cols: {missing}")
-        start_idx = self.column_indices[cols[0]]
-        end_idx = self.column_indices[cols[-1]] + 1
-        return slice(start_idx, end_idx)
