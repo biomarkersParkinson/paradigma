@@ -579,8 +579,8 @@ def quantify_arm_swing(
     )
 
     # Group and process segments
-    segment_results = {}
-    segment_results_aggregated = {}
+    arm_swing_quantified = {}
+    segment_meta = {}
 
     for df_name in ['unfiltered', 'filtered']:    
 
@@ -598,10 +598,11 @@ def quantify_arm_swing(
                 max_segment_gap_s=max_segment_gap_s
             )
 
-        segment_results[df_name] = {}
-        segment_results_aggregated[df_name] = {}
+        arm_swing_quantified[df_name] = []
+        segment_meta[df_name] = {}
 
         for segment_nr, group in df.groupby(DataColumns.SEGMENT_NR, sort=False):
+            segment_cat = group[DataColumns.SEGMENT_CAT].iloc[0]
             time_array = group[DataColumns.TIME].to_numpy()
             velocity_array = group[DataColumns.VELOCITY].to_numpy()
 
@@ -617,14 +618,13 @@ def quantify_arm_swing(
                 fs=fs,
             )
 
-            feature_dict = {
+            segment_meta[df_name][segment_nr] = {
                 'time_s': len(angle_array) / fs,
-                DataColumns.SEGMENT_NR: segment_nr,
-                DataColumns.SEGMENT_CAT: group[DataColumns.SEGMENT_CAT].iloc[0]
+                DataColumns.SEGMENT_CAT: segment_cat
             }
 
             if angle_array.size > 0:  
-                angle_extrema_indices, minima_indices, maxima_indices = extract_angle_extremes(
+                angle_extrema_indices, _, _ = extract_angle_extremes(
                     angle_array=angle_array,
                     sampling_frequency=fs,
                     max_frequency_activity=1.75
@@ -632,56 +632,36 @@ def quantify_arm_swing(
 
                 if len(angle_extrema_indices) > 1:  # Requires at minimum 2 peaks
                     try:
-                        feature_dict[DataColumns.RANGE_OF_MOTION] = compute_range_of_motion(
+                        rom = compute_range_of_motion(
                             angle_array=angle_array,
                             extrema_indices=angle_extrema_indices,
                         )
                     except Exception as e:
-                        # Handle the error, set ROM to NaN, and log the error
+                        # Handle the error, set RoM to NaN, and log the error
                         print(f"Error computing range of motion for segment {segment_nr}: {e}")
-                        feature_dict[DataColumns.RANGE_OF_MOTION] = np.array([np.nan])
+                        rom = np.array([np.nan])
 
                     try:
-                        forward_pav, backward_pav = compute_peak_angular_velocity(
+                        pav = compute_peak_angular_velocity(
                             velocity_array=velocity_array,
-                            angle_extrema_indices=angle_extrema_indices,
-                            minima_indices=minima_indices,
-                            maxima_indices=maxima_indices,
+                            angle_extrema_indices=angle_extrema_indices
                         )
                     except Exception as e:
-                        # Handle the error, set velocities to NaN, and log the error
+                        # Handle the error, set pav to NaN, and log the error
                         print(f"Error computing peak angular velocity for segment {segment_nr}: {e}")
-                        forward_pav, backward_pav = np.array([np.nan]), np.array([np.nan])
+                        pav = np.array([np.nan])
 
-                    feature_dict[f'forward_{DataColumns.PEAK_VELOCITY}'] = forward_pav
-                    feature_dict[f'backward_{DataColumns.PEAK_VELOCITY}'] = backward_pav
+                    df_params_segment = pd.DataFrame({
+                        DataColumns.SEGMENT_NR: segment_nr,
+                        DataColumns.RANGE_OF_MOTION: rom,
+                        DataColumns.PEAK_VELOCITY: pav
+                    })
 
-            segment_results[df_name][segment_nr] = feature_dict
+                    arm_swing_quantified[df_name].append(df_params_segment)
 
-        segment_cats = df[DataColumns.SEGMENT_CAT].dropna().unique()
-
-        for segment_cat in segment_cats:
-            relevant_segments = [f for f in segment_results[df_name].values() if f[DataColumns.SEGMENT_CAT] == segment_cat]
-
-            if not relevant_segments:
-                continue
-
-            cat_results = {
-                'time_s': sum(f['time_s'] for f in relevant_segments),
-                DataColumns.RANGE_OF_MOTION: np.concatenate([
-                    f[DataColumns.RANGE_OF_MOTION] for f in relevant_segments if DataColumns.RANGE_OF_MOTION in f
-                ]).tolist(),
-                f'forward_{DataColumns.PEAK_VELOCITY}': np.concatenate([
-                    f[f'forward_{DataColumns.PEAK_VELOCITY}'] for f in relevant_segments if f'forward_{DataColumns.PEAK_VELOCITY}' in f
-                ]).tolist(),
-                f'backward_{DataColumns.PEAK_VELOCITY}': np.concatenate([
-                    f[f'backward_{DataColumns.PEAK_VELOCITY}'] for f in relevant_segments if f'backward_{DataColumns.PEAK_VELOCITY}' in f
-                ]).tolist(),
-            }
-
-            segment_results_aggregated[df_name][segment_cat] = cat_results
+        arm_swing_quantified[df_name] = pd.concat(arm_swing_quantified[df_name], ignore_index=True)
             
-    return segment_results_aggregated
+    return arm_swing_quantified['unfiltered'], arm_swing_quantified['filtered'], segment_meta
 
 
 def quantify_arm_swing_io(
@@ -742,7 +722,7 @@ def aggregate_quantification_dict(quantification_dict: dict, aggregates: List[st
 
         for segment_cat, segment_data in df_dict.items():
             aggregated_results[df_name][segment_cat] = {
-                'time_s': sum(segment_data['time_s'])
+                'time_s': segment_data['time_s']
             }
             
             for aggregate in aggregates:
