@@ -1,4 +1,3 @@
-import os
 import tsdf
 import json
 import pandas as pd
@@ -8,6 +7,7 @@ from typing import Union
 from sklearn.linear_model import LogisticRegression
 from scipy.stats import gaussian_kde
 
+from paradigma.classification import ClassifierPackage
 from paradigma.constants import DataColumns
 from paradigma.config import TremorFeatureExtractionConfig, TremorDetectionConfig, TremorAggregationConfig
 from paradigma.tremor.feature_extraction import extract_spectral_domain_features
@@ -95,7 +95,7 @@ def extract_tremor_features_io(input_path: Union[str, Path], output_path: Union[
     write_df_data(metadata_time, metadata_values, output_path, 'tremor_meta.json', df_windowed)
 
 
-def detect_tremor(df: pd.DataFrame, config: TremorDetectionConfig, path_to_classifier_input: Union[str, Path]) -> pd.DataFrame:
+def detect_tremor(df: pd.DataFrame, config: TremorDetectionConfig, full_path_to_classifier_package: Union[str, Path]) -> pd.DataFrame:
     """
     Detects tremor in the input DataFrame using a pre-trained classifier and applies a threshold to the predicted probabilities.
 
@@ -114,9 +114,9 @@ def detect_tremor(df: pd.DataFrame, config: TremorDetectionConfig, path_to_class
         the necessary columns as specified in the classifier's feature names.
 
     config : TremorDetectionConfig
-        Configuration object containing the classifier file name, threshold file name, and other settings for gait detection.
+        Configuration object containing settings for tremor detection, including the frequency range for rest tremor.
 
-    path_to_classifier_input : Union[str, Path]
+    full_path_to_classifier_package : Union[str, Path]
         The path to the directory containing the classifier file, threshold value, scaler parameters, and other necessary input
         files for tremor detection.
 
@@ -139,35 +139,33 @@ def detect_tremor(df: pd.DataFrame, config: TremorDetectionConfig, path_to_class
         If the classifier, scaler, or threshold files are not found at the specified paths.
     ValueError
         If the DataFrame does not contain the expected features for prediction or if the prediction fails.
+
     """
 
-    # Initialize the classifier
-    coefficients = np.loadtxt(os.path.join(path_to_classifier_input, config.coefficients_file_name))
-    threshold = np.loadtxt(os.path.join(path_to_classifier_input, config.thresholds_file_name))
+    # Load the classifier package
+    clf_package = ClassifierPackage.load(full_path_to_classifier_package)
 
-    # Scale the MFCC's
-    mean_scaling = np.loadtxt(os.path.join(path_to_classifier_input, config.mean_scaling_file_name))
-    std_scaling = np.loadtxt(os.path.join(path_to_classifier_input, config.std_scaling_file_name))
-    mfcc = df.loc[:, df.columns.str.startswith('mfcc')]
-    mfcc_scaled = (mfcc-mean_scaling)/std_scaling
+    # Set classifier
+    clf = clf_package.classifier
+    feature_names_scaling = clf_package.scaler.feature_names_in_
+    feature_names_predictions = clf.feature_names_in_
 
-    # Create a logistic regression model with pre-defined coefficients
-    log_reg = LogisticRegression(penalty = None)
-    log_reg.classes_ = np.array([0, 1]) 
-    log_reg.intercept_ = coefficients[0]
-    log_reg.coef_ = coefficients[1:].reshape(1, -1)
-    log_reg.n_features_in_ = int(mfcc.shape[1])
-    log_reg.feature_names_in_ = mfcc.columns
+    # Apply scaling to relevant columns
+    scaled_features = clf_package.transform_features(df.loc[:, feature_names_scaling])
+
+    # Replace scaled features in a copy of the relevant features for prediction
+    X = df.loc[:, feature_names_predictions].copy()
+    X.loc[:, feature_names_scaling] = scaled_features
 
     # Get the tremor probability 
-    df[DataColumns.PRED_TREMOR_PROBA] = log_reg.predict_proba(mfcc_scaled)[:, 1] 
+    df[DataColumns.PRED_TREMOR_PROBA] = clf_package.predict_proba(X)
 
     # Make prediction based on pre-defined threshold
-    df[DataColumns.PRED_TREMOR_LOGREG] = (df[DataColumns.PRED_TREMOR_PROBA] >= threshold).astype(int)
+    df[DataColumns.PRED_TREMOR_LOGREG] = (df[DataColumns.PRED_TREMOR_PROBA] >= clf_package.threshold).astype(int)
 
     # Perform extra checks for rest tremor 
     peak_check = (df['freq_peak'] >= config.fmin_peak) & (df['freq_peak']<=config.fmax_peak) # peak within 3-7 Hz
-    df[DataColumns.PRED_ARM_AT_REST] = (df['low_freq_power'] <= config.movement_threshold).astype(int) # little non-tremor arm movement
+    df[DataColumns.PRED_ARM_AT_REST] = (df['low_freq_power'] <= config.movement_threshold).astype(int) # arm at rest or in stable posture
     df[DataColumns.PRED_TREMOR_CHECKED] = ((df[DataColumns.PRED_TREMOR_LOGREG]==1) & (peak_check==True) & (df[DataColumns.PRED_ARM_AT_REST] == True)).astype(int)
     
     return df
@@ -272,7 +270,7 @@ def aggregate_tremor_io(path_to_feature_input: Union[str, Path], path_to_predict
     metadata_time, metadata_values = read_metadata(path_to_feature_input, config.meta_filename, config.time_filename, config.values_filename)
     df_features = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
-    metadata_dict = tsdf.load_metadata_from_path(os.path.join(path_to_prediction_input, config.meta_filename))
+    metadata_dict = tsdf.load_metadata_from_path(Path(path_to_prediction_input, config.meta_filename))
     metadata_time = metadata_dict[config.time_filename]
     metadata_values = metadata_dict[config.values_filename]
     df_predictions = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
@@ -287,5 +285,5 @@ def aggregate_tremor_io(path_to_feature_input: Union[str, Path], path_to_predict
     d_aggregates = aggregate_tremor(df, config)
 
     # Save output
-    with open(os.path.join(output_path,"tremor_aggregates.json"), 'w') as json_file:
+    with open(Path(output_path,"tremor_aggregates.json"), 'w') as json_file:
         json.dump(d_aggregates, json_file, indent=4)
