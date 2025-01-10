@@ -4,11 +4,12 @@ from paradigma.tremor.tremor_analysis import extract_tremor_features_io, detect_
 from paradigma.config import TremorFeatureExtractionConfig, TremorDetectionConfig
 from test_notebooks import compare_data
 
-
 tremor_binaries_pairs: list[tuple[str, str]] = [
         ("tremor_meta.json", "tremor_time.bin"),
         ("tremor_meta.json", "tremor_values.bin"),
     ]
+
+path_to_assets = Path('src/paradigma/assets')
 
 def test_2_extract_features_tremor_output(shared_datadir: Path):
     """
@@ -35,13 +36,15 @@ def test_3_tremor_detection_output(shared_datadir: Path):
     input_dir_name: str = "3.extracted_features"
     output_dir_name: str = "4.predictions"
     data_type: str = "tremor"
+    classifier_package_filename: str = "tremor_detection_clf_package.pkl"
 
     # Temporary path to store the output of the notebook
-    path_to_classifier_input = shared_datadir / '0.classification' / data_type
     path_to_feature_input = shared_datadir / input_dir_name / data_type
     path_to_reference_output = shared_datadir / output_dir_name / data_type
     path_to_tested_output = path_to_reference_output / "test-output"
 
+    full_path_to_classifier_package = path_to_assets / classifier_package_filename
+
     config = TremorDetectionConfig()
-    detect_tremor_io(path_to_feature_input, path_to_tested_output, path_to_classifier_input, config)
+    detect_tremor_io(path_to_feature_input, path_to_tested_output, full_path_to_classifier_package, config)
     compare_data(path_to_reference_output, path_to_tested_output, tremor_binaries_pairs)
