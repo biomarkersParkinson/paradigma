@@ -6,7 +6,6 @@ import numpy as np
 import json
 from typing import List
 
-
 import tsdf
 
 from paradigma.constants import DataColumns
@@ -14,8 +13,8 @@ from paradigma.config import SignalQualityFeatureExtractionConfig, SignalQuality
     HeartRateExtractionConfig
 from paradigma.heart_rate.feature_extraction import extract_temporal_domain_features, extract_spectral_domain_features, extract_accelerometer_feature
 from paradigma.heart_rate.heart_rate_estimation import assign_sqa_label, extract_hr_segments, extract_hr_from_segment
-from paradigma.segmenting import tabulate_windows
-from paradigma.util import read_metadata, aggregate_parameter, WindowedDataExtractor
+from paradigma.segmenting import tabulate_windows, WindowedDataExtractor
+from paradigma.util import read_metadata, aggregate_parameter
 
 def extract_signal_quality_features(config_ppg: SignalQualityFeatureExtractionConfig, df_ppg: pd.DataFrame, config_acc: SignalQualityFeatureExtractionAccConfig, df_acc: pd.DataFrame) -> pd.DataFrame:
     """	
