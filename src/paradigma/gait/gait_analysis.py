@@ -538,6 +538,8 @@ def quantify_arm_swing(
         A dictionary containing arm swing parameters for filtered and unfiltered gait, and per
         segment length category.
     """
+    if sum(df_predictions[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= classification_threshold) == 0:
+        raise("No gait without other arm activity detected in the input data.")
     # Merge arm activity predictions with timestamps
     df = merge_predictions_with_timestamps(
         df_ts=df_timestamps, 
