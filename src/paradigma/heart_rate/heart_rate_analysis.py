@@ -254,16 +254,16 @@ def estimate_heart_rate(df_sqa: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame,
     return df_hr
 
 
-def aggregate_heart_rate(df_hr: pd.DataFrame, aggregates: List[str] = ['mode', '99p']) -> dict:
+def aggregate_heart_rate(hr_values: np.ndarray, aggregates: List[str] = ['mode', '99p']) -> dict:
     """
-    Aggregate the heart rate estimates by computing the modal heart rate and maximum heart rate.
+    Aggregate the heart rate estimates using the specified aggregation methods.
 
     Parameters
     ----------
-    df_hr : pd.DataFrame
-        The DataFrame containing the heart rate estimates.
-    config : HeartRateExtractionConfig
-        The configuration for the heart rate estimation.
+    hr_values : np.ndarray
+        The array containing the heart rate estimates
+    aggregates : List[str]
+        The list of aggregation methods to be used for the heart rate estimates. The default is ['mode', '99p'].
 
     Returns
     -------
@@ -273,15 +273,13 @@ def aggregate_heart_rate(df_hr: pd.DataFrame, aggregates: List[str] = ['mode', '
     # Initialize the dictionary for the aggregated results
     aggregated_results = {}
 
-    # Compute the modal heart rate
-    hr_values = df_hr['heart_rate'].values
-
     # Initialize the dictionary for the aggregated results with the metadata
-    aggregated_results['metadata'] = {}
-    aggregated_results['metadata']['nr_hr_est'] = len(hr_values)
-    
-    # Initialize the dictionary for the aggregated results with the heart rate aggregates
-    aggregated_results['hr_aggregates'] = {}
+    aggregated_results = {
+    'metadata': {
+        'nr_hr_est': len(hr_values)
+    },
+    'hr_aggregates': {}
+}
     for aggregate in aggregates:
         aggregated_results['hr_aggregates'][f'{aggregate}_{DataColumns.HEART_RATE}'] = aggregate_parameter(hr_values, aggregate)
 
@@ -308,7 +306,8 @@ def aggregate_heart_rate_io(full_path_to_input: Union[str, Path], full_path_to_o
         df_hr = json.load(f)
     
     # Aggregate the heart rate estimates
-    df_hr_aggregates = aggregate_heart_rate(df_hr, aggregates)
+    hr_values = df_hr['heart_rate'].values
+    df_hr_aggregates = aggregate_heart_rate(hr_values, aggregates)
 
     # Save the aggregated heart rate estimates
     with open(full_path_to_output, 'w') as json_file:
