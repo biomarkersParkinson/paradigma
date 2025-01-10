@@ -3,16 +3,16 @@ from pathlib import Path
 import pandas as pd
 import os
 import numpy as np
+import json
 
 import tsdf
 
 from paradigma.constants import DataColumns
 from paradigma.config import SignalQualityFeatureExtractionConfig, SignalQualityFeatureExtractionAccConfig, SignalQualityClassificationConfig, \
-    HeartRateExtractionConfig, HeartRateExtractionConfig
+    HeartRateExtractionConfig, HeartRateAggregationConfig
 from paradigma.heart_rate.feature_extraction import extract_temporal_domain_features, extract_spectral_domain_features, extract_accelerometer_feature
 from paradigma.heart_rate.heart_rate_estimation import assign_sqa_label, extract_hr_segments, extract_hr_from_segment
 from paradigma.segmenting import tabulate_windows
-
 from paradigma.util import read_metadata, WindowedDataExtractor
 
 def extract_signal_quality_features(config_ppg: SignalQualityFeatureExtractionConfig, df_ppg: pd.DataFrame, config_acc: SignalQualityFeatureExtractionAccConfig, df_acc: pd.DataFrame) -> pd.DataFrame:
@@ -251,3 +251,63 @@ def estimate_heart_rate(df_sqa: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame,
     df_hr = pd.DataFrame({"rel_time": t_hr_rel, "heart_rate": v_hr_rel})
 
     return df_hr
+
+def aggregate_heart_rate(df_hr: pd.DataFrame, config: HeartRateAggregationConfig) -> pd.DataFrame:
+    """
+    Aggregate the heart rate estimates by computing the modal heart rate and maximum heart rate.
+
+    Parameters
+    ----------
+    df_hr : pd.DataFrame
+        The DataFrame containing the heart rate estimates.
+    config : HeartRateExtractionConfig
+        The configuration for the heart rate estimation.
+
+    Returns
+    -------
+    df_hr_agg : pd.DataFrame
+        The DataFrame containing the aggregated heart rate estimates.
+    """
+
+    # Compute the modal heart rate
+    modal_hr = df_hr["heart_rate"].mode().values[0]
+
+    # Compute the maximum heart rate (99 percentile)
+    max_hr = df_hr["heart_rate"].quantile(0.99)
+
+    d_hr_aggregates = {
+        'metadata': {
+            'nr_hr_est': len(df_hr)
+        },
+        'hr_aggregates': {
+            'modal_hr': modal_hr,
+            'max_hr': max_hr
+        }
+    }
+
+    return d_hr_aggregates
+
+def aggregate_heart_rate_io(input_path: Union[str, Path], output_path: Union[str, Path], config: HeartRateAggregationConfig) -> None:
+    """
+    Extract heart rate from the PPG signal and save the aggregated heart rate estimates to a file.
+
+    Parameters
+    ----------
+    input_path : Union[str, Path]
+        The path to the directory containing the preprocessed PPG signal.
+    output_path : Union[str, Path]
+        The path to the directory where the aggregated heart rate estimates will be saved.
+    config : HeartRateExtractionConfig
+        The configuration for the heart rate estimation.
+    """
+
+    # Load the preprocessed PPG signal
+    metadata_time, metadata_values = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
+    df_hr = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
+
+    # Aggregate the heart rate estimates
+    df_hr_aggregates = aggregate_heart_rate(df_hr, config)
+
+    # Save the aggregated heart rate estimates
+    with open(os.path.join(output_path,"heart_rate_aggregates.json"), 'w') as json_file:
+        json.dump(df_hr_aggregates, json_file, indent=4)
