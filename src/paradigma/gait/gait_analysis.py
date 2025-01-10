@@ -14,8 +14,8 @@ from paradigma.config import IMUConfig, GaitFeatureExtractionConfig, GaitDetecti
 from paradigma.gait.feature_extraction import extract_temporal_domain_features, \
     extract_spectral_domain_features, pca_transform_gyroscope, compute_angle, remove_moving_average_angle, \
     extract_angle_extremes, compute_range_of_motion, compute_peak_angular_velocity
-from paradigma.segmenting import tabulate_windows, create_segments, discard_segments, categorize_segments
-from paradigma.util import get_end_iso8601, write_df_data, read_metadata, aggregate_parameter, WindowedDataExtractor
+from paradigma.segmenting import tabulate_windows, create_segments, discard_segments, categorize_segments, WindowedDataExtractor
+from paradigma.util import get_end_iso8601, write_df_data, read_metadata, aggregate_parameter
 
 
 def extract_gait_features(
