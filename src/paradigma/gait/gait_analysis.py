@@ -261,7 +261,7 @@ def extract_arm_activity_features(
         temporal, and spectral features.
     """
     if sum(df_predictions[DataColumns.PRED_GAIT_PROBA] >= threshold) == 0:
-        raise("No gait detected in the input data.")
+        raise ValueError("No gait detected in the input data.")
     
     # Merge gait predictions with timestamps
     gait_preprocessing_config = GaitFeatureExtractionConfig()
@@ -444,7 +444,7 @@ def filter_gait(
         A Series containing the predicted probabilities.
     """
     if df.shape[0] == 0:
-        raise("No data found in the input DataFrame.")
+        raise ValueError("No data found in the input DataFrame.")
     
     # Set classifier
     clf = clf_package.classifier
@@ -539,7 +539,7 @@ def quantify_arm_swing(
         segment length category.
     """
     if sum(df_predictions[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= classification_threshold) == 0:
-        raise("No gait without other arm activity detected in the input data.")
+        raise ValueError("No gait without other arm activity detected in the input data.")
     # Merge arm activity predictions with timestamps
     df = merge_predictions_with_timestamps(
         df_ts=df_timestamps, 
