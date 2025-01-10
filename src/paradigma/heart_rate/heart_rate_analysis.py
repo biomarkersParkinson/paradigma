@@ -287,27 +287,28 @@ def aggregate_heart_rate(df_hr: pd.DataFrame, config: HeartRateAggregationConfig
 
     return d_hr_aggregates
 
-def aggregate_heart_rate_io(input_path: Union[str, Path], output_path: Union[str, Path], config: HeartRateAggregationConfig) -> None:
+def aggregate_heart_rate_io(full_path_to_input: Union[str, Path], full_path_to_output: Union[str, Path], aggregates: List[str] = ['mode', '99p']) -> None:
     """
     Extract heart rate from the PPG signal and save the aggregated heart rate estimates to a file.
 
     Parameters
     ----------
     input_path : Union[str, Path]
-        The path to the directory containing the preprocessed PPG signal.
+        The path to the directory containing the heart rate estimates.
     output_path : Union[str, Path]
         The path to the directory where the aggregated heart rate estimates will be saved.
-    config : HeartRateExtractionConfig
-        The configuration for the heart rate estimation.
+    aggregates : List[str]
+        The list of aggregation methods to be used for the heart rate estimates. The default is ['mode', '99p'].
+
     """
 
-    # Load the preprocessed PPG signal
-    metadata_time, metadata_values = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
-    df_hr = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
-
+    # Load the heart rate estimates
+    with open(full_path_to_input, 'r') as f:
+        df_hr = json.load(f)
+    
     # Aggregate the heart rate estimates
-    df_hr_aggregates = aggregate_heart_rate(df_hr, config)
+    df_hr_aggregates = aggregate_heart_rate(df_hr, aggregates)
 
     # Save the aggregated heart rate estimates
-    with open(os.path.join(output_path,"heart_rate_aggregates.json"), 'w') as json_file:
+    with open(full_path_to_output, 'w') as json_file:
         json.dump(df_hr_aggregates, json_file, indent=4)
