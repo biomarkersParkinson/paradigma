@@ -261,8 +261,7 @@ def extract_arm_activity_features(
         temporal, and spectral features.
     """
     if sum(df_predictions[DataColumns.PRED_GAIT_PROBA] >= threshold) == 0:
-        print("No gait detected in the input data.")
-        return pd.DataFrame()
+        raise("No gait detected in the input data.")
     
     # Merge gait predictions with timestamps
     gait_preprocessing_config = GaitFeatureExtractionConfig()
@@ -445,8 +444,8 @@ def filter_gait(
         A Series containing the predicted probabilities.
     """
     if df.shape[0] == 0:
-        print("No data found in the input DataFrame.")
-        return pd.Series()
+        raise("No data found in the input DataFrame.")
+    
     # Set classifier
     clf = clf_package.classifier
     if not parallel and hasattr(clf, 'n_jobs'):
