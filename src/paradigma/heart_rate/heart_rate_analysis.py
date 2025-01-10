@@ -9,7 +9,7 @@ import tsdf
 
 from paradigma.constants import DataColumns
 from paradigma.config import SignalQualityFeatureExtractionConfig, SignalQualityFeatureExtractionAccConfig, SignalQualityClassificationConfig, \
-    HeartRateExtractionConfig, HeartRateAggregationConfig
+    HeartRateExtractionConfig
 from paradigma.heart_rate.feature_extraction import extract_temporal_domain_features, extract_spectral_domain_features, extract_accelerometer_feature
 from paradigma.heart_rate.heart_rate_estimation import assign_sqa_label, extract_hr_segments, extract_hr_from_segment
 from paradigma.segmenting import tabulate_windows
@@ -252,7 +252,7 @@ def estimate_heart_rate(df_sqa: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame,
 
     return df_hr
 
-def aggregate_heart_rate(df_hr: pd.DataFrame, config: HeartRateAggregationConfig) -> pd.DataFrame:
+def aggregate_heart_rate(df_hr: pd.DataFrame) -> pd.DataFrame:
     """
     Aggregate the heart rate estimates by computing the modal heart rate and maximum heart rate.
 
