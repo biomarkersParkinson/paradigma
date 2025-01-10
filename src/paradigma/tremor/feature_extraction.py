@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from scipy import signal
 from paradigma.constants import DataColumns
+from paradigma.gait.feature_extraction import compute_total_power
 
 def melscale(x):
     "Maps values of x to the melscale"
@@ -13,25 +14,25 @@ def inverse_melscale(x):
     
 def compute_mfccs(
         config,
-        total_spectrogram_array: np.ndarray,
+        total_power_array: np.ndarray,
         mel_scale: bool = True,
         ) -> np.ndarray:
     """
-    Generate Mel Frequency Cepstral Coefficients (MFCCs) from the total spectrogram of the signal.
+    Generate Mel Frequency Cepstral Coefficients (MFCCs) from the total power spectral density of the signal.
 
     MFCCs are commonly used features in signal processing for tasks like audio and 
     vibration analysis. In this version, we adjusted the MFFCs to the human activity
     range according to: https://www.sciencedirect.com/science/article/abs/pii/S016516841500331X#f0050.
     This function calculates MFCCs by applying a filterbank 
-    (in either the mel scale or linear scale) to the total spectrogram of the signal, 
+    (in either the mel scale or linear scale) to the total power spectral density of the signal, 
     followed by a Discrete Cosine Transform (DCT) to obtain coefficients.
 
     Parameters
     ----------
     config : object
         Configuration object containing the following attributes:
-        - segment_length_s_mfcc : int
-            Duration of each segment in seconds (default: 2 s)
+        - window_length_s : int
+            Duration of each analysis window in seconds (default: 4 s).
         - sampling_frequency : int
             Sampling frequency of the data (default: 100 Hz).
         - mfcc_low_frequency : float
@@ -42,8 +43,8 @@ def compute_mfccs(
             Number of triangular filters in the filterbank (default: 15).
         - mfcc_n_coefficients : int
             Number of coefficients to extract (default: 12).
-    total_spectrogram_array : np.ndarray
-        3D array of shape (n_windows, n_frequencies, n_segments) containing the total spectrogram 
+    total_power_array : np.ndarray
+        2D array of shape (n_windows, n_frequencies) containing the total power 
         of the signal for each window.
     mel_scale : bool, optional
         Whether to use the mel scale for the filterbank (default: True).
@@ -67,7 +68,7 @@ def compute_mfccs(
     """
 
     # Compute window length in samples
-    window_length = config.segment_length_s_mfcc * config.sampling_frequency
+    window_length = config.window_length_s * config.sampling_frequency
     
     # Generate filter points
     if mel_scale:
@@ -100,10 +101,10 @@ def compute_mfccs(
         ) 
 
     # Apply filterbank to total power
-    power_filtered = np.tensordot(total_spectrogram_array, filters.T, axes=(1,0)) 
+    power_filtered = np.dot(total_power_array, filters.T) 
     
     # Convert power to logarithmic scale
-    log_power_filtered = np.log10(power_filtered)
+    log_power_filtered = np.log10(power_filtered + 1e-10)
 
     # Generate DCT filters
     dct_filters = np.empty((config.mfcc_n_coefficients, config.mfcc_n_dct_filters))
@@ -119,7 +120,7 @@ def compute_mfccs(
     # Compute MFCCs
     mfccs = np.dot(log_power_filtered, dct_filters.T) 
 
-    return np.mean(mfccs,axis=1)
+    return mfccs
 
 
 def extract_frequency_peak(
@@ -239,9 +240,8 @@ def extract_spectral_domain_features(config, data) -> pd.DataFrame:
     """
     Compute spectral domain features from the gyroscope data.
 
-    This function computes Mel-frequency cepstral coefficients (MFCCs) based on the spectrogram, 
-    and computes the frequency of the peak, the tremor power, and the non-tremor power based on 
-    the power spectral density of the windowed gyroscope data.
+    This function computes Mel-frequency cepstral coefficients (MFCCs), the frequency of the peak, 
+    the tremor power, and the non-tremor power based on the total power spectral density of the windowed gyroscope data.
 
     Parameters
     ----------
@@ -263,14 +263,13 @@ def extract_spectral_domain_features(config, data) -> pd.DataFrame:
 
     # Initialize parameters
     sampling_frequency = config.sampling_frequency
-    segment_length_s_psd = config.segment_length_s_psd
-    segment_length_s_mfcc = config.segment_length_s_mfcc
+    segment_length_s = config.segment_length_s
     overlap_fraction = config.overlap_fraction
-    spectral_resolution = config.spectral_resolution_psd
+    spectral_resolution = config.spectral_resolution
     window_type = 'hann'
 
     # Compute the power spectral density
-    segment_length_n = sampling_frequency * segment_length_s_psd
+    segment_length_n = sampling_frequency * segment_length_s
     overlap_n = segment_length_n * overlap_fraction
     window = signal.get_window(window_type, segment_length_n, fftbins=False)
     nfft = sampling_frequency / spectral_resolution
@@ -287,24 +286,8 @@ def extract_spectral_domain_features(config, data) -> pd.DataFrame:
         axis=1
     )
 
-    # Compute the spectrogram
-    segment_length_n = sampling_frequency * segment_length_s_mfcc
-    overlap_n = segment_length_n * overlap_fraction
-    window = signal.get_window(window_type, segment_length_n)
-
-    f, t, S1 = signal.stft(
-        x=data, 
-        fs=sampling_frequency, 
-        window=window, 
-        nperseg=segment_length_n, 
-        noverlap=overlap_n,
-        boundary=None,
-        axis=1
-    )
-
-    # Sum the power spectral density and spectrogram over the three gyroscope axes.
-    total_psd = np.sum(psd, axis=2)
-    total_spectrogram = np.sum(np.abs(S1)*sampling_frequency, axis=2)
+    # Compute total power in the PSD
+    total_psd = compute_total_power(psd)
 
     # Compute the MFCC's
     config.mfcc_low_frequency = config.fmin_mfcc
@@ -312,7 +295,10 @@ def extract_spectral_domain_features(config, data) -> pd.DataFrame:
     config.mfcc_n_dct_filters = config.n_dct_filters_mfcc
     config.mfcc_n_coefficients = config.n_coefficients_mfcc
 
-    mfccs = compute_mfccs(config, total_spectrogram)
+    mfccs = compute_mfccs(
+        config,
+        total_power_array=total_psd,
+    )
 
     # Combine the MFCCs into the features DataFrame
     mfcc_colnames = [f'mfcc_{x}' for x in range(1, config.mfcc_n_coefficients + 1)]

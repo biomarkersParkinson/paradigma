@@ -419,6 +419,37 @@ def invert_watch_side(df: pd.DataFrame, side: str) -> np.ndarray:
 
     return df
 
+def aggregate_parameter(parameter: np.ndarray, aggregate: str) -> np.ndarray:
+    """
+    Aggregate a parameter based on the specified method.
+    
+    Parameters
+    ----------
+    parameter : np.ndarray
+        The parameter to aggregate.
+        
+    aggregate : str
+        The aggregation method to apply.
+        
+    Returns
+    -------
+    np.ndarray
+        The aggregated parameter.
+    """
+    if aggregate == 'mean':
+        return np.mean(parameter)
+    if aggregate == 'median':
+        return np.median(parameter)
+    elif aggregate == '90p':
+        return np.percentile(parameter, 90)
+    elif aggregate == '95p':
+        return np.percentile(parameter, 95)
+    elif aggregate == '99p':
+        return np.percentile(parameter, 99)
+    elif aggregate == 'std':
+        return np.std(parameter)
+    else:
+        raise ValueError(f"Invalid aggregation method: {aggregate}")
 
 class WindowedDataExtractor:
     """
