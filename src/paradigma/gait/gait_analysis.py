@@ -699,14 +699,17 @@ def quantify_arm_swing_io(
         json.dump(quantification_dict, f)
 
 
-def aggregate_quantification_dict(quantification_dict: dict, aggregates: List[str] = ['median']) -> dict:
+def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: dict, aggregates: List[str] = ['median']) -> dict:
     """
     Aggregate the quantification results for arm swing parameters.
     
     Parameters
     ----------
-    quantification_dict : dict
-        A dictionary containing the quantification results for arm swing parameters, segmented by filtered and unfiltered gait.
+    df_arm_swing_params : pd.DataFrame
+        A dataframe containing the arm swing parameters to be aggregated
+
+    segment_meta : dict
+        A dictionary containing metadata for each segment.
         
     aggregates : List[str], optional
         A list of aggregation methods to apply to the quantification results.
@@ -716,30 +719,32 @@ def aggregate_quantification_dict(quantification_dict: dict, aggregates: List[st
     dict
         A dictionary containing the aggregated quantification results for arm swing parameters.
     """
-    aggregated_results = {}
-    for df_name, df_dict in quantification_dict.items():
-        aggregated_results[df_name] = {}
+    uq_segment_cats = set([segment_meta[x][DataColumns.SEGMENT_CAT] for x in df_arm_swing_params[DataColumns.SEGMENT_NR].unique()])
 
-        for segment_cat, segment_data in df_dict.items():
-            aggregated_results[df_name][segment_cat] = {
-                'time_s': segment_data['time_s']
-            }
-            
-            for aggregate in aggregates:
-                aggregated_results[df_name][segment_cat][f'{aggregate}_{DataColumns.RANGE_OF_MOTION}'] = aggregate_parameter(segment_data[DataColumns.RANGE_OF_MOTION], aggregate)
-                aggregated_results[df_name][segment_cat][f'{aggregate}_forward_{DataColumns.PEAK_VELOCITY}'] = aggregate_parameter(segment_data[f'forward_{DataColumns.PEAK_VELOCITY}'], aggregate)
-                aggregated_results[df_name][segment_cat][f'{aggregate}_backward_{DataColumns.PEAK_VELOCITY}'] = aggregate_parameter(segment_data[f'backward_{DataColumns.PEAK_VELOCITY}'], aggregate)
+    aggregated_results = {}
+    for segment_cat in uq_segment_cats:
+        cat_segments = [x for x in segment_meta.keys() if segment_meta[x][DataColumns.SEGMENT_CAT] == segment_cat]
+
+        aggregated_results[segment_cat] = {
+            'time_s': sum([segment_meta[x]['time_s'] for x in cat_segments])
+        }
+
+        df_arm_swing_params_cat = df_arm_swing_params[df_arm_swing_params[DataColumns.SEGMENT_NR].isin(cat_segments)]
+        
+        for aggregate in aggregates:
+            aggregated_results[segment_cat][f'{aggregate}_{DataColumns.RANGE_OF_MOTION}'] = aggregate_parameter(df_arm_swing_params_cat[DataColumns.RANGE_OF_MOTION], aggregate)
+            aggregated_results[segment_cat][f'{aggregate}_forward_{DataColumns.PEAK_VELOCITY}'] = aggregate_parameter(df_arm_swing_params_cat[DataColumns.PEAK_VELOCITY], aggregate)
 
     return aggregated_results
 
 
-def aggregate_quantification_dict_io(full_path_to_input: str | Path, full_path_to_output, aggregates: List[str] = ['median']) -> None:
+def aggregate_arm_swing_params_io(full_path_to_input: str | Path, full_path_to_output, aggregates: List[str] = ['median']) -> None:
     # Load quantification results
     with open(full_path_to_input, 'r') as f:
         quantification_dict = json.load(f)
 
     # Aggregate quantification results
-    aggregated_results = aggregate_quantification_dict(quantification_dict, aggregates)
+    aggregated_results = aggregate_arm_swing_params(quantification_dict, aggregates)
 
     # Store aggregated results as json
     os.makedirs(os.path.dirname(full_path_to_output), exist_ok=True)
