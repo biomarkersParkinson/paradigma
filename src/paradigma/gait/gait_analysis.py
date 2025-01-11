@@ -502,8 +502,9 @@ def quantify_arm_swing(
         window_length_s: float,
         max_segment_gap_s: float, 
         min_segment_length_s: float,
-        fs: int
-    ) -> Tuple[pd.DataFrame, pd.DataFrame, dict]:
+        fs: int,
+        dfs_to_quantify: List[str] | str = ['unfiltered', 'filtered'],
+    ) -> Tuple[dict[str, pd.DataFrame], dict]:
     """
     Quantify arm swing parameters for segments of motion based on gyroscope data.
 
@@ -530,14 +531,31 @@ def quantify_arm_swing(
     fs : int
         The sampling frequency of the sensor data.
 
+    dfs_to_quantify : List[str] | str, optional
+        The DataFrames to quantify arm swing parameters for. Options are 'unfiltered' and 'filtered', with 'unfiltered' being predicted gait, and 
+        'filtered' being predicted gait without other arm activities.
+
     Returns
     -------
-    Tuple[pd.DataFrame, pd.DataFrame, dict]
-        A tuple containing two DataFrames with quantified arm swing parameters for unfiltered and filtered data, 
+    Tuple[dict, dict]
+        A tuple containing a dictionary with quantified arm swing parameters for dfs_to_quantify, 
         and a dictionary containing metadata for each segment.
     """
     if sum(df_predictions[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= classification_threshold) == 0:
         raise ValueError("No gait without other arm activity detected in the input data.")
+    
+    if isinstance(dfs_to_quantify, str):
+        dfs_to_quantify = [dfs_to_quantify]
+    elif not isinstance(dfs_to_quantify, list):
+        raise ValueError("dfs_to_quantify must be either 'unfiltered', 'filtered', or a list containing both.")
+
+    valid_values = {'unfiltered', 'filtered'}
+    if set(dfs_to_quantify) - valid_values:
+        raise ValueError(
+            f"Invalid value in dfs_to_quantify: {dfs_to_quantify}. "
+            f"Valid options are 'unfiltered', 'filtered', or both in a list."
+        ) 
+    
     # Merge arm activity predictions with timestamps
     df = merge_predictions_with_timestamps(
         df_ts=df_timestamps, 
@@ -568,9 +586,16 @@ def quantify_arm_swing(
         format='timestamps'
     )
 
+    if df.empty:
+        raise ValueError("No segments found in the input data.")
+
     # If no arm swing data is remaining, return an empty dictionary
     if df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].empty:
-        return {}
+        
+        if 'filtered' in dfs_to_quantify and len(dfs_to_quantify) == 1:
+            raise ValueError("No gait without other arm activities to quantify.")
+        
+        dfs_to_quantify = [x for x in dfs_to_quantify if x != 'filtered']
 
     df[DataColumns.SEGMENT_CAT] = categorize_segments(
         df=df,
@@ -588,12 +613,12 @@ def quantify_arm_swing(
     arm_swing_quantified = {}
     segment_meta = {}
 
-    for df_name in ['unfiltered', 'filtered']:    
+    # If both unfiltered and filtered gait are to be quantified, start with the unfiltered data
+    # and subset to get filtered data afterwards.
+    dfs_to_quantify = sorted(dfs_to_quantify)
 
-        if df.empty:
-            print(f"No segments found in {df_name} data.")
-            continue
-        elif df_name == 'filtered':
+    for df_name in dfs_to_quantify:    
+        if df_name == 'filtered':
             # Filter the DataFrame to only include predicted no other arm activity (1)
             df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True)
 
@@ -667,7 +692,7 @@ def quantify_arm_swing(
 
         arm_swing_quantified[df_name] = pd.concat(arm_swing_quantified[df_name], ignore_index=True)
             
-    return arm_swing_quantified['unfiltered'], arm_swing_quantified['filtered'], segment_meta
+    return {df_name: arm_swing_quantified[df_name] for df_name in dfs_to_quantify}, segment_meta
 
 
 def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: dict, aggregates: List[str] = ['median']) -> dict:
