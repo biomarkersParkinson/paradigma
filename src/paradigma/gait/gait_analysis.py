@@ -1,26 +1,24 @@
-import json
-import os
 import numpy as np
+import os
 import pandas as pd
 from pathlib import Path
-from typing import List
-
+from typing import List, Tuple
 import tsdf
 
 from paradigma.classification import ClassifierPackage
 from paradigma.constants import DataColumns, TimeUnit
-from paradigma.config import IMUConfig, GaitFeatureExtractionConfig, GaitDetectionConfig, \
-    ArmActivityFeatureExtractionConfig, FilteringGaitConfig, ArmSwingQuantificationConfig
+from paradigma.config import GaitFeatureExtractionConfig, GaitDetectionConfig, ArmActivityFeatureExtractionConfig, \
+    FilteringGaitConfig
 from paradigma.gait.feature_extraction import extract_temporal_domain_features, \
     extract_spectral_domain_features, pca_transform_gyroscope, compute_angle, remove_moving_average_angle, \
     extract_angle_extremes, compute_range_of_motion, compute_peak_angular_velocity
 from paradigma.segmenting import tabulate_windows, create_segments, discard_segments, categorize_segments, WindowedDataExtractor
-from paradigma.util import get_end_iso8601, write_df_data, read_metadata, aggregate_parameter
+from paradigma.util import aggregate_parameter, read_metadata, write_df_data, get_end_iso8601
 
 
 def extract_gait_features(
-        config: GaitFeatureExtractionConfig,
-        df: pd.DataFrame
+        df: pd.DataFrame,
+        config: GaitFeatureExtractionConfig
     ) -> pd.DataFrame:
     """
     Extracts gait features from accelerometer and gravity sensor data in the input DataFrame by computing temporal and spectral features.
@@ -34,13 +32,13 @@ def extract_gait_features(
 
     Parameters
     ----------
-    config : GaitFeatureExtractionConfig
-        Configuration object containing parameters for feature extraction, including column names for time, accelerometer data, and
-        gravity data, as well as settings for windowing, and feature computation.
-
     df : pd.DataFrame
         The input DataFrame containing gait data, which includes time, accelerometer, and gravity sensor data. The data should be
         structured with the necessary columns as specified in the `config`.
+
+    onfig : GaitFeatureExtractionConfig
+        Configuration object containing parameters for feature extraction, including column names for time, accelerometer data, and
+        gravity data, as well as settings for windowing, and feature computation.
 
     Returns
     -------
@@ -505,7 +503,7 @@ def quantify_arm_swing(
         max_segment_gap_s: float, 
         min_segment_length_s: float,
         fs: int
-    ) -> dict:
+    ) -> Tuple[pd.DataFrame, pd.DataFrame, dict]:
     """
     Quantify arm swing parameters for segments of motion based on gyroscope data.
 
@@ -534,9 +532,9 @@ def quantify_arm_swing(
 
     Returns
     -------
-    dict
-        A dictionary containing arm swing parameters for filtered and unfiltered gait, and per
-        segment length category.
+    Tuple[pd.DataFrame, pd.DataFrame, dict]
+        A tuple containing two DataFrames with quantified arm swing parameters for unfiltered and filtered data, 
+        and a dictionary containing metadata for each segment.
     """
     if sum(df_predictions[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= classification_threshold) == 0:
         raise ValueError("No gait without other arm activity detected in the input data.")
@@ -672,41 +670,6 @@ def quantify_arm_swing(
     return arm_swing_quantified['unfiltered'], arm_swing_quantified['filtered'], segment_meta
 
 
-def quantify_arm_swing_io(
-        imu_config: IMUConfig, 
-        asq_config: ArmSwingQuantificationConfig,
-        path_to_timestamp_input: str | Path, 
-        path_to_prediction_input: str | Path, 
-        full_path_to_classifier_package: str | Path, 
-        full_path_to_output: str | Path
-    ) -> None:
-    # Load timestamps
-    metadata_time, metadata_values = read_metadata(path_to_timestamp_input, imu_config.meta_filename, imu_config.time_filename, imu_config.values_filename)
-    df_timestamps = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
-
-    # Load predictions
-    metadata_pred_time, metadata_pred_values = read_metadata(path_to_prediction_input, asq_config.meta_filename, asq_config.time_filename, asq_config.values_filename)
-    df_predictions = tsdf.load_dataframe_from_binaries([metadata_pred_time, metadata_pred_values], tsdf.constants.ConcatenationType.columns)
-
-    clf_package = ClassifierPackage.load(filepath=full_path_to_classifier_package)
-
-    quantification_dict = quantify_arm_swing(
-        df_timestamps=df_timestamps, 
-        df_predictions=df_predictions, 
-        classification_threshold=clf_package.threshold,
-        window_length_s=asq_config.window_length_s,
-        max_segment_gap_s=asq_config.max_segment_gap_s,
-        min_segment_length_s=asq_config.min_segment_length_s,
-        fs=imu_config.sampling_frequency
-    )
-
-    # Store data as json
-    os.makedirs(os.path.dirname(full_path_to_output), exist_ok=True)
-
-    with open(full_path_to_output, 'w') as f:
-        json.dump(quantification_dict, f)
-
-
 def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: dict, aggregates: List[str] = ['median']) -> dict:
     """
     Aggregate the quantification results for arm swing parameters.
@@ -744,21 +707,6 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
             aggregated_results[segment_cat][f'{aggregate}_forward_{DataColumns.PEAK_VELOCITY}'] = aggregate_parameter(df_arm_swing_params_cat[DataColumns.PEAK_VELOCITY], aggregate)
 
     return aggregated_results
-
-
-def aggregate_arm_swing_params_io(full_path_to_input: str | Path, full_path_to_output, aggregates: List[str] = ['median']) -> None:
-    # Load quantification results
-    with open(full_path_to_input, 'r') as f:
-        quantification_dict = json.load(f)
-
-    # Aggregate quantification results
-    aggregated_results = aggregate_arm_swing_params(quantification_dict, aggregates)
-
-    # Store aggregated results as json
-    os.makedirs(os.path.dirname(full_path_to_output), exist_ok=True)
-
-    with open(full_path_to_output, 'w') as f:
-        json.dump(aggregated_results, f)
 
 
 def merge_predictions_with_timestamps(
