@@ -5,7 +5,7 @@ import pandas as pd
 from pathlib import Path
 from datetime import timedelta
 from dateutil import parser
-from typing import List, Tuple, Callable, Any
+from typing import List, Tuple
 
 import tsdf
 from tsdf import TSDFMetadata
