@@ -286,8 +286,8 @@ def extract_spectral_domain_features(config, data) -> pd.DataFrame:
         axis=1
     )
 
-    # Compute total power in the PSD
-    total_psd = compute_total_power(psd)
+    # Compute total power in the PSD (sum over the three axes)
+    total_psd = np.sum(psd, axis=2)
 
     # Compute the MFCC's
     config.mfcc_low_frequency = config.fmin_mfcc
