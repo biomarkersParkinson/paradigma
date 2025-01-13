@@ -258,7 +258,7 @@ def extract_arm_activity_features(
         A DataFrame containing the extracted arm activity features, including angle, velocity, 
         temporal, and spectral features.
     """
-    if sum(df_predictions[DataColumns.PRED_GAIT_PROBA] >= threshold) == 0:
+    if not any(df_predictions[DataColumns.PRED_GAIT_PROBA] >= threshold):
         raise ValueError("No gait detected in the input data.")
     
     # Merge gait predictions with timestamps
@@ -541,7 +541,7 @@ def quantify_arm_swing(
         A tuple containing a dictionary with quantified arm swing parameters for dfs_to_quantify, 
         and a dictionary containing metadata for each segment.
     """
-    if sum(df_predictions[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= classification_threshold) == 0:
+    if not any(df_predictions[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= classification_threshold):
         raise ValueError("No gait without other arm activity detected in the input data.")
     
     if isinstance(dfs_to_quantify, str):
