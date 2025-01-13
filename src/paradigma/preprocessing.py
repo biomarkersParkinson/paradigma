@@ -244,7 +244,7 @@ def preprocess_imu_data_io(path_to_input: str | Path, path_to_output: str | Path
             write_df_data(metadata_time, metadata_values, path_to_output, f'{sensor}_meta.json', df_sensor)
 
 
-def scan_and_sync_segments(input_path_ppg: str, input_path_imu: str) -> Tuple[List[tsdf.TSDFMetadata], List[tsdf.TSDFMetadata]]:
+def scan_and_sync_segments(input_path_ppg: str | Path, input_path_imu: str | Path) -> Tuple[List[tsdf.TSDFMetadata], List[tsdf.TSDFMetadata]]:
     """
     Scan for available TSDF metadata files in the specified directories and synchronize the data segments based on the metadata start and end times.
 
