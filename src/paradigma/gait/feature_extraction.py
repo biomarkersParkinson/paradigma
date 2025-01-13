@@ -580,6 +580,46 @@ def compute_range_of_motion(angle_array: np.ndarray, extrema_indices: List[int])
 def compute_peak_angular_velocity(
     velocity_array: np.ndarray,
     angle_extrema_indices: List[int],
+) -> np.ndarray:
+    """
+    Compute the peak angular velocity of a time series based on the angle extrema.
+
+    Parameters
+    ----------
+    velocity_array : np.ndarray
+        The angular velocity array to compute the peak angular velocity from.
+    angle_extrema_indices : List[int]
+        The indices of the angle extrema.
+    
+    Returns
+    -------
+    np.ndarray
+        The peak angular velocities of the time series.
+    """
+    if np.any(np.array(angle_extrema_indices) < 0) or np.any(np.array(angle_extrema_indices) >= len(velocity_array)):
+        raise ValueError("angle_extrema_indices contains out-of-bounds indices.")
+    
+    if len(angle_extrema_indices) < 2:
+        raise ValueError("angle_extrema_indices must contain at least two indices.")
+    
+    # Initialize a list to store the peak velocities 
+    pav = []
+
+    # Compute peak angular velocities
+    for i in range(len(angle_extrema_indices) - 1):
+        # Get the current and next extrema index
+        current_peak_idx = angle_extrema_indices[i]
+        next_peak_idx = angle_extrema_indices[i + 1]
+        segment = velocity_array[current_peak_idx:next_peak_idx]
+
+        pav.append(np.max(np.abs(segment)))
+
+    return np.array(pav)
+
+
+def compute_forward_backward_peak_angular_velocity(
+    velocity_array: np.ndarray,
+    angle_extrema_indices: List[int],
     minima_indices: List[int],
     maxima_indices: List[int],
 ) -> Tuple[np.ndarray, np.ndarray]:
@@ -614,7 +654,7 @@ def compute_peak_angular_velocity(
     if len(maxima_indices) == 0:
         raise ValueError("No maxima indices found.")
 
-    # Initialize lists to store the peak velocities for each window
+    # Initialize lists to store the peak velocities
     forward_pav = []
     backward_pav = []
 
