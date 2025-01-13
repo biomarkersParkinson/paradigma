@@ -3,17 +3,18 @@ from pathlib import Path
 import pandas as pd
 import os
 import numpy as np
+import json
+from typing import List
 
 import tsdf
 
 from paradigma.constants import DataColumns
 from paradigma.config import SignalQualityFeatureExtractionConfig, SignalQualityFeatureExtractionAccConfig, SignalQualityClassificationConfig, \
-    HeartRateExtractionConfig, HeartRateExtractionConfig
+    HeartRateExtractionConfig
 from paradigma.heart_rate.feature_extraction import extract_temporal_domain_features, extract_spectral_domain_features, extract_accelerometer_feature
 from paradigma.heart_rate.heart_rate_estimation import assign_sqa_label, extract_hr_segments, extract_hr_from_segment
-from paradigma.segmenting import tabulate_windows
-
-from paradigma.util import read_metadata, WindowedDataExtractor
+from paradigma.segmenting import tabulate_windows, WindowedDataExtractor
+from paradigma.util import read_metadata, aggregate_parameter
 
 def extract_signal_quality_features(config_ppg: SignalQualityFeatureExtractionConfig, df_ppg: pd.DataFrame, config_acc: SignalQualityFeatureExtractionAccConfig, df_acc: pd.DataFrame) -> pd.DataFrame:
     """	
@@ -251,3 +252,63 @@ def estimate_heart_rate(df_sqa: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame,
     df_hr = pd.DataFrame({"rel_time": t_hr_rel, "heart_rate": v_hr_rel})
 
     return df_hr
+
+
+def aggregate_heart_rate(hr_values: np.ndarray, aggregates: List[str] = ['mode', '99p']) -> dict:
+    """
+    Aggregate the heart rate estimates using the specified aggregation methods.
+
+    Parameters
+    ----------
+    hr_values : np.ndarray
+        The array containing the heart rate estimates
+    aggregates : List[str]
+        The list of aggregation methods to be used for the heart rate estimates. The default is ['mode', '99p'].
+
+    Returns
+    -------
+    aggregated_results : dict
+        The dictionary containing the aggregated results of the heart rate estimates.
+    """
+    # Initialize the dictionary for the aggregated results
+    aggregated_results = {}
+
+    # Initialize the dictionary for the aggregated results with the metadata
+    aggregated_results = {
+    'metadata': {
+        'nr_hr_est': len(hr_values)
+    },
+    'hr_aggregates': {}
+}
+    for aggregate in aggregates:
+        aggregated_results['hr_aggregates'][f'{aggregate}_{DataColumns.HEART_RATE}'] = aggregate_parameter(hr_values, aggregate)
+
+    return aggregated_results
+
+
+def aggregate_heart_rate_io(full_path_to_input: Union[str, Path], full_path_to_output: Union[str, Path], aggregates: List[str] = ['mode', '99p']) -> None:
+    """
+    Extract heart rate from the PPG signal and save the aggregated heart rate estimates to a file.
+
+    Parameters
+    ----------
+    input_path : Union[str, Path]
+        The path to the directory containing the heart rate estimates.
+    output_path : Union[str, Path]
+        The path to the directory where the aggregated heart rate estimates will be saved.
+    aggregates : List[str]
+        The list of aggregation methods to be used for the heart rate estimates. The default is ['mode', '99p'].
+
+    """
+
+    # Load the heart rate estimates
+    with open(full_path_to_input, 'r') as f:
+        df_hr = json.load(f)
+    
+    # Aggregate the heart rate estimates
+    hr_values = df_hr['heart_rate'].values
+    df_hr_aggregates = aggregate_heart_rate(hr_values, aggregates)
+
+    # Save the aggregated heart rate estimates
+    with open(full_path_to_output, 'w') as json_file:
+        json.dump(df_hr_aggregates, json_file, indent=4)
