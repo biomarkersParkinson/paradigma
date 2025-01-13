@@ -1,26 +1,24 @@
-import json
-import os
 import numpy as np
+import os
 import pandas as pd
 from pathlib import Path
-from typing import List
-
+from typing import List, Tuple
 import tsdf
 
 from paradigma.classification import ClassifierPackage
 from paradigma.constants import DataColumns, TimeUnit
-from paradigma.config import IMUConfig, GaitFeatureExtractionConfig, GaitDetectionConfig, \
-    ArmActivityFeatureExtractionConfig, FilteringGaitConfig, ArmSwingQuantificationConfig
+from paradigma.config import GaitFeatureExtractionConfig, GaitDetectionConfig, ArmActivityFeatureExtractionConfig, \
+    FilteringGaitConfig
 from paradigma.gait.feature_extraction import extract_temporal_domain_features, \
     extract_spectral_domain_features, pca_transform_gyroscope, compute_angle, remove_moving_average_angle, \
     extract_angle_extremes, compute_range_of_motion, compute_peak_angular_velocity
 from paradigma.segmenting import tabulate_windows, create_segments, discard_segments, categorize_segments, WindowedDataExtractor
-from paradigma.util import get_end_iso8601, write_df_data, read_metadata, aggregate_parameter
+from paradigma.util import aggregate_parameter, read_metadata, write_df_data, get_end_iso8601
 
 
 def extract_gait_features(
-        config: GaitFeatureExtractionConfig,
-        df: pd.DataFrame
+        df: pd.DataFrame,
+        config: GaitFeatureExtractionConfig
     ) -> pd.DataFrame:
     """
     Extracts gait features from accelerometer and gravity sensor data in the input DataFrame by computing temporal and spectral features.
@@ -34,13 +32,13 @@ def extract_gait_features(
 
     Parameters
     ----------
-    config : GaitFeatureExtractionConfig
-        Configuration object containing parameters for feature extraction, including column names for time, accelerometer data, and
-        gravity data, as well as settings for windowing, and feature computation.
-
     df : pd.DataFrame
         The input DataFrame containing gait data, which includes time, accelerometer, and gravity sensor data. The data should be
         structured with the necessary columns as specified in the `config`.
+
+    onfig : GaitFeatureExtractionConfig
+        Configuration object containing parameters for feature extraction, including column names for time, accelerometer data, and
+        gravity data, as well as settings for windowing, and feature computation.
 
     Returns
     -------
@@ -260,6 +258,9 @@ def extract_arm_activity_features(
         A DataFrame containing the extracted arm activity features, including angle, velocity, 
         temporal, and spectral features.
     """
+    if not any(df_predictions[DataColumns.PRED_GAIT_PROBA] >= threshold):
+        raise ValueError("No gait detected in the input data.")
+    
     # Merge gait predictions with timestamps
     gait_preprocessing_config = GaitFeatureExtractionConfig()
     df = merge_predictions_with_timestamps(
@@ -440,6 +441,9 @@ def filter_gait(
     pd.Series
         A Series containing the predicted probabilities.
     """
+    if df.shape[0] == 0:
+        raise ValueError("No data found in the input DataFrame.")
+    
     # Set classifier
     clf = clf_package.classifier
     if not parallel and hasattr(clf, 'n_jobs'):
@@ -498,8 +502,9 @@ def quantify_arm_swing(
         window_length_s: float,
         max_segment_gap_s: float, 
         min_segment_length_s: float,
-        fs: int
-    ) -> dict:
+        fs: int,
+        dfs_to_quantify: List[str] | str = ['unfiltered', 'filtered'],
+    ) -> Tuple[dict[str, pd.DataFrame], dict]:
     """
     Quantify arm swing parameters for segments of motion based on gyroscope data.
 
@@ -526,12 +531,31 @@ def quantify_arm_swing(
     fs : int
         The sampling frequency of the sensor data.
 
+    dfs_to_quantify : List[str] | str, optional
+        The DataFrames to quantify arm swing parameters for. Options are 'unfiltered' and 'filtered', with 'unfiltered' being predicted gait, and 
+        'filtered' being predicted gait without other arm activities.
+
     Returns
     -------
-    dict
-        A dictionary containing arm swing parameters for filtered and unfiltered gait, and per
-        segment length category.
+    Tuple[dict, dict]
+        A tuple containing a dictionary with quantified arm swing parameters for dfs_to_quantify, 
+        and a dictionary containing metadata for each segment.
     """
+    if not any(df_predictions[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= classification_threshold):
+        raise ValueError("No gait without other arm activity detected in the input data.")
+    
+    if isinstance(dfs_to_quantify, str):
+        dfs_to_quantify = [dfs_to_quantify]
+    elif not isinstance(dfs_to_quantify, list):
+        raise ValueError("dfs_to_quantify must be either 'unfiltered', 'filtered', or a list containing both.")
+
+    valid_values = {'unfiltered', 'filtered'}
+    if set(dfs_to_quantify) - valid_values:
+        raise ValueError(
+            f"Invalid value in dfs_to_quantify: {dfs_to_quantify}. "
+            f"Valid options are 'unfiltered', 'filtered', or both in a list."
+        ) 
+    
     # Merge arm activity predictions with timestamps
     df = merge_predictions_with_timestamps(
         df_ts=df_timestamps, 
@@ -562,9 +586,16 @@ def quantify_arm_swing(
         format='timestamps'
     )
 
+    if df.empty:
+        raise ValueError("No segments found in the input data.")
+
     # If no arm swing data is remaining, return an empty dictionary
     if df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].empty:
-        return {}
+        
+        if 'filtered' in dfs_to_quantify and len(dfs_to_quantify) == 1:
+            raise ValueError("No gait without other arm activities to quantify.")
+        
+        dfs_to_quantify = [x for x in dfs_to_quantify if x != 'filtered']
 
     df[DataColumns.SEGMENT_CAT] = categorize_segments(
         df=df,
@@ -579,15 +610,15 @@ def quantify_arm_swing(
     )
 
     # Group and process segments
-    segment_results = {}
-    segment_results_aggregated = {}
+    arm_swing_quantified = {}
+    segment_meta = {}
 
-    for df_name in ['unfiltered', 'filtered']:    
+    # If both unfiltered and filtered gait are to be quantified, start with the unfiltered data
+    # and subset to get filtered data afterwards.
+    dfs_to_quantify = sorted(dfs_to_quantify)
 
-        if df.empty:
-            print(f"No segments found in {df_name} data.")
-            continue
-        elif df_name == 'filtered':
+    for df_name in dfs_to_quantify:    
+        if df_name == 'filtered':
             # Filter the DataFrame to only include predicted no other arm activity (1)
             df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True)
 
@@ -598,10 +629,11 @@ def quantify_arm_swing(
                 max_segment_gap_s=max_segment_gap_s
             )
 
-        segment_results[df_name] = {}
-        segment_results_aggregated[df_name] = {}
+        arm_swing_quantified[df_name] = []
+        segment_meta[df_name] = {}
 
         for segment_nr, group in df.groupby(DataColumns.SEGMENT_NR, sort=False):
+            segment_cat = group[DataColumns.SEGMENT_CAT].iloc[0]
             time_array = group[DataColumns.TIME].to_numpy()
             velocity_array = group[DataColumns.VELOCITY].to_numpy()
 
@@ -617,14 +649,13 @@ def quantify_arm_swing(
                 fs=fs,
             )
 
-            feature_dict = {
+            segment_meta[df_name][segment_nr] = {
                 'time_s': len(angle_array) / fs,
-                DataColumns.SEGMENT_NR: segment_nr,
-                DataColumns.SEGMENT_CAT: group[DataColumns.SEGMENT_CAT].iloc[0]
+                DataColumns.SEGMENT_CAT: segment_cat
             }
 
             if angle_array.size > 0:  
-                angle_extrema_indices, minima_indices, maxima_indices = extract_angle_extremes(
+                angle_extrema_indices, _, _ = extract_angle_extremes(
                     angle_array=angle_array,
                     sampling_frequency=fs,
                     max_frequency_activity=1.75
@@ -632,101 +663,49 @@ def quantify_arm_swing(
 
                 if len(angle_extrema_indices) > 1:  # Requires at minimum 2 peaks
                     try:
-                        feature_dict[DataColumns.RANGE_OF_MOTION] = compute_range_of_motion(
+                        rom = compute_range_of_motion(
                             angle_array=angle_array,
                             extrema_indices=angle_extrema_indices,
                         )
                     except Exception as e:
-                        # Handle the error, set ROM to NaN, and log the error
+                        # Handle the error, set RoM to NaN, and log the error
                         print(f"Error computing range of motion for segment {segment_nr}: {e}")
-                        feature_dict[DataColumns.RANGE_OF_MOTION] = np.array([np.nan])
+                        rom = np.array([np.nan])
 
                     try:
-                        forward_pav, backward_pav = compute_peak_angular_velocity(
+                        pav = compute_peak_angular_velocity(
                             velocity_array=velocity_array,
-                            angle_extrema_indices=angle_extrema_indices,
-                            minima_indices=minima_indices,
-                            maxima_indices=maxima_indices,
+                            angle_extrema_indices=angle_extrema_indices
                         )
                     except Exception as e:
-                        # Handle the error, set velocities to NaN, and log the error
+                        # Handle the error, set pav to NaN, and log the error
                         print(f"Error computing peak angular velocity for segment {segment_nr}: {e}")
-                        forward_pav, backward_pav = np.array([np.nan]), np.array([np.nan])
+                        pav = np.array([np.nan])
 
-                    feature_dict[f'forward_{DataColumns.PEAK_VELOCITY}'] = forward_pav
-                    feature_dict[f'backward_{DataColumns.PEAK_VELOCITY}'] = backward_pav
+                    df_params_segment = pd.DataFrame({
+                        DataColumns.SEGMENT_NR: segment_nr,
+                        DataColumns.RANGE_OF_MOTION: rom,
+                        DataColumns.PEAK_VELOCITY: pav
+                    })
 
-            segment_results[df_name][segment_nr] = feature_dict
+                    arm_swing_quantified[df_name].append(df_params_segment)
 
-        segment_cats = df[DataColumns.SEGMENT_CAT].dropna().unique()
-
-        for segment_cat in segment_cats:
-            relevant_segments = [f for f in segment_results[df_name].values() if f[DataColumns.SEGMENT_CAT] == segment_cat]
-
-            if not relevant_segments:
-                continue
-
-            cat_results = {
-                'time_s': sum(f['time_s'] for f in relevant_segments),
-                DataColumns.RANGE_OF_MOTION: np.concatenate([
-                    f[DataColumns.RANGE_OF_MOTION] for f in relevant_segments if DataColumns.RANGE_OF_MOTION in f
-                ]).tolist(),
-                f'forward_{DataColumns.PEAK_VELOCITY}': np.concatenate([
-                    f[f'forward_{DataColumns.PEAK_VELOCITY}'] for f in relevant_segments if f'forward_{DataColumns.PEAK_VELOCITY}' in f
-                ]).tolist(),
-                f'backward_{DataColumns.PEAK_VELOCITY}': np.concatenate([
-                    f[f'backward_{DataColumns.PEAK_VELOCITY}'] for f in relevant_segments if f'backward_{DataColumns.PEAK_VELOCITY}' in f
-                ]).tolist(),
-            }
-
-            segment_results_aggregated[df_name][segment_cat] = cat_results
+        arm_swing_quantified[df_name] = pd.concat(arm_swing_quantified[df_name], ignore_index=True)
             
-    return segment_results_aggregated
+    return {df_name: arm_swing_quantified[df_name] for df_name in dfs_to_quantify}, segment_meta
 
 
-def quantify_arm_swing_io(
-        imu_config: IMUConfig, 
-        asq_config: ArmSwingQuantificationConfig,
-        path_to_timestamp_input: str | Path, 
-        path_to_prediction_input: str | Path, 
-        full_path_to_classifier_package: str | Path, 
-        full_path_to_output: str | Path
-    ) -> None:
-    # Load timestamps
-    metadata_time, metadata_values = read_metadata(path_to_timestamp_input, imu_config.meta_filename, imu_config.time_filename, imu_config.values_filename)
-    df_timestamps = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
-
-    # Load predictions
-    metadata_pred_time, metadata_pred_values = read_metadata(path_to_prediction_input, asq_config.meta_filename, asq_config.time_filename, asq_config.values_filename)
-    df_predictions = tsdf.load_dataframe_from_binaries([metadata_pred_time, metadata_pred_values], tsdf.constants.ConcatenationType.columns)
-
-    clf_package = ClassifierPackage.load(filepath=full_path_to_classifier_package)
-
-    quantification_dict = quantify_arm_swing(
-        df_timestamps=df_timestamps, 
-        df_predictions=df_predictions, 
-        classification_threshold=clf_package.threshold,
-        window_length_s=asq_config.window_length_s,
-        max_segment_gap_s=asq_config.max_segment_gap_s,
-        min_segment_length_s=asq_config.min_segment_length_s,
-        fs=imu_config.sampling_frequency
-    )
-
-    # Store data as json
-    os.makedirs(os.path.dirname(full_path_to_output), exist_ok=True)
-
-    with open(full_path_to_output, 'w') as f:
-        json.dump(quantification_dict, f)
-
-
-def aggregate_quantification_dict(quantification_dict: dict, aggregates: List[str] = ['median']) -> dict:
+def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: dict, aggregates: List[str] = ['median']) -> dict:
     """
     Aggregate the quantification results for arm swing parameters.
     
     Parameters
     ----------
-    quantification_dict : dict
-        A dictionary containing the quantification results for arm swing parameters, segmented by filtered and unfiltered gait.
+    df_arm_swing_params : pd.DataFrame
+        A dataframe containing the arm swing parameters to be aggregated
+
+    segment_meta : dict
+        A dictionary containing metadata for each segment.
         
     aggregates : List[str], optional
         A list of aggregation methods to apply to the quantification results.
@@ -736,36 +715,23 @@ def aggregate_quantification_dict(quantification_dict: dict, aggregates: List[st
     dict
         A dictionary containing the aggregated quantification results for arm swing parameters.
     """
-    aggregated_results = {}
-    for df_name, df_dict in quantification_dict.items():
-        aggregated_results[df_name] = {}
+    uq_segment_cats = set([segment_meta[x][DataColumns.SEGMENT_CAT] for x in df_arm_swing_params[DataColumns.SEGMENT_NR].unique()])
 
-        for segment_cat, segment_data in df_dict.items():
-            aggregated_results[df_name][segment_cat] = {
-                'time_s': sum(segment_data['time_s'])
-            }
-            
-            for aggregate in aggregates:
-                aggregated_results[df_name][segment_cat][f'{aggregate}_{DataColumns.RANGE_OF_MOTION}'] = aggregate_parameter(segment_data[DataColumns.RANGE_OF_MOTION], aggregate)
-                aggregated_results[df_name][segment_cat][f'{aggregate}_forward_{DataColumns.PEAK_VELOCITY}'] = aggregate_parameter(segment_data[f'forward_{DataColumns.PEAK_VELOCITY}'], aggregate)
-                aggregated_results[df_name][segment_cat][f'{aggregate}_backward_{DataColumns.PEAK_VELOCITY}'] = aggregate_parameter(segment_data[f'backward_{DataColumns.PEAK_VELOCITY}'], aggregate)
+    aggregated_results = {}
+    for segment_cat in uq_segment_cats:
+        cat_segments = [x for x in segment_meta.keys() if segment_meta[x][DataColumns.SEGMENT_CAT] == segment_cat]
+
+        aggregated_results[segment_cat] = {
+            'time_s': sum([segment_meta[x]['time_s'] for x in cat_segments])
+        }
+
+        df_arm_swing_params_cat = df_arm_swing_params[df_arm_swing_params[DataColumns.SEGMENT_NR].isin(cat_segments)]
+        
+        for aggregate in aggregates:
+            aggregated_results[segment_cat][f'{aggregate}_{DataColumns.RANGE_OF_MOTION}'] = aggregate_parameter(df_arm_swing_params_cat[DataColumns.RANGE_OF_MOTION], aggregate)
+            aggregated_results[segment_cat][f'{aggregate}_forward_{DataColumns.PEAK_VELOCITY}'] = aggregate_parameter(df_arm_swing_params_cat[DataColumns.PEAK_VELOCITY], aggregate)
 
     return aggregated_results
-
-
-def aggregate_quantification_dict_io(full_path_to_input: str | Path, full_path_to_output, aggregates: List[str] = ['median']) -> None:
-    # Load quantification results
-    with open(full_path_to_input, 'r') as f:
-        quantification_dict = json.load(f)
-
-    # Aggregate quantification results
-    aggregated_results = aggregate_quantification_dict(quantification_dict, aggregates)
-
-    # Store aggregated results as json
-    os.makedirs(os.path.dirname(full_path_to_output), exist_ok=True)
-
-    with open(full_path_to_output, 'w') as f:
-        json.dump(aggregated_results, f)
 
 
 def merge_predictions_with_timestamps(
