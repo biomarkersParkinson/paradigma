@@ -4,7 +4,6 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 from typing import Union
-from sklearn.linear_model import LogisticRegression
 from scipy.stats import gaussian_kde
 
 from paradigma.classification import ClassifierPackage
@@ -270,7 +269,7 @@ def aggregate_tremor_io(path_to_feature_input: Union[str, Path], path_to_predict
     metadata_time, metadata_values = read_metadata(path_to_feature_input, config.meta_filename, config.time_filename, config.values_filename)
     df_features = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
-    metadata_dict = tsdf.load_metadata_from_path(Path(path_to_prediction_input, config.meta_filename))
+    metadata_dict = tsdf.load_metadata_from_path(path_to_prediction_input / config.meta_filename)
     metadata_time = metadata_dict[config.time_filename]
     metadata_values = metadata_dict[config.values_filename]
     df_predictions = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
@@ -285,5 +284,5 @@ def aggregate_tremor_io(path_to_feature_input: Union[str, Path], path_to_predict
     d_aggregates = aggregate_tremor(df, config)
 
     # Save output
-    with open(Path(output_path,"tremor_aggregates.json"), 'w') as json_file:
+    with open(output_path / "tremor_aggregates.json", 'w') as json_file:
         json.dump(d_aggregates, json_file, indent=4)
