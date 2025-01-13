@@ -326,11 +326,6 @@ class TremorDetectionConfig(TremorBaseConfig):
     def __init__(self) -> None:
         super().__init__()
 
-        self.coefficients_file_name = "tremor_detection_coefficients.txt"
-        self.thresholds_file_name = "tremor_detection_threshold.txt"
-        self.mean_scaling_file_name = "tremor_detection_mean_scaling.txt"
-        self.std_scaling_file_name = "tremor_detection_std_scaling.txt"
-
         self.fmin_peak: float = self.fmin_tremor_power
         self.fmax_peak: float = self.fmax_tremor_power
 
