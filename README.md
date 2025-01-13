@@ -20,7 +20,7 @@ And analyses of the following motor and non-motor domains:
 ## More about ParaDigMa
 The components of ParaDigMa are visually shown in the diagram below.
 
-![Pipeline Architecture](https://raw.githubusercontent.com/biomarkersParkinson/paradigma/update-readme/docs/source/_static/img/pipeline-architecture.png)
+![Pipeline Architecture](docs/source/_static/img/pipeline-architecture.png)
 
 #### Processes
 ParaDigMa can best be understood by categorizing the sequential processes:
