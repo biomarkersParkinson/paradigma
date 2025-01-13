@@ -1,7 +1,9 @@
+import pandas as pd
 from pathlib import Path
 
 from paradigma.gait.gait_analysis import filter_gait_io, detect_gait_io, extract_arm_activity_features_io, extract_gait_features_io
-from paradigma.config import FilteringGaitConfig, ArmActivityFeatureExtractionConfig, ArmSwingQuantificationConfig, GaitDetectionConfig, GaitFeatureExtractionConfig
+from paradigma.config import FilteringGaitConfig, ArmActivityFeatureExtractionConfig, GaitDetectionConfig, GaitFeatureExtractionConfig
+from paradigma.util import load_tsdf_dataframe
 from test_notebooks import compare_data
 
 
@@ -49,6 +51,10 @@ def test_2_extract_features_gait_output(shared_datadir: Path):
     path_to_tested_output = path_to_reference_output / "test-output"
 
     config = GaitFeatureExtractionConfig()
+    df_accel, _, _ = load_tsdf_dataframe(path_to_preprocessed_input, prefix='accelerometer')
+    df_gyro, _, _ = load_tsdf_dataframe(path_to_preprocessed_input, prefix='gyroscope')
+    df = pd.merge(df_accel, df_gyro, on='time')
+
     extract_gait_features_io(
         config=config, 
         path_to_input=path_to_preprocessed_input, 
@@ -155,24 +161,3 @@ def test_5_arm_swing_detection_output(shared_datadir: Path):
         tested_dir=path_to_tested_output, 
         binaries_pairs=arm_activity_binaries_pairs
     )
-
-
-# def test_6_arm_swing_quantification_output(shared_datadir: Path):
-#     """
-#     This function is used to evaluate the output of the arm swing quantification. It evaluates it by comparing the output to a reference output.
-#     """
-
-#     feature_input_dir_name: str = "3.extracted_features"
-#     prediction_input_dir_name: str = "4.predictions"
-#     output_dir_name: str = "5.quantification"
-#     data_type: str = "gait"
-
-#     # Temporary path to store the output of the notebook
-#     path_to_feature_input = shared_datadir / feature_input_dir_name / data_type
-#     path_to_prediction_input = shared_datadir / prediction_input_dir_name / data_type
-#     reference_output_path = shared_datadir / output_dir_name / data_type
-#     tested_output_path = reference_output_path / "test-output"
-
-#     config = ArmSwingQuantificationConfig()
-#     quantify_arm_swing_io(path_to_feature_input, path_to_prediction_input, tested_output_path, config)
-#     compare_data(reference_output_path, tested_output_path, arm_swing_binaries_pairs)
