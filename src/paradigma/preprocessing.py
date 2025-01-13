@@ -244,7 +244,7 @@ def preprocess_imu_data_io(path_to_input: str | Path, path_to_output: str | Path
             write_df_data(metadata_time, metadata_values, path_to_output, f'{sensor}_meta.json', df_sensor)
 
 
-def scan_and_sync_segments(input_path_ppg, input_path_imu):
+def scan_and_sync_segments(input_path_ppg: str, input_path_imu: str) -> Tuple[List[tsdf.TSDFMetadata], List[tsdf.TSDFMetadata]]:
     """
     Scan for available TSDF metadata files in the specified directories and synchronize the data segments based on the metadata start and end times.
 
@@ -309,9 +309,9 @@ def preprocess_ppg_data(df_ppg: pd.DataFrame, df_imu: pd.DataFrame, ppg_config: 
     df_acc = df_imu.drop(cols_to_drop, axis=1)
 
     # Extract overlapping segments
-    print("Shape of the original data:", df_ppg.shape, df_acc.shape)
+    print(f"Original data shapes:\n- PPG data: {df_ppg.shape}\n- Accelerometer data: {df_acc.shape}")
     df_ppg_overlapping, df_acc_overlapping = extract_overlapping_segments(df_ppg, df_acc)
-    print("Shape of the overlapping segments:", df_ppg_overlapping.shape, df_acc_overlapping.shape)
+    print(f"Overlapping data shapes:\n- PPG data: {df_ppg_overlapping.shape}\n- Accelerometer data: {df_acc_overlapping.shape}")
     
     # Resample accelerometer data
     df_acc_proc = resample_data(
@@ -372,12 +372,10 @@ def preprocess_ppg_data_io(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf
         Metadata for the IMU data.
     output_path : Union[str, Path]
         Path to store the preprocessed data.
-    ppg_config : PPGPreprocessingConfig
+    ppg_config : PPGConfig
         Configuration object for PPG preprocessing.
-    imu_config : IMUPreprocessingConfig
+    imu_config : IMUConfig
         Configuration object for IMU preprocessing.
-    sensor: str
-        Name of the sensor data to be preprocessed. 
 
     Returns
     -------

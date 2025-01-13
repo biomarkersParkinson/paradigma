@@ -249,7 +249,7 @@ def estimate_heart_rate(df_sqa: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame,
         t_hr_rel[hr_pos:hr_pos + n_hr] = hr_time
         hr_pos += n_hr
 
-    df_hr = pd.DataFrame({"rel_time": t_hr_rel, "heart_rate": v_hr_rel})
+    df_hr = pd.DataFrame({"time": t_hr_rel, "heart_rate": v_hr_rel})
 
     return df_hr
 
