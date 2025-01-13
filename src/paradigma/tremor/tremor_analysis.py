@@ -10,8 +10,8 @@ from paradigma.classification import ClassifierPackage
 from paradigma.constants import DataColumns
 from paradigma.config import TremorFeatureExtractionConfig, TremorDetectionConfig, TremorAggregationConfig
 from paradigma.tremor.feature_extraction import extract_spectral_domain_features
-from paradigma.segmenting import tabulate_windows
-from paradigma.util import get_end_iso8601, write_df_data, read_metadata, aggregate_parameter, WindowedDataExtractor
+from paradigma.segmenting import tabulate_windows, WindowedDataExtractor
+from paradigma.util import get_end_iso8601, write_df_data, read_metadata, aggregate_parameter
 
 
 def extract_tremor_features(df: pd.DataFrame, config: TremorFeatureExtractionConfig) -> pd.DataFrame:
