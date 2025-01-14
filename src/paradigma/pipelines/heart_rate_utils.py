@@ -329,7 +329,7 @@ class TimeFreqDistr:
         
         return tfd
 
-    def get_analytic_signal(self, x):
+    def get_analytic_signal(self, x: np.ndarray) -> np.ndarray:
         """
         Generates the signals analytic version.
 
@@ -355,7 +355,7 @@ class TimeFreqDistr:
         
         return z
 
-    def gen_analytic(self, x):
+    def gen_analytic(self, x: np.ndarray) -> np.ndarray:
         """
         Generates an analytic signal by zero-padding and performing FFT.
 
@@ -671,7 +671,7 @@ class TimeFreqDistr:
         
         return win
 
-    def shift_window(w):
+    def shift_window(self, w: np.ndarray) -> np.ndarray:
         """
         Shift the window so that positive indices appear first.
         
@@ -688,7 +688,7 @@ class TimeFreqDistr:
         N = len(w)
         return np.roll(w, N // 2)
 
-    def pad_window(w, Npad):
+    def pad_window(self, w: np.ndarray, Npad: int) -> np.ndarray:
         """
         Zero-pad the window to a specified length.
         
@@ -730,7 +730,12 @@ class TimeFreqDistr:
         
         return w_pad
 
-    def compute_tfd(N, Nh, tfd):
+    def compute_tfd(
+            self, 
+            N: int, 
+            Nh: int, 
+            tfd: np.ndarray
+        ):
         """
         Finalizes the time-frequency distribution computation.
 
@@ -740,12 +745,12 @@ class TimeFreqDistr:
             Size of the TFD.
         Nh : int
             Half-length parameter.
-        tfd : ndarray
+        tfd : np.ndarray
             Time-frequency distribution to be finalized.
 
         Returns:
         --------
-        tfd : ndarray
+        tfd : np.ndarray
             Final computed TFD (N,N).
         """
         m = np.arange(0, Nh)  # m = 0:(Nh-1)
