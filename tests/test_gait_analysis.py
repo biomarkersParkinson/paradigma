@@ -1,7 +1,7 @@
 import pandas as pd
 from pathlib import Path
 
-from paradigma.gait.gait_analysis import filter_gait_io, detect_gait_io, extract_arm_activity_features_io, extract_gait_features_io
+from paradigma.pipelines.gait_pipeline import filter_gait_io, detect_gait_io, extract_arm_activity_features_io, extract_gait_features_io
 from paradigma.config import FilteringGaitConfig, ArmActivityFeatureExtractionConfig, GaitDetectionConfig, GaitFeatureExtractionConfig
 from paradigma.util import load_tsdf_dataframe
 from test_notebooks import compare_data

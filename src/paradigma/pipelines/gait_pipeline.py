@@ -2,6 +2,7 @@ import numpy as np
 import os
 import pandas as pd
 from pathlib import Path
+from scipy.signal import periodogram
 from typing import List, Tuple
 import tsdf
 
@@ -9,11 +10,12 @@ from paradigma.classification import ClassifierPackage
 from paradigma.constants import DataColumns, TimeUnit
 from paradigma.config import GaitFeatureExtractionConfig, GaitDetectionConfig, ArmActivityFeatureExtractionConfig, \
     FilteringGaitConfig
-from paradigma.gait.feature_extraction import extract_temporal_domain_features, \
-    extract_spectral_domain_features, pca_transform_gyroscope, compute_angle, remove_moving_average_angle, \
+from paradigma.feature_extraction import compute_statistics, compute_std_euclidean_norm, \
+    compute_power_in_bandwidth, compute_dominant_frequency, compute_total_power, compute_mfccs, \
+    pca_transform_gyroscope, compute_angle, remove_moving_average_angle, \
     extract_angle_extremes, compute_range_of_motion, compute_peak_angular_velocity
 from paradigma.segmenting import tabulate_windows, create_segments, discard_segments, categorize_segments, WindowedDataExtractor
-from paradigma.util import aggregate_parameter, read_metadata, write_df_data, get_end_iso8601
+from paradigma.util import aggregate_parameter, merge_predictions_with_timestamps, read_metadata, write_df_data, get_end_iso8601
 
 
 def extract_gait_features(
@@ -36,7 +38,7 @@ def extract_gait_features(
         The input DataFrame containing gait data, which includes time, accelerometer, and gravity sensor data. The data should be
         structured with the necessary columns as specified in the `config`.
 
-    onfig : GaitFeatureExtractionConfig
+    config : GaitFeatureExtractionConfig
         Configuration object containing parameters for feature extraction, including column names for time, accelerometer data, and
         gravity data, as well as settings for windowing, and feature computation.
 
@@ -115,7 +117,7 @@ def extract_gait_features_io(
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
     # Extract gait features
-    df_features = extract_gait_features(config=config, df=df)
+    df_features = extract_gait_features(df=df, config=config)
 
     # Store data
     end_iso8601 = get_end_iso8601(start_iso8601=metadata_time.start_iso8601,
@@ -734,83 +736,125 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
     return aggregated_results
 
 
-def merge_predictions_with_timestamps(
-        df_ts: pd.DataFrame, 
-        df_predictions: pd.DataFrame, 
-        pred_proba_colname: str,
-        window_length_s: float, 
-        fs: int
-    ) -> pd.DataFrame:
+def extract_temporal_domain_features(
+        config, 
+        windowed_acc: np.ndarray, 
+        windowed_grav: np.ndarray, 
+        grav_stats: List[str] = ['mean']
+        ) -> pd.DataFrame:
     """
-    Merges prediction probabilities with timestamps by expanding overlapping windows
-    into individual timestamps and averaging probabilities per unique timestamp.
+    Compute temporal domain features for the accelerometer signal.
 
-    Parameters:
+    This function calculates various statistical features for the gravity signal 
+    and computes the standard deviation of the accelerometer's Euclidean norm.
+
+    Parameters
     ----------
-    df_ts : pd.DataFrame
-        DataFrame containing timestamps to be merged with predictions.
-        Must include the timestamp column specified in `DataColumns.TIME`.
+    config : object
+        Configuration object containing the accelerometer and gravity column names.
+    windowed_acc : numpy.ndarray
+        A 2D numpy array of shape (N, M) where N is the number of windows and M is 
+        the number of accelerometer values per window.
+    windowed_grav : numpy.ndarray
+        A 2D numpy array of shape (N, M) where N is the number of windows and M is 
+        the number of gravity signal values per window.
+    grav_stats : list of str, optional
+        A list of statistics to compute for the gravity signal (default is ['mean']).
 
-    df_predictions : pd.DataFrame
-        DataFrame containing prediction windows with start times and probabilities.
-        Must include:
-        - A column for window start times (defined by `DataColumns.TIME`).
-        - A column for prediction probabilities (defined by `DataColumns.PRED_GAIT_PROBA`).
-
-    pred_proba_colname : str
-        The column name for the prediction probabilities in `df_predictions`.
-
-    window_length_s : float
-        The length of the prediction window in seconds.
-
-    fs : int
-        The sampling frequency of the data.
-        
-    Returns:
+    Returns
     -------
     pd.DataFrame
-        Updated `df_ts` with an additional column for averaged prediction probabilities.
-
-    Steps:
-    ------
-    1. Expand prediction windows into individual timestamps using NumPy broadcasting.
-    2. Flatten the timestamps and prediction probabilities into single arrays.
-    3. Aggregate probabilities by unique timestamps using pandas `groupby`.
-    4. Merge the aggregated probabilities with the input `df_ts`.
-
-    Notes:
-    ------
-    - Rounding is applied to timestamps to mitigate floating-point inaccuracies.
-    - Fully vectorized for speed and scalability, avoiding any row-wise operations.
+        A DataFrame containing the computed features, with each row corresponding 
+        to a window and each column representing a specific feature.
     """
-    # Step 1: Generate all timestamps for prediction windows using NumPy broadcasting
-    window_length = int(window_length_s * fs)
-    timestamps = (
-        df_predictions[DataColumns.TIME].values[:, None] +
-        np.arange(0, window_length) / fs
+    # Compute gravity statistics (e.g., mean, std, etc.)
+    feature_dict = {}
+    for stat in grav_stats:
+        stats_result = compute_statistics(data=windowed_grav, statistic=stat)
+        for i, col in enumerate(config.gravity_cols):
+            feature_dict[f'{col}_{stat}'] = stats_result[:, i]
+
+    # Compute standard deviation of the Euclidean norm of the accelerometer signal
+    feature_dict['accelerometer_std_norm'] = compute_std_euclidean_norm(data=windowed_acc)
+
+    return pd.DataFrame(feature_dict)
+
+
+def extract_spectral_domain_features(
+        config, 
+        sensor: str, 
+        windowed_data: np.ndarray
+    ) -> pd.DataFrame:
+    """
+    Compute spectral domain features for a sensor's data.
+
+    This function computes the periodogram, extracts power in specific frequency bands, 
+    calculates the dominant frequency, and computes Mel-frequency cepstral coefficients (MFCCs) 
+    for a given sensor's windowed data.
+
+    Parameters
+    ----------
+    config : object
+        Configuration object containing settings such as sampling frequency, window type, 
+        frequency bands, and MFCC parameters.
+    sensor : str
+        The name of the sensor (e.g., 'accelerometer', 'gyroscope').
+    windowed_data : numpy.ndarray
+        A 2D numpy array where each row corresponds to a window of sensor data.
+
+    Returns
+    -------
+    dict
+        The updated feature dictionary containing the extracted spectral features, including 
+        power in frequency bands, dominant frequencies, and MFCCs for each window.
+    """
+    # Initialize a dictionary to hold the results
+    feature_dict = {}
+
+    # Compute periodogram (power spectral density)
+    freqs, psd = periodogram(
+        x=windowed_data, 
+        fs=config.sampling_frequency, 
+        window=config.window_type, 
+        axis=1
     )
-    
-    # Flatten timestamps and probabilities into a single array for efficient processing
-    flat_timestamps = timestamps.ravel()
-    flat_proba = np.repeat(
-        df_predictions[pred_proba_colname].values,
-        window_length
+
+    # Compute power in specified frequency bands
+    for band_name, band_freqs in config.d_frequency_bandwidths.items():
+        band_powers = compute_power_in_bandwidth(
+            freqs=freqs,
+            psd=psd, 
+            fmin=band_freqs[0],
+            fmax=band_freqs[1],
+        )
+        for i, col in enumerate(config.axes):
+            feature_dict[f'{sensor}_{col}_{band_name}'] = band_powers[:, i]
+
+    # Compute dominant frequency for each axis
+    dominant_frequencies = compute_dominant_frequency(
+        freqs=freqs, 
+        psd=psd, 
+        fmin=config.spectrum_low_frequency, 
+        fmax=config.spectrum_high_frequency
     )
 
-    # Step 2: Create a DataFrame for expanded data
-    expanded_df = pd.DataFrame({
-        DataColumns.TIME: flat_timestamps,
-        pred_proba_colname: flat_proba
-    })
+    # Add dominant frequency features to the feature_dict
+    for axis, freq in zip(config.axes, dominant_frequencies.T):
+        feature_dict[f'{sensor}_{axis}_dominant_frequency'] = freq
 
-    # Step 3: Round timestamps and aggregate probabilities
-    expanded_df[DataColumns.TIME] = expanded_df[DataColumns.TIME].round(2)
-    mean_proba = expanded_df.groupby(DataColumns.TIME, as_index=False).mean()
+    # Compute total power in the PSD
+    total_power_psd = compute_total_power(psd)
 
-    # Step 4: Round timestamps in `df_ts` and merge
-    df_ts[DataColumns.TIME] = df_ts[DataColumns.TIME].round(2)
-    df_ts = pd.merge(df_ts, mean_proba, how='left', on=DataColumns.TIME)
-    df_ts = df_ts.dropna(subset=[pred_proba_colname])
+    # Compute MFCCs
+    mfccs = compute_mfccs(
+        total_power_array=total_power_psd,
+        config=config,
+        multiplication_factor=4
+    )
 
-    return df_ts
+    # Combine the MFCCs into the features DataFrame
+    mfcc_colnames = [f'{sensor}_mfcc_{x}' for x in range(1, config.mfcc_n_coefficients + 1)]
+    for i, colname in enumerate(mfcc_colnames):
+        feature_dict[colname] = mfccs[:, i]
 
+    return pd.DataFrame(feature_dict)
