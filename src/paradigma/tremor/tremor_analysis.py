@@ -173,6 +173,8 @@ def detect_tremor(df: pd.DataFrame, config: TremorConfig, full_path_to_classifie
 def detect_tremor_io(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: TremorConfig) -> None:
     
     # Load the data
+    config.set_filenames('tremor')
+
     metadata_time, metadata_values = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 

@@ -5,14 +5,14 @@
     "ppp_source_protobuf": "WatchData.IMU.Week104.raw",
     "metadata_version": "0.1",
     "start_iso8601": "2021-06-27T16:52:20Z",
-    "end_iso8601": "2021-06-27T17:03:03Z",
-    "rows": 53,
+    "end_iso8601": "2021-06-27T17:04:31Z",
+    "rows": 73079,
     "endianness": "little",
     "data_type": "float",
     "bits": 64,
     "sensors": [
         {
-            "file_name": "arm_activity_time.bin",
+            "file_name": "gyroscope_time.bin",
             "channels": [
                 "time"
             ],
@@ -21,12 +21,16 @@
             ]
         },
         {
-            "file_name": "arm_activity_values.bin",
+            "file_name": "gyroscope_values.bin",
             "channels": [
-                "pred_no_other_arm_activity_proba"
+                "gyroscope_x",
+                "gyroscope_y",
+                "gyroscope_z"
             ],
             "units": [
-                "probability"
+                "deg/s",
+                "deg/s",
+                "deg/s"
             ],
             "scale_factors": []
         }

@@ -195,6 +195,8 @@ def detect_gait_io(
     ) -> None:
     
     # Load the data
+    config.set_filenames('gait')
+
     metadata_time, metadata_values = read_metadata(path_to_input, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
@@ -395,6 +397,7 @@ def extract_arm_activity_features_io(
     clf_package = ClassifierPackage.load(full_path_to_classifier_package)
 
     # Extract arm activity features
+    config = GaitConfig(step='arm_activity')
     df_features = extract_arm_activity_features(
         config=config,
         df_timestamps=df_ts, 
@@ -471,6 +474,8 @@ def filter_gait_io(
         full_path_to_classifier_package: str | Path, 
     ) -> None:
     # Load the data
+    config.set_filenames('arm_activity')
+
     metadata_time, metadata_values = read_metadata(path_to_input, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 

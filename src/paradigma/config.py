@@ -2,11 +2,35 @@ from typing import Dict, List
 from paradigma.constants import DataColumns, DataUnits
 import numpy as np
 
-# Signal preprocessing configs
-class IMUConfig():
+class BaseConfig:
+    def __init__(self) -> None:
+        self.meta_filename = ''
+        self.values_filename = ''
+        self.time_filename = ''
+
+    def set_sensor(self, sensor: str) -> None:
+        """Sets the sensor and derived filenames"""
+        self.sensor: str = sensor
+        self.set_filenames(sensor)
+
+    def set_filenames(self, prefix: str) -> None:
+        """Sets the filenames based on the prefix. This method is duplicated from `gaits_analysis_config.py`.
+        
+        Parameters
+        ----------
+        prefix : str
+            The prefix for the filenames.
+        """
+        self.meta_filename = f"{prefix}_meta.json"
+        self.time_filename = f"{prefix}_time.bin"
+        self.values_filename = f"{prefix}_values.bin"
+
+class IMUConfig(BaseConfig):
 
     def __init__(self) -> None:
         super().__init__()
+
+        self.set_filenames('IMU')
 
         self.acceleration_units = DataUnits.ACCELERATION
         self.rotation_units = DataUnits.ROTATION
@@ -47,10 +71,12 @@ class IMUConfig():
         self.filter_order = 4
 
 
-class PPGConfig():
+class PPGConfig(BaseConfig):
 
     def __init__(self) -> None:
         super().__init__()
+
+        self.set_filenames('PPG')
 
         self.ppg_colname = DataColumns.PPG
 
@@ -69,6 +95,8 @@ class GaitConfig(IMUConfig):
 
     def __init__(self, step) -> None:
         super().__init__()
+
+        self.set_sensor('accelerometer')
 
         # ----------
         # Segmenting
@@ -146,7 +174,7 @@ class GaitConfig(IMUConfig):
 
 class TremorConfig(IMUConfig):
 
-    def __init__(self, step: str = None) -> None:
+    def __init__(self, step: str | None = None) -> None:
         """
         Parameters
         ----------
@@ -154,6 +182,8 @@ class TremorConfig(IMUConfig):
             The step of the tremor pipeline. Can be 'features' or 'classification'.
         """
         super().__init__()
+
+        self.set_sensor('gyroscope')
 
         # ----------
         # Segmenting
@@ -233,6 +263,9 @@ class HeartRateConfig(PPGConfig):
         self.bandwidth = 0.2   # Hz      
         self.freq_bin_resolution = 0.05 # Hz
 
+        self.classifier_file_name = "ppg_quality_classifier.pkl"
+        self.threshold_file_name = "ppg_acc_quality_threshold.txt"
+
         # ---------------------
         # Heart rate estimation
         # ---------------------
@@ -266,7 +299,7 @@ class HeartRateConfig(PPGConfig):
 
     def set_sensor(self, sensor):
         self.sensor = sensor 
-        
+
         if sensor not in ['ppg', 'imu']:
             raise ValueError(f"Invalid sensor type: {sensor}")
         
