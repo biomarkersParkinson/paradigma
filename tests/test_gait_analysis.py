@@ -51,9 +51,9 @@ def test_2_extract_features_gait_output(shared_datadir: Path):
     path_to_tested_output = path_to_reference_output / "test-output"
 
     config = GaitFeatureExtractionConfig()
-    df_accel, _, _ = load_tsdf_dataframe(path_to_preprocessed_input, prefix='accelerometer')
-    df_gyro, _, _ = load_tsdf_dataframe(path_to_preprocessed_input, prefix='gyroscope')
-    df = pd.merge(df_accel, df_gyro, on='time')
+    # df_accel, _, _ = load_tsdf_dataframe(path_to_preprocessed_input, prefix='accelerometer')
+    # df_gyro, _, _ = load_tsdf_dataframe(path_to_preprocessed_input, prefix='gyroscope')
+    # df = pd.merge(df_accel, df_gyro, on='time')
 
     extract_gait_features_io(
         config=config, 

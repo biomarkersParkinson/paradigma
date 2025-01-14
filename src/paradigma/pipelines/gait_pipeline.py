@@ -222,9 +222,9 @@ def detect_gait_io(
 
 
 def extract_arm_activity_features(
-        config: ArmActivityFeatureExtractionConfig,
         df_timestamps: pd.DataFrame, 
         df_predictions: pd.DataFrame,
+        config: ArmActivityFeatureExtractionConfig,
         threshold: float
     ) -> pd.DataFrame:
     """
@@ -242,14 +242,14 @@ def extract_arm_activity_features(
 
     Parameters
     ----------
-    config : ArmActivityFeatureExtractionConfig
-        Configuration object containing column names and parameters for feature extraction.
-
     df_timestamps : pd.DataFrame
         A DataFrame containing the raw sensor data, including accelerometer, gravity, and gyroscope columns.
 
     df_predictions : pd.DataFrame
         A DataFrame containing the predicted probabilities for gait activity per window.
+
+    config : ArmActivityFeatureExtractionConfig
+        Configuration object containing column names and parameters for feature extraction.
 
     path_to_classifier_input : str | Path
         The path to the directory containing the classifier files and other necessary input files for feature extraction.
@@ -781,9 +781,9 @@ def extract_temporal_domain_features(
 
 
 def extract_spectral_domain_features(
+        windowed_data: np.ndarray,
         config, 
         sensor: str, 
-        windowed_data: np.ndarray
     ) -> pd.DataFrame:
     """
     Compute spectral domain features for a sensor's data.
@@ -794,19 +794,21 @@ def extract_spectral_domain_features(
 
     Parameters
     ----------
-    config : object
-        Configuration object containing settings such as sampling frequency, window type, 
-        frequency bands, and MFCC parameters.
-    sensor : str
-        The name of the sensor (e.g., 'accelerometer', 'gyroscope').
     windowed_data : numpy.ndarray
         A 2D numpy array where each row corresponds to a window of sensor data.
 
+    config : object
+        Configuration object containing settings such as sampling frequency, window type, 
+        frequency bands, and MFCC parameters.
+
+    sensor : str
+        The name of the sensor (e.g., 'accelerometer', 'gyroscope').
+    
     Returns
     -------
-    dict
-        The updated feature dictionary containing the extracted spectral features, including 
-        power in frequency bands, dominant frequencies, and MFCCs for each window.
+    pd.DataFrame
+        A DataFrame containing the computed spectral features, with each row corresponding 
+        to a window and each column representing a specific feature.
     """
     # Initialize a dictionary to hold the results
     feature_dict = {}
@@ -826,6 +828,7 @@ def extract_spectral_domain_features(
             psd=psd, 
             fmin=band_freqs[0],
             fmax=band_freqs[1],
+            include_max=False
         )
         for i, col in enumerate(config.axes):
             feature_dict[f'{sensor}_{col}_{band_name}'] = band_powers[:, i]
