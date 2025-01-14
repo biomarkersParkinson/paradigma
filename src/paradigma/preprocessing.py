@@ -244,7 +244,22 @@ def preprocess_imu_data_io(path_to_input: str | Path, path_to_output: str | Path
             write_df_data(metadata_time, metadata_values, path_to_output, f'{sensor}_meta.json', df_sensor)
 
 
-def scan_and_sync_segments(input_path_ppg, input_path_imu):
+def scan_and_sync_segments(input_path_ppg: str | Path, input_path_imu: str | Path) -> Tuple[List[tsdf.TSDFMetadata], List[tsdf.TSDFMetadata]]:
+    """
+    Scan for available TSDF metadata files in the specified directories and synchronize the data segments based on the metadata start and end times.
+
+    Parameters
+    ----------
+    input_path_ppg : str
+        Path to the directory containing PPG data.
+    input_path_imu : str
+        Path to the directory containing IMU data.
+
+    Returns
+    -------
+    Tuple[List[tsdf.TSDFMetadata], List[tsdf.TSDFMetadata]]
+        A tuple containing lists of metadata objects for PPG and IMU data, respectively.
+    """ 
 
     # Scan for available TSDF metadata files
     meta_ppg = extract_meta_from_tsdf_files(input_path_ppg)
@@ -262,11 +277,10 @@ def scan_and_sync_segments(input_path_ppg, input_path_imu):
     return metadatas_ppg, metadatas_imu
 
 
-def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TSDFMetadata, 
-                        output_path: Union[str, Path], ppg_config: PPGConfig, 
-                        imu_config: IMUConfig, store_locally:bool = True) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def preprocess_ppg_data(df_ppg: pd.DataFrame, df_imu: pd.DataFrame, ppg_config: PPGConfig, 
+                        imu_config: IMUConfig) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Preprocess PPG and IMU data by resampling, filtering, and aligning the data segments.
+    Preprocess PPG and IMU (accelerometer only) data by resampling, filtering, and aligning the data segments.
 
     Parameters
     ----------
@@ -289,24 +303,15 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
         Preprocessed PPG and IMU data as DataFrames.
     
     """
-    # Load PPG data
-    metadata_time_ppg = tsdf_meta_ppg[ppg_config.time_filename]
-    metadata_values_ppg = tsdf_meta_ppg[ppg_config.values_filename]
-    df_ppg = tsdf.load_dataframe_from_binaries([metadata_time_ppg, metadata_values_ppg], tsdf.constants.ConcatenationType.columns)
-
-    # Load IMU data
-    metadata_time_imu = tsdf_meta_imu[imu_config.time_filename]
-    metadata_values_imu = tsdf_meta_imu[imu_config.values_filename]
-    df_imu = tsdf.load_dataframe_from_binaries([metadata_time_imu, metadata_values_imu], tsdf.constants.ConcatenationType.columns)
 
     # Drop the gyroscope columns from the IMU data
     cols_to_drop = df_imu.filter(regex='^gyroscope_').columns
     df_acc = df_imu.drop(cols_to_drop, axis=1)
 
     # Extract overlapping segments
-    print("Shape of the original data:", df_ppg.shape, df_acc.shape)
+    print(f"Original data shapes:\n- PPG data: {df_ppg.shape}\n- Accelerometer data: {df_acc.shape}")
     df_ppg_overlapping, df_acc_overlapping = extract_overlapping_segments(df_ppg, df_acc)
-    print("Shape of the overlapping segments:", df_ppg_overlapping.shape, df_acc_overlapping.shape)
+    print(f"Overlapping data shapes:\n- PPG data: {df_ppg_overlapping.shape}\n- Accelerometer data: {df_acc_overlapping.shape}")
     
     # Resample accelerometer data
     df_acc_proc = resample_data(
@@ -350,25 +355,60 @@ def preprocess_ppg_data(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TS
 
         df_ppg_proc = df_ppg_proc.drop(columns=[col])
         df_ppg_proc = df_ppg_proc.rename(columns={f'filt_{col}': col})
-
-    if store_locally:
-        # Store data
-        metadata_values_imu.channels = list(imu_config.d_channels_accelerometer.keys())
-        metadata_values_imu.units = list(imu_config.d_channels_accelerometer.values())
-        metadata_values_imu.file_name = 'accelerometer_values.bin'
-        metadata_time_imu.units = [TimeUnit.ABSOLUTE_MS]
-        metadata_time_imu.file_name = 'accelerometer_time.bin'
-        write_df_data(metadata_time_imu, metadata_values_imu, output_path, 'accelerometer_meta.json', df_acc_proc)
-
-        metadata_values_ppg.channels = list(ppg_config.d_channels_ppg.keys())
-        metadata_values_ppg.units = list(ppg_config.d_channels_ppg.values())
-        metadata_values_ppg.file_name = 'PPG_values.bin'
-        metadata_time_ppg.units = [TimeUnit.ABSOLUTE_MS]
-        metadata_time_ppg.file_name = 'PPG_time.bin'
-        write_df_data(metadata_time_ppg, metadata_values_ppg, output_path, 'PPG_meta.json', df_ppg_proc)
     
     return df_ppg_proc, df_acc_proc
 
+def preprocess_ppg_data_io(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf.TSDFMetadata, 
+                        output_path: Union[str, Path], ppg_config: PPGConfig, 
+                           imu_config: IMUConfig) -> None:
+    """	
+    Preprocess PPG and IMU data by resampling, filtering, and aligning the data segments.
+
+    Parameters
+    ----------
+    tsdf_meta_ppg : tsdf.TSDFMetadata
+        Metadata for the PPG data.
+    tsdf_meta_imu : tsdf.TSDFMetadata
+        Metadata for the IMU data.
+    output_path : Union[str, Path]
+        Path to store the preprocessed data.
+    ppg_config : PPGConfig
+        Configuration object for PPG preprocessing.
+    imu_config : IMUConfig
+        Configuration object for IMU preprocessing.
+
+    Returns
+    -------
+    None
+    """ 
+
+    # Load PPG data
+    metadata_time_ppg = tsdf_meta_ppg[ppg_config.time_filename]
+    metadata_values_ppg = tsdf_meta_ppg[ppg_config.values_filename]
+    df_ppg = tsdf.load_dataframe_from_binaries([metadata_time_ppg, metadata_values_ppg], tsdf.constants.ConcatenationType.columns)
+
+    # Load IMU data
+    metadata_time_imu = tsdf_meta_imu[imu_config.time_filename]
+    metadata_values_imu = tsdf_meta_imu[imu_config.values_filename]
+    df_imu = tsdf.load_dataframe_from_binaries([metadata_time_imu, metadata_values_imu], tsdf.constants.ConcatenationType.columns)
+
+    # Preprocess data
+    df_ppg_proc, df_acc_proc = preprocess_ppg_data(df_ppg=df_ppg, df_imu=df_imu, ppg_config=ppg_config, imu_config=imu_config)
+
+    # Store data
+    metadata_values_imu.channels = list(imu_config.d_channels_accelerometer.keys())
+    metadata_values_imu.units = list(imu_config.d_channels_accelerometer.values())
+    metadata_values_imu.file_name = 'accelerometer_values.bin'
+    metadata_time_imu.units = [TimeUnit.ABSOLUTE_MS]
+    metadata_time_imu.file_name = 'accelerometer_time.bin'
+    write_df_data(metadata_time_imu, metadata_values_imu, output_path, 'accelerometer_meta.json', df_acc_proc)
+
+    metadata_values_ppg.channels = list(ppg_config.d_channels_ppg.keys())
+    metadata_values_ppg.units = list(ppg_config.d_channels_ppg.values())
+    metadata_values_ppg.file_name = 'PPG_values.bin'
+    metadata_time_ppg.units = [TimeUnit.ABSOLUTE_MS]
+    metadata_time_ppg.file_name = 'PPG_time.bin'
+    write_df_data(metadata_time_ppg, metadata_values_ppg, output_path, 'PPG_meta.json', df_ppg_proc)
 
 # TODO: ideally something like this should be possible directly in the tsdf library
 def extract_meta_from_tsdf_files(tsdf_data_dir : str) -> List[dict]:
