@@ -1,16 +1,16 @@
 import numpy as np
 from typing import Tuple
 
-from paradigma.config import HeartRateExtractionConfig
+from paradigma.config import HeartRateConfig
 from paradigma.heart_rate.tfd import nonsep_gdtfd
 
-def assign_sqa_label(ppg_prob: np.ndarray, config: HeartRateExtractionConfig, acc_label=None) -> np.ndarray:
+def assign_sqa_label(ppg_prob: np.ndarray, config: HeartRateConfig, acc_label=None) -> np.ndarray:
     """
     Assigns a signal quality label to every individual data point.
 
     Parameters:
     - ppg_prob: numpy array of probabilities for PPG
-    - config: HeartRateExtractionConfig object containing configuration parameters
+    - config: HeartRateConfig object containing configuration parameters
     - acc_label: numpy array of labels for accelerometer (optional)
 
     Returns:

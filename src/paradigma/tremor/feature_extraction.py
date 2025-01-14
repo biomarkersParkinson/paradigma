@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from scipy import signal
-from paradigma.constants import DataColumns
 from paradigma.gait.feature_extraction import compute_total_power
 
 def melscale(x):

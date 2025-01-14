@@ -7,8 +7,7 @@ import tsdf
 
 from paradigma.classification import ClassifierPackage
 from paradigma.constants import DataColumns, TimeUnit
-from paradigma.config import GaitFeatureExtractionConfig, GaitDetectionConfig, ArmActivityFeatureExtractionConfig, \
-    FilteringGaitConfig
+from paradigma.config import GaitConfig
 from paradigma.gait.feature_extraction import extract_temporal_domain_features, \
     extract_spectral_domain_features, pca_transform_gyroscope, compute_angle, remove_moving_average_angle, \
     extract_angle_extremes, compute_range_of_motion, compute_peak_angular_velocity
@@ -18,7 +17,7 @@ from paradigma.util import aggregate_parameter, read_metadata, write_df_data, ge
 
 def extract_gait_features(
         df: pd.DataFrame,
-        config: GaitFeatureExtractionConfig
+        config: GaitConfig
     ) -> pd.DataFrame:
     """
     Extracts gait features from accelerometer and gravity sensor data in the input DataFrame by computing temporal and spectral features.
@@ -36,7 +35,7 @@ def extract_gait_features(
         The input DataFrame containing gait data, which includes time, accelerometer, and gravity sensor data. The data should be
         structured with the necessary columns as specified in the `config`.
 
-    onfig : GaitFeatureExtractionConfig
+    onfig : GaitConfig
         Configuration object containing parameters for feature extraction, including column names for time, accelerometer data, and
         gravity data, as well as settings for windowing, and feature computation.
 
@@ -106,7 +105,7 @@ def extract_gait_features(
 
 
 def extract_gait_features_io(
-        config: GaitFeatureExtractionConfig,
+        config: GaitConfig,
         path_to_input: str | Path, 
         path_to_output: str | Path
     ) -> None:
@@ -189,7 +188,7 @@ def detect_gait(
 
 
 def detect_gait_io(
-        config: GaitDetectionConfig, 
+        config: GaitConfig, 
         path_to_input: str | Path, 
         path_to_output: str | Path, 
         full_path_to_classifier_package: str | Path, 
@@ -220,7 +219,7 @@ def detect_gait_io(
 
 
 def extract_arm_activity_features(
-        config: ArmActivityFeatureExtractionConfig,
+        config: GaitConfig,
         df_timestamps: pd.DataFrame, 
         df_predictions: pd.DataFrame,
         threshold: float
@@ -240,7 +239,7 @@ def extract_arm_activity_features(
 
     Parameters
     ----------
-    config : ArmActivityFeatureExtractionConfig
+    config : GaitConfig
         Configuration object containing column names and parameters for feature extraction.
 
     df_timestamps : pd.DataFrame
@@ -262,7 +261,7 @@ def extract_arm_activity_features(
         raise ValueError("No gait detected in the input data.")
     
     # Merge gait predictions with timestamps
-    gait_preprocessing_config = GaitFeatureExtractionConfig()
+    gait_preprocessing_config = GaitConfig(step='gait')
     df = merge_predictions_with_timestamps(
         df_ts=df_timestamps, 
         df_predictions=df_predictions, 
@@ -361,7 +360,7 @@ def extract_arm_activity_features(
 
 
 def extract_arm_activity_features_io(
-        config: ArmActivityFeatureExtractionConfig, 
+        config: GaitConfig, 
         path_to_timestamp_input: str | Path, 
         path_to_prediction_input: str | Path, 
         full_path_to_classifier_package: str | Path, 
@@ -466,7 +465,7 @@ def filter_gait(
 
 
 def filter_gait_io(
-        config: FilteringGaitConfig, 
+        config: GaitConfig, 
         path_to_input: str | Path, 
         path_to_output: str | Path, 
         full_path_to_classifier_package: str | Path, 

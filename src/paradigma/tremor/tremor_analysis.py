@@ -8,13 +8,13 @@ from scipy.stats import gaussian_kde
 
 from paradigma.classification import ClassifierPackage
 from paradigma.constants import DataColumns
-from paradigma.config import TremorFeatureExtractionConfig, TremorDetectionConfig, TremorAggregationConfig
+from paradigma.config import TremorConfig
 from paradigma.tremor.feature_extraction import extract_spectral_domain_features
 from paradigma.segmenting import tabulate_windows, WindowedDataExtractor
 from paradigma.util import get_end_iso8601, write_df_data, read_metadata, aggregate_parameter
 
 
-def extract_tremor_features(df: pd.DataFrame, config: TremorFeatureExtractionConfig) -> pd.DataFrame:
+def extract_tremor_features(df: pd.DataFrame, config: TremorConfig) -> pd.DataFrame:
     """
     This function groups sequences of timestamps into windows and subsequently extracts 
     tremor features from windowed gyroscope data.
@@ -25,7 +25,7 @@ def extract_tremor_features(df: pd.DataFrame, config: TremorFeatureExtractionCon
         The input DataFrame containing sensor data, which includes time and gyroscope data. The data should be
         structured with the necessary columns as specified in the `config`.
 
-    config : TremorFeatureExtractionConfig
+    config : TremorConfig
         Configuration object containing parameters for feature extraction, including column names for time, gyroscope data,
         as well as settings for windowing, and feature computation.
 
@@ -68,7 +68,7 @@ def extract_tremor_features(df: pd.DataFrame, config: TremorFeatureExtractionCon
 
     return df_features
 
-def extract_tremor_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config: TremorFeatureExtractionConfig) -> None:
+def extract_tremor_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config: TremorConfig) -> None:
     # Load data
     metadata_time, metadata_values = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
@@ -94,7 +94,7 @@ def extract_tremor_features_io(input_path: Union[str, Path], output_path: Union[
     write_df_data(metadata_time, metadata_values, output_path, 'tremor_meta.json', df_windowed)
 
 
-def detect_tremor(df: pd.DataFrame, config: TremorDetectionConfig, full_path_to_classifier_package: Union[str, Path]) -> pd.DataFrame:
+def detect_tremor(df: pd.DataFrame, config: TremorConfig, full_path_to_classifier_package: Union[str, Path]) -> pd.DataFrame:
     """
     Detects tremor in the input DataFrame using a pre-trained classifier and applies a threshold to the predicted probabilities.
 
@@ -112,7 +112,7 @@ def detect_tremor(df: pd.DataFrame, config: TremorDetectionConfig, full_path_to_
         The input DataFrame containing extracted tremor features. The DataFrame must include
         the necessary columns as specified in the classifier's feature names.
 
-    config : TremorDetectionConfig
+    config : TremorConfig
         Configuration object containing settings for tremor detection, including the frequency range for rest tremor.
 
     full_path_to_classifier_package : Union[str, Path]
@@ -163,14 +163,14 @@ def detect_tremor(df: pd.DataFrame, config: TremorDetectionConfig, full_path_to_
     df[DataColumns.PRED_TREMOR_LOGREG] = (df[DataColumns.PRED_TREMOR_PROBA] >= clf_package.threshold).astype(int)
 
     # Perform extra checks for rest tremor 
-    peak_check = (df['freq_peak'] >= config.fmin_peak) & (df['freq_peak']<=config.fmax_peak) # peak within 3-7 Hz
+    peak_check = (df['freq_peak'] >= config.fmin_tremor_power) & (df['freq_peak']<=config.fmax_tremor_power) # peak within 3-7 Hz
     df[DataColumns.PRED_ARM_AT_REST] = (df['low_freq_power'] <= config.movement_threshold).astype(int) # arm at rest or in stable posture
     df[DataColumns.PRED_TREMOR_CHECKED] = ((df[DataColumns.PRED_TREMOR_LOGREG]==1) & (peak_check==True) & (df[DataColumns.PRED_ARM_AT_REST] == True)).astype(int)
     
     return df
 
 
-def detect_tremor_io(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: TremorDetectionConfig) -> None:
+def detect_tremor_io(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: TremorConfig) -> None:
     
     # Load the data
     metadata_time, metadata_values = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
@@ -191,7 +191,7 @@ def detect_tremor_io(input_path: Union[str, Path], output_path: Union[str, Path]
     write_df_data(metadata_time, metadata_values, output_path, 'tremor_meta.json', df)
 
 
-def aggregate_tremor(df: pd.DataFrame, config: TremorAggregationConfig):
+def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     """
     Quantifies the amount of tremor time and tremor power, aggregated over all windows in the input dataframe.
     Tremor time is calculated as the number of the detected tremor windows, as percentage of the number of windows 
@@ -204,7 +204,7 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorAggregationConfig):
         The input DataFrame containing extracted tremor features. The DataFrame must include
         the necessary columns as specified in the classifier's feature names.
 
-    config : TremorAggregationConfig
+    config : TremorConfig
         Configuration object containing the percentile for aggregating tremor power.
 
     Returns
@@ -263,7 +263,7 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorAggregationConfig):
     return d_aggregates
 
 
-def aggregate_tremor_io(path_to_feature_input: Union[str, Path], path_to_prediction_input: Union[str, Path], output_path: Union[str, Path], config: TremorAggregationConfig) -> None:
+def aggregate_tremor_io(path_to_feature_input: Union[str, Path], path_to_prediction_input: Union[str, Path], output_path: Union[str, Path], config: TremorConfig) -> None:
     
     # Load the features & predictions
     metadata_time, metadata_values = read_metadata(path_to_feature_input, config.meta_filename, config.time_filename, config.values_filename)
