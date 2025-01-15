@@ -235,18 +235,18 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     tremor_power = df_filtered.loc[df_filtered['pred_tremor_checked'] == 1, 'tremor_power']
     tremor_power = np.log10(tremor_power+1) # convert to log scale
     aggregated_tremor_power = {}
-
-    # calculate modal tremor power
-    bin_edges = np.linspace(0, 6, 301)
-    kde = gaussian_kde(tremor_power)
-    kde_values = kde(bin_edges)
-    max_index = np.argmax(kde_values)
-    aggregated_tremor_power['modal_tremor_power'] = bin_edges[max_index]
-
-    # calculate te other aggregates (median and 90th percentile) of tremor power
+    
     for aggregate in config.aggregates_tremor_power:
         aggregate_name = f"{aggregate}_tremor_power"
-        aggregated_tremor_power[aggregate_name] = aggregate_parameter(tremor_power, aggregate)
+        if aggregate == 'mode':
+            # calculate modal tremor power
+            bin_edges = np.linspace(0, 6, 301)
+            kde = gaussian_kde(tremor_power)
+            kde_values = kde(bin_edges)
+            max_index = np.argmax(kde_values)
+            aggregated_tremor_power['modal_tremor_power'] = bin_edges[max_index]
+        else: # calculate te other aggregates (e.g. median and 90th percentile) of tremor power
+            aggregated_tremor_power[aggregate_name] = aggregate_parameter(tremor_power, aggregate)
     
     # store aggregates in json format
     d_aggregates = {

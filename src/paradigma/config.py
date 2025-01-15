@@ -221,7 +221,7 @@ class TremorConfig(IMUConfig):
         # -----------
         # Aggregation
         # -----------
-        self.aggregates_tremor_power: List[str] = ['median', '90p']
+        self.aggregates_tremor_power: List[str] = ['mode', 'median', '90p']
 
         # -----------------
         # TSDF data storage
