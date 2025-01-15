@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from scipy import signal
-from paradigma.constants import DataColumns
 from paradigma.gait.feature_extraction import compute_total_power
 
 def melscale(x):
@@ -286,7 +285,7 @@ def extract_spectral_domain_features(config, data) -> pd.DataFrame:
         axis=1
     )
 
-    # Compute total power in the PSD
+    # Compute total power in the PSD (sum over the three axes)
     total_psd = compute_total_power(psd)
 
     # Compute the MFCC's
