@@ -362,7 +362,7 @@ class TremorAggregationConfig(TremorBaseConfig):
     def __init__(self) -> None:
         super().__init__()
 
-        self.aggregates_tremor_power: List[str] = ['median', '90p']
+        self.aggregates_tremor_power: List[str] = ['mode','median', '90p']
 
         self.set_filenames('tremor')
         
