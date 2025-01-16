@@ -244,7 +244,7 @@ class TremorConfig(IMUConfig):
 
         
 class HeartRateConfig(PPGConfig):
-    def __init__(self, sensor: str = 'ppg', min_window_length: float = 30) -> None:
+    def __init__(self, sensor: str = 'ppg', min_window_length: int = 30) -> None:
         super().__init__()
 
         # ----------
@@ -294,7 +294,7 @@ class HeartRateConfig(PPGConfig):
 
         self.set_sensor(sensor)
 
-    def set_tfd_length(self, tfd_length: float):
+    def set_tfd_length(self, tfd_length: int):
         self.tfd_length = tfd_length
         self.min_hr_samples = int(round(self.tfd_length * self.sampling_frequency))
 
