@@ -1,0 +1,90 @@
+{
+    "study_id": "PPP",
+    "device_id": "Verily Study Watch",
+    "subject_id": "X",
+    "ppp_source_protobuf": "WatchData.PPG.Week104.raw",
+    "metadata_version": "0.1",
+    "start_iso8601": "2021-06-27T16:52:20Z",
+    "end_iso8601": "2021-06-27T17:02:58Z",
+    "scale_factors": 1,
+    "sensors": [
+        {
+            "rows": 639,
+            "sensors": [
+                {
+                    "endianness": "little",
+                    "bits": 32,
+                    "sensors": [
+                        {
+                            "data_type": "float",
+                            "sensors": [
+                                {
+                                    "file_name": "classification_sqa_ppg.bin",
+                                    "channels": [
+                                        "post probability"
+                                    ],
+                                    "units": [
+                                        "probability"
+                                    ],
+                                    "freq_sampling_original": 100.40200019609766
+                                },
+                                {
+                                    "file_name": "classification_sqa_feat_imu.bin",
+                                    "channels": [
+                                        "Relative power"
+                                    ],
+                                    "units": [
+                                        "none"
+                                    ],
+                                    "bin_width": 0.1
+                                }
+                            ]
+                        },
+                        {
+                            "data_type": "int",
+                            "file_name": "classification_sqa_time.bin",
+                            "channels": [
+                                "time"
+                            ],
+                            "units": [
+                                "time_absolute_unix_ms"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "data_type": "int",
+                    "endianness": "not applicable",
+                    "file_name": "classification_sqa_imu.bin",
+                    "channels": [
+                        "accelerometer classification"
+                    ],
+                    "units": [
+                        "boolean_num"
+                    ],
+                    "bits": 8,
+                    "freq_sampling_original": 100
+                }
+            ]
+        },
+        {
+            "rows": 1,
+            "data_type": "int",
+            "endianness": "little",
+            "file_name": "classification_sqa_sync.bin",
+            "channels": [
+                "ppg start index",
+                "ppg end index",
+                "ppg segment index",
+                "number of windows"
+            ],
+            "units": [
+                "index",
+                "index",
+                "index",
+                "none"
+            ],
+            "bits": 32
+        }
+    ]
+}

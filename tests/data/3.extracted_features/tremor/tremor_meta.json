@@ -36,7 +36,7 @@
                 "mfcc_11",
                 "mfcc_12",
                 "freq_peak",
-                "low_freq_power",
+                "below_tremor_power",
                 "tremor_power"
             ],
             "units": [
