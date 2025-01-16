@@ -1,7 +1,7 @@
 import pandas as pd
 from pathlib import Path
 
-from paradigma.gait.gait_analysis import filter_gait_io, detect_gait_io, extract_arm_activity_features_io, extract_gait_features_io
+from paradigma.pipelines.gait_pipeline import filter_gait_io, detect_gait_io, extract_arm_activity_features_io, extract_gait_features_io
 from paradigma.config import GaitConfig
 from paradigma.util import load_tsdf_dataframe
 from test_notebooks import compare_data
@@ -51,9 +51,6 @@ def test_2_extract_features_gait_output(shared_datadir: Path):
     path_to_tested_output = path_to_reference_output / "test-output"
 
     config = GaitConfig(step=data_type)
-    df_accel, _, _ = load_tsdf_dataframe(path_to_preprocessed_input, prefix='accelerometer')
-    df_gyro, _, _ = load_tsdf_dataframe(path_to_preprocessed_input, prefix='gyroscope')
-    df = pd.merge(df_accel, df_gyro, on='time')
 
     extract_gait_features_io(
         config=config, 
