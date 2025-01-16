@@ -579,7 +579,7 @@ def quantify_arm_swing(
         df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= classification_threshold
     ).astype(int)
 
-    # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
+    # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap.
     # Segments are made based on predicted gait
     df[DataColumns.SEGMENT_NR] = create_segments(
         time_array=df[DataColumns.TIME], 
@@ -624,7 +624,7 @@ def quantify_arm_swing(
 
     # If both unfiltered and filtered gait are to be quantified, start with the unfiltered data
     # and subset to get filtered data afterwards.
-    dfs_to_quantify = sorted(dfs_to_quantify)
+    dfs_to_quantify = sorted(dfs_to_quantify, reverse=True)
 
     for df_name in dfs_to_quantify:    
         if df_name == 'filtered':
