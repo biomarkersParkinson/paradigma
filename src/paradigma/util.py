@@ -378,3 +378,83 @@ def aggregate_parameter(parameter: np.ndarray, aggregate: str) -> np.ndarray:
         return np.std(parameter)
     else:
         raise ValueError(f"Invalid aggregation method: {aggregate}")
+
+def merge_predictions_with_timestamps(
+        df_ts: pd.DataFrame, 
+        df_predictions: pd.DataFrame, 
+        pred_proba_colname: str,
+        window_length_s: float, 
+        fs: int
+    ) -> pd.DataFrame:
+    """
+    Merges prediction probabilities with timestamps by expanding overlapping windows
+    into individual timestamps and averaging probabilities per unique timestamp.
+
+    Parameters:
+    ----------
+    df_ts : pd.DataFrame
+        DataFrame containing timestamps to be merged with predictions.
+        Must include the timestamp column specified in `DataColumns.TIME`.
+
+    df_predictions : pd.DataFrame
+        DataFrame containing prediction windows with start times and probabilities.
+        Must include:
+        - A column for window start times (defined by `DataColumns.TIME`).
+        - A column for prediction probabilities (defined by `DataColumns.PRED_GAIT_PROBA`).
+
+    pred_proba_colname : str
+        The column name for the prediction probabilities in `df_predictions`.
+
+    window_length_s : float
+        The length of the prediction window in seconds.
+
+    fs : int
+        The sampling frequency of the data.
+        
+    Returns:
+    -------
+    pd.DataFrame
+        Updated `df_ts` with an additional column for averaged prediction probabilities.
+
+    Steps:
+    ------
+    1. Expand prediction windows into individual timestamps using NumPy broadcasting.
+    2. Flatten the timestamps and prediction probabilities into single arrays.
+    3. Aggregate probabilities by unique timestamps using pandas `groupby`.
+    4. Merge the aggregated probabilities with the input `df_ts`.
+
+    Notes:
+    ------
+    - Rounding is applied to timestamps to mitigate floating-point inaccuracies.
+    - Fully vectorized for speed and scalability, avoiding any row-wise operations.
+    """
+    # Step 1: Generate all timestamps for prediction windows using NumPy broadcasting
+    window_length = int(window_length_s * fs)
+    timestamps = (
+        df_predictions[DataColumns.TIME].values[:, None] +
+        np.arange(0, window_length) / fs
+    )
+    
+    # Flatten timestamps and probabilities into a single array for efficient processing
+    flat_timestamps = timestamps.ravel()
+    flat_proba = np.repeat(
+        df_predictions[pred_proba_colname].values,
+        window_length
+    )
+
+    # Step 2: Create a DataFrame for expanded data
+    expanded_df = pd.DataFrame({
+        DataColumns.TIME: flat_timestamps,
+        pred_proba_colname: flat_proba
+    })
+
+    # Step 3: Round timestamps and aggregate probabilities
+    expanded_df[DataColumns.TIME] = expanded_df[DataColumns.TIME].round(2)
+    mean_proba = expanded_df.groupby(DataColumns.TIME, as_index=False).mean()
+
+    # Step 4: Round timestamps in `df_ts` and merge
+    df_ts[DataColumns.TIME] = df_ts[DataColumns.TIME].round(2)
+    df_ts = pd.merge(df_ts, mean_proba, how='left', on=DataColumns.TIME)
+    df_ts = df_ts.dropna(subset=[pred_proba_colname])
+
+    return df_ts
