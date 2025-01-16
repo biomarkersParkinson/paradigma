@@ -271,6 +271,7 @@ class HeartRateConfig(PPGConfig):
         # ---------------------
         self.min_hr_samples = int(round(min_window_length * self.sampling_frequency))
         self.threshold_sqa = 0.5
+        self.threshold_sqa_accelerometer = 0.13
 
         hr_est_length = 2
         self.hr_est_samples = hr_est_length * self.sampling_frequency
