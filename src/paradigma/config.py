@@ -244,7 +244,7 @@ class TremorConfig(IMUConfig):
 
         
 class HeartRateConfig(PPGConfig):
-    def __init__(self, sensor: str = 'ppg', min_window_length: float = 10) -> None:
+    def __init__(self, sensor: str = 'ppg', min_window_length_s: int = 30) -> None:
         super().__init__()
 
         # ----------
@@ -263,20 +263,17 @@ class HeartRateConfig(PPGConfig):
         self.bandwidth = 0.2   # Hz      
         self.freq_bin_resolution = 0.05 # Hz
 
-        self.classifier_file_name = "ppg_quality_classifier.pkl"
-        self.threshold_file_name = "ppg_acc_quality_threshold.txt"
-
         # ---------------------
         # Heart rate estimation
         # ---------------------
-        self.min_hr_samples = int(round(min_window_length * self.sampling_frequency))
+        self.set_tfd_length(min_window_length_s)  # Set tfd length to default of 30 seconds
         self.threshold_sqa = 0.5
+        self.threshold_sqa_accelerometer = 0.13
 
         hr_est_length = 2
         self.hr_est_samples = hr_est_length * self.sampling_frequency
 
         # Time-frequency distribution parameters
-        self.tfd_length = 10
         self.kern_type = 'sep'
         win_type_doppler = 'hamm'
         win_type_lag = 'hamm'
@@ -296,6 +293,10 @@ class HeartRateConfig(PPGConfig):
         }
 
         self.set_sensor(sensor)
+
+    def set_tfd_length(self, tfd_length: int):
+        self.tfd_length = tfd_length
+        self.min_hr_samples = int(round(self.tfd_length * self.sampling_frequency))
 
     def set_sensor(self, sensor):
         self.sensor = sensor 
