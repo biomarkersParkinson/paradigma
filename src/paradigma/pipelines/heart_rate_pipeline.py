@@ -335,7 +335,7 @@ def extract_temporal_domain_features(
     
     feature_dict = {}
     for stat in quality_stats:
-        feature_dict[stat] = compute_statistics(ppg_windowed, stat)
+        feature_dict[stat] = compute_statistics(ppg_windowed, stat, abs_stats=True)
     
     feature_dict['signal_to_noise'] = compute_signal_to_noise_ratio(ppg_windowed)  
     feature_dict['auto_corr'] = compute_auto_correlation(ppg_windowed, config.sampling_frequency)
