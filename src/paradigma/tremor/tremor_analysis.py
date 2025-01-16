@@ -3,7 +3,6 @@ import json
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Union
 from scipy.stats import gaussian_kde
 
 from paradigma.classification import ClassifierPackage
@@ -68,7 +67,7 @@ def extract_tremor_features(df: pd.DataFrame, config: TremorConfig) -> pd.DataFr
 
     return df_features
 
-def extract_tremor_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config: TremorConfig) -> None:
+def extract_tremor_features_io(input_path: str | Path, output_path: str | Path, config: TremorConfig) -> None:
     # Load data
     metadata_time, metadata_values = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
@@ -94,7 +93,7 @@ def extract_tremor_features_io(input_path: Union[str, Path], output_path: Union[
     write_df_data(metadata_time, metadata_values, output_path, 'tremor_meta.json', df_windowed)
 
 
-def detect_tremor(df: pd.DataFrame, config: TremorConfig, full_path_to_classifier_package: Union[str, Path]) -> pd.DataFrame:
+def detect_tremor(df: pd.DataFrame, config: TremorConfig, full_path_to_classifier_package: str | Path) -> pd.DataFrame:
     """
     Detects tremor in the input DataFrame using a pre-trained classifier and applies a threshold to the predicted probabilities.
 
@@ -115,7 +114,7 @@ def detect_tremor(df: pd.DataFrame, config: TremorConfig, full_path_to_classifie
     config : TremorConfig
         Configuration object containing settings for tremor detection, including the frequency range for rest tremor.
 
-    full_path_to_classifier_package : Union[str, Path]
+    full_path_to_classifier_package : str | Path
         The path to the directory containing the classifier file, threshold value, scaler parameters, and other necessary input
         files for tremor detection.
 
@@ -126,7 +125,7 @@ def detect_tremor(df: pd.DataFrame, config: TremorConfig, full_path_to_classifie
         - `PRED_TREMOR_PROBA`: Predicted probability of tremor based on the classifier.
         - `PRED_TREMOR_LOGREG`: Binary classification result (True for tremor, False for no tremor), based on the threshold applied to `PRED_TREMOR_PROBA`.
         - `PRED_TREMOR_CHECKED`: Binary classification result (True for tremor, False for no tremor), after performing extra checks for rest tremor on `PRED_TREMOR_LOGREG`.
-        - `PRED_ARM_AT_REST`: Binary classification result (True for arm at rest or stable posture, False for significant arm movement), based on the low-frequency power.
+        - `PRED_ARM_AT_REST`: Binary classification result (True for arm at rest or stable posture, False for significant arm movement), based on the power below tremor.
 
     Notes
     -----
@@ -163,14 +162,14 @@ def detect_tremor(df: pd.DataFrame, config: TremorConfig, full_path_to_classifie
     df[DataColumns.PRED_TREMOR_LOGREG] = (df[DataColumns.PRED_TREMOR_PROBA] >= clf_package.threshold).astype(int)
 
     # Perform extra checks for rest tremor 
-    peak_check = (df['freq_peak'] >= config.fmin_tremor_power) & (df['freq_peak']<=config.fmax_tremor_power) # peak within 3-7 Hz
-    df[DataColumns.PRED_ARM_AT_REST] = (df['low_freq_power'] <= config.movement_threshold).astype(int) # arm at rest or in stable posture
+    peak_check = (df['freq_peak'] >= config.fmin_rest_tremor) & (df['freq_peak']<=config.fmax_rest_tremor) # peak within 3-7 Hz
+    df[DataColumns.PRED_ARM_AT_REST] = (df['below_tremor_power'] <= config.movement_threshold).astype(int) # arm at rest or in stable posture
     df[DataColumns.PRED_TREMOR_CHECKED] = ((df[DataColumns.PRED_TREMOR_LOGREG]==1) & (peak_check==True) & (df[DataColumns.PRED_ARM_AT_REST] == True)).astype(int)
     
     return df
 
 
-def detect_tremor_io(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: TremorConfig) -> None:
+def detect_tremor_io(input_path: str | Path, output_path: str | Path, path_to_classifier_input: str | Path, config: TremorConfig) -> None:
     
     # Load the data
     config.set_filenames('tremor')
@@ -265,7 +264,7 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     return d_aggregates
 
 
-def aggregate_tremor_io(path_to_feature_input: Union[str, Path], path_to_prediction_input: Union[str, Path], output_path: Union[str, Path], config: TremorConfig) -> None:
+def aggregate_tremor_io(path_to_feature_input: str | Path, path_to_prediction_input: str | Path, output_path: str | Path, config: TremorConfig) -> None:
     
     # Load the features & predictions
     metadata_time, metadata_values = read_metadata(path_to_feature_input, config.meta_filename, config.time_filename, config.values_filename)
@@ -277,7 +276,7 @@ def aggregate_tremor_io(path_to_feature_input: Union[str, Path], path_to_predict
     df_predictions = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
     # Subset features
-    df_features = df_features[['tremor_power', 'low_freq_power']]
+    df_features = df_features[['tremor_power', 'below_tremor_power']]
 
     # Concatenate predictions and tremor power
     df = pd.concat([df_predictions, df_features], axis=1)

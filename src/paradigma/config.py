@@ -200,12 +200,12 @@ class TremorConfig(IMUConfig):
         self.overlap_fraction: float = 0.8
         self.segment_length_s: float = 3
         self.spectral_resolution: float = 0.25
-        self.fmin_peak: float = 1
-        self.fmax_peak: float = 25
-        self.fmin_low_power: float = 0.5
-        self.fmax_low_power: float = 3
-        self.fmin_tremor_power: float = 3
-        self.fmax_tremor_power: float = 7
+        self.fmin_peak_search: float = 1
+        self.fmax_peak_search: float = 25
+        self.fmin_below_rest_tremor: float = 0.5
+        self.fmax_below_rest_tremor: float = 3
+        self.fmin_rest_tremor: float = 3
+        self.fmax_rest_tremor: float = 7
 
         # Mel frequency cepstral coefficients
         self.fmin_mfcc: float = 0
@@ -232,7 +232,7 @@ class TremorConfig(IMUConfig):
                 self.d_channels_values[f"mfcc_{mfcc_coef}"] = "unitless"
 
             self.d_channels_values["freq_peak"] = "Hz"
-            self.d_channels_values["low_freq_power"] = "(deg/s)^2"
+            self.d_channels_values["below_tremor_power"] = "(deg/s)^2"
             self.d_channels_values["tremor_power"] = "(deg/s)^2"
         elif step == 'classification':
             self.d_channels_values = {
