@@ -579,7 +579,7 @@ def quantify_arm_swing(
         df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= classification_threshold
     ).astype(int)
 
-    # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
+    # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap.
     # Segments are made based on predicted gait
     df[DataColumns.SEGMENT_NR] = create_segments(
         time_array=df[DataColumns.TIME], 
@@ -624,24 +624,26 @@ def quantify_arm_swing(
 
     # If both unfiltered and filtered gait are to be quantified, start with the unfiltered data
     # and subset to get filtered data afterwards.
-    dfs_to_quantify = sorted(dfs_to_quantify)
+    dfs_to_quantify = sorted(dfs_to_quantify, reverse=True)
 
     for df_name in dfs_to_quantify:    
         if df_name == 'filtered':
             # Filter the DataFrame to only include predicted no other arm activity (1)
-            df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True)
+            df_focus = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].copy().reset_index(drop=True)
 
             # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
             # Now segments are based on predicted gait without other arm activity for subsequent processes
-            df[DataColumns.SEGMENT_NR] = create_segments(
+            df_focus[DataColumns.SEGMENT_NR] = create_segments(
                 time_array=df[DataColumns.TIME], 
                 max_segment_gap_s=max_segment_gap_s
             )
+        else:
+            df_focus = df.copy()
 
         arm_swing_quantified[df_name] = []
         segment_meta[df_name] = {}
 
-        for segment_nr, group in df.groupby(DataColumns.SEGMENT_NR, sort=False):
+        for segment_nr, group in df_focus.groupby(DataColumns.SEGMENT_NR, sort=False):
             segment_cat = group[DataColumns.SEGMENT_CAT].iloc[0]
             time_array = group[DataColumns.TIME].to_numpy()
             velocity_array = group[DataColumns.VELOCITY].to_numpy()
@@ -724,6 +726,8 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
     dict
         A dictionary containing the aggregated quantification results for arm swing parameters.
     """
+    arm_swing_parameters = [DataColumns.RANGE_OF_MOTION, DataColumns.PEAK_VELOCITY]
+
     uq_segment_cats = set([segment_meta[x][DataColumns.SEGMENT_CAT] for x in df_arm_swing_params[DataColumns.SEGMENT_NR].unique()])
 
     aggregated_results = {}
@@ -736,9 +740,17 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
 
         df_arm_swing_params_cat = df_arm_swing_params[df_arm_swing_params[DataColumns.SEGMENT_NR].isin(cat_segments)]
         
+        for arm_swing_parameter in arm_swing_parameters:
+            for aggregate in aggregates:
+                aggregated_results[segment_cat][f'{aggregate}_{arm_swing_parameter}'] = aggregate_parameter(df_arm_swing_params_cat[arm_swing_parameter], aggregate)
+
+    aggregated_results['all_segment_categories'] = {
+        'time_s': sum([segment_meta[x]['time_s'] for x in segment_meta.keys()])
+    }
+
+    for arm_swing_parameter in arm_swing_parameters:
         for aggregate in aggregates:
-            aggregated_results[segment_cat][f'{aggregate}_{DataColumns.RANGE_OF_MOTION}'] = aggregate_parameter(df_arm_swing_params_cat[DataColumns.RANGE_OF_MOTION], aggregate)
-            aggregated_results[segment_cat][f'{aggregate}_forward_{DataColumns.PEAK_VELOCITY}'] = aggregate_parameter(df_arm_swing_params_cat[DataColumns.PEAK_VELOCITY], aggregate)
+            aggregated_results['all_segment_categories'][f'{aggregate}_{arm_swing_parameter}'] = aggregate_parameter(df_arm_swing_params[arm_swing_parameter], aggregate)
 
     return aggregated_results
 
