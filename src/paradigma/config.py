@@ -244,7 +244,7 @@ class TremorConfig(IMUConfig):
 
         
 class HeartRateConfig(PPGConfig):
-    def __init__(self, sensor: str = 'ppg', min_window_length: int = 30) -> None:
+    def __init__(self, sensor: str = 'ppg', min_window_length_s: int = 30) -> None:
         super().__init__()
 
         # ----------
@@ -266,7 +266,7 @@ class HeartRateConfig(PPGConfig):
         # ---------------------
         # Heart rate estimation
         # ---------------------
-        self.set_tfd_length(min_window_length)  # Set tfd length to default of 30 seconds
+        self.set_tfd_length(min_window_length_s)  # Set tfd length to default of 30 seconds
         self.threshold_sqa = 0.5
         self.threshold_sqa_accelerometer = 0.13
 
