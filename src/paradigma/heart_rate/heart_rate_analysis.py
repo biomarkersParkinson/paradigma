@@ -9,14 +9,13 @@ from typing import List
 import tsdf
 
 from paradigma.constants import DataColumns
-from paradigma.config import SignalQualityFeatureExtractionConfig, SignalQualityFeatureExtractionAccConfig, SignalQualityClassificationConfig, \
-    HeartRateExtractionConfig
+from paradigma.config import HeartRateConfig
 from paradigma.heart_rate.feature_extraction import extract_temporal_domain_features, extract_spectral_domain_features, extract_accelerometer_feature
 from paradigma.heart_rate.heart_rate_estimation import assign_sqa_label, extract_hr_segments, extract_hr_from_segment
 from paradigma.segmenting import tabulate_windows, WindowedDataExtractor
 from paradigma.util import read_metadata, aggregate_parameter
 
-def extract_signal_quality_features(config_ppg: SignalQualityFeatureExtractionConfig, df_ppg: pd.DataFrame, config_acc: SignalQualityFeatureExtractionAccConfig, df_acc: pd.DataFrame) -> pd.DataFrame:
+def extract_signal_quality_features(config_ppg: HeartRateConfig, df_ppg: pd.DataFrame, config_acc: HeartRateConfig, df_acc: pd.DataFrame) -> pd.DataFrame:
     """	
     Extract signal quality features from the PPG signal.
     The features are extracted from the temporal and spectral domain of the PPG signal.
@@ -25,11 +24,11 @@ def extract_signal_quality_features(config_ppg: SignalQualityFeatureExtractionCo
 
     Parameters
     ----------
-    config_ppg: SignalQualityFeatureExtractionConfig
+    config_ppg: HeartRateConfig
         The configuration for the signal quality feature extraction of the ppg signal.
     df_ppg : pd.DataFrame
         The DataFrame containing the PPG signal.
-    config_acc: SignalQualityFeatureExtractionAccConfig
+    config_acc: HeartRateConfig
         The configuration for the signal quality feature extraction of the accelerometer signal.
     df_acc : pd.DataFrame
         The DataFrame containing the accelerometer signal.
@@ -88,7 +87,7 @@ def extract_signal_quality_features(config_ppg: SignalQualityFeatureExtractionCo
     return df_features
 
 
-def extract_signal_quality_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config_ppg: SignalQualityFeatureExtractionConfig, config_acc: SignalQualityFeatureExtractionAccConfig) -> pd.DataFrame:
+def extract_signal_quality_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config_ppg: HeartRateConfig, config_acc: HeartRateConfig) -> pd.DataFrame:
     """
     Extract signal quality features from the PPG signal and save them to a file.
 
@@ -98,9 +97,9 @@ def extract_signal_quality_features_io(input_path: Union[str, Path], output_path
         The path to the directory containing the preprocessed PPG and accelerometer data.
     output_path : Union[str, Path]
         The path to the directory where the extracted features will be saved.
-    config_ppg: SignalQualityFeatureExtractionConfig
+    config_ppg: HeartRateConfig
         The configuration for the signal quality feature extraction of the ppg signal.
-    config_acc: SignalQualityFeatureExtractionAccConfig
+    config_acc: HeartRateConfig
         The configuration for the signal quality feature extraction of the accelerometer signal.
 
     Returns
@@ -125,7 +124,7 @@ def extract_signal_quality_features_io(input_path: Union[str, Path], output_path
     return df_windowed
 
 
-def signal_quality_classification(df: pd.DataFrame, config: SignalQualityClassificationConfig, path_to_classifier_input: Union[str, Path]) -> pd.DataFrame:
+def signal_quality_classification(df: pd.DataFrame, config: HeartRateConfig, path_to_classifier_input: Union[str, Path]) -> pd.DataFrame:
     """
     Classify the signal quality of the PPG signal using a logistic regression classifier. A probability close to 1 indicates a high-quality signal, while a probability close to 0 indicates a low-quality signal.
     The classifier is trained on features extracted from the PPG signal. The features are extracted using the extract_signal_quality_features function.
@@ -136,7 +135,7 @@ def signal_quality_classification(df: pd.DataFrame, config: SignalQualityClassif
     ----------
     df : pd.DataFrame
         The DataFrame containing the PPG features and the accelerometer feature for signal quality classification.
-    config : SignalQualityClassificationConfig
+    config : HeartRateConfig
         The configuration for the signal quality classification.
     path_to_classifier_input : Union[str, Path]
         The path to the directory containing the classifier.
@@ -168,7 +167,7 @@ def signal_quality_classification(df: pd.DataFrame, config: SignalQualityClassif
     return df[[DataColumns.PRED_SQA_PROBA, DataColumns.PRED_SQA_ACC_LABEL]]  # Return only the relevant columns, namely the predicted probabilities for the PPG signal quality and the accelerometer label
 
 
-def signal_quality_classification_io(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: SignalQualityClassificationConfig) -> None:
+def signal_quality_classification_io(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: HeartRateConfig) -> None:
     
     # Load the data
     metadata_time, metadata_values = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
@@ -177,7 +176,7 @@ def signal_quality_classification_io(input_path: Union[str, Path], output_path: 
     df_sqa = signal_quality_classification(df_windowed, config, path_to_classifier_input)
 
 
-def estimate_heart_rate(df_sqa: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame, config: HeartRateExtractionConfig) -> pd.DataFrame:  
+def estimate_heart_rate(df_sqa: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame, config: HeartRateConfig) -> pd.DataFrame:  
     """
     Estimate the heart rate from the PPG signal using the time-frequency domain method.
 
@@ -187,7 +186,7 @@ def estimate_heart_rate(df_sqa: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame,
         The DataFrame containing the signal quality assessment predictions.
     df_ppg_preprocessed : pd.DataFrame
         The DataFrame containing the preprocessed PPG signal.
-    config : HeartRateExtractionConfig
+    config : HeartRateConfig
         The configuration for the heart rate estimation.
 
     Returns

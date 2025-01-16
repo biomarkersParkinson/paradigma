@@ -1,7 +1,8 @@
 from pathlib import Path
 
 from paradigma.tremor.tremor_analysis import extract_tremor_features_io, detect_tremor_io
-from paradigma.config import TremorFeatureExtractionConfig, TremorDetectionConfig
+from paradigma.config import TremorConfig
+
 from test_notebooks import compare_data
 
 tremor_binaries_pairs: list[tuple[str, str]] = [
@@ -24,7 +25,7 @@ def test_2_extract_features_tremor_output(shared_datadir: Path):
     path_to_reference_output = shared_datadir / output_dir_name / data_type
     path_to_tested_output = path_to_reference_output / "test-output"
 
-    config = TremorFeatureExtractionConfig()
+    config = TremorConfig('features')
     extract_tremor_features_io(path_to_imu_input, path_to_tested_output, config)
     compare_data(path_to_reference_output, path_to_tested_output, tremor_binaries_pairs)
 
@@ -45,6 +46,6 @@ def test_3_tremor_detection_output(shared_datadir: Path):
 
     full_path_to_classifier_package = path_to_assets / classifier_package_filename
 
-    config = TremorDetectionConfig()
+    config = TremorConfig('classification')
     detect_tremor_io(path_to_feature_input, path_to_tested_output, full_path_to_classifier_package, config)
     compare_data(path_to_reference_output, path_to_tested_output, tremor_binaries_pairs)

@@ -2,7 +2,7 @@ import pandas as pd
 from pathlib import Path
 
 from paradigma.gait.gait_analysis import filter_gait_io, detect_gait_io, extract_arm_activity_features_io, extract_gait_features_io
-from paradigma.config import FilteringGaitConfig, ArmActivityFeatureExtractionConfig, GaitDetectionConfig, GaitFeatureExtractionConfig
+from paradigma.config import GaitConfig
 from paradigma.util import load_tsdf_dataframe
 from test_notebooks import compare_data
 
@@ -50,7 +50,7 @@ def test_2_extract_features_gait_output(shared_datadir: Path):
     path_to_reference_output = shared_datadir / output_dir_name / data_type
     path_to_tested_output = path_to_reference_output / "test-output"
 
-    config = GaitFeatureExtractionConfig()
+    config = GaitConfig(step=data_type)
     df_accel, _, _ = load_tsdf_dataframe(path_to_preprocessed_input, prefix='accelerometer')
     df_gyro, _, _ = load_tsdf_dataframe(path_to_preprocessed_input, prefix='gyroscope')
     df = pd.merge(df_accel, df_gyro, on='time')
@@ -84,7 +84,7 @@ def test_3_gait_detection_output(shared_datadir: Path):
 
     full_path_to_classifier_package = path_to_assets / classifier_package_filename
 
-    config = GaitDetectionConfig()
+    config = GaitConfig(step=data_type)
     detect_gait_io(
         config=config, 
         path_to_input=path_to_feature_input, 
@@ -116,7 +116,7 @@ def test_4_extract_features_arm_activity_output(shared_datadir: Path):
 
     full_path_to_classifier_package = path_to_assets / classifier_package_filename
 
-    config = ArmActivityFeatureExtractionConfig()
+    config = GaitConfig(step='arm_activity')
     extract_arm_activity_features_io(
         config=config, 
         path_to_timestamp_input=path_to_timestamp_input, 
@@ -149,7 +149,7 @@ def test_5_arm_swing_detection_output(shared_datadir: Path):
 
     full_path_to_classifier_package = path_to_assets / classifier_package_filename
 
-    config = FilteringGaitConfig()
+    config = GaitConfig(step='arm_activity')
     filter_gait_io(
         config=config, 
         path_to_input=path_to_prediction_input, 

@@ -3,9 +3,7 @@ from paradigma.constants import DataColumns, DataUnits
 import numpy as np
 
 class BaseConfig:
-
     def __init__(self) -> None:
-
         self.meta_filename = ''
         self.values_filename = ''
         self.time_filename = ''
@@ -27,18 +25,15 @@ class BaseConfig:
         self.time_filename = f"{prefix}_time.bin"
         self.values_filename = f"{prefix}_values.bin"
 
-    
-# Signal preprocessing configs
 class IMUConfig(BaseConfig):
 
     def __init__(self) -> None:
         super().__init__()
 
         self.set_filenames('IMU')
+
         self.acceleration_units = DataUnits.ACCELERATION
         self.rotation_units = DataUnits.ROTATION
-
-        self.side_watch = 'right'
 
         self.axes = ["x", "y", "z"]
 
@@ -96,26 +91,34 @@ class PPGConfig(BaseConfig):
 
 
 # Domain base configs
-class GaitBaseConfig(IMUConfig):
+class GaitConfig(IMUConfig):
 
-    def __init__(self) -> None:
+    def __init__(self, step) -> None:
         super().__init__()
 
         self.set_sensor('accelerometer')
 
-        self.window_type: str = "hann"
+        # ----------
+        # Segmenting
+        # ----------
         self.max_segment_gap_s = 1.5
         self.min_segment_length_s = 1.5
 
+        if step == 'gait':
+            self.window_length_s: float = 6
+            self.window_step_length_s: float = 1
+        else:
+            self.window_length_s: float = 3
+            self.window_step_length_s: float = self.window_length_s * 0.25
+
+        # -----------------
+        # Feature extraction
+        # -----------------
+        self.window_type: str = "hann"
         self.spectrum_low_frequency: int = 0
         self.spectrum_high_frequency: int = int(self.sampling_frequency / 2)
 
-        # feature parameters
-        self.mfcc_low_frequency: int = 0
-        self.mfcc_high_frequency: int = 25
-        self.mfcc_n_dct_filters: int = 15
-        self.mfcc_n_coefficients: int = 12
-
+        # Power in specified frequency bands
         self.d_frequency_bandwidths: Dict[str, List[float]] = {
             "power_below_gait": [0.2, 0.7],
             "power_gait": [0.7, 3.5],
@@ -123,261 +126,152 @@ class GaitBaseConfig(IMUConfig):
             "power_above_tremor": [8, 25],
         }
 
+        # Mel frequency cepstral coefficients
+        self.mfcc_low_frequency: int = 0
+        self.mfcc_high_frequency: int = 25
+        self.mfcc_n_dct_filters: int = 15
+        self.mfcc_n_coefficients: int = 12
 
-class TremorBaseConfig(IMUConfig):
+        # Dominant frequency of first harmonic of arm swing
+        self.angle_fmin: float = 0.5
+        self.angle_fmax: float = 1.5
 
-    def __init__(self) -> None:
+        # -----------------
+        # TSDF data storage
+        # -----------------
+        self.d_channels_values: Dict[str, str] = {
+            "accelerometer_std_norm": DataUnits.GRAVITY,
+            "accelerometer_x_grav_mean": DataUnits.GRAVITY,
+            "accelerometer_y_grav_mean": DataUnits.GRAVITY,
+            "accelerometer_z_grav_mean": DataUnits.GRAVITY,
+            "accelerometer_x_grav_std": DataUnits.GRAVITY,
+            "accelerometer_y_grav_std": DataUnits.GRAVITY,
+            "accelerometer_z_grav_std": DataUnits.GRAVITY,
+            "accelerometer_x_power_below_gait": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_y_power_below_gait": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_z_power_below_gait": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_x_power_gait": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_y_power_gait": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_z_power_gait": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_x_power_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_y_power_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_z_power_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_x_power_above_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_y_power_above_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_z_power_above_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_x_dominant_frequency": DataUnits.FREQUENCY,
+            "accelerometer_y_dominant_frequency": DataUnits.FREQUENCY,
+            "accelerometer_z_dominant_frequency": DataUnits.FREQUENCY,
+        }
+
+        for mfcc_coef in range(1, self.mfcc_n_coefficients + 1):
+            self.d_channels_values[f"accelerometer_mfcc_{mfcc_coef}"] = DataUnits.GRAVITY
+
+        if step == 'arm_activity':
+            for mfcc_coef in range(1, self.mfcc_n_coefficients + 1):
+                self.d_channels_values[f"gyroscope_mfcc_{mfcc_coef}"] = DataUnits.GRAVITY
+
+
+class TremorConfig(IMUConfig):
+
+    def __init__(self, step: str | None = None) -> None:
+        """
+        Parameters
+        ----------
+        step : str (optional)
+            The step of the tremor pipeline. Can be 'features' or 'classification'.
+        """
         super().__init__()
 
         self.set_sensor('gyroscope')
 
-        self.window_type = 'hann'
+        # ----------
+        # Segmenting
+        # ----------
         self.window_length_s: float = 4
         self.window_step_length_s: float = 4
 
-        self.fmin_tremor_power: float = 3
-        self.fmax_tremor_power: float = 7
+        # -----------------
+        # Feature extraction
+        # -----------------
+        self.window_type = 'hann'
 
-        self.movement_threshold: float = 50
-
-
-class HeartRateBaseConfig(PPGConfig):
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.window_length_s: int = 6
-        self.window_step_length_s: int = 1
-
-# Domain feature extraction configs
-class GaitFeatureExtractionConfig(GaitBaseConfig):
-
-    def __init__(self) -> None:
-        super().__init__()
-
-        # segmenting
-        self.window_length_s: float = 6
-        self.window_step_length_s: float = 1
-
-        # channels
-        self.d_channels_values: Dict[str, str] = {
-            f"{self.sensor}_std_norm": DataUnits.GRAVITY,
-            f"{self.sensor}_x_grav_mean": DataUnits.GRAVITY,
-            f"{self.sensor}_y_grav_mean": DataUnits.GRAVITY,
-            f"{self.sensor}_z_grav_mean": DataUnits.GRAVITY,
-            f"{self.sensor}_x_grav_std": DataUnits.GRAVITY,
-            f"{self.sensor}_y_grav_std": DataUnits.GRAVITY,
-            f"{self.sensor}_z_grav_std": DataUnits.GRAVITY,
-            f"{self.sensor}_x_power_below_gait": DataUnits.POWER_SPECTRAL_DENSITY,
-            f"{self.sensor}_y_power_below_gait": DataUnits.POWER_SPECTRAL_DENSITY,
-            f"{self.sensor}_z_power_below_gait": DataUnits.POWER_SPECTRAL_DENSITY,
-            f"{self.sensor}_x_power_gait": DataUnits.POWER_SPECTRAL_DENSITY,
-            f"{self.sensor}_y_power_gait": DataUnits.POWER_SPECTRAL_DENSITY,
-            f"{self.sensor}_z_power_gait": DataUnits.POWER_SPECTRAL_DENSITY,
-            f"{self.sensor}_x_power_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
-            f"{self.sensor}_y_power_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
-            f"{self.sensor}_z_power_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
-            f"{self.sensor}_x_power_above_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
-            f"{self.sensor}_y_power_above_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
-            f"{self.sensor}_z_power_above_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
-            f"{self.sensor}_x_dominant_frequency": DataUnits.FREQUENCY,
-            f"{self.sensor}_y_dominant_frequency": DataUnits.FREQUENCY,
-            f"{self.sensor}_z_dominant_frequency": DataUnits.FREQUENCY,
-        }
-
-        for mfcc_coef in range(1, self.mfcc_n_coefficients + 1):
-            self.d_channels_values[f"{self.sensor}_mfcc_{mfcc_coef}"] = DataUnits.GRAVITY
-
-
-class ArmActivityFeatureExtractionConfig(GaitBaseConfig):
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.set_filenames('arm_activity')
-
-        # segmenting
-        self.window_length_s: float = 3
-        self.window_step_length_s: float = self.window_length_s * 0.25
-
-        # dominant frequency of first harmonic of arm swing
-        self.angle_fmin: float = 0.5
-        self.angle_fmax: float = 1.5
-
-        # channels
-        self.d_channels_values = {
-            f"{self.sensor}_std_norm": DataUnits.GRAVITY,
-            f"{self.sensor}_x_grav_mean": DataUnits.GRAVITY,
-            f"{self.sensor}_x_grav_std": DataUnits.GRAVITY,
-            f"{self.sensor}_y_grav_mean": DataUnits.GRAVITY,
-            f"{self.sensor}_y_grav_std": DataUnits.GRAVITY,
-            f"{self.sensor}_z_grav_mean": DataUnits.GRAVITY,
-            f"{self.sensor}_z_grav_std": DataUnits.GRAVITY,
-            f"{self.sensor}_x_power_below_gait": "X",
-            f"{self.sensor}_x_power_gait": "X",
-            f"{self.sensor}_x_power_tremor": "X",
-            f"{self.sensor}_x_power_above_tremor": "X",
-            f"{self.sensor}_x_dominant_frequency": DataUnits.FREQUENCY,
-            f"{self.sensor}_y_power_below_gait": "X",
-            f"{self.sensor}_y_power_gait": "X",
-            f"{self.sensor}_y_power_tremor": "X",
-            f"{self.sensor}_y_power_above_tremor": "X",
-            f"{self.sensor}_y_dominant_frequency": DataUnits.FREQUENCY,
-            f"{self.sensor}_z_power_below_gait": "X",
-            f"{self.sensor}_z_power_gait": "X",
-            f"{self.sensor}_z_power_tremor": "X",
-            f"{self.sensor}_z_power_above_tremor": "X",
-            f"{self.sensor}_z_dominant_frequency": DataUnits.FREQUENCY,
-        }
-
-        for sensor in ["accelerometer", "gyroscope"]:
-            for mfcc_coef in range(1, self.mfcc_n_coefficients + 1):
-                self.d_channels_values[f"{sensor}_mfcc_{mfcc_coef}"] = DataUnits.GRAVITY
-
-
-class TremorFeatureExtractionConfig(TremorBaseConfig):
-
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.single_value_cols: List[str] = None
-        self.list_value_cols: List[str] = self.gyroscope_cols
-
-        # power spectral density
+        # Power spectral density
         self.overlap_fraction: float = 0.8
         self.segment_length_s: float = 3
         self.spectral_resolution: float = 0.25
-        self.fmin_peak: float = 1
-        self.fmax_peak: float = 25
-        self.fmin_low_power: float = 0.5
-        self.fmax_low_power: float = 3
+        self.fmin_peak_search: float = 1
+        self.fmax_peak_search: float = 25
+        self.fmin_below_rest_tremor: float = 0.5
+        self.fmax_below_rest_tremor: float = 3
+        self.fmin_rest_tremor: float = 3
+        self.fmax_rest_tremor: float = 7
 
-        # cepstral coefficients
+        # Mel frequency cepstral coefficients
         self.fmin_mfcc: float = 0
         self.fmax_mfcc: float = 25
         self.n_dct_filters_mfcc: int = 15
         self.n_coefficients_mfcc: int = 12
 
-        self.d_channels_values: Dict[str, str] = {}
-        for mfcc_coef in range(1, self.n_coefficients_mfcc + 1):
-            self.d_channels_values[f"mfcc_{mfcc_coef}"] = "unitless"
+        # --------------
+        # Classification
+        # --------------
+        self.movement_threshold: float = 50
 
-        self.d_channels_values["freq_peak"] = "Hz"
-        self.d_channels_values["low_freq_power"] = "(deg/s)^2"
-        self.d_channels_values["tremor_power"] = "(deg/s)^2"
+        # -----------
+        # Aggregation
+        # -----------
+        self.aggregates_tremor_power: List[str] = ['mode', 'median', '90p']
 
+        # -----------------
+        # TSDF data storage
+        # -----------------
+        if step == 'features':
+            self.d_channels_values: Dict[str, str] = {}
+            for mfcc_coef in range(1, self.n_coefficients_mfcc + 1):
+                self.d_channels_values[f"mfcc_{mfcc_coef}"] = "unitless"
 
-class SignalQualityFeatureExtractionConfig(HeartRateBaseConfig):
+            self.d_channels_values["freq_peak"] = "Hz"
+            self.d_channels_values["below_tremor_power"] = "(deg/s)^2"
+            self.d_channels_values["tremor_power"] = "(deg/s)^2"
+        elif step == 'classification':
+            self.d_channels_values = {
+                DataColumns.PRED_TREMOR_PROBA: "probability",
+                DataColumns.PRED_TREMOR_LOGREG: "boolean",
+                DataColumns.PRED_TREMOR_CHECKED: "boolean",
+                DataColumns.PRED_ARM_AT_REST: "boolean"
+            }
 
-    def __init__(self) -> None:
+        
+class HeartRateConfig(PPGConfig):
+    def __init__(self, sensor: str = 'ppg', min_window_length: float = 10) -> None:
         super().__init__()
 
-        self.window_length_welch = 3 * self.sampling_frequency
-        self.overlap_welch_window = self.window_length_welch // 2
+        # ----------
+        # Segmenting
+        # ----------
+        self.window_length_s: int = 6
+        self.window_step_length_s: int = 1
+        self.window_overlap_s = self.window_length_s - self.window_step_length_s
 
+        self.accelerometer_cols = IMUConfig().accelerometer_cols
+
+        # -----------------------
+        # Signal quality analysis
+        # -----------------------
         self.freq_band_physio = [0.75, 3] # Hz
-        self.bandwidth = 0.2   # Hz
-
-class SignalQualityFeatureExtractionAccConfig(HeartRateBaseConfig):
-    
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.set_sensor('accelerometer')
-        config_imu = IMUConfig()
-        config_ppg = PPGConfig()
-        self.sampling_frequency = config_imu.sampling_frequency
-        self.sampling_frequency_ppg = config_ppg.sampling_frequency
-        self.accelerometer_cols = config_imu.accelerometer_cols
-
-        self.window_length_welch_acc = 3 * self.sampling_frequency
-        self.overlap_welch_window_acc = self.window_length_welch_acc // 2
-
-        self.window_length_welch_ppg = 3 * self.sampling_frequency_ppg
-        self.overlap_welch_window_ppg = self.window_length_welch_ppg // 2
-
+        self.bandwidth = 0.2   # Hz      
         self.freq_bin_resolution = 0.05 # Hz
-        self.nfft_ppg = len(np.arange(0, self.sampling_frequency_ppg/2, self.freq_bin_resolution))*2
-        self.nfft_acc = len(np.arange(0, self.sampling_frequency/2, self.freq_bin_resolution))*2
 
-# Classification
-class GaitDetectionConfig(GaitBaseConfig):
-
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.classifier_file_name = "gait_detection_classifier.pkl"
-        self.thresholds_file_name = "gait_detection_threshold.txt"
-
-        self.set_filenames('gait')
-
-
-class FilteringGaitConfig(GaitBaseConfig):
-
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.classifier_file_name = "gait_filtering_classifier.pkl"
-        self.thresholds_file_name = "gait_filtering_threshold.txt"
-
-        self.set_filenames('arm_activity')
-
-
-class TremorDetectionConfig(TremorBaseConfig):
-
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.fmin_peak: float = self.fmin_tremor_power
-        self.fmax_peak: float = self.fmax_tremor_power
-
-        self.d_channels_values = {
-            DataColumns.PRED_TREMOR_PROBA: "probability",
-            DataColumns.PRED_TREMOR_LOGREG: "boolean",
-            DataColumns.PRED_TREMOR_CHECKED: "boolean",
-            DataColumns.PRED_ARM_AT_REST: "boolean"
-        }
-
-        self.set_filenames('tremor')
-
-
-class SignalQualityClassificationConfig(HeartRateBaseConfig):
-
-    def __init__(self) -> None:
-        super().__init__()
         self.classifier_file_name = "ppg_quality_classifier.pkl"
         self.threshold_file_name = "ppg_acc_quality_threshold.txt"
 
-        self.set_filenames('gait')
-
-
-# Quantification
-class ArmSwingQuantificationConfig(ArmActivityFeatureExtractionConfig):
-
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.min_segment_length_s = 3
-
-
-class TremorAggregationConfig(TremorBaseConfig):
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.aggregates_tremor_power: List[str] = ['mode','median', '90p']
-
-        self.set_filenames('tremor')
-        
-
-class HeartRateExtractionConfig(HeartRateBaseConfig):
-
-    def __init__(self, min_window_length: float = 10) -> None:
-        super().__init__()
-
-         # Parameters for HR analysis
-        self.window_overlap_s = self.window_length_s - self.window_step_length_s
+        # ---------------------
+        # Heart rate estimation
+        # ---------------------
         self.min_hr_samples = int(round(min_window_length * self.sampling_frequency))
         self.threshold_sqa = 0.5
 
-        # Heart rate estimation parameters
         hr_est_length = 2
         self.hr_est_samples = hr_est_length * self.sampling_frequency
 
@@ -400,4 +294,20 @@ class HeartRateExtractionConfig(HeartRateBaseConfig):
                 'win_type': win_type_lag,
             }
         }
-            
+
+        self.set_sensor(sensor)
+
+    def set_sensor(self, sensor):
+        self.sensor = sensor 
+
+        if sensor not in ['ppg', 'imu']:
+            raise ValueError(f"Invalid sensor type: {sensor}")
+        
+        if sensor == 'imu':
+            self.sampling_frequency = IMUConfig().sampling_frequency
+        else:
+            self.sampling_frequency = PPGConfig().sampling_frequency
+
+        self.window_length_welch = 3 * self.sampling_frequency
+        self.overlap_welch_window = self.window_length_welch // 2
+        self.nfft = len(np.arange(0, self.sampling_frequency/2, self.freq_bin_resolution))*2

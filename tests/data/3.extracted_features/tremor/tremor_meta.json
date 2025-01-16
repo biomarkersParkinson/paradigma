@@ -12,15 +12,6 @@
     "bits": 64,
     "sensors": [
         {
-            "file_name": "tremor_time.bin",
-            "channels": [
-                "time"
-            ],
-            "units": [
-                "relative_time_ms"
-            ]
-        },
-        {
             "file_name": "tremor_values.bin",
             "channels": [
                 "mfcc_1",
@@ -36,7 +27,7 @@
                 "mfcc_11",
                 "mfcc_12",
                 "freq_peak",
-                "low_freq_power",
+                "below_tremor_power",
                 "tremor_power"
             ],
             "units": [
@@ -57,6 +48,15 @@
                 "(deg/s)^2"
             ],
             "scale_factors": []
+        },
+        {
+            "file_name": "tremor_time.bin",
+            "channels": [
+                "time"
+            ],
+            "units": [
+                "relative_time_ms"
+            ]
         }
     ]
 }
