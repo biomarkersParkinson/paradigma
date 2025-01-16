@@ -104,7 +104,7 @@ def detect_tremor(df: pd.DataFrame, config: TremorConfig, full_path_to_classifie
     2. Scales the relevant features in the input DataFrame (`df`) using the loaded scaling parameters.
     3. Makes predictions using the classifier to estimate the probability of tremor.
     4. Applies a threshold to the predicted probabilities to classify whether tremor is detected or not.
-    5. Checks for rest tremor by verifying the frequency of the peak and low-frequency power.
+    5. Checks for rest tremor by verifying the frequency of the peak and below tremor power.
     6. Adds the predicted probabilities and the classification result to the DataFrame.
 
     Parameters
