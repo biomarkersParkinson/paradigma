@@ -363,10 +363,10 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
         feature_dict[colname] = mfccs[:, i]
 
     # Compute the frequency of the peak, non-tremor power and tremor power
-    feature_dict['freq_peak'] = extract_frequency_peak(freqs, total_psd, config.fmin_peak, config.fmax_peak)
-    feature_dict['low_freq_power'] = compute_power_in_bandwidth(freqs, total_psd, config.fmin_low_power, config.fmax_low_power, 
+    feature_dict['freq_peak'] = extract_frequency_peak(freqs, total_psd, config.fmin_peak_search, config.fmax_peak_search)
+    feature_dict['below_tremor_power'] = compute_power_in_bandwidth(freqs, total_psd, config.fmin_below_rest_tremor, config.fmax_below_rest_tremor, 
                                                                 include_max=False, spectral_resolution=config.spectral_resolution, 
                                                                 cumulative_sum_method='sum')
-    feature_dict['tremor_power'] = extract_tremor_power(freqs, total_psd, config.fmin_tremor_power, config.fmax_tremor_power)
+    feature_dict['tremor_power'] = extract_tremor_power(freqs, total_psd, config.fmin_rest_tremor, config.fmax_rest_tremor)
 
     return pd.DataFrame(feature_dict)

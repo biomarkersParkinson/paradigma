@@ -377,17 +377,17 @@ def extract_spectral_domain_features(
 
     window = hamming(config.window_length_welch, sym = True)
 
+    n_samples_window = ppg_windowed.shape[1]
+
     freqs, psd = welch(
         ppg_windowed,
         fs=config.sampling_frequency,
         window=window,
         noverlap=config.overlap_welch_window,
-        nfft=max(256, 2 ** int(np.log2(ppg_windowed.shape[1]))),
+        nfft=max(256, 2 ** int(np.log2(n_samples_window))),
         detrend=False,
         axis=1
     )
-
-    n_samples_window = ppg_windowed.shape[1]
 
     # Calculate each feature using the computed PSD and frequency array
     d_features['f_dom'] = compute_dominant_frequency(freqs, psd)
@@ -473,35 +473,34 @@ def extract_accelerometer_feature(
         The dataframe with the relative power accelerometer feature.
     """
     
-    d_acc_feature = {}
+    if config.sensor not in ['imu', 'ppg']:
+        raise ValueError("Sensor not recognized.")
+    
+    d_freq = {}
+    d_psd = {}
+    for sensor in ['imu', 'ppg']:
+        config.set_sensor(sensor)
 
-    window_acc = hann(config.window_length_welch_acc, sym = True)
-    window_ppg = hann(config.window_length_welch_ppg, sym = True)
+        if sensor == 'imu':
+            windows = acc_windowed
+        else:
+            windows = ppg_windowed
 
-    freqs_acc, psd_acc = welch(
-        acc_windowed,
-        fs=config.sampling_frequency,
-        window=window_acc,
-        noverlap=config.overlap_welch_window_acc,
-        nfft=config.nfft_acc,
-        detrend=False,
-        axis=1
-    )
+        window_type = hann(config.window_length_welch, sym = True)
+        d_freq[sensor], d_psd[sensor] = welch(
+            windows,
+            fs=config.sampling_frequency,
+            window=window_type,
+            noverlap=config.overlap_welch_window,
+            nfft=config.nfft,
+            detrend=False,
+            axis=1
+        )
 
-    psd_acc = np.sum(psd_acc, axis=2)  # Sum the PSDs of the three axes
+    d_psd['imu'] = np.sum(d_psd['imu'], axis=2)  # Sum the PSDs of the three axes
 
-    freqs_ppg, psd_ppg = welch(
-        ppg_windowed,
-        fs=config.sampling_frequency_ppg,
-        window=window_ppg,
-        noverlap=config.overlap_welch_window_ppg,
-        nfft=config.nfft_ppg,
-        detrend=False,
-        axis=1
-    )
+    acc_power_ratio = extract_acc_power_feature(d_freq['imu'], d_psd['imu'], d_freq['ppg'], d_psd['ppg'])
 
-    d_acc_feature['acc_power_ratio'] = extract_acc_power_feature(freqs_acc, psd_acc, freqs_ppg, psd_ppg)
-
-    return pd.DataFrame(d_acc_feature)
+    return pd.DataFrame(acc_power_ratio, columns=['acc_power_ratio'])
 
 
