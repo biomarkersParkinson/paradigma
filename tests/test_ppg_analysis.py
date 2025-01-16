@@ -1,6 +1,9 @@
 from pathlib import Path
 
+<<<<<<< HEAD
 from paradigma.heart_rate.heart_rate_analysis import extract_signal_quality_features
+=======
+>>>>>>> 5e438182735a38436a5274f894a49abebb7dff4b
 from paradigma.config import PPGConfig, IMUConfig
 from paradigma.preprocessing import preprocess_ppg_data_io, scan_and_sync_segments
 from test_notebooks import compare_data

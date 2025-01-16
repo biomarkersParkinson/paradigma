@@ -1,8 +1,13 @@
 from pathlib import Path
 
+<<<<<<< HEAD
 from paradigma.tremor.tremor_analysis import extract_tremor_features_io, detect_tremor_io
 from paradigma.config import TremorConfig
 
+=======
+from paradigma.pipelines.tremor_pipeline import extract_tremor_features_io, detect_tremor_io
+from paradigma.config import TremorFeatureExtractionConfig, TremorDetectionConfig
+>>>>>>> 5e438182735a38436a5274f894a49abebb7dff4b
 from test_notebooks import compare_data
 
 tremor_binaries_pairs: list[tuple[str, str]] = [
