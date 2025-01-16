@@ -8,6 +8,7 @@ from scipy.signal.windows import hamming, hann
 import tsdf
 from typing import List
 
+from paradigma.classification import ClassifierPackage
 from paradigma.constants import DataColumns
 from paradigma.config import HeartRateConfig
 from paradigma.feature_extraction import compute_statistics, compute_signal_to_noise_ratio, compute_auto_correlation, \
@@ -124,8 +125,7 @@ def extract_signal_quality_features_io(input_path: str | Path, output_path: str 
     #TO BE ADDED
     return df_windowed
 
-
-def signal_quality_classification(df: pd.DataFrame, config: HeartRateConfig, path_to_classifier_input: str | Path) -> pd.DataFrame:
+def signal_quality_classification(df: pd.DataFrame, config: HeartRateConfig, full_path_to_classifier_package: str | Path) -> pd.DataFrame:
     """
     Classify the signal quality of the PPG signal using a logistic regression classifier. A probability close to 1 indicates a high-quality signal, while a probability close to 0 indicates a low-quality signal.
     The classifier is trained on features extracted from the PPG signal. The features are extracted using the extract_signal_quality_features function.
@@ -138,7 +138,7 @@ def signal_quality_classification(df: pd.DataFrame, config: HeartRateConfig, pat
         The DataFrame containing the PPG features and the accelerometer feature for signal quality classification.
     config : HeartRateConfig
         The configuration for the signal quality classification.
-    path_to_classifier_input : str | Path
+    full_path_to_classifier_package : str | Path
         The path to the directory containing the classifier.
 
     Returns
@@ -146,24 +146,15 @@ def signal_quality_classification(df: pd.DataFrame, config: HeartRateConfig, pat
     df_sqa pd.DataFrame
         The DataFrame containing the PPG signal quality predictions (both probabilities of the PPG signal quality classification and the accelerometer label based on the threshold).
     """
-    
-    clf = pd.read_pickle(os.path.join(path_to_classifier_input, 'classifiers', config.classifier_file_name))
-    lr_clf = clf['model']  # Load the logistic regression classifier
-    mu = clf['mu']  # load the mean, 2D array
-    sigma = clf['sigma'] # load the standard deviation, 2D array
+    clf_package = ClassifierPackage.load(full_path_to_classifier_package)  # Load the classifier package
+    clf = clf_package.classifier  # Load the logistic regression classifier
 
-    with open(os.path.join(path_to_classifier_input, 'thresholds', config.threshold_file_name), 'r') as file:
-        acc_threshold = float(file.read())  # Load the accelerometer threshold from the file
-
-    # Assign feature names to the classifier
-    lr_clf.feature_names_in_ = ['var', 'mean', 'median', 'kurtosis', 'skewness', 'f_dom', 'rel_power', 'spectral_entropy', 'signal_to_noise', 'auto_corr']
-
-    # Normalize features using mu and sigma
-    X_normalized = (df[lr_clf.feature_names_in_] - mu.ravel()) / sigma.ravel()  # Use .ravel() to convert the 2D arrays (mu and sigma) to 1D arrays
+    # Apply scaling to relevant columns
+    scaled_features = clf_package.transform_features(df.loc[:, clf.feature_names_in]) # Apply scaling to the features 
 
     # Make predictions for PPG signal quality assessment, and assign the probabilities to the DataFrame and drop the features
-    df[DataColumns.PRED_SQA_PROBA] = lr_clf.predict_proba(X_normalized)[:, 0]
-    df[DataColumns.PRED_SQA_ACC_LABEL] = (df[DataColumns.ACC_POWER_RATIO] < acc_threshold).astype(int)  # Assign accelerometer label to the DataFrame based on the threshold
+    df[DataColumns.PRED_SQA_PROBA] = clf.predict_proba(scaled_features)[:, 0]
+    df[DataColumns.PRED_SQA_ACC_LABEL] = (df[DataColumns.ACC_POWER_RATIO] < config.threshold_sqa_accelerometer).astype(int)  # Assign accelerometer label to the DataFrame based on the threshold
     
     return df[[DataColumns.PRED_SQA_PROBA, DataColumns.PRED_SQA_ACC_LABEL]]  # Return only the relevant columns, namely the predicted probabilities for the PPG signal quality and the accelerometer label
 
@@ -344,7 +335,7 @@ def extract_temporal_domain_features(
     
     feature_dict = {}
     for stat in quality_stats:
-        feature_dict[stat] = compute_statistics(ppg_windowed, stat)
+        feature_dict[stat] = compute_statistics(ppg_windowed, stat, abs_stats=True)
     
     feature_dict['signal_to_noise'] = compute_signal_to_noise_ratio(ppg_windowed)  
     feature_dict['auto_corr'] = compute_auto_correlation(ppg_windowed, config.sampling_frequency)
