@@ -294,7 +294,7 @@ class HeartRateConfig(PPGConfig):
 
         self.set_sensor(sensor)
 
-    def set_tfd_length(self, tfd_length: int):
+    def set_tfd_length(self, tfd_length: float):
         self.tfd_length = tfd_length
         self.min_hr_samples = int(round(self.tfd_length * self.sampling_frequency))
 
