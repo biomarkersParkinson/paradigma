@@ -305,9 +305,9 @@ def extract_spectral_domain_features(config, data) -> pd.DataFrame:
         feature_dict[colname] = mfccs[:, i]
 
     # Compute the frequency of the peak, non-tremor power and tremor power
-    feature_dict['freq_peak'] = extract_frequency_peak(total_psd, freqs, config.fmin_peak, config.fmax_peak)
-    feature_dict['low_freq_power'] = extract_low_freq_power(total_psd, freqs, config.fmin_low_power, config.fmax_low_power)
-    feature_dict['tremor_power'] = extract_tremor_power(total_psd, freqs, config.fmin_tremor_power, config.fmax_tremor_power)
+    feature_dict['freq_peak'] = extract_frequency_peak(total_psd, freqs, config.fmin_peak_search, config.fmax_peak_search)
+    feature_dict['below_tremor_power'] = extract_low_freq_power(total_psd, freqs, config.fmin_below_rest_tremor, config.fmax_below_rest_tremor)
+    feature_dict['tremor_power'] = extract_tremor_power(total_psd, freqs, config.fmin_rest_tremor, config.fmax_rest_tremor)
 
     return pd.DataFrame(feature_dict)
     

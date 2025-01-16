@@ -3,18 +3,17 @@ import json
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Union
 from scipy.stats import gaussian_kde
 
 from paradigma.classification import ClassifierPackage
 from paradigma.constants import DataColumns
-from paradigma.config import TremorFeatureExtractionConfig, TremorDetectionConfig, TremorAggregationConfig
+from paradigma.config import TremorConfig
 from paradigma.tremor.feature_extraction import extract_spectral_domain_features
 from paradigma.segmenting import tabulate_windows, WindowedDataExtractor
 from paradigma.util import get_end_iso8601, write_df_data, read_metadata, aggregate_parameter
 
 
-def extract_tremor_features(df: pd.DataFrame, config: TremorFeatureExtractionConfig) -> pd.DataFrame:
+def extract_tremor_features(df: pd.DataFrame, config: TremorConfig) -> pd.DataFrame:
     """
     This function groups sequences of timestamps into windows and subsequently extracts 
     tremor features from windowed gyroscope data.
@@ -25,7 +24,7 @@ def extract_tremor_features(df: pd.DataFrame, config: TremorFeatureExtractionCon
         The input DataFrame containing sensor data, which includes time and gyroscope data. The data should be
         structured with the necessary columns as specified in the `config`.
 
-    config : TremorFeatureExtractionConfig
+    config : TremorConfig
         Configuration object containing parameters for feature extraction, including column names for time, gyroscope data,
         as well as settings for windowing, and feature computation.
 
@@ -68,7 +67,7 @@ def extract_tremor_features(df: pd.DataFrame, config: TremorFeatureExtractionCon
 
     return df_features
 
-def extract_tremor_features_io(input_path: Union[str, Path], output_path: Union[str, Path], config: TremorFeatureExtractionConfig) -> None:
+def extract_tremor_features_io(input_path: str | Path, output_path: str | Path, config: TremorConfig) -> None:
     # Load data
     metadata_time, metadata_values = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
@@ -94,7 +93,7 @@ def extract_tremor_features_io(input_path: Union[str, Path], output_path: Union[
     write_df_data(metadata_time, metadata_values, output_path, 'tremor_meta.json', df_windowed)
 
 
-def detect_tremor(df: pd.DataFrame, config: TremorDetectionConfig, full_path_to_classifier_package: Union[str, Path]) -> pd.DataFrame:
+def detect_tremor(df: pd.DataFrame, config: TremorConfig, full_path_to_classifier_package: str | Path) -> pd.DataFrame:
     """
     Detects tremor in the input DataFrame using a pre-trained classifier and applies a threshold to the predicted probabilities.
 
@@ -112,10 +111,10 @@ def detect_tremor(df: pd.DataFrame, config: TremorDetectionConfig, full_path_to_
         The input DataFrame containing extracted tremor features. The DataFrame must include
         the necessary columns as specified in the classifier's feature names.
 
-    config : TremorDetectionConfig
+    config : TremorConfig
         Configuration object containing settings for tremor detection, including the frequency range for rest tremor.
 
-    full_path_to_classifier_package : Union[str, Path]
+    full_path_to_classifier_package : str | Path
         The path to the directory containing the classifier file, threshold value, scaler parameters, and other necessary input
         files for tremor detection.
 
@@ -126,7 +125,7 @@ def detect_tremor(df: pd.DataFrame, config: TremorDetectionConfig, full_path_to_
         - `PRED_TREMOR_PROBA`: Predicted probability of tremor based on the classifier.
         - `PRED_TREMOR_LOGREG`: Binary classification result (True for tremor, False for no tremor), based on the threshold applied to `PRED_TREMOR_PROBA`.
         - `PRED_TREMOR_CHECKED`: Binary classification result (True for tremor, False for no tremor), after performing extra checks for rest tremor on `PRED_TREMOR_LOGREG`.
-        - `PRED_ARM_AT_REST`: Binary classification result (True for arm at rest or stable posture, False for significant arm movement), based on the low-frequency power.
+        - `PRED_ARM_AT_REST`: Binary classification result (True for arm at rest or stable posture, False for significant arm movement), based on the power below tremor.
 
     Notes
     -----
@@ -163,16 +162,18 @@ def detect_tremor(df: pd.DataFrame, config: TremorDetectionConfig, full_path_to_
     df[DataColumns.PRED_TREMOR_LOGREG] = (df[DataColumns.PRED_TREMOR_PROBA] >= clf_package.threshold).astype(int)
 
     # Perform extra checks for rest tremor 
-    peak_check = (df['freq_peak'] >= config.fmin_peak) & (df['freq_peak']<=config.fmax_peak) # peak within 3-7 Hz
-    df[DataColumns.PRED_ARM_AT_REST] = (df['low_freq_power'] <= config.movement_threshold).astype(int) # arm at rest or in stable posture
+    peak_check = (df['freq_peak'] >= config.fmin_rest_tremor) & (df['freq_peak']<=config.fmax_rest_tremor) # peak within 3-7 Hz
+    df[DataColumns.PRED_ARM_AT_REST] = (df['below_tremor_power'] <= config.movement_threshold).astype(int) # arm at rest or in stable posture
     df[DataColumns.PRED_TREMOR_CHECKED] = ((df[DataColumns.PRED_TREMOR_LOGREG]==1) & (peak_check==True) & (df[DataColumns.PRED_ARM_AT_REST] == True)).astype(int)
     
     return df
 
 
-def detect_tremor_io(input_path: Union[str, Path], output_path: Union[str, Path], path_to_classifier_input: Union[str, Path], config: TremorDetectionConfig) -> None:
+def detect_tremor_io(input_path: str | Path, output_path: str | Path, path_to_classifier_input: str | Path, config: TremorConfig) -> None:
     
     # Load the data
+    config.set_filenames('tremor')
+
     metadata_time, metadata_values = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
@@ -191,7 +192,7 @@ def detect_tremor_io(input_path: Union[str, Path], output_path: Union[str, Path]
     write_df_data(metadata_time, metadata_values, output_path, 'tremor_meta.json', df)
 
 
-def aggregate_tremor(df: pd.DataFrame, config: TremorAggregationConfig):
+def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     """
     Quantifies the amount of tremor time and tremor power, aggregated over all windows in the input dataframe.
     Tremor time is calculated as the number of the detected tremor windows, as percentage of the number of windows 
@@ -204,7 +205,7 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorAggregationConfig):
         The input DataFrame containing extracted tremor features. The DataFrame must include
         the necessary columns as specified in the classifier's feature names.
 
-    config : TremorAggregationConfig
+    config : TremorConfig
         Configuration object containing the percentile for aggregating tremor power.
 
     Returns
@@ -263,7 +264,7 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorAggregationConfig):
     return d_aggregates
 
 
-def aggregate_tremor_io(path_to_feature_input: Union[str, Path], path_to_prediction_input: Union[str, Path], output_path: Union[str, Path], config: TremorAggregationConfig) -> None:
+def aggregate_tremor_io(path_to_feature_input: str | Path, path_to_prediction_input: str | Path, output_path: str | Path, config: TremorConfig) -> None:
     
     # Load the features & predictions
     metadata_time, metadata_values = read_metadata(path_to_feature_input, config.meta_filename, config.time_filename, config.values_filename)
@@ -275,7 +276,7 @@ def aggregate_tremor_io(path_to_feature_input: Union[str, Path], path_to_predict
     df_predictions = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
     # Subset features
-    df_features = df_features[['tremor_power', 'low_freq_power']]
+    df_features = df_features[['tremor_power', 'below_tremor_power']]
 
     # Concatenate predictions and tremor power
     df = pd.concat([df_predictions, df_features], axis=1)

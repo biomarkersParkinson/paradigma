@@ -1,10 +1,10 @@
-from typing import List, Tuple, Union
+from typing import List
 import pandas as pd
 import numpy as np
 from scipy.signal import welch, find_peaks
 from scipy.signal.windows import hamming, hann
 from scipy.stats import kurtosis, skew
-from paradigma.config import SignalQualityFeatureExtractionConfig, SignalQualityFeatureExtractionAccConfig
+from paradigma.config import HeartRateConfig
 
 def generate_statistics(
         data: np.ndarray,
@@ -150,7 +150,7 @@ def compute_dominant_frequency(
 def compute_relative_power(
         freqs: np.ndarray, 
         psd: np.ndarray, 
-        config
+        config: HeartRateConfig,
     ) -> list:
     """
     Calculate relative power within the dominant frequency band in the physiological range (0.75 - 3 Hz).
@@ -161,7 +161,7 @@ def compute_relative_power(
         The frequency bins of the power spectral density.
     psd: np.ndarray
         The power spectral density of the signal.
-    config: SignalQualityFeatureExtractionConfig
+    config: HeartRateConfig
         The configuration object containing the parameters for the feature extraction
 
     Returns
@@ -203,7 +203,7 @@ def compute_spectral_entropy(
     return spectral_entropy
 
 def extract_temporal_domain_features(
-        config: SignalQualityFeatureExtractionConfig, 
+        config: HeartRateConfig, 
         ppg_windowed: np.ndarray, 
         quality_stats: List[str] = ['mean', 'std']
     ) -> pd.DataFrame:
@@ -213,7 +213,7 @@ def extract_temporal_domain_features(
     Parameters
     ----------
 
-    config: SignalQualityFeatureExtractionConfig
+    config: HeartRateConfig
         The configuration object containing the parameters for the feature extraction
     
     ppg_windowed: np.ndarray
@@ -237,7 +237,7 @@ def extract_temporal_domain_features(
     return pd.DataFrame(feature_dict)
 
 def extract_spectral_domain_features(
-        config: SignalQualityFeatureExtractionConfig, 
+        config: HeartRateConfig, 
         ppg_windowed: np.ndarray
     ) -> pd.DataFrame:
     """
@@ -247,7 +247,7 @@ def extract_spectral_domain_features(
 
     Parameters
     ----------
-    config: SignalQualityFeatureExtractionConfig
+    config: HeartRateConfig
         The configuration object containing the parameters for the feature extraction
 
     ppg_windowed: np.ndarray
@@ -330,13 +330,13 @@ def extract_acc_power_feature(
     
     return acc_power_ratio
 
-def extract_accelerometer_feature(config: SignalQualityFeatureExtractionAccConfig, acc_windowed: np.ndarray, ppg_windowed: np.ndarray) -> pd.DataFrame:
+def extract_accelerometer_feature(config: HeartRateConfig, acc_windowed: np.ndarray, ppg_windowed: np.ndarray) -> pd.DataFrame:
     """
     Extract accelerometer features from the accelerometer signal in the PPG frequency range.
     
     Parameters
     ----------
-    config: SignalQualityFeatureExtractionAccConfig
+    config: HeartRateConfig
         The configuration object containing the parameters for the feature extraction
     
     acc_windowed: np.ndarray
@@ -350,36 +350,34 @@ def extract_accelerometer_feature(config: SignalQualityFeatureExtractionAccConfi
     pd.DataFrame
         The dataframe with the relative power accelerometer feature.
     """
+    if config.sensor not in ['imu', 'ppg']:
+        raise ValueError("Sensor not recognized.")
     
-    d_acc_feature = {}
+    d_freq = {}
+    d_psd = {}
+    for sensor in ['imu', 'ppg']:
+        config.set_sensor(sensor)
 
-    window_acc = hann(config.window_length_welch_acc, sym = True)
-    window_ppg = hann(config.window_length_welch_ppg, sym = True)
+        if sensor == 'imu':
+            windows = acc_windowed
+        else:
+            windows = ppg_windowed
 
-    freqs_acc, psd_acc = welch(
-        acc_windowed,
-        fs=config.sampling_frequency,
-        window=window_acc,
-        noverlap=config.overlap_welch_window_acc,
-        nfft=config.nfft_acc,
-        detrend=False,
-        axis=1
-    )
+        window_type = hann(config.window_length_welch, sym = True)
+        d_freq[sensor], d_psd[sensor] = welch(
+            windows,
+            fs=config.sampling_frequency,
+            window=window_type,
+            noverlap=config.overlap_welch_window,
+            nfft=config.nfft,
+            detrend=False,
+            axis=1
+        )
 
-    psd_acc = np.sum(psd_acc, axis=2)  # Sum the PSDs of the three axes
+    d_psd['imu'] = np.sum(d_psd['imu'], axis=2)  # Sum the PSDs of the three axes
 
-    freqs_ppg, psd_ppg = welch(
-        ppg_windowed,
-        fs=config.sampling_frequency_ppg,
-        window=window_ppg,
-        noverlap=config.overlap_welch_window_ppg,
-        nfft=config.nfft_ppg,
-        detrend=False,
-        axis=1
-    )
+    acc_power_ratio = extract_acc_power_feature(d_freq['imu'], d_psd['imu'], d_freq['ppg'], d_psd['ppg'])
 
-    d_acc_feature['acc_power_ratio'] = extract_acc_power_feature(freqs_acc, psd_acc, freqs_ppg, psd_ppg)
-
-    return pd.DataFrame(d_acc_feature)
+    return pd.DataFrame(acc_power_ratio, columns=['acc_power_ratio'])
 
 

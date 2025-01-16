@@ -5,9 +5,9 @@ import papermill as pm
 import tsdf
 
 arm_swing_binaries_pairs: list[tuple[str, str]] = [
-        ("arm_activity_meta.json", "arm_activity_values.bin"),
-        ("arm_activity_meta.json", "arm_activity_time.bin"),
-    ]
+    ("arm_activity_meta.json", "arm_activity_values.bin"),
+    ("arm_activity_meta.json", "arm_activity_time.bin"),
+]
 
 # Tolerance for the np.allclose function
 tolerance: float = 1e-8
