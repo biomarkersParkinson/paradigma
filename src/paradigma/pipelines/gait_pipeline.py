@@ -629,19 +629,21 @@ def quantify_arm_swing(
     for df_name in dfs_to_quantify:    
         if df_name == 'filtered':
             # Filter the DataFrame to only include predicted no other arm activity (1)
-            df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True)
+            df_focus = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].copy().reset_index(drop=True)
 
             # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
             # Now segments are based on predicted gait without other arm activity for subsequent processes
-            df[DataColumns.SEGMENT_NR] = create_segments(
+            df_focus[DataColumns.SEGMENT_NR] = create_segments(
                 time_array=df[DataColumns.TIME], 
                 max_segment_gap_s=max_segment_gap_s
             )
+        else:
+            df_focus = df.copy()
 
         arm_swing_quantified[df_name] = []
         segment_meta[df_name] = {}
 
-        for segment_nr, group in df.groupby(DataColumns.SEGMENT_NR, sort=False):
+        for segment_nr, group in df_focus.groupby(DataColumns.SEGMENT_NR, sort=False):
             segment_cat = group[DataColumns.SEGMENT_CAT].iloc[0]
             time_array = group[DataColumns.TIME].to_numpy()
             velocity_array = group[DataColumns.VELOCITY].to_numpy()
