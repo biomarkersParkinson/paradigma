@@ -11,7 +11,7 @@ from typing import List, Tuple, Union
 from paradigma.constants import TimeUnit, DataColumns
 from paradigma.config import PPGConfig, IMUConfig
 from paradigma.util import parse_iso8601_to_datetime, write_df_data, \
-    read_metadata, extract_meta_from_tsdf_files
+    read_metadata, extract_meta_from_tsdf_files, invert_watch_side
 
 
 def resample_data(
@@ -140,7 +140,7 @@ def butterworth_filter(
     else:
         raise ValueError("Data must be either 1D or 2D.")
 
-def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str) -> pd.DataFrame:
+def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str, watch_side: str) -> pd.DataFrame:
     """
     Preprocesses IMU data by resampling and applying filters.
 
@@ -156,6 +156,10 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str) -> pd.
         - "accelerometer": Preprocess accelerometer data only.
         - "gyroscope": Preprocess gyroscope data only.
         - "both": Preprocess both accelerometer and gyroscope data.
+    watch_side: str
+        The side of the watch where the data was collected. Must be one of:
+        - "left": Data was collected from the left wrist.
+        - "right": Data was collected from the right wrist.
 
     Returns
     -------
@@ -186,6 +190,9 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str) -> pd.
         values_column_names = values_colnames,
         resampling_frequency=config.sampling_frequency
     )
+
+    # Invert the IMU data if the watch was worn on the right wrist
+    df = invert_watch_side(df, watch_side)
     
     if sensor in ['accelerometer', 'both']:
       
@@ -219,14 +226,14 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str) -> pd.
 
 
 def preprocess_imu_data_io(path_to_input: str | Path, path_to_output: str | Path, 
-                           config: IMUConfig, sensor: str) -> None:
+                           config: IMUConfig, sensor: str, watch_side: str) -> None:
     # Load data
     metadata_time, metadata_values = read_metadata(str(path_to_input), str(config.meta_filename),
                                                     str(config.time_filename), str(config.values_filename))
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
     # Preprocess data
-    df = preprocess_imu_data(df=df, config=config, sensor=sensor)
+    df = preprocess_imu_data(df=df, config=config, sensor=sensor, watch_side=watch_side)
 
     # Store data
     for sensor, units in zip(['accelerometer', 'gyroscope'], ['g', config.rotation_units]):
