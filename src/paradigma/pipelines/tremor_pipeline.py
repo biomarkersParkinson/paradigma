@@ -65,7 +65,7 @@ def extract_tremor_features(df: pd.DataFrame, config: TremorConfig) -> pd.DataFr
     df_spectral_features = extract_spectral_domain_features(windowed_gyro, config)
 
     # Combine spectral features with the start time
-    df_features= pd.concat([df_features, df_spectral_features], axis=1)
+    df_features = pd.concat([df_features, df_spectral_features], axis=1)
 
     return df_features
 
@@ -342,7 +342,7 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
         axis=1
     )
 
-    # Compute total power in the PSD
+    # Compute total power in the PSD (over the three axes)
     total_psd = compute_total_power(psd)
 
     # Compute the MFCC's
