@@ -3,11 +3,11 @@ import pandas as pd
 from typing import List, Tuple
 
 from scipy.integrate import cumulative_trapezoid
-from scipy.signal import find_peaks
+from scipy.signal import find_peaks, windows
+from scipy.stats import kurtosis, skew
 from sklearn.decomposition import PCA
 
-from scipy import signal
-from scipy.stats import kurtosis, skew
+from paradigma.config import HeartRateConfig
 
 
 def compute_statistics(data: np.ndarray, statistic: str, abs_stats: bool=False) -> np.ndarray:
@@ -122,7 +122,7 @@ def compute_power_in_bandwidth(
         A 1D array of shape (n_frequencies,) containing the frequencies corresponding 
         to the PSD values.
     psd : np.ndarray
-        A 2D array of shape (n_windows, n_frequencieS) or 3D array of shape (n_windows, n_frequencies, n_axes)
+        A 2D array of shape (n_windows, n_frequencies) or 3D array of shape (n_windows, n_frequencies, n_axes)
         representing the power spectral density (PSD) of the sensor data.
     fmin : float
         The lower bound of the frequency band in Hz.
@@ -353,7 +353,7 @@ def extract_frequency_peak(
 def compute_relative_power(
         freqs: np.ndarray, 
         psd: np.ndarray, 
-        config
+        config: HeartRateConfig
     ) -> list:
     """
     Calculate relative power within the dominant frequency band in the physiological range (0.75 - 3 Hz).
@@ -364,11 +364,11 @@ def compute_relative_power(
         The frequency bins of the power spectral density.
     psd: np.ndarray
         The power spectral density of the signal.
-    config: SignalQualityFeatureExtractionConfig
+    config: HeartRateConfig
         The configuration object containing the parameters for the feature extraction. The following
         attributes are used:
         - freq_band_physio: tuple
-            The frequency band for physiological tremor (default: (0.75, 3)).
+            The frequency band for physiological heart rate (default: (0.75, 3)).
         - bandwidth: float
             The bandwidth around the peak frequency to consider for relative power calculation (default: 0.5).
 
@@ -439,11 +439,11 @@ def compute_mfccs(
         - window_length_s : int
             Duration of each analysis window in seconds.
         - sampling_frequency : int
-            Sampling frequency of the data (default: 100 Hz).
+            Sampling frequency of the data in Hz (default: 100).
         - mfcc_low_frequency : float
-            Lower bound of the frequency band (default: 0).
+            Lower bound of the frequency band in Hz (default: 0).
         - mfcc_high_frequency : float
-            Upper bound of the frequency band (default: 25 Hz).
+            Upper bound of the frequency band in Hz (default: 25).
         - mfcc_n_dct_filters : int
             Number of triangular filters in the filterbank (default: 20).
         - mfcc_n_coefficients : int
@@ -491,7 +491,7 @@ def compute_mfccs(
     # Construct triangular filterbank
     filters = np.zeros((len(filter_points) - 2, int(window_length / 2 + 1)))
     for j in range(len(filter_points) - 2):
-        filters[j, filter_points[j] : filter_points[j + 2]] = signal.windows.triang(
+        filters[j, filter_points[j] : filter_points[j + 2]] = windows.triang(
             filter_points[j + 2] - filter_points[j]
         ) 
         # Normalize filter coefficients
@@ -581,7 +581,7 @@ def pca_transform_gyroscope(
     z_gyro_colname : str
         The column name for the z-axis gyroscope data.
     pred_colname : str, optional
-        The column name for the predicted gait (default is None).
+        The column name for the predicted gait (default: None).
         
     Returns
     -------
@@ -680,7 +680,7 @@ def extract_angle_extremes(
     sampling_frequency : float
         The sampling frequency of the data.
     max_frequency_activity : float, optional
-        The maximum frequency of human activity (default is 1.75 Hz).
+        The maximum frequency of human activity in Hz (default: 1.75).
     
     Returns
     -------

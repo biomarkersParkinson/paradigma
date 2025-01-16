@@ -297,7 +297,7 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     Compute spectral domain features from the gyroscope data.
 
     This function computes Mel-frequency cepstral coefficients (MFCCs), the frequency of the peak, 
-    the tremor power, and the non-tremor power based on the total power spectral density of the windowed gyroscope data.
+    the tremor power, and the below tremor power based on the total power spectral density of the windowed gyroscope data.
 
     Parameters
     ----------
@@ -311,7 +311,7 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     -------
     pd.DataFrame
         The feature dataframe containing the extracted spectral features, including 
-        MFCCs, the frequency of the peak, the tremor power and non-tremor power for each window.
+        MFCCs, the frequency of the peak, the tremor power and below tremor power for each window.
     """
 
     # Initialize a dictionary to hold the results
