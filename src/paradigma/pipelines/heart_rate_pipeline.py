@@ -158,47 +158,6 @@ def signal_quality_classification(df: pd.DataFrame, config: HeartRateConfig, ful
     
     return df[[DataColumns.PRED_SQA_PROBA, DataColumns.PRED_SQA_ACC_LABEL]]  # Return only the relevant columns, namely the predicted probabilities for the PPG signal quality and the accelerometer label
 
-def signal_quality_classification_legacy(df: pd.DataFrame, config: HeartRateConfig, path_to_classifier_input: str | Path) -> pd.DataFrame:
-    """
-    Classify the signal quality of the PPG signal using a logistic regression classifier. A probability close to 1 indicates a high-quality signal, while a probability close to 0 indicates a low-quality signal.
-    The classifier is trained on features extracted from the PPG signal. The features are extracted using the extract_signal_quality_features function.
-    The accelerometer signal is used to determine the signal quality based on the power ratio of the accelerometer signal and returns a binary label based on a threshold.
-    A value of 1 on the indicates no/minor periodic motion influence of the accelerometer on the PPG signal, 0 indicates major periodic motion influence.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        The DataFrame containing the PPG features and the accelerometer feature for signal quality classification.
-    config : HeartRateConfig
-        The configuration for the signal quality classification.
-    path_to_classifier_input : Union[str, Path]
-        The path to the directory containing the classifier.
-
-    Returns
-    -------
-    df_sqa pd.DataFrame
-        The DataFrame containing the PPG signal quality predictions (both probabilities of the PPG signal quality classification and the accelerometer label based on the threshold).
-    """
-    clf = pd.read_pickle(os.path.join(path_to_classifier_input, 'classifiers', config.classifier_file_name))
-    lr_clf = clf['model']  # Load the logistic regression classifier
-    mu = clf['mu']  # load the mean, 2D array
-    sigma = clf['sigma'] # load the standard deviation, 2D array
-
-    with open(os.path.join(path_to_classifier_input, 'thresholds', config.threshold_file_name), 'r') as file:
-        acc_threshold = float(file.read())  # Load the accelerometer threshold from the file
-
-    # Assign feature names to the classifier
-    lr_clf.feature_names_in_ = ['var', 'mean', 'median', 'kurtosis', 'skewness', 'f_dom', 'rel_power', 'spectral_entropy', 'signal_to_noise', 'auto_corr']
-
-    # Normalize features using mu and sigma
-    X_normalized = (df[lr_clf.feature_names_in_] - mu.ravel()) / sigma.ravel()  # Use .ravel() to convert the 2D arrays (mu and sigma) to 1D arrays
-
-    # Make predictions for PPG signal quality assessment, and assign the probabilities to the DataFrame and drop the features
-    df[DataColumns.PRED_SQA_PROBA] = lr_clf.predict_proba(X_normalized)[:, 0]
-    df[DataColumns.PRED_SQA_ACC_LABEL] = (df[DataColumns.ACC_POWER_RATIO] < acc_threshold).astype(int)  # Assign accelerometer label to the DataFrame based on the threshold
-    
-    return df[[DataColumns.PRED_SQA_PROBA, DataColumns.PRED_SQA_ACC_LABEL]]  # Return only the relevant columns, namely the predicted probabilities for the PPG signal quality and the accelerometer label
-
 
 def signal_quality_classification_io(input_path: str | Path, output_path: str | Path, path_to_classifier_input: str | Path, config: HeartRateConfig) -> None:
     
