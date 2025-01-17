@@ -124,7 +124,7 @@ def extract_signal_quality_features_io(input_path: str | Path, output_path: str 
     df_acc = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
     # Extract signal quality features
-    df_windowed = extract_signal_quality_features(df_ppg, df_acc, ppg_config, acc_config, df_acc)
+    df_windowed = extract_signal_quality_features(df_ppg, df_acc, ppg_config, acc_config)
     
     # Save the extracted features
     #TO BE ADDED
