@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gait analysis &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Tremor analysis" href="tremor_analysis.html" />
+    <link rel="prev" title="Data Preparation" href="data_preparation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="data_preparation.html">Data Preparation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Gait analysis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#load-data">Load data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-1-preprocess-data">Step 1: Preprocess data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-2-extract-gait-features">Step 2: Extract gait features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-3-gait-detection">Step 3: Gait detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-4-arm-activity-feature-extraction">Step 4: Arm activity feature extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-5-filtering-gait">Step 5: Filtering gait</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-6-arm-swing-quantification">Step 6: Arm swing quantification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-7-aggregation">Step 7: Aggregation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="heart_rate_analysis.html">Heart rate analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Gait analysis</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/gait_analysis.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="gait-analysis">
+<h1>Gait analysis<a class="headerlink" href="#gait-analysis" title="Link to this heading"></a></h1>
+<p>This tutorial showcases the high-level functions composing the gait pipeline. Before following along, make sure all data preparation steps have been followed in the data preparation tutorial.</p>
+<p>To run the complete gait pipeline, a prerequisite is to have both accelerometer and gyroscope data, although a small part of the pipeline requires only accelerometer data. Roughly, the pipeline can be split into seven segments:</p>
+<ol class="arabic simple">
+<li><p>Data preprocessing</p></li>
+<li><p>Gait feature extraction</p></li>
+<li><p>Gait detection</p></li>
+<li><p>Arm activity feature extraction</p></li>
+<li><p>Filtering gait</p></li>
+<li><p>Arm swing quantification</p></li>
+<li><p>Aggregation</p></li>
+</ol>
+<p>Using only accelerometer data, the first three steps can be completed.</p>
+<p>[!WARNING] The gait pipeline has been developed on data of the Gait Up Physilog 4, and is currently being validated on the Verily Study Watch. Different sensors and positions on the wrist may affect outcomes.</p>
+<p>Throughout the tutorial, a small segment of data from a participant of the Personalized Parkinson Project is used to demonstrate the functionalities.</p>
+<section id="load-data">
+<h2>Load data<a class="headerlink" href="#load-data" title="Link to this heading"></a></h2>
+<p>Load the prepared data into memory. For example, the following functions can be used depending on the file extension of the data:</p>
+<ul class="simple">
+<li><p><em>.csv</em>: <code class="docutils literal notranslate"><span class="pre">pandas.read_csv()</span></code> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html">documentation</a>)</p></li>
+<li><p><em>.json</em>: <code class="docutils literal notranslate"><span class="pre">json.load()</span></code> (<a class="reference external" href="https://docs.python.org/3/library/json.html#json.load">documentation</a>)</p></li>
+</ul>
+<p>We use the interally developed <code class="docutils literal notranslate"><span class="pre">TSDF</span></code> (<a class="reference external" href="https://biomarkersparkinson.github.io/tsdf/">documentation</a>) to load and store data [<a class="reference external" href="https://arxiv.org/abs/2211.11294">1</a>].</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span>
+
+<span class="c1"># Set the path to the data file location</span>
+<span class="n">path_to_data</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../tests/data&#39;</span><span class="p">)</span>
+<span class="n">path_to_prepared_data</span> <span class="o">=</span>  <span class="n">path_to_data</span> <span class="o">/</span> <span class="s1">&#39;1.prepared_data&#39;</span> <span class="o">/</span> <span class="s1">&#39;imu&#39;</span>
+
+<span class="c1"># Load the data from the file</span>
+<span class="n">df_imu</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_prepared_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;IMU&#39;</span><span class="p">)</span>
+
+<span class="n">df_imu</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>accelerometer_x</th>
+      <th>accelerometer_y</th>
+      <th>accelerometer_z</th>
+      <th>gyroscope_x</th>
+      <th>gyroscope_y</th>
+      <th>gyroscope_z</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.00000</td>
+      <td>0.550718</td>
+      <td>0.574163</td>
+      <td>-0.273684</td>
+      <td>-115.670732</td>
+      <td>32.012195</td>
+      <td>-26.097561</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.01004</td>
+      <td>0.535885</td>
+      <td>0.623445</td>
+      <td>-0.254545</td>
+      <td>-110.609757</td>
+      <td>34.634146</td>
+      <td>-24.695122</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.02008</td>
+      <td>0.504306</td>
+      <td>0.651675</td>
+      <td>-0.251675</td>
+      <td>-103.231708</td>
+      <td>36.768293</td>
+      <td>-22.926829</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.03012</td>
+      <td>0.488517</td>
+      <td>0.686603</td>
+      <td>-0.265550</td>
+      <td>-96.280488</td>
+      <td>38.719512</td>
+      <td>-21.158537</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.04016</td>
+      <td>0.494258</td>
+      <td>0.725359</td>
+      <td>-0.278469</td>
+      <td>-92.560976</td>
+      <td>41.280488</td>
+      <td>-20.304878</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>72942</th>
+      <td>730.74468</td>
+      <td>0.234928</td>
+      <td>-0.516268</td>
+      <td>-0.802871</td>
+      <td>0.975610</td>
+      <td>-2.256098</td>
+      <td>2.256098</td>
+    </tr>
+    <tr>
+      <th>72943</th>
+      <td>730.75472</td>
+      <td>0.245455</td>
+      <td>-0.514354</td>
+      <td>-0.806699</td>
+      <td>0.304878</td>
+      <td>-1.707317</td>
+      <td>1.768293</td>
+    </tr>
+    <tr>
+      <th>72944</th>
+      <td>730.76476</td>
+      <td>0.243541</td>
+      <td>-0.511005</td>
+      <td>-0.807177</td>
+      <td>0.304878</td>
+      <td>-1.585366</td>
+      <td>1.890244</td>
+    </tr>
+    <tr>
+      <th>72945</th>
+      <td>730.77480</td>
+      <td>0.240191</td>
+      <td>-0.514354</td>
+      <td>-0.808134</td>
+      <td>0.000000</td>
+      <td>-1.280488</td>
+      <td>1.585366</td>
+    </tr>
+    <tr>
+      <th>72946</th>
+      <td>730.78484</td>
+      <td>0.243541</td>
+      <td>-0.511005</td>
+      <td>-0.808134</td>
+      <td>-0.060976</td>
+      <td>-1.036585</td>
+      <td>1.219512</td>
+    </tr>
+  </tbody>
+</table>
+<p>72947 rows × 7 columns</p>
+</div></div></div>
+</div>
+</section>
+<section id="step-1-preprocess-data">
+<h2>Step 1: Preprocess data<a class="headerlink" href="#step-1-preprocess-data" title="Link to this heading"></a></h2>
+<p>The single function <code class="docutils literal notranslate"><span class="pre">preprocess_imu_data</span></code> in the cell below runs all necessary preprocessing steps. It requires the loaded dataframe, a configuration object <code class="docutils literal notranslate"><span class="pre">config</span></code> specifying parameters used for preprocessing, and a selection of sensors. For the sensors, options include <code class="docutils literal notranslate"><span class="pre">'accelerometer'</span></code>, <code class="docutils literal notranslate"><span class="pre">'gyroscope'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'both'</span></code>.</p>
+<p>The function <code class="docutils literal notranslate"><span class="pre">preprocess_imu_data</span></code> processes the data as follows:</p>
+<ol class="arabic simple">
+<li><p>Resample the data to ensure uniformly distributed sampling rate</p></li>
+<li><p>Apply filtering to separate the gravity component from the accelerometer</p></li>
+</ol>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_imu_data</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span>
+
+<span class="n">df_preprocessed</span> <span class="o">=</span> <span class="n">preprocess_imu_data</span><span class="p">(</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df_imu</span><span class="p">,</span> 
+    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+    <span class="n">sensor</span><span class="o">=</span><span class="s1">&#39;both&#39;</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The dataset of </span><span class="si">{</span><span class="n">df_preprocessed</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="si">}</span><span class="s2"> seconds is automatically resampled to </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="si">}</span><span class="s2"> Hz.&quot;</span><span class="p">)</span>
+<span class="n">df_preprocessed</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The dataset of 730.79 seconds is automatically resampled to 100 Hz.
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>accelerometer_x</th>
+      <th>accelerometer_y</th>
+      <th>accelerometer_z</th>
+      <th>gyroscope_x</th>
+      <th>gyroscope_y</th>
+      <th>gyroscope_z</th>
+      <th>accelerometer_x_grav</th>
+      <th>accelerometer_y_grav</th>
+      <th>accelerometer_z_grav</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.00</td>
+      <td>0.053078</td>
+      <td>0.010040</td>
+      <td>-0.273154</td>
+      <td>-115.670732</td>
+      <td>32.012195</td>
+      <td>-26.097561</td>
+      <td>0.497639</td>
+      <td>0.564123</td>
+      <td>-0.000530</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.01</td>
+      <td>0.038337</td>
+      <td>0.058802</td>
+      <td>-0.256899</td>
+      <td>-110.636301</td>
+      <td>34.624710</td>
+      <td>-24.701537</td>
+      <td>0.497666</td>
+      <td>0.564510</td>
+      <td>0.002305</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.02</td>
+      <td>0.006824</td>
+      <td>0.086559</td>
+      <td>-0.256739</td>
+      <td>-103.292766</td>
+      <td>36.753000</td>
+      <td>-22.942002</td>
+      <td>0.497698</td>
+      <td>0.564887</td>
+      <td>0.005122</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.03</td>
+      <td>-0.009156</td>
+      <td>0.120855</td>
+      <td>-0.273280</td>
+      <td>-96.349062</td>
+      <td>38.692931</td>
+      <td>-21.175227</td>
+      <td>0.497733</td>
+      <td>0.565254</td>
+      <td>0.007919</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.04</td>
+      <td>-0.003770</td>
+      <td>0.159316</td>
+      <td>-0.289007</td>
+      <td>-92.585735</td>
+      <td>41.237328</td>
+      <td>-20.311531</td>
+      <td>0.497772</td>
+      <td>0.565610</td>
+      <td>0.010696</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>The resulting dataframe shown above contains uniformly distributed timestamps with corresponding accelerometer and gyroscope values. Note the for accelerometer values, the following notation is used:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">accelerometer_x</span></code>: the accelerometer signal after filtering out the gravitational component</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">accelerometer_x_grav</span></code>: the gravitational component of the accelerometer signal</p></li>
+</ul>
+<p>The accelerometer data is retained and used to compute gravity-related features for the classification tasks, because the gravity is informative of the position of the arm.</p>
+</section>
+<section id="step-2-extract-gait-features">
+<h2>Step 2: Extract gait features<a class="headerlink" href="#step-2-extract-gait-features" title="Link to this heading"></a></h2>
+<p>With the data uniformly resampled and the gravitional component separated from the accelerometer signal, features can be extracted from the time series data. This step does not require gyroscope data. To extract the features, the pipeline executes the following steps:</p>
+<ul class="simple">
+<li><p>Use overlapping windows to group timestamps</p></li>
+<li><p>Extract temporal features</p></li>
+<li><p>Use Fast Fourier Transform the transform the windowed data into the spectral domain</p></li>
+<li><p>Extract spectral features</p></li>
+<li><p>Combine both temporal and spectral features into a final dataframe</p></li>
+</ul>
+<p>These steps are encapsulated in <code class="docutils literal notranslate"><span class="pre">extract_gait_features</span></code> (documentation can be found <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/gait_pipeline.py">here</a>).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">GaitConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_gait_features</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;gait&#39;</span><span class="p">)</span>
+
+<span class="n">df_gait</span> <span class="o">=</span> <span class="n">extract_gait_features</span><span class="p">(</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df_preprocessed</span><span class="p">,</span> 
+    <span class="n">config</span><span class="o">=</span><span class="n">config</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A total of </span><span class="si">{</span><span class="n">df_gait</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="si">}</span><span class="s2"> features have been extracted from </span><span class="si">{</span><span class="n">df_gait</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="si">}</span><span class="s2">-second windows with </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="o">-</span><span class="n">config</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="si">}</span><span class="s2"> seconds overlap.&quot;</span><span class="p">)</span>
+<span class="n">df_gait</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>A total of 34 features have been extracted from 725 6-second windows with 5 seconds overlap.
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>accelerometer_x_grav_mean</th>
+      <th>accelerometer_y_grav_mean</th>
+      <th>accelerometer_z_grav_mean</th>
+      <th>accelerometer_x_grav_std</th>
+      <th>accelerometer_y_grav_std</th>
+      <th>accelerometer_z_grav_std</th>
+      <th>accelerometer_std_norm</th>
+      <th>accelerometer_x_power_below_gait</th>
+      <th>accelerometer_y_power_below_gait</th>
+      <th>...</th>
+      <th>accelerometer_mfcc_3</th>
+      <th>accelerometer_mfcc_4</th>
+      <th>accelerometer_mfcc_5</th>
+      <th>accelerometer_mfcc_6</th>
+      <th>accelerometer_mfcc_7</th>
+      <th>accelerometer_mfcc_8</th>
+      <th>accelerometer_mfcc_9</th>
+      <th>accelerometer_mfcc_10</th>
+      <th>accelerometer_mfcc_11</th>
+      <th>accelerometer_mfcc_12</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>0.527557</td>
+      <td>0.485994</td>
+      <td>-0.314004</td>
+      <td>0.045376</td>
+      <td>0.061073</td>
+      <td>0.312533</td>
+      <td>0.187336</td>
+      <td>0.002437</td>
+      <td>0.038174</td>
+      <td>...</td>
+      <td>0.622230</td>
+      <td>0.700691</td>
+      <td>0.150885</td>
+      <td>0.458676</td>
+      <td>0.033595</td>
+      <td>0.243243</td>
+      <td>0.178762</td>
+      <td>0.066051</td>
+      <td>0.090567</td>
+      <td>0.128075</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.0</td>
+      <td>0.532392</td>
+      <td>0.466982</td>
+      <td>-0.426883</td>
+      <td>0.045834</td>
+      <td>0.052777</td>
+      <td>0.261492</td>
+      <td>0.196270</td>
+      <td>0.001498</td>
+      <td>0.012917</td>
+      <td>...</td>
+      <td>0.288084</td>
+      <td>0.581373</td>
+      <td>0.086737</td>
+      <td>0.447655</td>
+      <td>-0.129908</td>
+      <td>0.292478</td>
+      <td>0.028656</td>
+      <td>0.123552</td>
+      <td>0.049143</td>
+      <td>0.081229</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2.0</td>
+      <td>0.545189</td>
+      <td>0.433756</td>
+      <td>-0.539777</td>
+      <td>0.057979</td>
+      <td>0.080084</td>
+      <td>0.145126</td>
+      <td>0.200461</td>
+      <td>0.001840</td>
+      <td>0.001876</td>
+      <td>...</td>
+      <td>0.277590</td>
+      <td>0.481786</td>
+      <td>0.069445</td>
+      <td>0.331342</td>
+      <td>-0.197669</td>
+      <td>0.244441</td>
+      <td>-0.151760</td>
+      <td>0.091923</td>
+      <td>-0.100824</td>
+      <td>0.003800</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3.0</td>
+      <td>0.556586</td>
+      <td>0.397208</td>
+      <td>-0.613691</td>
+      <td>0.070765</td>
+      <td>0.122509</td>
+      <td>0.054681</td>
+      <td>0.104950</td>
+      <td>0.003253</td>
+      <td>0.001985</td>
+      <td>...</td>
+      <td>0.521323</td>
+      <td>0.321901</td>
+      <td>0.237257</td>
+      <td>0.078296</td>
+      <td>-0.074240</td>
+      <td>0.283644</td>
+      <td>-0.239699</td>
+      <td>0.028845</td>
+      <td>-0.050743</td>
+      <td>0.036805</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4.0</td>
+      <td>0.571852</td>
+      <td>0.359068</td>
+      <td>-0.639196</td>
+      <td>0.079765</td>
+      <td>0.144845</td>
+      <td>0.042924</td>
+      <td>0.095547</td>
+      <td>0.002794</td>
+      <td>0.002084</td>
+      <td>...</td>
+      <td>0.538269</td>
+      <td>0.111283</td>
+      <td>0.293136</td>
+      <td>-0.069686</td>
+      <td>-0.059406</td>
+      <td>0.356973</td>
+      <td>-0.266953</td>
+      <td>0.050041</td>
+      <td>0.058963</td>
+      <td>0.082503</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 35 columns</p>
+</div></div></div>
+</div>
+<p>Each row in this dataframe corresponds to a single window, with the window length and overlap set in the <code class="docutils literal notranslate"><span class="pre">config</span></code> object. Note that the <code class="docutils literal notranslate"><span class="pre">time</span></code> column has a 1-second interval instead of the 10-millisecond interval before, as it now represents the starting time of the window.</p>
+</section>
+<section id="step-3-gait-detection">
+<h2>Step 3: Gait detection<a class="headerlink" href="#step-3-gait-detection" title="Link to this heading"></a></h2>
+<p>For classification, ParaDigMa uses so-called Classifier Packages which contain a classifier, classification threshold, and a feature scaler as attributes. The classifier is a <a class="reference external" href="https://scikit-learn.org/1.5/modules/generated/sklearn.ensemble.RandomForestClassifier.html">random forest</a> trained on a dataset of people with PD performing a wide range of activities in free-living conditions: <a class="reference external" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7584982/">The Parkinson&#64;Home Validation Study</a>. The classification threshold was set to limit the amount of false-positive predictions in the original study, i.e., to limit non-gait to be predicted as gait. The classification threshold can be changed by setting <code class="docutils literal notranslate"><span class="pre">clf_package.threshold</span></code> to a different float value. The feature scaler was similarly fitted on the original dataset, ensuring the features are within expected confined spaces to make reliable predictions.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassifierPackage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">detect_gait</span>
+
+<span class="c1"># Set the path to the classifier package</span>
+<span class="n">path_to_assets</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../src/paradigma/assets&#39;</span><span class="p">)</span>
+<span class="n">classifier_package_filename</span> <span class="o">=</span> <span class="s1">&#39;gait_detection_clf_package.pkl&#39;</span>
+<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="n">path_to_assets</span> <span class="o">/</span> <span class="n">classifier_package_filename</span>
+
+<span class="c1"># Load the classifier package</span>
+<span class="n">clf_package</span> <span class="o">=</span> <span class="n">ClassifierPackage</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">full_path_to_classifier_package</span><span class="p">)</span>
+
+<span class="c1"># Detecting gait returns the probability of gait for each window, which is concatenated to</span>
+<span class="c1"># the original dataframe</span>
+<span class="n">df_gait</span><span class="p">[</span><span class="s1">&#39;pred_gait_proba&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">detect_gait</span><span class="p">(</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df_gait</span><span class="p">,</span>
+    <span class="n">clf_package</span><span class="o">=</span><span class="n">clf_package</span>
+<span class="p">)</span>
+
+<span class="n">n_windows</span> <span class="o">=</span> <span class="n">df_gait</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">n_predictions_gait</span> <span class="o">=</span> <span class="n">df_gait</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_gait</span><span class="p">[</span><span class="s1">&#39;pred_gait_proba&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">perc_predictions_gait</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">n_predictions_gait</span> <span class="o">/</span> <span class="n">n_windows</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">n_predictions_non_gait</span> <span class="o">=</span> <span class="n">df_gait</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_gait</span><span class="p">[</span><span class="s1">&#39;pred_gait_proba&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">clf_package</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">perc_predictions_non_gait</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">n_predictions_non_gait</span> <span class="o">/</span> <span class="n">n_windows</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Out of </span><span class="si">{</span><span class="n">n_windows</span><span class="si">}</span><span class="s2"> windows, </span><span class="si">{</span><span class="n">n_predictions_gait</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">perc_predictions_gait</span><span class="si">}</span><span class="s2">%) were predicted as gait, and </span><span class="si">{</span><span class="n">n_predictions_non_gait</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">perc_predictions_non_gait</span><span class="si">}</span><span class="s2">%) as non-gait.&quot;</span><span class="p">)</span>
+
+<span class="c1"># Only the time and the predicted gait probability are shown, but the dataframe also contains</span>
+<span class="c1"># the extracted features</span>
+<span class="n">df_gait</span><span class="p">[[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_gait_proba&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Out of 725 predictions, 53 (7.3%) were predicted as gait, and 672 (92.7%) as non-gait.
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>pred_gait_proba</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>0.093240</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.0</td>
+      <td>0.093032</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2.0</td>
+      <td>0.107607</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3.0</td>
+      <td>0.132656</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4.0</td>
+      <td>0.142432</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>Once again, the <code class="docutils literal notranslate"><span class="pre">time</span></code> column indicates the start time of the window. Therefore, it can be observed that probabilities are predicted of overlapping windows, and not of individual timestamps. The function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/util.py"><code class="docutils literal notranslate"><span class="pre">merge_timestamps_with_predictions</span></code></a> can be used to retrieve predicted probabilities per timestamp by aggregating the predicted probabilities of overlapping windows. This function is included in the next step.</p>
+</section>
+<section id="step-4-arm-activity-feature-extraction">
+<h2>Step 4: Arm activity feature extraction<a class="headerlink" href="#step-4-arm-activity-feature-extraction" title="Link to this heading"></a></h2>
+<p>The extraction of arm swing features is similar to the extraction of gait features, but we use a different window length and step length (<code class="docutils literal notranslate"><span class="pre">config.window_length_s</span></code>, <code class="docutils literal notranslate"><span class="pre">config.window_step_length_s</span></code>) to distinguish between gait segments with and without other arm activities. Therefore, the following steps are conducted sequentially by <code class="docutils literal notranslate"><span class="pre">extract_arm_activity_features</span></code>:</p>
+<ul class="simple">
+<li><p>Start with the preprocessed data of step 1</p></li>
+<li><p>Merge the gait predictions into the preprocessed data</p></li>
+<li><p>Discard predicted non-gait activities</p></li>
+<li><p>Create windows of the time series data and extract features</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_arm_activity_features</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;arm_activity&#39;</span><span class="p">)</span>
+
+<span class="n">df_arm_activity</span> <span class="o">=</span> <span class="n">extract_arm_activity_features</span><span class="p">(</span>
+    <span class="n">df_timestamps</span><span class="o">=</span><span class="n">df_preprocessed</span><span class="p">,</span> 
+    <span class="n">df_predictions</span><span class="o">=</span><span class="n">df_gait</span><span class="p">,</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+    <span class="n">threshold</span><span class="o">=</span><span class="n">clf_package</span><span class="o">.</span><span class="n">threshold</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A total of </span><span class="si">{</span><span class="n">df_arm_activity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="si">}</span><span class="s2"> features have been extracted from </span><span class="si">{</span><span class="n">df_arm_activity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="si">}</span><span class="s2">-second windows with </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="o">-</span><span class="n">config</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="si">}</span><span class="s2"> seconds overlap.&quot;</span><span class="p">)</span>
+<span class="n">df_arm_activity</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>A total of 61 features have been extracted from 50 3-second windows with 2.25 seconds overlap.
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>accelerometer_x_grav_mean</th>
+      <th>accelerometer_y_grav_mean</th>
+      <th>accelerometer_z_grav_mean</th>
+      <th>accelerometer_x_grav_std</th>
+      <th>accelerometer_y_grav_std</th>
+      <th>accelerometer_z_grav_std</th>
+      <th>accelerometer_std_norm</th>
+      <th>accelerometer_x_power_below_gait</th>
+      <th>accelerometer_y_power_below_gait</th>
+      <th>...</th>
+      <th>gyroscope_mfcc_3</th>
+      <th>gyroscope_mfcc_4</th>
+      <th>gyroscope_mfcc_5</th>
+      <th>gyroscope_mfcc_6</th>
+      <th>gyroscope_mfcc_7</th>
+      <th>gyroscope_mfcc_8</th>
+      <th>gyroscope_mfcc_9</th>
+      <th>gyroscope_mfcc_10</th>
+      <th>gyroscope_mfcc_11</th>
+      <th>gyroscope_mfcc_12</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>484.00</td>
+      <td>0.977134</td>
+      <td>0.105431</td>
+      <td>0.045578</td>
+      <td>0.015722</td>
+      <td>0.026817</td>
+      <td>0.015546</td>
+      <td>0.085454</td>
+      <td>0.000284</td>
+      <td>0.000632</td>
+      <td>...</td>
+      <td>0.042879</td>
+      <td>0.054217</td>
+      <td>0.275817</td>
+      <td>0.463253</td>
+      <td>-0.061382</td>
+      <td>0.144563</td>
+      <td>0.243984</td>
+      <td>-0.174514</td>
+      <td>-0.254318</td>
+      <td>0.118443</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>484.75</td>
+      <td>0.981950</td>
+      <td>0.102169</td>
+      <td>0.041451</td>
+      <td>0.006373</td>
+      <td>0.019288</td>
+      <td>0.018058</td>
+      <td>0.084179</td>
+      <td>0.000445</td>
+      <td>0.000663</td>
+      <td>...</td>
+      <td>-0.139456</td>
+      <td>-0.195451</td>
+      <td>0.357785</td>
+      <td>0.270232</td>
+      <td>-0.250594</td>
+      <td>-0.216808</td>
+      <td>-0.085842</td>
+      <td>0.197042</td>
+      <td>0.004748</td>
+      <td>0.044400</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>485.50</td>
+      <td>0.978526</td>
+      <td>0.115141</td>
+      <td>0.030499</td>
+      <td>0.006440</td>
+      <td>0.022474</td>
+      <td>0.015048</td>
+      <td>0.089055</td>
+      <td>0.000328</td>
+      <td>0.000408</td>
+      <td>...</td>
+      <td>-0.068866</td>
+      <td>-0.180071</td>
+      <td>0.474648</td>
+      <td>0.314642</td>
+      <td>-0.180227</td>
+      <td>-0.348940</td>
+      <td>-0.157215</td>
+      <td>0.166344</td>
+      <td>0.019357</td>
+      <td>-0.024083</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>486.25</td>
+      <td>0.974692</td>
+      <td>0.128219</td>
+      <td>0.025009</td>
+      <td>0.003139</td>
+      <td>0.014035</td>
+      <td>0.007913</td>
+      <td>0.092204</td>
+      <td>0.000594</td>
+      <td>0.000150</td>
+      <td>...</td>
+      <td>-0.120759</td>
+      <td>-0.079569</td>
+      <td>0.482182</td>
+      <td>0.455254</td>
+      <td>-0.317632</td>
+      <td>-0.206404</td>
+      <td>-0.065104</td>
+      <td>0.022460</td>
+      <td>0.065246</td>
+      <td>0.070507</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>487.00</td>
+      <td>0.972715</td>
+      <td>0.131813</td>
+      <td>0.029218</td>
+      <td>0.000881</td>
+      <td>0.008492</td>
+      <td>0.013129</td>
+      <td>0.078673</td>
+      <td>0.000717</td>
+      <td>0.000138</td>
+      <td>...</td>
+      <td>-0.277626</td>
+      <td>-0.092605</td>
+      <td>0.103249</td>
+      <td>0.414886</td>
+      <td>-0.316136</td>
+      <td>-0.200999</td>
+      <td>-0.090632</td>
+      <td>0.077541</td>
+      <td>0.111759</td>
+      <td>0.061460</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 62 columns</p>
+</div></div></div>
+</div>
+<p>The features extracted are similar to the features extracted for gait detection, but the gyroscope has been added to extract additional MFCCs of this sensor. The gyroscope (measuring angular velocity) is relevant to distinguish between arm activities. Also note that the <code class="docutils literal notranslate"><span class="pre">time</span></code> column no longer starts at 0, since the first timestamps were predicted as non-gait and therefore discarded.</p>
+</section>
+<section id="step-5-filtering-gait">
+<h2>Step 5: Filtering gait<a class="headerlink" href="#step-5-filtering-gait" title="Link to this heading"></a></h2>
+<p>This classification task is similar to gait detection, although it uses a different classification object. The trained classifier is a logistic regression, similarly trained on the dataset of the <a class="reference external" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7584982/">Parkinson&#64;Home Validation Study</a>. Filtering gait is the process of detecting and removing gait segments containing other arm activities. This is an important process since individuals entertain a wide array of arm activities during gait: having hands in pockets, holding a dog leash, or carrying a plate to the kitchen. We trained a classifier to detect these other arm activities during gait, enabling accurate estimations of the arm swing.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassifierPackage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">filter_gait</span>
+
+<span class="c1"># Set the path to the classifier package</span>
+<span class="n">classifier_package_filename</span> <span class="o">=</span> <span class="s1">&#39;gait_filtering_clf_package.pkl&#39;</span>
+<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="n">path_to_assets</span> <span class="o">/</span> <span class="n">classifier_package_filename</span>
+
+<span class="c1"># Load the classifier package</span>
+<span class="n">clf_package</span> <span class="o">=</span> <span class="n">ClassifierPackage</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">full_path_to_classifier_package</span><span class="p">)</span>
+
+<span class="c1"># Detecting no_other_arm_activity returns the probability of no_other_arm_activity for each window, which is concatenated to</span>
+<span class="c1"># the original dataframe</span>
+<span class="n">df_arm_activity</span><span class="p">[</span><span class="s1">&#39;pred_no_other_arm_activity_proba&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filter_gait</span><span class="p">(</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df_arm_activity</span><span class="p">,</span>
+    <span class="n">clf_package</span><span class="o">=</span><span class="n">clf_package</span>
+<span class="p">)</span>
+
+
+
+<span class="n">n_windows</span> <span class="o">=</span> <span class="n">df_arm_activity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">n_predictions_no_other_arm_activity</span> <span class="o">=</span> <span class="n">df_arm_activity</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_arm_activity</span><span class="p">[</span><span class="s1">&#39;pred_no_other_arm_activity_proba&#39;</span><span class="p">]</span><span class="o">&gt;=</span><span class="n">clf_package</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">perc_predictions_no_other_arm_activity</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">n_predictions_no_other_arm_activity</span> <span class="o">/</span> <span class="n">n_windows</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">n_predictions_other_arm_activity</span> <span class="o">=</span> <span class="n">df_arm_activity</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_arm_activity</span><span class="p">[</span><span class="s1">&#39;pred_no_other_arm_activity_proba&#39;</span><span class="p">]</span><span class="o">&lt;</span><span class="n">clf_package</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">perc_predictions_other_arm_activity</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">n_predictions_other_arm_activity</span> <span class="o">/</span> <span class="n">n_windows</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Out of </span><span class="si">{</span><span class="n">n_windows</span><span class="si">}</span><span class="s2"> windows, </span><span class="si">{</span><span class="n">n_predictions_no_other_arm_activity</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">perc_predictions_no_other_arm_activity</span><span class="si">}</span><span class="s2">%) were predicted as no_other_arm_activity, and </span><span class="si">{</span><span class="n">n_predictions_other_arm_activity</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">perc_predictions_other_arm_activity</span><span class="si">}</span><span class="s2">%) as other_arm_activity.&quot;</span><span class="p">)</span>
+
+<span class="c1"># Only the time and predicted probabilities are shown, but the dataframe also contains</span>
+<span class="c1"># the extracted features</span>
+<span class="n">df_arm_activity</span><span class="p">[[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_no_other_arm_activity_proba&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Out of 50 predictions, 0 (0.0%) were predicted as no_other_arm_activity, and 50 (100.0%) as other_arm_activity.
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>pred_no_other_arm_activity_proba</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>484.00</td>
+      <td>0.000002</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>484.75</td>
+      <td>0.000004</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>485.50</td>
+      <td>0.000020</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>486.25</td>
+      <td>0.000013</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>487.00</td>
+      <td>0.000011</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="step-6-arm-swing-quantification">
+<h2>Step 6: Arm swing quantification<a class="headerlink" href="#step-6-arm-swing-quantification" title="Link to this heading"></a></h2>
+<p>The next step is to extract arm swing estimates from the predicted gait segments without other arm activities. Arm swing estimates can be calculated for both filtered and unfiltered gait, with the latter being predicted gait including all arm activities. Specifically, the range of motion (<code class="docutils literal notranslate"><span class="pre">'range_of_motion'</span></code>) and peak angular velocity (<code class="docutils literal notranslate"><span class="pre">'peak_velocity'</span></code>) are extracted.</p>
+<p>This step creates gait segments based on consecutively predicted gait windows. A new gait segment is created if the gap between consecutive gait predictions exceeds <code class="docutils literal notranslate"><span class="pre">config.max_segment_gap_s</span></code>. Furthermore, a segment is considered valid if it is of at minimum length <code class="docutils literal notranslate"><span class="pre">config.min_segment_length_s</span></code>. Note that no gait without other arm activities was detected in the prior step, and therefore we shall modify the classification threshold (<code class="docutils literal notranslate"><span class="pre">clf_package.threshold</span></code>) to ensure we have some quantifications.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">quantify_arm_swing</span>
+
+<span class="n">temporary_clf_threshold</span> <span class="o">=</span> <span class="mf">0.00001</span>
+<span class="n">dfs_to_quantify</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;unfiltered&#39;</span><span class="p">,</span> <span class="s1">&#39;filtered&#39;</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The original classification threshold of </span><span class="si">{</span><span class="n">clf_package</span><span class="o">.</span><span class="n">threshold</span><span class="si">}</span><span class="s2"> is for this tutorial temporarily set to </span><span class="si">{</span><span class="n">temporary_clf_threshold</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">clf_package</span><span class="o">.</span><span class="n">threshold</span> <span class="o">=</span> <span class="n">temporary_clf_threshold</span>
+
+<span class="n">quantified_arm_swing</span><span class="p">,</span> <span class="n">segment_meta</span> <span class="o">=</span> <span class="n">quantify_arm_swing</span><span class="p">(</span>
+    <span class="n">df_timestamps</span><span class="o">=</span><span class="n">df_preprocessed</span><span class="p">,</span>
+    <span class="n">df_predictions</span><span class="o">=</span><span class="n">df_arm_activity</span><span class="p">,</span>
+    <span class="n">classification_threshold</span><span class="o">=</span><span class="n">clf_package</span><span class="o">.</span><span class="n">threshold</span><span class="p">,</span>
+    <span class="n">window_length_s</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">,</span>
+    <span class="n">max_segment_gap_s</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">max_segment_gap_s</span><span class="p">,</span>
+    <span class="n">min_segment_length_s</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">min_segment_length_s</span><span class="p">,</span>
+    <span class="n">fs</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
+    <span class="n">dfs_to_quantify</span><span class="o">=</span><span class="n">dfs_to_quantify</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Gait segments are created of minimum </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">min_segment_length_s</span><span class="si">}</span><span class="s2"> seconds and maximum </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">max_segment_gap_s</span><span class="si">}</span><span class="s2"> seconds gap between segments.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">df_name</span> <span class="ow">in</span> <span class="n">dfs_to_quantify</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A total of </span><span class="si">{</span><span class="n">quantified_arm_swing</span><span class="p">[</span><span class="n">df_name</span><span class="p">][</span><span class="s1">&#39;segment_nr&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">df_name</span><span class="si">}</span><span class="s2"> gait segments have been quantified.&quot;</span><span class="p">)</span>
+
+<span class="c1"># The arm swing quantification is returned as a dictionary with two dataframes: &#39;unfiltered&#39; and &#39;filtered&#39;.</span>
+<span class="c1"># The &#39;unfiltered&#39; dataframe contains the quantification of all gait segments, while the &#39;filtered&#39; dataframe</span>
+<span class="c1"># contains only the segments that are classified as gait and no_other_arm_activity.</span>
+<span class="n">dataset_used</span> <span class="o">=</span> <span class="s1">&#39;filtered&#39;</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The first rows of the </span><span class="si">{</span><span class="n">dataset_used</span><span class="si">}</span><span class="s2"> dataset&quot;</span><span class="p">)</span>
+<span class="n">quantified_arm_swing</span><span class="p">[</span><span class="n">dataset_used</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The original classification threshold of 0.4691878519863539 is for this tutorial temporarily set to 1e-05.
+
+Gait segments are created of minimum 1.5 seconds and maximum 1.5 seconds gap between segments.
+
+A total of 5 unfiltered gait segments have been quantified.
+A total of 3 filtered gait segments have been quantified.
+
+The first rows of the filtered dataset
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>segment_nr</th>
+      <th>range_of_motion</th>
+      <th>peak_velocity</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2</td>
+      <td>7.511588</td>
+      <td>66.135460</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>19.391911</td>
+      <td>78.645638</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>18.928598</td>
+      <td>95.738234</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2</td>
+      <td>14.612863</td>
+      <td>57.997025</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2</td>
+      <td>14.536349</td>
+      <td>98.900658</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pprint</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Furthermore, per gait segment the following metadata is stored:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">segment_meta</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Furthermore, per gait segment the following metadata is stored:
+
+{&#39;filtered&#39;: {2: {&#39;segment_category&#39;: &#39;long&#39;, &#39;time_s&#39;: 2.25},
+              3: {&#39;segment_category&#39;: &#39;long&#39;, &#39;time_s&#39;: 0.75},
+              4: {&#39;segment_category&#39;: &#39;moderately_long&#39;, &#39;time_s&#39;: 6.75},
+              5: {&#39;segment_category&#39;: &#39;moderately_long&#39;, &#39;time_s&#39;: 6.0},
+              6: {&#39;segment_category&#39;: &#39;moderately_long&#39;, &#39;time_s&#39;: 0.75}},
+ &#39;unfiltered&#39;: {1: {&#39;segment_category&#39;: &#39;long&#39;, &#39;time_s&#39;: 12.75},
+                2: {&#39;segment_category&#39;: &#39;moderately_long&#39;, &#39;time_s&#39;: 9.0},
+                3: {&#39;segment_category&#39;: &#39;long&#39;, &#39;time_s&#39;: 12.0},
+                4: {&#39;segment_category&#39;: &#39;moderately_long&#39;, &#39;time_s&#39;: 7.5},
+                5: {&#39;segment_category&#39;: &#39;moderately_long&#39;, &#39;time_s&#39;: 7.5}}}
+</pre></div>
+</div>
+</div>
+</div>
+<p>The segment categories are defined as follows:</p>
+<ul class="simple">
+<li><p>short: &lt; 5 seconds</p></li>
+<li><p>moderately_long: 5-10 seconds</p></li>
+<li><p>long: 10-20 seconds</p></li>
+<li><p>very_long: &gt; 20 seconds</p></li>
+</ul>
+<p>As noted before, the segments (and categories) are determined based on predicted gait (unfiltered gait). Therefore, for the arm swing of filtered gait, a segment may be smaller as parts of the segment were predicted to have other arm activities, yet the category remained the same.</p>
+</section>
+<section id="step-7-aggregation">
+<h2>Step 7: Aggregation<a class="headerlink" href="#step-7-aggregation" title="Link to this heading"></a></h2>
+<p>Finally, the arm swing estimates can be aggregated across segments.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_arm_swing_params</span>
+
+<span class="n">dataset_used</span> <span class="o">=</span> <span class="s1">&#39;filtered&#39;</span>
+
+<span class="n">arm_swing_aggregations</span> <span class="o">=</span> <span class="n">aggregate_arm_swing_params</span><span class="p">(</span>
+    <span class="n">df_arm_swing_params</span><span class="o">=</span><span class="n">quantified_arm_swing</span><span class="p">[</span><span class="n">dataset_used</span><span class="p">],</span>
+    <span class="n">segment_meta</span><span class="o">=</span><span class="n">segment_meta</span><span class="p">[</span><span class="n">dataset_used</span><span class="p">],</span>
+    <span class="n">aggregates</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;median&#39;</span><span class="p">,</span> <span class="s1">&#39;95p&#39;</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">arm_swing_aggregations</span><span class="p">,</span> <span class="n">sort_dicts</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;long&#39;: {&#39;time_s&#39;: 3.0,
+          &#39;median_range_of_motion&#39;: 14.612862824791089,
+          &#39;95p_range_of_motion&#39;: 19.29924826375146,
+          &#39;median_peak_velocity&#39;: 78.64563778043262,
+          &#39;95p_peak_velocity&#39;: 98.26817330011067},
+ &#39;moderately_long&#39;: {&#39;time_s&#39;: 13.5,
+                     &#39;median_range_of_motion&#39;: 14.394662839301768,
+                     &#39;95p_range_of_motion&#39;: 22.658748546739268,
+                     &#39;median_peak_velocity&#39;: 59.475147961606005,
+                     &#39;95p_peak_velocity&#39;: 105.31356363194875},
+ &#39;all_segment_categories&#39;: {&#39;time_s&#39;: 16.5,
+                            &#39;median_range_of_motion&#39;: 14.57460571480515,
+                            &#39;95p_range_of_motion&#39;: 22.180208543070503,
+                            &#39;median_peak_velocity&#39;: 65.54184788176072,
+                            &#39;95p_peak_velocity&#39;: 105.21165557470036}}
+</pre></div>
+</div>
+</div>
+</div>
+<p>The output of the aggregation step contains the aggregated arm swing parameters per gait segment category. Additionally, the total time in seconds <code class="docutils literal notranslate"><span class="pre">time_s</span></code> is added to inform based on how much data the aggregations were created.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="data_preparation.html" class="btn btn-neutral float-left" title="Data Preparation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tremor_analysis.html" class="btn btn-neutral float-right" title="Tremor analysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Erik Post, Kars Veldkamp, Nienke Timmermans, Peter Kok, Vedran Kasalica, Diogo Coutinho Soriano, Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

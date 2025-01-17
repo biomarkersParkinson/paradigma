@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>paradigma.pipelines.heart_rate_pipeline &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="paradigma.pipelines.heart_rate_utils" href="../heart_rate_utils/index.html" />
+    <link rel="prev" title="paradigma.pipelines.gait_pipeline" href="../gait_pipeline/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/data_preparation.html">Data Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/heart_rate_analysis.html">Heart rate analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../../index.html">paradigma</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../../classification/index.html">paradigma.classification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../config/index.html">paradigma.config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../constants/index.html">paradigma.constants</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../feature_extraction/index.html">paradigma.feature_extraction</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../index.html">paradigma.pipelines</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../preprocessing/index.html">paradigma.preprocessing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../segmenting/index.html">paradigma.segmenting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../testing/index.html">paradigma.testing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../util/index.html">paradigma.util</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">paradigma</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">paradigma.pipelines</a></li>
+      <li class="breadcrumb-item active">paradigma.pipelines.heart_rate_pipeline</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/autoapi/paradigma/pipelines/heart_rate_pipeline/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-paradigma.pipelines.heart_rate_pipeline">
+<span id="paradigma-pipelines-heart-rate-pipeline"></span><h1>paradigma.pipelines.heart_rate_pipeline<a class="headerlink" href="#module-paradigma.pipelines.heart_rate_pipeline" title="Link to this heading"></a></h1>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.heart_rate_pipeline.extract_signal_quality_features" title="paradigma.pipelines.heart_rate_pipeline.extract_signal_quality_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_signal_quality_features</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Extract signal quality features from the PPG signal.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.pipelines.heart_rate_pipeline.signal_quality_classification" title="paradigma.pipelines.heart_rate_pipeline.signal_quality_classification"><code class="xref py py-obj docutils literal notranslate"><span class="pre">signal_quality_classification</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Classify the signal quality of the PPG signal using a logistic regression classifier. A probability close to 1 indicates a high-quality signal, while a probability close to 0 indicates a low-quality signal.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.heart_rate_pipeline.estimate_heart_rate" title="paradigma.pipelines.heart_rate_pipeline.estimate_heart_rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">estimate_heart_rate</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Estimate the heart rate from the PPG signal using the time-frequency domain method.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.pipelines.heart_rate_pipeline.aggregate_heart_rate" title="paradigma.pipelines.heart_rate_pipeline.aggregate_heart_rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_heart_rate</span></code></a>(→ dict)</p></td>
+<td><p>Aggregate the heart rate estimates using the specified aggregation methods.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.heart_rate_pipeline.extract_temporal_domain_features" title="paradigma.pipelines.heart_rate_pipeline.extract_temporal_domain_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_temporal_domain_features</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Compute temporal domain features for the ppg signal. The features are added to the dataframe. Therefore the original dataframe is modified, and the modified dataframe is returned.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.pipelines.heart_rate_pipeline.extract_spectral_domain_features" title="paradigma.pipelines.heart_rate_pipeline.extract_spectral_domain_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_spectral_domain_features</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Calculate the spectral features (dominant frequency, relative power, and spectral entropy)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.heart_rate_pipeline.extract_acc_power_feature" title="paradigma.pipelines.heart_rate_pipeline.extract_acc_power_feature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_acc_power_feature</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Extract the accelerometer power feature in the PPG frequency range.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.pipelines.heart_rate_pipeline.extract_accelerometer_feature" title="paradigma.pipelines.heart_rate_pipeline.extract_accelerometer_feature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_accelerometer_feature</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Extract accelerometer features from the accelerometer signal in the PPG frequency range.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.pipelines.heart_rate_pipeline.extract_signal_quality_features">
+<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.heart_rate_pipeline.</span></span><span class="sig-name descname"><span class="pre">extract_signal_quality_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_ppg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_acc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ppg_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.HeartRateConfig" title="paradigma.config.HeartRateConfig"><span class="pre">paradigma.config.HeartRateConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">acc_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.HeartRateConfig" title="paradigma.config.HeartRateConfig"><span class="pre">paradigma.config.HeartRateConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/heart_rate_pipeline.html#extract_signal_quality_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.heart_rate_pipeline.extract_signal_quality_features" title="Link to this definition"></a></dt>
+<dd><p>Extract signal quality features from the PPG signal.
+The features are extracted from the temporal and spectral domain of the PPG signal.
+The temporal domain features include variance, mean, median, kurtosis, skewness, signal-to-noise ratio, and autocorrelation.
+The spectral domain features include the dominant frequency, relative power, spectral entropy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df_ppg</strong> (<em>pd.DataFrame</em>) – The DataFrame containing the PPG signal.</p></li>
+<li><p><strong>df_acc</strong> (<em>pd.DataFrame</em>) – The DataFrame containing the accelerometer signal.</p></li>
+<li><p><strong>ppg_config</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.HeartRateConfig" title="paradigma.config.HeartRateConfig"><em>HeartRateConfig</em></a>) – The configuration for the signal quality feature extraction of the PPG signal.</p></li>
+<li><p><strong>acc_config</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.HeartRateConfig" title="paradigma.config.HeartRateConfig"><em>HeartRateConfig</em></a>) – The configuration for the signal quality feature extraction of the accelerometer signal.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>df_features</strong> – The DataFrame containing the extracted signal quality features.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.pipelines.heart_rate_pipeline.signal_quality_classification">
+<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.heart_rate_pipeline.</span></span><span class="sig-name descname"><span class="pre">signal_quality_classification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.HeartRateConfig" title="paradigma.config.HeartRateConfig"><span class="pre">paradigma.config.HeartRateConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_path_to_classifier_package</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/heart_rate_pipeline.html#signal_quality_classification"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.heart_rate_pipeline.signal_quality_classification" title="Link to this definition"></a></dt>
+<dd><p>Classify the signal quality of the PPG signal using a logistic regression classifier. A probability close to 1 indicates a high-quality signal, while a probability close to 0 indicates a low-quality signal.
+The classifier is trained on features extracted from the PPG signal. The features are extracted using the extract_signal_quality_features function.
+The accelerometer signal is used to determine the signal quality based on the power ratio of the accelerometer signal and returns a binary label based on a threshold.
+A value of 1 on the indicates no/minor periodic motion influence of the accelerometer on the PPG signal, 0 indicates major periodic motion influence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The DataFrame containing the PPG features and the accelerometer feature for signal quality classification.</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.HeartRateConfig" title="paradigma.config.HeartRateConfig"><em>HeartRateConfig</em></a>) – The configuration for the signal quality classification.</p></li>
+<li><p><strong>full_path_to_classifier_package</strong> (<em>str</em><em> | </em><em>Path</em>) – The path to the directory containing the classifier.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The DataFrame containing the PPG signal quality predictions (both probabilities of the PPG signal quality classification and the accelerometer label based on the threshold).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>df_sqa pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.pipelines.heart_rate_pipeline.estimate_heart_rate">
+<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.heart_rate_pipeline.</span></span><span class="sig-name descname"><span class="pre">estimate_heart_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_sqa</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_ppg_preprocessed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.HeartRateConfig" title="paradigma.config.HeartRateConfig"><span class="pre">paradigma.config.HeartRateConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/heart_rate_pipeline.html#estimate_heart_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.heart_rate_pipeline.estimate_heart_rate" title="Link to this definition"></a></dt>
+<dd><p>Estimate the heart rate from the PPG signal using the time-frequency domain method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df_sqa</strong> (<em>pd.DataFrame</em>) – The DataFrame containing the signal quality assessment predictions.</p></li>
+<li><p><strong>df_ppg_preprocessed</strong> (<em>pd.DataFrame</em>) – The DataFrame containing the preprocessed PPG signal.</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.HeartRateConfig" title="paradigma.config.HeartRateConfig"><em>HeartRateConfig</em></a>) – The configuration for the heart rate estimation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>df_hr</strong> – The DataFrame containing the heart rate estimations.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.pipelines.heart_rate_pipeline.aggregate_heart_rate">
+<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.heart_rate_pipeline.</span></span><span class="sig-name descname"><span class="pre">aggregate_heart_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hr_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['mode',</span> <span class="pre">'99p']</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/heart_rate_pipeline.html#aggregate_heart_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.heart_rate_pipeline.aggregate_heart_rate" title="Link to this definition"></a></dt>
+<dd><p>Aggregate the heart rate estimates using the specified aggregation methods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hr_values</strong> (<em>np.ndarray</em>) – The array containing the heart rate estimates</p></li>
+<li><p><strong>aggregates</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – The list of aggregation methods to be used for the heart rate estimates. The default is [‘mode’, ‘99p’].</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>aggregated_results</strong> – The dictionary containing the aggregated results of the heart rate estimates.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.pipelines.heart_rate_pipeline.extract_temporal_domain_features">
+<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.heart_rate_pipeline.</span></span><span class="sig-name descname"><span class="pre">extract_temporal_domain_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_windowed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.HeartRateConfig" title="paradigma.config.HeartRateConfig"><span class="pre">paradigma.config.HeartRateConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">quality_stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['mean',</span> <span class="pre">'std']</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/heart_rate_pipeline.html#extract_temporal_domain_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.heart_rate_pipeline.extract_temporal_domain_features" title="Link to this definition"></a></dt>
+<dd><p>Compute temporal domain features for the ppg signal. The features are added to the dataframe. Therefore the original dataframe is modified, and the modified dataframe is returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ppg_windowed</strong> (<em>np.ndarray</em>) – The dataframe containing the windowed accelerometer signal</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.HeartRateConfig" title="paradigma.config.HeartRateConfig"><em>HeartRateConfig</em></a>) – The configuration object containing the parameters for the feature extraction</p></li>
+<li><p><strong>quality_stats</strong> (<em>list</em><em>, </em><em>optional</em>) – The statistics to be computed for the gravity component of the accelerometer signal (default: [‘mean’, ‘std’])</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The dataframe with the added temporal domain features.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.pipelines.heart_rate_pipeline.extract_spectral_domain_features">
+<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.heart_rate_pipeline.</span></span><span class="sig-name descname"><span class="pre">extract_spectral_domain_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_windowed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.HeartRateConfig" title="paradigma.config.HeartRateConfig"><span class="pre">paradigma.config.HeartRateConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/heart_rate_pipeline.html#extract_spectral_domain_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.heart_rate_pipeline.extract_spectral_domain_features" title="Link to this definition"></a></dt>
+<dd><p>Calculate the spectral features (dominant frequency, relative power, and spectral entropy)
+for each segment of a PPG signal using a single Welch’s method computation. The features are added to the dataframe.
+Therefore the original dataframe is modified, and the modified dataframe is returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ppg_windowed</strong> (<em>np.ndarray</em>) – The dataframe containing the windowed ppg signal</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.HeartRateConfig" title="paradigma.config.HeartRateConfig"><em>HeartRateConfig</em></a>) – The configuration object containing the parameters for the feature extraction</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The dataframe with the added spectral domain features.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.pipelines.heart_rate_pipeline.extract_acc_power_feature">
+<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.heart_rate_pipeline.</span></span><span class="sig-name descname"><span class="pre">extract_acc_power_feature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PSD_acc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PSD_ppg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/heart_rate_pipeline.html#extract_acc_power_feature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.heart_rate_pipeline.extract_acc_power_feature" title="Link to this definition"></a></dt>
+<dd><p>Extract the accelerometer power feature in the PPG frequency range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f1</strong> (<em>np.ndarray</em>) – The frequency bins of the accelerometer signal.</p></li>
+<li><p><strong>PSD_acc</strong> (<em>np.ndarray</em>) – The power spectral density of the accelerometer signal.</p></li>
+<li><p><strong>f2</strong> (<em>np.ndarray</em>) – The frequency bins of the PPG signal.</p></li>
+<li><p><strong>PSD_ppg</strong> (<em>np.ndarray</em>) – The power spectral density of the PPG signal.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The accelerometer power feature in the PPG frequency range</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.pipelines.heart_rate_pipeline.extract_accelerometer_feature">
+<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.heart_rate_pipeline.</span></span><span class="sig-name descname"><span class="pre">extract_accelerometer_feature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acc_windowed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ppg_windowed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.HeartRateConfig" title="paradigma.config.HeartRateConfig"><span class="pre">paradigma.config.HeartRateConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/heart_rate_pipeline.html#extract_accelerometer_feature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.heart_rate_pipeline.extract_accelerometer_feature" title="Link to this definition"></a></dt>
+<dd><p>Extract accelerometer features from the accelerometer signal in the PPG frequency range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>acc_windowed</strong> (<em>np.ndarray</em>) – The dataframe containing the windowed accelerometer signal</p></li>
+<li><p><strong>ppg_windowed</strong> (<em>np.ndarray</em>) – The dataframe containing the corresponding windowed ppg signal</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.HeartRateConfig" title="paradigma.config.HeartRateConfig"><em>HeartRateConfig</em></a>) – The configuration object containing the parameters for the feature extraction</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The dataframe with the relative power accelerometer feature.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../gait_pipeline/index.html" class="btn btn-neutral float-left" title="paradigma.pipelines.gait_pipeline" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../heart_rate_utils/index.html" class="btn btn-neutral float-right" title="paradigma.pipelines.heart_rate_utils" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Erik Post, Kars Veldkamp, Nienke Timmermans, Peter Kok, Vedran Kasalica, Diogo Coutinho Soriano, Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

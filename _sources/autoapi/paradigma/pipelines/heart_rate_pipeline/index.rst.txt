@@ -1,0 +1,152 @@
+paradigma.pipelines.heart_rate_pipeline
+=======================================
+
+.. py:module:: paradigma.pipelines.heart_rate_pipeline
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   paradigma.pipelines.heart_rate_pipeline.extract_signal_quality_features
+   paradigma.pipelines.heart_rate_pipeline.signal_quality_classification
+   paradigma.pipelines.heart_rate_pipeline.estimate_heart_rate
+   paradigma.pipelines.heart_rate_pipeline.aggregate_heart_rate
+   paradigma.pipelines.heart_rate_pipeline.extract_temporal_domain_features
+   paradigma.pipelines.heart_rate_pipeline.extract_spectral_domain_features
+   paradigma.pipelines.heart_rate_pipeline.extract_acc_power_feature
+   paradigma.pipelines.heart_rate_pipeline.extract_accelerometer_feature
+
+
+Module Contents
+---------------
+
+.. py:function:: extract_signal_quality_features(df_ppg: pandas.DataFrame, df_acc: pandas.DataFrame, ppg_config: paradigma.config.HeartRateConfig, acc_config: paradigma.config.HeartRateConfig) -> pandas.DataFrame
+
+   Extract signal quality features from the PPG signal.
+   The features are extracted from the temporal and spectral domain of the PPG signal.
+   The temporal domain features include variance, mean, median, kurtosis, skewness, signal-to-noise ratio, and autocorrelation.
+   The spectral domain features include the dominant frequency, relative power, spectral entropy.
+
+   :param df_ppg: The DataFrame containing the PPG signal.
+   :type df_ppg: pd.DataFrame
+   :param df_acc: The DataFrame containing the accelerometer signal.
+   :type df_acc: pd.DataFrame
+   :param ppg_config: The configuration for the signal quality feature extraction of the PPG signal.
+   :type ppg_config: HeartRateConfig
+   :param acc_config: The configuration for the signal quality feature extraction of the accelerometer signal.
+   :type acc_config: HeartRateConfig
+
+   :returns: **df_features** -- The DataFrame containing the extracted signal quality features.
+   :rtype: pd.DataFrame
+
+
+.. py:function:: signal_quality_classification(df: pandas.DataFrame, config: paradigma.config.HeartRateConfig, full_path_to_classifier_package: str | pathlib.Path) -> pandas.DataFrame
+
+   Classify the signal quality of the PPG signal using a logistic regression classifier. A probability close to 1 indicates a high-quality signal, while a probability close to 0 indicates a low-quality signal.
+   The classifier is trained on features extracted from the PPG signal. The features are extracted using the extract_signal_quality_features function.
+   The accelerometer signal is used to determine the signal quality based on the power ratio of the accelerometer signal and returns a binary label based on a threshold.
+   A value of 1 on the indicates no/minor periodic motion influence of the accelerometer on the PPG signal, 0 indicates major periodic motion influence.
+
+   :param df: The DataFrame containing the PPG features and the accelerometer feature for signal quality classification.
+   :type df: pd.DataFrame
+   :param config: The configuration for the signal quality classification.
+   :type config: HeartRateConfig
+   :param full_path_to_classifier_package: The path to the directory containing the classifier.
+   :type full_path_to_classifier_package: str | Path
+
+   :returns: The DataFrame containing the PPG signal quality predictions (both probabilities of the PPG signal quality classification and the accelerometer label based on the threshold).
+   :rtype: df_sqa pd.DataFrame
+
+
+.. py:function:: estimate_heart_rate(df_sqa: pandas.DataFrame, df_ppg_preprocessed: pandas.DataFrame, config: paradigma.config.HeartRateConfig) -> pandas.DataFrame
+
+   Estimate the heart rate from the PPG signal using the time-frequency domain method.
+
+   :param df_sqa: The DataFrame containing the signal quality assessment predictions.
+   :type df_sqa: pd.DataFrame
+   :param df_ppg_preprocessed: The DataFrame containing the preprocessed PPG signal.
+   :type df_ppg_preprocessed: pd.DataFrame
+   :param config: The configuration for the heart rate estimation.
+   :type config: HeartRateConfig
+
+   :returns: **df_hr** -- The DataFrame containing the heart rate estimations.
+   :rtype: pd.DataFrame
+
+
+.. py:function:: aggregate_heart_rate(hr_values: numpy.ndarray, aggregates: List[str] = ['mode', '99p']) -> dict
+
+   Aggregate the heart rate estimates using the specified aggregation methods.
+
+   :param hr_values: The array containing the heart rate estimates
+   :type hr_values: np.ndarray
+   :param aggregates: The list of aggregation methods to be used for the heart rate estimates. The default is ['mode', '99p'].
+   :type aggregates: List[str]
+
+   :returns: **aggregated_results** -- The dictionary containing the aggregated results of the heart rate estimates.
+   :rtype: dict
+
+
+.. py:function:: extract_temporal_domain_features(ppg_windowed: numpy.ndarray, config: paradigma.config.HeartRateConfig, quality_stats: List[str] = ['mean', 'std']) -> pandas.DataFrame
+
+   Compute temporal domain features for the ppg signal. The features are added to the dataframe. Therefore the original dataframe is modified, and the modified dataframe is returned.
+
+   :param ppg_windowed: The dataframe containing the windowed accelerometer signal
+   :type ppg_windowed: np.ndarray
+   :param config: The configuration object containing the parameters for the feature extraction
+   :type config: HeartRateConfig
+   :param quality_stats: The statistics to be computed for the gravity component of the accelerometer signal (default: ['mean', 'std'])
+   :type quality_stats: list, optional
+
+   :returns: The dataframe with the added temporal domain features.
+   :rtype: pd.DataFrame
+
+
+.. py:function:: extract_spectral_domain_features(ppg_windowed: numpy.ndarray, config: paradigma.config.HeartRateConfig) -> pandas.DataFrame
+
+   Calculate the spectral features (dominant frequency, relative power, and spectral entropy)
+   for each segment of a PPG signal using a single Welch's method computation. The features are added to the dataframe.
+   Therefore the original dataframe is modified, and the modified dataframe is returned.
+
+   :param ppg_windowed: The dataframe containing the windowed ppg signal
+   :type ppg_windowed: np.ndarray
+   :param config: The configuration object containing the parameters for the feature extraction
+   :type config: HeartRateConfig
+
+   :returns: The dataframe with the added spectral domain features.
+   :rtype: pd.DataFrame
+
+
+.. py:function:: extract_acc_power_feature(f1: numpy.ndarray, PSD_acc: numpy.ndarray, f2: numpy.ndarray, PSD_ppg: numpy.ndarray) -> numpy.ndarray
+
+   Extract the accelerometer power feature in the PPG frequency range.
+
+   :param f1: The frequency bins of the accelerometer signal.
+   :type f1: np.ndarray
+   :param PSD_acc: The power spectral density of the accelerometer signal.
+   :type PSD_acc: np.ndarray
+   :param f2: The frequency bins of the PPG signal.
+   :type f2: np.ndarray
+   :param PSD_ppg: The power spectral density of the PPG signal.
+   :type PSD_ppg: np.ndarray
+
+   :returns: The accelerometer power feature in the PPG frequency range
+   :rtype: np.ndarray
+
+
+.. py:function:: extract_accelerometer_feature(acc_windowed: numpy.ndarray, ppg_windowed: numpy.ndarray, config: paradigma.config.HeartRateConfig) -> pandas.DataFrame
+
+   Extract accelerometer features from the accelerometer signal in the PPG frequency range.
+
+   :param acc_windowed: The dataframe containing the windowed accelerometer signal
+   :type acc_windowed: np.ndarray
+   :param ppg_windowed: The dataframe containing the corresponding windowed ppg signal
+   :type ppg_windowed: np.ndarray
+   :param config: The configuration object containing the parameters for the feature extraction
+   :type config: HeartRateConfig
+
+   :returns: The dataframe with the relative power accelerometer feature.
+   :rtype: pd.DataFrame
+
+

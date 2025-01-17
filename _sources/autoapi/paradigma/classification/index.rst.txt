@@ -1,0 +1,93 @@
+paradigma.classification
+========================
+
+.. py:module:: paradigma.classification
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   paradigma.classification.ClassifierPackage
+
+
+Module Contents
+---------------
+
+.. py:class:: ClassifierPackage(classifier: Optional[sklearn.base.BaseEstimator] = None, threshold: Optional[float] = None, scaler: Optional[Any] = None)
+
+   .. py:attribute:: classifier
+      :value: None
+
+
+
+   .. py:attribute:: threshold
+      :value: None
+
+
+
+   .. py:attribute:: scaler
+      :value: None
+
+
+
+   .. py:method:: transform_features(X) -> numpy.ndarray
+
+      Transform the input features using the scaler.
+
+      :param X: The input features.
+      :type X: np.ndarray
+
+      :returns: The transformed features.
+      :rtype: np.ndarray
+
+
+
+   .. py:method:: predict_proba(X) -> float
+
+      Make predictions using the classifier and apply the threshold.
+
+      :param X: The input features.
+      :type X: np.ndarray
+
+      :returns: The predicted probability.
+      :rtype: float
+
+
+
+   .. py:method:: predict(X) -> int
+
+      Make predictions using the classifier and apply the threshold.
+
+      :param X: The input features.
+      :type X: np.ndarray
+
+      :returns: The predicted class.
+      :rtype: int
+
+
+
+   .. py:method:: save(filepath: str | pathlib.Path) -> None
+
+      Save the ClassifierPackage to a file.
+
+      :param filepath: The path to the file.
+      :type filepath: str
+
+
+
+   .. py:method:: load(filepath: str | pathlib.Path)
+      :classmethod:
+
+
+      Load a ClassifierPackage from a file.
+
+      :param filepath: The path to the file.
+      :type filepath: str
+
+      :returns: The loaded classifier package.
+      :rtype: ClassifierPackage
+
+
+

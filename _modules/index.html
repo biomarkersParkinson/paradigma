@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Overview: module code &mdash; paradigma  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
@@ -19,6 +19,7 @@
         <script src="../_static/documentation_options.js?v=5929fcd5"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
@@ -43,25 +44,21 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Example notebooks</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../notebooks/gait/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../notebooks/ppg/ppg_analysis.html">PPG analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/data_preparation.html">Data Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/heart_rate_analysis.html">Heart rate analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../autoapi/index.html">API Reference</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">TSDF schema</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../tsdf_paradigma_schemas.html">TSDF fields in Paradigma schemas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tsdf_paradigma_channels_and_units.html">Channels and units in Paradigma schemas</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Development</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
 </ul>
 
         </div>
@@ -88,19 +85,18 @@
            <div itemprop="articleBody">
              
   <h1>All modules for which code is available</h1>
-<ul><li><a href="paradigma/constants.html">paradigma.constants</a></li>
+<ul><li><a href="paradigma/classification.html">paradigma.classification</a></li>
+<li><a href="paradigma/config.html">paradigma.config</a></li>
+<li><a href="paradigma/constants.html">paradigma.constants</a></li>
 <li><a href="paradigma/feature_extraction.html">paradigma.feature_extraction</a></li>
-<li><a href="paradigma/gait_analysis.html">paradigma.gait_analysis</a></li>
-<li><a href="paradigma/gait_analysis_config.html">paradigma.gait_analysis_config</a></li>
-<li><a href="paradigma/heart_rate_analysis.html">paradigma.heart_rate_analysis</a></li>
-<li><a href="paradigma/heart_rate_analysis_config.html">paradigma.heart_rate_analysis_config</a></li>
-<li><a href="paradigma/heart_rate_util.html">paradigma.heart_rate_util</a></li>
-<li><a href="paradigma/imu_preprocessing.html">paradigma.imu_preprocessing</a></li>
-<li><a href="paradigma/ppg_preprocessing.html">paradigma.ppg_preprocessing</a></li>
-<li><a href="paradigma/preprocessing_config.html">paradigma.preprocessing_config</a></li>
-<li><a href="paradigma/quantification.html">paradigma.quantification</a></li>
+<li><a href="paradigma/pipelines/gait_pipeline.html">paradigma.pipelines.gait_pipeline</a></li>
+<li><a href="paradigma/pipelines/heart_rate_pipeline.html">paradigma.pipelines.heart_rate_pipeline</a></li>
+<li><a href="paradigma/pipelines/heart_rate_utils.html">paradigma.pipelines.heart_rate_utils</a></li>
+<li><a href="paradigma/pipelines/tremor_pipeline.html">paradigma.pipelines.tremor_pipeline</a></li>
+<li><a href="paradigma/preprocessing.html">paradigma.preprocessing</a></li>
+<li><a href="paradigma/segmenting.html">paradigma.segmenting</a></li>
+<li><a href="paradigma/testing.html">paradigma.testing</a></li>
 <li><a href="paradigma/util.html">paradigma.util</a></li>
-<li><a href="paradigma/windowing.html">paradigma.windowing</a></li>
 </ul>
 
            </div>
@@ -110,7 +106,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Peter Kok, Vedran Kasalica, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Luc Evers.</p>
+    <p>&#169; Copyright 2023, Erik Post, Kars Veldkamp, Nienke Timmermans, Peter Kok, Vedran Kasalica, Diogo Coutinho Soriano, Luc Evers.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

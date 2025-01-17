@@ -1,0 +1,409 @@
+paradigma.pipelines.heart_rate_utils
+====================================
+
+.. py:module:: paradigma.pipelines.heart_rate_utils
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   paradigma.pipelines.heart_rate_utils.TimeFreqDistr
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   paradigma.pipelines.heart_rate_utils.assign_sqa_label
+   paradigma.pipelines.heart_rate_utils.extract_hr_segments
+   paradigma.pipelines.heart_rate_utils.extract_hr_from_segment
+   paradigma.pipelines.heart_rate_utils.extract_hr_with_tfd
+
+
+Module Contents
+---------------
+
+.. py:function:: assign_sqa_label(ppg_prob: numpy.ndarray, config: paradigma.config.HeartRateConfig, acc_label=None) -> numpy.ndarray
+
+   Assigns a signal quality label to every individual data point.
+
+   :param ppg_prob: The probabilities for PPG.
+   :type ppg_prob: np.ndarray
+   :param config: The configuration parameters.
+   :type config: HeartRateConfig
+   :param acc_label: The labels for the accelerometer.
+   :type acc_label: np.ndarray, optional
+
+   :returns: The signal quality assessment labels.
+   :rtype: np.ndarray
+
+
+.. py:function:: extract_hr_segments(sqa_label: numpy.ndarray, min_hr_samples: int) -> Tuple[numpy.ndarray, numpy.ndarray]
+
+   Extracts heart rate segments based on the SQA label.
+
+   :param sqa_label: The signal quality assessment label.
+   :type sqa_label: np.ndarray
+   :param min_hr_samples: The minimum number of samples required for a heart rate segment.
+   :type min_hr_samples: int
+
+   :returns: The start and end indices of the heart rate segments.
+   :rtype: Tuple[v_start_idx_long, v_end_idx_long]
+
+
+.. py:function:: extract_hr_from_segment(ppg: numpy.ndarray, tfd_length: int, fs: int, kern_type: str, kern_params: dict) -> numpy.ndarray
+
+   Extracts heart rate from the time-frequency distribution of the PPG signal.
+
+   :param ppg: The preprocessed PPG segment with 2 seconds of padding on both sides to reduce boundary effects.
+   :type ppg: np.ndarray
+   :param tfd_length: Length of each segment (in seconds) to calculate the time-frequency distribution.
+   :type tfd_length: int
+   :param fs: The sampling frequency of the PPG signal.
+   :type fs: int
+   :param kern_type: Type of TFD kernel to use (e.g., 'wvd' for Wigner-Ville distribution).
+   :type kern_type: str
+   :param kern_params: Parameters for the specified kernel. Not required for 'wvd', but relevant for other
+                       kernels like 'spwvd' or 'swvd'. Default is None.
+   :type kern_params: dict
+
+   :returns: The estimated heart rate.
+   :rtype: np.ndarray
+
+
+.. py:function:: extract_hr_with_tfd(ppg: numpy.ndarray, fs: int, kern_type: str, kern_params: dict) -> numpy.ndarray
+
+   Estimate heart rate (HR) from a PPG segment using a TFD method with optional
+   moving average filtering.
+
+   :param ppg_segment: Segment of the PPG signal to process.
+   :type ppg_segment: array-like
+   :param fs: Sampling frequency in Hz.
+   :type fs: int
+   :param kern_type: Type of TFD kernel to use.
+   :type kern_type: str
+   :param kern_params: Parameters for the specified kernel.
+   :type kern_params: dict
+
+   :returns: **hr_smooth_tfd** -- Estimated HR values (in beats per minute) for each 2-second segment of the PPG signal.
+   :rtype: np.ndarray
+
+
+.. py:class:: TimeFreqDistr
+
+   .. py:method:: nonsep_gdtfd(x: numpy.ndarray, kern_type: None | str = None, kern_params: None | dict = None)
+
+      Computes the generalized time-frequency distribution (TFD) using a non-separable kernel.
+
+      Parameters:
+      -----------
+      x : ndarray
+          Input signal to be analyzed.
+      kern_type : str, optional
+          Type of kernel to be used for TFD computation. Default is None.
+          Currently supported kernels are:
+              wvd  - kernel for Wigner-Ville distribution
+              swvd - kernel for smoothed Wigner-Ville distribution
+                  (lag-independent kernel)
+              pwvd - kernel for pseudo Wigner-Ville distribution
+                  (Doppler-independent kernel)
+              sep  - kernel for separable kernel (combintation of SWVD and PWVD)
+
+      kern_params : dict, optional
+          Dictionary of parameters specific to the kernel type. Default is None.
+          The structure of the dictionary depends on the selected kernel type:
+              - wvd:
+              An empty dictionary, as no additional parameters are required.
+              - swvd:
+              Dictionary with the following keys:
+                  'win_length': Length of the smoothing window.
+                  'win_type': Type of window function (e.g., 'hamm', 'hann').
+                  'win_param' (optional): Additional parameters for the window.
+                  'win_param2' (optional): 0 for time-domain window or 1 for Doppler-domain window.
+
+          Example:
+          ```python
+          kern_params = {
+              'win_length': 11,
+              'win_type': 'hamm',
+              'win_param': 0,
+              'domain': 1
+          }
+          ```
+          - pwvd:
+          Dictionary with the following keys:
+              'win_length': Length of the smoothing window.
+              'win_type': Type of window function (e.g., 'cosh').
+              'win_param' (optional): Additional parameters for the window.
+              'win_param2' (optional): 0 for time-domain window or 1 for Doppler-domain window.
+          Example:
+          ```python
+          kern_params = {
+              'win_length': 200,
+              'win_type': 'cosh',
+              'win_param': 0.1
+          }
+          ```
+          - sep:
+          Dictionary containing two nested dictionaries, one for the Doppler window and one for the lag window:
+              'doppler': {
+                  'win_length': Length of the Doppler-domain window.
+                  'win_type': Type of Doppler-domain window function.
+                  'win_param' (optional): Additional parameters for the Doppler window.
+                  'win_param2' (optional): 0 for time-domain window or 1 for Doppler-domain window.
+              }
+              'lag': {
+                  'win_length': Length of the lag-domain window.
+                  'win_type': Type of lag-domain window function.
+                  'win_param' (optional): Additional parameters for the lag window.
+                  'win_param2' (optional): 0 for time-domain window or 1 for Doppler-domain window.
+              }
+          Example:
+          ```python
+          kern_params = {
+              'doppler': {
+                  'win_length': doppler_samples,
+                  'win_type': win_type_doppler,
+              },
+              'lag': {
+                  'win_length': lag_samples,
+                  'win_type': win_type_lag,
+              }
+          }
+          ```
+
+      Returns:
+      --------
+      tfd : ndarray
+          The computed time-frequency distribution.
+
+
+
+   .. py:method:: get_analytic_signal(x: numpy.ndarray) -> numpy.ndarray
+
+      Generates the signals analytic version.
+
+      Parameters:
+      -----------
+      z : ndarray
+          Input real-valued signal.
+
+      Returns:
+      --------
+      z : ndarray
+          Analytic signal with zero-padded imaginary part.
+
+
+
+   .. py:method:: gen_analytic(x: numpy.ndarray) -> numpy.ndarray
+
+      Generates an analytic signal by zero-padding and performing FFT.
+
+      Parameters:
+      -----------
+      x : ndarray
+          Input real-valued signal.
+
+      Returns:
+      --------
+      z : ndarray
+          Analytic signal in the time domain with zeroed second half.
+
+
+
+   .. py:method:: gen_time_lag(z: numpy.ndarray) -> numpy.ndarray
+
+      Generate the time-lag distribution of the analytic signal z.
+
+      Parameters:
+      -----------
+      z : ndarray
+          Analytic signal of the input signal x.
+
+      Returns:
+      --------
+      tfd : ndarray
+          Time-lag distribution of the analytic signal z.
+
+
+
+
+   .. py:method:: multiply_kernel_signal(tfd: numpy.ndarray, kern_type: str, kern_params: dict, N: int, Nh: int) -> numpy.ndarray
+
+      Multiplies the TFD by the Doppler-lag kernel.
+
+      Parameters:
+      -----------
+      tfd : ndarray
+          Time-frequency distribution.
+      kern_type : str
+          Kernel type to be applied.
+      kern_params : dict
+          Kernel parameters specific to the kernel type.
+      N : int
+          Length of the signal.
+      Nh : int
+          Half length of the signal.
+
+      Returns:
+      --------
+      tfd : ndarray
+          Modified TFD after kernel multiplication.
+
+
+
+   .. py:method:: gen_doppler_lag_kern(kern_type: str, kern_params: dict, N: int, lag_index: int)
+
+      Generate the Doppler-lag kernel based on kernel type and parameters.
+
+      Parameters:
+      -----------
+      kern_type : str
+          Type of kernel (e.g., 'wvd', 'swvd', 'pwvd', etc.).
+      kern_params : dict
+          Parameters for the kernel.
+      N : int
+          Signal length.
+      lag_index : int
+          Current lag index.
+
+      Returns:
+      --------
+      g : ndarray
+          Doppler-lag kernel for the given lag.
+
+
+
+   .. py:method:: get_kern(g: numpy.ndarray, lag_index: int, kern_type: str, kern_params: dict, N: int) -> numpy.ndarray
+
+      Get the kernel based on the provided kernel type.
+
+      Parameters:
+      -----------
+      g : ndarray
+          Kernel to be filled.
+      lag_index : int
+          Lag index for the kernel.
+      kern_type : str
+          Type of kernel to use (now included: 'wvd', 'swvd', 'pwvd', 'sep').
+      kern_params : dict
+          Parameters for the specified kernel.
+      N : int
+          Signal length.
+
+      Returns:
+      --------
+      g : ndarray
+          Kernel function at the current lag.
+
+
+
+   .. py:method:: get_window(win_length: int, win_type: str, win_param: float | None = None, dft_window: bool = False, Npad: int = 0) -> numpy.ndarray
+
+      General function to calculate a window function.
+
+      Parameters:
+      -----------
+      win_length : int
+          Length of the window.
+      win_type : str
+          Type of window. Options are:
+          {'delta', 'rect', 'hamm'|'hamming', 'hann'|'hanning', 'gauss', 'cosh'}.
+      win_param : float, optional
+          Window parameter (e.g., alpha for Gaussian window). Default is None.
+      dft_window : bool, optional
+          If True, returns the DFT of the window. Default is False.
+      Npad : int, optional
+          If greater than 0, zero-pads the window to length Npad. Default is 0.
+
+      Returns:
+      --------
+      win : ndarray
+          The calculated window (or its DFT if dft_window is True).
+
+
+
+   .. py:method:: get_win(win_length: int, win_type: str, win_param: float | None = None, dft_window: bool = False) -> numpy.ndarray
+
+      Helper function to create the specified window type.
+
+      Parameters:
+      -----------
+      win_length : int
+          Length of the window.
+      win_type : str
+          Type of window.
+      win_param : float, optional
+          Additional parameter for certain window types (e.g., Gaussian alpha). Default is None.
+      dft_window : bool, optional
+          If True, returns the DFT of the window. Default is False.
+
+      Returns:
+      --------
+      win : ndarray
+          The created window (or its DFT if dft_window is True).
+
+
+
+   .. py:method:: shift_window(w: numpy.ndarray) -> numpy.ndarray
+
+      Shift the window so that positive indices appear first.
+
+      Parameters:
+      -----------
+      w : ndarray
+          Window to be shifted.
+
+      Returns:
+      --------
+      w_shifted : ndarray
+          Shifted window with positive indices first.
+
+
+
+   .. py:method:: pad_window(w: numpy.ndarray, Npad: int) -> numpy.ndarray
+
+      Zero-pad the window to a specified length.
+
+      Parameters:
+      -----------
+      w : ndarray
+          The original window.
+      Npad : int
+          Length to zero-pad the window to.
+
+      Returns:
+      --------
+      w_pad : ndarray
+          Zero-padded window of length Npad.
+
+      Raises:
+      -------
+      ValueError:
+          If Npad is less than the original window length.
+
+
+
+   .. py:method:: compute_tfd(N: int, Nh: int, tfd: numpy.ndarray)
+
+      Finalizes the time-frequency distribution computation.
+
+      Parameters:
+      -----------
+      N : int
+          Size of the TFD.
+      Nh : int
+          Half-length parameter.
+      tfd : np.ndarray
+          Time-frequency distribution to be finalized.
+
+      Returns:
+      --------
+      tfd : np.ndarray
+          Final computed TFD (N,N).
+
+
+

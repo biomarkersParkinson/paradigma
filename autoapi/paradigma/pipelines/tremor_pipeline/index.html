@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>paradigma.pipelines.tremor_pipeline &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="paradigma.preprocessing" href="../../preprocessing/index.html" />
+    <link rel="prev" title="paradigma.pipelines.heart_rate_utils" href="../heart_rate_utils/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/data_preparation.html">Data Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/heart_rate_analysis.html">Heart rate analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../../index.html">paradigma</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../../classification/index.html">paradigma.classification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../config/index.html">paradigma.config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../constants/index.html">paradigma.constants</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../feature_extraction/index.html">paradigma.feature_extraction</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../index.html">paradigma.pipelines</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../preprocessing/index.html">paradigma.preprocessing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../segmenting/index.html">paradigma.segmenting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../testing/index.html">paradigma.testing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../util/index.html">paradigma.util</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">paradigma</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">paradigma.pipelines</a></li>
+      <li class="breadcrumb-item active">paradigma.pipelines.tremor_pipeline</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/autoapi/paradigma/pipelines/tremor_pipeline/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-paradigma.pipelines.tremor_pipeline">
+<span id="paradigma-pipelines-tremor-pipeline"></span><h1>paradigma.pipelines.tremor_pipeline<a class="headerlink" href="#module-paradigma.pipelines.tremor_pipeline" title="Link to this heading"></a></h1>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.tremor_pipeline.extract_tremor_features" title="paradigma.pipelines.tremor_pipeline.extract_tremor_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_tremor_features</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>This function groups sequences of timestamps into windows and subsequently extracts</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.pipelines.tremor_pipeline.detect_tremor" title="paradigma.pipelines.tremor_pipeline.detect_tremor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">detect_tremor</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Detects tremor in the input DataFrame using a pre-trained classifier and applies a threshold to the predicted probabilities.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.tremor_pipeline.aggregate_tremor" title="paradigma.pipelines.tremor_pipeline.aggregate_tremor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_tremor</span></code></a>(df, config)</p></td>
+<td><p>Quantifies the amount of tremor time and tremor power, aggregated over all windows in the input dataframe.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.pipelines.tremor_pipeline.extract_spectral_domain_features" title="paradigma.pipelines.tremor_pipeline.extract_spectral_domain_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_spectral_domain_features</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Compute spectral domain features from the gyroscope data.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.pipelines.tremor_pipeline.extract_tremor_features">
+<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.tremor_pipeline.</span></span><span class="sig-name descname"><span class="pre">extract_tremor_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.TremorConfig" title="paradigma.config.TremorConfig"><span class="pre">paradigma.config.TremorConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/tremor_pipeline.html#extract_tremor_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.tremor_pipeline.extract_tremor_features" title="Link to this definition"></a></dt>
+<dd><p>This function groups sequences of timestamps into windows and subsequently extracts
+tremor features from windowed gyroscope data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The input DataFrame containing sensor data, which includes time and gyroscope data. The data should be
+structured with the necessary columns as specified in the <cite>config</cite>.</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.TremorConfig" title="paradigma.config.TremorConfig"><em>TremorConfig</em></a>) – Configuration object containing parameters for feature extraction, including column names for time, gyroscope data,
+as well as settings for windowing, and feature computation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A DataFrame containing extracted tremor features and a column corresponding to time.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This function groups the data into windows based on timestamps.</p></li>
+<li><p>The input DataFrame must include columns as specified in the <cite>config</cite> object for proper feature extraction.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the input DataFrame does not contain the required columns as specified in the configuration or if any step in the feature extraction fails.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.pipelines.tremor_pipeline.detect_tremor">
+<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.tremor_pipeline.</span></span><span class="sig-name descname"><span class="pre">detect_tremor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.TremorConfig" title="paradigma.config.TremorConfig"><span class="pre">paradigma.config.TremorConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_path_to_classifier_package</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/tremor_pipeline.html#detect_tremor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.tremor_pipeline.detect_tremor" title="Link to this definition"></a></dt>
+<dd><p>Detects tremor in the input DataFrame using a pre-trained classifier and applies a threshold to the predicted probabilities.</p>
+<p>This function performs the following steps:
+1. Loads the pre-trained classifier and scaling parameters from the provided directory.
+2. Scales the relevant features in the input DataFrame (<cite>df</cite>) using the loaded scaling parameters.
+3. Makes predictions using the classifier to estimate the probability of tremor.
+4. Applies a threshold to the predicted probabilities to classify whether tremor is detected or not.
+5. Checks for rest tremor by verifying the frequency of the peak and low-frequency power.
+6. Adds the predicted probabilities and the classification result to the DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The input DataFrame containing extracted tremor features. The DataFrame must include
+the necessary columns as specified in the classifier’s feature names.</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.TremorConfig" title="paradigma.config.TremorConfig"><em>TremorConfig</em></a>) – Configuration object containing settings for tremor detection, including the frequency range for rest tremor.</p></li>
+<li><p><strong>full_path_to_classifier_package</strong> (<em>str</em><em> | </em><em>Path</em>) – The path to the directory containing the classifier file, threshold value, scaler parameters, and other necessary input
+files for tremor detection.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The input DataFrame (<cite>df</cite>) with two additional columns:
+- <cite>PRED_TREMOR_PROBA</cite>: Predicted probability of tremor based on the classifier.
+- <cite>PRED_TREMOR_LOGREG</cite>: Binary classification result (True for tremor, False for no tremor), based on the threshold applied to <cite>PRED_TREMOR_PROBA</cite>.
+- <cite>PRED_TREMOR_CHECKED</cite>: Binary classification result (True for tremor, False for no tremor), after performing extra checks for rest tremor on <cite>PRED_TREMOR_LOGREG</cite>.
+- <cite>PRED_ARM_AT_REST</cite>: Binary classification result (True for arm at rest or stable posture, False for significant arm movement), based on the power below tremor.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The threshold used to classify tremor is loaded from a file and applied to the predicted probabilities.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>FileNotFoundError</strong> – If the classifier, scaler, or threshold files are not found at the specified paths.</p></li>
+<li><p><strong>ValueError</strong> – If the DataFrame does not contain the expected features for prediction or if the prediction fails.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.pipelines.tremor_pipeline.aggregate_tremor">
+<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.tremor_pipeline.</span></span><span class="sig-name descname"><span class="pre">aggregate_tremor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.TremorConfig" title="paradigma.config.TremorConfig"><span class="pre">paradigma.config.TremorConfig</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/tremor_pipeline.html#aggregate_tremor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.tremor_pipeline.aggregate_tremor" title="Link to this definition"></a></dt>
+<dd><p>Quantifies the amount of tremor time and tremor power, aggregated over all windows in the input dataframe.
+Tremor time is calculated as the number of the detected tremor windows, as percentage of the number of windows
+without significant non-tremor movement (at rest). For tremor power the following aggregates are derived:
+the median, mode and percentile of tremor power specified in the configuration object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The input DataFrame containing extracted tremor features. The DataFrame must include
+the necessary columns as specified in the classifier’s feature names.</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.TremorConfig" title="paradigma.config.TremorConfig"><em>TremorConfig</em></a>) – Configuration object containing the percentile for aggregating tremor power.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary with the aggregated tremor time and tremor power measures, as well as the total number of windows
+available in the input dataframe, and the number of windows at rest.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Tremor power is converted to log scale, after adding a constant of 1, so that zero tremor power</p></li>
+</ul>
+<p>corresponds to a value of 0 in log scale.
+- The modal tremor power is computed based on gaussian kernel density estimation.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.pipelines.tremor_pipeline.extract_spectral_domain_features">
+<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.tremor_pipeline.</span></span><span class="sig-name descname"><span class="pre">extract_spectral_domain_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/tremor_pipeline.html#extract_spectral_domain_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.tremor_pipeline.extract_spectral_domain_features" title="Link to this definition"></a></dt>
+<dd><p>Compute spectral domain features from the gyroscope data.</p>
+<p>This function computes Mel-frequency cepstral coefficients (MFCCs), the frequency of the peak,
+the tremor power, and the below tremor power based on the total power spectral density of the windowed gyroscope data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>numpy.ndarray</em>) – A 2D numpy array where each row corresponds to a window of gyroscope data.</p></li>
+<li><p><strong>config</strong> (<em>object</em>) – Configuration object containing settings such as sampling frequency, window type,
+and MFCC parameters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The feature dataframe containing the extracted spectral features, including
+MFCCs, the frequency of the peak, the tremor power and below tremor power for each window.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../heart_rate_utils/index.html" class="btn btn-neutral float-left" title="paradigma.pipelines.heart_rate_utils" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../preprocessing/index.html" class="btn btn-neutral float-right" title="paradigma.preprocessing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Erik Post, Kars Veldkamp, Nienke Timmermans, Peter Kok, Vedran Kasalica, Diogo Coutinho Soriano, Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

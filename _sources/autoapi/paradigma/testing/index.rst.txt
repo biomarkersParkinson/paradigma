@@ -1,0 +1,93 @@
+paradigma.testing
+=================
+
+.. py:module:: paradigma.testing
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   paradigma.testing.preprocess_imu_data_io
+   paradigma.testing.preprocess_ppg_data_io
+   paradigma.testing.extract_gait_features_io
+   paradigma.testing.detect_gait_io
+   paradigma.testing.extract_arm_activity_features_io
+   paradigma.testing.filter_gait_io
+   paradigma.testing.extract_tremor_features_io
+   paradigma.testing.detect_tremor_io
+   paradigma.testing.aggregate_tremor_io
+   paradigma.testing.extract_signal_quality_features_io
+   paradigma.testing.signal_quality_classification_io
+   paradigma.testing.aggregate_heart_rate_io
+
+
+Module Contents
+---------------
+
+.. py:function:: preprocess_imu_data_io(path_to_input: str | pathlib.Path, path_to_output: str | pathlib.Path, config: paradigma.config.IMUConfig, sensor: str, watch_side: str) -> None
+
+.. py:function:: preprocess_ppg_data_io(path_to_input_ppg: str | pathlib.Path, path_to_input_imu: str | pathlib.Path, output_path: str | pathlib.Path, ppg_config: paradigma.config.PPGConfig, imu_config: paradigma.config.IMUConfig) -> None
+
+   Preprocess PPG and IMU data by resampling, filtering, and aligning the data segments.
+
+   :param path_to_input_ppg: Path to the PPG data.
+   :type path_to_input_ppg: str | Path
+   :param path_to_input_imu: Path to the IMU data.
+   :type path_to_input_imu: str | Path
+   :param output_path: Path to store the preprocessed data.
+   :type output_path: str | Path
+   :param ppg_config: Configuration object for PPG preprocessing.
+   :type ppg_config: PPGConfig
+   :param imu_config: Configuration object for IMU preprocessing.
+   :type imu_config: IMUConfig
+
+   :rtype: None
+
+
+.. py:function:: extract_gait_features_io(config: paradigma.config.GaitConfig, path_to_input: str | pathlib.Path, path_to_output: str | pathlib.Path) -> None
+
+.. py:function:: detect_gait_io(config: paradigma.config.GaitConfig, path_to_input: str | pathlib.Path, path_to_output: str | pathlib.Path, full_path_to_classifier_package: str | pathlib.Path) -> None
+
+.. py:function:: extract_arm_activity_features_io(config: paradigma.config.GaitConfig, path_to_timestamp_input: str | pathlib.Path, path_to_prediction_input: str | pathlib.Path, full_path_to_classifier_package: str | pathlib.Path, path_to_output: str | pathlib.Path) -> None
+
+.. py:function:: filter_gait_io(config: paradigma.config.GaitConfig, path_to_input: str | pathlib.Path, path_to_output: str | pathlib.Path, full_path_to_classifier_package: str | pathlib.Path) -> None
+
+.. py:function:: extract_tremor_features_io(input_path: str | pathlib.Path, output_path: str | pathlib.Path, config: paradigma.config.TremorConfig) -> None
+
+.. py:function:: detect_tremor_io(input_path: str | pathlib.Path, output_path: str | pathlib.Path, path_to_classifier_input: str | pathlib.Path, config: paradigma.config.TremorConfig) -> None
+
+.. py:function:: aggregate_tremor_io(path_to_feature_input: str | pathlib.Path, path_to_prediction_input: str | pathlib.Path, output_path: str | pathlib.Path, config: paradigma.config.TremorConfig) -> None
+
+.. py:function:: extract_signal_quality_features_io(input_path: str | pathlib.Path, output_path: str | pathlib.Path, ppg_config: paradigma.config.HeartRateConfig, acc_config: paradigma.config.HeartRateConfig) -> pandas.DataFrame
+
+   Extract signal quality features from the PPG signal and save them to a file.
+
+   :param input_path: The path to the directory containing the preprocessed PPG and accelerometer data.
+   :type input_path: str | Path
+   :param output_path: The path to the directory where the extracted features will be saved.
+   :type output_path: str | Path
+   :param ppg_config: The configuration for the signal quality feature extraction of the ppg signal.
+   :type ppg_config: HeartRateConfig
+   :param acc_config: The configuration for the signal quality feature extraction of the accelerometer signal.
+   :type acc_config: HeartRateConfig
+
+   :returns: **df_windowed** -- The DataFrame containing the extracted signal quality features.
+   :rtype: pd.DataFrame
+
+
+.. py:function:: signal_quality_classification_io(input_path: str | pathlib.Path, output_path: str | pathlib.Path, path_to_classifier_input: str | pathlib.Path, config: paradigma.config.HeartRateConfig) -> None
+
+.. py:function:: aggregate_heart_rate_io(full_path_to_input: str | pathlib.Path, full_path_to_output: str | pathlib.Path, aggregates: List[str] = ['mode', '99p']) -> None
+
+   Extract heart rate from the PPG signal and save the aggregated heart rate estimates to a file.
+
+   :param input_path: The path to the directory containing the heart rate estimates.
+   :type input_path: str | Path
+   :param output_path: The path to the directory where the aggregated heart rate estimates will be saved.
+   :type output_path: str | Path
+   :param aggregates: The list of aggregation methods to be used for the heart rate estimates. The default is ['mode', '99p'].
+   :type aggregates: List[str]
+
+

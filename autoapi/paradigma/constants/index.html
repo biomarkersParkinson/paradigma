@@ -5,7 +5,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>paradigma.constants &mdash; paradigma  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
@@ -20,11 +20,12 @@
         <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
         <script src="../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="paradigma.feature_extraction" href="../feature_extraction/index.html" />
-    <link rel="prev" title="paradigma" href="../index.html" /> 
+    <link rel="prev" title="paradigma.config" href="../config/index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -46,46 +47,38 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Example notebooks</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/gait/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/ppg/ppg_analysis.html">PPG analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/data_preparation.html">Data Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/heart_rate_analysis.html">Heart rate analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html">paradigma</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../classification/index.html">paradigma.classification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../config/index.html">paradigma.config</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">paradigma.constants</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../feature_extraction/index.html">paradigma.feature_extraction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../gait_analysis/index.html">paradigma.gait_analysis</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../gait_analysis_config/index.html">paradigma.gait_analysis_config</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../heart_rate_analysis/index.html">paradigma.heart_rate_analysis</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../heart_rate_analysis_config/index.html">paradigma.heart_rate_analysis_config</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../heart_rate_util/index.html">paradigma.heart_rate_util</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../imu_preprocessing/index.html">paradigma.imu_preprocessing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../ppg_preprocessing/index.html">paradigma.ppg_preprocessing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../preprocessing_config/index.html">paradigma.preprocessing_config</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../quantification/index.html">paradigma.quantification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../pipelines/index.html">paradigma.pipelines</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../preprocessing/index.html">paradigma.preprocessing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../segmenting/index.html">paradigma.segmenting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../testing/index.html">paradigma.testing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../util/index.html">paradigma.util</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../windowing/index.html">paradigma.windowing</a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 </li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">TSDF schema</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../tsdf_paradigma_schemas.html">TSDF fields in Paradigma schemas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tsdf_paradigma_channels_and_units.html">Channels and units in Paradigma schemas</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Development</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../conduct.html">Code of Conduct</a></li>
 </ul>
 
         </div>
@@ -189,18 +182,33 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.SEGMENT_NR">
+<span class="sig-name descname"><span class="pre">SEGMENT_NR</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'segment_nr'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.SEGMENT_NR" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.SEGMENT_CAT">
+<span class="sig-name descname"><span class="pre">SEGMENT_CAT</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'segment_category'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.SEGMENT_CAT" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="paradigma.constants.DataColumns.GRAV_ACCELEROMETER_X">
-<span class="sig-name descname"><span class="pre">GRAV_ACCELEROMETER_X</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'grav_accelerometer_x'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.GRAV_ACCELEROMETER_X" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">GRAV_ACCELEROMETER_X</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'accelerometer_x_grav'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.GRAV_ACCELEROMETER_X" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="paradigma.constants.DataColumns.GRAV_ACCELEROMETER_Y">
-<span class="sig-name descname"><span class="pre">GRAV_ACCELEROMETER_Y</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'grav_accelerometer_y'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.GRAV_ACCELEROMETER_Y" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">GRAV_ACCELEROMETER_Y</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'accelerometer_y_grav'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.GRAV_ACCELEROMETER_Y" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="paradigma.constants.DataColumns.GRAV_ACCELEROMETER_Z">
-<span class="sig-name descname"><span class="pre">GRAV_ACCELEROMETER_Z</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'grav_accelerometer_z'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.GRAV_ACCELEROMETER_Z" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">GRAV_ACCELEROMETER_Z</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'accelerometer_z_grav'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.GRAV_ACCELEROMETER_Z" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.PRED_GAIT_PROBA">
+<span class="sig-name descname"><span class="pre">PRED_GAIT_PROBA</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'pred_gait_proba'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.PRED_GAIT_PROBA" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -209,8 +217,13 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.constants.DataColumns.PRED_ARM_SWING">
-<span class="sig-name descname"><span class="pre">PRED_ARM_SWING</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'pred_arm_swing'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.PRED_ARM_SWING" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA">
+<span class="sig-name descname"><span class="pre">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'pred_no_other_arm_activity_proba'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.PRED_NO_OTHER_ARM_ACTIVITY">
+<span class="sig-name descname"><span class="pre">PRED_NO_OTHER_ARM_ACTIVITY</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'pred_no_other_arm_activity'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.PRED_NO_OTHER_ARM_ACTIVITY" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -219,18 +232,118 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.constants.DataColumns.ANGLE_SMOOTH">
-<span class="sig-name descname"><span class="pre">ANGLE_SMOOTH</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'angle_smooth'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.ANGLE_SMOOTH" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="paradigma.constants.DataColumns.VELOCITY">
 <span class="sig-name descname"><span class="pre">VELOCITY</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'velocity'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.VELOCITY" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.constants.DataColumns.SEGMENT_NR">
-<span class="sig-name descname"><span class="pre">SEGMENT_NR</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'segment_nr'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.SEGMENT_NR" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.DOMINANT_FREQUENCY">
+<span class="sig-name descname"><span class="pre">DOMINANT_FREQUENCY</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'dominant_frequency'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.DOMINANT_FREQUENCY" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.RANGE_OF_MOTION">
+<span class="sig-name descname"><span class="pre">RANGE_OF_MOTION</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'range_of_motion'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.RANGE_OF_MOTION" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.PEAK_VELOCITY">
+<span class="sig-name descname"><span class="pre">PEAK_VELOCITY</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'peak_velocity'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.PEAK_VELOCITY" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.PRED_TREMOR_PROBA">
+<span class="sig-name descname"><span class="pre">PRED_TREMOR_PROBA</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'pred_tremor_proba'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.PRED_TREMOR_PROBA" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.PRED_TREMOR_LOGREG">
+<span class="sig-name descname"><span class="pre">PRED_TREMOR_LOGREG</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'pred_tremor_logreg'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.PRED_TREMOR_LOGREG" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.PRED_TREMOR_CHECKED">
+<span class="sig-name descname"><span class="pre">PRED_TREMOR_CHECKED</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'pred_tremor_checked'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.PRED_TREMOR_CHECKED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.PRED_ARM_AT_REST">
+<span class="sig-name descname"><span class="pre">PRED_ARM_AT_REST</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'pred_arm_at_rest'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.PRED_ARM_AT_REST" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.VARIANCE">
+<span class="sig-name descname"><span class="pre">VARIANCE</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'variance'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.VARIANCE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.MEAN">
+<span class="sig-name descname"><span class="pre">MEAN</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'mean'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.MEAN" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.MEDIAN">
+<span class="sig-name descname"><span class="pre">MEDIAN</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'median'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.MEDIAN" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.KURTOSIS">
+<span class="sig-name descname"><span class="pre">KURTOSIS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'kurtosis'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.KURTOSIS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.SKEWNESS">
+<span class="sig-name descname"><span class="pre">SKEWNESS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'skewness'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.SKEWNESS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.RELATIVE_POWER">
+<span class="sig-name descname"><span class="pre">RELATIVE_POWER</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'relative_power'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.RELATIVE_POWER" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.SPECTRAL_ENTROPY">
+<span class="sig-name descname"><span class="pre">SPECTRAL_ENTROPY</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'spectral_entropy'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.SPECTRAL_ENTROPY" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.SIGNAL_NOISE_RATIO">
+<span class="sig-name descname"><span class="pre">SIGNAL_NOISE_RATIO</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'signal_noise_ratio'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.SIGNAL_NOISE_RATIO" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.SECOND_HIGHEST_PEAK">
+<span class="sig-name descname"><span class="pre">SECOND_HIGHEST_PEAK</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'second_highest_peak'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.SECOND_HIGHEST_PEAK" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.POWER_RATIO">
+<span class="sig-name descname"><span class="pre">POWER_RATIO</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'power_ratio'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.POWER_RATIO" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.ACC_POWER_RATIO">
+<span class="sig-name descname"><span class="pre">ACC_POWER_RATIO</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'acc_power_ratio'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.ACC_POWER_RATIO" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.PRED_SQA_PROBA">
+<span class="sig-name descname"><span class="pre">PRED_SQA_PROBA</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'pred_sqa_proba'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.PRED_SQA_PROBA" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.PRED_SQA_ACC_LABEL">
+<span class="sig-name descname"><span class="pre">PRED_SQA_ACC_LABEL</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'pred_sqa_acc_label'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.PRED_SQA_ACC_LABEL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.PRED_SQA">
+<span class="sig-name descname"><span class="pre">PRED_SQA</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'pred_sqa'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.PRED_SQA" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.DataColumns.HEART_RATE">
+<span class="sig-name descname"><span class="pre">HEART_RATE</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'heart_rate'</span></em><a class="headerlink" href="#paradigma.constants.DataColumns.HEART_RATE" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -288,15 +401,33 @@
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.TimeUnit.RELATIVE_S">
+<span class="sig-name descname"><span class="pre">RELATIVE_S</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'relative_s'</span></em><a class="headerlink" href="#paradigma.constants.TimeUnit.RELATIVE_S" title="Link to this definition"></a></dt>
+<dd><p>The time is relative to the start time in seconds.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="paradigma.constants.TimeUnit.ABSOLUTE_MS">
 <span class="sig-name descname"><span class="pre">ABSOLUTE_MS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'absolute_ms'</span></em><a class="headerlink" href="#paradigma.constants.TimeUnit.ABSOLUTE_MS" title="Link to this definition"></a></dt>
 <dd><p>The time is absolute in milliseconds.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.TimeUnit.ABSOLUTE_S">
+<span class="sig-name descname"><span class="pre">ABSOLUTE_S</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'absolute_s'</span></em><a class="headerlink" href="#paradigma.constants.TimeUnit.ABSOLUTE_S" title="Link to this definition"></a></dt>
+<dd><p>The time is absolute in seconds.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="paradigma.constants.TimeUnit.DIFFERENCE_MS">
 <span class="sig-name descname"><span class="pre">DIFFERENCE_MS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'difference_ms'</span></em><a class="headerlink" href="#paradigma.constants.TimeUnit.DIFFERENCE_MS" title="Link to this definition"></a></dt>
 <dd><p>The time is the difference between consecutive samples in milliseconds.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.constants.TimeUnit.DIFFERENCE_S">
+<span class="sig-name descname"><span class="pre">DIFFERENCE_S</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'difference_s'</span></em><a class="headerlink" href="#paradigma.constants.TimeUnit.DIFFERENCE_S" title="Link to this definition"></a></dt>
+<dd><p>The time is the difference between consecutive samples in seconds.</p>
 </dd></dl>
 
 </dd></dl>
@@ -313,14 +444,14 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../index.html" class="btn btn-neutral float-left" title="paradigma" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../config/index.html" class="btn btn-neutral float-left" title="paradigma.config" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../feature_extraction/index.html" class="btn btn-neutral float-right" title="paradigma.feature_extraction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Peter Kok, Vedran Kasalica, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Luc Evers.</p>
+    <p>&#169; Copyright 2023, Erik Post, Kars Veldkamp, Nienke Timmermans, Peter Kok, Vedran Kasalica, Diogo Coutinho Soriano, Luc Evers.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

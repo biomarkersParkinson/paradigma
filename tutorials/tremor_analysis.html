@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tremor analysis &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Heart rate analysis" href="heart_rate_analysis.html" />
+    <link rel="prev" title="Gait analysis" href="gait_analysis.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="data_preparation.html">Data Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tremor analysis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#load-example-data">Load example data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-1-preprocess-data">Step 1: Preprocess data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-2-extract-tremor-features">Step 2: Extract tremor features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-3-detect-tremor">Step 3: Detect tremor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-4-compute-aggregated-tremor-measures">Step 4: Compute aggregated tremor measures</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="heart_rate_analysis.html">Heart rate analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Tremor analysis</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/tremor_analysis.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tremor-analysis">
+<h1>Tremor analysis<a class="headerlink" href="#tremor-analysis" title="Link to this heading"></a></h1>
+<p>This tutorial shows how to run the tremor pipeline on prepared IMU or gyroscope data to obtain aggregated tremor measures.</p>
+<section id="load-example-data">
+<h2>Load example data<a class="headerlink" href="#load-example-data" title="Link to this heading"></a></h2>
+<p>Example IMU data (8 minutes) from a participant of the Personalized Parkinson Project is loaded. The data was prepared as explained in the data preparation tutorial. The prepared data contains both accelerometer and gyroscope data, but only gyroscope data is necessary for running the tremor pipeline.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span>
+
+<span class="c1"># Set the path to where the prepared data is saved and load the data.</span>
+<span class="c1"># Note: the test data is stored in TSDF, but you can load your data in your own way</span>
+<span class="n">path_to_data</span> <span class="o">=</span>  <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../tests/data&#39;</span><span class="p">)</span>
+<span class="n">path_to_assets</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../src/paradigma/assets&#39;</span><span class="p">)</span>
+<span class="n">path_to_prepared_data</span> <span class="o">=</span> <span class="n">path_to_data</span> <span class="o">/</span> <span class="s1">&#39;1.prepared_data&#39;</span> <span class="o">/</span> <span class="s1">&#39;imu&#39;</span>
+
+<span class="n">df_data</span><span class="p">,</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_prepared_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;IMU&#39;</span><span class="p">)</span>
+
+<span class="n">df_data</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>accelerometer_x</th>
+      <th>accelerometer_y</th>
+      <th>accelerometer_z</th>
+      <th>gyroscope_x</th>
+      <th>gyroscope_y</th>
+      <th>gyroscope_z</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.00000</td>
+      <td>0.550718</td>
+      <td>0.574163</td>
+      <td>-0.273684</td>
+      <td>-115.670732</td>
+      <td>32.012195</td>
+      <td>-26.097561</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.01004</td>
+      <td>0.535885</td>
+      <td>0.623445</td>
+      <td>-0.254545</td>
+      <td>-110.609757</td>
+      <td>34.634146</td>
+      <td>-24.695122</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.02008</td>
+      <td>0.504306</td>
+      <td>0.651675</td>
+      <td>-0.251675</td>
+      <td>-103.231708</td>
+      <td>36.768293</td>
+      <td>-22.926829</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.03012</td>
+      <td>0.488517</td>
+      <td>0.686603</td>
+      <td>-0.265550</td>
+      <td>-96.280488</td>
+      <td>38.719512</td>
+      <td>-21.158537</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.04016</td>
+      <td>0.494258</td>
+      <td>0.725359</td>
+      <td>-0.278469</td>
+      <td>-92.560976</td>
+      <td>41.280488</td>
+      <td>-20.304878</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>72942</th>
+      <td>730.74468</td>
+      <td>0.234928</td>
+      <td>-0.516268</td>
+      <td>-0.802871</td>
+      <td>0.975610</td>
+      <td>-2.256098</td>
+      <td>2.256098</td>
+    </tr>
+    <tr>
+      <th>72943</th>
+      <td>730.75472</td>
+      <td>0.245455</td>
+      <td>-0.514354</td>
+      <td>-0.806699</td>
+      <td>0.304878</td>
+      <td>-1.707317</td>
+      <td>1.768293</td>
+    </tr>
+    <tr>
+      <th>72944</th>
+      <td>730.76476</td>
+      <td>0.243541</td>
+      <td>-0.511005</td>
+      <td>-0.807177</td>
+      <td>0.304878</td>
+      <td>-1.585366</td>
+      <td>1.890244</td>
+    </tr>
+    <tr>
+      <th>72945</th>
+      <td>730.77480</td>
+      <td>0.240191</td>
+      <td>-0.514354</td>
+      <td>-0.808134</td>
+      <td>0.000000</td>
+      <td>-1.280488</td>
+      <td>1.585366</td>
+    </tr>
+    <tr>
+      <th>72946</th>
+      <td>730.78484</td>
+      <td>0.243541</td>
+      <td>-0.511005</td>
+      <td>-0.808134</td>
+      <td>-0.060976</td>
+      <td>-1.036585</td>
+      <td>1.219512</td>
+    </tr>
+  </tbody>
+</table>
+<p>72947 rows × 7 columns</p>
+</div></div></div>
+</div>
+</section>
+<section id="step-1-preprocess-data">
+<h2>Step 1: Preprocess data<a class="headerlink" href="#step-1-preprocess-data" title="Link to this heading"></a></h2>
+<p>IMU sensors collect data at a fixed sampling frequency, but the sampling rate is not uniform, causing variation in time differences between timestamps. The <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_imu_data">preprocess_imu_data</a> function therefore resamples the timestamps to be uniformly distributed, and then interpolates IMU values at these new timestamps using the original timestamps and corresponding IMU values. By setting <code class="docutils literal notranslate"><span class="pre">sensor</span></code> to ‘gyroscope’, only gyroscope data is preprocessed and the accelerometer data is removed from the dataframe.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_imu_data</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The data is resampled to </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="si">}</span><span class="s1"> Hz.&#39;</span><span class="p">)</span>
+
+<span class="n">df_preprocessed_data</span> <span class="o">=</span> <span class="n">preprocess_imu_data</span><span class="p">(</span><span class="n">df_data</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">sensor</span><span class="o">=</span><span class="s1">&#39;gyroscope&#39;</span><span class="p">)</span>
+
+<span class="n">df_preprocessed_data</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The data is resampled to 100 Hz.
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>gyroscope_x</th>
+      <th>gyroscope_y</th>
+      <th>gyroscope_z</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.00</td>
+      <td>-115.670732</td>
+      <td>32.012195</td>
+      <td>-26.097561</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.01</td>
+      <td>-110.636301</td>
+      <td>34.624710</td>
+      <td>-24.701537</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.02</td>
+      <td>-103.292766</td>
+      <td>36.753000</td>
+      <td>-22.942002</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.03</td>
+      <td>-96.349062</td>
+      <td>38.692931</td>
+      <td>-21.175227</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.04</td>
+      <td>-92.585735</td>
+      <td>41.237328</td>
+      <td>-20.311531</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>73074</th>
+      <td>730.74</td>
+      <td>1.150220</td>
+      <td>-2.561552</td>
+      <td>2.440945</td>
+    </tr>
+    <tr>
+      <th>73075</th>
+      <td>730.75</td>
+      <td>0.588721</td>
+      <td>-1.917765</td>
+      <td>1.948620</td>
+    </tr>
+    <tr>
+      <th>73076</th>
+      <td>730.76</td>
+      <td>0.270257</td>
+      <td>-1.626831</td>
+      <td>1.813725</td>
+    </tr>
+    <tr>
+      <th>73077</th>
+      <td>730.77</td>
+      <td>0.185022</td>
+      <td>-1.451942</td>
+      <td>1.793145</td>
+    </tr>
+    <tr>
+      <th>73078</th>
+      <td>730.78</td>
+      <td>-0.133645</td>
+      <td>-1.112332</td>
+      <td>1.347580</td>
+    </tr>
+  </tbody>
+</table>
+<p>73079 rows × 4 columns</p>
+</div></div></div>
+</div>
+</section>
+<section id="step-2-extract-tremor-features">
+<h2>Step 2: Extract tremor features<a class="headerlink" href="#step-2-extract-tremor-features" title="Link to this heading"></a></h2>
+<p>The function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/tremor_pipeline.py#:~:text=extract_tremor_features"><code class="docutils literal notranslate"><span class="pre">extract_tremor_features</span></code></a> extracts windows from the preprocessed gyroscope data using non-overlapping windows of length <code class="docutils literal notranslate"><span class="pre">config.window_length_s</span></code>. Next, from these windows the tremor features are extracted: 12 mel-frequency cepstral coefficients (MFCCs), frequency of the peak in the power spectral density, power in lower frequencies (0.5 – 3 Hz), and power around the tremor peak. The latter is not used for tremor detection, but to compute aggregate measures of tremor power in Step 4.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">TremorConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.tremor_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_tremor_features</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">TremorConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;features&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The window length is </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="si">}</span><span class="s1"> seconds&#39;</span><span class="p">)</span>
+
+<span class="n">df_features</span> <span class="o">=</span> <span class="n">extract_tremor_features</span><span class="p">(</span><span class="n">df_preprocessed_data</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
+<span class="n">df_features</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The window length is 4 seconds
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>mfcc_1</th>
+      <th>mfcc_2</th>
+      <th>mfcc_3</th>
+      <th>mfcc_4</th>
+      <th>mfcc_5</th>
+      <th>mfcc_6</th>
+      <th>mfcc_7</th>
+      <th>mfcc_8</th>
+      <th>mfcc_9</th>
+      <th>mfcc_10</th>
+      <th>mfcc_11</th>
+      <th>mfcc_12</th>
+      <th>freq_peak</th>
+      <th>below_tremor_power</th>
+      <th>tremor_power</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>8.668201</td>
+      <td>4.169384</td>
+      <td>0.748824</td>
+      <td>0.884396</td>
+      <td>0.126027</td>
+      <td>0.015720</td>
+      <td>0.249967</td>
+      <td>0.250224</td>
+      <td>-0.297784</td>
+      <td>-0.024992</td>
+      <td>-0.117943</td>
+      <td>0.149213</td>
+      <td>1.00</td>
+      <td>13277.614531</td>
+      <td>1020.094627</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>4.0</td>
+      <td>4.939995</td>
+      <td>4.253189</td>
+      <td>0.697931</td>
+      <td>0.857516</td>
+      <td>-0.259649</td>
+      <td>0.252318</td>
+      <td>-0.092253</td>
+      <td>0.396223</td>
+      <td>0.100562</td>
+      <td>-0.060596</td>
+      <td>-0.079509</td>
+      <td>-0.075414</td>
+      <td>1.25</td>
+      <td>1310.703842</td>
+      <td>87.538668</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>8.0</td>
+      <td>2.589845</td>
+      <td>3.958424</td>
+      <td>1.079765</td>
+      <td>0.258616</td>
+      <td>0.030972</td>
+      <td>-0.368758</td>
+      <td>-0.096379</td>
+      <td>0.246299</td>
+      <td>0.023990</td>
+      <td>0.187924</td>
+      <td>0.077216</td>
+      <td>0.131652</td>
+      <td>3.50</td>
+      <td>215.567337</td>
+      <td>56.805816</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>12.0</td>
+      <td>6.622019</td>
+      <td>5.007375</td>
+      <td>1.018558</td>
+      <td>0.719810</td>
+      <td>-0.184700</td>
+      <td>0.010765</td>
+      <td>0.205955</td>
+      <td>0.139618</td>
+      <td>0.149542</td>
+      <td>0.101371</td>
+      <td>-0.116427</td>
+      <td>0.190267</td>
+      <td>1.00</td>
+      <td>7808.868582</td>
+      <td>566.219495</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>16.0</td>
+      <td>8.374795</td>
+      <td>2.656053</td>
+      <td>0.837684</td>
+      <td>0.443180</td>
+      <td>0.275548</td>
+      <td>0.586783</td>
+      <td>0.426842</td>
+      <td>0.254194</td>
+      <td>-0.167934</td>
+      <td>0.006375</td>
+      <td>-0.095614</td>
+      <td>0.062434</td>
+      <td>1.00</td>
+      <td>3945.127377</td>
+      <td>174.899788</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>177</th>
+      <td>708.0</td>
+      <td>-2.972754</td>
+      <td>3.068339</td>
+      <td>1.087452</td>
+      <td>0.699739</td>
+      <td>-0.232655</td>
+      <td>0.286299</td>
+      <td>0.057486</td>
+      <td>-0.132131</td>
+      <td>-0.143158</td>
+      <td>-0.085093</td>
+      <td>-0.080236</td>
+      <td>0.211535</td>
+      <td>2.50</td>
+      <td>4.952011</td>
+      <td>0.397532</td>
+    </tr>
+    <tr>
+      <th>178</th>
+      <td>712.0</td>
+      <td>3.652633</td>
+      <td>3.486027</td>
+      <td>0.578153</td>
+      <td>0.722787</td>
+      <td>0.199953</td>
+      <td>0.510110</td>
+      <td>0.198954</td>
+      <td>0.178452</td>
+      <td>0.170199</td>
+      <td>0.135349</td>
+      <td>0.243420</td>
+      <td>0.298572</td>
+      <td>1.00</td>
+      <td>570.735779</td>
+      <td>32.044727</td>
+    </tr>
+    <tr>
+      <th>179</th>
+      <td>716.0</td>
+      <td>-1.830877</td>
+      <td>3.039919</td>
+      <td>0.656447</td>
+      <td>-0.121844</td>
+      <td>-0.144944</td>
+      <td>0.181230</td>
+      <td>0.058122</td>
+      <td>0.290432</td>
+      <td>-0.149664</td>
+      <td>0.019055</td>
+      <td>-0.069232</td>
+      <td>0.132948</td>
+      <td>1.00</td>
+      <td>3.990732</td>
+      <td>1.261435</td>
+    </tr>
+    <tr>
+      <th>180</th>
+      <td>720.0</td>
+      <td>-2.602029</td>
+      <td>3.245777</td>
+      <td>0.277744</td>
+      <td>0.295644</td>
+      <td>-0.170630</td>
+      <td>-0.020810</td>
+      <td>0.397407</td>
+      <td>0.066145</td>
+      <td>-0.105705</td>
+      <td>-0.214060</td>
+      <td>0.069706</td>
+      <td>0.199436</td>
+      <td>2.50</td>
+      <td>3.638188</td>
+      <td>1.217930</td>
+    </tr>
+    <tr>
+      <th>181</th>
+      <td>724.0</td>
+      <td>-2.346012</td>
+      <td>3.024219</td>
+      <td>0.114989</td>
+      <td>0.055262</td>
+      <td>-0.290839</td>
+      <td>0.088869</td>
+      <td>-0.022648</td>
+      <td>0.104360</td>
+      <td>0.230157</td>
+      <td>-0.077927</td>
+      <td>0.035893</td>
+      <td>0.054937</td>
+      <td>3.00</td>
+      <td>1.664200</td>
+      <td>1.054432</td>
+    </tr>
+  </tbody>
+</table>
+<p>182 rows × 16 columns</p>
+</div></div></div>
+</div>
+</section>
+<section id="step-3-detect-tremor">
+<h2>Step 3: Detect tremor<a class="headerlink" href="#step-3-detect-tremor" title="Link to this heading"></a></h2>
+<p>The function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/tremor_pipeline.py#:~:text=detect_tremor"><code class="docutils literal notranslate"><span class="pre">detect_tremor</span></code></a> uses a pretrained logistic regression classifier to predict the tremor probability (<code class="docutils literal notranslate"><span class="pre">pred_tremor_proba</span></code>) for each window, based on the MFCCs. Using the prespecified threshold, a tremor label of 0 (no tremor) or 1 (tremor) is assigned (<code class="docutils literal notranslate"><span class="pre">pred_tremor_logreg</span></code>). Furthermore, the detected tremor windows are checked for rest tremor in two ways. First, the frequency of the peak should be between 3-7 Hz. Second, we want to exclude windows with significant arm movements. We consider a window to have significant arm movement if <code class="docutils literal notranslate"><span class="pre">below_tremor_power</span></code> exceeds <code class="docutils literal notranslate"><span class="pre">config.movement_threshold</span></code>. The final tremor label is saved in <code class="docutils literal notranslate"><span class="pre">pred_tremor_checked</span></code>. A label for predicted arm at rest (<code class="docutils literal notranslate"><span class="pre">pred_arm_at_rest</span></code>, which is 1 when at rest and 0 when not at rest) was also saved, to control for the amount of arm movement during the observed time period when aggregating the amount of tremor time in Step 4 (if a person is moving their arm, they cannot have rest tremor).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.tremor_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">detect_tremor</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;A threshold of </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">movement_threshold</span><span class="si">}</span><span class="s1"> deg</span><span class="se">\u00b2</span><span class="s1">/s</span><span class="se">\u00b2</span><span class="s1"> is used to determine whether the arm is at rest or in stable posture.&#39;</span><span class="p">)</span>
+
+<span class="c1"># Load the pre-trained logistic regression classifier</span>
+<span class="n">path_to_assets</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../src/paradigma/assets&#39;</span><span class="p">)</span> 
+<span class="n">tremor_detection_classifier_package_filename</span> <span class="o">=</span> <span class="s1">&#39;tremor_detection_clf_package.pkl&#39;</span>
+<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="n">path_to_assets</span> <span class="o">/</span> <span class="n">tremor_detection_classifier_package_filename</span>
+
+<span class="c1"># Use the logistic regression classifier to detect tremor and check for rest tremor</span>
+<span class="n">df_predictions</span> <span class="o">=</span> <span class="n">detect_tremor</span><span class="p">(</span><span class="n">df_features</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">full_path_to_classifier_package</span><span class="p">)</span>
+
+<span class="n">df_predictions</span><span class="p">[[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="s1">&#39;pred_tremor_proba&#39;</span><span class="p">,</span><span class="s1">&#39;pred_tremor_logreg&#39;</span><span class="p">,</span><span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span><span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">]]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>A threshold of 50 deg²/s² is used to determine whether the arm is at rest or in stable posture.
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>pred_tremor_proba</th>
+      <th>pred_tremor_logreg</th>
+      <th>pred_arm_at_rest</th>
+      <th>pred_tremor_checked</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>0.000926</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>4.0</td>
+      <td>0.002310</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>8.0</td>
+      <td>0.002166</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>12.0</td>
+      <td>0.002877</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>16.0</td>
+      <td>0.000617</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>177</th>
+      <td>708.0</td>
+      <td>0.000230</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>178</th>
+      <td>712.0</td>
+      <td>0.001201</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>179</th>
+      <td>716.0</td>
+      <td>0.001881</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>180</th>
+      <td>720.0</td>
+      <td>0.002063</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>181</th>
+      <td>724.0</td>
+      <td>0.007382</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+<p>182 rows × 5 columns</p>
+</div></div></div>
+</div>
+</section>
+<section id="step-4-compute-aggregated-tremor-measures">
+<h2>Step 4: Compute aggregated tremor measures<a class="headerlink" href="#step-4-compute-aggregated-tremor-measures" title="Link to this heading"></a></h2>
+<p>The final step is to compute the amount of tremor time and tremor power with the function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/tremor_pipeline.py#:~:text=aggregate_tremor"><code class="docutils literal notranslate"><span class="pre">aggregate_tremor</span></code></a>, which aggregates over all windows in the input dataframe. Tremor time is calculated as the number of detected tremor windows, as percentage of the number of windows while the arm is at rest or in stable posture (when the low frequency power is below <code class="docutils literal notranslate"><span class="pre">config.movement_threshold</span></code>). This way the tremor time is controlled for the amount of time the arm is at rest or in stable posture, when rest tremor and re-emergent tremor could occur. For tremor power the following aggregates are derived: the mode, median and 90th percentile of tremor power (specified in <code class="docutils literal notranslate"><span class="pre">config.aggregates_tremor_power</span></code>). The median and modal tremor power reflect the typical tremor severity, whereas the 90th percentile reflects the maximal tremor severity within the observed timeframe. The aggregated tremor measures and metadata are stored in a json file.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pprint</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.tremor_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_tremor</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Besides the modal tremor power the following tremor power aggregates are derived: </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">aggregates_tremor_power</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+
+<span class="n">d_tremor_aggregates</span> <span class="o">=</span> <span class="n">aggregate_tremor</span><span class="p">(</span><span class="n">df_predictions</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
+<span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">d_tremor_aggregates</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Besides the modal tremor power the following tremor power aggregates are derived: [&#39;mode&#39;, &#39;median&#39;, &#39;90p&#39;].
+{&#39;aggregated_tremor_measures&#39;: {&#39;90p_tremor_power&#39;: 1.796145868028196,
+                                &#39;median_tremor_power&#39;: 0.545156024401169,
+                                &#39;modal_tremor_power&#39;: 0.52,
+                                &#39;perc_windows_tremor&#39;: 11.235955056179774},
+ &#39;metadata&#39;: {&#39;nr_windows_rest&#39;: 89, &#39;nr_windows_total&#39;: 182}}
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="gait_analysis.html" class="btn btn-neutral float-left" title="Gait analysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="heart_rate_analysis.html" class="btn btn-neutral float-right" title="Heart rate analysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Erik Post, Kars Veldkamp, Nienke Timmermans, Peter Kok, Vedran Kasalica, Diogo Coutinho Soriano, Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

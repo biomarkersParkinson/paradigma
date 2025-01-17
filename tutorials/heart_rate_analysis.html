@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Heart rate analysis &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Config" href="../guides/config.html" />
+    <link rel="prev" title="Tremor analysis" href="tremor_analysis.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="data_preparation.html">Data Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Heart rate analysis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#load-data">Load data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-1-preprocess-data">Step 1: Preprocess data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-2-extract-signal-quality-features">Step 2: Extract signal quality features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-3-signal-quality-classification">Step 3: Signal quality classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-4-heart-rate-estimation">Step 4: Heart rate estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-5-heart-rate-aggregation">Step 5: Heart rate aggregation</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Heart rate analysis</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/heart_rate_analysis.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="heart-rate-analysis">
+<h1>Heart rate analysis<a class="headerlink" href="#heart-rate-analysis" title="Link to this heading"></a></h1>
+<p>This tutorial shows how to extract heart rate estimates using photoplethysmography (PPG) data and accelerometer data. The pipeline consists of a stepwise approach to determine signal quality, assessing both PPG morphology and accounting for periodic artifacts using the accelerometer. Based on the signal quality, we extract high-quality segments and estimate the heart rate for every 2 s using the smoothed pseudo Wigner-Ville Distribution.</p>
+<section id="load-data">
+<h2>Load data<a class="headerlink" href="#load-data" title="Link to this heading"></a></h2>
+<p>This pipeline requires accelerometer and PPG data to run. In this example we loaded data from a participant of the Personalized Parkinson Project. We load the corresponding dataframes using the <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/util.py#:~:text=load_tsdf_dataframe">load_tsdf_dataframe</a> function. The channel <code class="docutils literal notranslate"><span class="pre">green</span></code> represents the values obtained with PPG using green light.</p>
+<p>In this example we use the interally developed <code class="docutils literal notranslate"><span class="pre">TSDF</span></code> (<a class="reference external" href="https://biomarkersparkinson.github.io/tsdf/">documentation</a>) to load and store data [<a class="reference external" href="https://arxiv.org/abs/2211.11294">1</a>].</p>
+<p>However, we are aware that there are other common data formats. For example, the following functions can be used depending on the file extension of the data:</p>
+<ul class="simple">
+<li><p><em>.csv</em>: <code class="docutils literal notranslate"><span class="pre">pandas.read_csv()</span></code> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html">documentation</a>)</p></li>
+<li><p><em>.json</em>: <code class="docutils literal notranslate"><span class="pre">json.load()</span></code> (<a class="reference external" href="https://docs.python.org/3/library/json.html#json.load">documentation</a>)</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span>
+
+<span class="n">path_to_data</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../tests/data&#39;</span><span class="p">)</span>
+<span class="n">path_to_prepared_data</span> <span class="o">=</span> <span class="n">path_to_data</span> <span class="o">/</span> <span class="s1">&#39;1.prepared_data&#39;</span>
+
+<span class="n">ppg_prefix</span> <span class="o">=</span> <span class="s1">&#39;PPG&#39;</span>
+<span class="n">imu_prefix</span> <span class="o">=</span> <span class="s1">&#39;IMU&#39;</span>
+
+<span class="n">df_ppg</span><span class="p">,</span> <span class="n">metadata_time_ppg</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
+    <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_prepared_data</span> <span class="o">/</span> <span class="n">ppg_prefix</span><span class="p">,</span> 
+    <span class="n">prefix</span><span class="o">=</span><span class="n">ppg_prefix</span>
+<span class="p">)</span>
+<span class="n">df_imu</span><span class="p">,</span> <span class="n">metadata_time_imu</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
+    <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_prepared_data</span> <span class="o">/</span> <span class="n">imu_prefix</span><span class="p">,</span> 
+    <span class="n">prefix</span><span class="o">=</span><span class="n">imu_prefix</span>
+<span class="p">)</span>
+
+<span class="c1"># Drop the gyroscope columns from the IMU data</span>
+<span class="n">cols_to_drop</span> <span class="o">=</span> <span class="n">df_imu</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s1">&#39;^gyroscope_&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+<span class="n">df_acc</span> <span class="o">=</span> <span class="n">df_imu</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">cols_to_drop</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">display</span><span class="p">(</span><span class="n">df_ppg</span><span class="p">,</span> <span class="n">df_acc</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>green</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.00000</td>
+      <td>649511</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.00996</td>
+      <td>648214</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.01992</td>
+      <td>646786</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.02988</td>
+      <td>645334</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.03984</td>
+      <td>644317</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>64770</th>
+      <td>644.54720</td>
+      <td>553884</td>
+    </tr>
+    <tr>
+      <th>64771</th>
+      <td>644.55716</td>
+      <td>554088</td>
+    </tr>
+    <tr>
+      <th>64772</th>
+      <td>644.56712</td>
+      <td>554240</td>
+    </tr>
+    <tr>
+      <th>64773</th>
+      <td>644.57708</td>
+      <td>555134</td>
+    </tr>
+    <tr>
+      <th>64774</th>
+      <td>644.58704</td>
+      <td>557205</td>
+    </tr>
+  </tbody>
+</table>
+<p>64775 rows × 2 columns</p>
+</div></div><div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>accelerometer_x</th>
+      <th>accelerometer_y</th>
+      <th>accelerometer_z</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.00000</td>
+      <td>0.550718</td>
+      <td>0.574163</td>
+      <td>-0.273684</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.01004</td>
+      <td>0.535885</td>
+      <td>0.623445</td>
+      <td>-0.254545</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.02008</td>
+      <td>0.504306</td>
+      <td>0.651675</td>
+      <td>-0.251675</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.03012</td>
+      <td>0.488517</td>
+      <td>0.686603</td>
+      <td>-0.265550</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.04016</td>
+      <td>0.494258</td>
+      <td>0.725359</td>
+      <td>-0.278469</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>72942</th>
+      <td>730.74468</td>
+      <td>0.234928</td>
+      <td>-0.516268</td>
+      <td>-0.802871</td>
+    </tr>
+    <tr>
+      <th>72943</th>
+      <td>730.75472</td>
+      <td>0.245455</td>
+      <td>-0.514354</td>
+      <td>-0.806699</td>
+    </tr>
+    <tr>
+      <th>72944</th>
+      <td>730.76476</td>
+      <td>0.243541</td>
+      <td>-0.511005</td>
+      <td>-0.807177</td>
+    </tr>
+    <tr>
+      <th>72945</th>
+      <td>730.77480</td>
+      <td>0.240191</td>
+      <td>-0.514354</td>
+      <td>-0.808134</td>
+    </tr>
+    <tr>
+      <th>72946</th>
+      <td>730.78484</td>
+      <td>0.243541</td>
+      <td>-0.511005</td>
+      <td>-0.808134</td>
+    </tr>
+  </tbody>
+</table>
+<p>72947 rows × 4 columns</p>
+</div></div></div>
+</div>
+</section>
+<section id="step-1-preprocess-data">
+<h2>Step 1: Preprocess data<a class="headerlink" href="#step-1-preprocess-data" title="Link to this heading"></a></h2>
+<p>The first step after loading the data is preprocessing using the <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_ppg_data">preprocess_ppg_data</a>. This begins by isolating segments containing both PPG and IMU data, discarding portions where one modality (e.g., PPG) extends beyond the other, such as when the PPG recording is longer than the accelerometer data. This functionality requires the starting times (<code class="docutils literal notranslate"><span class="pre">metadata_time_ppg.start_iso8601</span></code> and <code class="docutils literal notranslate"><span class="pre">metadata_time_imu.start_iso8601</span></code>) in iso8601 format as inputs. After this step, the preprocess_ppg_data function resamples the PPG and accelerometer data to uniformly distributed timestamps, addressing the fixed but non-uniform sampling rates of the sensors. After this, a bandpass Butterworth filter (4th-order, bandpass frequencies: 0.4–3.5 Hz) is applied to the PPG signal, while a high-pass Butterworth filter (4th-order, cut-off frequency: 0.2 Hz) is applied to the accelerometer data.</p>
+<p>Note: the printed shapes are (rows, columns) with each row corresponding to a single data point and each column representing a data column (e.g.time). The number of rows of the overlapping segments of PPG and accelerometer are not the same due to sampling differences (other sensors and possibly other sampling frequencies).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PPGConfig</span><span class="p">,</span> <span class="n">IMUConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_ppg_data</span>
+
+<span class="n">ppg_config</span> <span class="o">=</span> <span class="n">PPGConfig</span><span class="p">()</span>
+<span class="n">imu_config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Original data shapes:</span><span class="se">\n</span><span class="s2">- PPG data: </span><span class="si">{</span><span class="n">df_ppg</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="se">\n</span><span class="s2">- Accelerometer data: </span><span class="si">{</span><span class="n">df_imu</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">df_ppg_proc</span><span class="p">,</span> <span class="n">df_acc_proc</span> <span class="o">=</span> <span class="n">preprocess_ppg_data</span><span class="p">(</span>
+    <span class="n">df_ppg</span><span class="o">=</span><span class="n">df_ppg</span><span class="p">,</span> 
+    <span class="n">df_imu</span><span class="o">=</span><span class="n">df_imu</span><span class="p">,</span> 
+    <span class="n">ppg_config</span><span class="o">=</span><span class="n">ppg_config</span><span class="p">,</span> 
+    <span class="n">imu_config</span><span class="o">=</span><span class="n">imu_config</span><span class="p">,</span> 
+    <span class="n">start_time_ppg</span><span class="o">=</span><span class="n">metadata_time_ppg</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">,</span>
+    <span class="n">start_time_imu</span><span class="o">=</span><span class="n">metadata_time_imu</span><span class="o">.</span><span class="n">start_iso8601</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Overlapping preprocessed data shapes:</span><span class="se">\n</span><span class="s2">- PPG data: </span><span class="si">{</span><span class="n">df_ppg_proc</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="se">\n</span><span class="s2">- Accelerometer data: </span><span class="si">{</span><span class="n">df_acc_proc</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">df_ppg_proc</span><span class="p">,</span> <span class="n">df_acc_proc</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Original data shapes:
+- PPG data: (64775, 2)
+- Accelerometer data: (72947, 7)
+Overlapping preprocessed data shapes:
+- PPG data: (19338, 2)
+- Accelerometer data: (64459, 4)
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>green</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000</td>
+      <td>-1434.856838</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.033333</td>
+      <td>-3461.717789</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.066667</td>
+      <td>-5172.913796</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.100000</td>
+      <td>-6343.203160</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.133333</td>
+      <td>-6875.904054</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>19333</th>
+      <td>644.433333</td>
+      <td>-2403.547097</td>
+    </tr>
+    <tr>
+      <th>19334</th>
+      <td>644.466667</td>
+      <td>-7434.311944</td>
+    </tr>
+    <tr>
+      <th>19335</th>
+      <td>644.500000</td>
+      <td>-8214.847078</td>
+    </tr>
+    <tr>
+      <th>19336</th>
+      <td>644.533333</td>
+      <td>-5194.393329</td>
+    </tr>
+    <tr>
+      <th>19337</th>
+      <td>644.566667</td>
+      <td>70.147000</td>
+    </tr>
+  </tbody>
+</table>
+<p>19338 rows × 2 columns</p>
+</div></div><div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>accelerometer_x</th>
+      <th>accelerometer_y</th>
+      <th>accelerometer_z</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.00</td>
+      <td>0.053078</td>
+      <td>0.010040</td>
+      <td>-0.273154</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.01</td>
+      <td>0.038337</td>
+      <td>0.058802</td>
+      <td>-0.256899</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.02</td>
+      <td>0.006824</td>
+      <td>0.086559</td>
+      <td>-0.256739</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.03</td>
+      <td>-0.009156</td>
+      <td>0.120855</td>
+      <td>-0.273280</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.04</td>
+      <td>-0.003770</td>
+      <td>0.159316</td>
+      <td>-0.289007</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>64454</th>
+      <td>644.54</td>
+      <td>0.104185</td>
+      <td>0.101627</td>
+      <td>-0.029342</td>
+    </tr>
+    <tr>
+      <th>64455</th>
+      <td>644.55</td>
+      <td>0.120403</td>
+      <td>0.090413</td>
+      <td>0.051113</td>
+    </tr>
+    <tr>
+      <th>64456</th>
+      <td>644.56</td>
+      <td>0.101289</td>
+      <td>0.128684</td>
+      <td>0.037951</td>
+    </tr>
+    <tr>
+      <th>64457</th>
+      <td>644.57</td>
+      <td>0.073139</td>
+      <td>0.137399</td>
+      <td>0.030834</td>
+    </tr>
+    <tr>
+      <th>64458</th>
+      <td>644.58</td>
+      <td>0.004578</td>
+      <td>0.102862</td>
+      <td>0.025627</td>
+    </tr>
+  </tbody>
+</table>
+<p>64459 rows × 4 columns</p>
+</div></div></div>
+</div>
+</section>
+<section id="step-2-extract-signal-quality-features">
+<h2>Step 2: Extract signal quality features<a class="headerlink" href="#step-2-extract-signal-quality-features" title="Link to this heading"></a></h2>
+<p>The preprocessed data (PPG &amp; accelerometer) is windowed into overlapping windows of length <code class="docutils literal notranslate"><span class="pre">ppg_config.window_length_s</span></code> with a window step of <code class="docutils literal notranslate"><span class="pre">ppg_config.window_step_length_s</span></code>. From the PPG windows 10 time- and frequency domain features are extracted to assess PPG morphology and from the accelerometer windows one relative power feature is calculated to assess periodic motion artifacts.</p>
+<p>The detailed steps are encapsulated in <code class="docutils literal notranslate"><span class="pre">extract_signal_quality_features</span></code> (documentation can be found <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/heart_rate_pipeline.py#:~:text=extract_signal_quality_features">here</a>).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">HeartRateConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.heart_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_signal_quality_features</span>
+
+<span class="n">ppg_config</span> <span class="o">=</span> <span class="n">HeartRateConfig</span><span class="p">(</span><span class="s1">&#39;ppg&#39;</span><span class="p">)</span>
+<span class="n">acc_config</span> <span class="o">=</span> <span class="n">HeartRateConfig</span><span class="p">(</span><span class="s1">&#39;imu&#39;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The default window length for the signal quality feature extraction is set to&quot;</span><span class="p">,</span> <span class="n">ppg_config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">,</span> <span class="s2">&quot;seconds.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The default step size for the signal quality feature extraction is set to&quot;</span><span class="p">,</span> <span class="n">ppg_config</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="p">,</span> <span class="s2">&quot;seconds.&quot;</span><span class="p">)</span>
+
+<span class="n">df_features</span> <span class="o">=</span> <span class="n">extract_signal_quality_features</span><span class="p">(</span>
+    <span class="n">df_ppg</span><span class="o">=</span><span class="n">df_ppg_proc</span><span class="p">,</span>
+    <span class="n">df_acc</span><span class="o">=</span><span class="n">df_acc_proc</span><span class="p">,</span>
+    <span class="n">ppg_config</span><span class="o">=</span><span class="n">ppg_config</span><span class="p">,</span> 
+    <span class="n">acc_config</span><span class="o">=</span><span class="n">acc_config</span><span class="p">,</span> 
+<span class="p">)</span>
+
+<span class="n">df_features</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The default window length for the signal quality feature extraction is set to 6 seconds.
+The default step size for the signal quality feature extraction is set to 1 seconds.
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>var</th>
+      <th>mean</th>
+      <th>median</th>
+      <th>kurtosis</th>
+      <th>skewness</th>
+      <th>signal_to_noise</th>
+      <th>auto_corr</th>
+      <th>f_dom</th>
+      <th>rel_power</th>
+      <th>spectral_entropy</th>
+      <th>acc_power_ratio</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>1.697510e+07</td>
+      <td>3418.696392</td>
+      <td>2892.815105</td>
+      <td>2.540447</td>
+      <td>0.277237</td>
+      <td>3.241634</td>
+      <td>0.282452</td>
+      <td>1.171875</td>
+      <td>0.179922</td>
+      <td>0.561186</td>
+      <td>0.014196</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.0</td>
+      <td>1.635033e+07</td>
+      <td>3350.769158</td>
+      <td>2892.815105</td>
+      <td>2.647951</td>
+      <td>0.420163</td>
+      <td>3.202313</td>
+      <td>0.276526</td>
+      <td>1.171875</td>
+      <td>0.201972</td>
+      <td>0.547812</td>
+      <td>0.015343</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2.0</td>
+      <td>1.921248e+07</td>
+      <td>3698.963099</td>
+      <td>3310.773556</td>
+      <td>2.333687</td>
+      <td>0.481974</td>
+      <td>3.521882</td>
+      <td>0.210984</td>
+      <td>0.820312</td>
+      <td>0.264922</td>
+      <td>0.509015</td>
+      <td>0.042583</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3.0</td>
+      <td>1.646562e+07</td>
+      <td>3389.325775</td>
+      <td>2946.588526</td>
+      <td>2.608187</td>
+      <td>0.733913</td>
+      <td>3.346236</td>
+      <td>0.225823</td>
+      <td>0.703125</td>
+      <td>0.270707</td>
+      <td>0.496051</td>
+      <td>0.034215</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4.0</td>
+      <td>1.603135e+07</td>
+      <td>3364.366313</td>
+      <td>2912.280798</td>
+      <td>2.268768</td>
+      <td>0.440357</td>
+      <td>3.314565</td>
+      <td>0.305998</td>
+      <td>0.820312</td>
+      <td>0.264097</td>
+      <td>0.496697</td>
+      <td>0.056204</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>634</th>
+      <td>634.0</td>
+      <td>2.281660e+06</td>
+      <td>1106.006037</td>
+      <td>838.307729</td>
+      <td>4.058037</td>
+      <td>0.674184</td>
+      <td>2.072660</td>
+      <td>0.172052</td>
+      <td>0.703125</td>
+      <td>0.204028</td>
+      <td>0.577570</td>
+      <td>0.060486</td>
+    </tr>
+    <tr>
+      <th>635</th>
+      <td>635.0</td>
+      <td>2.224441e+06</td>
+      <td>1113.194933</td>
+      <td>838.307729</td>
+      <td>3.684159</td>
+      <td>0.067979</td>
+      <td>2.118019</td>
+      <td>0.236408</td>
+      <td>0.703125</td>
+      <td>0.221044</td>
+      <td>0.560362</td>
+      <td>0.053120</td>
+    </tr>
+    <tr>
+      <th>636</th>
+      <td>636.0</td>
+      <td>5.103141e+06</td>
+      <td>1627.618918</td>
+      <td>1030.113303</td>
+      <td>3.913068</td>
+      <td>0.852331</td>
+      <td>2.040094</td>
+      <td>0.235822</td>
+      <td>0.585938</td>
+      <td>0.157667</td>
+      <td>0.514717</td>
+      <td>0.058853</td>
+    </tr>
+    <tr>
+      <th>637</th>
+      <td>637.0</td>
+      <td>7.428728e+06</td>
+      <td>2093.736007</td>
+      <td>1520.640067</td>
+      <td>3.188753</td>
+      <td>0.305780</td>
+      <td>2.457446</td>
+      <td>0.322034</td>
+      <td>0.468750</td>
+      <td>0.150582</td>
+      <td>0.458477</td>
+      <td>0.061269</td>
+    </tr>
+    <tr>
+      <th>638</th>
+      <td>638.0</td>
+      <td>1.549534e+07</td>
+      <td>2974.462555</td>
+      <td>2482.703944</td>
+      <td>4.042171</td>
+      <td>-0.628008</td>
+      <td>2.228730</td>
+      <td>0.095918</td>
+      <td>0.468750</td>
+      <td>0.102976</td>
+      <td>0.493830</td>
+      <td>0.105554</td>
+    </tr>
+  </tbody>
+</table>
+<p>639 rows × 12 columns</p>
+</div></div></div>
+</div>
+</section>
+<section id="step-3-signal-quality-classification">
+<h2>Step 3: Signal quality classification<a class="headerlink" href="#step-3-signal-quality-classification" title="Link to this heading"></a></h2>
+<p>A trained logistic classifier is used to predict PPG signal quality and returns the <code class="docutils literal notranslate"><span class="pre">pred_sqa_proba</span></code>, which is the posterior probability of a PPG window to look like the typical PPG morphology (higher probability indicates toward the typical PPG morphology). The relative power feature from the accelerometer is compared to a threshold for periodic artifacts and therefore <code class="docutils literal notranslate"><span class="pre">pred_sqa_acc_label</span></code> is used to return a label indicating predicted periodic motion artifacts (label 0) or no periodic motion artifacts (label 1).</p>
+<p>The classification step is implemented in <code class="docutils literal notranslate"><span class="pre">signal_quality_classification</span></code> (documentation can be found <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/heart_rate_pipeline.py#:~:text=signal_quality_classification">here</a>).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.heart_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">signal_quality_classification</span>
+
+<span class="n">path_to_assets</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../src/paradigma/assets&#39;</span><span class="p">)</span> 
+<span class="n">ppg_quality_classifier_package_filename</span> <span class="o">=</span> <span class="s1">&#39;ppg_quality_clf_package.pkl&#39;</span>
+<span class="n">path_to_classifier_package</span> <span class="o">=</span> <span class="n">path_to_assets</span> <span class="o">/</span> <span class="n">ppg_quality_classifier_package_filename</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">HeartRateConfig</span><span class="p">()</span>
+
+<span class="n">df_sqa</span> <span class="o">=</span> <span class="n">signal_quality_classification</span><span class="p">(</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df_features</span><span class="p">,</span> 
+    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> 
+    <span class="n">full_path_to_classifier_package</span><span class="o">=</span><span class="n">path_to_classifier_package</span>
+<span class="p">)</span>
+
+<span class="n">df_sqa</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>pred_sqa_proba</th>
+      <th>pred_sqa_acc_label</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>0.006031</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.0</td>
+      <td>0.011725</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2.0</td>
+      <td>0.068063</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3.0</td>
+      <td>0.080808</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4.0</td>
+      <td>0.074591</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>634</th>
+      <td>634.0</td>
+      <td>0.001387</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>635</th>
+      <td>635.0</td>
+      <td>0.001570</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>636</th>
+      <td>636.0</td>
+      <td>0.000380</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>637</th>
+      <td>637.0</td>
+      <td>0.000406</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>638</th>
+      <td>638.0</td>
+      <td>0.000004</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+<p>639 rows × 3 columns</p>
+</div></div></div>
+</div>
+</section>
+<section id="step-4-heart-rate-estimation">
+<h2>Step 4: Heart rate estimation<a class="headerlink" href="#step-4-heart-rate-estimation" title="Link to this heading"></a></h2>
+<p>For heart rate estimation, we extract segments of <code class="docutils literal notranslate"><span class="pre">config.tfd_length</span></code> using <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/heart_rate_pipeline.py#:~:text=estimate_heart_rate">estimate_heart_rate</a>. We calculate the smoothed-pseudo Wigner-Ville Distribution (SPWVD) to obtain the frequency content of the PPG signal over time. We extract for every timestamp in the SPWVD the frequency with the highest power. For every non-overlapping 2 s window we average the corresponding frequencies to obtain a heart rate per window.</p>
+<p>Note: for the test data we set the tfd_length to 10 s instead of the default of 30 s, because the small PPP test data doesn’t have 30 s of consecutive high-quality PPG data.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.heart_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">estimate_heart_rate</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The standard default minimal window length for the heart rate extraction is set to&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">tfd_length</span><span class="p">,</span> <span class="s2">&quot;seconds.&quot;</span><span class="p">)</span>
+<span class="c1"># set the minimal window length for the heart rate extraction to 10 seconds instead of default of 30 seconds.</span>
+<span class="n">config</span><span class="o">.</span><span class="n">set_tfd_length</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>       
+
+<span class="n">df_hr</span> <span class="o">=</span> <span class="n">estimate_heart_rate</span><span class="p">(</span>
+    <span class="n">df_sqa</span><span class="o">=</span><span class="n">df_sqa</span><span class="p">,</span> 
+    <span class="n">df_ppg_preprocessed</span><span class="o">=</span><span class="n">df_ppg_proc</span><span class="p">,</span> 
+    <span class="n">config</span><span class="o">=</span><span class="n">config</span>
+<span class="p">)</span>
+
+<span class="n">df_hr</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The standard default minimal window length for the heart rate extraction is set to 30 seconds.
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>heart_rate</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>56.0</td>
+      <td>86.404715</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>58.0</td>
+      <td>86.640472</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>60.0</td>
+      <td>86.345776</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>62.0</td>
+      <td>84.872299</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>64.0</td>
+      <td>84.872299</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>66.0</td>
+      <td>84.194499</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="step-5-heart-rate-aggregation">
+<h2>Step 5: Heart rate aggregation<a class="headerlink" href="#step-5-heart-rate-aggregation" title="Link to this heading"></a></h2>
+<p>The final step is to aggregate all 2 s heart rate estimates using <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/heart_rate_pipeline.py#:~:text=aggregate_heart_rate">aggregate_heart_rate</a>. In the current example, the mode and 99th percentile are calculated. We hypothesize that the mode gives representation of the resting heart rate while the 99th percentile indicates the maximum heart rate. In Parkinson’s disease, we expect that these two measures could reflect autonomic (dys)functioning. The <code class="docutils literal notranslate"><span class="pre">nr_hr_est</span></code> in the metadata indicates based on how many 2 s windows these aggregates are determined.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pprint</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.heart_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_heart_rate</span>
+
+<span class="n">hr_values</span> <span class="o">=</span> <span class="n">df_hr</span><span class="p">[</span><span class="s1">&#39;heart_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<span class="n">df_hr_agg</span> <span class="o">=</span> <span class="n">aggregate_heart_rate</span><span class="p">(</span>
+    <span class="n">hr_values</span><span class="o">=</span><span class="n">hr_values</span><span class="p">,</span> 
+    <span class="n">aggregates</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">,</span> <span class="s1">&#39;99p&#39;</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">df_hr_agg</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;hr_aggregates&#39;: {&#39;99p_heart_rate&#39;: 86.62868369351669,
+                   &#39;mode_heart_rate&#39;: 84.8722986247544},
+ &#39;metadata&#39;: {&#39;nr_hr_est&#39;: 6}}
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tremor_analysis.html" class="btn btn-neutral float-left" title="Tremor analysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../guides/config.html" class="btn btn-neutral float-right" title="Config" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Erik Post, Kars Veldkamp, Nienke Timmermans, Peter Kok, Vedran Kasalica, Diogo Coutinho Soriano, Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

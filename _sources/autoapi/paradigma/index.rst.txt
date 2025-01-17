@@ -10,18 +10,14 @@ Submodules
 .. toctree::
    :maxdepth: 1
 
+   /autoapi/paradigma/classification/index
+   /autoapi/paradigma/config/index
    /autoapi/paradigma/constants/index
    /autoapi/paradigma/feature_extraction/index
-   /autoapi/paradigma/gait_analysis/index
-   /autoapi/paradigma/gait_analysis_config/index
-   /autoapi/paradigma/heart_rate_analysis/index
-   /autoapi/paradigma/heart_rate_analysis_config/index
-   /autoapi/paradigma/heart_rate_util/index
-   /autoapi/paradigma/imu_preprocessing/index
-   /autoapi/paradigma/ppg_preprocessing/index
-   /autoapi/paradigma/preprocessing_config/index
-   /autoapi/paradigma/quantification/index
+   /autoapi/paradigma/pipelines/index
+   /autoapi/paradigma/preprocessing/index
+   /autoapi/paradigma/segmenting/index
+   /autoapi/paradigma/testing/index
    /autoapi/paradigma/util/index
-   /autoapi/paradigma/windowing/index
 
 

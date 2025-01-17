@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>paradigma.testing &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/data_preparation.html">Data Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/heart_rate_analysis.html">Heart rate analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">paradigma.testing</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for paradigma.testing</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tsdf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassifierPackage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span><span class="p">,</span> <span class="n">PPGConfig</span><span class="p">,</span> <span class="n">GaitConfig</span><span class="p">,</span> <span class="n">TremorConfig</span><span class="p">,</span> <span class="n">HeartRateConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span><span class="p">,</span> <span class="n">TimeUnit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_gait_features</span><span class="p">,</span> <span class="n">detect_gait</span><span class="p">,</span> \
+    <span class="n">extract_arm_activity_features</span><span class="p">,</span> <span class="n">filter_gait</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.tremor_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_tremor_features</span><span class="p">,</span> <span class="n">detect_tremor</span><span class="p">,</span> \
+    <span class="n">aggregate_tremor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.heart_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_signal_quality_features</span><span class="p">,</span> <span class="n">signal_quality_classification</span><span class="p">,</span> \
+    <span class="n">aggregate_heart_rate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_imu_data</span><span class="p">,</span> <span class="n">preprocess_ppg_data</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_metadata</span><span class="p">,</span> <span class="n">write_df_data</span><span class="p">,</span> <span class="n">get_end_iso8601</span>
+
+
+<div class="viewcode-block" id="preprocess_imu_data_io">
+<a class="viewcode-back" href="../../autoapi/paradigma/testing/index.html#paradigma.testing.preprocess_imu_data_io">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">preprocess_imu_data_io</span><span class="p">(</span><span class="n">path_to_input</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">path_to_output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> 
+                           <span class="n">config</span><span class="p">:</span> <span class="n">IMUConfig</span><span class="p">,</span> <span class="n">sensor</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">watch_side</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># Load data</span>
+    <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path_to_input</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">meta_filename</span><span class="p">),</span>
+                                                    <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">time_filename</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">values_filename</span><span class="p">))</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="c1"># Preprocess data</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">preprocess_imu_data</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">sensor</span><span class="o">=</span><span class="n">sensor</span><span class="p">,</span> <span class="n">watch_side</span><span class="o">=</span><span class="n">watch_side</span><span class="p">)</span>
+
+    <span class="c1"># Store data</span>
+    <span class="k">for</span> <span class="n">sensor</span><span class="p">,</span> <span class="n">units</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="s1">&#39;accelerometer&#39;</span><span class="p">,</span> <span class="s1">&#39;gyroscope&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">rotation_units</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">sensor</span> <span class="ow">in</span> <span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+            <span class="n">df_sensor</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">sensor</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]]</span>
+
+            <span class="n">metadata_values</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">sensor</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
+            <span class="n">metadata_values</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">metadata_values</span><span class="o">.</span><span class="n">channels</span><span class="p">)))</span>
+            <span class="n">metadata_values</span><span class="o">.</span><span class="n">scale_factors</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">metadata_values</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_values.bin&#39;</span>
+
+            <span class="n">metadata_time</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_time.bin&#39;</span>
+            <span class="n">metadata_time</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_S</span><span class="p">]</span>
+
+            <span class="n">write_df_data</span><span class="p">(</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">,</span> <span class="n">path_to_output</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_meta.json&#39;</span><span class="p">,</span> <span class="n">df_sensor</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="preprocess_ppg_data_io">
+<a class="viewcode-back" href="../../autoapi/paradigma/testing/index.html#paradigma.testing.preprocess_ppg_data_io">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">preprocess_ppg_data_io</span><span class="p">(</span><span class="n">path_to_input_ppg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">path_to_input_imu</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+                           <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">ppg_config</span><span class="p">:</span> <span class="n">PPGConfig</span><span class="p">,</span> 
+                           <span class="n">imu_config</span><span class="p">:</span> <span class="n">IMUConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;	</span>
+<span class="sd">    Preprocess PPG and IMU data by resampling, filtering, and aligning the data segments.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path_to_input_ppg : str | Path</span>
+<span class="sd">        Path to the PPG data.</span>
+<span class="sd">    path_to_input_imu : str | Path</span>
+<span class="sd">        Path to the IMU data.</span>
+<span class="sd">    output_path : str | Path</span>
+<span class="sd">        Path to store the preprocessed data.</span>
+<span class="sd">    ppg_config : PPGConfig</span>
+<span class="sd">        Configuration object for PPG preprocessing.</span>
+<span class="sd">    imu_config : IMUConfig</span>
+<span class="sd">        Configuration object for IMU preprocessing.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+<span class="sd">    &quot;&quot;&quot;</span> 
+
+    <span class="c1"># Load PPG data</span>
+        <span class="c1"># Load data</span>
+    <span class="n">metadata_time_ppg</span><span class="p">,</span> <span class="n">metadata_values_ppg</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">path_to_input_ppg</span><span class="p">,</span> <span class="n">ppg_config</span><span class="o">.</span><span class="n">meta_filename</span><span class="p">,</span>
+                                                    <span class="n">ppg_config</span><span class="o">.</span><span class="n">time_filename</span><span class="p">,</span> <span class="n">ppg_config</span><span class="o">.</span><span class="n">values_filename</span><span class="p">)</span>
+    <span class="n">df_ppg</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time_ppg</span><span class="p">,</span> <span class="n">metadata_values_ppg</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="c1"># Load IMU data</span>
+    <span class="n">metadata_time_imu</span><span class="p">,</span> <span class="n">metadata_values_imu</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">path_to_input_imu</span><span class="p">,</span> <span class="n">imu_config</span><span class="o">.</span><span class="n">meta_filename</span><span class="p">,</span>
+                                                    <span class="n">imu_config</span><span class="o">.</span><span class="n">time_filename</span><span class="p">,</span> <span class="n">imu_config</span><span class="o">.</span><span class="n">values_filename</span><span class="p">)</span>
+    <span class="n">df_imu</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time_imu</span><span class="p">,</span> <span class="n">metadata_values_imu</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="c1"># Drop the gyroscope columns from the IMU data</span>
+    <span class="n">cols_to_drop</span> <span class="o">=</span> <span class="n">df_imu</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s1">&#39;^gyroscope_&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+    <span class="n">df_acc</span> <span class="o">=</span> <span class="n">df_imu</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">cols_to_drop</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Preprocess data</span>
+    <span class="n">df_ppg_proc</span><span class="p">,</span> <span class="n">df_acc_proc</span> <span class="o">=</span> <span class="n">preprocess_ppg_data</span><span class="p">(</span>
+        <span class="n">df_ppg</span><span class="o">=</span><span class="n">df_ppg</span><span class="p">,</span> 
+        <span class="n">df_acc</span><span class="o">=</span><span class="n">df_acc</span><span class="p">,</span> 
+        <span class="n">ppg_config</span><span class="o">=</span><span class="n">ppg_config</span><span class="p">,</span> 
+        <span class="n">imu_config</span><span class="o">=</span><span class="n">imu_config</span><span class="p">,</span>
+        <span class="n">start_time_ppg</span><span class="o">=</span><span class="n">metadata_time_ppg</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">,</span>
+        <span class="n">start_time_imu</span><span class="o">=</span><span class="n">metadata_time_imu</span><span class="o">.</span><span class="n">start_iso8601</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Store data</span>
+    <span class="n">metadata_values_imu</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">imu_config</span><span class="o">.</span><span class="n">d_channels_accelerometer</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">metadata_values_imu</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">imu_config</span><span class="o">.</span><span class="n">d_channels_accelerometer</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="n">metadata_values_imu</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;accelerometer_values.bin&#39;</span>
+    <span class="n">metadata_time_imu</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_MS</span><span class="p">]</span>
+    <span class="n">metadata_time_imu</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;accelerometer_time.bin&#39;</span>
+    <span class="n">write_df_data</span><span class="p">(</span><span class="n">metadata_time_imu</span><span class="p">,</span> <span class="n">metadata_values_imu</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;accelerometer_meta.json&#39;</span><span class="p">,</span> <span class="n">df_acc_proc</span><span class="p">)</span>
+
+    <span class="n">metadata_values_ppg</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">d_channels_ppg</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">metadata_values_ppg</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">d_channels_ppg</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="n">metadata_values_ppg</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;PPG_values.bin&#39;</span>
+    <span class="n">metadata_time_ppg</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_MS</span><span class="p">]</span>
+    <span class="n">metadata_time_ppg</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;PPG_time.bin&#39;</span>
+    <span class="n">write_df_data</span><span class="p">(</span><span class="n">metadata_time_ppg</span><span class="p">,</span> <span class="n">metadata_values_ppg</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;PPG_meta.json&#39;</span><span class="p">,</span> <span class="n">df_ppg_proc</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="extract_gait_features_io">
+<a class="viewcode-back" href="../../autoapi/paradigma/testing/index.html#paradigma.testing.extract_gait_features_io">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_gait_features_io</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">GaitConfig</span><span class="p">,</span>
+        <span class="n">path_to_input</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> 
+        <span class="n">path_to_output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># Load data</span>
+    <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">path_to_input</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">meta_filename</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">time_filename</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">values_filename</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="c1"># Extract gait features</span>
+    <span class="n">df_features</span> <span class="o">=</span> <span class="n">extract_gait_features</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="c1"># Store data</span>
+    <span class="n">end_iso8601</span> <span class="o">=</span> <span class="n">get_end_iso8601</span><span class="p">(</span><span class="n">start_iso8601</span><span class="o">=</span><span class="n">metadata_time</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">,</span>
+                                  <span class="n">window_length_seconds</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">df_features</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">))</span>
+
+    <span class="n">metadata_values</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;gait_values.bin&#39;</span>
+    <span class="n">metadata_time</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;gait_time.bin&#39;</span>
+    <span class="n">metadata_values</span><span class="o">.</span><span class="n">end_iso8601</span> <span class="o">=</span> <span class="n">end_iso8601</span>
+    <span class="n">metadata_time</span><span class="o">.</span><span class="n">end_iso8601</span> <span class="o">=</span> <span class="n">end_iso8601</span>
+    
+    <span class="n">metadata_values</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">d_channels_values</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">metadata_values</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">d_channels_values</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+    <span class="n">metadata_time</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span>
+    <span class="n">metadata_time</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_S</span><span class="p">]</span>
+
+    <span class="n">write_df_data</span><span class="p">(</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">,</span> <span class="n">path_to_output</span><span class="p">,</span> <span class="s1">&#39;gait_meta.json&#39;</span><span class="p">,</span> <span class="n">df_features</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="detect_gait_io">
+<a class="viewcode-back" href="../../autoapi/paradigma/testing/index.html#paradigma.testing.detect_gait_io">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">detect_gait_io</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">GaitConfig</span><span class="p">,</span> 
+        <span class="n">path_to_input</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> 
+        <span class="n">path_to_output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> 
+        <span class="n">full_path_to_classifier_package</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> 
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    
+    <span class="c1"># Load the data</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">set_filenames</span><span class="p">(</span><span class="s1">&#39;gait&#39;</span><span class="p">)</span>
+
+    <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">path_to_input</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">meta_filename</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">time_filename</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">values_filename</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="n">clf_package</span> <span class="o">=</span> <span class="n">ClassifierPackage</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">full_path_to_classifier_package</span><span class="p">)</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">=</span> <span class="n">detect_gait</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> 
+        <span class="n">clf_package</span><span class="o">=</span><span class="n">clf_package</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Prepare the metadata</span>
+    <span class="n">metadata_values</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;gait_values.bin&#39;</span>
+    <span class="n">metadata_time</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;gait_time.bin&#39;</span>
+
+    <span class="n">metadata_values</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span>
+    <span class="n">metadata_values</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;probability&#39;</span><span class="p">]</span>
+
+    <span class="n">metadata_time</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span>
+    <span class="n">metadata_time</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_S</span><span class="p">]</span>
+
+    <span class="n">write_df_data</span><span class="p">(</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">,</span> <span class="n">path_to_output</span><span class="p">,</span> <span class="s1">&#39;gait_meta.json&#39;</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="extract_arm_activity_features_io">
+<a class="viewcode-back" href="../../autoapi/paradigma/testing/index.html#paradigma.testing.extract_arm_activity_features_io">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_arm_activity_features_io</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">GaitConfig</span><span class="p">,</span> 
+        <span class="n">path_to_timestamp_input</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> 
+        <span class="n">path_to_prediction_input</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> 
+        <span class="n">full_path_to_classifier_package</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> 
+        <span class="n">path_to_output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># Load accelerometer and gyroscope data</span>
+    <span class="n">dfs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">sensor</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;accelerometer&#39;</span><span class="p">,</span> <span class="s1">&#39;gyroscope&#39;</span><span class="p">]:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set_sensor</span><span class="p">(</span><span class="n">sensor</span><span class="p">)</span>
+        <span class="n">meta_ts_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_meta.json&#39;</span>
+        <span class="n">values_ts_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_values.bin&#39;</span>
+        <span class="n">time_ts_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">sensor</span><span class="si">}</span><span class="s1">_time.bin&#39;</span>
+
+        <span class="n">metadata_ts_dict</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_metadata_from_path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_to_timestamp_input</span><span class="p">,</span> <span class="n">meta_ts_filename</span><span class="p">))</span>
+        <span class="n">metadata_ts_time</span> <span class="o">=</span> <span class="n">metadata_ts_dict</span><span class="p">[</span><span class="n">time_ts_filename</span><span class="p">]</span>
+        <span class="n">metadata_ts_values</span> <span class="o">=</span> <span class="n">metadata_ts_dict</span><span class="p">[</span><span class="n">values_ts_filename</span><span class="p">]</span>
+        <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_ts_time</span><span class="p">,</span> <span class="n">metadata_ts_values</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+
+    <span class="n">df_ts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">dfs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dfs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">on</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">)</span>
+
+    <span class="c1"># Load gait predictions</span>
+    <span class="n">meta_pred_filename</span> <span class="o">=</span> <span class="s1">&#39;gait_meta.json&#39;</span>
+    <span class="n">values_pred_filename</span> <span class="o">=</span> <span class="s1">&#39;gait_values.bin&#39;</span>
+    <span class="n">time_pred_filename</span> <span class="o">=</span> <span class="s1">&#39;gait_time.bin&#39;</span>
+
+    <span class="n">metadata_pred_dict</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_metadata_from_path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_to_prediction_input</span><span class="p">,</span> <span class="n">meta_pred_filename</span><span class="p">))</span>
+    <span class="n">metadata_pred_time</span> <span class="o">=</span> <span class="n">metadata_pred_dict</span><span class="p">[</span><span class="n">time_pred_filename</span><span class="p">]</span>
+    <span class="n">metadata_pred_values</span> <span class="o">=</span> <span class="n">metadata_pred_dict</span><span class="p">[</span><span class="n">values_pred_filename</span><span class="p">]</span>
+
+    <span class="n">df_pred_gait</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_pred_time</span><span class="p">,</span> <span class="n">metadata_pred_values</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="n">clf_package</span> <span class="o">=</span> <span class="n">ClassifierPackage</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">full_path_to_classifier_package</span><span class="p">)</span>
+
+    <span class="c1"># Extract arm activity features</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;arm_activity&#39;</span><span class="p">)</span>
+    <span class="n">df_features</span> <span class="o">=</span> <span class="n">extract_arm_activity_features</span><span class="p">(</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="n">df_timestamps</span><span class="o">=</span><span class="n">df_ts</span><span class="p">,</span> 
+        <span class="n">df_predictions</span><span class="o">=</span><span class="n">df_pred_gait</span><span class="p">,</span> 
+        <span class="n">threshold</span><span class="o">=</span><span class="n">clf_package</span><span class="o">.</span><span class="n">threshold</span>
+    <span class="p">)</span>
+
+    <span class="n">end_iso8601</span> <span class="o">=</span> <span class="n">get_end_iso8601</span><span class="p">(</span><span class="n">metadata_ts_values</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">,</span> <span class="n">df_features</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">)</span>
+
+    <span class="n">metadata_ts_values</span><span class="o">.</span><span class="n">end_iso8601</span> <span class="o">=</span> <span class="n">end_iso8601</span>
+    <span class="n">metadata_ts_values</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;arm_activity_values.bin&#39;</span>
+    <span class="n">metadata_ts_time</span><span class="o">.</span><span class="n">end_iso8601</span> <span class="o">=</span> <span class="n">end_iso8601</span>
+    <span class="n">metadata_ts_time</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;arm_activity_time.bin&#39;</span>
+
+    <span class="n">metadata_ts_values</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">d_channels_values</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">metadata_ts_values</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">d_channels_values</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+    <span class="n">metadata_ts_time</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span>
+    <span class="n">metadata_ts_time</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_S</span><span class="p">]</span>
+
+    <span class="n">write_df_data</span><span class="p">(</span><span class="n">metadata_ts_time</span><span class="p">,</span> <span class="n">metadata_ts_values</span><span class="p">,</span> <span class="n">path_to_output</span><span class="p">,</span> <span class="s1">&#39;arm_activity_meta.json&#39;</span><span class="p">,</span> <span class="n">df_features</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="filter_gait_io">
+<a class="viewcode-back" href="../../autoapi/paradigma/testing/index.html#paradigma.testing.filter_gait_io">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_gait_io</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">GaitConfig</span><span class="p">,</span> 
+        <span class="n">path_to_input</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> 
+        <span class="n">path_to_output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> 
+        <span class="n">full_path_to_classifier_package</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> 
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># Load the data</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">set_filenames</span><span class="p">(</span><span class="s1">&#39;arm_activity&#39;</span><span class="p">)</span>
+
+    <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">path_to_input</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">meta_filename</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">time_filename</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">values_filename</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="n">clf_package</span> <span class="o">=</span> <span class="n">ClassifierPackage</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">full_path_to_classifier_package</span><span class="p">)</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">=</span> <span class="n">filter_gait</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> 
+        <span class="n">clf_package</span><span class="o">=</span><span class="n">clf_package</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Prepare the metadata</span>
+    <span class="n">metadata_values</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;arm_activity_values.bin&#39;</span>
+    <span class="n">metadata_time</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;arm_activity_time.bin&#39;</span>
+
+    <span class="n">metadata_values</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span>
+    <span class="n">metadata_values</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;probability&#39;</span><span class="p">]</span>
+
+    <span class="n">metadata_time</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span>
+    <span class="n">metadata_time</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_S</span><span class="p">]</span>
+
+    <span class="n">write_df_data</span><span class="p">(</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">,</span> <span class="n">path_to_output</span><span class="p">,</span> <span class="s1">&#39;arm_activity_meta.json&#39;</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="extract_tremor_features_io">
+<a class="viewcode-back" href="../../autoapi/paradigma/testing/index.html#paradigma.testing.extract_tremor_features_io">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_tremor_features_io</span><span class="p">(</span><span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">TremorConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># Load data</span>
+    <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">meta_filename</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">time_filename</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">values_filename</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="c1"># Extract tremor features</span>
+    <span class="n">df_windowed</span> <span class="o">=</span> <span class="n">extract_tremor_features</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
+    <span class="c1"># Store data</span>
+    <span class="n">end_iso8601</span> <span class="o">=</span> <span class="n">get_end_iso8601</span><span class="p">(</span><span class="n">start_iso8601</span><span class="o">=</span><span class="n">metadata_time</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">,</span>
+                                  <span class="n">window_length_seconds</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">df_windowed</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">))</span>
+
+    <span class="n">metadata_values</span><span class="o">.</span><span class="n">end_iso8601</span> <span class="o">=</span> <span class="n">end_iso8601</span>
+    <span class="n">metadata_values</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;tremor_values.bin&#39;</span>
+    <span class="n">metadata_time</span><span class="o">.</span><span class="n">end_iso8601</span> <span class="o">=</span> <span class="n">end_iso8601</span>
+    <span class="n">metadata_time</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;tremor_time.bin&#39;</span>
+
+    <span class="n">metadata_values</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">d_channels_values</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">metadata_values</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">d_channels_values</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+    <span class="n">metadata_time</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span>
+    <span class="n">metadata_time</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;relative_time_ms&#39;</span><span class="p">]</span>
+
+    <span class="n">write_df_data</span><span class="p">(</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;tremor_meta.json&#39;</span><span class="p">,</span> <span class="n">df_windowed</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="detect_tremor_io">
+<a class="viewcode-back" href="../../autoapi/paradigma/testing/index.html#paradigma.testing.detect_tremor_io">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">detect_tremor_io</span><span class="p">(</span><span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">path_to_classifier_input</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">TremorConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    
+    <span class="c1"># Load the data</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">set_filenames</span><span class="p">(</span><span class="s1">&#39;tremor&#39;</span><span class="p">)</span>
+
+    <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">meta_filename</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">time_filename</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">values_filename</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">detect_tremor</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">path_to_classifier_input</span><span class="p">)</span>
+
+    <span class="c1"># Prepare the metadata</span>
+    <span class="n">metadata_values</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;tremor_values.bin&#39;</span>
+    <span class="n">metadata_time</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;tremor_time.bin&#39;</span>
+
+    <span class="n">metadata_values</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">d_channels_values</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">metadata_values</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">d_channels_values</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+    <span class="n">metadata_time</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span>
+    <span class="n">metadata_time</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;relative_time_ms&#39;</span><span class="p">]</span>
+
+    <span class="n">write_df_data</span><span class="p">(</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;tremor_meta.json&#39;</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="aggregate_tremor_io">
+<a class="viewcode-back" href="../../autoapi/paradigma/testing/index.html#paradigma.testing.aggregate_tremor_io">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">aggregate_tremor_io</span><span class="p">(</span><span class="n">path_to_feature_input</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">path_to_prediction_input</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">TremorConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    
+    <span class="c1"># Load the features &amp; predictions</span>
+    <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">path_to_feature_input</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">meta_filename</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">time_filename</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">values_filename</span><span class="p">)</span>
+    <span class="n">df_features</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="n">metadata_dict</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_metadata_from_path</span><span class="p">(</span><span class="n">path_to_prediction_input</span> <span class="o">/</span> <span class="n">config</span><span class="o">.</span><span class="n">meta_filename</span><span class="p">)</span>
+    <span class="n">metadata_time</span> <span class="o">=</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">time_filename</span><span class="p">]</span>
+    <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">values_filename</span><span class="p">]</span>
+    <span class="n">df_predictions</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="c1"># Subset features</span>
+    <span class="n">df_features</span> <span class="o">=</span> <span class="n">df_features</span><span class="p">[[</span><span class="s1">&#39;tremor_power&#39;</span><span class="p">,</span> <span class="s1">&#39;below_tremor_power&#39;</span><span class="p">]]</span>
+
+    <span class="c1"># Concatenate predictions and tremor power</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_predictions</span><span class="p">,</span> <span class="n">df_features</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Compute aggregated tremor measures</span>
+    <span class="n">d_aggregates</span> <span class="o">=</span> <span class="n">aggregate_tremor</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
+    <span class="c1"># Save output</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_path</span> <span class="o">/</span> <span class="s2">&quot;tremor_aggregates.json&quot;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">d_aggregates</span><span class="p">,</span> <span class="n">json_file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="extract_signal_quality_features_io">
+<a class="viewcode-back" href="../../autoapi/paradigma/testing/index.html#paradigma.testing.extract_signal_quality_features_io">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_signal_quality_features_io</span><span class="p">(</span><span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">ppg_config</span><span class="p">:</span> <span class="n">HeartRateConfig</span><span class="p">,</span> <span class="n">acc_config</span><span class="p">:</span> <span class="n">HeartRateConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract signal quality features from the PPG signal and save them to a file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_path : str | Path</span>
+<span class="sd">        The path to the directory containing the preprocessed PPG and accelerometer data.</span>
+<span class="sd">    output_path : str | Path</span>
+<span class="sd">        The path to the directory where the extracted features will be saved.</span>
+<span class="sd">    ppg_config: HeartRateConfig</span>
+<span class="sd">        The configuration for the signal quality feature extraction of the ppg signal.</span>
+<span class="sd">    acc_config: HeartRateConfig</span>
+<span class="sd">        The configuration for the signal quality feature extraction of the accelerometer signal.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    df_windowed : pd.DataFrame</span>
+<span class="sd">        The DataFrame containing the extracted signal quality features.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>	
+    <span class="c1"># Load PPG data</span>
+    <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="n">ppg_config</span><span class="o">.</span><span class="n">meta_filename</span><span class="p">,</span> <span class="n">ppg_config</span><span class="o">.</span><span class="n">time_filename</span><span class="p">,</span> <span class="n">ppg_config</span><span class="o">.</span><span class="n">values_filename</span><span class="p">)</span>
+    <span class="n">df_ppg</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    
+    <span class="c1"># Load IMU data</span>
+    <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="n">acc_config</span><span class="o">.</span><span class="n">meta_filename</span><span class="p">,</span> <span class="n">acc_config</span><span class="o">.</span><span class="n">time_filename</span><span class="p">,</span> <span class="n">acc_config</span><span class="o">.</span><span class="n">values_filename</span><span class="p">)</span>
+    <span class="n">df_acc</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="c1"># Extract signal quality features</span>
+    <span class="n">df_windowed</span> <span class="o">=</span> <span class="n">extract_signal_quality_features</span><span class="p">(</span><span class="n">df_ppg</span><span class="p">,</span> <span class="n">df_acc</span><span class="p">,</span> <span class="n">ppg_config</span><span class="p">,</span> <span class="n">acc_config</span><span class="p">)</span>
+    
+    <span class="c1"># Save the extracted features</span>
+    <span class="c1">#TO BE ADDED</span>
+    <span class="k">return</span> <span class="n">df_windowed</span></div>
+
+
+
+<div class="viewcode-block" id="signal_quality_classification_io">
+<a class="viewcode-back" href="../../autoapi/paradigma/testing/index.html#paradigma.testing.signal_quality_classification_io">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">signal_quality_classification_io</span><span class="p">(</span><span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">path_to_classifier_input</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">HeartRateConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    
+    <span class="c1"># Load the data</span>
+    <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">meta_filename</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">time_filename</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">values_filename</span><span class="p">)</span>
+    <span class="n">df_windowed</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="n">df_sqa</span> <span class="o">=</span> <span class="n">signal_quality_classification</span><span class="p">(</span><span class="n">df_windowed</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">path_to_classifier_input</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="aggregate_heart_rate_io">
+<a class="viewcode-back" href="../../autoapi/paradigma/testing/index.html#paradigma.testing.aggregate_heart_rate_io">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">aggregate_heart_rate_io</span><span class="p">(</span>
+        <span class="n">full_path_to_input</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> 
+        <span class="n">full_path_to_output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> 
+        <span class="n">aggregates</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">,</span> <span class="s1">&#39;99p&#39;</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract heart rate from the PPG signal and save the aggregated heart rate estimates to a file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_path : str | Path</span>
+<span class="sd">        The path to the directory containing the heart rate estimates.</span>
+<span class="sd">    output_path : str | Path</span>
+<span class="sd">        The path to the directory where the aggregated heart rate estimates will be saved.</span>
+<span class="sd">    aggregates : List[str]</span>
+<span class="sd">        The list of aggregation methods to be used for the heart rate estimates. The default is [&#39;mode&#39;, &#39;99p&#39;].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Load the heart rate estimates</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">full_path_to_input</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">df_hr</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    
+    <span class="c1"># Aggregate the heart rate estimates</span>
+    <span class="n">hr_values</span> <span class="o">=</span> <span class="n">df_hr</span><span class="p">[</span><span class="s1">&#39;heart_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">df_hr_aggregates</span> <span class="o">=</span> <span class="n">aggregate_heart_rate</span><span class="p">(</span><span class="n">hr_values</span><span class="p">,</span> <span class="n">aggregates</span><span class="p">)</span>
+
+    <span class="c1"># Save the aggregated heart rate estimates</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">full_path_to_output</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">df_hr_aggregates</span><span class="p">,</span> <span class="n">json_file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Erik Post, Kars Veldkamp, Nienke Timmermans, Peter Kok, Vedran Kasalica, Diogo Coutinho Soriano, Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

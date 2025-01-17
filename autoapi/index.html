@@ -5,7 +5,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>API Reference &mdash; paradigma  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
@@ -20,11 +20,12 @@
         <script src="../_static/documentation_options.js?v=5929fcd5"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="paradigma" href="paradigma/index.html" />
-    <link rel="prev" title="PPG analysis" href="../notebooks/ppg/ppg_analysis.html" /> 
+    <link rel="prev" title="Coordinate System" href="../guides/coordinate_system.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -46,10 +47,17 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Example notebooks</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../notebooks/gait/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../notebooks/ppg/ppg_analysis.html">PPG analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/data_preparation.html">Data Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/heart_rate_analysis.html">Heart rate analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul class="current">
@@ -57,17 +65,6 @@
 <li class="toctree-l2"><a class="reference internal" href="paradigma/index.html">paradigma</a></li>
 </ul>
 </li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">TSDF schema</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../tsdf_paradigma_schemas.html">TSDF fields in Paradigma schemas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tsdf_paradigma_channels_and_units.html">Channels and units in Paradigma schemas</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Development</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
 </ul>
 
         </div>
@@ -100,19 +97,21 @@
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="paradigma/index.html">paradigma</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="paradigma/classification/index.html">paradigma.classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paradigma/config/index.html">paradigma.config</a></li>
 <li class="toctree-l2"><a class="reference internal" href="paradigma/constants/index.html">paradigma.constants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="paradigma/feature_extraction/index.html">paradigma.feature_extraction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paradigma/gait_analysis/index.html">paradigma.gait_analysis</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paradigma/gait_analysis_config/index.html">paradigma.gait_analysis_config</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paradigma/heart_rate_analysis/index.html">paradigma.heart_rate_analysis</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paradigma/heart_rate_analysis_config/index.html">paradigma.heart_rate_analysis_config</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paradigma/heart_rate_util/index.html">paradigma.heart_rate_util</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paradigma/imu_preprocessing/index.html">paradigma.imu_preprocessing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paradigma/ppg_preprocessing/index.html">paradigma.ppg_preprocessing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paradigma/preprocessing_config/index.html">paradigma.preprocessing_config</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paradigma/quantification/index.html">paradigma.quantification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paradigma/pipelines/index.html">paradigma.pipelines</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="paradigma/pipelines/gait_pipeline/index.html">paradigma.pipelines.gait_pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="paradigma/pipelines/heart_rate_pipeline/index.html">paradigma.pipelines.heart_rate_pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="paradigma/pipelines/heart_rate_utils/index.html">paradigma.pipelines.heart_rate_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="paradigma/pipelines/tremor_pipeline/index.html">paradigma.pipelines.tremor_pipeline</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="paradigma/preprocessing/index.html">paradigma.preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paradigma/segmenting/index.html">paradigma.segmenting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paradigma/testing/index.html">paradigma.testing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="paradigma/util/index.html">paradigma.util</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paradigma/windowing/index.html">paradigma.windowing</a></li>
 </ul>
 </li>
 </ul>
@@ -129,14 +128,14 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../notebooks/ppg/ppg_analysis.html" class="btn btn-neutral float-left" title="PPG analysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../guides/coordinate_system.html" class="btn btn-neutral float-left" title="Coordinate System" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="paradigma/index.html" class="btn btn-neutral float-right" title="paradigma" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Peter Kok, Vedran Kasalica, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Luc Evers.</p>
+    <p>&#169; Copyright 2023, Erik Post, Kars Veldkamp, Nienke Timmermans, Peter Kok, Vedran Kasalica, Diogo Coutinho Soriano, Luc Evers.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>paradigma.segmenting &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="paradigma.testing" href="../testing/index.html" />
+    <link rel="prev" title="paradigma.preprocessing" href="../preprocessing/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/data_preparation.html">Data Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/heart_rate_analysis.html">Heart rate analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">paradigma</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../classification/index.html">paradigma.classification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../config/index.html">paradigma.config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../constants/index.html">paradigma.constants</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../feature_extraction/index.html">paradigma.feature_extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../pipelines/index.html">paradigma.pipelines</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../preprocessing/index.html">paradigma.preprocessing</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">paradigma.segmenting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../testing/index.html">paradigma.testing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util/index.html">paradigma.util</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">paradigma</a></li>
+      <li class="breadcrumb-item active">paradigma.segmenting</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/paradigma/segmenting/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-paradigma.segmenting">
+<span id="paradigma-segmenting"></span><h1>paradigma.segmenting<a class="headerlink" href="#module-paradigma.segmenting" title="Link to this heading"></a></h1>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.segmenting.WindowedDataExtractor" title="paradigma.segmenting.WindowedDataExtractor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WindowedDataExtractor</span></code></a></p></td>
+<td><p>A utility class for extracting specific column indices and slices</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.segmenting.tabulate_windows" title="paradigma.segmenting.tabulate_windows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tabulate_windows</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Split the given DataFrame into overlapping windows of specified length and step size.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.segmenting.tabulate_windows_legacy" title="paradigma.segmenting.tabulate_windows_legacy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tabulate_windows_legacy</span></code></a>(config, df[, agg_func])</p></td>
+<td><p>Efficiently creates a windowed dataframe from the input dataframe using vectorized operations.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.segmenting.create_segments" title="paradigma.segmenting.create_segments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_segments</span></code></a>(time_array, max_segment_gap_s)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.segmenting.discard_segments" title="paradigma.segmenting.discard_segments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">discard_segments</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Remove segments smaller than a specified size and reset segment enumeration.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.segmenting.categorize_segments" title="paradigma.segmenting.categorize_segments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">categorize_segments</span></code></a>(df, fs[, format, window_step_length_s])</p></td>
+<td><p>Categorize segments based on their duration.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.segmenting.tabulate_windows">
+<span class="sig-prename descclassname"><span class="pre">paradigma.segmenting.</span></span><span class="sig-name descname"><span class="pre">tabulate_windows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_length_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_step_length_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/segmenting.html#tabulate_windows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.segmenting.tabulate_windows" title="Link to this definition"></a></dt>
+<dd><p>Split the given DataFrame into overlapping windows of specified length and step size.</p>
+<p>This function extracts windows of data from the specified columns of the DataFrame, based on
+the window length and step size provided in the configuration. The windows are returned in
+a 3D NumPy array, where the first dimension represents the window index, the second dimension
+represents the time steps within the window, and the third dimension represents the columns
+of the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The input DataFrame containing the data to be windowed.</p></li>
+<li><p><strong>columns</strong> (<em>list</em><em> of </em><em>str</em>) – A list of column names from the DataFrame that will be used for windowing.</p></li>
+<li><p><strong>window_length_s</strong> (<em>float</em>) – The length of each window in seconds.</p></li>
+<li><p><strong>window_step_length_s</strong> (<em>float</em>) – The step size between consecutive windows in seconds.</p></li>
+<li><p><strong>fs</strong> (<em>int</em>) – The sampling frequency of the data in Hz.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>A 3D NumPy array of shape (n_windows, window_size, n_columns), where:
+- <cite>n_windows</cite> is the number of windows that can be formed from the data.
+- <cite>window_size</cite> is the length of each window in terms of the number of time steps.
+- <cite>n_columns</cite> is the number of columns in the input DataFrame specified by <cite>columns</cite>.</p>
+<p>If the length of the data is shorter than the specified window size, an empty array is returned.</p>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function uses <cite>np.lib.stride_tricks.sliding_window_view</cite> to generate sliding windows of data.
+The step size is applied to extract windows at intervals.
+If the data is insufficient for at least one window, an empty array will be returned.</p>
+<p class="rubric">Example</p>
+<p>config = Config(window_length_s=5, window_step_length_s=1, sampling_frequency=100)
+df = pd.DataFrame({‘col1’: np.random.randn(100), ‘col2’: np.random.randn(100)})
+columns = [‘col1’, ‘col2’]
+windows = tabulate_windows(config, df, columns)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.segmenting.tabulate_windows_legacy">
+<span class="sig-prename descclassname"><span class="pre">paradigma.segmenting.</span></span><span class="sig-name descname"><span class="pre">tabulate_windows_legacy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agg_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'first'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/segmenting.html#tabulate_windows_legacy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.segmenting.tabulate_windows_legacy" title="Link to this definition"></a></dt>
+<dd><p>Efficiently creates a windowed dataframe from the input dataframe using vectorized operations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – The input dataframe, where each row represents a timestamp (0.01 sec).</p></li>
+<li><p><strong>window_length_s</strong> – The number of seconds per window.</p></li>
+<li><p><strong>window_step_length_s</strong> – The number of seconds to shift between windows.</p></li>
+<li><p><strong>single_value_cols</strong> – List of columns where a single value (e.g., mean) is needed.</p></li>
+<li><p><strong>list_value_cols</strong> – List of columns where all 600 values should be stored in a list.</p></li>
+<li><p><strong>agg_func</strong> – Aggregation function for single-value columns (e.g., ‘mean’, ‘first’).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The windowed dataframe.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.segmenting.create_segments">
+<span class="sig-prename descclassname"><span class="pre">paradigma.segmenting.</span></span><span class="sig-name descname"><span class="pre">create_segments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_segment_gap_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/segmenting.html#create_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.segmenting.create_segments" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.segmenting.discard_segments">
+<span class="sig-prename descclassname"><span class="pre">paradigma.segmenting.</span></span><span class="sig-name descname"><span class="pre">discard_segments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_nr_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_segment_length_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'timestamps'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../_modules/paradigma/segmenting.html#discard_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.segmenting.discard_segments" title="Link to this definition"></a></dt>
+<dd><p>Remove segments smaller than a specified size and reset segment enumeration.</p>
+<p>This function filters out segments from the DataFrame that are smaller than a
+given minimum size, based on the configuration. After removing small segments,
+the segment numbers are reset to start from 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<em>object</em>) – A configuration object containing:
+- <cite>min_segment_length_s</cite>: The minimum segment length in seconds.
+- <cite>sampling_frequency</cite>: The sampling frequency in Hz.</p></li>
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The input DataFrame containing a segment column and time series data.</p></li>
+<li><p><strong>format</strong> (<em>str</em><em>, </em><em>optional</em>) – The format of the input data, either ‘timestamps’ or ‘windows’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A filtered DataFrame where small segments have been removed and segment
+numbers have been reset to start from 1.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>config = Config(min_segment_length_s=2, sampling_frequency=100, segment_nr_colname=’segment’)
+df = pd.DataFrame({</p>
+<blockquote>
+<div><p>‘segment’: [1, 1, 2, 2, 2],
+‘time’: [0, 1, 2, 3, 4]</p>
+</div></blockquote>
+<p>})
+df_filtered = discard_segments(config, df)
+# Result:
+#   segment  time
+# 0       1     0
+# 1       1     1
+# 2       2     2
+# 3       2     3
+# 4       2     4</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.segmenting.categorize_segments">
+<span class="sig-prename descclassname"><span class="pre">paradigma.segmenting.</span></span><span class="sig-name descname"><span class="pre">categorize_segments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'timestamps'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_step_length_s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/segmenting.html#categorize_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.segmenting.categorize_segments" title="Link to this definition"></a></dt>
+<dd><p>Categorize segments based on their duration.</p>
+<p>This function categorizes segments into four categories based on their duration
+in seconds. The categories are defined as:
+- Category 1: Segments shorter than 5 seconds
+- Category 2: Segments between 5 and 10 seconds
+- Category 3: Segments between 10 and 20 seconds
+- Category 4: Segments longer than 20 seconds</p>
+<p>The duration of each segment is calculated based on the sampling frequency and
+the number of rows (data points) in the segment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The input DataFrame containing the segment column with segment numbers.</p></li>
+<li><p><strong>config</strong> (<em>object</em>) – A configuration object containing <cite>sampling_frequency</cite>.</p></li>
+<li><p><strong>format</strong> (<em>str</em><em>, </em><em>optional</em>) – The format of the input data, either ‘timestamps’ or ‘windows’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A Series containing the category for each segment:
+- ‘short’ for segments &lt; 5 seconds
+- ‘moderately_long’ for segments between 5 and 10 seconds
+- ‘long’ for segments between 10 and 20 seconds
+- ‘very_long’ for segments &gt; 20 seconds</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.Series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="paradigma.segmenting.WindowedDataExtractor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.segmenting.</span></span><span class="sig-name descname"><span class="pre">WindowedDataExtractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">windowed_cols</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/segmenting.html#WindowedDataExtractor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.segmenting.WindowedDataExtractor" title="Link to this definition"></a></dt>
+<dd><p>A utility class for extracting specific column indices and slices
+from a list of windowed column names.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.segmenting.WindowedDataExtractor.column_indices">
+<span class="sig-name descname"><span class="pre">column_indices</span></span><a class="headerlink" href="#paradigma.segmenting.WindowedDataExtractor.column_indices" title="Link to this definition"></a></dt>
+<dd><p>A dictionary mapping column names to their indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paradigma.segmenting.WindowedDataExtractor.get_index">
+<span class="sig-name descname"><span class="pre">get_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">col</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/segmenting.html#WindowedDataExtractor.get_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.segmenting.WindowedDataExtractor.get_index" title="Link to this definition"></a></dt>
+<dd><p>Returns the index of a specific column.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paradigma.segmenting.WindowedDataExtractor.get_slice">
+<span class="sig-name descname"><span class="pre">get_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cols</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/segmenting.html#WindowedDataExtractor.get_slice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.segmenting.WindowedDataExtractor.get_slice" title="Link to this definition"></a></dt>
+<dd><p>Returns a slice object for a range of consecutive columns.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">column_indices</span></span><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">get_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">col</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/segmenting.html#WindowedDataExtractor.get_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
+<dd><p>Get the index of a specific column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>col</strong> (<em>str</em>) – The name of the column to retrieve the index for.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The index of the specified column.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the column is not found in the <cite>windowed_cols</cite> list.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">get_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cols</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/segmenting.html#WindowedDataExtractor.get_slice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id2" title="Link to this definition"></a></dt>
+<dd><p>Get a slice object for a range of consecutive columns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cols</strong> (<em>list</em><em> of </em><em>str</em>) – A list of consecutive column names to define the slice.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A slice object spanning the indices of the given columns.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>slice</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If one or more columns in <cite>cols</cite> are not found in the <cite>windowed_cols</cite> list.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../preprocessing/index.html" class="btn btn-neutral float-left" title="paradigma.preprocessing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../testing/index.html" class="btn btn-neutral float-right" title="paradigma.testing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Erik Post, Kars Veldkamp, Nienke Timmermans, Peter Kok, Vedran Kasalica, Diogo Coutinho Soriano, Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>paradigma.util &mdash; paradigma  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
@@ -19,6 +19,7 @@
         <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
         <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -43,25 +44,21 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Example notebooks</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../notebooks/gait/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../notebooks/ppg/ppg_analysis.html">PPG analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/data_preparation.html">Data Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/heart_rate_analysis.html">Heart rate analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">TSDF schema</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../tsdf_paradigma_schemas.html">TSDF fields in Paradigma schemas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tsdf_paradigma_channels_and_units.html">Channels and units in Paradigma schemas</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Development</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../conduct.html">Code of Conduct</a></li>
 </ul>
 
         </div>
@@ -89,70 +86,474 @@
            <div itemprop="articleBody">
              
   <h1>Source code for paradigma.util</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">timedelta</span>
-<span class="kn">from</span> <span class="nn">dateutil</span> <span class="kn">import</span> <span class="n">parser</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dateutil</span><span class="w"> </span><span class="kn">import</span> <span class="n">parser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
 
-<span class="kn">import</span> <span class="nn">tsdf</span>
-<span class="kn">from</span> <span class="nn">tsdf</span> <span class="kn">import</span> <span class="n">TSDFMetadata</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tsdf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tsdf</span><span class="w"> </span><span class="kn">import</span> <span class="n">TSDFMetadata</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span><span class="p">,</span> <span class="n">TimeUnit</span>
+
 
 <div class="viewcode-block" id="parse_iso8601_to_datetime">
 <a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.parse_iso8601_to_datetime">[docs]</a>
-<span class="k">def</span> <span class="nf">parse_iso8601_to_datetime</span><span class="p">(</span><span class="n">date_str</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_iso8601_to_datetime</span><span class="p">(</span><span class="n">date_str</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">date_str</span><span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="format_datetime_to_iso8601">
 <a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.format_datetime_to_iso8601">[docs]</a>
-<span class="k">def</span> <span class="nf">format_datetime_to_iso8601</span><span class="p">(</span><span class="n">datetime</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">T%H:%M:%S&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;Z&#39;</span></div>
+<span class="k">def</span><span class="w"> </span><span class="nf">format_datetime_to_iso8601</span><span class="p">(</span><span class="n">datetime</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%S&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;Z&quot;</span></div>
+
 
 
 <div class="viewcode-block" id="get_end_iso8601">
 <a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.get_end_iso8601">[docs]</a>
-<span class="k">def</span> <span class="nf">get_end_iso8601</span><span class="p">(</span><span class="n">start_iso8601</span><span class="p">,</span> <span class="n">window_length_seconds</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_end_iso8601</span><span class="p">(</span><span class="n">start_iso8601</span><span class="p">,</span> <span class="n">window_length_seconds</span><span class="p">):</span>
     <span class="n">start_date</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">start_iso8601</span><span class="p">)</span>
     <span class="n">end_date</span> <span class="o">=</span> <span class="n">start_date</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">window_length_seconds</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">format_datetime_to_iso8601</span><span class="p">(</span><span class="n">end_date</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="write_data">
-<a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.write_data">[docs]</a>
-<span class="k">def</span> <span class="nf">write_data</span><span class="p">(</span><span class="n">metadata_time</span><span class="p">:</span> <span class="n">TSDFMetadata</span><span class="p">,</span> <span class="n">metadata_samples</span><span class="p">:</span> <span class="n">TSDFMetadata</span><span class="p">,</span>
-               <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+
+<div class="viewcode-block" id="write_np_data">
+<a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.write_np_data">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_np_data</span><span class="p">(</span>
+    <span class="n">metadata_time</span><span class="p">:</span> <span class="n">TSDFMetadata</span><span class="p">,</span>
+    <span class="n">np_array_time</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
+    <span class="n">metadata_values</span><span class="p">:</span> <span class="n">TSDFMetadata</span><span class="p">,</span>
+    <span class="n">np_array_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write the numpy arrays to binary files and store the metadata.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    metadata_time : TSDFMetadata</span>
+<span class="sd">        Metadata for the time column.</span>
+<span class="sd">    np_array_time : np.ndarray</span>
+<span class="sd">        The numpy array for the time column.</span>
+<span class="sd">    metadata_values : TSDFMetadata</span>
+<span class="sd">        Metadata for the samples columns.</span>
+<span class="sd">    np_array_values : np.ndarray</span>
+<span class="sd">        The numpy array for the samples columns.</span>
+<span class="sd">    output_path : str</span>
+<span class="sd">        The path where the files will be stored.</span>
+<span class="sd">    output_filename : str</span>
+<span class="sd">        The filename for the metadata.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_path</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+
+    <span class="c1"># TODO: improve the way the metadata is stored at a different location</span>
+    <span class="n">metadata_time</span><span class="o">.</span><span class="n">file_dir_path</span> <span class="o">=</span> <span class="n">output_path</span>
+    <span class="n">metadata_values</span><span class="o">.</span><span class="n">file_dir_path</span> <span class="o">=</span> <span class="n">output_path</span>
+
+    <span class="c1"># store binaries and metadata</span>
+    <span class="n">time_tsdf</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">write_binary_file</span><span class="p">(</span><span class="n">file_dir</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">metadata_time</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">np_array_time</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata_time</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">())</span>
+
+    <span class="n">samples_tsdf</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">write_binary_file</span><span class="p">(</span><span class="n">file_dir</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">metadata_values</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">np_array_values</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata_values</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">())</span>
+
+    <span class="n">tsdf</span><span class="o">.</span><span class="n">write_metadata</span><span class="p">([</span><span class="n">time_tsdf</span><span class="p">,</span> <span class="n">samples_tsdf</span><span class="p">],</span> <span class="n">output_filename</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="write_df_data">
+<a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.write_df_data">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_df_data</span><span class="p">(</span>
+    <span class="n">metadata_time</span><span class="p">:</span> <span class="n">TSDFMetadata</span><span class="p">,</span>
+    <span class="n">metadata_values</span><span class="p">:</span> <span class="n">TSDFMetadata</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write the Pandas DataFrame to binary files and store the metadata.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    metadata_time : TSDFMetadata</span>
+<span class="sd">        Metadata for the time column.</span>
+<span class="sd">    metadata_values : TSDFMetadata</span>
+<span class="sd">        Metadata for the samples columns.</span>
+<span class="sd">    output_path : str</span>
+<span class="sd">        The path where the files will be stored.</span>
+<span class="sd">    output_filename : str</span>
+<span class="sd">        The filename for the metadata.</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        The DataFrame to be stored.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_path</span><span class="p">):</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
 
     <span class="c1"># Make sure the iso8601 format is correctly set</span>
-    <span class="c1">#TODO: this should be properly validated in the tsdf library instead</span>
+    <span class="c1"># TODO: this should be properly validated in the tsdf library instead</span>
     <span class="n">start_date</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">metadata_time</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">)</span>
     <span class="n">metadata_time</span><span class="o">.</span><span class="n">start_iso8601</span> <span class="o">=</span> <span class="n">format_datetime_to_iso8601</span><span class="p">(</span><span class="n">start_date</span><span class="p">)</span>
     <span class="n">end_date</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">metadata_time</span><span class="o">.</span><span class="n">end_iso8601</span><span class="p">)</span>
     <span class="n">metadata_time</span><span class="o">.</span><span class="n">end_iso8601</span> <span class="o">=</span> <span class="n">format_datetime_to_iso8601</span><span class="p">(</span><span class="n">end_date</span><span class="p">)</span>
-    <span class="n">start_date</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">metadata_samples</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">)</span>
-    <span class="n">metadata_samples</span><span class="o">.</span><span class="n">start_iso8601</span> <span class="o">=</span> <span class="n">format_datetime_to_iso8601</span><span class="p">(</span><span class="n">start_date</span><span class="p">)</span>
-    <span class="n">end_date</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">metadata_samples</span><span class="o">.</span><span class="n">end_iso8601</span><span class="p">)</span>
-    <span class="n">metadata_samples</span><span class="o">.</span><span class="n">end_iso8601</span> <span class="o">=</span> <span class="n">format_datetime_to_iso8601</span><span class="p">(</span><span class="n">end_date</span><span class="p">)</span>
+    <span class="n">start_date</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">metadata_values</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">)</span>
+    <span class="n">metadata_values</span><span class="o">.</span><span class="n">start_iso8601</span> <span class="o">=</span> <span class="n">format_datetime_to_iso8601</span><span class="p">(</span><span class="n">start_date</span><span class="p">)</span>
+    <span class="n">end_date</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">metadata_values</span><span class="o">.</span><span class="n">end_iso8601</span><span class="p">)</span>
+    <span class="n">metadata_values</span><span class="o">.</span><span class="n">end_iso8601</span> <span class="o">=</span> <span class="n">format_datetime_to_iso8601</span><span class="p">(</span><span class="n">end_date</span><span class="p">)</span>
 
     <span class="c1"># TODO: improve the way the metadata is stored at a different location</span>
     <span class="n">metadata_time</span><span class="o">.</span><span class="n">file_dir_path</span> <span class="o">=</span> <span class="n">output_path</span>
-    <span class="n">metadata_samples</span><span class="o">.</span><span class="n">file_dir_path</span> <span class="o">=</span> <span class="n">output_path</span>
+    <span class="n">metadata_values</span><span class="o">.</span><span class="n">file_dir_path</span> <span class="o">=</span> <span class="n">output_path</span>
 
     <span class="c1"># store binaries and metadata</span>
-    <span class="n">tsdf</span><span class="o">.</span><span class="n">write_dataframe_to_binaries</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="p">[</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_samples</span><span class="p">])</span>
-    <span class="n">tsdf</span><span class="o">.</span><span class="n">write_metadata</span><span class="p">([</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_samples</span><span class="p">],</span> <span class="n">output_filename</span><span class="p">)</span></div>
+    <span class="n">tsdf</span><span class="o">.</span><span class="n">write_dataframe_to_binaries</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="p">[</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">])</span>
+    <span class="n">tsdf</span><span class="o">.</span><span class="n">write_metadata</span><span class="p">([</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">],</span> <span class="n">output_filename</span><span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="read_metadata">
 <a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.read_metadata">[docs]</a>
-<span class="k">def</span> <span class="nf">read_metadata</span><span class="p">(</span><span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">time_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">TSDFMetadata</span><span class="p">,</span> <span class="n">TSDFMetadata</span><span class="p">]:</span>
-    <span class="n">metadata_dict</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_metadata_from_path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">))</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_metadata</span><span class="p">(</span>
+    <span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">time_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values_filename</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">TSDFMetadata</span><span class="p">,</span> <span class="n">TSDFMetadata</span><span class="p">]:</span>
+    <span class="n">metadata_dict</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_metadata_from_path</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">)</span>
+    <span class="p">)</span>
     <span class="n">metadata_time</span> <span class="o">=</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="n">time_filename</span><span class="p">]</span>
-    <span class="n">metadata_samples</span> <span class="o">=</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="n">values_filename</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_samples</span></div>
+    <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="n">values_filename</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span></div>
+
+
+
+<div class="viewcode-block" id="load_tsdf_dataframe">
+<a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.load_tsdf_dataframe">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_data</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">meta_suffix</span><span class="o">=</span><span class="s1">&#39;meta.json&#39;</span><span class="p">,</span> <span class="n">time_suffix</span><span class="o">=</span><span class="s1">&#39;time.bin&#39;</span><span class="p">,</span> <span class="n">values_suffix</span><span class="o">=</span><span class="s1">&#39;values.bin&#39;</span><span class="p">):</span>
+    <span class="n">meta_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">meta_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">time_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">time_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">values_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">values_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">path_to_data</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">,</span> <span class="n">time_filename</span><span class="p">,</span> <span class="n">values_filename</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span></div>
+
+
+
+<div class="viewcode-block" id="load_metadata_list">
+<a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.load_metadata_list">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_metadata_list</span><span class="p">(</span>
+    <span class="n">dir_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filenames</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">TSDFMetadata</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load the metadata objects from a metadata file according to the specified binaries.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dir_path : str</span>
+<span class="sd">        The dir path where the metadata file is stored.</span>
+<span class="sd">    meta_filename : str</span>
+<span class="sd">        The filename of the metadata file.</span>
+<span class="sd">    filenames : List[str]</span>
+<span class="sd">        The list of binary files of which the metadata files need to be loaded</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>	
+    <span class="n">metadata_dict</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_metadata_from_path</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">metadata_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+        <span class="n">metadata_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metadata_dict</span><span class="p">[</span><span class="n">filename</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">metadata_list</span></div>
+
+
+
+<div class="viewcode-block" id="transform_time_array">
+<a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.transform_time_array">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">transform_time_array</span><span class="p">(</span>
+    <span class="n">time_array</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="n">input_unit_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output_unit_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">start_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transforms the time array to relative time (when defined in delta time) and scales the values.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    time_array : pd.Series</span>
+<span class="sd">        The time array to transform.</span>
+<span class="sd">    input_unit_type : str</span>
+<span class="sd">        The time unit type of the input time array.</span>
+<span class="sd">    output_unit_type : str</span>
+<span class="sd">        The time unit type of the output time array. ParaDigMa expects `TimeUnit.RELATIVE_S`.</span>
+<span class="sd">    start_time : float, optional</span>
+<span class="sd">        The start time of the time array in UNIX seconds (default is 0.0)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        The transformed time array in seconds, with the specified time unit type.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The function handles different time units (`TimeUnit.RELATIVE_MS`, `TimeUnit.RELATIVE_S`, `TimeUnit.ABSOLUTE_MS`, `TimeUnit.ABSOLUTE_S`, `TimeUnit.DIFFERENCE_MS`, `TimeUnit.DIFFERENCE_S`).</span>
+<span class="sd">    - The transformation allows for scaling of the time array, converting between time unit types (e.g., relative, absolute, or difference).</span>
+<span class="sd">    - When converting to `TimeUnit.RELATIVE_MS`, the function calculates the relative time starting from the provided or default start time.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">input_units</span> <span class="o">=</span> <span class="n">input_unit_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">output_units</span> <span class="o">=</span> <span class="n">output_unit_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">input_units</span> <span class="o">==</span> <span class="n">output_units</span><span class="p">:</span>
+        <span class="n">scale_factor</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">input_units</span> <span class="o">==</span> <span class="s1">&#39;s&#39;</span> <span class="ow">and</span> <span class="n">output_units</span> <span class="o">==</span> <span class="s1">&#39;ms&#39;</span><span class="p">:</span>
+        <span class="n">scale_factor</span> <span class="o">=</span> <span class="mf">1e3</span>
+    <span class="k">elif</span> <span class="n">input_units</span> <span class="o">==</span> <span class="s1">&#39;ms&#39;</span> <span class="ow">and</span> <span class="n">output_units</span> <span class="o">==</span> <span class="s1">&#39;s&#39;</span><span class="p">:</span>
+        <span class="n">scale_factor</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mf">1e3</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported time units conversion: </span><span class="si">{</span><span class="n">input_units</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">output_units</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Transform to relative time (`TimeUnit.RELATIVE_MS`) </span>
+    <span class="k">if</span> <span class="n">input_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_MS</span> <span class="ow">or</span> <span class="n">input_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_S</span><span class="p">:</span>
+    <span class="c1"># Convert a series of differences into cumulative sum to reconstruct original time series.</span>
+        <span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">time_array</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">input_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_MS</span> <span class="ow">or</span> <span class="n">input_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_S</span><span class="p">:</span>
+        <span class="c1"># Set the start time if not provided.</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-09</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-09</span><span class="p">):</span>
+            <span class="n">start_time</span> <span class="o">=</span> <span class="n">time_array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># Convert absolute time stamps into a time series relative to start_time.</span>
+        <span class="n">time_array</span> <span class="o">=</span> <span class="p">(</span><span class="n">time_array</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span> 
+
+    <span class="c1"># Transform the time array from `TimeUnit.RELATIVE_MS` to the specified time unit type</span>
+    <span class="k">if</span> <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_MS</span> <span class="ow">or</span> <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_S</span><span class="p">:</span>
+        <span class="c1"># Converts time array to absolute time by adding the start time to each element.</span>
+        <span class="n">time_array</span> <span class="o">=</span> <span class="n">time_array</span> <span class="o">+</span> <span class="n">start_time</span>
+    <span class="k">elif</span> <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_MS</span> <span class="ow">or</span> <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_S</span><span class="p">:</span>
+        <span class="c1"># Creates a new array starting with 0, followed by the differences between consecutive elements.</span>
+        <span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">start_time</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_MS</span> <span class="ow">or</span> <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_S</span><span class="p">:</span>
+        <span class="c1"># The array is already in relative format, do nothing.</span>
+        <span class="k">pass</span>
+
+    <span class="k">return</span> <span class="n">time_array</span> <span class="o">*</span> <span class="n">scale_factor</span></div>
+
+
+
+<div class="viewcode-block" id="convert_units_accelerometer">
+<a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.convert_units_accelerometer">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_units_accelerometer</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">units</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert acceleration data to g.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : np.ndarray</span>
+<span class="sd">        The acceleration data.</span>
+
+<span class="sd">    units : str</span>
+<span class="sd">        The unit of the data (currently supports g and m/s^2).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        The acceleration data in g.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;m/s^2&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">data</span> <span class="o">/</span> <span class="mf">9.81</span>
+    <span class="k">elif</span> <span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;g&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">data</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported unit: </span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+    
+
+<div class="viewcode-block" id="convert_units_gyroscope">
+<a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.convert_units_gyroscope">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_units_gyroscope</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">units</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert gyroscope data to deg/s.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : np.ndarray</span>
+<span class="sd">        The gyroscope data.</span>
+<span class="sd">        </span>
+<span class="sd">    units : str</span>
+<span class="sd">        The unit of the data (currently supports deg/s and rad/s).</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        The gyroscope data in deg/s.</span>
+<span class="sd">        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;deg/s&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">data</span>
+    <span class="k">elif</span> <span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;rad/s&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported unit: </span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+    
+
+<div class="viewcode-block" id="invert_watch_side">
+<a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.invert_watch_side">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">invert_watch_side</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">side</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Invert the data based on the watch side.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        The data.</span>
+<span class="sd">    side : str</span>
+<span class="sd">        The watch side (left or right).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        The inverted data.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">side</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported side: </span><span class="si">{</span><span class="n">side</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">side</span> <span class="o">==</span> <span class="s2">&quot;right&quot;</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Y</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Z</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="aggregate_parameter">
+<a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.aggregate_parameter">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">aggregate_parameter</span><span class="p">(</span><span class="n">parameter</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">aggregate</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Aggregate a parameter based on the specified method.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    parameter : np.ndarray</span>
+<span class="sd">        The parameter to aggregate.</span>
+<span class="sd">        </span>
+<span class="sd">    aggregate : str</span>
+<span class="sd">        The aggregation method to apply.</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        The aggregated parameter.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s1">&#39;mean&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s1">&#39;median&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s1">&#39;mode&#39;</span><span class="p">:</span>
+        <span class="n">unique_values</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">unique_values</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">counts</span><span class="p">)]</span>
+    <span class="k">elif</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s1">&#39;90p&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s1">&#39;95p&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="mi">95</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s1">&#39;99p&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="mi">99</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s1">&#39;std&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid aggregation method: </span><span class="si">{</span><span class="n">aggregate</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="merge_predictions_with_timestamps">
+<a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.merge_predictions_with_timestamps">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">merge_predictions_with_timestamps</span><span class="p">(</span>
+        <span class="n">df_ts</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
+        <span class="n">df_predictions</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
+        <span class="n">pred_proba_colname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">window_length_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> 
+        <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Merges prediction probabilities with timestamps by expanding overlapping windows</span>
+<span class="sd">    into individual timestamps and averaging probabilities per unique timestamp.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df_ts : pd.DataFrame</span>
+<span class="sd">        DataFrame containing timestamps to be merged with predictions.</span>
+<span class="sd">        Must include the timestamp column specified in `DataColumns.TIME`.</span>
+
+<span class="sd">    df_predictions : pd.DataFrame</span>
+<span class="sd">        DataFrame containing prediction windows with start times and probabilities.</span>
+<span class="sd">        Must include:</span>
+<span class="sd">        - A column for window start times (defined by `DataColumns.TIME`).</span>
+<span class="sd">        - A column for prediction probabilities (defined by `DataColumns.PRED_GAIT_PROBA`).</span>
+
+<span class="sd">    pred_proba_colname : str</span>
+<span class="sd">        The column name for the prediction probabilities in `df_predictions`.</span>
+
+<span class="sd">    window_length_s : float</span>
+<span class="sd">        The length of the prediction window in seconds.</span>
+
+<span class="sd">    fs : int</span>
+<span class="sd">        The sampling frequency of the data.</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Updated `df_ts` with an additional column for averaged prediction probabilities.</span>
+
+<span class="sd">    Steps:</span>
+<span class="sd">    ------</span>
+<span class="sd">    1. Expand prediction windows into individual timestamps using NumPy broadcasting.</span>
+<span class="sd">    2. Flatten the timestamps and prediction probabilities into single arrays.</span>
+<span class="sd">    3. Aggregate probabilities by unique timestamps using pandas `groupby`.</span>
+<span class="sd">    4. Merge the aggregated probabilities with the input `df_ts`.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">    ------</span>
+<span class="sd">    - Rounding is applied to timestamps to mitigate floating-point inaccuracies.</span>
+<span class="sd">    - Fully vectorized for speed and scalability, avoiding any row-wise operations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Step 1: Generate all timestamps for prediction windows using NumPy broadcasting</span>
+    <span class="n">window_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">window_length_s</span> <span class="o">*</span> <span class="n">fs</span><span class="p">)</span>
+    <span class="n">timestamps</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df_predictions</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">+</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">window_length</span><span class="p">)</span> <span class="o">/</span> <span class="n">fs</span>
+    <span class="p">)</span>
+    
+    <span class="c1"># Flatten timestamps and probabilities into a single array for efficient processing</span>
+    <span class="n">flat_timestamps</span> <span class="o">=</span> <span class="n">timestamps</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="n">flat_proba</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span>
+        <span class="n">df_predictions</span><span class="p">[</span><span class="n">pred_proba_colname</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="n">window_length</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Step 2: Create a DataFrame for expanded data</span>
+    <span class="n">expanded_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">:</span> <span class="n">flat_timestamps</span><span class="p">,</span>
+        <span class="n">pred_proba_colname</span><span class="p">:</span> <span class="n">flat_proba</span>
+    <span class="p">})</span>
+
+    <span class="c1"># Step 3: Round timestamps and aggregate probabilities</span>
+    <span class="n">expanded_df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">=</span> <span class="n">expanded_df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">mean_proba</span> <span class="o">=</span> <span class="n">expanded_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+    <span class="c1"># Step 4: Round timestamps in `df_ts` and merge</span>
+    <span class="n">df_ts</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_ts</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">df_ts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_ts</span><span class="p">,</span> <span class="n">mean_proba</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">)</span>
+    <span class="n">df_ts</span> <span class="o">=</span> <span class="n">df_ts</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="n">pred_proba_colname</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">df_ts</span></div>
 
 </pre></div>
 
@@ -163,7 +564,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Peter Kok, Vedran Kasalica, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Luc Evers.</p>
+    <p>&#169; Copyright 2023, Erik Post, Kars Veldkamp, Nienke Timmermans, Peter Kok, Vedran Kasalica, Diogo Coutinho Soriano, Luc Evers.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

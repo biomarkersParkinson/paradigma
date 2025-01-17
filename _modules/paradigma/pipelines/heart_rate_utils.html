@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>paradigma.pipelines.heart_rate_utils &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/data_preparation.html">Data Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/heart_rate_analysis.html">Heart rate analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">paradigma.pipelines.heart_rate_utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for paradigma.pipelines.heart_rate_utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">signal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">HeartRateConfig</span>
+
+
+<div class="viewcode-block" id="assign_sqa_label">
+<a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.assign_sqa_label">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">assign_sqa_label</span><span class="p">(</span>
+        <span class="n">ppg_prob</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
+        <span class="n">config</span><span class="p">:</span> <span class="n">HeartRateConfig</span><span class="p">,</span> 
+        <span class="n">acc_label</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Assigns a signal quality label to every individual data point.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ppg_prob : np.ndarray</span>
+<span class="sd">        The probabilities for PPG.</span>
+<span class="sd">    config : HeartRateConfig</span>
+<span class="sd">        The configuration parameters.</span>
+<span class="sd">    acc_label : np.ndarray, optional</span>
+<span class="sd">        The labels for the accelerometer.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        The signal quality assessment labels.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Default _label to ones if not provided</span>
+    <span class="k">if</span> <span class="n">acc_label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">acc_label</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ppg_prob</span><span class="p">))</span>
+
+    <span class="c1"># Number of samples in an epoch</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span>
+    <span class="n">samples_per_epoch</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span> <span class="o">*</span> <span class="n">fs</span>
+
+    <span class="c1"># Calculate number of samples to shift for each epoch</span>
+    <span class="n">samples_shift</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">window_step_length_s</span> <span class="o">*</span> <span class="n">fs</span>
+    <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ppg_prob</span><span class="p">)</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">window_overlap_s</span><span class="p">)</span> <span class="o">*</span> <span class="n">fs</span><span class="p">)</span>
+    <span class="n">data_prob</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_samples</span><span class="p">)</span>
+    <span class="n">data_label_imu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_samples</span><span class="p">):</span>
+        <span class="c1"># Start and end indices for current epoch</span>
+        <span class="n">start_idx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">((</span><span class="n">i</span> <span class="o">-</span> <span class="p">(</span><span class="n">samples_per_epoch</span> <span class="o">-</span> <span class="n">samples_shift</span><span class="p">))</span> <span class="o">//</span> <span class="n">fs</span><span class="p">))</span> <span class="c1"># max to handle first epochs</span>
+        <span class="n">end_idx</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span> <span class="o">//</span> <span class="n">fs</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">ppg_prob</span><span class="p">))</span>  <span class="c1"># min to handle last epochs  </span>
+
+        <span class="c1"># Extract probabilities and labels for the current epoch</span>
+        <span class="n">prob</span> <span class="o">=</span> <span class="n">ppg_prob</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">label_imu</span> <span class="o">=</span> <span class="n">acc_label</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Calculate mean probability and majority voting for labels</span>
+        <span class="n">data_prob</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">prob</span><span class="p">)</span>
+        <span class="n">data_label_imu</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">label_imu</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mf">0.5</span><span class="p">)</span>
+
+    <span class="c1"># Set probability to zero if majority IMU label is 0</span>
+    <span class="n">data_prob</span><span class="p">[</span><span class="n">data_label_imu</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">sqa_label</span> <span class="o">=</span> <span class="n">data_prob</span> <span class="o">&gt;=</span> <span class="n">config</span><span class="o">.</span><span class="n">threshold_sqa</span>
+
+    <span class="k">return</span> <span class="n">sqa_label</span></div>
+
+
+
+<div class="viewcode-block" id="extract_hr_segments">
+<a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.extract_hr_segments">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_hr_segments</span><span class="p">(</span><span class="n">sqa_label</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">min_hr_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts heart rate segments based on the SQA label.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sqa_label : np.ndarray</span>
+<span class="sd">        The signal quality assessment label.</span>
+<span class="sd">    min_hr_samples : int</span>
+<span class="sd">        The minimum number of samples required for a heart rate segment.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Tuple[v_start_idx_long, v_end_idx_long]</span>
+<span class="sd">        The start and end indices of the heart rate segments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Find the start and end indices of the heart rate segments</span>
+    <span class="n">v_start_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">sqa_label</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">v_end_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">sqa_label</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="c1"># Check if the first segment is a start or end</span>
+    <span class="k">if</span> <span class="n">sqa_label</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">v_start_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">v_start_idx</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sqa_label</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">v_end_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v_end_idx</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">sqa_label</span><span class="p">))</span>
+
+    <span class="c1"># Check if the segments are long enough</span>
+    <span class="n">v_start_idx_long</span> <span class="o">=</span> <span class="n">v_start_idx</span><span class="p">[(</span><span class="n">v_end_idx</span> <span class="o">-</span> <span class="n">v_start_idx</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_hr_samples</span><span class="p">]</span>
+    <span class="n">v_end_idx_long</span> <span class="o">=</span> <span class="n">v_end_idx</span><span class="p">[(</span><span class="n">v_end_idx</span> <span class="o">-</span> <span class="n">v_start_idx</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_hr_samples</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">v_start_idx_long</span><span class="p">,</span> <span class="n">v_end_idx_long</span></div>
+
+
+
+<div class="viewcode-block" id="extract_hr_from_segment">
+<a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.extract_hr_from_segment">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_hr_from_segment</span><span class="p">(</span>
+        <span class="n">ppg</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
+        <span class="n">tfd_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
+        <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
+        <span class="n">kern_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+        <span class="n">kern_params</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts heart rate from the time-frequency distribution of the PPG signal.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ppg : np.ndarray</span>
+<span class="sd">        The preprocessed PPG segment with 2 seconds of padding on both sides to reduce boundary effects.</span>
+<span class="sd">    tfd_length : int</span>
+<span class="sd">        Length of each segment (in seconds) to calculate the time-frequency distribution.</span>
+<span class="sd">    fs : int</span>
+<span class="sd">        The sampling frequency of the PPG signal.</span>
+<span class="sd">    kern_type : str</span>
+<span class="sd">        Type of TFD kernel to use (e.g., &#39;wvd&#39; for Wigner-Ville distribution).</span>
+<span class="sd">    kern_params : dict</span>
+<span class="sd">        Parameters for the specified kernel. Not required for &#39;wvd&#39;, but relevant for other </span>
+<span class="sd">        kernels like &#39;spwvd&#39; or &#39;swvd&#39;. Default is None.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        The estimated heart rate.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Constants to handle boundary effects</span>
+    <span class="n">edge_padding</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">fs</span>  <span class="c1"># Additional 4 seconds (2 seconds on both sides)</span>
+    <span class="n">tfd_length</span> <span class="o">=</span> <span class="n">tfd_length</span> <span class="o">*</span> <span class="n">fs</span>  <span class="c1"># Convert tfd_length to samples</span>
+
+    <span class="c1"># Calculate the actual segment length without padding</span>
+    <span class="n">original_segment_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ppg</span><span class="p">)</span> <span class="o">-</span> <span class="n">edge_padding</span>
+
+    <span class="c1"># Determine the number of tfd_length-second segments</span>
+    <span class="n">num_segments</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">original_segment_length</span> <span class="o">//</span> <span class="n">tfd_length</span><span class="p">))</span>
+
+    <span class="c1"># Split the PPG signal into segments</span>
+    <span class="n">ppg_segments</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_segments</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">num_segments</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># For all segments except the last</span>
+            <span class="n">start_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="n">tfd_length</span><span class="p">)</span>
+            <span class="n">end_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">tfd_length</span> <span class="o">+</span> <span class="n">edge_padding</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># For the last segment</span>
+            <span class="n">start_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="n">tfd_length</span><span class="p">)</span>
+            <span class="n">end_idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ppg</span><span class="p">)</span>
+        <span class="n">ppg_segments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ppg</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">])</span>
+
+    <span class="n">hr_est_from_ppg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+    <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">ppg_segments</span><span class="p">:</span>
+        <span class="c1"># Calculate the time-frequency distribution</span>
+        <span class="n">hr_tfd</span> <span class="o">=</span> <span class="n">extract_hr_with_tfd</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">kern_type</span><span class="p">,</span> <span class="n">kern_params</span><span class="p">)</span>
+        <span class="n">hr_est_from_ppg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">hr_est_from_ppg</span><span class="p">,</span> <span class="n">hr_tfd</span><span class="p">))</span> 
+
+    <span class="k">return</span> <span class="n">hr_est_from_ppg</span></div>
+
+
+
+<div class="viewcode-block" id="extract_hr_with_tfd">
+<a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.extract_hr_with_tfd">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_hr_with_tfd</span><span class="p">(</span>
+        <span class="n">ppg</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
+        <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
+        <span class="n">kern_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+        <span class="n">kern_params</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Estimate heart rate (HR) from a PPG segment using a TFD method with optional </span>
+<span class="sd">    moving average filtering.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ppg_segment : array-like</span>
+<span class="sd">        Segment of the PPG signal to process.</span>
+<span class="sd">    fs : int</span>
+<span class="sd">        Sampling frequency in Hz.</span>
+<span class="sd">    kern_type : str</span>
+<span class="sd">        Type of TFD kernel to use.</span>
+<span class="sd">    kern_params : dict</span>
+<span class="sd">        Parameters for the specified kernel.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    hr_smooth_tfd : np.ndarray</span>
+<span class="sd">        Estimated HR values (in beats per minute) for each 2-second segment of the PPG signal.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Generate the TFD matrix using the specified kernel</span>
+    <span class="n">tfd_obj</span> <span class="o">=</span> <span class="n">TimeFreqDistr</span><span class="p">()</span>
+    <span class="n">tfd</span> <span class="o">=</span> <span class="n">tfd_obj</span><span class="o">.</span><span class="n">nonsep_gdtfd</span><span class="p">(</span><span class="n">ppg</span><span class="p">,</span> <span class="n">kern_type</span><span class="p">,</span> <span class="n">kern_params</span><span class="p">)</span>  <span class="c1"># Returns an NxN matrix</span>
+
+    <span class="c1"># Get time and frequency axes for the TFD</span>
+    <span class="n">num_time_samples</span><span class="p">,</span> <span class="n">num_freq_bins</span> <span class="o">=</span> <span class="n">tfd</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">time_axis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_time_samples</span><span class="p">)</span> <span class="o">/</span> <span class="n">fs</span>
+    <span class="n">freq_axis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">num_freq_bins</span><span class="p">)</span> <span class="o">*</span> <span class="n">fs</span>
+
+    <span class="c1"># Estimate HR by identifying the max frequency in the TFD</span>
+    <span class="n">max_freq_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">tfd</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">hr_smooth_tfd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ppg</span><span class="p">)</span> <span class="o">/</span> <span class="n">fs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>  <span class="c1"># Skip the first and last 2 seconds, add 1 to include the last segment</span>
+        <span class="n">relevant_indices</span> <span class="o">=</span> <span class="p">(</span><span class="n">time_axis</span> <span class="o">&gt;=</span> <span class="n">i</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">time_axis</span> <span class="o">&lt;</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">avg_frequency</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">freq_axis</span><span class="p">[</span><span class="n">max_freq_indices</span><span class="p">[</span><span class="n">relevant_indices</span><span class="p">]])</span>
+        <span class="n">hr_smooth_tfd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">hr_smooth_tfd</span><span class="p">,</span> <span class="p">[</span><span class="mi">60</span> <span class="o">*</span> <span class="n">avg_frequency</span><span class="p">]))</span>  <span class="c1"># Convert frequency to BPM</span>
+
+    <span class="k">return</span> <span class="n">hr_smooth_tfd</span></div>
+
+
+
+<div class="viewcode-block" id="TimeFreqDistr">
+<a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TimeFreqDistr</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This module contains the implementation of the Generalized Time-Frequency Distribution (TFD) computation using non-separable kernels.</span>
+<span class="sd">        This is a Python implementation of the MATLAB code provided by John O Toole in the following repository: https://github.com/otoolej/memeff_TFDs </span>
+
+<span class="sd">        The following functions are implemented for the computation of the TFD:</span>
+<span class="sd">            - nonsep_gdtfd: Computes the generalized time-frequency distribution using a non-separable kernel.</span>
+<span class="sd">            - get_analytic_signal: Generates the analytic signal of the input signal.</span>
+<span class="sd">            - gen_analytic: Generates the analytic signal by zero-padding and performing FFT.</span>
+<span class="sd">            - gen_time_lag: Generates the time-lag distribution of the analytic signal.</span>
+<span class="sd">            - multiply_kernel_signal: Multiplies the TFD by the Doppler-lag kernel.</span>
+<span class="sd">            - gen_doppler_lag_kern: Generates the Doppler-lag kernel based on kernel type and parameters.</span>
+<span class="sd">            - get_kern: Gets the kernel based on the provided kernel type.</span>
+<span class="sd">            - get_window: General function to calculate a window function.</span>
+<span class="sd">            - get_win: Helper function to create the specified window type.</span>
+<span class="sd">            - shift_window: Shifts the window so that positive indices appear first.</span>
+<span class="sd">            - pad_window: Zero-pads the window to a specified length.</span>
+<span class="sd">            - compute_tfd: Finalizes the time-frequency distribution computation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>	
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="TimeFreqDistr.nonsep_gdtfd">
+<a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr.nonsep_gdtfd">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">nonsep_gdtfd</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
+            <span class="n">kern_type</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">kern_params</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the generalized time-frequency distribution (TFD) using a non-separable kernel.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        -----------</span>
+<span class="sd">        x : ndarray</span>
+<span class="sd">            Input signal to be analyzed.</span>
+<span class="sd">        kern_type : str, optional</span>
+<span class="sd">            Type of kernel to be used for TFD computation. Default is None.</span>
+<span class="sd">            Currently supported kernels are:</span>
+<span class="sd">                wvd  - kernel for Wigner-Ville distribution</span>
+<span class="sd">                swvd - kernel for smoothed Wigner-Ville distribution</span>
+<span class="sd">                    (lag-independent kernel)</span>
+<span class="sd">                pwvd - kernel for pseudo Wigner-Ville distribution</span>
+<span class="sd">                    (Doppler-independent kernel)</span>
+<span class="sd">                sep  - kernel for separable kernel (combintation of SWVD and PWVD)</span>
+
+<span class="sd">        kern_params : dict, optional</span>
+<span class="sd">            Dictionary of parameters specific to the kernel type. Default is None.</span>
+<span class="sd">            The structure of the dictionary depends on the selected kernel type:</span>
+<span class="sd">                - wvd:</span>
+<span class="sd">                An empty dictionary, as no additional parameters are required.</span>
+<span class="sd">                - swvd:</span>
+<span class="sd">                Dictionary with the following keys:</span>
+<span class="sd">                    &#39;win_length&#39;: Length of the smoothing window.</span>
+<span class="sd">                    &#39;win_type&#39;: Type of window function (e.g., &#39;hamm&#39;, &#39;hann&#39;).</span>
+<span class="sd">                    &#39;win_param&#39; (optional): Additional parameters for the window.</span>
+<span class="sd">                    &#39;win_param2&#39; (optional): 0 for time-domain window or 1 for Doppler-domain window.</span>
+
+<span class="sd">            Example:</span>
+<span class="sd">            ```python</span>
+<span class="sd">            kern_params = {</span>
+<span class="sd">                &#39;win_length&#39;: 11,</span>
+<span class="sd">                &#39;win_type&#39;: &#39;hamm&#39;,</span>
+<span class="sd">                &#39;win_param&#39;: 0,</span>
+<span class="sd">                &#39;domain&#39;: 1</span>
+<span class="sd">            }</span>
+<span class="sd">            ```</span>
+<span class="sd">            - pwvd:</span>
+<span class="sd">            Dictionary with the following keys:</span>
+<span class="sd">                &#39;win_length&#39;: Length of the smoothing window.</span>
+<span class="sd">                &#39;win_type&#39;: Type of window function (e.g., &#39;cosh&#39;).</span>
+<span class="sd">                &#39;win_param&#39; (optional): Additional parameters for the window.</span>
+<span class="sd">                &#39;win_param2&#39; (optional): 0 for time-domain window or 1 for Doppler-domain window.</span>
+<span class="sd">            Example:</span>
+<span class="sd">            ```python</span>
+<span class="sd">            kern_params = {</span>
+<span class="sd">                &#39;win_length&#39;: 200,</span>
+<span class="sd">                &#39;win_type&#39;: &#39;cosh&#39;,</span>
+<span class="sd">                &#39;win_param&#39;: 0.1</span>
+<span class="sd">            }</span>
+<span class="sd">            ```</span>
+<span class="sd">            - sep:</span>
+<span class="sd">            Dictionary containing two nested dictionaries, one for the Doppler window and one for the lag window:</span>
+<span class="sd">                &#39;doppler&#39;: {</span>
+<span class="sd">                    &#39;win_length&#39;: Length of the Doppler-domain window.</span>
+<span class="sd">                    &#39;win_type&#39;: Type of Doppler-domain window function.</span>
+<span class="sd">                    &#39;win_param&#39; (optional): Additional parameters for the Doppler window.</span>
+<span class="sd">                    &#39;win_param2&#39; (optional): 0 for time-domain window or 1 for Doppler-domain window.</span>
+<span class="sd">                }</span>
+<span class="sd">                &#39;lag&#39;: {</span>
+<span class="sd">                    &#39;win_length&#39;: Length of the lag-domain window.</span>
+<span class="sd">                    &#39;win_type&#39;: Type of lag-domain window function.</span>
+<span class="sd">                    &#39;win_param&#39; (optional): Additional parameters for the lag window.</span>
+<span class="sd">                    &#39;win_param2&#39; (optional): 0 for time-domain window or 1 for Doppler-domain window.</span>
+<span class="sd">                }</span>
+<span class="sd">            Example:</span>
+<span class="sd">            ```python</span>
+<span class="sd">            kern_params = {</span>
+<span class="sd">                &#39;doppler&#39;: {</span>
+<span class="sd">                    &#39;win_length&#39;: doppler_samples,</span>
+<span class="sd">                    &#39;win_type&#39;: win_type_doppler,</span>
+<span class="sd">                },</span>
+<span class="sd">                &#39;lag&#39;: {</span>
+<span class="sd">                    &#39;win_length&#39;: lag_samples,</span>
+<span class="sd">                    &#39;win_type&#39;: win_type_lag,</span>
+<span class="sd">                }</span>
+<span class="sd">            }</span>
+<span class="sd">            ```</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        --------</span>
+<span class="sd">        tfd : ndarray</span>
+<span class="sd">            The computed time-frequency distribution.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_analytic_signal</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>  <span class="c1"># Since z is a signal of length 2N</span>
+        <span class="n">Nh</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">N</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+
+        <span class="c1"># Generate the time-lag distribution of the analytic signal</span>
+        <span class="n">tfd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_time_lag</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+
+        <span class="c1"># Multiply the TFD by the Doppler-lag kernel</span>
+        <span class="n">tfd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiply_kernel_signal</span><span class="p">(</span><span class="n">tfd</span><span class="p">,</span> <span class="n">kern_type</span><span class="p">,</span> <span class="n">kern_params</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">Nh</span><span class="p">)</span>
+        
+        <span class="c1"># Finalize the TFD computation</span>
+        <span class="n">tfd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_tfd</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">Nh</span><span class="p">,</span> <span class="n">tfd</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">tfd</span></div>
+
+
+<div class="viewcode-block" id="TimeFreqDistr.get_analytic_signal">
+<a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr.get_analytic_signal">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_analytic_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates the signals analytic version.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        -----------</span>
+<span class="sd">        z : ndarray</span>
+<span class="sd">            Input real-valued signal.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        --------</span>
+<span class="sd">        z : ndarray</span>
+<span class="sd">            Analytic signal with zero-padded imaginary part.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="c1"># Ensure the signal length is even by trimming one sample if odd, since the gen_time_lag function requires an even-length signal</span>
+        <span class="k">if</span> <span class="n">N</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Make the analytical signal of the real-valued signal z (preprocessed PPG signal)</span>
+        <span class="c1"># doesn&#39;t work for input of complex numbers</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_analytic</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  
+        
+        <span class="k">return</span> <span class="n">z</span></div>
+
+
+<div class="viewcode-block" id="TimeFreqDistr.gen_analytic">
+<a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr.gen_analytic">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gen_analytic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates an analytic signal by zero-padding and performing FFT.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        -----------</span>
+<span class="sd">        x : ndarray</span>
+<span class="sd">            Input real-valued signal.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        --------</span>
+<span class="sd">        z : ndarray</span>
+<span class="sd">            Analytic signal in the time domain with zeroed second half.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        
+        <span class="c1"># Zero-pad the signal to double its length</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">)))</span>
+        <span class="n">x_fft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="c1"># Generate the analytic signal in the frequency domain</span>
+        <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span> <span class="c1"># Preallocate an array of size 2*N</span>
+        <span class="n">H</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># First element</span>
+        <span class="n">H</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">N</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span> <span class="c1"># Next N-1 elements</span>
+        <span class="n">H</span><span class="p">[</span><span class="n">N</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># Middle element</span>
+        <span class="n">H</span><span class="p">[</span><span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># Last N-1 elements</span>
+        <span class="n">z_cb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">x_fft</span> <span class="o">*</span> <span class="n">H</span><span class="p">)</span>
+
+        <span class="c1"># Force the second half of the time-domain signal to zero</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">z_cb</span><span class="p">[:</span><span class="n">N</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">)))</span>
+
+        <span class="k">return</span> <span class="n">z</span></div>
+
+
+<div class="viewcode-block" id="TimeFreqDistr.gen_time_lag">
+<a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr.gen_time_lag">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gen_time_lag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate the time-lag distribution of the analytic signal z.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        -----------</span>
+<span class="sd">        z : ndarray</span>
+<span class="sd">            Analytic signal of the input signal x.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        --------</span>
+<span class="sd">        tfd : ndarray</span>
+<span class="sd">            Time-lag distribution of the analytic signal z.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>  <span class="c1"># Assuming z is a signal of length 2N</span>
+        <span class="n">Nh</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">N</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+
+        <span class="c1"># Initialize the time-frequency distribution (TFD) matrix</span>
+        <span class="n">tfd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+
+        <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">Nh</span><span class="p">)</span>
+        
+        <span class="c1"># Loop over time indices</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+            <span class="n">inp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="n">m</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span>
+            <span class="n">inn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="n">m</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span>
+
+            <span class="c1"># Extract the time slice from the analytic signal</span>
+            <span class="n">K_time_slice</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="n">inp</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">inn</span><span class="p">])</span>
+
+            <span class="c1"># Store real and imaginary parts</span>
+            <span class="n">tfd</span><span class="p">[</span><span class="n">n</span><span class="p">,</span> <span class="p">:</span><span class="n">Nh</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">K_time_slice</span><span class="p">)</span>
+            <span class="n">tfd</span><span class="p">[</span><span class="n">n</span><span class="p">,</span> <span class="n">Nh</span><span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">K_time_slice</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">tfd</span></div>
+
+
+<div class="viewcode-block" id="TimeFreqDistr.multiply_kernel_signal">
+<a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr.multiply_kernel_signal">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">multiply_kernel_signal</span><span class="p">(</span>  
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">tfd</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
+        <span class="n">kern_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+        <span class="n">kern_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> 
+        <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
+        <span class="n">Nh</span><span class="p">:</span> <span class="nb">int</span>  
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>  
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Multiplies the TFD by the Doppler-lag kernel.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        -----------</span>
+<span class="sd">        tfd : ndarray</span>
+<span class="sd">            Time-frequency distribution.</span>
+<span class="sd">        kern_type : str</span>
+<span class="sd">            Kernel type to be applied.</span>
+<span class="sd">        kern_params : dict</span>
+<span class="sd">            Kernel parameters specific to the kernel type.</span>
+<span class="sd">        N : int</span>
+<span class="sd">            Length of the signal.</span>
+<span class="sd">        Nh : int</span>
+<span class="sd">            Half length of the signal.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        --------</span>
+<span class="sd">        tfd : ndarray</span>
+<span class="sd">            Modified TFD after kernel multiplication.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Loop over lag indices</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nh</span><span class="p">):</span>
+            <span class="c1"># Generate the Doppler-lag kernel for each lag index</span>
+            <span class="n">g_lag_slice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_doppler_lag_kern</span><span class="p">(</span><span class="n">kern_type</span><span class="p">,</span> <span class="n">kern_params</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+            
+            <span class="c1"># Extract and transform the TFD slice for this lag</span>
+            <span class="n">tfd_slice</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">tfd</span><span class="p">[:,</span> <span class="n">m</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">tfd</span><span class="p">[:,</span> <span class="n">Nh</span> <span class="o">+</span> <span class="n">m</span><span class="p">])</span>
+            
+            <span class="c1"># Multiply by the kernel and perform inverse FFT</span>
+            <span class="n">R_lag_slice</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">tfd_slice</span> <span class="o">*</span> <span class="n">g_lag_slice</span><span class="p">)</span>
+            
+            <span class="c1"># Store real and imaginary parts back into the TFD</span>
+            <span class="n">tfd</span><span class="p">[:,</span> <span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">R_lag_slice</span><span class="p">)</span>
+            <span class="n">tfd</span><span class="p">[:,</span> <span class="n">Nh</span> <span class="o">+</span> <span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">R_lag_slice</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">tfd</span></div>
+
+
+<div class="viewcode-block" id="TimeFreqDistr.gen_doppler_lag_kern">
+<a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr.gen_doppler_lag_kern">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gen_doppler_lag_kern</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> 
+            <span class="n">kern_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+            <span class="n">kern_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> 
+            <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
+            <span class="n">lag_index</span><span class="p">:</span> <span class="nb">int</span>
+        <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate the Doppler-lag kernel based on kernel type and parameters.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        -----------</span>
+<span class="sd">        kern_type : str</span>
+<span class="sd">            Type of kernel (e.g., &#39;wvd&#39;, &#39;swvd&#39;, &#39;pwvd&#39;, etc.).</span>
+<span class="sd">        kern_params : dict</span>
+<span class="sd">            Parameters for the kernel.</span>
+<span class="sd">        N : int</span>
+<span class="sd">            Signal length.</span>
+<span class="sd">        lag_index : int</span>
+<span class="sd">            Current lag index.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        --------</span>
+<span class="sd">        g : ndarray</span>
+<span class="sd">            Doppler-lag kernel for the given lag.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>  <span class="c1"># Initialize the kernel</span>
+
+        <span class="c1"># Get kernel based on the type</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kern</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">lag_index</span><span class="p">,</span> <span class="n">kern_type</span><span class="p">,</span> <span class="n">kern_params</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">g</span><span class="p">)</span> <span class="c1"># All kernels are real valued</span></div>
+
+
+<div class="viewcode-block" id="TimeFreqDistr.get_kern">
+<a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr.get_kern">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_kern</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> 
+            <span class="n">g</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
+            <span class="n">lag_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
+            <span class="n">kern_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+            <span class="n">kern_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> 
+            <span class="n">N</span><span class="p">:</span> <span class="nb">int</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the kernel based on the provided kernel type.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        -----------</span>
+<span class="sd">        g : ndarray</span>
+<span class="sd">            Kernel to be filled.</span>
+<span class="sd">        lag_index : int</span>
+<span class="sd">            Lag index for the kernel.</span>
+<span class="sd">        kern_type : str</span>
+<span class="sd">            Type of kernel to use (now included: &#39;wvd&#39;, &#39;swvd&#39;, &#39;pwvd&#39;, &#39;sep&#39;).</span>
+<span class="sd">        kern_params : dict</span>
+<span class="sd">            Parameters for the specified kernel.</span>
+<span class="sd">        N : int</span>
+<span class="sd">            Signal length.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        --------</span>
+<span class="sd">        g : ndarray</span>
+<span class="sd">            Kernel function at the current lag.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Validate kern_type</span>
+        <span class="n">valid_kern_types</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;wvd&#39;</span><span class="p">,</span> <span class="s1">&#39;sep&#39;</span><span class="p">,</span> <span class="s1">&#39;swvd&#39;</span><span class="p">,</span> <span class="s1">&#39;pwvd&#39;</span><span class="p">]</span>  <span class="c1"># List of valid kernel types which are currently supported</span>
+        <span class="k">if</span> <span class="n">kern_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_kern_types</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown kernel type: </span><span class="si">{</span><span class="n">kern_type</span><span class="si">}</span><span class="s2">. Expected one of </span><span class="si">{</span><span class="n">valid_kern_types</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="n">num_params</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">kern_params</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">kern_type</span> <span class="o">==</span> <span class="s1">&#39;wvd&#39;</span><span class="p">:</span>
+            <span class="n">g</span><span class="p">[:]</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># WVD kernel is the equal to 1 for all lags</span>
+
+        <span class="k">elif</span> <span class="n">kern_type</span> <span class="o">==</span> <span class="s1">&#39;sep&#39;</span><span class="p">:</span>
+            <span class="c1"># Separable Kernel</span>
+            <span class="n">g1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>  <span class="c1"># Create a new array for g1</span>
+            <span class="n">g2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>  <span class="c1"># Create a new array for g2</span>
+            
+            <span class="c1"># Call recursively to obtain g1 and g2 kernels (no in-place modification of g)</span>
+            <span class="n">g1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kern</span><span class="p">(</span><span class="n">g1</span><span class="p">,</span> <span class="n">lag_index</span><span class="p">,</span> <span class="s1">&#39;swvd&#39;</span><span class="p">,</span> <span class="n">kern_params</span><span class="p">[</span><span class="s1">&#39;lag&#39;</span><span class="p">],</span> <span class="n">N</span><span class="p">)</span> <span class="c1"># Generate the first kernel</span>
+            <span class="n">g2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kern</span><span class="p">(</span><span class="n">g2</span><span class="p">,</span> <span class="n">lag_index</span><span class="p">,</span> <span class="s1">&#39;pwvd&#39;</span><span class="p">,</span> <span class="n">kern_params</span><span class="p">[</span><span class="s1">&#39;doppler&#39;</span><span class="p">],</span> <span class="n">N</span><span class="p">)</span> <span class="c1"># Generate the second kernel</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="n">g1</span> <span class="o">*</span> <span class="n">g2</span> <span class="c1"># Multiply the two kernels to obtain the separable kernel</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">num_params</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Missing required kernel parameters: &#39;win_length&#39; and &#39;win_type&#39;&quot;</span><span class="p">)</span>
+
+            <span class="n">win_length</span> <span class="o">=</span> <span class="n">kern_params</span><span class="p">[</span><span class="s1">&#39;win_length&#39;</span><span class="p">]</span>
+            <span class="n">win_type</span> <span class="o">=</span> <span class="n">kern_params</span><span class="p">[</span><span class="s1">&#39;win_type&#39;</span><span class="p">]</span>
+            <span class="n">win_param</span> <span class="o">=</span> <span class="n">kern_params</span><span class="p">[</span><span class="s1">&#39;win_param&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;win_param&#39;</span> <span class="ow">in</span> <span class="n">kern_params</span> <span class="k">else</span> <span class="mi">0</span>
+            <span class="n">win_param2</span> <span class="o">=</span> <span class="n">kern_params</span><span class="p">[</span><span class="s1">&#39;win_param2&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;win_param2&#39;</span> <span class="ow">in</span> <span class="n">kern_params</span> <span class="k">else</span> <span class="mi">1</span>
+
+            <span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_window</span><span class="p">(</span><span class="n">win_length</span><span class="p">,</span> <span class="n">win_type</span><span class="p">,</span> <span class="n">win_param</span><span class="p">)</span>
+            <span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pad_window</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">kern_type</span> <span class="o">==</span> <span class="s1">&#39;swvd&#39;</span> <span class="ow">and</span> <span class="n">win_param2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">G</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">G</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># add this check to avoid division by zero</span>
+                    <span class="n">G</span> <span class="o">/=</span> <span class="n">G</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">G</span> <span class="o">=</span> <span class="n">G</span><span class="p">[</span><span class="n">lag_index</span><span class="p">]</span>
+
+            <span class="n">g</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">G</span>
+
+        <span class="k">return</span> <span class="n">g</span></div>
+
+
+<div class="viewcode-block" id="TimeFreqDistr.get_window">
+<a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr.get_window">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_window</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> 
+            <span class="n">win_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
+            <span class="n">win_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">win_param</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">dft_window</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">Npad</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        General function to calculate a window function.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        -----------</span>
+<span class="sd">        win_length : int</span>
+<span class="sd">            Length of the window.</span>
+<span class="sd">        win_type : str</span>
+<span class="sd">            Type of window. Options are:</span>
+<span class="sd">            {&#39;delta&#39;, &#39;rect&#39;, &#39;hamm&#39;|&#39;hamming&#39;, &#39;hann&#39;|&#39;hanning&#39;, &#39;gauss&#39;, &#39;cosh&#39;}.</span>
+<span class="sd">        win_param : float, optional</span>
+<span class="sd">            Window parameter (e.g., alpha for Gaussian window). Default is None.</span>
+<span class="sd">        dft_window : bool, optional</span>
+<span class="sd">            If True, returns the DFT of the window. Default is False.</span>
+<span class="sd">        Npad : int, optional</span>
+<span class="sd">            If greater than 0, zero-pads the window to length Npad. Default is 0.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        --------</span>
+<span class="sd">        win : ndarray</span>
+<span class="sd">            The calculated window (or its DFT if dft_window is True).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="c1"># Get the window</span>
+        <span class="n">win</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_win</span><span class="p">(</span><span class="n">win_length</span><span class="p">,</span> <span class="n">win_type</span><span class="p">,</span> <span class="n">win_param</span><span class="p">,</span> <span class="n">dft_window</span><span class="p">)</span>
+        
+        <span class="c1"># Shift the window so that positive indices are first</span>
+        <span class="n">win</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shift_window</span><span class="p">(</span><span class="n">win</span><span class="p">)</span>
+        
+        <span class="c1"># Zero-pad the window to length Npad if necessary</span>
+        <span class="k">if</span> <span class="n">Npad</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">win</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pad_window</span><span class="p">(</span><span class="n">win</span><span class="p">,</span> <span class="n">Npad</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">win</span></div>
+
+
+<div class="viewcode-block" id="TimeFreqDistr.get_win">
+<a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr.get_win">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_win</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> 
+            <span class="n">win_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
+            <span class="n">win_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+            <span class="n">win_param</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+            <span class="n">dft_window</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function to create the specified window type.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        -----------</span>
+<span class="sd">        win_length : int</span>
+<span class="sd">            Length of the window.</span>
+<span class="sd">        win_type : str</span>
+<span class="sd">            Type of window.</span>
+<span class="sd">        win_param : float, optional</span>
+<span class="sd">            Additional parameter for certain window types (e.g., Gaussian alpha). Default is None.</span>
+<span class="sd">        dft_window : bool, optional</span>
+<span class="sd">            If True, returns the DFT of the window. Default is False.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        --------</span>
+<span class="sd">        win : ndarray</span>
+<span class="sd">            The created window (or its DFT if dft_window is True).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">win_type</span> <span class="o">==</span> <span class="s1">&#39;delta&#39;</span><span class="p">:</span>
+            <span class="n">win</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">win_length</span><span class="p">)</span>
+            <span class="n">win</span><span class="p">[</span><span class="n">win_length</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">win_type</span> <span class="o">==</span> <span class="s1">&#39;rect&#39;</span><span class="p">:</span>
+            <span class="n">win</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">win_length</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">win_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;hamm&#39;</span><span class="p">,</span> <span class="s1">&#39;hamming&#39;</span><span class="p">]:</span>
+            <span class="n">win</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">windows</span><span class="o">.</span><span class="n">hamming</span><span class="p">(</span><span class="n">win_length</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">win_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;hann&#39;</span><span class="p">,</span> <span class="s1">&#39;hanning&#39;</span><span class="p">]:</span>
+            <span class="n">win</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">windows</span><span class="o">.</span><span class="n">hann</span><span class="p">(</span><span class="n">win_length</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">win_type</span> <span class="o">==</span> <span class="s1">&#39;gauss&#39;</span><span class="p">:</span>
+            <span class="n">win</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">windows</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="n">win_length</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">win_param</span> <span class="k">if</span> <span class="n">win_param</span> <span class="k">else</span> <span class="mf">0.4</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">win_type</span> <span class="o">==</span> <span class="s1">&#39;cosh&#39;</span><span class="p">:</span>
+            <span class="n">win_hlf</span> <span class="o">=</span> <span class="n">win_length</span> <span class="o">//</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">win_param</span><span class="p">:</span>
+                <span class="n">win_param</span> <span class="o">=</span> <span class="mf">0.01</span>
+            <span class="n">win</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">cosh</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">win_param</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">win_hlf</span><span class="p">,</span> <span class="n">win_hlf</span><span class="o">+</span><span class="mi">1</span><span class="p">)])</span>
+            <span class="n">win</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">win</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown window type </span><span class="si">{</span><span class="n">win_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># If dft_window is True, return the DFT of the window</span>
+        <span class="k">if</span> <span class="n">dft_window</span><span class="p">:</span>
+            <span class="n">win</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">win</span><span class="p">,</span> <span class="n">win_length</span> <span class="o">//</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">win</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">win</span><span class="p">,</span> <span class="o">-</span><span class="n">win_length</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">win</span></div>
+
+
+<div class="viewcode-block" id="TimeFreqDistr.shift_window">
+<a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr.shift_window">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">shift_window</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Shift the window so that positive indices appear first.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        -----------</span>
+<span class="sd">        w : ndarray</span>
+<span class="sd">            Window to be shifted.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        --------</span>
+<span class="sd">        w_shifted : ndarray</span>
+<span class="sd">            Shifted window with positive indices first.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">N</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TimeFreqDistr.pad_window">
+<a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr.pad_window">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pad_window</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Npad</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Zero-pad the window to a specified length.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        -----------</span>
+<span class="sd">        w : ndarray</span>
+<span class="sd">            The original window.</span>
+<span class="sd">        Npad : int</span>
+<span class="sd">            Length to zero-pad the window to.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        --------</span>
+<span class="sd">        w_pad : ndarray</span>
+<span class="sd">            Zero-padded window of length Npad.</span>
+<span class="sd">        </span>
+<span class="sd">        Raises:</span>
+<span class="sd">        -------</span>
+<span class="sd">        ValueError:</span>
+<span class="sd">            If Npad is less than the original window length.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+        <span class="n">w_pad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Npad</span><span class="p">)</span>
+        <span class="n">Nh</span> <span class="o">=</span> <span class="n">N</span> <span class="o">//</span> <span class="mi">2</span>
+        
+        <span class="k">if</span> <span class="n">Npad</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Npad must be greater than or equal to the window length&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">N</span> <span class="o">==</span> <span class="n">Npad</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">w</span>
+        
+        <span class="k">if</span> <span class="n">N</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># For odd N</span>
+            <span class="n">w_pad</span><span class="p">[:</span><span class="n">Nh</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">w</span><span class="p">[:</span><span class="n">Nh</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">w_pad</span><span class="p">[</span><span class="o">-</span><span class="n">Nh</span><span class="p">:]</span> <span class="o">=</span> <span class="n">w</span><span class="p">[</span><span class="o">-</span><span class="n">Nh</span><span class="p">:]</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># For even N</span>
+            <span class="n">w_pad</span><span class="p">[:</span><span class="n">Nh</span><span class="p">]</span> <span class="o">=</span> <span class="n">w</span><span class="p">[:</span><span class="n">Nh</span><span class="p">]</span>
+            <span class="n">w_pad</span><span class="p">[</span><span class="n">Nh</span><span class="p">]</span> <span class="o">=</span> <span class="n">w</span><span class="p">[</span><span class="n">Nh</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">w_pad</span><span class="p">[</span><span class="o">-</span><span class="n">Nh</span><span class="p">:]</span> <span class="o">=</span> <span class="n">w</span><span class="p">[</span><span class="o">-</span><span class="n">Nh</span><span class="p">:]</span>
+            <span class="n">w_pad</span><span class="p">[</span><span class="o">-</span><span class="n">Nh</span><span class="p">]</span> <span class="o">=</span> <span class="n">w</span><span class="p">[</span><span class="n">Nh</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
+        
+        <span class="k">return</span> <span class="n">w_pad</span></div>
+
+
+<div class="viewcode-block" id="TimeFreqDistr.compute_tfd">
+<a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr.compute_tfd">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_tfd</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> 
+            <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
+            <span class="n">Nh</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
+            <span class="n">tfd</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+        <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Finalizes the time-frequency distribution computation.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        -----------</span>
+<span class="sd">        N : int</span>
+<span class="sd">            Size of the TFD.</span>
+<span class="sd">        Nh : int</span>
+<span class="sd">            Half-length parameter.</span>
+<span class="sd">        tfd : np.ndarray</span>
+<span class="sd">            Time-frequency distribution to be finalized.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        --------</span>
+<span class="sd">        tfd : np.ndarray</span>
+<span class="sd">            Final computed TFD (N,N).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Nh</span><span class="p">)</span>  <span class="c1"># m = 0:(Nh-1)</span>
+        <span class="n">mb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">Nh</span><span class="p">)</span>  <span class="c1"># mb = 1:(Nh-1)</span>
+
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>  <span class="c1"># for n=0:2:N-2</span>
+            <span class="n">R_even_half</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">(</span><span class="n">tfd</span><span class="p">[</span><span class="n">n</span><span class="p">,</span> <span class="p">:</span><span class="n">Nh</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">(</span><span class="n">tfd</span><span class="p">[</span><span class="n">n</span><span class="p">,</span> <span class="n">Nh</span><span class="p">:])</span>
+            <span class="n">R_odd_half</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">(</span><span class="n">tfd</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="p">:</span><span class="n">Nh</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">(</span><span class="n">tfd</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">Nh</span><span class="p">:])</span>
+
+            <span class="n">R_tslice_even</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>  
+            <span class="n">R_tslice_odd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>
+
+            <span class="n">R_tslice_even</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="n">R_even_half</span>
+            <span class="n">R_tslice_odd</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="n">R_odd_half</span>
+
+            <span class="n">R_tslice_even</span><span class="p">[</span><span class="n">N</span><span class="o">-</span><span class="n">mb</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">R_even_half</span><span class="p">[</span><span class="n">mb</span><span class="p">])</span>  
+            <span class="n">R_tslice_odd</span><span class="p">[</span><span class="n">N</span><span class="o">-</span><span class="n">mb</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">R_odd_half</span><span class="p">[</span><span class="n">mb</span><span class="p">])</span>
+            
+            <span class="c1"># Perform FFT to compute time slices</span>
+            <span class="n">tfd_time_slice</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">R_tslice_even</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">R_tslice_odd</span><span class="p">)</span>
+
+            <span class="n">tfd</span><span class="p">[</span><span class="n">n</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">tfd_time_slice</span><span class="p">)</span>
+            <span class="n">tfd</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">tfd_time_slice</span><span class="p">)</span>
+
+        <span class="n">tfd</span> <span class="o">=</span> <span class="n">tfd</span> <span class="o">/</span> <span class="n">N</span>  <span class="c1"># Normalize the TFD</span>
+        <span class="n">tfd</span> <span class="o">=</span> <span class="n">tfd</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>  <span class="c1"># Transpose the TFD to have the time on the x-axis and frequency on the y-axis   </span>
+        <span class="k">return</span> <span class="n">tfd</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Erik Post, Kars Veldkamp, Nienke Timmermans, Peter Kok, Vedran Kasalica, Diogo Coutinho Soriano, Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

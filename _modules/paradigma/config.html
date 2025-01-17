@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>paradigma.config &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/data_preparation.html">Data Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/heart_rate_analysis.html">Heart rate analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">paradigma.config</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for paradigma.config</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span><span class="p">,</span> <span class="n">DataUnits</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<div class="viewcode-block" id="BaseConfig">
+<a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.BaseConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseConfig</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta_filename</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">values_filename</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_filename</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+<div class="viewcode-block" id="BaseConfig.set_sensor">
+<a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.BaseConfig.set_sensor">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_sensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sensor</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the sensor and derived filenames&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sensor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">sensor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_filenames</span><span class="p">(</span><span class="n">sensor</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BaseConfig.set_filenames">
+<a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.BaseConfig.set_filenames">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_filenames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the filenames based on the prefix. This method is duplicated from `gaits_analysis_config.py`.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        prefix : str</span>
+<span class="sd">            The prefix for the filenames.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_meta.json&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_time.bin&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">values_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_values.bin&quot;</span></div>
+</div>
+
+
+<div class="viewcode-block" id="IMUConfig">
+<a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.IMUConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">IMUConfig</span><span class="p">(</span><span class="n">BaseConfig</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_filenames</span><span class="p">(</span><span class="s1">&#39;IMU&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">acceleration_units</span> <span class="o">=</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">ACCELERATION</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rotation_units</span> <span class="o">=</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">ROTATION</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">accelerometer_cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">,</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Y</span><span class="p">,</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Z</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gyroscope_cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_X</span><span class="p">,</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Y</span><span class="p">,</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Z</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gravity_cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GRAV_ACCELEROMETER_X</span><span class="p">,</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GRAV_ACCELEROMETER_Y</span><span class="p">,</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GRAV_ACCELEROMETER_Z</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_accelerometer</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">acceleration_units</span><span class="p">,</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Y</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">acceleration_units</span><span class="p">,</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Z</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">acceleration_units</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_gyroscope</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_X</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotation_units</span><span class="p">,</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Y</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotation_units</span><span class="p">,</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Z</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotation_units</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_imu</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">d_channels_accelerometer</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">d_channels_gyroscope</span><span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lower_cutoff_frequency</span> <span class="o">=</span> <span class="mf">0.2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">upper_cutoff_frequency</span> <span class="o">=</span> <span class="mf">3.5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filter_order</span> <span class="o">=</span> <span class="mi">4</span></div>
+
+
+
+<div class="viewcode-block" id="PPGConfig">
+<a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.PPGConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PPGConfig</span><span class="p">(</span><span class="n">BaseConfig</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_filenames</span><span class="p">(</span><span class="s1">&#39;PPG&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ppg_colname</span> <span class="o">=</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">PPG</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="mi">30</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lower_cutoff_frequency</span> <span class="o">=</span> <span class="mf">0.4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">upper_cutoff_frequency</span> <span class="o">=</span> <span class="mf">3.5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filter_order</span> <span class="o">=</span> <span class="mi">4</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_ppg</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">PPG</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">NONE</span>
+        <span class="p">}</span></div>
+
+
+
+<span class="c1"># Domain base configs</span>
+<div class="viewcode-block" id="GaitConfig">
+<a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.GaitConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GaitConfig</span><span class="p">(</span><span class="n">IMUConfig</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_sensor</span><span class="p">(</span><span class="s1">&#39;accelerometer&#39;</span><span class="p">)</span>
+
+        <span class="c1"># ----------</span>
+        <span class="c1"># Segmenting</span>
+        <span class="c1"># ----------</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_segment_gap_s</span> <span class="o">=</span> <span class="mf">1.5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_segment_length_s</span> <span class="o">=</span> <span class="mf">1.5</span>
+
+        <span class="k">if</span> <span class="n">step</span> <span class="o">==</span> <span class="s1">&#39;gait&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">6</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_length_s</span> <span class="o">*</span> <span class="mf">0.25</span>
+
+        <span class="c1"># -----------------</span>
+        <span class="c1"># Feature extraction</span>
+        <span class="c1"># -----------------</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hann&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spectrum_low_frequency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spectrum_high_frequency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># Power in specified frequency bands</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_frequency_bandwidths</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;power_below_gait&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span>
+            <span class="s2">&quot;power_gait&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">],</span>
+            <span class="s2">&quot;power_tremor&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">3.5</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+            <span class="s2">&quot;power_above_tremor&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">25</span><span class="p">],</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Mel frequency cepstral coefficients</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mfcc_low_frequency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mfcc_high_frequency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">25</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mfcc_n_dct_filters</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">15</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mfcc_n_coefficients</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">12</span>
+
+        <span class="c1"># Dominant frequency of first harmonic of arm swing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">angle_fmin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">angle_fmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.5</span>
+
+        <span class="c1"># -----------------</span>
+        <span class="c1"># TSDF data storage</span>
+        <span class="c1"># -----------------</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;accelerometer_std_norm&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_x_grav_mean&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_y_grav_mean&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_z_grav_mean&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_x_grav_std&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_y_grav_std&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_z_grav_std&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_x_power_below_gait&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_y_power_below_gait&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_z_power_below_gait&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_x_power_gait&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_y_power_gait&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_z_power_gait&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_x_power_tremor&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_y_power_tremor&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_z_power_tremor&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_x_power_above_tremor&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_y_power_above_tremor&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_z_power_above_tremor&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_x_dominant_frequency&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">FREQUENCY</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_y_dominant_frequency&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">FREQUENCY</span><span class="p">,</span>
+            <span class="s2">&quot;accelerometer_z_dominant_frequency&quot;</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">FREQUENCY</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">mfcc_coef</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mfcc_n_coefficients</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;accelerometer_mfcc_</span><span class="si">{</span><span class="n">mfcc_coef</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span>
+
+        <span class="k">if</span> <span class="n">step</span> <span class="o">==</span> <span class="s1">&#39;arm_activity&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">mfcc_coef</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mfcc_n_coefficients</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;gyroscope_mfcc_</span><span class="si">{</span><span class="n">mfcc_coef</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span></div>
+
+
+
+<div class="viewcode-block" id="TremorConfig">
+<a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.TremorConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TremorConfig</span><span class="p">(</span><span class="n">IMUConfig</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        step : str (optional)</span>
+<span class="sd">            The step of the tremor pipeline. Can be &#39;features&#39; or &#39;classification&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_sensor</span><span class="p">(</span><span class="s1">&#39;gyroscope&#39;</span><span class="p">)</span>
+
+        <span class="c1"># ----------</span>
+        <span class="c1"># Segmenting</span>
+        <span class="c1"># ----------</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">4</span>
+
+        <span class="c1"># -----------------</span>
+        <span class="c1"># Feature extraction</span>
+        <span class="c1"># -----------------</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window_type</span> <span class="o">=</span> <span class="s1">&#39;hann&#39;</span>
+
+        <span class="c1"># Power spectral density</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">overlap_fraction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.8</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">segment_length_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spectral_resolution</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.25</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fmin_peak_search</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fmax_peak_search</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">25</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fmin_below_rest_tremor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fmax_below_rest_tremor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fmin_rest_tremor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fmax_rest_tremor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">7</span>
+
+        <span class="c1"># Mel frequency cepstral coefficients</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fmin_mfcc</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fmax_mfcc</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">25</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_dct_filters_mfcc</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">15</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_coefficients_mfcc</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">12</span>
+
+        <span class="c1"># --------------</span>
+        <span class="c1"># Classification</span>
+        <span class="c1"># --------------</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">movement_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">50</span>
+
+        <span class="c1"># -----------</span>
+        <span class="c1"># Aggregation</span>
+        <span class="c1"># -----------</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aggregates_tremor_power</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">,</span> <span class="s1">&#39;median&#39;</span><span class="p">,</span> <span class="s1">&#39;90p&#39;</span><span class="p">]</span>
+
+        <span class="c1"># -----------------</span>
+        <span class="c1"># TSDF data storage</span>
+        <span class="c1"># -----------------</span>
+        <span class="k">if</span> <span class="n">step</span> <span class="o">==</span> <span class="s1">&#39;features&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">mfcc_coef</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_coefficients_mfcc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mfcc_</span><span class="si">{</span><span class="n">mfcc_coef</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;unitless&quot;</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span><span class="p">[</span><span class="s2">&quot;freq_peak&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Hz&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span><span class="p">[</span><span class="s2">&quot;below_tremor_power&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;(deg/s)^2&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span><span class="p">[</span><span class="s2">&quot;tremor_power&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;(deg/s)^2&quot;</span>
+        <span class="k">elif</span> <span class="n">step</span> <span class="o">==</span> <span class="s1">&#39;classification&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_TREMOR_PROBA</span><span class="p">:</span> <span class="s2">&quot;probability&quot;</span><span class="p">,</span>
+                <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_TREMOR_LOGREG</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
+                <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_TREMOR_CHECKED</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
+                <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_ARM_AT_REST</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span>
+            <span class="p">}</span></div>
+
+
+        
+<div class="viewcode-block" id="HeartRateConfig">
+<a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.HeartRateConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HeartRateConfig</span><span class="p">(</span><span class="n">PPGConfig</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sensor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;ppg&#39;</span><span class="p">,</span> <span class="n">min_window_length_s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="c1"># ----------</span>
+        <span class="c1"># Segmenting</span>
+        <span class="c1"># ----------</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window_overlap_s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_length_s</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_step_length_s</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">accelerometer_cols</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span><span class="o">.</span><span class="n">accelerometer_cols</span>
+
+        <span class="c1"># -----------------------</span>
+        <span class="c1"># Signal quality analysis</span>
+        <span class="c1"># -----------------------</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">freq_band_physio</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.75</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="c1"># Hz</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bandwidth</span> <span class="o">=</span> <span class="mf">0.2</span>   <span class="c1"># Hz      </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">freq_bin_resolution</span> <span class="o">=</span> <span class="mf">0.05</span> <span class="c1"># Hz</span>
+
+        <span class="c1"># ---------------------</span>
+        <span class="c1"># Heart rate estimation</span>
+        <span class="c1"># ---------------------</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_tfd_length</span><span class="p">(</span><span class="n">min_window_length_s</span><span class="p">)</span>  <span class="c1"># Set tfd length to default of 30 seconds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threshold_sqa</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threshold_sqa_accelerometer</span> <span class="o">=</span> <span class="mf">0.13</span>
+
+        <span class="n">hr_est_length</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hr_est_samples</span> <span class="o">=</span> <span class="n">hr_est_length</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span>
+
+        <span class="c1"># Time-frequency distribution parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kern_type</span> <span class="o">=</span> <span class="s1">&#39;sep&#39;</span>
+        <span class="n">win_type_doppler</span> <span class="o">=</span> <span class="s1">&#39;hamm&#39;</span>
+        <span class="n">win_type_lag</span> <span class="o">=</span> <span class="s1">&#39;hamm&#39;</span>
+        <span class="n">win_length_doppler</span> <span class="o">=</span> <span class="mi">8</span>
+        <span class="n">win_length_lag</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">doppler_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">*</span> <span class="n">win_length_doppler</span>
+        <span class="n">lag_samples</span> <span class="o">=</span> <span class="n">win_length_lag</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kern_params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;doppler&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;win_length&#39;</span><span class="p">:</span> <span class="n">doppler_samples</span><span class="p">,</span>
+                <span class="s1">&#39;win_type&#39;</span><span class="p">:</span> <span class="n">win_type_doppler</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;lag&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;win_length&#39;</span><span class="p">:</span> <span class="n">lag_samples</span><span class="p">,</span>
+                <span class="s1">&#39;win_type&#39;</span><span class="p">:</span> <span class="n">win_type_lag</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_sensor</span><span class="p">(</span><span class="n">sensor</span><span class="p">)</span>
+
+<div class="viewcode-block" id="HeartRateConfig.set_tfd_length">
+<a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.HeartRateConfig.set_tfd_length">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_tfd_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tfd_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tfd_length</span> <span class="o">=</span> <span class="n">tfd_length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_hr_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tfd_length</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="HeartRateConfig.set_sensor">
+<a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.HeartRateConfig.set_sensor">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_sensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sensor</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sensor</span> <span class="o">=</span> <span class="n">sensor</span> 
+
+        <span class="k">if</span> <span class="n">sensor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ppg&#39;</span><span class="p">,</span> <span class="s1">&#39;imu&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid sensor type: </span><span class="si">{</span><span class="n">sensor</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">sensor</span> <span class="o">==</span> <span class="s1">&#39;imu&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span><span class="o">.</span><span class="n">sampling_frequency</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">PPGConfig</span><span class="p">()</span><span class="o">.</span><span class="n">sampling_frequency</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">window_length_welch</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">overlap_welch_window</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_length_welch</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nfft</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">freq_bin_resolution</span><span class="p">))</span><span class="o">*</span><span class="mi">2</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Erik Post, Kars Veldkamp, Nienke Timmermans, Peter Kok, Vedran Kasalica, Diogo Coutinho Soriano, Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

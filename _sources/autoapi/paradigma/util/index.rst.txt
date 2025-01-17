@@ -12,8 +12,17 @@ Functions
    paradigma.util.parse_iso8601_to_datetime
    paradigma.util.format_datetime_to_iso8601
    paradigma.util.get_end_iso8601
-   paradigma.util.write_data
+   paradigma.util.write_np_data
+   paradigma.util.write_df_data
    paradigma.util.read_metadata
+   paradigma.util.load_tsdf_dataframe
+   paradigma.util.load_metadata_list
+   paradigma.util.transform_time_array
+   paradigma.util.convert_units_accelerometer
+   paradigma.util.convert_units_gyroscope
+   paradigma.util.invert_watch_side
+   paradigma.util.aggregate_parameter
+   paradigma.util.merge_predictions_with_timestamps
 
 
 Module Contents
@@ -25,7 +34,172 @@ Module Contents
 
 .. py:function:: get_end_iso8601(start_iso8601, window_length_seconds)
 
-.. py:function:: write_data(metadata_time: tsdf.TSDFMetadata, metadata_samples: tsdf.TSDFMetadata, output_path: str, output_filename: str, df: pandas.DataFrame)
+.. py:function:: write_np_data(metadata_time: tsdf.TSDFMetadata, np_array_time: numpy.ndarray, metadata_values: tsdf.TSDFMetadata, np_array_values: numpy.ndarray, output_path: str, output_filename: str)
+
+   Write the numpy arrays to binary files and store the metadata.
+
+   :param metadata_time: Metadata for the time column.
+   :type metadata_time: TSDFMetadata
+   :param np_array_time: The numpy array for the time column.
+   :type np_array_time: np.ndarray
+   :param metadata_values: Metadata for the samples columns.
+   :type metadata_values: TSDFMetadata
+   :param np_array_values: The numpy array for the samples columns.
+   :type np_array_values: np.ndarray
+   :param output_path: The path where the files will be stored.
+   :type output_path: str
+   :param output_filename: The filename for the metadata.
+   :type output_filename: str
+
+
+.. py:function:: write_df_data(metadata_time: tsdf.TSDFMetadata, metadata_values: tsdf.TSDFMetadata, output_path: str, output_filename: str, df: pandas.DataFrame)
+
+   Write the Pandas DataFrame to binary files and store the metadata.
+
+   :param metadata_time: Metadata for the time column.
+   :type metadata_time: TSDFMetadata
+   :param metadata_values: Metadata for the samples columns.
+   :type metadata_values: TSDFMetadata
+   :param output_path: The path where the files will be stored.
+   :type output_path: str
+   :param output_filename: The filename for the metadata.
+   :type output_filename: str
+   :param df: The DataFrame to be stored.
+   :type df: pd.DataFrame
+
 
 .. py:function:: read_metadata(input_path: str, meta_filename: str, time_filename: str, values_filename: str) -> Tuple[tsdf.TSDFMetadata, tsdf.TSDFMetadata]
+
+.. py:function:: load_tsdf_dataframe(path_to_data, prefix, meta_suffix='meta.json', time_suffix='time.bin', values_suffix='values.bin')
+
+.. py:function:: load_metadata_list(dir_path: str, meta_filename: str, filenames: List[str]) -> List[tsdf.TSDFMetadata]
+
+   Load the metadata objects from a metadata file according to the specified binaries.
+
+   :param dir_path: The dir path where the metadata file is stored.
+   :type dir_path: str
+   :param meta_filename: The filename of the metadata file.
+   :type meta_filename: str
+   :param filenames: The list of binary files of which the metadata files need to be loaded
+   :type filenames: List[str]
+
+
+.. py:function:: transform_time_array(time_array: pandas.Series, input_unit_type: str, output_unit_type: str, start_time: float = 0.0) -> numpy.ndarray
+
+   Transforms the time array to relative time (when defined in delta time) and scales the values.
+
+   :param time_array: The time array to transform.
+   :type time_array: pd.Series
+   :param input_unit_type: The time unit type of the input time array.
+   :type input_unit_type: str
+   :param output_unit_type: The time unit type of the output time array. ParaDigMa expects `TimeUnit.RELATIVE_S`.
+   :type output_unit_type: str
+   :param start_time: The start time of the time array in UNIX seconds (default is 0.0)
+   :type start_time: float, optional
+
+   :returns: The transformed time array in seconds, with the specified time unit type.
+   :rtype: np.ndarray
+
+   .. rubric:: Notes
+
+   - The function handles different time units (`TimeUnit.RELATIVE_MS`, `TimeUnit.RELATIVE_S`, `TimeUnit.ABSOLUTE_MS`, `TimeUnit.ABSOLUTE_S`, `TimeUnit.DIFFERENCE_MS`, `TimeUnit.DIFFERENCE_S`).
+   - The transformation allows for scaling of the time array, converting between time unit types (e.g., relative, absolute, or difference).
+   - When converting to `TimeUnit.RELATIVE_MS`, the function calculates the relative time starting from the provided or default start time.
+
+
+.. py:function:: convert_units_accelerometer(data: numpy.ndarray, units: str) -> numpy.ndarray
+
+   Convert acceleration data to g.
+
+   :param data: The acceleration data.
+   :type data: np.ndarray
+   :param units: The unit of the data (currently supports g and m/s^2).
+   :type units: str
+
+   :returns: The acceleration data in g.
+   :rtype: np.ndarray
+
+
+.. py:function:: convert_units_gyroscope(data: numpy.ndarray, units: str) -> numpy.ndarray
+
+   Convert gyroscope data to deg/s.
+
+   :param data: The gyroscope data.
+   :type data: np.ndarray
+   :param units: The unit of the data (currently supports deg/s and rad/s).
+   :type units: str
+
+   :returns: The gyroscope data in deg/s.
+   :rtype: np.ndarray
+
+
+.. py:function:: invert_watch_side(df: pandas.DataFrame, side: str) -> numpy.ndarray
+
+   Invert the data based on the watch side.
+
+   :param df: The data.
+   :type df: pd.DataFrame
+   :param side: The watch side (left or right).
+   :type side: str
+
+   :returns: The inverted data.
+   :rtype: pd.DataFrame
+
+
+.. py:function:: aggregate_parameter(parameter: numpy.ndarray, aggregate: str) -> numpy.ndarray
+
+   Aggregate a parameter based on the specified method.
+
+   :param parameter: The parameter to aggregate.
+   :type parameter: np.ndarray
+   :param aggregate: The aggregation method to apply.
+   :type aggregate: str
+
+   :returns: The aggregated parameter.
+   :rtype: np.ndarray
+
+
+.. py:function:: merge_predictions_with_timestamps(df_ts: pandas.DataFrame, df_predictions: pandas.DataFrame, pred_proba_colname: str, window_length_s: float, fs: int) -> pandas.DataFrame
+
+   Merges prediction probabilities with timestamps by expanding overlapping windows
+   into individual timestamps and averaging probabilities per unique timestamp.
+
+   Parameters:
+   ----------
+   df_ts : pd.DataFrame
+       DataFrame containing timestamps to be merged with predictions.
+       Must include the timestamp column specified in `DataColumns.TIME`.
+
+   df_predictions : pd.DataFrame
+       DataFrame containing prediction windows with start times and probabilities.
+       Must include:
+       - A column for window start times (defined by `DataColumns.TIME`).
+       - A column for prediction probabilities (defined by `DataColumns.PRED_GAIT_PROBA`).
+
+   pred_proba_colname : str
+       The column name for the prediction probabilities in `df_predictions`.
+
+   window_length_s : float
+       The length of the prediction window in seconds.
+
+   fs : int
+       The sampling frequency of the data.
+
+   Returns:
+   -------
+   pd.DataFrame
+       Updated `df_ts` with an additional column for averaged prediction probabilities.
+
+   Steps:
+   ------
+   1. Expand prediction windows into individual timestamps using NumPy broadcasting.
+   2. Flatten the timestamps and prediction probabilities into single arrays.
+   3. Aggregate probabilities by unique timestamps using pandas `groupby`.
+   4. Merge the aggregated probabilities with the input `df_ts`.
+
+   Notes:
+   ------
+   - Rounding is applied to timestamps to mitigate floating-point inaccuracies.
+   - Fully vectorized for speed and scalability, avoiding any row-wise operations.
+
 

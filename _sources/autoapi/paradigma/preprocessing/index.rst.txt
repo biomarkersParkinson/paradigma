@@ -1,0 +1,149 @@
+paradigma.preprocessing
+=======================
+
+.. py:module:: paradigma.preprocessing
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   paradigma.preprocessing.resample_data
+   paradigma.preprocessing.butterworth_filter
+   paradigma.preprocessing.preprocess_imu_data
+   paradigma.preprocessing.preprocess_ppg_data
+   paradigma.preprocessing.extract_overlapping_segments
+
+
+Module Contents
+---------------
+
+.. py:function:: resample_data(df: pandas.DataFrame, time_column: str, values_column_names: List[str], resampling_frequency: int) -> pandas.DataFrame
+
+   Resamples sensor data to a specified frequency using cubic interpolation.
+
+   :param df: The input DataFrame containing the sensor data.
+   :type df: pd.DataFrame
+   :param time_column: The name of the column containing the time data.
+   :type time_column: str
+   :param values_column_names: A list of column names that should be resampled.
+   :type values_column_names: List[str]
+   :param resampling_frequency: The frequency to which the data should be resampled (in Hz).
+   :type resampling_frequency: int
+
+   :returns: A DataFrame with the resampled data, where each column contains resampled values.
+             The time column will reflect the new resampling frequency.
+   :rtype: pd.DataFrame
+
+   :raises ValueError: If the time array is not strictly increasing.
+
+   .. rubric:: Notes
+
+   The function uses cubic interpolation to resample the data to the specified frequency.
+   It requires the input time array to be strictly increasing.
+
+
+.. py:function:: butterworth_filter(data: numpy.ndarray, order: int, cutoff_frequency: Union[float, List[float]], passband: str, sampling_frequency: int)
+
+   Applies a Butterworth filter to 1D or 2D sensor data.
+
+   This function applies a low-pass, high-pass, or band-pass Butterworth filter to the
+   input data. The filter is designed using the specified order, cutoff frequency,
+   and passband type. The function can handle both 1D and 2D data arrays.
+
+   :param data: The sensor data to be filtered. Can be 1D (e.g., a single signal) or 2D
+                (e.g., multi-axis sensor data).
+   :type data: np.ndarray
+   :param order: The order of the Butterworth filter. Higher values result in a steeper roll-off.
+   :type order: int
+   :param cutoff_frequency: The cutoff frequency (or frequencies) for the filter. For a low-pass or high-pass filter,
+                            this is a single float. For a band-pass filter, this should be a list of two floats,
+                            specifying the lower and upper cutoff frequencies.
+   :type cutoff_frequency: float or List[float]
+   :param passband: The type of passband to apply. Options are:
+                    - 'hp' : high-pass filter
+                    - 'lp' : low-pass filter
+                    - 'band' : band-pass filter
+   :type passband: str
+   :param sampling_frequency: The sampling frequency of the data in Hz. This is used to normalize the cutoff frequency.
+   :type sampling_frequency: int
+
+   :returns: The filtered sensor data. The shape of the output is the same as the input data.
+   :rtype: np.ndarray
+
+   :raises ValueError: If the input data has more than two dimensions, or if an invalid passband is specified.
+
+   .. rubric:: Notes
+
+   The function uses `scipy.signal.butter` to design the filter and `scipy.signal.sosfiltfilt`
+   to apply it using second-order sections (SOS) to improve numerical stability.
+
+
+.. py:function:: preprocess_imu_data(df: pandas.DataFrame, config: paradigma.config.IMUConfig, sensor: str, watch_side: str) -> pandas.DataFrame
+
+   Preprocesses IMU data by resampling and applying filters.
+
+   :param df: The DataFrame containing raw accelerometer and/or gyroscope data.
+   :type df: pd.DataFrame
+   :param config: Configuration object containing various settings, such as time column name, accelerometer and/or gyroscope columns,
+                  filter settings, and sampling frequency.
+   :type config: IMUConfig
+   :param sensor: Name of the sensor data to be preprocessed. Must be one of:
+                  - "accelerometer": Preprocess accelerometer data only.
+                  - "gyroscope": Preprocess gyroscope data only.
+                  - "both": Preprocess both accelerometer and gyroscope data.
+   :type sensor: str
+   :param watch_side: The side of the watch where the data was collected. Must be one of:
+                      - "left": Data was collected from the left wrist.
+                      - "right": Data was collected from the right wrist.
+   :type watch_side: str
+
+   :returns: The preprocessed accelerometer and or gyroscope data with the following transformations:
+             - Resampled data at the specified frequency.
+             - Filtered accelerometer data with high-pass and low-pass filtering applied.
+   :rtype: pd.DataFrame
+
+   .. rubric:: Notes
+
+   - The function applies Butterworth filters to accelerometer data, both high-pass and low-pass.
+
+
+.. py:function:: preprocess_ppg_data(df_ppg: pandas.DataFrame, df_acc: pandas.DataFrame, ppg_config: paradigma.config.PPGConfig, imu_config: paradigma.config.IMUConfig, start_time_ppg: str, start_time_imu: str) -> Tuple[pandas.DataFrame, pandas.DataFrame]
+
+   Preprocess PPG and IMU (accelerometer only) data by resampling, filtering, and aligning the data segments.
+
+   :param df_ppg: DataFrame containing PPG data.
+   :type df_ppg: pd.DataFrame
+   :param df_acc: DataFrame containing accelerometer from IMU data.
+   :type df_acc: pd.DataFrame
+   :param ppg_config: Configuration object for PPG preprocessing.
+   :type ppg_config: PPGPreprocessingConfig
+   :param imu_config: Configuration object for IMU preprocessing.
+   :type imu_config: IMUPreprocessingConfig
+   :param start_time_ppg: iso8601 formatted start time of the PPG data.
+   :type start_time_ppg: str
+   :param start_time_imu: iso8601 formatted start time of the IMU data.
+   :type start_time_imu: str
+
+   :returns: Preprocessed PPG and IMU data as DataFrames.
+   :rtype: Tuple[pd.DataFrame, pd.DataFrame]
+
+
+.. py:function:: extract_overlapping_segments(df_ppg: pandas.DataFrame, df_acc: pandas.DataFrame, start_time_ppg: str, start_time_acc: str) -> Tuple[pandas.DataFrame, pandas.DataFrame]
+
+   Extract DataFrames with overlapping data segments between accelerometer (from the IMU) and PPG datasets based on their timestamps.
+
+   :param df_ppg: DataFrame containing PPG data.
+   :type df_ppg: pd.DataFrame
+   :param df_acc: DataFrame containing accelerometer data from the IMU.
+   :type df_acc: pd.DataFrame
+   :param start_time_ppg: iso8601 formatted start time of the PPG data.
+   :type start_time_ppg: str
+   :param start_time_acc: iso8601 formatted start time of the accelerometer data.
+   :type start_time_acc: str
+
+   :returns: DataFrames containing the overlapping segments (time and values) of PPG and accelerometer data.
+   :rtype: Tuple[pd.DataFrame, pd.DataFrame]
+
+

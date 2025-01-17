@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Preparation &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Gait analysis" href="gait_analysis.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Data Preparation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#load-data">Load data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prepare-dataframe">Prepare dataframe</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#change-column-names">Change column names</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#change-units">Change units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#account-for-watch-side">Account for watch side</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#change-time-column">Change time column</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="heart_rate_analysis.html">Heart rate analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Data Preparation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/data_preparation.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="data-preparation">
+<h1>Data Preparation<a class="headerlink" href="#data-preparation" title="Link to this heading"></a></h1>
+<p>ParaDigMa requires the data to be of a specific format. This tutorial provides examples of how to prepare your input data for analysis.</p>
+<section id="load-data">
+<h2>Load data<a class="headerlink" href="#load-data" title="Link to this heading"></a></h2>
+<p>This example uses data of the <a class="reference external" href="https://pubmed.ncbi.nlm.nih.gov/31315608/">Personalized Parkinson Project</a>, which is stored in Time Series Data Format (TSDF). Inertial Measurements Units (IMU) and photoplethysmography (PPG) data are sampled at a different sampling frequency and therefore stored separately.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span>
+
+<span class="n">path_to_raw_data</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../tests/data/data_preparation_tutorial&#39;</span><span class="p">)</span>
+<span class="n">path_to_imu_data</span> <span class="o">=</span> <span class="n">path_to_raw_data</span> <span class="o">/</span> <span class="s1">&#39;imu&#39;</span>
+
+<span class="n">df_imu</span><span class="p">,</span> <span class="n">imu_time</span><span class="p">,</span> <span class="n">imu_values</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
+    <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_imu_data</span><span class="p">,</span> 
+    <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;IMU&#39;</span>
+<span class="p">)</span>
+
+<span class="n">df_imu</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>acceleration_x</th>
+      <th>acceleration_y</th>
+      <th>acceleration_z</th>
+      <th>rotation_x</th>
+      <th>rotation_y</th>
+      <th>rotation_z</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000</td>
+      <td>-5.402541</td>
+      <td>5.632536</td>
+      <td>-2.684842</td>
+      <td>-115.670732</td>
+      <td>-32.012195</td>
+      <td>26.097561</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>10.040039</td>
+      <td>-5.257034</td>
+      <td>6.115995</td>
+      <td>-2.497091</td>
+      <td>-110.609757</td>
+      <td>-34.634146</td>
+      <td>24.695122</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>10.040039</td>
+      <td>-4.947244</td>
+      <td>6.392928</td>
+      <td>-2.468928</td>
+      <td>-103.231708</td>
+      <td>-36.768293</td>
+      <td>22.926829</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>10.040039</td>
+      <td>-4.792349</td>
+      <td>6.735574</td>
+      <td>-2.605048</td>
+      <td>-96.280488</td>
+      <td>-38.719512</td>
+      <td>21.158537</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>10.039795</td>
+      <td>-4.848675</td>
+      <td>7.115770</td>
+      <td>-2.731780</td>
+      <td>-92.560976</td>
+      <td>-41.280488</td>
+      <td>20.304878</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span>
+
+<span class="n">path_to_ppg_data</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_to_raw_data</span><span class="p">,</span> <span class="s1">&#39;ppg&#39;</span><span class="p">)</span>
+
+<span class="n">df_ppg</span><span class="p">,</span> <span class="n">ppg_time</span><span class="p">,</span> <span class="n">ppg_values</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
+    <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_ppg_data</span><span class="p">,</span> 
+    <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;PPG&#39;</span>
+<span class="p">)</span>
+
+<span class="n">df_ppg</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>green</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000</td>
+      <td>649511</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>9.959961</td>
+      <td>648214</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>9.959961</td>
+      <td>646786</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>9.959961</td>
+      <td>645334</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>9.960205</td>
+      <td>644317</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>The timestamps in this dataset correspond to delta milliseconds, and the data is not uniformly distributed as can be observed.</p>
+</section>
+<section id="prepare-dataframe">
+<h2>Prepare dataframe<a class="headerlink" href="#prepare-dataframe" title="Link to this heading"></a></h2>
+<section id="change-column-names">
+<h3>Change column names<a class="headerlink" href="#change-column-names" title="Link to this heading"></a></h3>
+<p>To safeguard robustness of the pipeline, ParaDigMa fixes column names to a predefined standard.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span>
+
+<span class="n">accelerometer_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Y</span><span class="p">,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Z</span><span class="p">]</span>
+<span class="n">gyroscope_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_X</span><span class="p">,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Y</span><span class="p">,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Z</span><span class="p">]</span>
+
+<span class="c1"># Rename dataframe columns</span>
+<span class="n">df_imu</span> <span class="o">=</span> <span class="n">df_imu</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+    <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span>
+    <span class="s1">&#39;acceleration_x&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">,</span>
+    <span class="s1">&#39;acceleration_y&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Y</span><span class="p">,</span>
+    <span class="s1">&#39;acceleration_z&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Z</span><span class="p">,</span>
+    <span class="s1">&#39;rotation_x&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_X</span><span class="p">,</span>
+    <span class="s1">&#39;rotation_y&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Y</span><span class="p">,</span>
+    <span class="s1">&#39;rotation_z&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Z</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="c1"># Set columns to a fixed order</span>
+<span class="n">df_imu</span> <span class="o">=</span> <span class="n">df_imu</span><span class="p">[[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">+</span> <span class="n">accelerometer_columns</span> <span class="o">+</span> <span class="n">gyroscope_columns</span><span class="p">]</span>
+
+<span class="n">df_imu</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>accelerometer_x</th>
+      <th>accelerometer_y</th>
+      <th>accelerometer_z</th>
+      <th>gyroscope_x</th>
+      <th>gyroscope_y</th>
+      <th>gyroscope_z</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000</td>
+      <td>-5.402541</td>
+      <td>5.632536</td>
+      <td>-2.684842</td>
+      <td>-115.670732</td>
+      <td>-32.012195</td>
+      <td>26.097561</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>10.040039</td>
+      <td>-5.257034</td>
+      <td>6.115995</td>
+      <td>-2.497091</td>
+      <td>-110.609757</td>
+      <td>-34.634146</td>
+      <td>24.695122</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>10.040039</td>
+      <td>-4.947244</td>
+      <td>6.392928</td>
+      <td>-2.468928</td>
+      <td>-103.231708</td>
+      <td>-36.768293</td>
+      <td>22.926829</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>10.040039</td>
+      <td>-4.792349</td>
+      <td>6.735574</td>
+      <td>-2.605048</td>
+      <td>-96.280488</td>
+      <td>-38.719512</td>
+      <td>21.158537</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>10.039795</td>
+      <td>-4.848675</td>
+      <td>7.115770</td>
+      <td>-2.731780</td>
+      <td>-92.560976</td>
+      <td>-41.280488</td>
+      <td>20.304878</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span>
+
+<span class="n">ppg_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PPG</span><span class="p">]</span>
+
+<span class="c1"># Rename dataframe columns</span>
+<span class="n">df_ppg</span> <span class="o">=</span> <span class="n">df_ppg</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+    <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span>
+    <span class="s1">&#39;ppg&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">PPG</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="c1"># Set columns to a fixed order</span>
+<span class="n">df_ppg</span> <span class="o">=</span> <span class="n">df_ppg</span><span class="p">[[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">+</span> <span class="n">ppg_columns</span><span class="p">]</span>
+
+<span class="n">df_ppg</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>green</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000</td>
+      <td>649511</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>9.959961</td>
+      <td>648214</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>9.959961</td>
+      <td>646786</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>9.959961</td>
+      <td>645334</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>9.960205</td>
+      <td>644317</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="change-units">
+<h3>Change units<a class="headerlink" href="#change-units" title="Link to this heading"></a></h3>
+<p>ParaDigMa expects acceleration to be measured in g, and rotation in deg/s. Units can be converted conveniently using ParaDigMa functionalities.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_units_accelerometer</span><span class="p">,</span> <span class="n">convert_units_gyroscope</span>
+
+<span class="n">accelerometer_units</span> <span class="o">=</span> <span class="s1">&#39;m/s^2&#39;</span>
+<span class="n">gyroscope_units</span> <span class="o">=</span> <span class="s1">&#39;deg/s&#39;</span>
+
+<span class="n">accelerometer_data</span> <span class="o">=</span> <span class="n">df_imu</span><span class="p">[</span><span class="n">accelerometer_columns</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<span class="n">gyroscope_data</span> <span class="o">=</span> <span class="n">df_imu</span><span class="p">[</span><span class="n">gyroscope_columns</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+<span class="c1"># Convert units to expected format</span>
+<span class="n">df_imu</span><span class="p">[</span><span class="n">accelerometer_columns</span><span class="p">]</span> <span class="o">=</span> <span class="n">convert_units_accelerometer</span><span class="p">(</span><span class="n">accelerometer_data</span><span class="p">,</span> <span class="n">accelerometer_units</span><span class="p">)</span>
+<span class="n">df_imu</span><span class="p">[</span><span class="n">gyroscope_columns</span><span class="p">]</span> <span class="o">=</span> <span class="n">convert_units_gyroscope</span><span class="p">(</span><span class="n">gyroscope_data</span><span class="p">,</span> <span class="n">gyroscope_units</span><span class="p">)</span>
+
+<span class="n">df_imu</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>accelerometer_x</th>
+      <th>accelerometer_y</th>
+      <th>accelerometer_z</th>
+      <th>gyroscope_x</th>
+      <th>gyroscope_y</th>
+      <th>gyroscope_z</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000</td>
+      <td>-0.550718</td>
+      <td>0.574163</td>
+      <td>-0.273684</td>
+      <td>-115.670732</td>
+      <td>-32.012195</td>
+      <td>26.097561</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>10.040039</td>
+      <td>-0.535885</td>
+      <td>0.623445</td>
+      <td>-0.254545</td>
+      <td>-110.609757</td>
+      <td>-34.634146</td>
+      <td>24.695122</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>10.040039</td>
+      <td>-0.504306</td>
+      <td>0.651675</td>
+      <td>-0.251675</td>
+      <td>-103.231708</td>
+      <td>-36.768293</td>
+      <td>22.926829</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>10.040039</td>
+      <td>-0.488517</td>
+      <td>0.686603</td>
+      <td>-0.265550</td>
+      <td>-96.280488</td>
+      <td>-38.719512</td>
+      <td>21.158537</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>10.039795</td>
+      <td>-0.494258</td>
+      <td>0.725359</td>
+      <td>-0.278469</td>
+      <td>-92.560976</td>
+      <td>-41.280488</td>
+      <td>20.304878</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="account-for-watch-side">
+<h3>Account for watch side<a class="headerlink" href="#account-for-watch-side" title="Link to this heading"></a></h3>
+<p>For the Gait &amp; Arm Swing pipeline, it is essential to ensure correct sensor axes orientation. For more information please read <a class="reference internal" href="../guides/coordinate_system.html"><span class="std std-doc">Coordinate System</span></a> and set the axes of the data accordingly.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Change the orientation of the sensor according to the documented coordinate system</span>
+<span class="n">df_imu</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Y</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="n">df_imu</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Z</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="n">df_imu</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Y</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="n">df_imu</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Z</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+
+<span class="n">df_imu</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>accelerometer_x</th>
+      <th>accelerometer_y</th>
+      <th>accelerometer_z</th>
+      <th>gyroscope_x</th>
+      <th>gyroscope_y</th>
+      <th>gyroscope_z</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000</td>
+      <td>-0.550718</td>
+      <td>-0.574163</td>
+      <td>0.273684</td>
+      <td>-115.670732</td>
+      <td>32.012195</td>
+      <td>-26.097561</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>10.040039</td>
+      <td>-0.535885</td>
+      <td>-0.623445</td>
+      <td>0.254545</td>
+      <td>-110.609757</td>
+      <td>34.634146</td>
+      <td>-24.695122</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>10.040039</td>
+      <td>-0.504306</td>
+      <td>-0.651675</td>
+      <td>0.251675</td>
+      <td>-103.231708</td>
+      <td>36.768293</td>
+      <td>-22.926829</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>10.040039</td>
+      <td>-0.488517</td>
+      <td>-0.686603</td>
+      <td>0.265550</td>
+      <td>-96.280488</td>
+      <td>38.719512</td>
+      <td>-21.158537</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>10.039795</td>
+      <td>-0.494258</td>
+      <td>-0.725359</td>
+      <td>0.278469</td>
+      <td>-92.560976</td>
+      <td>41.280488</td>
+      <td>-20.304878</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="change-time-column">
+<h3>Change time column<a class="headerlink" href="#change-time-column" title="Link to this heading"></a></h3>
+<p>ParaDigMa expects the data to be in seconds relative to the first row, which should be equal to 0. The toolbox has the built-in function <code class="docutils literal notranslate"><span class="pre">transform_time_array</span></code> to help users transform their time column to the correct format if the timestamps have been sampled in delta time between timestamps. In the near future, the functionalities for transforming other types (e.g., datetime format) shall be provided.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeUnit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">transform_time_array</span>
+
+<span class="n">df_imu</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">=</span> <span class="n">transform_time_array</span><span class="p">(</span>
+    <span class="n">time_array</span><span class="o">=</span><span class="n">df_imu</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">],</span> 
+    <span class="n">input_unit_type</span><span class="o">=</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_MS</span><span class="p">,</span> 
+    <span class="n">output_unit_type</span><span class="o">=</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_S</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">df_imu</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>accelerometer_x</th>
+      <th>accelerometer_y</th>
+      <th>accelerometer_z</th>
+      <th>gyroscope_x</th>
+      <th>gyroscope_y</th>
+      <th>gyroscope_z</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.00000</td>
+      <td>-0.550718</td>
+      <td>-0.574163</td>
+      <td>0.273684</td>
+      <td>-115.670732</td>
+      <td>32.012195</td>
+      <td>-26.097561</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.01004</td>
+      <td>-0.535885</td>
+      <td>-0.623445</td>
+      <td>0.254545</td>
+      <td>-110.609757</td>
+      <td>34.634146</td>
+      <td>-24.695122</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.02008</td>
+      <td>-0.504306</td>
+      <td>-0.651675</td>
+      <td>0.251675</td>
+      <td>-103.231708</td>
+      <td>36.768293</td>
+      <td>-22.926829</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.03012</td>
+      <td>-0.488517</td>
+      <td>-0.686603</td>
+      <td>0.265550</td>
+      <td>-96.280488</td>
+      <td>38.719512</td>
+      <td>-21.158537</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.04016</td>
+      <td>-0.494258</td>
+      <td>-0.725359</td>
+      <td>0.278469</td>
+      <td>-92.560976</td>
+      <td>41.280488</td>
+      <td>-20.304878</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeUnit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">transform_time_array</span>
+
+<span class="n">df_ppg</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">=</span> <span class="n">transform_time_array</span><span class="p">(</span>
+    <span class="n">time_array</span><span class="o">=</span><span class="n">df_ppg</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">],</span> 
+    <span class="n">input_unit_type</span><span class="o">=</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_MS</span><span class="p">,</span> 
+    <span class="n">output_unit_type</span><span class="o">=</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_S</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">df_ppg</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>green</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.00000</td>
+      <td>649511</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.00996</td>
+      <td>648214</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.01992</td>
+      <td>646786</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.02988</td>
+      <td>645334</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.03984</td>
+      <td>644317</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>These dataframes are ready to be processed by ParaDigMa.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gait_analysis.html" class="btn btn-neutral float-right" title="Gait analysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Erik Post, Kars Veldkamp, Nienke Timmermans, Peter Kok, Vedran Kasalica, Diogo Coutinho Soriano, Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

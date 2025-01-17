@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>paradigma.pipelines.tremor_pipeline &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/data_preparation.html">Data Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/heart_rate_analysis.html">Heart rate analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">paradigma.pipelines.tremor_pipeline</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for paradigma.pipelines.tremor_pipeline</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tsdf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">signal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">gaussian_kde</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassifierPackage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">TremorConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.feature_extraction</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_mfccs</span><span class="p">,</span> <span class="n">compute_power_in_bandwidth</span><span class="p">,</span> <span class="n">compute_total_power</span><span class="p">,</span> <span class="n">extract_frequency_peak</span><span class="p">,</span> \
+    <span class="n">extract_tremor_power</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.segmenting</span><span class="w"> </span><span class="kn">import</span> <span class="n">tabulate_windows</span><span class="p">,</span> <span class="n">WindowedDataExtractor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_end_iso8601</span><span class="p">,</span> <span class="n">write_df_data</span><span class="p">,</span> <span class="n">read_metadata</span><span class="p">,</span> <span class="n">aggregate_parameter</span>
+
+
+<div class="viewcode-block" id="extract_tremor_features">
+<a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/tremor_pipeline/index.html#paradigma.pipelines.tremor_pipeline.extract_tremor_features">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_tremor_features</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">TremorConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function groups sequences of timestamps into windows and subsequently extracts </span>
+<span class="sd">    tremor features from windowed gyroscope data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        The input DataFrame containing sensor data, which includes time and gyroscope data. The data should be</span>
+<span class="sd">        structured with the necessary columns as specified in the `config`.</span>
+
+<span class="sd">    config : TremorConfig</span>
+<span class="sd">        Configuration object containing parameters for feature extraction, including column names for time, gyroscope data,</span>
+<span class="sd">        as well as settings for windowing, and feature computation.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        A DataFrame containing extracted tremor features and a column corresponding to time.</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - This function groups the data into windows based on timestamps.</span>
+<span class="sd">    - The input DataFrame must include columns as specified in the `config` object for proper feature extraction.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the input DataFrame does not contain the required columns as specified in the configuration or if any step in the feature extraction fails.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># group sequences of timestamps into windows</span>
+    <span class="n">windowed_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">gyroscope_cols</span>
+    <span class="n">windowed_data</span> <span class="o">=</span> <span class="n">tabulate_windows</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">windowed_cols</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">)</span>
+
+    <span class="n">extractor</span> <span class="o">=</span> <span class="n">WindowedDataExtractor</span><span class="p">(</span><span class="n">windowed_cols</span><span class="p">)</span>
+
+    <span class="c1"># Extract the start time and gyroscope data from the windowed data</span>
+    <span class="n">idx_time</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">get_index</span><span class="p">(</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">)</span>
+    <span class="n">idx_gyro</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">get_slice</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">gyroscope_cols</span><span class="p">)</span>
+
+    <span class="c1"># Extract data</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">windowed_data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">idx_time</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">windowed_gyro</span> <span class="o">=</span> <span class="n">windowed_data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">idx_gyro</span><span class="p">]</span>
+
+    <span class="n">df_features</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">])</span>
+    
+    <span class="c1"># transform the signals from the temporal domain to the spectral domain and extract tremor features</span>
+    <span class="n">df_spectral_features</span> <span class="o">=</span> <span class="n">extract_spectral_domain_features</span><span class="p">(</span><span class="n">windowed_gyro</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
+    <span class="c1"># Combine spectral features with the start time</span>
+    <span class="n">df_features</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_features</span><span class="p">,</span> <span class="n">df_spectral_features</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df_features</span></div>
+
+
+
+<div class="viewcode-block" id="detect_tremor">
+<a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/tremor_pipeline/index.html#paradigma.pipelines.tremor_pipeline.detect_tremor">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">detect_tremor</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">TremorConfig</span><span class="p">,</span> <span class="n">full_path_to_classifier_package</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Detects tremor in the input DataFrame using a pre-trained classifier and applies a threshold to the predicted probabilities.</span>
+
+<span class="sd">    This function performs the following steps:</span>
+<span class="sd">    1. Loads the pre-trained classifier and scaling parameters from the provided directory.</span>
+<span class="sd">    2. Scales the relevant features in the input DataFrame (`df`) using the loaded scaling parameters.</span>
+<span class="sd">    3. Makes predictions using the classifier to estimate the probability of tremor.</span>
+<span class="sd">    4. Applies a threshold to the predicted probabilities to classify whether tremor is detected or not.</span>
+<span class="sd">    5. Checks for rest tremor by verifying the frequency of the peak and low-frequency power.</span>
+<span class="sd">    6. Adds the predicted probabilities and the classification result to the DataFrame.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        The input DataFrame containing extracted tremor features. The DataFrame must include</span>
+<span class="sd">        the necessary columns as specified in the classifier&#39;s feature names.</span>
+
+<span class="sd">    config : TremorConfig</span>
+<span class="sd">        Configuration object containing settings for tremor detection, including the frequency range for rest tremor.</span>
+
+<span class="sd">    full_path_to_classifier_package : str | Path</span>
+<span class="sd">        The path to the directory containing the classifier file, threshold value, scaler parameters, and other necessary input</span>
+<span class="sd">        files for tremor detection.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        The input DataFrame (`df`) with two additional columns:</span>
+<span class="sd">        - `PRED_TREMOR_PROBA`: Predicted probability of tremor based on the classifier.</span>
+<span class="sd">        - `PRED_TREMOR_LOGREG`: Binary classification result (True for tremor, False for no tremor), based on the threshold applied to `PRED_TREMOR_PROBA`.</span>
+<span class="sd">        - `PRED_TREMOR_CHECKED`: Binary classification result (True for tremor, False for no tremor), after performing extra checks for rest tremor on `PRED_TREMOR_LOGREG`.</span>
+<span class="sd">        - `PRED_ARM_AT_REST`: Binary classification result (True for arm at rest or stable posture, False for significant arm movement), based on the power below tremor.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The threshold used to classify tremor is loaded from a file and applied to the predicted probabilities.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    FileNotFoundError</span>
+<span class="sd">        If the classifier, scaler, or threshold files are not found at the specified paths.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the DataFrame does not contain the expected features for prediction or if the prediction fails.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Load the classifier package</span>
+    <span class="n">clf_package</span> <span class="o">=</span> <span class="n">ClassifierPackage</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">full_path_to_classifier_package</span><span class="p">)</span>
+
+    <span class="c1"># Set classifier</span>
+    <span class="n">clf</span> <span class="o">=</span> <span class="n">clf_package</span><span class="o">.</span><span class="n">classifier</span>
+    <span class="n">feature_names_scaling</span> <span class="o">=</span> <span class="n">clf_package</span><span class="o">.</span><span class="n">scaler</span><span class="o">.</span><span class="n">feature_names_in_</span>
+    <span class="n">feature_names_predictions</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">feature_names_in_</span>
+
+    <span class="c1"># Apply scaling to relevant columns</span>
+    <span class="n">scaled_features</span> <span class="o">=</span> <span class="n">clf_package</span><span class="o">.</span><span class="n">transform_features</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">feature_names_scaling</span><span class="p">])</span>
+
+    <span class="c1"># Replace scaled features in a copy of the relevant features for prediction</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">feature_names_predictions</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">X</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">feature_names_scaling</span><span class="p">]</span> <span class="o">=</span> <span class="n">scaled_features</span>
+
+    <span class="c1"># Get the tremor probability </span>
+    <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_TREMOR_PROBA</span><span class="p">]</span> <span class="o">=</span> <span class="n">clf_package</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+    <span class="c1"># Make prediction based on pre-defined threshold</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_TREMOR_LOGREG</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_TREMOR_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package</span><span class="o">.</span><span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="c1"># Perform extra checks for rest tremor </span>
+    <span class="n">peak_check</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;freq_peak&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">config</span><span class="o">.</span><span class="n">fmin_rest_tremor</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;freq_peak&#39;</span><span class="p">]</span><span class="o">&lt;=</span><span class="n">config</span><span class="o">.</span><span class="n">fmax_rest_tremor</span><span class="p">)</span> <span class="c1"># peak within 3-7 Hz</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_ARM_AT_REST</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;below_tremor_power&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">config</span><span class="o">.</span><span class="n">movement_threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="c1"># arm at rest or in stable posture</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_TREMOR_CHECKED</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_TREMOR_LOGREG</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">peak_check</span><span class="o">==</span><span class="kc">True</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_ARM_AT_REST</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="aggregate_tremor">
+<a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/tremor_pipeline/index.html#paradigma.pipelines.tremor_pipeline.aggregate_tremor">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">aggregate_tremor</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">TremorConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Quantifies the amount of tremor time and tremor power, aggregated over all windows in the input dataframe.</span>
+<span class="sd">    Tremor time is calculated as the number of the detected tremor windows, as percentage of the number of windows </span>
+<span class="sd">    without significant non-tremor movement (at rest). For tremor power the following aggregates are derived:</span>
+<span class="sd">    the median, mode and percentile of tremor power specified in the configuration object. </span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        The input DataFrame containing extracted tremor features. The DataFrame must include</span>
+<span class="sd">        the necessary columns as specified in the classifier&#39;s feature names.</span>
+
+<span class="sd">    config : TremorConfig</span>
+<span class="sd">        Configuration object containing the percentile for aggregating tremor power.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        A dictionary with the aggregated tremor time and tremor power measures, as well as the total number of windows</span>
+<span class="sd">        available in the input dataframe, and the number of windows at rest.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - Tremor power is converted to log scale, after adding a constant of 1, so that zero tremor power</span>
+<span class="sd">    corresponds to a value of 0 in log scale.</span>
+<span class="sd">    - The modal tremor power is computed based on gaussian kernel density estimation.</span>
+<span class="sd">  </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">nr_windows_total</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># number of windows in the input dataframe</span>
+
+    <span class="c1"># remove windows with detected non-tremor arm movements to control for the amount of arm activities performed</span>
+    <span class="n">df_filtered</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">pred_arm_at_rest</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">nr_windows_rest</span> <span class="o">=</span> <span class="n">df_filtered</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># number of windows without non-tremor arm movement</span>
+
+    <span class="c1"># calculate tremor time</span>
+    <span class="n">perc_windows_tremor</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">df_filtered</span><span class="p">[</span><span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="n">nr_windows_rest</span> <span class="o">*</span> <span class="mi">100</span> <span class="c1"># as percentage of total measured time without non-tremor arm movement</span>
+
+    <span class="c1"># calculate aggregated tremor power measures</span>
+    <span class="n">tremor_power</span> <span class="o">=</span> <span class="n">df_filtered</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_filtered</span><span class="p">[</span><span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;tremor_power&#39;</span><span class="p">]</span>
+    <span class="n">tremor_power</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">tremor_power</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># convert to log scale</span>
+    <span class="n">aggregated_tremor_power</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="k">for</span> <span class="n">aggregate</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">aggregates_tremor_power</span><span class="p">:</span>
+        <span class="n">aggregate_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">aggregate</span><span class="si">}</span><span class="s2">_tremor_power&quot;</span>
+        <span class="k">if</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s1">&#39;mode&#39;</span><span class="p">:</span>
+            <span class="c1"># calculate modal tremor power</span>
+            <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">301</span><span class="p">)</span>
+            <span class="n">kde</span> <span class="o">=</span> <span class="n">gaussian_kde</span><span class="p">(</span><span class="n">tremor_power</span><span class="p">)</span>
+            <span class="n">kde_values</span> <span class="o">=</span> <span class="n">kde</span><span class="p">(</span><span class="n">bin_edges</span><span class="p">)</span>
+            <span class="n">max_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">kde_values</span><span class="p">)</span>
+            <span class="n">aggregated_tremor_power</span><span class="p">[</span><span class="s1">&#39;modal_tremor_power&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bin_edges</span><span class="p">[</span><span class="n">max_index</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># calculate te other aggregates (e.g. median and 90th percentile) of tremor power</span>
+            <span class="n">aggregated_tremor_power</span><span class="p">[</span><span class="n">aggregate_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregate_parameter</span><span class="p">(</span><span class="n">tremor_power</span><span class="p">,</span> <span class="n">aggregate</span><span class="p">)</span>
+    
+    <span class="c1"># store aggregates in json format</span>
+    <span class="n">d_aggregates</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;nr_windows_total&#39;</span><span class="p">:</span> <span class="n">nr_windows_total</span><span class="p">,</span>
+            <span class="s1">&#39;nr_windows_rest&#39;</span><span class="p">:</span> <span class="n">nr_windows_rest</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;aggregated_tremor_measures&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;perc_windows_tremor&#39;</span><span class="p">:</span> <span class="n">perc_windows_tremor</span><span class="p">,</span>
+            <span class="s1">&#39;median_tremor_power&#39;</span><span class="p">:</span> <span class="n">aggregated_tremor_power</span><span class="p">[</span><span class="s1">&#39;median_tremor_power&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;modal_tremor_power&#39;</span><span class="p">:</span> <span class="n">aggregated_tremor_power</span><span class="p">[</span><span class="s1">&#39;modal_tremor_power&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;90p_tremor_power&#39;</span><span class="p">:</span> <span class="n">aggregated_tremor_power</span><span class="p">[</span><span class="s1">&#39;90p_tremor_power&#39;</span><span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">d_aggregates</span></div>
+
+
+
+<div class="viewcode-block" id="extract_spectral_domain_features">
+<a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/tremor_pipeline/index.html#paradigma.pipelines.tremor_pipeline.extract_spectral_domain_features">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_spectral_domain_features</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute spectral domain features from the gyroscope data.</span>
+
+<span class="sd">    This function computes Mel-frequency cepstral coefficients (MFCCs), the frequency of the peak, </span>
+<span class="sd">    the tremor power, and the below tremor power based on the total power spectral density of the windowed gyroscope data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : numpy.ndarray</span>
+<span class="sd">        A 2D numpy array where each row corresponds to a window of gyroscope data.</span>
+<span class="sd">    config : object</span>
+<span class="sd">        Configuration object containing settings such as sampling frequency, window type, </span>
+<span class="sd">        and MFCC parameters.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        The feature dataframe containing the extracted spectral features, including </span>
+<span class="sd">        MFCCs, the frequency of the peak, the tremor power and below tremor power for each window.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Initialize a dictionary to hold the results</span>
+    <span class="n">feature_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Initialize parameters</span>
+    <span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span>
+    <span class="n">segment_length_s</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">segment_length_s</span>
+    <span class="n">overlap_fraction</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">overlap_fraction</span>
+    <span class="n">spectral_resolution</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">spectral_resolution</span>
+    <span class="n">window_type</span> <span class="o">=</span> <span class="s1">&#39;hann&#39;</span>
+
+    <span class="c1"># Compute the power spectral density</span>
+    <span class="n">segment_length_n</span> <span class="o">=</span> <span class="n">sampling_frequency</span> <span class="o">*</span> <span class="n">segment_length_s</span>
+    <span class="n">overlap_n</span> <span class="o">=</span> <span class="n">segment_length_n</span> <span class="o">*</span> <span class="n">overlap_fraction</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">get_window</span><span class="p">(</span><span class="n">window_type</span><span class="p">,</span> <span class="n">segment_length_n</span><span class="p">,</span> <span class="n">fftbins</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">nfft</span> <span class="o">=</span> <span class="n">sampling_frequency</span> <span class="o">/</span> <span class="n">spectral_resolution</span>
+
+    <span class="n">freqs</span><span class="p">,</span> <span class="n">psd</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">welch</span><span class="p">(</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> 
+        <span class="n">fs</span><span class="o">=</span><span class="n">sampling_frequency</span><span class="p">,</span> 
+        <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> 
+        <span class="n">nperseg</span><span class="o">=</span><span class="n">segment_length_n</span><span class="p">,</span>
+        <span class="n">noverlap</span><span class="o">=</span><span class="n">overlap_n</span><span class="p">,</span> 
+        <span class="n">nfft</span><span class="o">=</span><span class="n">nfft</span><span class="p">,</span> 
+        <span class="n">detrend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+        <span class="n">scaling</span><span class="o">=</span><span class="s1">&#39;density&#39;</span><span class="p">,</span>
+        <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Compute total power in the PSD (over the three axes)</span>
+    <span class="n">total_psd</span> <span class="o">=</span> <span class="n">compute_total_power</span><span class="p">(</span><span class="n">psd</span><span class="p">)</span>
+
+    <span class="c1"># Compute the MFCC&#39;s</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">mfcc_low_frequency</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">fmin_mfcc</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">mfcc_high_frequency</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">fmax_mfcc</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">mfcc_n_dct_filters</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">n_dct_filters_mfcc</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">mfcc_n_coefficients</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">n_coefficients_mfcc</span>
+
+    <span class="n">mfccs</span> <span class="o">=</span> <span class="n">compute_mfccs</span><span class="p">(</span>
+        <span class="n">total_power_array</span><span class="o">=</span><span class="n">total_psd</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="n">multiplication_factor</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Combine the MFCCs into the features DataFrame</span>
+    <span class="n">mfcc_colnames</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;mfcc_</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">mfcc_n_coefficients</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">colname</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mfcc_colnames</span><span class="p">):</span>
+        <span class="n">feature_dict</span><span class="p">[</span><span class="n">colname</span><span class="p">]</span> <span class="o">=</span> <span class="n">mfccs</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span>
+
+    <span class="c1"># Compute the frequency of the peak, non-tremor power and tremor power</span>
+    <span class="n">feature_dict</span><span class="p">[</span><span class="s1">&#39;freq_peak&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extract_frequency_peak</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">total_psd</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">fmin_peak_search</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">fmax_peak_search</span><span class="p">)</span>
+    <span class="n">feature_dict</span><span class="p">[</span><span class="s1">&#39;below_tremor_power&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">compute_power_in_bandwidth</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">total_psd</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">fmin_below_rest_tremor</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">fmax_below_rest_tremor</span><span class="p">,</span> 
+                                                                <span class="n">include_max</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">spectral_resolution</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">spectral_resolution</span><span class="p">,</span> 
+                                                                <span class="n">cumulative_sum_method</span><span class="o">=</span><span class="s1">&#39;sum&#39;</span><span class="p">)</span>
+    <span class="n">feature_dict</span><span class="p">[</span><span class="s1">&#39;tremor_power&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extract_tremor_power</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">total_psd</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">fmin_rest_tremor</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">fmax_rest_tremor</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">feature_dict</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Erik Post, Kars Veldkamp, Nienke Timmermans, Peter Kok, Vedran Kasalica, Diogo Coutinho Soriano, Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

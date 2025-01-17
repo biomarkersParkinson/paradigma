@@ -5,7 +5,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>paradigma.feature_extraction &mdash; paradigma  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
@@ -20,10 +20,11 @@
         <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
         <script src="../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="paradigma.gait_analysis" href="../gait_analysis/index.html" />
+    <link rel="next" title="paradigma.pipelines" href="../pipelines/index.html" />
     <link rel="prev" title="paradigma.constants" href="../constants/index.html" /> 
 </head>
 
@@ -46,46 +47,38 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Example notebooks</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/gait/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/ppg/ppg_analysis.html">PPG analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/data_preparation.html">Data Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/heart_rate_analysis.html">Heart rate analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html">paradigma</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../classification/index.html">paradigma.classification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../config/index.html">paradigma.config</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../constants/index.html">paradigma.constants</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">paradigma.feature_extraction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../gait_analysis/index.html">paradigma.gait_analysis</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../gait_analysis_config/index.html">paradigma.gait_analysis_config</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../heart_rate_analysis/index.html">paradigma.heart_rate_analysis</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../heart_rate_analysis_config/index.html">paradigma.heart_rate_analysis_config</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../heart_rate_util/index.html">paradigma.heart_rate_util</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../imu_preprocessing/index.html">paradigma.imu_preprocessing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../ppg_preprocessing/index.html">paradigma.ppg_preprocessing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../preprocessing_config/index.html">paradigma.preprocessing_config</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../quantification/index.html">paradigma.quantification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../pipelines/index.html">paradigma.pipelines</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../preprocessing/index.html">paradigma.preprocessing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../segmenting/index.html">paradigma.segmenting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../testing/index.html">paradigma.testing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../util/index.html">paradigma.util</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../windowing/index.html">paradigma.windowing</a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 </li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">TSDF schema</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../tsdf_paradigma_schemas.html">TSDF fields in Paradigma schemas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tsdf_paradigma_channels_and_units.html">Channels and units in Paradigma schemas</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Development</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../conduct.html">Code of Conduct</a></li>
 </ul>
 
         </div>
@@ -120,56 +113,71 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.feature_extraction.generate_statistics" title="paradigma.feature_extraction.generate_statistics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_statistics</span></code></a>(→ list)</p></td>
-<td><p>Generate statistics for a single sensor and axis. The function is used with the apply function in pandas.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.feature_extraction.compute_statistics" title="paradigma.feature_extraction.compute_statistics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_statistics</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Compute a specific statistical measure along the timestamps of a 2D or 3D array.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.feature_extraction.generate_std_norm" title="paradigma.feature_extraction.generate_std_norm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_std_norm</span></code></a>(→ pandas.Series)</p></td>
-<td><p>Generate the standard deviation of the norm of the accelerometer axes.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.feature_extraction.compute_std_euclidean_norm" title="paradigma.feature_extraction.compute_std_euclidean_norm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_std_euclidean_norm</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Compute the standard deviation of the Euclidean norm for each window of sensor data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.feature_extraction.compute_fft" title="paradigma.feature_extraction.compute_fft"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_fft</span></code></a>(→ tuple)</p></td>
-<td><p>Compute the Fast Fourier Transform (FFT) of a signal.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.feature_extraction.compute_power_in_bandwidth" title="paradigma.feature_extraction.compute_power_in_bandwidth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_power_in_bandwidth</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Compute the logarithmic power within specified frequency bands for each sensor axis.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.feature_extraction.signal_to_ffts" title="paradigma.feature_extraction.signal_to_ffts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">signal_to_ffts</span></code></a>(→ tuple)</p></td>
-<td><p>Compute the Fast Fourier Transform (FFT) of a signal per window (can probably be combined with compute_fft and simplified).</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.feature_extraction.compute_total_power" title="paradigma.feature_extraction.compute_total_power"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_total_power</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Compute the total power by summing the power spectral density (PSD) across frequency bins.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.feature_extraction.compute_power_in_bandwidth" title="paradigma.feature_extraction.compute_power_in_bandwidth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_power_in_bandwidth</span></code></a>(→ float)</p></td>
-<td><p>Note: sensor_col is a single cell (which corresponds to a single window) of sensor_col, as it is used with apply function.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.feature_extraction.extract_tremor_power" title="paradigma.feature_extraction.extract_tremor_power"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_tremor_power</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Computes the tremor power (1.25 Hz around the peak within the tremor frequency band)</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.feature_extraction.compute_perc_power" title="paradigma.feature_extraction.compute_perc_power"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_perc_power</span></code></a>(→ float)</p></td>
-<td><p>Note: sensor_col is a single cell (which corresponds to a single window) of sensor_col, as it is used with apply function.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.feature_extraction.compute_dominant_frequency" title="paradigma.feature_extraction.compute_dominant_frequency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_dominant_frequency</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Compute the dominant frequency within a specified frequency range for each window and sensor axis.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.feature_extraction.get_dominant_frequency" title="paradigma.feature_extraction.get_dominant_frequency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dominant_frequency</span></code></a>(→ float)</p></td>
-<td><p>Note: signal_ffts and signal_freqs are single cells (which corresponds to a single window) of signal_ffts and signal_freqs, as it is used with apply function.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.feature_extraction.extract_frequency_peak" title="paradigma.feature_extraction.extract_frequency_peak"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_frequency_peak</span></code></a>(→ pandas.Series)</p></td>
+<td><p>Extract the frequency of the peak in the power spectral density within the specified frequency band.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.feature_extraction.compute_power" title="paradigma.feature_extraction.compute_power"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_power</span></code></a>(→ pandas.Series)</p></td>
-<td><p>Compute the power of the FFT values.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.feature_extraction.compute_relative_power" title="paradigma.feature_extraction.compute_relative_power"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_relative_power</span></code></a>(→ list)</p></td>
+<td><p>Calculate relative power within the dominant frequency band in the physiological range (0.75 - 3 Hz).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.feature_extraction.generate_cepstral_coefficients" title="paradigma.feature_extraction.generate_cepstral_coefficients"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_cepstral_coefficients</span></code></a>(→ pandas.DataFrame)</p></td>
-<td><p>Generate cepstral coefficients from the total power of the signal.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.feature_extraction.compute_spectral_entropy" title="paradigma.feature_extraction.compute_spectral_entropy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_spectral_entropy</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Calculate the spectral entropy from the normalized power spectral density.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.feature_extraction.pca_transform_gyroscope" title="paradigma.feature_extraction.pca_transform_gyroscope"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pca_transform_gyroscope</span></code></a>(→ pandas.Series)</p></td>
-<td><p>Apply principal component analysis (PCA) on the y-axis and z-axis of the raw gyroscope signal</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.feature_extraction.compute_mfccs" title="paradigma.feature_extraction.compute_mfccs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_mfccs</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Generate Mel Frequency Cepstral Coefficients (MFCCs) from the total power spectral density of the signal.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.feature_extraction.compute_angle" title="paradigma.feature_extraction.compute_angle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_angle</span></code></a>(→ pandas.Series)</p></td>
-<td><p>Apply cumulative trapezoidal integration to extract the angle from the velocity.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.feature_extraction.melscale" title="paradigma.feature_extraction.melscale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">melscale</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Maps linear frequency values to the Mel scale.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.feature_extraction.remove_moving_average_angle" title="paradigma.feature_extraction.remove_moving_average_angle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_moving_average_angle</span></code></a>(→ pandas.Series)</p></td>
-<td><p>Remove the moving average from the angle to account for potential drift in the signal.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.feature_extraction.inverse_melscale" title="paradigma.feature_extraction.inverse_melscale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_melscale</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Maps values from the Mel scale back to linear frequencies.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.feature_extraction.extract_angle_extremes" title="paradigma.feature_extraction.extract_angle_extremes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_angle_extremes</span></code></a>(→ pandas.Series)</p></td>
-<td><p>Extract the peaks of the angle (minima and maxima) from the smoothed angle signal that adhere to a set of specific requirements.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.feature_extraction.pca_transform_gyroscope" title="paradigma.feature_extraction.pca_transform_gyroscope"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pca_transform_gyroscope</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Perform principal component analysis (PCA) on gyroscope data to estimate velocity. If pred_colname is provided,</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.feature_extraction.extract_range_of_motion" title="paradigma.feature_extraction.extract_range_of_motion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_range_of_motion</span></code></a>(→ pandas.Series)</p></td>
-<td><p>Extract the range of motion from the angle extrema values.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.feature_extraction.compute_angle" title="paradigma.feature_extraction.compute_angle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_angle</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Compute the angle from the angular velocity using cumulative trapezoidal integration.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.feature_extraction.extract_peak_angular_velocity" title="paradigma.feature_extraction.extract_peak_angular_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_peak_angular_velocity</span></code></a>(→ pandas.DataFrame)</p></td>
-<td><p>Extract the forward and backward peak angular velocity from the angular velocity.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.feature_extraction.remove_moving_average_angle" title="paradigma.feature_extraction.remove_moving_average_angle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_moving_average_angle</span></code></a>(→ pandas.Series)</p></td>
+<td><p>Remove the moving average from the angle to correct for drift.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.feature_extraction.extract_temporal_domain_features" title="paradigma.feature_extraction.extract_temporal_domain_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_temporal_domain_features</span></code></a>(→ pandas.DataFrame)</p></td>
-<td><p>Compute temporal domain features for the accelerometer signal. The features are added to the dataframe. Therefore the original dataframe is modified, and the modified dataframe is returned.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.feature_extraction.extract_angle_extremes" title="paradigma.feature_extraction.extract_angle_extremes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_angle_extremes</span></code></a>(→ tuple[List[int], List[int], ...)</p></td>
+<td><p>Extract extrema (minima and maxima) indices from the angle array.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.feature_extraction.extract_spectral_domain_features" title="paradigma.feature_extraction.extract_spectral_domain_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_spectral_domain_features</span></code></a>(config, df_windowed, ...)</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.feature_extraction.compute_range_of_motion" title="paradigma.feature_extraction.compute_range_of_motion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_range_of_motion</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Compute the range of motion of a time series based on the angle extrema.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.feature_extraction.compute_peak_angular_velocity" title="paradigma.feature_extraction.compute_peak_angular_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_peak_angular_velocity</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Compute the peak angular velocity of a time series based on the angle extrema.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.feature_extraction.compute_forward_backward_peak_angular_velocity" title="paradigma.feature_extraction.compute_forward_backward_peak_angular_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_forward_backward_peak_angular_velocity</span></code></a>(...)</p></td>
+<td><p>Compute the peak angular velocity of a time series based on the angle extrema.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.feature_extraction.compute_signal_to_noise_ratio" title="paradigma.feature_extraction.compute_signal_to_noise_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_signal_to_noise_ratio</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Compute the signal to noise ratio of the PPG signal.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.feature_extraction.compute_auto_correlation" title="paradigma.feature_extraction.compute_auto_correlation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_auto_correlation</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Compute the biased autocorrelation of the PPG signal. The autocorrelation is computed up to 3 seconds. The highest peak value is selected as the autocorrelation value. If no peaks are found, the value is set to 0.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.feature_extraction.biased_autocorrelation" title="paradigma.feature_extraction.biased_autocorrelation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">biased_autocorrelation</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Compute the biased autocorrelation of a signal (similar to matlabs autocorr function), where the normalization factor</p></td>
 </tr>
 </tbody>
 </table>
@@ -177,18 +185,225 @@
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
 <dl class="py function">
-<dt class="sig sig-object py" id="paradigma.feature_extraction.generate_statistics">
-<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">generate_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">statistic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#generate_statistics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.generate_statistics" title="Link to this definition"></a></dt>
-<dd><p>Generate statistics for a single sensor and axis. The function is used with the apply function in pandas.</p>
+<dt class="sig sig-object py" id="paradigma.feature_extraction.compute_statistics">
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">compute_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">statistic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abs_stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_statistics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.compute_statistics" title="Link to this definition"></a></dt>
+<dd><p>Compute a specific statistical measure along the timestamps of a 2D or 3D array.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>sensor_col</strong> (<em>pd.Series</em>) – The sensor column to be aggregated (e.g. x-axis of accelerometer)</p></li>
-<li><p><strong>statistic</strong> (<em>str</em>) – The statistic to be computed [mean, std, max, min]</p></li>
+<li><p><strong>data</strong> (<em>np.ndarray</em>) – A 2D or 3D NumPy array where statistics are computed.</p></li>
+<li><p><strong>statistic</strong> (<em>str</em>) – The statistic to compute. Supported values are:
+- ‘mean’: Mean.
+- ‘median’: Median.
+- ‘var’: Variance.
+- ‘std’: Standard deviation.
+- ‘max’: Maximum.
+- ‘min’: Minimum.
+- ‘kurtosis’: Kurtosis.
+- ‘skewness’: Skewness.</p></li>
+<li><p><strong>abs_stats</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to compute the statistics on the absolute values of the data for
+the mean and median (default: False).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The aggregated statistics</p>
+<dd class="field-even"><p>A 1D or 2D array containing the computed statistic for each row (2D)
+or the entire array (1D).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the specified <cite>statistic</cite> is not supported or if the input data has an invalid shape.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.feature_extraction.compute_std_euclidean_norm">
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">compute_std_euclidean_norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_std_euclidean_norm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.compute_std_euclidean_norm" title="Link to this definition"></a></dt>
+<dd><p>Compute the standard deviation of the Euclidean norm for each window of sensor data.</p>
+<p>The function calculates the Euclidean norm (L2 norm) across sensor axes for each
+timestamp within a window, and then computes the standard deviation of these norms
+for each window.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>np.ndarray</em>) – A 3D NumPy array of shape (n_windows, n_timestamps, n_axes), where:
+- <cite>n_windows</cite> is the number of windows.
+- <cite>n_timestamps</cite> is the number of time steps per window.
+- <cite>n_axes</cite> is the number of sensor axes (e.g., 3 for x, y, z).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A 1D array of shape (n_windows,) containing the standard deviation of the
+Euclidean norm for each window.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.feature_extraction.compute_power_in_bandwidth">
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">compute_power_in_bandwidth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freqs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectral_resolution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cumulative_sum_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'trapz'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_power_in_bandwidth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.compute_power_in_bandwidth" title="Link to this definition"></a></dt>
+<dd><p>Compute the logarithmic power within specified frequency bands for each sensor axis.</p>
+<p>This function integrates the power spectral density (PSD) over user-defined frequency
+bands and computes the logarithm of the resulting power for each axis of the sensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>freqs</strong> (<em>np.ndarray</em>) – A 1D array of shape (n_frequencies,) containing the frequencies corresponding
+to the PSD values.</p></li>
+<li><p><strong>psd</strong> (<em>np.ndarray</em>) – A 2D array of shape (n_windows, n_frequencies) or 3D array of shape (n_windows, n_frequencies, n_axes)
+representing the power spectral density (PSD) of the sensor data.</p></li>
+<li><p><strong>fmin</strong> (<em>float</em>) – The lower bound of the frequency band in Hz.</p></li>
+<li><p><strong>fmax</strong> (<em>float</em>) – The upper bound of the frequency band in Hz.</p></li>
+<li><p><strong>include_max</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to include the maximum frequency in the search range (default: True).</p></li>
+<li><p><strong>spectral_resolution</strong> (<em>float</em><em>, </em><em>optional</em>) – The spectral resolution of the PSD in Hz (default: 1).</p></li>
+<li><p><strong>cumulative_sum_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The method used to integrate the PSD over the frequency band. Supported values are:
+- ‘trapz’: Trapezoidal rule.
+- ‘sum’: Simple summation (default: ‘trapz’).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A 2D array of shape (n_windows, n_axes) containing the power within
+the specified frequency band for each window and each sensor axis.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.feature_extraction.compute_total_power">
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">compute_total_power</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">psd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_total_power"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.compute_total_power" title="Link to this definition"></a></dt>
+<dd><p>Compute the total power by summing the power spectral density (PSD) across frequency bins.</p>
+<p>This function calculates the total power for each window and each sensor axis by
+summing the PSD values across all frequency bins.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>psd</strong> (<em>np.ndarray</em>) – A 3D array of shape (n_windows, n_frequencies, n_axes) representing the
+power spectral density (PSD) of the sensor data.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A 2D array of shape (n_windows, n_axes) containing the total power for each
+window and each sensor axis.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.feature_extraction.extract_tremor_power">
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">extract_tremor_power</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freqs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_psd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectral_resolution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.25</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#extract_tremor_power"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.extract_tremor_power" title="Link to this definition"></a></dt>
+<dd><p>Computes the tremor power (1.25 Hz around the peak within the tremor frequency band)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>total_psd</strong> (<em>np.ndarray</em>) – The power spectral density of the gyroscope signal summed over the three axes</p></li>
+<li><p><strong>freqs</strong> (<em>np.ndarray</em>) – Frequency vector corresponding to the power spectral density</p></li>
+<li><p><strong>fmin</strong> (<em>float</em>) – The lower bound of the tremor frequency band in Hz (default: 3)</p></li>
+<li><p><strong>fmax</strong> (<em>float</em>) – The upper bound of the tremor frequency band in Hz (default: 7)</p></li>
+<li><p><strong>spectral_resolution</strong> (<em>float</em>) – The spectral resolution of the PSD in Hz (default: 0.25)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The tremor power across windows</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.Series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.feature_extraction.compute_dominant_frequency">
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">compute_dominant_frequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freqs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_dominant_frequency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.compute_dominant_frequency" title="Link to this definition"></a></dt>
+<dd><p>Compute the dominant frequency within a specified frequency range for each window and sensor axis.</p>
+<p>The dominant frequency is defined as the frequency corresponding to the maximum power in the
+power spectral density (PSD) within the specified range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>freqs</strong> (<em>np.ndarray</em>) – A 1D array of shape (n_frequencies,) containing the frequencies corresponding
+to the PSD values.</p></li>
+<li><p><strong>psd</strong> (<em>np.ndarray</em>) – A 2D array of shape (n_windows, n_frequencies) or a 3D array of shape
+(n_windows, n_frequencies, n_axes) representing the power spectral density.</p></li>
+<li><p><strong>fmin</strong> (<em>float</em>) – The lower bound of the frequency range (inclusive).</p></li>
+<li><p><strong>fmax</strong> (<em>float</em>) – The upper bound of the frequency range (exclusive).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>If <cite>psd</cite> is 2D: A 1D array of shape (n_windows,) containing the dominant frequency
+for each window.</p></li>
+<li><p>If <cite>psd</cite> is 3D: A 2D array of shape (n_windows, n_axes) containing the dominant
+frequency for each window and each axis.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If <cite>fmin</cite> or <cite>fmax</cite> is outside the bounds of the <cite>freqs</cite> array.
+If <cite>psd</cite> is not a 2D or 3D array.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.feature_extraction.extract_frequency_peak">
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">extract_frequency_peak</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freqs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#extract_frequency_peak"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.extract_frequency_peak" title="Link to this definition"></a></dt>
+<dd><p>Extract the frequency of the peak in the power spectral density within the specified frequency band.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>freqs</strong> (<em>pd.Series</em>) – Frequency vector corresponding to the power spectral density</p></li>
+<li><p><strong>psd</strong> (<em>pd.Series</em>) – The total power spectral density of the gyroscope signal</p></li>
+<li><p><strong>fmin</strong> (<em>float</em>) – The lower bound of the frequency band in Hz (default: None). If not provided, the minimum frequency is used.</p></li>
+<li><p><strong>fmax</strong> (<em>float</em>) – The upper bound of the frequency band in Hz (default: None). If not provided, the maximum frequency is used.</p></li>
+<li><p><strong>include_max</strong> (<em>bool</em>) – Whether to include the maximum frequency in the search range (default: True)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The frequency of the peak across windows</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.Series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.feature_extraction.compute_relative_power">
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">compute_relative_power</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freqs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../config/index.html#paradigma.config.HeartRateConfig" title="paradigma.config.HeartRateConfig"><span class="pre">paradigma.config.HeartRateConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_relative_power"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.compute_relative_power" title="Link to this definition"></a></dt>
+<dd><p>Calculate relative power within the dominant frequency band in the physiological range (0.75 - 3 Hz).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>freqs</strong> (<em>np.ndarray</em>) – The frequency bins of the power spectral density.</p></li>
+<li><p><strong>psd</strong> (<em>np.ndarray</em>) – The power spectral density of the signal.</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="../config/index.html#paradigma.config.HeartRateConfig" title="paradigma.config.HeartRateConfig"><em>HeartRateConfig</em></a>) – <p>The configuration object containing the parameters for the feature extraction. The following
+attributes are used:
+- freq_band_physio: tuple</p>
+<blockquote>
+<div><p>The frequency band for physiological heart rate (default: (0.75, 3)).</p>
+</div></blockquote>
+<ul>
+<li><dl class="simple">
+<dt>bandwidth: float</dt><dd><p>The bandwidth around the peak frequency to consider for relative power calculation (default: 0.5).</p>
+</dd>
+</dl>
+</li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The relative power within the dominant frequency band in the physiological range (0.75 - 3 Hz).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list</p>
@@ -197,244 +412,190 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="paradigma.feature_extraction.generate_std_norm">
-<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">generate_std_norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#generate_std_norm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.generate_std_norm" title="Link to this definition"></a></dt>
-<dd><p>Generate the standard deviation of the norm of the accelerometer axes.</p>
+<dt class="sig sig-object py" id="paradigma.feature_extraction.compute_spectral_entropy">
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">compute_spectral_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">psd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_spectral_entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.compute_spectral_entropy" title="Link to this definition"></a></dt>
+<dd><p>Calculate the spectral entropy from the normalized power spectral density.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The dataframe containing the accelerometer axes</p></li>
-<li><p><strong>cols</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – The names of the columns containing the accelerometer axes</p></li>
+<li><p><strong>psd</strong> (<em>np.ndarray</em>) – The power spectral density of the signal.</p></li>
+<li><p><strong>n_samples</strong> (<em>int</em>) – The number of samples in the window.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The standard deviation of the norm of the accelerometer axes</p>
+<dd class="field-even"><p>The spectral entropy of the power spectral density.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pd.Series</p>
+<dd class="field-odd"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="paradigma.feature_extraction.compute_fft">
-<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">compute_fft</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'hann'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_fft"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.compute_fft" title="Link to this definition"></a></dt>
-<dd><p>Compute the Fast Fourier Transform (FFT) of a signal.</p>
+<dt class="sig sig-object py" id="paradigma.feature_extraction.compute_mfccs">
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">compute_mfccs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">total_power_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mel_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplication_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_mfccs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.compute_mfccs" title="Link to this definition"></a></dt>
+<dd><p>Generate Mel Frequency Cepstral Coefficients (MFCCs) from the total power spectral density of the signal.</p>
+<p>MFCCs are commonly used features in signal processing for tasks like audio and
+vibration analysis. In this version, we adjusted the MFFCs to the human activity
+range according to: <a class="reference external" href="https://www.sciencedirect.com/science/article/abs/pii/S016516841500331X#f0050">https://www.sciencedirect.com/science/article/abs/pii/S016516841500331X#f0050</a>.
+This function calculates MFCCs by applying a filterbank
+(in either the mel scale or linear scale) to the total power of the signal,
+followed by a Discrete Cosine Transform (DCT) to obtain coefficients.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>values</strong> (<em>list</em>) – The values of the signal (e.g., accelerometer data) of a single window.</p></li>
-<li><p><strong>window_type</strong> (<em>str</em>) – The type of window to be used for the FFT (default: ‘hann’)</p></li>
-<li><p><strong>sampling_frequency</strong> (<em>int</em>) – The sampling frequency of the signal (default: 100)</p></li>
+<li><p><strong>total_power_array</strong> (<em>np.ndarray</em>) – 2D array of shape (n_windows, n_frequencies) containing the total power
+of the signal for each window.</p></li>
+<li><p><strong>config</strong> (<em>object</em>) – <p>Configuration object containing the following attributes:
+- window_length_s : int</p>
+<blockquote>
+<div><p>Duration of each analysis window in seconds.</p>
+</div></blockquote>
+<ul>
+<li><dl class="simple">
+<dt>sampling_frequency<span class="classifier">int</span></dt><dd><p>Sampling frequency of the data in Hz (default: 100).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>mfcc_low_frequency<span class="classifier">float</span></dt><dd><p>Lower bound of the frequency band in Hz (default: 0).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>mfcc_high_frequency<span class="classifier">float</span></dt><dd><p>Upper bound of the frequency band in Hz (default: 25).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>mfcc_n_dct_filters<span class="classifier">int</span></dt><dd><p>Number of triangular filters in the filterbank (default: 20).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>mfcc_n_coefficients<span class="classifier">int</span></dt><dd><p>Number of coefficients to extract (default: 12).</p>
+</dd>
+</dl>
+</li>
+</ul>
+</p></li>
+<li><p><strong>mel_scale</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use the mel scale for the filterbank (default: True).</p></li>
+<li><p><strong>multiplication_factor</strong> (<em>float</em><em>, </em><em>optional</em>) – Multiplication factor for the Mel scale conversion (default: 1). For tremor, the recommended
+value is 1. For gait, this is 4.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The FFT values and the corresponding frequencies</p>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>np.ndarray</em> – 2D array of MFCCs with shape <cite>(n_windows, n_coefficients)</cite>, where each row
+contains the MFCCs for a corresponding window.</p></li>
+<li><p><em>…</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function includes filterbank normalization to ensure proper scaling.</p></li>
+<li><p>DCT filters are constructed to minimize spectral leakage.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.feature_extraction.melscale">
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">melscale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplication_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#melscale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.melscale" title="Link to this definition"></a></dt>
+<dd><p>Maps linear frequency values to the Mel scale.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – Linear frequency values to be converted to the Mel scale.</p></li>
+<li><p><strong>multiplication_factor</strong> (<em>float</em><em>, </em><em>optional</em>) – Multiplication factor for the Mel scale conversion (default: 1). For tremor, the recommended
+value is 1. For gait, this is 4.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Frequency values mapped to the Mel scale.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tuple</p>
+<dd class="field-odd"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="paradigma.feature_extraction.signal_to_ffts">
-<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">signal_to_ffts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'hann'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#signal_to_ffts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.signal_to_ffts" title="Link to this definition"></a></dt>
-<dd><p>Compute the Fast Fourier Transform (FFT) of a signal per window (can probably be combined with compute_fft and simplified).</p>
+<dt class="sig sig-object py" id="paradigma.feature_extraction.inverse_melscale">
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">inverse_melscale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplication_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#inverse_melscale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.inverse_melscale" title="Link to this definition"></a></dt>
+<dd><p>Maps values from the Mel scale back to linear frequencies.</p>
+<p>This function performs the inverse transformation of the Mel scale,
+converting perceptual frequency values to their corresponding linear frequency values.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sensor_col</strong> (<em>pd.Series</em>) – The sensor column to be transformed (e.g. x-axis of accelerometer)</p></li>
-<li><p><strong>window_type</strong> (<em>str</em>) – The type of window to be used for the FFT (default: ‘hann’)</p></li>
-<li><p><strong>sampling_frequency</strong> (<em>int</em>) – The sampling frequency of the signal (default: 100)</p></li>
-</ul>
+<dd class="field-odd"><p><strong>x</strong> (<em>np.ndarray</em>) – Frequency values on the Mel scale to be converted back to linear frequencies.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Lists of FFT values and corresponding frequencies which can be concatenated as column to the dataframe</p>
+<dd class="field-even"><p>Linear frequency values corresponding to the given Mel scale values.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tuple</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="paradigma.feature_extraction.compute_power_in_bandwidth">
-<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">compute_power_in_bandwidth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'hann'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_power_in_bandwidth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.compute_power_in_bandwidth" title="Link to this definition"></a></dt>
-<dd><p>Note: sensor_col is a single cell (which corresponds to a single window) of sensor_col, as it is used with apply function.
-Probably we want a smarter way of doing this.</p>
-<p>Computes the power in a specific frequency band for a specified sensor and axis.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sensor_col</strong> (<em>list</em>) – The sensor column to be transformed (e.g. x-axis of accelerometer). This corresponds to a single window, which is a single row of the dataframe,
-and contains values of individual timestamps composing the window.</p></li>
-<li><p><strong>fmin</strong> (<em>float</em>) – The lower bound of the frequency band</p></li>
-<li><p><strong>fmax</strong> (<em>float</em>) – The upper bound of the frequency band</p></li>
-<li><p><strong>sampling_frequency</strong> (<em>int</em>) – The sampling frequency of the signal (default: 100)</p></li>
-<li><p><strong>window_type</strong> (<em>str</em>) – The type of window to be used for the FFT (default: ‘hann’)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The power in the specified frequency band</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="paradigma.feature_extraction.compute_perc_power">
-<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">compute_perc_power</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin_band</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax_band</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin_total</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax_total</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'hann'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_perc_power"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.compute_perc_power" title="Link to this definition"></a></dt>
-<dd><p>Note: sensor_col is a single cell (which corresponds to a single window) of sensor_col, as it is used with apply function.</p>
-<p>Computes the percentage of power in a specific frequency band for a specified sensor and axis.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sensor_col</strong> (<em>list</em>) – The sensor column to be transformed (e.g. x-axis of accelerometer). This corresponds to a single window, which is a single row of the dataframe</p></li>
-<li><p><strong>fmin_band</strong> (<em>float</em>) – The lower bound of the frequency band</p></li>
-<li><p><strong>fmax_band</strong> (<em>float</em>) – The upper bound of the frequency band</p></li>
-<li><p><strong>fmin_total</strong> (<em>float</em>) – The lower bound of the frequency spectrum (default: 0)</p></li>
-<li><p><strong>fmax_total</strong> (<em>float</em>) – The upper bound of the frequency spectrum (default: 100)</p></li>
-<li><p><strong>sampling_frequency</strong> (<em>int</em>) – The sampling frequency of the signal (default: 100)</p></li>
-<li><p><strong>window_type</strong> (<em>str</em>) – The type of window to be used for the FFT (default: ‘hann’)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The percentage of power in the specified frequency band</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="paradigma.feature_extraction.get_dominant_frequency">
-<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">get_dominant_frequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_ffts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_freqs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#get_dominant_frequency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.get_dominant_frequency" title="Link to this definition"></a></dt>
-<dd><p>Note: signal_ffts and signal_freqs are single cells (which corresponds to a single window) of signal_ffts and signal_freqs, as it is used with apply function.</p>
-<p>Computes the dominant frequency in a specific frequency band.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>signal_ffts</strong> (<em>list</em>) – The FFT values of the signal of a single window</p></li>
-<li><p><strong>signal_freqs</strong> (<em>list</em>) – The corresponding frequencies of the FFT values</p></li>
-<li><p><strong>fmin</strong> (<em>int</em>) – The lower bound of the frequency band</p></li>
-<li><p><strong>fmax</strong> (<em>int</em>) – The upper bound of the frequency band</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The dominant frequency in the specified frequency band</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="paradigma.feature_extraction.compute_power">
-<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">compute_power</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fft_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_power"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.compute_power" title="Link to this definition"></a></dt>
-<dd><p>Compute the power of the FFT values.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The dataframe containing the FFT values</p></li>
-<li><p><strong>fft_cols</strong> (<em>list</em>) – The names of the columns containing the FFT values</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The power of the FFT values</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pd.Series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="paradigma.feature_extraction.generate_cepstral_coefficients">
-<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">generate_cepstral_coefficients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">total_power_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_length_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_filters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_coefficients</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#generate_cepstral_coefficients"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.generate_cepstral_coefficients" title="Link to this definition"></a></dt>
-<dd><p>Generate cepstral coefficients from the total power of the signal.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>total_power_col</strong> (<em>pd.Series</em>) – The total power of the signal, extracted using compute_power</p></li>
-<li><p><strong>window_length_s</strong> (<em>int</em>) – The number of seconds a window constitutes</p></li>
-<li><p><strong>sampling_frequency</strong> (<em>int</em>) – The sampling frequency of the data (default: 100)</p></li>
-<li><p><strong>low_frequency</strong> (<em>int</em>) – The lower bound of the frequency band (default: 0)</p></li>
-<li><p><strong>high_frequency</strong> (<em>int</em>) – The upper bound of the frequency band (default: 25)</p></li>
-<li><p><strong>n_filters</strong> (<em>int</em>) – The number of DCT filters (default: 20)</p></li>
-<li><p><strong>n_coefficients</strong> (<em>int</em>) – The number of coefficients to extract (default: 12)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A dataframe with a single column corresponding to a single cepstral coefficient</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pd.DataFrame</p>
+<dd class="field-odd"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.feature_extraction.pca_transform_gyroscope">
-<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">pca_transform_gyroscope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_gyro_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_gyro_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_gait_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#pca_transform_gyroscope"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.pca_transform_gyroscope" title="Link to this definition"></a></dt>
-<dd><p>Apply principal component analysis (PCA) on the y-axis and z-axis of the raw gyroscope signal
-to extract the velocity. PCA is applied to the predicted gait timestamps only to maximize the similarity
-to the velocity in the arm swing direction.</p>
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">pca_transform_gyroscope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_gyro_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_gyro_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#pca_transform_gyroscope"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.pca_transform_gyroscope" title="Link to this definition"></a></dt>
+<dd><p>Perform principal component analysis (PCA) on gyroscope data to estimate velocity. If pred_colname is provided,
+the PCA is fitted on the predicted gait data. Otherwise, the PCA is fitted on the entire dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The dataframe containing the gyroscope data</p></li>
-<li><p><strong>y_gyro_colname</strong> (<em>str</em>) – The column name of the y-axis of the gyroscope</p></li>
-<li><p><strong>z_gyro_colname</strong> (<em>str</em>) – The column name of the z-axis of the gyroscope</p></li>
-<li><p><strong>pred_gait_colname</strong> (<em>str</em>) – The column name of the predicted gait boolean</p></li>
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The DataFrame containing the gyroscope data.</p></li>
+<li><p><strong>y_gyro_colname</strong> (<em>str</em>) – The column name for the y-axis gyroscope data.</p></li>
+<li><p><strong>z_gyro_colname</strong> (<em>str</em>) – The column name for the z-axis gyroscope data.</p></li>
+<li><p><strong>pred_colname</strong> (<em>str</em><em>, </em><em>optional</em>) – The column name for the predicted gait (default: None).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The first principal component corresponding to the angular velocity in the arm swing direction</p>
+<dd class="field-even"><p>The estimated velocity based on the principal component of the gyroscope data.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pd.Series</p>
+<dd class="field-odd"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.feature_extraction.compute_angle">
-<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">compute_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">velocity_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_angle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.compute_angle" title="Link to this definition"></a></dt>
-<dd><p>Apply cumulative trapezoidal integration to extract the angle from the velocity.</p>
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">compute_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocity_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_angle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.compute_angle" title="Link to this definition"></a></dt>
+<dd><p>Compute the angle from the angular velocity using cumulative trapezoidal integration.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>velocity_col</strong> (<em>pd.Series</em>) – The angular velocity (gyroscope) column to be integrated</p></li>
-<li><p><strong>time_col</strong> (<em>pd.Series</em>) – The time column corresponding to the angular velocity</p></li>
+<li><p><strong>time_array</strong> (<em>np.ndarray</em>) – The time array corresponding to the angular velocity data.</p></li>
+<li><p><strong>velocity_array</strong> (<em>np.ndarray</em>) – The angular velocity data to integrate.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>An estimation of the angle extracted from the angular velocity</p>
+<dd class="field-even"><p>The estimated angle based on the cumulative trapezoidal integration of the angular velocity.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pd.Series</p>
+<dd class="field-odd"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.feature_extraction.remove_moving_average_angle">
-<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">remove_moving_average_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#remove_moving_average_angle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.remove_moving_average_angle" title="Link to this definition"></a></dt>
-<dd><p>Remove the moving average from the angle to account for potential drift in the signal.</p>
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">remove_moving_average_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#remove_moving_average_angle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.remove_moving_average_angle" title="Link to this definition"></a></dt>
+<dd><p>Remove the moving average from the angle to correct for drift.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>angle_col</strong> (<em>pd.Series</em>) – The angle column to be processed, obtained using compute_angle</p></li>
-<li><p><strong>sampling_frequency</strong> (<em>int</em>) – The sampling frequency of the data (default: 100)</p></li>
+<li><p><strong>angle_array</strong> (<em>np.ndarray</em>) – The angle array to remove the moving average from.</p></li>
+<li><p><strong>fs</strong> (<em>float</em>) – The sampling frequency of the data.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The estimated angle without potential drift</p>
+<dd class="field-even"><p>The angle array with the moving average removed.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pd.Series</p>
@@ -444,90 +605,145 @@ to the velocity in the arm swing direction.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.feature_extraction.extract_angle_extremes">
-<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">extract_angle_extremes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dominant_frequency_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#extract_angle_extremes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.extract_angle_extremes" title="Link to this definition"></a></dt>
-<dd><p>Extract the peaks of the angle (minima and maxima) from the smoothed angle signal that adhere to a set of specific requirements.</p>
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">extract_angle_extremes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_frequency_activity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.75</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#extract_angle_extremes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.extract_angle_extremes" title="Link to this definition"></a></dt>
+<dd><p>Extract extrema (minima and maxima) indices from the angle array.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The dataframe containing the angle signal</p></li>
-<li><p><strong>angle_colname</strong> (<em>str</em>) – The name of the column containing the smoothed angle signal</p></li>
-<li><p><strong>dominant_frequency_colname</strong> (<em>str</em>) – The name of the column containing the dominant frequency</p></li>
-<li><p><strong>sampling_frequency</strong> (<em>int</em>) – The sampling frequency of the data (default: 100)</p></li>
+<li><p><strong>angle_array</strong> (<em>np.ndarray</em>) – The angle array to extract extrema from.</p></li>
+<li><p><strong>sampling_frequency</strong> (<em>float</em>) – The sampling frequency of the data.</p></li>
+<li><p><strong>max_frequency_activity</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum frequency of human activity in Hz (default: 1.75).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The extracted angle extremes (peaks)</p>
+<dd class="field-even"><p>A tuple containing the indices of the angle extrema, minima, and maxima.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pd.Series</p>
+<dd class="field-odd"><p>tuple</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="paradigma.feature_extraction.extract_range_of_motion">
-<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">extract_range_of_motion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle_extrema_values_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#extract_range_of_motion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.extract_range_of_motion" title="Link to this definition"></a></dt>
-<dd><p>Extract the range of motion from the angle extrema values.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>angle_extrema_values_col</strong> (<em>pd.Series</em>) – The column containing the angle extrema values</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The range of motion</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pd.Series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="paradigma.feature_extraction.extract_peak_angular_velocity">
-<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">extract_peak_angular_velocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocity_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_minima_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_maxima_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#extract_peak_angular_velocity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.extract_peak_angular_velocity" title="Link to this definition"></a></dt>
-<dd><p>Extract the forward and backward peak angular velocity from the angular velocity.</p>
+<dt class="sig sig-object py" id="paradigma.feature_extraction.compute_range_of_motion">
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">compute_range_of_motion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extrema_indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_range_of_motion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.compute_range_of_motion" title="Link to this definition"></a></dt>
+<dd><p>Compute the range of motion of a time series based on the angle extrema.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The dataframe containing the angular velocity</p></li>
-<li><p><strong>velocity_colname</strong> (<em>str</em>) – The column name of the angular velocity</p></li>
-<li><p><strong>angle_minima_colname</strong> (<em>str</em>) – The column name of the column containing the angle minima</p></li>
-<li><p><strong>angle_maxima_colname</strong> (<em>str</em>) – The column name of the column containing the angle maxima</p></li>
+<li><p><strong>angle_array</strong> (<em>np.ndarray</em>) – The angle array to compute the range of motion from.</p></li>
+<li><p><strong>extrema_indices</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – The indices of the angle extrema.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The dataframe with the forward and backward peak angular velocity</p>
+<dd class="field-even"><p>The range of motion of the time series.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pd.DataFrame</p>
+<dd class="field-odd"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="paradigma.feature_extraction.extract_temporal_domain_features">
-<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">extract_temporal_domain_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../gait_analysis_config/index.html#paradigma.gait_analysis_config.IMUConfig" title="paradigma.gait_analysis_config.IMUConfig"><span class="pre">paradigma.gait_analysis_config.IMUConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_windowed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l_gravity_stats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['mean',</span> <span class="pre">'std']</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#extract_temporal_domain_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.extract_temporal_domain_features" title="Link to this definition"></a></dt>
-<dd><p>Compute temporal domain features for the accelerometer signal. The features are added to the dataframe. Therefore the original dataframe is modified, and the modified dataframe is returned.</p>
+<dt class="sig sig-object py" id="paradigma.feature_extraction.compute_peak_angular_velocity">
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">compute_peak_angular_velocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">velocity_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_extrema_indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_peak_angular_velocity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.compute_peak_angular_velocity" title="Link to this definition"></a></dt>
+<dd><p>Compute the peak angular velocity of a time series based on the angle extrema.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<a class="reference internal" href="../gait_analysis_config/index.html#paradigma.gait_analysis_config.GaitFeatureExtractionConfig" title="paradigma.gait_analysis_config.GaitFeatureExtractionConfig"><em>GaitFeatureExtractionConfig</em></a>) – The configuration object containing the parameters for the feature extraction</p></li>
-<li><p><strong>df_windowed</strong> (<em>pd.DataFrame</em>) – The dataframe containing the windowed accelerometer signal</p></li>
-<li><p><strong>l_gravity_stats</strong> (<em>list</em><em>, </em><em>optional</em>) – The statistics to be computed for the gravity component of the accelerometer signal (default: [‘mean’, ‘std’])</p></li>
+<li><p><strong>velocity_array</strong> (<em>np.ndarray</em>) – The angular velocity array to compute the peak angular velocity from.</p></li>
+<li><p><strong>angle_extrema_indices</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – The indices of the angle extrema.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The dataframe with the added temporal domain features.</p>
+<dd class="field-even"><p>The peak angular velocities of the time series.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pd.DataFrame</p>
+<dd class="field-odd"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="paradigma.feature_extraction.extract_spectral_domain_features">
-<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">extract_spectral_domain_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_windowed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l_sensor_colnames</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#extract_spectral_domain_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.extract_spectral_domain_features" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="paradigma.feature_extraction.compute_forward_backward_peak_angular_velocity">
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">compute_forward_backward_peak_angular_velocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">velocity_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_extrema_indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minima_indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxima_indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_forward_backward_peak_angular_velocity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.compute_forward_backward_peak_angular_velocity" title="Link to this definition"></a></dt>
+<dd><p>Compute the peak angular velocity of a time series based on the angle extrema.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>velocity_array</strong> (<em>np.ndarray</em>) – The angular velocity array to compute the peak angular velocity from.</p></li>
+<li><p><strong>angle_extrema_indices</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – The indices of the angle extrema.</p></li>
+<li><p><strong>minima_indices</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – The indices of the minima.</p></li>
+<li><p><strong>maxima_indices</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – The indices of the maxima.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the forward and backward peak angular velocities for minima and maxima.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[np.ndarray, np.ndarray]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.feature_extraction.compute_signal_to_noise_ratio">
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">compute_signal_to_noise_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_windowed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_signal_to_noise_ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.compute_signal_to_noise_ratio" title="Link to this definition"></a></dt>
+<dd><p>Compute the signal to noise ratio of the PPG signal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ppg_windowed</strong> (<em>np.ndarray</em>) – The windowed PPG signal.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The signal to noise ratio of the PPG signal.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.feature_extraction.compute_auto_correlation">
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">compute_auto_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_windowed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_auto_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.compute_auto_correlation" title="Link to this definition"></a></dt>
+<dd><p>Compute the biased autocorrelation of the PPG signal. The autocorrelation is computed up to 3 seconds. The highest peak value is selected as the autocorrelation value. If no peaks are found, the value is set to 0.
+The biased autocorrelation is computed using the biased_autocorrelation function. It differs from the unbiased autocorrelation in that the normalization factor is the length of the original signal, and boundary effects are considered. This results in a smoother autocorrelation function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ppg_windowed</strong> (<em>np.ndarray</em>) – The windowed PPG signal.</p></li>
+<li><p><strong>fs</strong> (<em>int</em>) – The sampling frequency of the PPG signal.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The autocorrelation of the PPG signal.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.feature_extraction.biased_autocorrelation">
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">biased_autocorrelation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_windowed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_lag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#biased_autocorrelation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.biased_autocorrelation" title="Link to this definition"></a></dt>
+<dd><p>Compute the biased autocorrelation of a signal (similar to matlabs autocorr function), where the normalization factor
+is the length of the original signal, and boundary effects are considered.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ppg_windowed</strong> (<em>np.ndarray</em>) – The windowed PPG signal.</p></li>
+<li><p><strong>max_lag</strong> (<em>int</em>) – The maximum lag for the autocorrelation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The biased autocorrelation of the PPG signal.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 </section>
@@ -537,13 +753,13 @@ to the velocity in the arm swing direction.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../constants/index.html" class="btn btn-neutral float-left" title="paradigma.constants" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../gait_analysis/index.html" class="btn btn-neutral float-right" title="paradigma.gait_analysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../pipelines/index.html" class="btn btn-neutral float-right" title="paradigma.pipelines" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Peter Kok, Vedran Kasalica, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Luc Evers.</p>
+    <p>&#169; Copyright 2023, Erik Post, Kars Veldkamp, Nienke Timmermans, Peter Kok, Vedran Kasalica, Diogo Coutinho Soriano, Luc Evers.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
