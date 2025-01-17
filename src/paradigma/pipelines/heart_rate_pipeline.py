@@ -94,42 +94,6 @@ def extract_signal_quality_features(df_ppg: pd.DataFrame, df_acc: pd.DataFrame, 
     return df_features
 
 
-def extract_signal_quality_features_io(input_path: str | Path, output_path: str | Path, ppg_config: HeartRateConfig, acc_config: HeartRateConfig) -> pd.DataFrame:
-    """
-    Extract signal quality features from the PPG signal and save them to a file.
-
-    Parameters
-    ----------
-    input_path : str | Path
-        The path to the directory containing the preprocessed PPG and accelerometer data.
-    output_path : str | Path
-        The path to the directory where the extracted features will be saved.
-    ppg_config: HeartRateConfig
-        The configuration for the signal quality feature extraction of the ppg signal.
-    acc_config: HeartRateConfig
-        The configuration for the signal quality feature extraction of the accelerometer signal.
-
-    Returns
-    -------
-    df_windowed : pd.DataFrame
-        The DataFrame containing the extracted signal quality features.
-
-    """	
-    # Load PPG data
-    metadata_time, metadata_values = read_metadata(input_path, ppg_config.meta_filename, ppg_config.time_filename, ppg_config.values_filename)
-    df_ppg = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
-    
-    # Load IMU data
-    metadata_time, metadata_values = read_metadata(input_path, acc_config.meta_filename, acc_config.time_filename, acc_config.values_filename)
-    df_acc = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
-
-    # Extract signal quality features
-    df_windowed = extract_signal_quality_features(df_ppg, df_acc, ppg_config, acc_config)
-    
-    # Save the extracted features
-    #TO BE ADDED
-    return df_windowed
-
 def signal_quality_classification(df: pd.DataFrame, config: HeartRateConfig, full_path_to_classifier_package: str | Path) -> pd.DataFrame:
     """
     Classify the signal quality of the PPG signal using a logistic regression classifier. A probability close to 1 indicates a high-quality signal, while a probability close to 0 indicates a low-quality signal.
@@ -162,15 +126,6 @@ def signal_quality_classification(df: pd.DataFrame, config: HeartRateConfig, ful
     df[DataColumns.PRED_SQA_ACC_LABEL] = (df[DataColumns.ACC_POWER_RATIO] < config.threshold_sqa_accelerometer).astype(int)  # Assign accelerometer label to the DataFrame based on the threshold
     
     return df[[DataColumns.TIME, DataColumns.PRED_SQA_PROBA, DataColumns.PRED_SQA_ACC_LABEL]]  # Return only the relevant columns, namely the predicted probabilities for the PPG signal quality and the accelerometer label
-
-
-def signal_quality_classification_io(input_path: str | Path, output_path: str | Path, path_to_classifier_input: str | Path, config: HeartRateConfig) -> None:
-    
-    # Load the data
-    metadata_time, metadata_values = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
-    df_windowed = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
-
-    df_sqa = signal_quality_classification(df_windowed, config, path_to_classifier_input)
 
 
 def estimate_heart_rate(df_sqa: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame, config: HeartRateConfig) -> pd.DataFrame:  
@@ -280,37 +235,6 @@ def aggregate_heart_rate(hr_values: np.ndarray, aggregates: List[str] = ['mode',
         aggregated_results['hr_aggregates'][f'{aggregate}_{DataColumns.HEART_RATE}'] = aggregate_parameter(hr_values, aggregate)
 
     return aggregated_results
-
-
-def aggregate_heart_rate_io(
-        full_path_to_input: str | Path, 
-        full_path_to_output: str | Path, 
-        aggregates: List[str] = ['mode', '99p']
-    ) -> None:
-    """
-    Extract heart rate from the PPG signal and save the aggregated heart rate estimates to a file.
-
-    Parameters
-    ----------
-    input_path : str | Path
-        The path to the directory containing the heart rate estimates.
-    output_path : str | Path
-        The path to the directory where the aggregated heart rate estimates will be saved.
-    aggregates : List[str]
-        The list of aggregation methods to be used for the heart rate estimates. The default is ['mode', '99p'].
-    """
-
-    # Load the heart rate estimates
-    with open(full_path_to_input, 'r') as f:
-        df_hr = json.load(f)
-    
-    # Aggregate the heart rate estimates
-    hr_values = df_hr['heart_rate'].values
-    df_hr_aggregates = aggregate_heart_rate(hr_values, aggregates)
-
-    # Save the aggregated heart rate estimates
-    with open(full_path_to_output, 'w') as json_file:
-        json.dump(df_hr_aggregates, json_file, indent=4)
 
 
 def extract_temporal_domain_features(
