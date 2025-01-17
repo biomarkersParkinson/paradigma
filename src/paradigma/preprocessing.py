@@ -224,32 +224,6 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str, watch_
     return df
 
 
-def preprocess_imu_data_io(path_to_input: str | Path, path_to_output: str | Path, 
-                           config: IMUConfig, sensor: str, watch_side: str) -> None:
-    # Load data
-    metadata_time, metadata_values = read_metadata(str(path_to_input), str(config.meta_filename),
-                                                    str(config.time_filename), str(config.values_filename))
-    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
-
-    # Preprocess data
-    df = preprocess_imu_data(df=df, config=config, sensor=sensor, watch_side=watch_side)
-
-    # Store data
-    for sensor, units in zip(['accelerometer', 'gyroscope'], ['g', config.rotation_units]):
-        if any(sensor in col for col in df.columns):
-            df_sensor = df[[DataColumns.TIME] + [x for x in df.columns if sensor in x]]
-
-            metadata_values.channels = [x for x in df.columns if sensor in x]
-            metadata_values.units = list(np.repeat(units, len(metadata_values.channels)))
-            metadata_values.scale_factors = []
-            metadata_values.file_name = f'{sensor}_values.bin'
-
-            metadata_time.file_name = f'{sensor}_time.bin'
-            metadata_time.units = [TimeUnit.RELATIVE_S]
-
-            write_df_data(metadata_time, metadata_values, path_to_output, f'{sensor}_meta.json', df_sensor)
-
-
 def preprocess_ppg_data(df_ppg: pd.DataFrame, df_imu: pd.DataFrame, ppg_config: PPGConfig, 
                         imu_config: IMUConfig, start_time_ppg: str, start_time_imu: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
@@ -282,9 +256,7 @@ def preprocess_ppg_data(df_ppg: pd.DataFrame, df_imu: pd.DataFrame, ppg_config: 
     df_acc = df_imu.drop(cols_to_drop, axis=1)
 
     # Extract overlapping segments
-    print(f"Original data shapes:\n- PPG data: {df_ppg.shape}\n- Accelerometer data: {df_acc.shape}")
     df_ppg_overlapping, df_acc_overlapping = extract_overlapping_segments(df_ppg, df_acc, start_time_ppg, start_time_imu)
-    print(f"Overlapping data shapes:\n- PPG data: {df_ppg_overlapping.shape}\n- Accelerometer data: {df_acc_overlapping.shape}")
     
     # Resample accelerometer data
     df_acc_proc = resample_data(
@@ -330,66 +302,6 @@ def preprocess_ppg_data(df_ppg: pd.DataFrame, df_imu: pd.DataFrame, ppg_config: 
         df_ppg_proc = df_ppg_proc.rename(columns={f'filt_{col}': col})
     
     return df_ppg_proc, df_acc_proc
-
-def preprocess_ppg_data_io(path_to_input_ppg: str | Path, path_to_input_imu: str | Path,
-                           output_path: Union[str, Path], ppg_config: PPGConfig, 
-                           imu_config: IMUConfig) -> None:
-    """	
-    Preprocess PPG and IMU data by resampling, filtering, and aligning the data segments.
-
-    Parameters
-    ----------
-    path_to_input_ppg : str | Path
-        Path to the PPG data.
-    path_to_input_imu : str | Path
-        Path to the IMU data.
-    output_path : Union[str, Path]
-        Path to store the preprocessed data.
-    ppg_config : PPGConfig
-        Configuration object for PPG preprocessing.
-    imu_config : IMUConfig
-        Configuration object for IMU preprocessing.
-
-    Returns
-    -------
-    None
-    """ 
-
-    # Load PPG data
-        # Load data
-    metadata_time_ppg, metadata_values_ppg = read_metadata(path_to_input_ppg, ppg_config.meta_filename,
-                                                    ppg_config.time_filename, ppg_config.values_filename)
-    df_ppg = tsdf.load_dataframe_from_binaries([metadata_time_ppg, metadata_values_ppg], tsdf.constants.ConcatenationType.columns)
-
-    # Load IMU data
-    metadata_time_imu, metadata_values_imu = read_metadata(path_to_input_imu, imu_config.meta_filename,
-                                                    imu_config.time_filename, imu_config.values_filename)
-    df_imu = tsdf.load_dataframe_from_binaries([metadata_time_imu, metadata_values_imu], tsdf.constants.ConcatenationType.columns)
-
-    # Preprocess data
-    df_ppg_proc, df_acc_proc = preprocess_ppg_data(
-        df_ppg=df_ppg, 
-        df_imu=df_imu, 
-        ppg_config=ppg_config, 
-        imu_config=imu_config,
-        start_time_ppg=metadata_time_ppg.start_iso8601,
-        start_time_imu=metadata_time_imu.start_iso8601
-    )
-
-    # Store data
-    metadata_values_imu.channels = list(imu_config.d_channels_accelerometer.keys())
-    metadata_values_imu.units = list(imu_config.d_channels_accelerometer.values())
-    metadata_values_imu.file_name = 'accelerometer_values.bin'
-    metadata_time_imu.units = [TimeUnit.ABSOLUTE_MS]
-    metadata_time_imu.file_name = 'accelerometer_time.bin'
-    write_df_data(metadata_time_imu, metadata_values_imu, output_path, 'accelerometer_meta.json', df_acc_proc)
-
-    metadata_values_ppg.channels = list(ppg_config.d_channels_ppg.keys())
-    metadata_values_ppg.units = list(ppg_config.d_channels_ppg.values())
-    metadata_values_ppg.file_name = 'PPG_values.bin'
-    metadata_time_ppg.units = [TimeUnit.ABSOLUTE_MS]
-    metadata_time_ppg.file_name = 'PPG_time.bin'
-    write_df_data(metadata_time_ppg, metadata_values_ppg, output_path, 'PPG_meta.json', df_ppg_proc)
 
 
 def extract_overlapping_segments(df_ppg: pd.DataFrame, df_acc: pd.DataFrame, start_time_ppg: str, start_time_acc: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
