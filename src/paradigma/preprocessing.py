@@ -224,7 +224,7 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str, watch_
     return df
 
 
-def preprocess_ppg_data(df_ppg: pd.DataFrame, df_imu: pd.DataFrame, ppg_config: PPGConfig, 
+def preprocess_ppg_data(df_ppg: pd.DataFrame, df_acc: pd.DataFrame, ppg_config: PPGConfig, 
                         imu_config: IMUConfig, start_time_ppg: str, start_time_imu: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Preprocess PPG and IMU (accelerometer only) data by resampling, filtering, and aligning the data segments.
@@ -233,8 +233,8 @@ def preprocess_ppg_data(df_ppg: pd.DataFrame, df_imu: pd.DataFrame, ppg_config: 
     ----------
     df_ppg : pd.DataFrame
         DataFrame containing PPG data.
-    df_imu : pd.DataFrame
-        DataFrame containing IMU data.
+    df_acc : pd.DataFrame
+        DataFrame containing accelerometer from IMU data.
     ppg_config : PPGPreprocessingConfig
         Configuration object for PPG preprocessing.
     imu_config : IMUPreprocessingConfig
@@ -250,10 +250,6 @@ def preprocess_ppg_data(df_ppg: pd.DataFrame, df_imu: pd.DataFrame, ppg_config: 
         Preprocessed PPG and IMU data as DataFrames.
     
     """
-
-    # Drop the gyroscope columns from the IMU data
-    cols_to_drop = df_imu.filter(regex='^gyroscope_').columns
-    df_acc = df_imu.drop(cols_to_drop, axis=1)
 
     # Extract overlapping segments
     df_ppg_overlapping, df_acc_overlapping = extract_overlapping_segments(df_ppg, df_acc, start_time_ppg, start_time_imu)
@@ -274,34 +270,50 @@ def preprocess_ppg_data(df_ppg: pd.DataFrame, df_imu: pd.DataFrame, ppg_config: 
         resampling_frequency=ppg_config.sampling_frequency
     )
 
-    # apply Butterworth filter to accelerometer data
-    for col in imu_config.d_channels_accelerometer.keys():
 
-        for result, side_pass in zip(['filt', 'grav'], ['hp', 'lp']):
-            df_acc_proc[f'{result}_{col}'] = butterworth_filter(
-                data=np.array(df_acc_proc[col]),
-                order=imu_config.filter_order,
-                cutoff_frequency=imu_config.lower_cutoff_frequency,
-                passband=side_pass,
-                sampling_frequency=imu_config.sampling_frequency,
-                )
+    # Extract accelerometer data for filtering
+    accel_data = df_acc_proc[imu_config.accelerometer_cols].values
 
-        df_acc_proc = df_acc_proc.drop(columns=[col])
-        df_acc_proc = df_acc_proc.rename(columns={f'filt_{col}': col})
+    # Define filter configurations for high-pass and low-pass
+    filter_renaming_configs = {
+    "hp": {"result_columns": imu_config.accelerometer_cols, "replace_original": True}}
 
-    for col in ppg_config.d_channels_ppg.keys():
-        df_ppg_proc[f'filt_{col}'] = butterworth_filter(
-            data=np.array(df_ppg_proc[col]),
-            order=ppg_config.filter_order,
-            cutoff_frequency=[ppg_config.lower_cutoff_frequency, ppg_config.upper_cutoff_frequency],
-            passband='band',
-            sampling_frequency=ppg_config.sampling_frequency,
+    # Apply filters in a loop
+    for passband, filter_config in filter_renaming_configs.items():
+        filtered_data = butterworth_filter(
+        data=accel_data,
+        order=imu_config.filter_order,
+        cutoff_frequency=imu_config.lower_cutoff_frequency,
+        passband=passband,
+        sampling_frequency=imu_config.sampling_frequency,
         )
 
-        df_ppg_proc = df_ppg_proc.drop(columns=[col])
-        df_ppg_proc = df_ppg_proc.rename(columns={f'filt_{col}': col})
+        # Replace or add new columns based on configuration
+        df_acc_proc[filter_config["result_columns"]] = filtered_data
+    
+    # Extract accelerometer data for filtering
+    ppg_data = df_ppg_proc[ppg_config.ppg_colname].values
+
+    # Define filter configurations for high-pass and low-pass
+    filter_renaming_configs = {
+    "bandpass": {"result_columns": ppg_config.ppg_colname, "replace_original": True}}
+
+    # Apply filters in a loop
+    for passband, filter_config in filter_renaming_configs.items():
+        filtered_data = butterworth_filter(
+        data=ppg_data,
+        order=ppg_config.filter_order,
+        cutoff_frequency=[ppg_config.lower_cutoff_frequency, ppg_config.upper_cutoff_frequency],
+        passband=passband,
+        sampling_frequency=ppg_config.sampling_frequency,
+        )
+
+        # Replace or add new columns based on configuration
+        df_ppg_proc[filter_config["result_columns"]] = filtered_data
     
     return df_ppg_proc, df_acc_proc
+
+
 
 
 def extract_overlapping_segments(df_ppg: pd.DataFrame, df_acc: pd.DataFrame, start_time_ppg: str, start_time_acc: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
