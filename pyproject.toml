@@ -22,6 +22,7 @@ pytype = "^2024.4.11"
 # because poetry didn't handle the install for different CPU architectures
 python-dateutil = "^2.9.0.post0"
 sphinx-autoapi = "^3.4.0"
+nbsphinx = "^0.9.6"
 
 [tool.poetry.group.testing.dependencies]
 ipykernel = "^6.27.1"
