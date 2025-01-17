@@ -339,10 +339,10 @@ def preprocess_ppg_data_io(path_to_input_ppg: str | Path, path_to_input_imu: str
 
     Parameters
     ----------
-    tsdf_meta_ppg : tsdf.TSDFMetadata
-        Metadata for the PPG data.
-    tsdf_meta_imu : tsdf.TSDFMetadata
-        Metadata for the IMU data.
+    path_to_input_ppg : str | Path
+        Path to the PPG data.
+    path_to_input_imu : str | Path
+        Path to the IMU data.
     output_path : Union[str, Path]
         Path to store the preprocessed data.
     ppg_config : PPGConfig
@@ -357,13 +357,13 @@ def preprocess_ppg_data_io(path_to_input_ppg: str | Path, path_to_input_imu: str
 
     # Load PPG data
         # Load data
-    metadata_time_ppg, metadata_values_ppg = read_metadata(str(path_to_input_ppg), str(ppg_config.meta_filename),
-                                                    str(ppg_config.time_filename), str(ppg_config.values_filename))
+    metadata_time_ppg, metadata_values_ppg = read_metadata(path_to_input_ppg, ppg_config.meta_filename,
+                                                    ppg_config.time_filename, ppg_config.values_filename)
     df_ppg = tsdf.load_dataframe_from_binaries([metadata_time_ppg, metadata_values_ppg], tsdf.constants.ConcatenationType.columns)
 
     # Load IMU data
-    metadata_time_imu, metadata_values_imu = read_metadata(str(path_to_input_imu), str(ppg_config.meta_filename),
-                                                    str(ppg_config.time_filename), str(ppg_config.values_filename))
+    metadata_time_imu, metadata_values_imu = read_metadata(path_to_input_imu, imu_config.meta_filename,
+                                                    imu_config.time_filename, imu_config.values_filename)
     df_imu = tsdf.load_dataframe_from_binaries([metadata_time_imu, metadata_values_imu], tsdf.constants.ConcatenationType.columns)
 
     # Preprocess data
