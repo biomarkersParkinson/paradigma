@@ -458,3 +458,123 @@ def merge_predictions_with_timestamps(
     df_ts = df_ts.dropna(subset=[pred_proba_colname])
 
     return df_ts
+
+
+def synchronization(ppg_meta, imu_meta):
+    """
+    Synchronize PPG and IMU data segments based on their start and end times.
+
+    Parameters
+    ----------
+    ppg_meta : list of dict
+        List of dictionaries containing 'start_iso8601' and 'end_iso8601' keys for PPG data.
+    imu_meta : list of dict
+        List of dictionaries containing 'start_iso8601' and 'end_iso8601' keys for IMU data.
+
+    Returns
+    -------
+    segment_ppg_total : list of int
+        List of synchronized segment indices for PPG data.
+    segment_imu_total : list of int
+        List of synchronized segment indices for IMU data.
+    """
+    ppg_start_time = [parse_iso8601_to_datetime(t['start_iso8601']) for t in ppg_meta]
+    imu_start_time = [parse_iso8601_to_datetime(t['start_iso8601']) for t in imu_meta]
+    ppg_end_time = [parse_iso8601_to_datetime(t['end_iso8601']) for t in ppg_meta]
+    imu_end_time = [parse_iso8601_to_datetime(t['end_iso8601']) for t in imu_meta]
+
+    # Create a time vector covering the entire range
+    time_vector_total = []
+    current_time = min(min(ppg_start_time), min(imu_start_time))
+    end_time = max(max(ppg_end_time), max(imu_end_time))
+    while current_time <= end_time:
+        time_vector_total.append(current_time)
+        current_time += timedelta(seconds=1)
+    
+    time_vector_total = np.array(time_vector_total)
+
+    # Initialize variables
+    data_presence_ppg = np.zeros(len(time_vector_total), dtype=int)
+    data_presence_ppg_idx = np.zeros(len(time_vector_total), dtype=int)
+    data_presence_imu = np.zeros(len(time_vector_total), dtype=int)
+    data_presence_imu_idx = np.zeros(len(time_vector_total), dtype=int)
+
+    # Mark the segments of PPG data with 1
+    for i, (start, end) in enumerate(zip(ppg_start_time, ppg_end_time)):
+        indices = np.where((time_vector_total >= start) & (time_vector_total < end))[0]
+        data_presence_ppg[indices] = 1
+        data_presence_ppg_idx[indices] = i
+
+    # Mark the segments of IMU data with 1
+    for i, (start, end) in enumerate(zip(imu_start_time, imu_end_time)):
+        indices = np.where((time_vector_total >= start) & (time_vector_total < end))[0]
+        data_presence_imu[indices] = 1
+        data_presence_imu_idx[indices] = i
+
+    # Find the indices where both PPG and IMU data are present
+    corr_indices = np.where((data_presence_ppg == 1) & (data_presence_imu == 1))[0]
+
+    # Find the start and end indices of each segment
+    corr_start_end = []
+    if len(corr_indices) > 0:
+        start_idx = corr_indices[0]
+        for i in range(1, len(corr_indices)):
+            if corr_indices[i] - corr_indices[i - 1] > 1:
+                end_idx = corr_indices[i - 1]
+                corr_start_end.append((start_idx, end_idx))
+                start_idx = corr_indices[i]
+        # Add the last segment
+        corr_start_end.append((start_idx, corr_indices[-1]))
+
+    # Extract the synchronized indices for each segment
+    segment_ppg_total = []
+    segment_imu_total = []
+    for start_idx, end_idx in corr_start_end:
+        segment_ppg = np.unique(data_presence_ppg_idx[start_idx:end_idx + 1])
+        segment_imu = np.unique(data_presence_imu_idx[start_idx:end_idx + 1])
+        if len(segment_ppg) > 1 and len(segment_imu) == 1:
+            segment_ppg_total.extend(segment_ppg)
+            segment_imu_total.extend([segment_imu[0]] * len(segment_ppg))
+        elif len(segment_ppg) == 1 and len(segment_imu) > 1:
+            segment_ppg_total.extend([segment_ppg[0]] * len(segment_imu))
+            segment_imu_total.extend(segment_imu)
+        elif len(segment_ppg) == len(segment_imu):
+            segment_ppg_total.extend(segment_ppg)
+            segment_imu_total.extend(segment_imu)
+        else:
+            continue
+
+    return segment_ppg_total, segment_imu_total
+
+
+def scan_and_sync_segments(input_path_ppg: str | Path, input_path_imu: str | Path) -> Tuple[List[tsdf.TSDFMetadata], List[tsdf.TSDFMetadata]]:
+    """
+    Scan for available TSDF metadata files in the specified directories and synchronize the data segments based on the metadata start and end times. This is relevant for aligning PPG and IMU data segments.
+
+    Parameters
+    ----------
+    input_path_ppg : str
+        Path to the directory containing PPG data.
+    input_path_imu : str
+        Path to the directory containing IMU data.
+
+    Returns
+    -------
+    Tuple[List[tsdf.TSDFMetadata], List[tsdf.TSDFMetadata]]
+        A tuple containing lists of metadata objects for PPG and IMU data, respectively.
+    """ 
+
+    # Scan for available TSDF metadata files
+    meta_ppg = extract_meta_from_tsdf_files(input_path_ppg)
+    meta_imu = extract_meta_from_tsdf_files(input_path_imu)
+
+    # Synchronize PPG and IMU data segments
+    segments_ppg, segments_imu = synchronization(meta_ppg, meta_imu)  # Define `synchronization`
+    
+    assert len(segments_ppg) == len(segments_imu), 'Number of PPG and IMU segments do not match.'
+
+    # Load metadata for every synced segment pair
+    metadatas_ppg = [tsdf.load_metadata_from_path(meta_ppg[index]['tsdf_meta_fullpath']) for index in segments_ppg]
+    metadatas_imu = [tsdf.load_metadata_from_path(meta_imu[index]['tsdf_meta_fullpath']) for index in segments_imu]
+
+    return metadatas_ppg, metadatas_imu
