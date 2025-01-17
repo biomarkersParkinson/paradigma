@@ -60,7 +60,7 @@ See our [extended documentation](https://biomarkersparkinson.github.io/paradigma
 
 ### Installation
 
-The package requires Python 3.10 or higher. Use [Poetry](https://python-poetry.org/docs/#installation) to set up the environment and install the dependencies:
+The package requires Python 3.11 or higher. Use [Poetry](https://python-poetry.org/docs/#installation) to set up the environment and install the dependencies:
 
 ```bash
 poetry install
@@ -90,8 +90,12 @@ Interested in contributing? Check out the contributing guidelines. Please note t
 
 ## License
 
-`paradigma` was created by Peter Kok, Vedran Kasalica, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Luc Evers. It is licensed under the terms of the Apache License 2.0 license.
+ParaDigMa was created by Peter Kok, Vedran Kasalica, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Luc Evers. It is licensed under the terms of the Apache License 2.0 license.
 
 ## Credits
 
-`paradigma` was created with [`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/) and the `py-pkgs-cookiecutter` [template](https://github.com/py-pkgs/py-pkgs-cookiecutter).
+ParaDigMa was created with [`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/) and the `py-pkgs-cookiecutter` [template](https://github.com/py-pkgs/py-pkgs-cookiecutter).
+
+## Contact
+
+For more information or questions about ParaDigMa, please reach out to erik.post@radboudumc.nl.
