@@ -6,6 +6,7 @@ from pathlib import Path
 from scipy import signal
 from scipy.interpolate import interp1d
 from typing import List, Tuple, Union
+from datetime import datetime
 
 from paradigma.constants import TimeUnit, DataColumns
 from paradigma.config import PPGConfig, IMUConfig
@@ -58,7 +59,7 @@ def resample_data(
         raise ValueError("time_abs_array is not strictly increasing")
 
     # Resample the time data using the specified frequency
-    t_resampled = np.arange(0, time_abs_array[-1], 1 / resampling_frequency)
+    t_resampled = np.arange(time_abs_array[0], time_abs_array[-1], 1 / resampling_frequency)
     
     # Interpolate the data using cubic interpolation
     interpolator = interp1d(time_abs_array, values_array, axis=0, kind="cubic")
@@ -250,25 +251,25 @@ def preprocess_imu_data_io(path_to_input: str | Path, path_to_output: str | Path
 
 
 def preprocess_ppg_data(df_ppg: pd.DataFrame, df_imu: pd.DataFrame, ppg_config: PPGConfig, 
-                        imu_config: IMUConfig) -> Tuple[pd.DataFrame, pd.DataFrame]:
+                        imu_config: IMUConfig, start_time_ppg: str, start_time_imu: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Preprocess PPG and IMU (accelerometer only) data by resampling, filtering, and aligning the data segments.
 
     Parameters
     ----------
-    tsdf_meta_ppg : tsdf.TSDFMetadata
-        Metadata for the PPG data.
-    tsdf_meta_imu : tsdf.TSDFMetadata
-        Metadata for the IMU data.
-    output_path : Union[str, Path]
-        Path to store the preprocessed data.
+    df_ppg : pd.DataFrame
+        DataFrame containing PPG data.
+    df_imu : pd.DataFrame
+        DataFrame containing IMU data.
     ppg_config : PPGPreprocessingConfig
         Configuration object for PPG preprocessing.
     imu_config : IMUPreprocessingConfig
         Configuration object for IMU preprocessing.
-    store_locally : bool, optional
-        Flag to store the preprocessed data locally, by default True.
-    
+    start_time_ppg : str
+        iso8601 formatted start time of the PPG data.
+    start_time_imu : str
+        iso8601 formatted start time of the IMU data.
+
     Returns
     -------
     Tuple[pd.DataFrame, pd.DataFrame]
@@ -282,7 +283,7 @@ def preprocess_ppg_data(df_ppg: pd.DataFrame, df_imu: pd.DataFrame, ppg_config: 
 
     # Extract overlapping segments
     print(f"Original data shapes:\n- PPG data: {df_ppg.shape}\n- Accelerometer data: {df_acc.shape}")
-    df_ppg_overlapping, df_acc_overlapping = extract_overlapping_segments(df_ppg, df_acc)
+    df_ppg_overlapping, df_acc_overlapping = extract_overlapping_segments(df_ppg, df_acc, start_time_ppg, start_time_imu)
     print(f"Overlapping data shapes:\n- PPG data: {df_ppg_overlapping.shape}\n- Accelerometer data: {df_acc_overlapping.shape}")
     
     # Resample accelerometer data
@@ -365,7 +366,14 @@ def preprocess_ppg_data_io(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf
     df_imu = tsdf.load_dataframe_from_binaries([metadata_time_imu, metadata_values_imu], tsdf.constants.ConcatenationType.columns)
 
     # Preprocess data
-    df_ppg_proc, df_acc_proc = preprocess_ppg_data(df_ppg=df_ppg, df_imu=df_imu, ppg_config=ppg_config, imu_config=imu_config)
+    df_ppg_proc, df_acc_proc = preprocess_ppg_data(
+        df_ppg=df_ppg, 
+        df_imu=df_imu, 
+        ppg_config=ppg_config, 
+        imu_config=imu_config,
+        start_time_ppg=metadata_time_ppg.start_iso8601,
+        start_time_imu=metadata_time_imu.start_iso8601
+    )
 
     # Store data
     metadata_values_imu.channels = list(imu_config.d_channels_accelerometer.keys())
@@ -383,35 +391,48 @@ def preprocess_ppg_data_io(tsdf_meta_ppg: tsdf.TSDFMetadata, tsdf_meta_imu: tsdf
     write_df_data(metadata_time_ppg, metadata_values_ppg, output_path, 'PPG_meta.json', df_ppg_proc)
 
 
-def extract_overlapping_segments(df_ppg, df_acc, time_column_ppg='time', time_column_imu='time'):
+def extract_overlapping_segments(df_ppg: pd.DataFrame, df_acc: pd.DataFrame, start_time_ppg: str, start_time_acc: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Extract DataFrames with overlapping data segments between IMU and PPG datasets based on their timestamps.
+    Extract DataFrames with overlapping data segments between accelerometer (from the IMU) and PPG datasets based on their timestamps.
 
-    Parameters:
-    df_ppg (pd.DataFrame): DataFrame containing PPG data with a time column in UNIX seconds.
-    df_acc (pd.DataFrame): DataFrame containing IMU accelerometer data with a time column in UNIX seconds.
-    time_column_ppg (str): Column name of the timestamp in the PPG DataFrame.
-    time_column_imu (str): Column name of the timestamp in the IMU DataFrame.
+    Parameters
+    ----------
+    df_ppg : pd.DataFrame
+        DataFrame containing PPG data.
+    df_acc : pd.DataFrame
+        DataFrame containing accelerometer data from the IMU.
+    start_time_ppg : str
+        iso8601 formatted start time of the PPG data.
+    start_time_acc : str
+        iso8601 formatted start time of the accelerometer data.
 
-    Returns:
-    tuple: Tuple containing two DataFrames (df_ppg_overlapping, df_acc_overlapping) that contain only the data
-    within the overlapping time segments.
+    Returns
+    -------
+    Tuple[pd.DataFrame, pd.DataFrame]
+        DataFrames containing the overlapping segments (time and values) of PPG and accelerometer data.
     """
-    ppg_time = df_ppg[time_column_ppg] 
-    imu_time = df_acc[time_column_imu] 
+    # Convert start times to Unix timestamps
+    datetime_ppg_start = datetime.fromisoformat(start_time_ppg.replace("Z", "+00:00"))
+    start_unix_ppg = int(datetime_ppg_start.timestamp())
+    datetime_acc_start = datetime.fromisoformat(start_time_acc.replace("Z", "+00:00"))
+    start_acc_ppg = int(datetime_acc_start.timestamp())
+
+    # Calculate the time in Unix timestamps for each dataset because the timestamps are relative to the start time
+    ppg_time = df_ppg[DataColumns.TIME] + start_unix_ppg
+    acc_time = df_acc[DataColumns.TIME] + start_acc_ppg
 
     # Determine the overlapping time interval
-    start_time = max(ppg_time.iloc[0], imu_time.iloc[0])
-    end_time = min(ppg_time.iloc[-1], imu_time.iloc[-1])
+    start_time = max(ppg_time.iloc[0], acc_time.iloc[0])
+    end_time = min(ppg_time.iloc[-1], acc_time.iloc[-1])
 
     # Extract indices for overlapping segments
     ppg_start_index = np.searchsorted(ppg_time, start_time, 'left')
     ppg_end_index = np.searchsorted(ppg_time, end_time, 'right') - 1
-    imu_start_index = np.searchsorted(imu_time, start_time, 'left')
-    imu_end_index = np.searchsorted(imu_time, end_time, 'right') - 1
+    acc_start_index = np.searchsorted(acc_time, start_time, 'left')
+    acc_end_index = np.searchsorted(acc_time, end_time, 'right') - 1
 
     # Extract overlapping segments from DataFrames
     df_ppg_overlapping = df_ppg.iloc[ppg_start_index:ppg_end_index + 1]
-    df_acc_overlapping = df_acc.iloc[imu_start_index:imu_end_index + 1]
+    df_acc_overlapping = df_acc.iloc[acc_start_index:acc_end_index + 1]
 
     return df_ppg_overlapping, df_acc_overlapping

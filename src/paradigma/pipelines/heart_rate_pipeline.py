@@ -42,13 +42,21 @@ def extract_signal_quality_features(config_ppg: HeartRateConfig, df_ppg: pd.Data
     
     """
     # Group sequences of timestamps into windows
+    ppg_windowed_cols = [DataColumns.TIME, config_ppg.ppg_colname]
     ppg_windowed = tabulate_windows(
         df=df_ppg, 
-        columns=[config_ppg.ppg_colname],
+        columns=ppg_windowed_cols,
         window_length_s=config_ppg.window_length_s,
         window_step_length_s=config_ppg.window_step_length_s,
         fs=config_ppg.sampling_frequency
-    )[0]
+    )
+
+    # Extract data from the windowed PPG signal
+    extractor = WindowedDataExtractor(ppg_windowed_cols)
+    idx_time = extractor.get_index(DataColumns.TIME)
+    idx_ppg = extractor.get_index(config_acc.ppg_colname)
+    start_time_ppg = np.min(ppg_windowed[:, :, idx_time], axis=1) # Start time of the window is relative to the first datapoint in the PPG data
+    ppg_values_windowed = ppg_windowed[:, :, idx_ppg]
 
     acc_windowed_cols = [DataColumns.TIME] + config_acc.accelerometer_cols
     acc_windowed = tabulate_windows(
@@ -59,29 +67,26 @@ def extract_signal_quality_features(config_ppg: HeartRateConfig, df_ppg: pd.Data
         fs=config_acc.sampling_frequency
     )
 
+    # Extract data from the windowed accelerometer signal
     extractor = WindowedDataExtractor(acc_windowed_cols)
-    idx_time = extractor.get_index(DataColumns.TIME)
     idx_acc = extractor.get_slice(config_acc.accelerometer_cols)
-
-    # Extract data
-    start_time = np.min(acc_windowed[:, :, idx_time], axis=1)
     acc_values_windowed = acc_windowed[:, :, idx_acc]
 
-    df_features = pd.DataFrame(start_time, columns=[DataColumns.TIME])
+    df_features = pd.DataFrame(start_time_ppg, columns=[DataColumns.TIME])
     # Compute features of the temporal domain of the PPG signal
-    df_temporal_features = extract_temporal_domain_features(ppg_windowed, config_ppg, quality_stats=['var', 'mean', 'median', 'kurtosis', 'skewness'])
+    df_temporal_features = extract_temporal_domain_features(ppg_values_windowed, config_ppg, quality_stats=['var', 'mean', 'median', 'kurtosis', 'skewness'])
     
     # Combine temporal features with the start time
     df_features = pd.concat([df_features, df_temporal_features], axis=1)
 
     # Compute features of the spectral domain of the PPG signal
-    df_spectral_features = extract_spectral_domain_features(ppg_windowed, config_ppg)
+    df_spectral_features = extract_spectral_domain_features(ppg_values_windowed, config_ppg)
 
     # Combine the spectral features with the previously computed temporal features
     df_features = pd.concat([df_features, df_spectral_features], axis=1)
     
     # Compute periodicity feature of the accelerometer signal
-    df_accelerometer_feature = extract_accelerometer_feature(acc_values_windowed, ppg_windowed, config_acc)
+    df_accelerometer_feature = extract_accelerometer_feature(acc_values_windowed, ppg_values_windowed, config_acc)
 
     # Combine the accelerometer feature with the previously computed features
     df_features = pd.concat([df_features, df_accelerometer_feature], axis=1)
@@ -156,7 +161,7 @@ def signal_quality_classification(df: pd.DataFrame, config: HeartRateConfig, ful
     df[DataColumns.PRED_SQA_PROBA] = clf.predict_proba(scaled_features)[:, 0]
     df[DataColumns.PRED_SQA_ACC_LABEL] = (df[DataColumns.ACC_POWER_RATIO] < config.threshold_sqa_accelerometer).astype(int)  # Assign accelerometer label to the DataFrame based on the threshold
     
-    return df[[DataColumns.PRED_SQA_PROBA, DataColumns.PRED_SQA_ACC_LABEL]]  # Return only the relevant columns, namely the predicted probabilities for the PPG signal quality and the accelerometer label
+    return df[[DataColumns.TIME, DataColumns.PRED_SQA_PROBA, DataColumns.PRED_SQA_ACC_LABEL]]  # Return only the relevant columns, namely the predicted probabilities for the PPG signal quality and the accelerometer label
 
 
 def signal_quality_classification_io(input_path: str | Path, output_path: str | Path, path_to_classifier_input: str | Path, config: HeartRateConfig) -> None:
