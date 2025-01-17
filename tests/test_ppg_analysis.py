@@ -2,7 +2,7 @@ from pathlib import Path
 
 from paradigma.pipelines.heart_rate_pipeline import extract_signal_quality_features
 from paradigma.config import PPGConfig, IMUConfig
-from paradigma.preprocessing import preprocess_ppg_data_io, scan_and_sync_segments
+from paradigma.preprocessing import preprocess_ppg_data_io
 from test_notebooks import compare_data
 
 
@@ -50,11 +50,9 @@ def compare_ppg_preprocessing(
 
     ppg_config = PPGConfig()
     imu_config = IMUConfig()
-    metadatas_ppg, metadatas_imu = scan_and_sync_segments(
-        path_to_ppg_input, path_to_imu_input
-    )
+
     preprocess_ppg_data_io(
-        metadatas_ppg[0], metadatas_imu[0], path_to_tested_output, ppg_config, imu_config
+        path_to_ppg_input, path_to_imu_input, path_to_tested_output, ppg_config, imu_config
     )
     compare_data(path_to_reference_output, path_to_tested_output, binaries_pairs)
 
