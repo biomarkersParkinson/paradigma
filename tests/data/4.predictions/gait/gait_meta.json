@@ -12,15 +12,12 @@
     "bits": 64,
     "sensors": [
         {
-            "scale_factors": [
-                1
-            ],
             "file_name": "gait_time.bin",
             "channels": [
                 "time"
             ],
             "units": [
-                "relative_time_ms"
+                "relative_s"
             ]
         },
         {
@@ -31,14 +28,7 @@
             "units": [
                 "probability"
             ],
-            "scale_factors": [
-                0.00469378,
-                0.00469378,
-                0.00469378,
-                0.06097561,
-                0.06097561,
-                0.06097561
-            ]
+            "scale_factors": []
         }
     ]
 }

@@ -1,703 +1,967 @@
-from typing import List
 import numpy as np
 import pandas as pd
+from typing import List, Tuple
+
+from scipy.integrate import cumulative_trapezoid
+from scipy.signal import find_peaks, windows
+from scipy.stats import kurtosis, skew
 from sklearn.decomposition import PCA
 
-from scipy import signal, fft
-from scipy.integrate import cumulative_trapezoid
-from scipy.signal import find_peaks
-
-from paradigma.constants import DataColumns
-from paradigma.gait_analysis_config import IMUConfig
+from paradigma.config import HeartRateConfig
 
 
-def generate_statistics(
-        sensor_col: pd.Series,
-        statistic: str
-    ) -> list:
-    """Generate statistics for a single sensor and axis. The function is used with the apply function in pandas.
+def compute_statistics(data: np.ndarray, statistic: str, abs_stats: bool=False) -> np.ndarray:
+    """
+    Compute a specific statistical measure along the timestamps of a 2D or 3D array.
+
+    Parameters
+    ----------
+    data : np.ndarray
+        A 2D or 3D NumPy array where statistics are computed.
+    statistic : str
+        The statistic to compute. Supported values are:
+        - 'mean': Mean.
+        - 'median': Median.
+        - 'var': Variance.
+        - 'std': Standard deviation.
+        - 'max': Maximum.
+        - 'min': Minimum.
+        - 'kurtosis': Kurtosis.
+        - 'skewness': Skewness.
+    abs_stats : bool, optional
+        Whether to compute the statistics on the absolute values of the data for 
+        the mean and median (default: False).
+
+    Returns
+    -------
+    np.ndarray
+        A 1D or 2D array containing the computed statistic for each row (2D)
+        or the entire array (1D).
+
+    Raises
+    ------
+    ValueError
+        If the specified `statistic` is not supported or if the input data has an invalid shape.
+    """
+    if statistic not in ['mean', 'median', 'var', 'std', 'max', 'min', 'kurtosis', 'skewness']:
+        raise ValueError(f"Statistic '{statistic}' is not supported.")
+    
+    if data.ndim > 3 or data.ndim < 2:
+        raise ValueError("Input data must be a 1D, 2D or 3D array.")
+
+    if statistic == 'mean':
+        if abs_stats:
+            return np.mean(np.abs(data), axis=1)
+        else:
+            return np.mean(data, axis=1)
+    elif statistic == 'median':
+        if abs_stats:
+            return np.median(np.abs(data), axis=1)
+        else:
+            return np.median(data, axis=1)
+    elif statistic == 'var':
+        return np.var(data, ddof=1, axis=1)
+    elif statistic == 'std':
+        return np.std(data, axis=1)
+    elif statistic == 'max':
+        return np.max(data, axis=1)
+    elif statistic == 'min':
+        return np.min(data, axis=1)
+    elif statistic == 'kurtosis':
+        return kurtosis(data, fisher=False, axis=1)
+    elif statistic == 'skewness':
+        return skew(data, axis=1)
+    else:
+        raise ValueError(f"Statistic '{statistic}' is not supported.")
+
+
+def compute_std_euclidean_norm(data: np.ndarray) -> np.ndarray:
+    """
+    Compute the standard deviation of the Euclidean norm for each window of sensor data.
+
+    The function calculates the Euclidean norm (L2 norm) across sensor axes for each 
+    timestamp within a window, and then computes the standard deviation of these norms 
+    for each window.
+
+    Parameters
+    ----------
+    data : np.ndarray
+        A 3D NumPy array of shape (n_windows, n_timestamps, n_axes), where:
+        - `n_windows` is the number of windows.
+        - `n_timestamps` is the number of time steps per window.
+        - `n_axes` is the number of sensor axes (e.g., 3 for x, y, z).
+
+    Returns
+    -------
+    np.ndarray
+        A 1D array of shape (n_windows,) containing the standard deviation of the 
+        Euclidean norm for each window.
+    """
+    norms = np.linalg.norm(data, axis=2)  # Norm along the sensor axes (norm per timestamp, per window)
+    return np.std(norms, axis=1)  # Standard deviation per window
+
+
+def compute_power_in_bandwidth(
+        freqs: np.ndarray,
+        psd: np.ndarray, 
+        fmin: float,
+        fmax: float,
+        include_max: bool = True,
+        spectral_resolution: float = 1,
+        cumulative_sum_method: str = 'trapz'
+    ) -> np.ndarray:
+    """
+    Compute the logarithmic power within specified frequency bands for each sensor axis.
+
+    This function integrates the power spectral density (PSD) over user-defined frequency 
+    bands and computes the logarithm of the resulting power for each axis of the sensor.
+
+    Parameters
+    ----------
+    freqs : np.ndarray
+        A 1D array of shape (n_frequencies,) containing the frequencies corresponding 
+        to the PSD values.
+    psd : np.ndarray
+        A 2D array of shape (n_windows, n_frequencies) or 3D array of shape (n_windows, n_frequencies, n_axes)
+        representing the power spectral density (PSD) of the sensor data.
+    fmin : float
+        The lower bound of the frequency band in Hz.
+    fmax : float
+        The upper bound of the frequency band in Hz.
+    include_max : bool, optional
+        Whether to include the maximum frequency in the search range (default: True).
+    spectral_resolution : float, optional
+        The spectral resolution of the PSD in Hz (default: 1).
+    cumulative_sum_method : str, optional
+        The method used to integrate the PSD over the frequency band. Supported values are: 
+        - 'trapz': Trapezoidal rule.
+        - 'sum': Simple summation (default: 'trapz').
+
+    Returns
+    -------
+    np.ndarray
+        A 2D array of shape (n_windows, n_axes) containing the power within
+        the specified frequency band for each window and each sensor axis.
+    """
+    # Create a mask for frequencies within the current band range (low, high)
+    if include_max:
+        band_mask = (freqs >= fmin) & (freqs <= fmax)
+    else:
+        band_mask = (freqs >= fmin) & (freqs < fmax)
+    
+    # Integrate PSD over the selected frequency band using the band mask
+    if psd.ndim == 2:
+        masked_psd = psd[:, band_mask]
+    elif psd.ndim == 3:
+        masked_psd = psd[:, band_mask, :]
+
+    if cumulative_sum_method == 'trapz':
+        band_power = spectral_resolution * np.trapz(masked_psd, freqs[band_mask], axis=1)
+    elif cumulative_sum_method == 'sum':
+        band_power = spectral_resolution * np.sum(masked_psd, axis=1)
+    else:
+        raise ValueError("cumulative_sum_method must be 'trapz' or 'sum'.")
+
+    return band_power
+
+
+def compute_total_power(psd: np.ndarray) -> np.ndarray:
+    """
+    Compute the total power by summing the power spectral density (PSD) across frequency bins.
+
+    This function calculates the total power for each window and each sensor axis by 
+    summing the PSD values across all frequency bins.
+
+    Parameters
+    ----------
+    psd : np.ndarray
+        A 3D array of shape (n_windows, n_frequencies, n_axes) representing the 
+        power spectral density (PSD) of the sensor data.
+
+    Returns
+    -------
+    np.ndarray
+        A 2D array of shape (n_windows, n_axes) containing the total power for each 
+        window and each sensor axis.
+    """
+    return np.sum(psd, axis=-1)  # Sum across frequency bins
+
+
+def extract_tremor_power(
+    freqs: np.ndarray, 
+    total_psd: np.ndarray,
+    fmin: float = 3,
+    fmax: float = 7,
+    spectral_resolution: float = 0.25
+    ) -> np.ndarray:
+
+    """Computes the tremor power (1.25 Hz around the peak within the tremor frequency band)
     
     Parameters
     ----------
-    sensor_col: pd.Series
-        The sensor column to be aggregated (e.g. x-axis of accelerometer)
-    statistic: str
-        The statistic to be computed [mean, std, max, min]
+    total_psd: np.ndarray
+        The power spectral density of the gyroscope signal summed over the three axes
+    freqs: np.ndarray
+        Frequency vector corresponding to the power spectral density
+    fmin: float
+        The lower bound of the tremor frequency band in Hz (default: 3)
+    fmax: float
+        The upper bound of the tremor frequency band in Hz (default: 7)
+    spectral_resolution: float
+        The spectral resolution of the PSD in Hz (default: 0.25)
         
+    Returns
+    -------
+    pd.Series
+        The tremor power across windows
+    """
+    
+    freq_idx = (freqs >= fmin) & (freqs <= fmax)
+    peak_idx = np.argmax(total_psd[:, freq_idx], axis=1) + np.min(np.where(freq_idx)[0])
+    left_idx =  np.maximum((peak_idx - 0.5 / spectral_resolution).astype(int), 0)
+    right_idx = (peak_idx + 0.5 / spectral_resolution).astype(int)
+
+    row_indices = np.arange(total_psd.shape[1])
+    row_indices = np.tile(row_indices, (total_psd.shape[0], 1))
+    left_idx = left_idx[:, None]
+    right_idx = right_idx[:, None]
+
+    mask = (row_indices >= left_idx) & (row_indices <= right_idx)
+
+    tremor_power = spectral_resolution * np.sum(total_psd * mask, axis=1)
+
+    return tremor_power
+
+
+def compute_dominant_frequency(
+        freqs: np.ndarray, 
+        psd: np.ndarray, 
+        fmin: float | None = None, 
+        fmax: float | None = None
+    ) -> np.ndarray:
+    """
+    Compute the dominant frequency within a specified frequency range for each window and sensor axis.
+
+    The dominant frequency is defined as the frequency corresponding to the maximum power in the 
+    power spectral density (PSD) within the specified range.
+
+    Parameters
+    ----------
+    freqs : np.ndarray
+        A 1D array of shape (n_frequencies,) containing the frequencies corresponding 
+        to the PSD values.
+    psd : np.ndarray
+        A 2D array of shape (n_windows, n_frequencies) or a 3D array of shape 
+        (n_windows, n_frequencies, n_axes) representing the power spectral density.
+    fmin : float
+        The lower bound of the frequency range (inclusive).
+    fmax : float
+        The upper bound of the frequency range (exclusive).
+
+    Returns
+    -------
+    np.ndarray
+        - If `psd` is 2D: A 1D array of shape (n_windows,) containing the dominant frequency 
+          for each window.
+        - If `psd` is 3D: A 2D array of shape (n_windows, n_axes) containing the dominant 
+          frequency for each window and each axis.
+
+    Raises
+    ------
+    ValueError
+        If `fmin` or `fmax` is outside the bounds of the `freqs` array.
+        If `psd` is not a 2D or 3D array.
+    """
+    # Set default values for fmin and fmax to the minimum and maximum frequencies if not provided
+    if fmin is None:
+        fmin = freqs[0]
+    if fmax is None:
+        fmax = freqs[-1]
+
+    # Validate the frequency range
+    if fmin < freqs[0] or fmax > freqs[-1]:
+        raise ValueError(f"fmin {fmin} or fmax {fmax} are out of bounds of the frequency array.")
+    
+    # Find the indices corresponding to fmin and fmax
+    min_index = np.searchsorted(freqs, fmin)
+    max_index = np.searchsorted(freqs, fmax)
+
+    # Slice the PSD and frequency array to the desired range
+    psd_filtered = psd[:, min_index:max_index] if psd.ndim == 2 else psd[:, min_index:max_index, :]
+    freqs_filtered = freqs[min_index:max_index]
+
+    # Compute dominant frequency
+    if psd.ndim == 3:
+        # 3D: Compute for each axis
+        return np.array([
+            freqs_filtered[np.argmax(psd_filtered[:, :, i], axis=1)]
+            for i in range(psd.shape[-1])
+        ]).T
+    elif psd.ndim == 2:
+        # 2D: Compute for each window
+        return freqs_filtered[np.argmax(psd_filtered, axis=1)]
+    else:
+        raise ValueError("PSD array must be 2D or 3D.")
+    
+
+def extract_frequency_peak(
+    freqs: np.ndarray,
+    psd: np.ndarray,
+    fmin: float | None = None,
+    fmax: float | None = None,
+    include_max: bool = True
+    ) -> pd.Series:
+
+    """Extract the frequency of the peak in the power spectral density within the specified frequency band.
+    
+    Parameters
+    ----------
+    freqs: pd.Series
+        Frequency vector corresponding to the power spectral density
+    psd: pd.Series
+        The total power spectral density of the gyroscope signal
+    fmin: float
+        The lower bound of the frequency band in Hz (default: None). If not provided, the minimum frequency is used.
+    fmax: float
+        The upper bound of the frequency band in Hz (default: None). If not provided, the maximum frequency is used.
+    include_max: bool
+        Whether to include the maximum frequency in the search range (default: True)
+        
+    Returns
+    -------
+    pd.Series
+        The frequency of the peak across windows
+    """    
+    # Set fmin and fmax to maximum range if not provided
+    if fmin is None:
+        fmin = freqs[0]
+    if fmax is None:
+        fmax = freqs[-1]
+
+    # Find the indices corresponding to fmin and fmax
+    if include_max:
+        freq_idx = np.where((freqs>=fmin) & (freqs<=fmax))[0]
+    else:
+        freq_idx = np.where((freqs>=fmin) & (freqs<fmax))[0]
+
+    peak_idx = np.argmax(psd[:, freq_idx], axis=1)
+    frequency_peak = freqs[freq_idx][peak_idx]
+
+    return frequency_peak
+
+
+def compute_relative_power(
+        freqs: np.ndarray, 
+        psd: np.ndarray, 
+        config: HeartRateConfig
+    ) -> list:
+    """
+    Calculate relative power within the dominant frequency band in the physiological range (0.75 - 3 Hz).
+
+    Parameters
+    ----------
+    freqs: np.ndarray
+        The frequency bins of the power spectral density.
+    psd: np.ndarray
+        The power spectral density of the signal.
+    config: HeartRateConfig
+        The configuration object containing the parameters for the feature extraction. The following
+        attributes are used:
+        - freq_band_physio: tuple
+            The frequency band for physiological heart rate (default: (0.75, 3)).
+        - bandwidth: float
+            The bandwidth around the peak frequency to consider for relative power calculation (default: 0.5).
+
     Returns
     -------
     list
-        The aggregated statistics
+        The relative power within the dominant frequency band in the physiological range (0.75 - 3 Hz). 
+    
     """
-    if statistic == 'mean':
-        return [np.mean(x) for x in sensor_col]
-    elif statistic == 'std':
-        return [np.std(x) for x in sensor_col]
-    elif statistic == 'max':
-        return [np.max(x) for x in sensor_col]
-    elif statistic == 'min':
-        return [np.min(x) for x in sensor_col]
+    hr_range_mask = (freqs >= config.freq_band_physio[0]) & (freqs <= config.freq_band_physio[1])
+    hr_range_idx = np.where(hr_range_mask)[0]
+    peak_idx = np.argmax(psd[:, hr_range_idx], axis=1)
+    peak_freqs = freqs[hr_range_idx[peak_idx]]
+
+    dom_band_idx = [np.where((freqs >= peak_freq - config.bandwidth) & (freqs <= peak_freq + config.bandwidth))[0] for peak_freq in peak_freqs]
+    rel_power = [np.trapz(psd[j, idx], freqs[idx]) / np.trapz(psd[j, :], freqs) for j, idx in enumerate(dom_band_idx)]
+    return rel_power
+
+
+def compute_spectral_entropy(
+        psd: np.ndarray, 
+        n_samples: int
+    ) -> np.ndarray:
+    """
+    Calculate the spectral entropy from the normalized power spectral density.
+
+    Parameters
+    ----------
+    psd: np.ndarray
+        The power spectral density of the signal.   
+    n_samples: int
+        The number of samples in the window.
+
+    Returns
+    -------
+    np.ndarray
+        The spectral entropy of the power spectral density.
+    """
+    psd_norm = psd / np.sum(psd, axis=1, keepdims=True)
+    spectral_entropy = -np.sum(psd_norm * np.log2(psd_norm), axis=1) / np.log2(n_samples)
+    
+    return spectral_entropy
+
+
+def compute_mfccs(
+        total_power_array: np.ndarray, 
+        config, 
+        mel_scale: bool = True,
+        multiplication_factor: float = 1
+    ) -> np.ndarray:
+    """
+    Generate Mel Frequency Cepstral Coefficients (MFCCs) from the total power spectral density of the signal.
+
+    MFCCs are commonly used features in signal processing for tasks like audio and 
+    vibration analysis. In this version, we adjusted the MFFCs to the human activity
+    range according to: https://www.sciencedirect.com/science/article/abs/pii/S016516841500331X#f0050.
+    This function calculates MFCCs by applying a filterbank 
+    (in either the mel scale or linear scale) to the total power of the signal, 
+    followed by a Discrete Cosine Transform (DCT) to obtain coefficients.
+
+    Parameters
+    ----------
+    total_power_array : np.ndarray
+        2D array of shape (n_windows, n_frequencies) containing the total power 
+        of the signal for each window.
+    config : object
+        Configuration object containing the following attributes:
+        - window_length_s : int
+            Duration of each analysis window in seconds.
+        - sampling_frequency : int
+            Sampling frequency of the data in Hz (default: 100).
+        - mfcc_low_frequency : float
+            Lower bound of the frequency band in Hz (default: 0).
+        - mfcc_high_frequency : float
+            Upper bound of the frequency band in Hz (default: 25).
+        - mfcc_n_dct_filters : int
+            Number of triangular filters in the filterbank (default: 20).
+        - mfcc_n_coefficients : int
+            Number of coefficients to extract (default: 12).
+    mel_scale : bool, optional
+        Whether to use the mel scale for the filterbank (default: True).
+    multiplication_factor : float, optional
+        Multiplication factor for the Mel scale conversion (default: 1). For tremor, the recommended
+        value is 1. For gait, this is 4.
+
+    Returns
+    -------
+    np.ndarray
+        2D array of MFCCs with shape `(n_windows, n_coefficients)`, where each row
+        contains the MFCCs for a corresponding window.
+    ...
+
+    Notes
+    -----
+    - The function includes filterbank normalization to ensure proper scaling.
+    - DCT filters are constructed to minimize spectral leakage.
+    """
+    # Compute window length in samples
+    window_length = config.window_length_s * config.sampling_frequency
+    
+    # Generate filter points
+    if mel_scale:
+        freqs = np.linspace(
+            melscale(config.mfcc_low_frequency, multiplication_factor), 
+            melscale(config.mfcc_high_frequency, multiplication_factor), 
+            num=config.mfcc_n_dct_filters + 2
+        )
+        freqs = inverse_melscale(freqs, multiplication_factor)
     else:
-        raise ValueError("Statistic not recognized.")
-
-
-def generate_std_norm(
-        df: pd.DataFrame,
-        cols: List[str],
-    ) -> pd.Series:
-    """Generate the standard deviation of the norm of the accelerometer axes.
-    
-    Parameters
-    ----------
-    df: pd.DataFrame
-        The dataframe containing the accelerometer axes
-    cols: List[str]
-        The names of the columns containing the accelerometer axes
-        
-    Returns
-    -------
-    pd.Series
-        The standard deviation of the norm of the accelerometer axes
-    """
-    return df.apply(
-        lambda x: np.std(np.sqrt(sum(
-            [np.array([y**2 for y in x[col]]) for col in cols]
-        ))), axis=1)
-    
-
-def compute_fft(
-        values: list,
-        window_type: str = 'hann',
-        sampling_frequency: int = 100,
-    ) -> tuple:
-    """Compute the Fast Fourier Transform (FFT) of a signal.
-    
-    Parameters
-    ----------
-    values: list
-        The values of the signal (e.g., accelerometer data) of a single window.
-    window_type: str
-        The type of window to be used for the FFT (default: 'hann')
-    sampling_frequency: int
-        The sampling frequency of the signal (default: 100)
-        
-    Returns
-    -------
-    tuple
-        The FFT values and the corresponding frequencies
-    """
-    w = signal.get_window(window_type, len(values), fftbins=False)
-    yf = 2*fft.fft(values*w)[:int(len(values)/2+1)]
-    xf = fft.fftfreq(len(values), 1/sampling_frequency)[:int(len(values)/2+1)]
-
-    return yf, xf
-    
-
-def signal_to_ffts(
-        sensor_col: pd.Series,
-        window_type: str = 'hann',
-        sampling_frequency: int = 100,
-    ) -> tuple:
-    """Compute the Fast Fourier Transform (FFT) of a signal per window (can probably be combined with compute_fft and simplified).
-
-    Parameters
-    ----------
-    sensor_col: pd.Series
-        The sensor column to be transformed (e.g. x-axis of accelerometer)
-    window_type: str
-        The type of window to be used for the FFT (default: 'hann')
-    sampling_frequency: int
-        The sampling frequency of the signal (default: 100)
-    
-    Returns
-    -------
-    tuple
-        Lists of FFT values and corresponding frequencies which can be concatenated as column to the dataframe
-    """
-    l_values_total = []
-    l_freqs_total = []
-    for row in sensor_col:
-        l_values, l_freqs = compute_fft(
-            values=row,
-            window_type=window_type,
-            sampling_frequency=sampling_frequency)
-        l_values_total.append(l_values)
-        l_freqs_total.append(l_freqs)
-
-    return l_freqs_total, l_values_total
-    
-
-def compute_power_in_bandwidth(
-        sensor_col: list,
-        fmin: float,
-        fmax: float,
-        sampling_frequency: int = 100,
-        window_type: str = 'hann',
-    ) -> float:
-    """Note: sensor_col is a single cell (which corresponds to a single window) of sensor_col, as it is used with apply function. 
-    Probably we want a smarter way of doing this.
-    
-    Computes the power in a specific frequency band for a specified sensor and axis.
-    
-    Parameters
-    ----------
-    sensor_col: list
-        The sensor column to be transformed (e.g. x-axis of accelerometer). This corresponds to a single window, which is a single row of the dataframe, 
-        and contains values of individual timestamps composing the window.
-    fmin: float
-        The lower bound of the frequency band
-    fmax: float
-        The upper bound of the frequency band
-    sampling_frequency: int
-        The sampling frequency of the signal (default: 100)
-    window_type: str
-        The type of window to be used for the FFT (default: 'hann')
-
-    Returns
-    -------
-    float
-        The power in the specified frequency band    
-    """
-    fxx, pxx = signal.periodogram(sensor_col, fs=sampling_frequency, window=window_type)
-    ind_min = np.argmax(fxx > fmin) - 1
-    ind_max = np.argmax(fxx > fmax) - 1
-    return np.log10(np.trapz(pxx[ind_min:ind_max], fxx[ind_min:ind_max]))
-
-
-def compute_perc_power(
-        sensor_col: list,
-        fmin_band: float,
-        fmax_band: float,
-        fmin_total: float = 0,
-        fmax_total: float = 100,
-        sampling_frequency: int = 100,
-        window_type: str = 'hann'
-    ) -> float:
-    """Note: sensor_col is a single cell (which corresponds to a single window) of sensor_col, as it is used with apply function.
-
-    Computes the percentage of power in a specific frequency band for a specified sensor and axis.
-    
-    Parameters
-    ----------
-    sensor_col: list
-        The sensor column to be transformed (e.g. x-axis of accelerometer). This corresponds to a single window, which is a single row of the dataframe
-    fmin_band: float
-        The lower bound of the frequency band
-    fmax_band: float
-        The upper bound of the frequency band
-    fmin_total: float
-        The lower bound of the frequency spectrum (default: 0)
-    fmax_total: float
-        The upper bound of the frequency spectrum (default: 100)
-    sampling_frequency: int
-        The sampling frequency of the signal (default: 100)
-    window_type: str
-        The type of window to be used for the FFT (default: 'hann')
-    
-    Returns
-    -------
-    float
-        The percentage of power in the specified frequency band
-    """
-    angle_power_band = compute_power_in_bandwidth(
-        sensor_col=sensor_col,
-        fmin=fmin_band,
-        fmax=fmax_band,
-        sampling_frequency=sampling_frequency,
-        window_type=window_type
+        freqs = np.linspace(
+            config.mfcc_low_frequency, 
+            config.mfcc_high_frequency, 
+            num=config.mfcc_n_dct_filters + 2
         )
+
+    filter_points = np.floor(
+        window_length / config.sampling_frequency * freqs
+    ).astype(int)  + 1
+
+    # Construct triangular filterbank
+    filters = np.zeros((len(filter_points) - 2, int(window_length / 2 + 1)))
+    for j in range(len(filter_points) - 2):
+        filters[j, filter_points[j] : filter_points[j + 2]] = windows.triang(
+            filter_points[j + 2] - filter_points[j]
+        ) 
+        # Normalize filter coefficients
+        filters[j, :] /= (
+            config.sampling_frequency/window_length * np.sum(filters[j,:])
+        ) 
+
+    # Apply filterbank to total power
+    power_filtered = np.dot(total_power_array, filters.T) 
     
-    angle_power_total = compute_power_in_bandwidth(
-        sensor_col=sensor_col,
-        fmin=fmin_total,
-        fmax=fmax_total,
-        sampling_frequency=sampling_frequency,
-        window_type=window_type
-        )
-    
-    return angle_power_band / angle_power_total
+    # Convert power to logarithmic scale
+    log_power_filtered = np.log10(power_filtered + 1e-10)
+
+    # Generate DCT filters
+    dct_filters = np.empty((config.mfcc_n_coefficients, config.mfcc_n_dct_filters))
+    dct_filters[0, :] = 1.0 / np.sqrt(config.mfcc_n_dct_filters)
+
+    samples = (
+        np.arange(1, 2 * config.mfcc_n_dct_filters, 2) * np.pi / (2.0 * config.mfcc_n_dct_filters)
+    )
+
+    for i in range(1, config.mfcc_n_coefficients):
+        dct_filters[i, :] = np.cos(i * samples) * np.sqrt(2.0 / config.mfcc_n_dct_filters)
+
+    # Compute MFCCs
+    mfccs = np.dot(log_power_filtered, dct_filters.T) 
+
+    return mfccs
 
 
-def get_dominant_frequency(
-        signal_ffts: list,
-        signal_freqs: list,
-        fmin: float,
-        fmax: float
-        ) -> float:
-    """Note: signal_ffts and signal_freqs are single cells (which corresponds to a single window) of signal_ffts and signal_freqs, as it is used with apply function.
-    
-    Computes the dominant frequency in a specific frequency band.
-    
+def melscale(x: np.ndarray, multiplication_factor: float = 1) -> np.ndarray:
+    """
+    Maps linear frequency values to the Mel scale.
+
     Parameters
     ----------
-    signal_ffts: list
-        The FFT values of the signal of a single window
-    signal_freqs: list
-        The corresponding frequencies of the FFT values
-    fmin: int
-        The lower bound of the frequency band
-    fmax: int
-        The upper bound of the frequency band
-    
+    x : np.ndarray
+        Linear frequency values to be converted to the Mel scale.
+    multiplication_factor : float, optional
+        Multiplication factor for the Mel scale conversion (default: 1). For tremor, the recommended
+        value is 1. For gait, this is 4.
+
     Returns
     -------
-    float
-        The dominant frequency in the specified frequency band
+    np.ndarray
+        Frequency values mapped to the Mel scale.
     """
-    valid_indices = np.where((signal_freqs>fmin) & (signal_freqs<fmax))
-    signal_freqs_adjusted = signal_freqs[valid_indices]
-    signal_ffts_adjusted = signal_ffts[valid_indices]
+    return (64.875 / multiplication_factor) * np.log10(1 + x / (17.5 / multiplication_factor))
 
-    idx = np.argmax(np.abs(signal_ffts_adjusted))
-    return np.abs(signal_freqs_adjusted[idx])
-    
 
-def compute_power(
-        df: pd.DataFrame,
-        fft_cols: list
-    ) -> pd.Series:
-    """Compute the power of the FFT values.
-    
+def inverse_melscale(x: np.ndarray, multiplication_factor: float = 1) -> np.ndarray:
+    """
+    Maps values from the Mel scale back to linear frequencies.
+
+    This function performs the inverse transformation of the Mel scale,
+    converting perceptual frequency values to their corresponding linear frequency values.
+
     Parameters
     ----------
-    df: pd.DataFrame
-        The dataframe containing the FFT values
-    fft_cols: list
-        The names of the columns containing the FFT values
-    
+    x : np.ndarray
+        Frequency values on the Mel scale to be converted back to linear frequencies.
+
     Returns
     -------
-    pd.Series
-        The power of the FFT values
+    np.ndarray
+        Linear frequency values corresponding to the given Mel scale values.
     """
-    for col in fft_cols:
-        df['{}_power'.format(col)] = df[col].apply(lambda x: np.square(np.abs(x)))
-
-    return df.apply(lambda x: sum([np.array([y for y in x[col+'_power']]) for col in fft_cols]), axis=1)
-    
-
-def generate_cepstral_coefficients(
-        total_power_col: pd.Series,
-        window_length_s: int,
-        sampling_frequency: int = 100,
-        low_frequency: int = 0,
-        high_frequency: int = 25,
-        n_filters: int = 20,
-        n_coefficients: int = 12,
-        ) -> pd.DataFrame:
-    """Generate cepstral coefficients from the total power of the signal.
-    
-    Parameters
-    ----------
-    total_power_col: pd.Series
-        The total power of the signal, extracted using compute_power
-    window_length_s: int
-        The number of seconds a window constitutes
-    sampling_frequency: int
-        The sampling frequency of the data (default: 100)
-    low_frequency: int
-        The lower bound of the frequency band (default: 0)
-    high_frequency: int
-        The upper bound of the frequency band (default: 25)
-    n_filters: int
-        The number of DCT filters (default: 20)
-    n_coefficients: int
-        The number of coefficients to extract (default: 12)
-    
-    Returns
-    -------
-    pd.DataFrame
-        A dataframe with a single column corresponding to a single cepstral coefficient
-    """
-    window_length = window_length_s * sampling_frequency
-    
-    # compute filter points
-    freqs = np.linspace(low_frequency, high_frequency, num=n_filters+2)
-    filter_points = np.floor((window_length + 1) / sampling_frequency * freqs).astype(int)  
-
-    # construct filterbank
-    filters = np.zeros((len(filter_points)-2, int(window_length/2+1)))
-    for j in range(len(filter_points)-2):
-        filters[j, filter_points[j] : filter_points[j+1]] = np.linspace(0, 1, filter_points[j+1] - filter_points[j])
-        filters[j, filter_points[j+1] : filter_points[j+2]] = np.linspace(1, 0, filter_points[j+2] - filter_points[j+1])
-
-    # filter signal
-    power_filtered = [np.dot(filters, x) for x in total_power_col]
-    log_power_filtered = [10.0 * np.log10(x) for x in power_filtered]
-
-    # generate cepstral coefficients
-    dct_filters = np.empty((n_coefficients, n_filters))
-    dct_filters[0, :] = 1.0 / np.sqrt(n_filters)
-
-    samples = np.arange(1, 2 * n_filters, 2) * np.pi / (2.0 * n_filters)
-
-    for i in range(1, n_coefficients):
-        dct_filters[i, :] = np.cos(i * samples) * np.sqrt(2.0 / n_filters)
-
-    cepstral_coefs = [np.dot(dct_filters, x) for x in log_power_filtered]
-
-    return pd.DataFrame(np.vstack(cepstral_coefs), columns=['cc_{}'.format(j+1) for j in range(n_coefficients)])
+    return (17.5 / multiplication_factor) * (10 ** (x / (64.875 / multiplication_factor)) - 1)
 
 
 def pca_transform_gyroscope(
         df: pd.DataFrame,
         y_gyro_colname: str,
         z_gyro_colname: str,
-        pred_gait_colname: str,
-) -> pd.Series:
-    """Apply principal component analysis (PCA) on the y-axis and z-axis of the raw gyroscope signal
-    to extract the velocity. PCA is applied to the predicted gait timestamps only to maximize the similarity
-    to the velocity in the arm swing direction. 
+        pred_colname: str | None = None,
+) -> np.ndarray:
+    """
+    Perform principal component analysis (PCA) on gyroscope data to estimate velocity. If pred_colname is provided, 
+    the PCA is fitted on the predicted gait data. Otherwise, the PCA is fitted on the entire dataset.
     
     Parameters
     ----------
-    df: pd.DataFrame
-        The dataframe containing the gyroscope data
-    y_gyro_colname: str
-        The column name of the y-axis of the gyroscope
-    z_gyro_colname: str
-        The column name of the z-axis of the gyroscope
-    pred_gait_colname: str
-        The column name of the predicted gait boolean
-
+    df : pd.DataFrame
+        The DataFrame containing the gyroscope data.
+    y_gyro_colname : str
+        The column name for the y-axis gyroscope data.
+    z_gyro_colname : str
+        The column name for the z-axis gyroscope data.
+    pred_colname : str, optional
+        The column name for the predicted gait (default: None).
+        
     Returns
     -------
-    pd.Series
-        The first principal component corresponding to the angular velocity in the arm swing direction
+    np.ndarray
+        The estimated velocity based on the principal component of the gyroscope data.
     """
+    # Convert gyroscope columns to NumPy arrays
+    y_gyro_array = df[y_gyro_colname].to_numpy()
+    z_gyro_array = df[z_gyro_colname].to_numpy()
+
+    # Filter data based on predicted gait if pred_colname is provided
+    if pred_colname is not None:
+        pred_mask = df[pred_colname] == 1
+        y_gyro_fit_array = y_gyro_array[pred_mask]
+        z_gyro_fit_array = z_gyro_array[pred_mask]
+
+        # Fit PCA on predicted gait data
+        fit_data = np.column_stack((y_gyro_fit_array, z_gyro_fit_array))
+        full_data = np.column_stack((y_gyro_array, z_gyro_array))
+    else:
+        # Fit PCA on entire dataset
+        fit_data = np.column_stack((y_gyro_array, z_gyro_array))
+        full_data = fit_data
+
     pca = PCA(n_components=2, svd_solver='auto', random_state=22)
-    pca.fit([(i,j) for i,j in zip(df.loc[df[pred_gait_colname]==1, y_gyro_colname], df.loc[df[pred_gait_colname]==1, z_gyro_colname])])
-    yz_gyros = pca.transform([(i,j) for i,j in zip(df[y_gyro_colname], df[z_gyro_colname])])
+    pca.fit(fit_data)
+    velocity = pca.transform(full_data)[:, 0]  # First principal component
 
-    velocity = [x[0] for x in yz_gyros]
-
-    return pd.Series(velocity)
+    return np.asarray(velocity)
 
 
-def compute_angle(
-        velocity_col: pd.Series,
-        time_col: pd.Series,
-    ) -> pd.Series:
-    """Apply cumulative trapezoidal integration to extract the angle from the velocity.
+def compute_angle(time_array: np.ndarray, velocity_array: np.ndarray) -> np.ndarray:
+    """
+    Compute the angle from the angular velocity using cumulative trapezoidal integration.
     
     Parameters
     ----------
-    velocity_col: pd.Series
-        The angular velocity (gyroscope) column to be integrated
-    time_col: pd.Series
-        The time column corresponding to the angular velocity
+    time_array : np.ndarray
+        The time array corresponding to the angular velocity data.
+    velocity_array : np.ndarray
+        The angular velocity data to integrate.
         
     Returns
     -------
-    pd.Series
-        An estimation of the angle extracted from the angular velocity
+    np.ndarray
+        The estimated angle based on the cumulative trapezoidal integration of the angular velocity.
     """
-    angle_col = cumulative_trapezoid(velocity_col, time_col, initial=0)
-    return pd.Series([x*-1 if x<0 else x for x in angle_col])
+    # Perform integration and apply absolute value
+    angle_array = cumulative_trapezoid(
+        y=velocity_array, 
+        x=time_array, 
+        initial=0
+    )
+    return np.abs(angle_array)
 
 
-def remove_moving_average_angle(
-        angle_col: pd.Series,
-        sampling_frequency: int = 100,
-    ) -> pd.Series:
-    """Remove the moving average from the angle to account for potential drift in the signal.
-    
+def remove_moving_average_angle(angle_array: np.ndarray, fs: float) -> pd.Series:
+    """
+    Remove the moving average from the angle to correct for drift.
+
     Parameters
     ----------
-    angle_col: pd.Series
-        The angle column to be processed, obtained using compute_angle
-    sampling_frequency: int
-        The sampling frequency of the data (default: 100)
-        
+    angle_array : np.ndarray
+        The angle array to remove the moving average from.
+    fs : float
+        The sampling frequency of the data.
+    
     Returns
     -------
     pd.Series
-        The estimated angle without potential drift
+        The angle array with the moving average removed.
     """
-    angle_ma = angle_col.rolling(window=int(2*(sampling_frequency*0.5)+1), min_periods=1, center=True, closed='both').mean()
+    window_size = int(2 * (fs * 0.5) + 1)
+    angle_ma = np.array(pd.Series(angle_array).rolling(
+        window=window_size, 
+        min_periods=1, 
+        center=True, 
+        closed='both'
+    ).mean())
     
-    return pd.Series(angle_col - angle_ma)
+    return angle_array - angle_ma
 
 
 def extract_angle_extremes(
-        df: pd.DataFrame,
-        angle_colname: str,
-        dominant_frequency_colname: str,
-        sampling_frequency: int = 100,
-    ) -> pd.Series:
-    """Extract the peaks of the angle (minima and maxima) from the smoothed angle signal that adhere to a set of specific requirements.
+        angle_array: np.ndarray,
+        sampling_frequency: float,
+        max_frequency_activity: float = 1.75,
+    ) -> tuple[List[int], List[int], List[int]]:
+    """
+    Extract extrema (minima and maxima) indices from the angle array.
     
     Parameters
     ----------
-    df: pd.DataFrame
-        The dataframe containing the angle signal
-    angle_colname: str
-        The name of the column containing the smoothed angle signal
-    dominant_frequency_colname: str
-        The name of the column containing the dominant frequency
-    sampling_frequency: int
-        The sampling frequency of the data (default: 100)
-
+    angle_array : np.ndarray
+        The angle array to extract extrema from.
+    sampling_frequency : float
+        The sampling frequency of the data.
+    max_frequency_activity : float, optional
+        The maximum frequency of human activity in Hz (default: 1.75).
+    
     Returns
     -------
-    pd.Series
-        The extracted angle extremes (peaks)
+    tuple
+        A tuple containing the indices of the angle extrema, minima, and maxima.
     """
-    # determine peaks
-    df['angle_maxima'] = df.apply(lambda x: find_peaks(x[angle_colname], distance=sampling_frequency * 0.6 / x[dominant_frequency_colname], prominence=2)[0], axis=1)
-    df['angle_minima'] = df.apply(lambda x: find_peaks([-x for x in x[angle_colname]], distance=sampling_frequency * 0.6 / x[dominant_frequency_colname], prominence=2)[0], axis=1) 
+    distance = sampling_frequency / max_frequency_activity
+    prominence = 2  
 
-    df['angle_new_minima'] = df['angle_minima'].copy()
-    df['angle_new_maxima'] = df['angle_maxima'].copy()
+    # Find minima and maxima indices for each window
+    minima_indices = find_peaks(
+        x=-angle_array, 
+        distance=distance, 
+        prominence=prominence
+    )[0]
+    maxima_indices = find_peaks(
+        x=angle_array, 
+        distance=distance, 
+        prominence=prominence
+    )[0]
 
-    for index, _ in df.iterrows():
-        i_pks = 0                                       # iterable to keep track of consecutive min-min and max-max versus min-max
-        n_min = df.loc[index, 'angle_new_minima'].size  # number of minima in window
-        n_max = df.loc[index, 'angle_new_maxima'].size  # number of maxima in window
+    minima_indices = np.array(minima_indices, dtype=object)
+    maxima_indices = np.array(maxima_indices, dtype=object)
 
-        if n_min > 0 and n_max > 0: 
-            # if the first minimum occurs before the first maximum, start with the minimum
-            if df.loc[index, 'angle_new_maxima'][0] > df.loc[index, 'angle_new_minima'][0]: 
-                # only continue if there are enough minima and maxima to perform operations
-                while i_pks < df.loc[index, 'angle_new_minima'].size - 1 and i_pks < df.loc[index, 'angle_new_maxima'].size: 
+    i_pks = 0
+    if minima_indices.size > 0 and maxima_indices.size > 0:
+        if maxima_indices[0] > minima_indices[0]:
+            # Start with a minimum
+            while i_pks < minima_indices.size - 1 and i_pks < maxima_indices.size:
+                if minima_indices[i_pks + 1] < maxima_indices[i_pks]:
+                    if angle_array[minima_indices[i_pks + 1]] < angle_array[minima_indices[i_pks]]:
+                        minima_indices = np.delete(minima_indices, i_pks)
+                    else:
+                        minima_indices = np.delete(minima_indices, i_pks + 1)
+                    i_pks -= 1
 
-                    # if the next minimum comes before the next maximum, we have two minima in a row, and should keep the larger one
-                    if df.loc[index, 'angle_new_minima'][i_pks+1] < df.loc[index, 'angle_new_maxima'][i_pks]: 
-                        # if the next minimum is smaller than the current minimum, keep the next minimum and discard the current minimum
-                        if df.loc[index, angle_colname][df.loc[index, 'angle_new_minima'][i_pks+1]] < df.loc[index, angle_colname][df.loc[index, 'angle_new_minima'][i_pks]]:
-                            df.at[index, 'angle_new_minima'] = np.delete(df.loc[index, 'angle_new_minima'], i_pks)
-                        # otherwise, keep the current minimum and discard the next minimum
-                        else:
-                            df.at[index, 'angle_new_minima'] = np.delete(df.loc[index, 'angle_new_minima'], i_pks+1)
-                        i_pks -= 1
+                if i_pks >= 0 and minima_indices[i_pks] > maxima_indices[i_pks]:
+                    if angle_array[maxima_indices[i_pks]] < angle_array[maxima_indices[i_pks - 1]]:
+                        maxima_indices = np.delete(maxima_indices, i_pks)
+                    else:
+                        maxima_indices = np.delete(maxima_indices, i_pks - 1)
+                    i_pks -= 1
+                i_pks += 1
 
-                    # if the current maximum comes before the current minimum, we have two maxima in a row, and should keep the larger one
-                    if i_pks >= 0 and df.loc[index, 'angle_new_minima'][i_pks] > df.loc[index, 'angle_new_maxima'][i_pks]:
-                        # if the current maximum is smaller than the previous maximum, keep the previous maximum and discard the current maximum
-                        if df.loc[index, angle_colname][df.loc[index, 'angle_new_maxima'][i_pks]] < df.loc[index, angle_colname][df.loc[index, 'angle_new_maxima'][i_pks-1]]:
-                            df.at[index, 'angle_new_maxima'] = np.delete(df.loc[index, 'angle_new_maxima'], i_pks) 
-                        # otherwise, keep the current maximum and discard the previous maximum
-                        else:
-                            df.at[index, 'angle_new_maxima'] = np.delete(df.loc[index, 'angle_new_maxima'], i_pks-1) 
-                        i_pks -= 1
-                    i_pks += 1
+        elif maxima_indices[0] < minima_indices[0]:
+            # Start with a maximum
+            while i_pks < maxima_indices.size - 1 and i_pks < minima_indices.size:
+                if maxima_indices[i_pks + 1] < minima_indices[i_pks]:
+                    if angle_array[maxima_indices[i_pks + 1]] < angle_array[maxima_indices[i_pks]]:
+                        maxima_indices = np.delete(maxima_indices, i_pks + 1)
+                    else:
+                        maxima_indices = np.delete(maxima_indices, i_pks)
+                    i_pks -= 1
 
-            # or if the first maximum occurs before the first minimum, start with the maximum
-            elif df.loc[index, 'angle_new_maxima'][0] < df.loc[index, 'angle_new_minima'][0]: 
-                # only continue if there are enough minima and maxima to perform operations
-                while i_pks < df.loc[index, 'angle_new_minima'].size and i_pks < df.loc[index, 'angle_new_maxima'].size-1:
-                    # if the next maximum comes before the current minimum, we have two maxima in a row, and should keep the larger one
-                    if df.loc[index, 'angle_new_minima'][i_pks] > df.loc[index, 'angle_new_maxima'][i_pks+1]:
-                        # if the next maximum is smaller than the current maximum, keep the next maximum and discard the current maximum
-                        if df.loc[index, angle_colname][df.loc[index, 'angle_new_maxima'][i_pks+1]] > df.loc[index, angle_colname][df.loc[index, 'angle_new_maxima'][i_pks]]:
-                            df.at[index, 'angle_new_maxima'] = np.delete(df.loc[index, 'angle_new_maxima'], i_pks) 
-                        # otherwise, keep the current maximum and discard the next maximum
-                        else:
-                            df.at[index, 'angle_new_maxima'] = np.delete(df.loc[index, 'angle_new_maxima'], i_pks+1) 
-                        i_pks -= 1
+                if i_pks >= 0 and maxima_indices[i_pks] > minima_indices[i_pks]:
+                    if angle_array[minima_indices[i_pks]] < angle_array[minima_indices[i_pks - 1]]:
+                        minima_indices = np.delete(minima_indices, i_pks - 1)
+                    else:
+                        minima_indices = np.delete(minima_indices, i_pks)
+                    i_pks -= 1
+                i_pks += 1
 
-                    # if the current minimum comes before the current maximum, we have two minima in a row, and should keep the larger one
-                    if i_pks > 0 and df.loc[index, 'angle_new_minima'][i_pks] < df.loc[index, 'angle_new_maxima'][i_pks]:
-                        # if the current minimum is smaller than the previous minimum, keep the previous minimum and discard the current minimum
-                        if df.loc[index, angle_colname][df.loc[index, 'angle_new_minima'][i_pks]] < df.loc[index, angle_colname][df.loc[index, 'angle_new_minima'][i_pks-1]]:
-                            df.at[index, 'angle_new_minima'] = np.delete(df.loc[index, 'angle_new_minima'], i_pks-1) 
-                        # otherwise, keep the current minimum and discard the previous minimum                        
-                        else:
-                            df.at[index, 'angle_new_minima'] = np.delete(df.loc[index, 'angle_new_minima'], i_pks) 
-                        i_pks -= 1
-                    i_pks += 1
+    # Combine remaining extrema and compute range of motion
+    angle_extrema_indices = np.sort(np.concatenate([minima_indices, maxima_indices]))
 
-    # for some peculiar reason, if a single item remains in the row for angle_new_minima or
-    # angle_new_maxima, it could be either a scalar or a vector.
-    for col in ['angle_new_minima', 'angle_new_maxima']:
-        df.loc[df.apply(lambda x: type(x[col].tolist())==int, axis=1), col] = df.loc[df.apply(lambda x: type(x[col].tolist())==int, axis=1), col].apply(lambda x: [x])
-
-    df['angle_extrema_values'] = df.apply(lambda x: [x[angle_colname][i] for i in np.concatenate([x['angle_new_minima'], x['angle_new_maxima']])], axis=1) 
-
-    return
+    return list(angle_extrema_indices), list(minima_indices), list(maxima_indices)
 
 
-def extract_range_of_motion(
-        angle_extrema_values_col: pd.Series,
-    ) -> pd.Series:
-    """Extract the range of motion from the angle extrema values.
+def compute_range_of_motion(angle_array: np.ndarray, extrema_indices: List[int]) -> np.ndarray:
+    """
+    Compute the range of motion of a time series based on the angle extrema.
     
     Parameters
     ----------
-    angle_extrema_values_col: pd.Series
-        The column containing the angle extrema values
+    angle_array : np.ndarray
+        The angle array to compute the range of motion from.
+    extrema_indices : List[int]
+        The indices of the angle extrema.
     
     Returns
     -------
-    pd.Series
-        The range of motion
+    np.ndarray
+        The range of motion of the time series.
     """
-    angle_amplitudes = np.empty((len(angle_extrema_values_col), 0)).tolist()
+    # Ensure extrema_indices is a NumPy array of integers
+    if not isinstance(extrema_indices, list):
+        raise TypeError("extrema_indices must be a list of integers.")
 
-    # for each window
-    for i, extrema_values in enumerate(angle_extrema_values_col):
-        l_amplitudes = []
-        # for each extremum contained in the window
-        for j, value in enumerate(extrema_values):
-            # if the extremum is not the last one in the list of extrema
-            if j < len(extrema_values)-1:
-                # if the current extremum is a maximum and the next one is a minimum, or vice versa
-                if (value > 0 and extrema_values[j+1] < 0) or (value < 0 and extrema_values[j+1] > 0):
-                    # compute the amplitude as the sum of the absolute values of the two extrema
-                    l_amplitudes.append(np.sum(np.abs(value) + np.abs(extrema_values[j+1])))
-                # or if the extrema are both positive or both negative, and the current extremum is closer to 0
-                elif np.abs(value) < np.abs(extrema_values[j+1]):
-                    # compute the amplitude as the difference between the two extrema
-                    l_amplitudes.append(np.subtract(np.abs(extrema_values[j+1]), np.abs(value)))
-                # or if the extrema are both positive and negative, and the current extremum is further away from 0
-                else:
-                    # compute the amplitude as the difference between the two extrema
-                    l_amplitudes.append(np.subtract(np.abs(value), np.abs(extrema_values[j+1])))
-
-        angle_amplitudes[i].append([x for x in l_amplitudes])
-
-    return [y for item in angle_amplitudes for y in item]
-
-
-def extract_peak_angular_velocity(
-        df: pd.DataFrame,
-        velocity_colname: str,
-        angle_minima_colname: str,
-        angle_maxima_colname: str,
-) -> pd.DataFrame:
-    """Extract the forward and backward peak angular velocity from the angular velocity.
+    # Check bounds
+    if np.any(np.array(extrema_indices) < 0) or np.any(np.array(extrema_indices) >= len(angle_array)):
+        raise ValueError("extrema_indices contains out-of-bounds indices.")
     
-    Parameters
-    ----------
-    df: pd.DataFrame
-        The dataframe containing the angular velocity
-    velocity_colname: str
-        The column name of the angular velocity
-    angle_minima_colname: str
-        The column name of the column containing the angle minima
-    angle_maxima_colname: str
-        The column name of the column containing the angle maxima
-        
-    Returns
-    -------
-    pd.DataFrame
-        The dataframe with the forward and backward peak angular velocity
+    # Extract angle amplitudes (minima and maxima values)
+    angle_extremas = angle_array[extrema_indices]
+
+    # Compute the differences (range of motion) across all windows at once using np.diff
+    range_of_motion = np.abs(np.diff(angle_extremas))
+
+    return range_of_motion
+
+
+def compute_peak_angular_velocity(
+    velocity_array: np.ndarray,
+    angle_extrema_indices: List[int],
+) -> np.ndarray:
     """
-    df['forward_peak_ang_vel'] = np.empty((len(df), 0)).tolist()
-    df['backward_peak_ang_vel'] = np.empty((len(df), 0)).tolist()
-
-    # for each window
-    for index, row in df.iterrows():
-        # the peak angular velocity can only be computed if there is at least one minimum and one maximum in the window
-        if len(row[angle_minima_colname]) > 0 and len(row[angle_maxima_colname]) > 0:
-            # combine the minima and maxima
-            l_extrema_indices = np.sort(np.concatenate((row[angle_minima_colname], row[angle_maxima_colname])))
-            # for each peak
-            for j, peak_index in enumerate(l_extrema_indices):
-                # if the peak is a maximum and there is another peak after it
-                if peak_index in row[angle_maxima_colname] and j < len(l_extrema_indices) - 1:
-                    # compute the forward peak angular velocity, defined by the maximum negative angular velocity between the two peaks
-                    df.loc[index, 'forward_peak_ang_vel'].append(np.abs(min(row[velocity_colname][l_extrema_indices[j]:l_extrema_indices[j+1]])))
-                # if the peak is a minimum and there is another peak after it
-                elif peak_index in row[angle_minima_colname] and j < len(l_extrema_indices) - 1:
-                    # compute the backward peak angular velocity, defined by the maximum positive angular velocity between the two peaks
-                    df.loc[index, 'backward_peak_ang_vel'].append(np.abs(max(row[velocity_colname][l_extrema_indices[j]:l_extrema_indices[j+1]])))
-    
-    return
-
-
-def extract_temporal_domain_features(config: IMUConfig, df_windowed:pd.DataFrame, l_gravity_stats=['mean', 'std']) -> pd.DataFrame:
-    """
-    Compute temporal domain features for the accelerometer signal. The features are added to the dataframe. Therefore the original dataframe is modified, and the modified dataframe is returned.
+    Compute the peak angular velocity of a time series based on the angle extrema.
 
     Parameters
     ----------
-
-    config: GaitFeatureExtractionConfig
-        The configuration object containing the parameters for the feature extraction
-    
-    df_windowed: pd.DataFrame
-        The dataframe containing the windowed accelerometer signal
-
-    l_gravity_stats: list, optional
-        The statistics to be computed for the gravity component of the accelerometer signal (default: ['mean', 'std'])
+    velocity_array : np.ndarray
+        The angular velocity array to compute the peak angular velocity from.
+    angle_extrema_indices : List[int]
+        The indices of the angle extrema.
     
     Returns
     -------
-    pd.DataFrame
-        The dataframe with the added temporal domain features.
+    np.ndarray
+        The peak angular velocities of the time series.
+    """
+    if np.any(np.array(angle_extrema_indices) < 0) or np.any(np.array(angle_extrema_indices) >= len(velocity_array)):
+        raise ValueError("angle_extrema_indices contains out-of-bounds indices.")
+    
+    if len(angle_extrema_indices) < 2:
+        raise ValueError("angle_extrema_indices must contain at least two indices.")
+    
+    # Initialize a list to store the peak velocities 
+    pav = []
+
+    # Compute peak angular velocities
+    for i in range(len(angle_extrema_indices) - 1):
+        # Get the current and next extrema index
+        current_peak_idx = angle_extrema_indices[i]
+        next_peak_idx = angle_extrema_indices[i + 1]
+        segment = velocity_array[current_peak_idx:next_peak_idx]
+
+        pav.append(np.max(np.abs(segment)))
+
+    return np.array(pav)
+
+
+def compute_forward_backward_peak_angular_velocity(
+    velocity_array: np.ndarray,
+    angle_extrema_indices: List[int],
+    minima_indices: List[int],
+    maxima_indices: List[int],
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Compute the peak angular velocity of a time series based on the angle extrema.
+
+    Parameters
+    ----------
+    velocity_array : np.ndarray
+        The angular velocity array to compute the peak angular velocity from.
+    angle_extrema_indices : List[int]
+        The indices of the angle extrema.
+    minima_indices : List[int]
+        The indices of the minima.
+    maxima_indices : List[int]
+        The indices of the maxima.
+    
+    Returns
+    -------
+    Tuple[np.ndarray, np.ndarray]
+        A tuple containing the forward and backward peak angular velocities for minima and maxima.
+    """
+    if np.any(np.array(angle_extrema_indices) < 0) or np.any(np.array(angle_extrema_indices) >= len(velocity_array)):
+        raise ValueError("angle_extrema_indices contains out-of-bounds indices.")
+    
+    if len(angle_extrema_indices) < 2:
+        raise ValueError("angle_extrema_indices must contain at least two indices.")
+    
+    if len(minima_indices) == 0:
+        raise ValueError("No minima indices found.")
+    
+    if len(maxima_indices) == 0:
+        raise ValueError("No maxima indices found.")
+
+    # Initialize lists to store the peak velocities
+    forward_pav = []
+    backward_pav = []
+
+    # Compute peak angular velocities
+    for i in range(len(angle_extrema_indices) - 1):
+        # Get the current and next extrema index
+        current_peak_idx = angle_extrema_indices[i]
+        next_peak_idx = angle_extrema_indices[i + 1]
+        segment = velocity_array[current_peak_idx:next_peak_idx]
+
+        # Check if the current peak is a minimum or maximum and calculate peak velocity accordingly
+        if current_peak_idx in minima_indices:
+            forward_pav.append(np.max(np.abs(segment)))
+        elif current_peak_idx in maxima_indices:
+            backward_pav.append(np.max(np.abs(segment)))
+
+    # Convert lists to numpy arrays
+    forward_pav = np.array(forward_pav)
+    backward_pav = np.array(backward_pav)
+
+    return forward_pav, backward_pav
+
+
+def compute_signal_to_noise_ratio(
+        ppg_windowed: np.ndarray
+    ) -> np.ndarray:
+    """
+    Compute the signal to noise ratio of the PPG signal.
+    
+    Parameters
+    ----------
+    ppg_windowed: np.ndarray
+        The windowed PPG signal.
+
+    Returns
+    -------
+    np.ndarray
+        The signal to noise ratio of the PPG signal.
     """
     
-    # compute the mean and standard deviation of the gravity component of the acceleration signal for each axis
-    for col in config.l_gravity_cols:
-        for stat in l_gravity_stats:
-            df_windowed[f'{col}_{stat}'] = generate_statistics(
-                sensor_col=df_windowed[col],
-                statistic=stat
-                )
-
-    # compute the standard deviation of the Euclidean norm of the three axes
-    df_windowed['std_norm_acc'] = generate_std_norm(
-        df=df_windowed,
-        cols=config.l_accelerometer_cols
-        )
+    arr_signal = np.var(ppg_windowed, axis=1)
+    arr_noise = np.var(np.abs(ppg_windowed), axis=1)
+    signal_to_noise_ratio = arr_signal / arr_noise
     
-    return df_windowed
+    return signal_to_noise_ratio
 
+def compute_auto_correlation(
+        ppg_windowed: np.ndarray, 
+        fs: int
+    ) -> np.ndarray:
+    """
+    Compute the biased autocorrelation of the PPG signal. The autocorrelation is computed up to 3 seconds. The highest peak value is selected as the autocorrelation value. If no peaks are found, the value is set to 0.
+    The biased autocorrelation is computed using the biased_autocorrelation function. It differs from the unbiased autocorrelation in that the normalization factor is the length of the original signal, and boundary effects are considered. This results in a smoother autocorrelation function.
+    
+    Parameters
+    ----------
+    ppg_windowed: np.ndarray
+        The windowed PPG signal.
+    fs: int
+        The sampling frequency of the PPG signal.
 
-def extract_spectral_domain_features(config, df_windowed, sensor, l_sensor_colnames):
+    Returns
+    -------
+    np.ndarray
+        The autocorrelation of the PPG signal.
+    """
 
-    for col in l_sensor_colnames:
+    auto_correlations = biased_autocorrelation(ppg_windowed, fs*3) # compute the biased autocorrelation of the PPG signal up to 3 seconds
+    peaks = [find_peaks(x, height=0.01)[0] for x in auto_correlations] # find the peaks of the autocorrelation
+    sorted_peak_values = [np.sort(auto_correlations[i, indices])[::-1] for i, indices in enumerate(peaks)] # sort the peak values in descending order
+    auto_correlations = [x[0] if len(x) > 0 else 0 for x in sorted_peak_values] # get the highest peak value if there are any peaks, otherwise set to 0
 
-        # transform the temporal signal to the spectral domain using the fast fourier transform
-        df_windowed[f'{col}_freqs'], df_windowed[f'{col}_fft'] = signal_to_ffts(
-            sensor_col=df_windowed[col],
-            window_type=config.window_type,
-            sampling_frequency=config.sampling_frequency
-            )
+    return np.asarray(auto_correlations)
 
-        # compute the power in distinct frequency bandwidths
-        for bandwidth, frequencies in config.d_frequency_bandwidths.items():
-            df_windowed[col+'_'+bandwidth] = df_windowed.apply(lambda x: compute_power_in_bandwidth(
-                sensor_col=x[col],
-                fmin=frequencies[0],
-                fmax=frequencies[1],
-                sampling_frequency=config.sampling_frequency,
-                window_type=config.window_type,
-                ), axis=1
-            )
+def biased_autocorrelation(
+        ppg_windowed: np.ndarray, 
+        max_lag: int
+    ) -> np.ndarray:
+    """
+    Compute the biased autocorrelation of a signal (similar to matlabs autocorr function), where the normalization factor 
+    is the length of the original signal, and boundary effects are considered.
+    
+    Parameters
+    ----------
+    ppg_windowed: np.ndarray
+        The windowed PPG signal.
+    max_lag: int
+        The maximum lag for the autocorrelation.
 
-        # compute the dominant frequency, i.e., the frequency with the highest power
-        df_windowed[col+'_dominant_frequency'] = df_windowed.apply(lambda x: get_dominant_frequency(
-            signal_ffts=x[col+'_fft'], 
-            signal_freqs=x[col+'_freqs'],
-            fmin=config.spectrum_low_frequency,
-            fmax=config.spectrum_high_frequency
-            ), axis=1
-        )
+    Returns
+    -------
+    np.ndarray
+        The biased autocorrelation of the PPG signal.
 
-    # compute the power summed over the individual axes to obtain the total power per frequency bandwidth
-    for bandwidth in config.d_frequency_bandwidths.keys():
-        df_windowed['total_'+bandwidth] = df_windowed.apply(lambda x: sum(x[y+'_'+bandwidth] for y in l_sensor_colnames), axis=1)
-
-    # compute the power summed over the individual frequency bandwidths to obtain the total power
-    df_windowed['total_power'] = compute_power(
-        df=df_windowed,
-        fft_cols=[f'{col}_fft' for col in l_sensor_colnames])
-
-    # compute the cepstral coefficients of the total power signal
-    cc_cols = generate_cepstral_coefficients(
-        total_power_col=df_windowed['total_power'],
-        window_length_s=config.window_length_s,
-        sampling_frequency=config.sampling_frequency,
-        low_frequency=config.spectrum_low_frequency,
-        high_frequency=config.spectrum_high_frequency,
-        n_filters=config.n_dct_filters_cc,
-        n_coefficients=config.n_coefficients_cc
-        )
-
-    df_windowed = pd.concat([df_windowed, cc_cols], axis=1)
-
-    df_windowed = df_windowed.rename(columns={f'cc_{cc_nr}': f'cc_{cc_nr}_{sensor}' for cc_nr in range(1,config.n_coefficients_cc+1)}).rename(columns={'window_start': 'time'})
-
-    return df_windowed
+    """
+    zero_mean_ppg = ppg_windowed - np.mean(ppg_windowed, axis=1, keepdims=True) # Remove the mean of the signal to make it zero-mean
+    N = zero_mean_ppg.shape[1]
+    autocorr_values = np.zeros((zero_mean_ppg.shape[0], max_lag + 1))
+    
+    for lag in range(max_lag + 1):
+        # Compute autocorrelation for current lag
+        overlapping_points = zero_mean_ppg[:, :N-lag] * zero_mean_ppg[:, lag:]
+        autocorr_values[:, lag] = np.sum(overlapping_points, axis=1) / N  # Divide by N (biased normalization)
+    
+    return autocorr_values/autocorr_values[:, 0, np.newaxis] # Normalize the autocorrelation values
