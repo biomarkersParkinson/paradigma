@@ -80,10 +80,14 @@ def preprocess_ppg_data_io(path_to_input_ppg: str | Path, path_to_input_imu: str
                                                     imu_config.time_filename, imu_config.values_filename)
     df_imu = tsdf.load_dataframe_from_binaries([metadata_time_imu, metadata_values_imu], tsdf.constants.ConcatenationType.columns)
 
+    # Drop the gyroscope columns from the IMU data
+    cols_to_drop = df_imu.filter(regex='^gyroscope_').columns
+    df_acc = df_imu.drop(cols_to_drop, axis=1)
+
     # Preprocess data
     df_ppg_proc, df_acc_proc = preprocess_ppg_data(
         df_ppg=df_ppg, 
-        df_imu=df_imu, 
+        df_acc=df_acc, 
         ppg_config=ppg_config, 
         imu_config=imu_config,
         start_time_ppg=metadata_time_ppg.start_iso8601,
