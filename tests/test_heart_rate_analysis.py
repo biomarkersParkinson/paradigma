@@ -1,8 +1,7 @@
 from pathlib import Path
 
-from paradigma.pipelines.heart_rate_pipeline import extract_signal_quality_features
 from paradigma.config import PPGConfig, IMUConfig
-from paradigma.preprocessing import preprocess_ppg_data_io
+from paradigma.testing import preprocess_ppg_data_io
 from test_notebooks import compare_data
 
 

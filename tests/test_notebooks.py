@@ -14,7 +14,7 @@ tolerance: float = 1e-8
 abs_tol: float = 1e-10
 
 # Path to the notebooks
-notebooks_dir: str = "docs/notebooks/gait"
+notebooks_dir: str = "tests/notebooks/gait"
 
 def execute_notebook(name: str, parameters: dict[str, str]):
     """
