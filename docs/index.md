@@ -12,7 +12,7 @@ tutorials/heart_rate_analysis.ipynb
 
 ```{toctree}
 :maxdepth: 1
-:caption: User Guides
+:caption: User guides
 guides/config.md
 guides/coordinate_system.md
 ```
