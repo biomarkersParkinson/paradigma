@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>&lt;no title&gt; &mdash; paradigma  documentation</title>
+  <title>Introduction &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -24,7 +24,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Data Preparation" href="tutorials/data_preparation.html" /> 
+    <link rel="next" title="Data preparation" href="tutorials/data_preparation.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -48,12 +48,12 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/data_preparation.html">Data Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/data_preparation.html">Data preparation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/gait_analysis.html">Gait analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/tremor_analysis.html">Tremor analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/heart_rate_analysis.html">Heart rate analysis</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="guides/config.html">Config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="guides/coordinate_system.html">Coordinate System</a></li>
@@ -77,7 +77,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">&lt;no title&gt;</li>
+      <li class="breadcrumb-item active">Introduction</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.md.txt" rel="nofollow"> View page source</a>
       </li>
@@ -87,90 +87,193 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="toctree-wrapper compound">
+  <p align="center">
+  <img src="https://raw.githubusercontent.com/biomarkersParkinson/paradigma/main/docs/source/_static/img/paradigma-logo-banner.png" alt="ParaDigMa logo"/>
+</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p>Badges</p></th>
+<th class="head"><p></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p><strong>Packages and Releases</strong></p></td>
+<td><p><a class="reference external" href="https://github.com/biomarkersparkinson/paradigma/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/release/biomarkersparkinson/paradigma.svg" /></a> <a class="reference external" href="https://pypi.python.org/pypi/paradigma/"><img alt="PyPI" src="https://img.shields.io/pypi/v/paradigma.svg" /></a>  <a class="reference external" href="https://research-software-directory.org/software/paradigma"><img alt="Static Badge" src="https://img.shields.io/badge/RSD-paradigma-lib" /></a></p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p><strong>DOI</strong></p></td>
+<td><p><a class="reference external" href="https://doi.org/10.5281/zenodo.13838393"><img alt="DOI" src="https://zenodo.org/badge/DOI/10.5281/zenodo.13838393.svg" /></a></p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p><strong>Build Status</strong></p></td>
+<td><p><a class="reference external" href="https://www.python.org/downloads/"><img alt="" src="https://img.shields.io/badge/python-3.10+-blue.svg" /></a> <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/actions/workflows/build-and-test.yml"><img alt="Build and test" src="https://github.com/biomarkersParkinson/paradigma/actions/workflows/build-and-test.yml/badge.svg" /></a> <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/actions/workflows/pages/pages-build-deployment"><img alt="pages-build-deployment" src="https://github.com/biomarkersParkinson/paradigma/actions/workflows/pages/pages-build-deployment/badge.svg" /></a></p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p><strong>License</strong></p></td>
+<td><p><a class="reference external" href="https://github.com/biomarkersparkinson/paradigma/blob/main/LICENSE"><img alt="GitHub license" src="https://img.shields.io/github/license/biomarkersParkinson/paradigma" /></a></p></td>
+</tr>
+</tbody>
+</table>
+<!-- | **Fairness** |  [![fair-software.eu](https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F-green)](https://fair-software.eu) [![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/8083/badge)](https://www.bestpractices.dev/projects/8083) | --> 
+<section id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h1>
+<p>ParaDigMa is a Python package for processing time series data of wrist-worn sensors to quantify signs of Parkinson’s disease (PD). It contains functionalities for processing the following sensor types:</p>
+<ul class="simple">
+<li><p>Inertial Measurement Units (accelerometer, gyroscope)</p></li>
+<li><p>Photoplethysmogram (PPG)</p></li>
+</ul>
+<p>And analyses of the following motor and non-motor domains:</p>
+<ul class="simple">
+<li><p>Gait</p></li>
+<li><p>Tremor</p></li>
+<li><p>Heart Rate</p></li>
+</ul>
+</section>
+<section id="more-about-paradigma">
+<h1>More about ParaDigMa<a class="headerlink" href="#more-about-paradigma" title="Link to this heading"></a></h1>
+<p>The components of ParaDigMa are visually shown in the diagram below.</p>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/biomarkersParkinson/paradigma/main/docs/source/_static/img/pipeline-architecture.png" alt="Pipeline architeecture"/>
+</p>
+<section id="processes">
+<h2>Processes<a class="headerlink" href="#processes" title="Link to this heading"></a></h2>
+<p>ParaDigMa can best be understood by categorizing the sequential processes:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Process</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Preprocessing</p></td>
+<td><p>Ensuring that the sensor data is ready for further processing</p></td>
+</tr>
+<tr class="row-odd"><td><p>Feature extraction</p></td>
+<td><p>Creating features based on windowed views of the timestamps</p></td>
+</tr>
+<tr class="row-even"><td><p>Classification</p></td>
+<td><p>Making predictions using developed and validated classifiers</p></td>
+</tr>
+<tr class="row-odd"><td><p>Quantification</p></td>
+<td><p>Selecting specific features of interest</p></td>
+</tr>
+<tr class="row-even"><td><p>Aggregation</p></td>
+<td><p>Aggregating the features at a specified time-level</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="domain-requirements">
+<h2>Domain requirements<a class="headerlink" href="#domain-requirements" title="Link to this heading"></a></h2>
+<p>ParaDigMa can be used to extract aggregations related to a single or multiple domain(s). Each domain has its specific data requirements. Strict requirements for the domain are marked by X, soft requirements (for some additional functionalities) are marked by O.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head text-center"><p>Gait</p></th>
+<th class="head text-center"><p>Tremor</p></th>
+<th class="head text-center"><p>Heart Rate</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Accelerometer</strong></p></td>
+<td class="text-center"><p>X</p></td>
+<td class="text-center"><p></p></td>
+<td class="text-center"><p>O</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Gyroscope</strong></p></td>
+<td class="text-center"><p>X</p></td>
+<td class="text-center"><p>X</p></td>
+<td class="text-center"><p></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>PPG</strong></p></td>
+<td class="text-center"><p></p></td>
+<td class="text-center"><p></p></td>
+<td class="text-center"><p>X</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
+<p>The package is available in PyPi and requires <a class="reference external" href="https://www.python.org/downloads/">Python 3.10</a> or higher. It can be installed using:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>paradigma
+</pre></div>
+</div>
+</section>
+<section id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h1>
+<p>See our <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/">extended documentation</a>.</p>
+</section>
+<section id="development">
+<h1>Development<a class="headerlink" href="#development" title="Link to this heading"></a></h1>
+<section id="id1">
+<h2>Installation<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>The package requires Python 3.11 or higher. Use <a class="reference external" href="https://python-poetry.org/docs/#installation">Poetry</a> to set up the environment and install the dependencies:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>poetry<span class="w"> </span>install
+</pre></div>
+</div>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>poetry<span class="w"> </span>run<span class="w"> </span>pytest
+</pre></div>
+</div>
+</section>
+<section id="type-checking">
+<h2>Type checking<a class="headerlink" href="#type-checking" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>poetry<span class="w"> </span>run<span class="w"> </span>pytype<span class="w"> </span>.
+</pre></div>
+</div>
+</section>
+<section id="building-documentation">
+<h2>Building documentation<a class="headerlink" href="#building-documentation" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>poetry<span class="w"> </span>run<span class="w"> </span>make<span class="w"> </span>html<span class="w"> </span>--directory<span class="w"> </span>docs/
+</pre></div>
+</div>
+</section>
+</section>
+<section id="contributing">
+<h1>Contributing<a class="headerlink" href="#contributing" title="Link to this heading"></a></h1>
+<p>Interested in contributing? Check out the contributing guidelines. Please note that this project is released with a Code of Conduct. By contributing to this project, you agree to abide by its terms.</p>
+</section>
+<section id="license">
+<h1>License<a class="headerlink" href="#license" title="Link to this heading"></a></h1>
+<p>ParaDigMa was created by Peter Kok, Vedran Kasalica, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Luc Evers. It is licensed under the terms of the Apache License 2.0 license.</p>
+</section>
+<section id="credits">
+<h1>Credits<a class="headerlink" href="#credits" title="Link to this heading"></a></h1>
+<p>ParaDigMa was created with <a class="reference external" href="https://cookiecutter.readthedocs.io/en/latest/"><code class="docutils literal notranslate"><span class="pre">cookiecutter</span></code></a> and the <code class="docutils literal notranslate"><span class="pre">py-pkgs-cookiecutter</span></code> <a class="reference external" href="https://github.com/py-pkgs/py-pkgs-cookiecutter">template</a>.</p>
+</section>
+<section id="contact">
+<h1>Contact<a class="headerlink" href="#contact" title="Link to this heading"></a></h1>
+<p>For more information or questions about ParaDigMa, please reach out to erik.post&#64;radboudumc.nl.</p>
+<div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/data_preparation.html">Data Preparation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/data_preparation.html#load-data">Load data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/data_preparation.html#prepare-dataframe">Prepare dataframe</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/data_preparation.html#change-column-names">Change column names</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/data_preparation.html#change-units">Change units</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/data_preparation.html#account-for-watch-side">Account for watch side</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/data_preparation.html#change-time-column">Change time column</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/gait_analysis.html">Gait analysis</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/gait_analysis.html#load-data">Load data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/gait_analysis.html#step-1-preprocess-data">Step 1: Preprocess data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/gait_analysis.html#step-2-extract-gait-features">Step 2: Extract gait features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/gait_analysis.html#step-3-gait-detection">Step 3: Gait detection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/gait_analysis.html#step-4-arm-activity-feature-extraction">Step 4: Arm activity feature extraction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/gait_analysis.html#step-5-filtering-gait">Step 5: Filtering gait</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/gait_analysis.html#step-6-arm-swing-quantification">Step 6: Arm swing quantification</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/gait_analysis.html#step-7-aggregation">Step 7: Aggregation</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/tremor_analysis.html">Tremor analysis</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tremor_analysis.html#load-example-data">Load example data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tremor_analysis.html#step-1-preprocess-data">Step 1: Preprocess data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tremor_analysis.html#step-2-extract-tremor-features">Step 2: Extract tremor features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tremor_analysis.html#step-3-detect-tremor">Step 3: Detect tremor</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tremor_analysis.html#step-4-compute-aggregated-tremor-measures">Step 4: Compute aggregated tremor measures</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/heart_rate_analysis.html">Heart rate analysis</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/heart_rate_analysis.html#load-data">Load data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/heart_rate_analysis.html#step-1-preprocess-data">Step 1: Preprocess data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/heart_rate_analysis.html#step-2-extract-signal-quality-features">Step 2: Extract signal quality features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/heart_rate_analysis.html#step-3-signal-quality-classification">Step 3: Signal quality classification</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/heart_rate_analysis.html#step-4-heart-rate-estimation">Step 4: Heart rate estimation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/heart_rate_analysis.html#step-5-heart-rate-aggregation">Step 5: Heart rate aggregation</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/data_preparation.html">Data preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/heart_rate_analysis.html">Heart rate analysis</a></li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="guides/config.html">Config</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="guides/config.html#config-classes">Config classes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="guides/config.html#sensor-configs">Sensor configs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="guides/config.html#domain-configs">Domain configs</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="guides/coordinate_system.html">Coordinate System</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="guides/coordinate_system.html#coordinate-system-used">Coordinate system used</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="guides/coordinate_system.html#accelerometer">Accelerometer</a></li>
-<li class="toctree-l3"><a class="reference internal" href="guides/coordinate_system.html#gyroscope">Gyroscope</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="guides/coordinate_system.html#lateral-differences">Lateral differences</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="autoapi/paradigma/index.html">paradigma</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="autoapi/paradigma/index.html#submodules">Submodules</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a></li>
 </ul>
 </div>
+</section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="tutorials/data_preparation.html" class="btn btn-neutral float-right" title="Data Preparation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="tutorials/data_preparation.html" class="btn btn-neutral float-right" title="Data preparation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

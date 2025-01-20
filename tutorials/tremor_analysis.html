@@ -49,7 +49,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="data_preparation.html">Data Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_preparation.html">Data preparation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gait_analysis.html">Gait analysis</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tremor analysis</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#load-example-data">Load example data</a></li>
@@ -61,7 +61,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="heart_rate_analysis.html">Heart rate analysis</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../guides/config.html">Config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../guides/coordinate_system.html">Coordinate System</a></li>
@@ -394,7 +394,7 @@
 </section>
 <section id="step-2-extract-tremor-features">
 <h2>Step 2: Extract tremor features<a class="headerlink" href="#step-2-extract-tremor-features" title="Link to this heading"></a></h2>
-<p>The function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/tremor_pipeline.py#:~:text=extract_tremor_features"><code class="docutils literal notranslate"><span class="pre">extract_tremor_features</span></code></a> extracts windows from the preprocessed gyroscope data using non-overlapping windows of length <code class="docutils literal notranslate"><span class="pre">config.window_length_s</span></code>. Next, from these windows the tremor features are extracted: 12 mel-frequency cepstral coefficients (MFCCs), frequency of the peak in the power spectral density, power in lower frequencies (0.5 – 3 Hz), and power around the tremor peak. The latter is not used for tremor detection, but to compute aggregate measures of tremor power in Step 4.</p>
+<p>The function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/tremor_pipeline.py#:~:text=extract_tremor_features"><code class="docutils literal notranslate"><span class="pre">extract_tremor_features</span></code></a> extracts windows from the preprocessed gyroscope data using non-overlapping windows of length <code class="docutils literal notranslate"><span class="pre">config.window_length_s</span></code>. Next, from these windows the tremor features are extracted: 12 mel-frequency cepstral coefficients (MFCCs), frequency of the peak in the power spectral density, power below tremor (0.5 - 3 Hz), and power around the tremor peak. The latter is not used for tremor detection, but to compute aggregate measures of tremor power in Step 4.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">TremorConfig</span>
@@ -812,7 +812,7 @@
 </section>
 <section id="step-4-compute-aggregated-tremor-measures">
 <h2>Step 4: Compute aggregated tremor measures<a class="headerlink" href="#step-4-compute-aggregated-tremor-measures" title="Link to this heading"></a></h2>
-<p>The final step is to compute the amount of tremor time and tremor power with the function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/tremor_pipeline.py#:~:text=aggregate_tremor"><code class="docutils literal notranslate"><span class="pre">aggregate_tremor</span></code></a>, which aggregates over all windows in the input dataframe. Tremor time is calculated as the number of detected tremor windows, as percentage of the number of windows while the arm is at rest or in stable posture (when the low frequency power is below <code class="docutils literal notranslate"><span class="pre">config.movement_threshold</span></code>). This way the tremor time is controlled for the amount of time the arm is at rest or in stable posture, when rest tremor and re-emergent tremor could occur. For tremor power the following aggregates are derived: the mode, median and 90th percentile of tremor power (specified in <code class="docutils literal notranslate"><span class="pre">config.aggregates_tremor_power</span></code>). The median and modal tremor power reflect the typical tremor severity, whereas the 90th percentile reflects the maximal tremor severity within the observed timeframe. The aggregated tremor measures and metadata are stored in a json file.</p>
+<p>The final step is to compute the amount of tremor time and tremor power with the function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/tremor_pipeline.py#:~:text=aggregate_tremor"><code class="docutils literal notranslate"><span class="pre">aggregate_tremor</span></code></a>, which aggregates over all windows in the input dataframe. Tremor time is calculated as the number of detected tremor windows, as percentage of the number of windows while the arm is at rest or in stable posture (when <code class="docutils literal notranslate"><span class="pre">below_tremor_power</span></code> does not exceed <code class="docutils literal notranslate"><span class="pre">config.movement_threshold</span></code>). This way the tremor time is controlled for the amount of time the arm is at rest or in stable posture, when rest tremor and re-emergent tremor could occur. For tremor power the following aggregates are derived: the mode, median and 90th percentile of tremor power (specified in <code class="docutils literal notranslate"><span class="pre">config.aggregates_tremor_power</span></code>). The median and modal tremor power reflect the typical tremor severity, whereas the 90th percentile reflects the maximal tremor severity within the observed timeframe. The aggregated tremor measures and metadata are stored in a json file.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pprint</span>
