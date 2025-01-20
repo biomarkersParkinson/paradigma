@@ -18,7 +18,7 @@ author = (
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "myst_parser",
+    "myst_nb",
     "autoapi.extension",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
@@ -31,7 +31,6 @@ myst_enable_extensions = [
 ]
 
 autoapi_dirs = ["../src"]
-source_suffix = ['.rst', '.md', '.ipynb']
 
 # Include the following entities in the API documentation, this explicitly excludes 'imported-members',
 # as we don't want to clutter the documentation with all the imported members.
