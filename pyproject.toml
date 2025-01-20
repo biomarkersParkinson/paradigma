@@ -21,8 +21,6 @@ pytype = "^2024.4.11"
 # for the record: pytype was installed directly with pip (in the poetry environment),
 # because poetry didn't handle the install for different CPU architectures
 python-dateutil = "^2.9.0.post0"
-sphinx-autoapi = "^3.4.0"
-nbsphinx = "^0.9.6"
 
 [tool.poetry.group.testing.dependencies]
 ipykernel = "^6.27.1"
@@ -37,7 +35,8 @@ myst-nb = "^1.1.0"
 sphinx-autoapi = "^3.0.0"
 sphinx-rtd-theme = "^2.0.0"
 sphinx-serve = "^1.0.1"
-
+myst-parser = "^4.0.0"
+nbsphinx = "^0.9.6"
 
 [tool.poetry.group.dev.dependencies]
 pytype = "^2024.10.11"
