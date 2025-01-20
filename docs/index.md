@@ -1,21 +1,24 @@
-```{toctree}
-:maxdepth: 4
-:caption: Tutorials
-tutorials/data_preparation
-tutorials/gait_analysis
-tutorials/tremor_analysis
-tutorials/heart_rate_analysis
+```{include} ../README.md
 ```
 
 ```{toctree}
-:maxdepth: 4
-:caption: User Guides
+:maxdepth: 1
+:caption: Tutorials
+tutorials/data_preparation.ipynb
+tutorials/gait_analysis.ipynb
+tutorials/tremor_analysis.ipynb
+tutorials/heart_rate_analysis.ipynb
+```
+
+```{toctree}
+:maxdepth: 1
+:caption: User guides
 guides/config.md
 guides/coordinate_system.md
 ```
 
 ```{toctree}
-:maxdepth: 3
+:maxdepth: 1
 :caption: API
 autoapi/index
 ```

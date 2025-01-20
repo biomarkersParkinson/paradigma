@@ -1,4 +1,6 @@
-![ParaDigMa logo](https://raw.githubusercontent.com/biomarkersParkinson/paradigma/update-readme/docs/source/_static/img/paradigma-logo-banner.png)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/biomarkersParkinson/paradigma/main/docs/source/_static/img/paradigma-logo-banner.png" alt="ParaDigMa logo"/>
+</p>
 
 | Badges | |
 |:----:|----|
@@ -8,19 +10,24 @@
 | **License** |  [![GitHub license](https://img.shields.io/github/license/biomarkersParkinson/paradigma)](https://github.com/biomarkersparkinson/paradigma/blob/main/LICENSE) |
 <!-- | **Fairness** |  [![fair-software.eu](https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F-green)](https://fair-software.eu) [![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/8083/badge)](https://www.bestpractices.dev/projects/8083) | --> 
 
+## Introduction
 ParaDigMa is a Python package for processing time series data of wrist-worn sensors to quantify signs of Parkinson’s disease (PD). It contains functionalities for processing the following sensor types:
-* Inertial Measurement Units (accelerometer, gyroscope)
-* Photoplethysmogram (PPG)
+
+- Inertial Measurement Units (accelerometer, gyroscope)
+-  Photoplethysmogram (PPG)
 
 And analyses of the following motor and non-motor domains:
-* Gait
-* Tremor
-* Heart Rate
+
+- Gait
+- Tremor
+- Heart Rate
 
 ## More about ParaDigMa
 The components of ParaDigMa are visually shown in the diagram below.
 
-![Pipeline Architecture](docs/source/_static/img/pipeline-architecture.png)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/biomarkersParkinson/paradigma/main/docs/source/_static/img/pipeline-architecture.png" alt="Pipeline architeecture"/>
+</p>
 
 #### Processes
 ParaDigMa can best be understood by categorizing the sequential processes:

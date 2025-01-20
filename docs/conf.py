@@ -25,6 +25,11 @@ extensions = [
     'nbsphinx',
 ]
 
+myst_enable_extensions = [
+    "substitution",
+    "deflist",
+]
+
 autoapi_dirs = ["../src"]
 
 # Include the following entities in the API documentation, this explicitly excludes 'imported-members',
