@@ -301,7 +301,8 @@
 <span class="n">df_preprocessed</span> <span class="o">=</span> <span class="n">preprocess_imu_data</span><span class="p">(</span>
     <span class="n">df</span><span class="o">=</span><span class="n">df_imu</span><span class="p">,</span> 
     <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-    <span class="n">sensor</span><span class="o">=</span><span class="s1">&#39;both&#39;</span>
+    <span class="n">sensor</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span>
+    <span class="n">watch_side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The dataset of </span><span class="si">{</span><span class="n">df_preprocessed</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="si">}</span><span class="s2"> seconds is automatically resampled to </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="si">}</span><span class="s2"> Hz.&quot;</span><span class="p">)</span>
@@ -626,13 +627,13 @@
 <p>For classification, ParaDigMa uses so-called Classifier Packages which contain a classifier, classification threshold, and a feature scaler as attributes. The classifier is a <a class="reference external" href="https://scikit-learn.org/1.5/modules/generated/sklearn.ensemble.RandomForestClassifier.html">random forest</a> trained on a dataset of people with PD performing a wide range of activities in free-living conditions: <a class="reference external" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7584982/">The Parkinson&#64;Home Validation Study</a>. The classification threshold was set to limit the amount of false-positive predictions in the original study, i.e., to limit non-gait to be predicted as gait. The classification threshold can be changed by setting <code class="docutils literal notranslate"><span class="pre">clf_package.threshold</span></code> to a different float value. The feature scaler was similarly fitted on the original dataset, ensuring the features are within expected confined spaces to make reliable predictions.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassifierPackage</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassifierPackage</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">detect_gait</span>
 
 <span class="c1"># Set the path to the classifier package</span>
-<span class="n">path_to_assets</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../src/paradigma/assets&#39;</span><span class="p">)</span>
 <span class="n">classifier_package_filename</span> <span class="o">=</span> <span class="s1">&#39;gait_detection_clf_package.pkl&#39;</span>
-<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="n">path_to_assets</span> <span class="o">/</span> <span class="n">classifier_package_filename</span>
+<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;assets&#39;</span> <span class="o">/</span> <span class="n">classifier_package_filename</span>
 
 <span class="c1"># Load the classifier package</span>
 <span class="n">clf_package</span> <span class="o">=</span> <span class="n">ClassifierPackage</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">full_path_to_classifier_package</span><span class="p">)</span>
@@ -659,7 +660,7 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Out of 725 predictions, 53 (7.3%) were predicted as gait, and 672 (92.7%) as non-gait.
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Out of 725 windows, 53 (7.3%) were predicted as gait, and 672 (92.7%) as non-gait.
 </pre></div>
 </div>
 <div class="output text_html"><div>
@@ -926,7 +927,7 @@
 
 <span class="c1"># Set the path to the classifier package</span>
 <span class="n">classifier_package_filename</span> <span class="o">=</span> <span class="s1">&#39;gait_filtering_clf_package.pkl&#39;</span>
-<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="n">path_to_assets</span> <span class="o">/</span> <span class="n">classifier_package_filename</span>
+<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;assets&#39;</span> <span class="o">/</span> <span class="n">classifier_package_filename</span>
 
 <span class="c1"># Load the classifier package</span>
 <span class="n">clf_package</span> <span class="o">=</span> <span class="n">ClassifierPackage</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">full_path_to_classifier_package</span><span class="p">)</span>
@@ -937,8 +938,6 @@
     <span class="n">df</span><span class="o">=</span><span class="n">df_arm_activity</span><span class="p">,</span>
     <span class="n">clf_package</span><span class="o">=</span><span class="n">clf_package</span>
 <span class="p">)</span>
-
-
 
 <span class="n">n_windows</span> <span class="o">=</span> <span class="n">df_arm_activity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">n_predictions_no_other_arm_activity</span> <span class="o">=</span> <span class="n">df_arm_activity</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_arm_activity</span><span class="p">[</span><span class="s1">&#39;pred_no_other_arm_activity_proba&#39;</span><span class="p">]</span><span class="o">&gt;=</span><span class="n">clf_package</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -955,7 +954,7 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Out of 50 predictions, 0 (0.0%) were predicted as no_other_arm_activity, and 50 (100.0%) as other_arm_activity.
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Out of 50 windows, 0 (0.0%) were predicted as no_other_arm_activity, and 50 (100.0%) as other_arm_activity.
 </pre></div>
 </div>
 <div class="output text_html"><div>
@@ -1175,16 +1174,16 @@ The first rows of the filtered dataset
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;long&#39;: {&#39;time_s&#39;: 3.0,
-          &#39;median_range_of_motion&#39;: 14.612862824791089,
-          &#39;95p_range_of_motion&#39;: 19.29924826375146,
-          &#39;median_peak_velocity&#39;: 78.64563778043262,
-          &#39;95p_peak_velocity&#39;: 98.26817330011067},
- &#39;moderately_long&#39;: {&#39;time_s&#39;: 13.5,
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;moderately_long&#39;: {&#39;time_s&#39;: 13.5,
                      &#39;median_range_of_motion&#39;: 14.394662839301768,
                      &#39;95p_range_of_motion&#39;: 22.658748546739268,
                      &#39;median_peak_velocity&#39;: 59.475147961606005,
                      &#39;95p_peak_velocity&#39;: 105.31356363194875},
+ &#39;long&#39;: {&#39;time_s&#39;: 3.0,
+          &#39;median_range_of_motion&#39;: 14.612862824791089,
+          &#39;95p_range_of_motion&#39;: 19.29924826375146,
+          &#39;median_peak_velocity&#39;: 78.64563778043262,
+          &#39;95p_peak_velocity&#39;: 98.26817330011067},
  &#39;all_segment_categories&#39;: {&#39;time_s&#39;: 16.5,
                             &#39;median_range_of_motion&#39;: 14.57460571480515,
                             &#39;95p_range_of_motion&#39;: 22.180208543070503,

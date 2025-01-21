@@ -581,7 +581,7 @@
             <span class="c1"># Group consecutive timestamps into segments, with new segments starting after a pre-specified gap</span>
             <span class="c1"># Now segments are based on predicted gait without other arm activity for subsequent processes</span>
             <span class="n">df_focus</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_NR</span><span class="p">]</span> <span class="o">=</span> <span class="n">create_segments</span><span class="p">(</span>
-                <span class="n">time_array</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">],</span> 
+                <span class="n">time_array</span><span class="o">=</span><span class="n">df_focus</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">],</span> 
                 <span class="n">max_segment_gap_s</span><span class="o">=</span><span class="n">max_segment_gap_s</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>

@@ -341,7 +341,7 @@
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Original data shapes:</span><span class="se">\n</span><span class="s2">- PPG data: </span><span class="si">{</span><span class="n">df_ppg</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="se">\n</span><span class="s2">- Accelerometer data: </span><span class="si">{</span><span class="n">df_imu</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">df_ppg_proc</span><span class="p">,</span> <span class="n">df_acc_proc</span> <span class="o">=</span> <span class="n">preprocess_ppg_data</span><span class="p">(</span>
     <span class="n">df_ppg</span><span class="o">=</span><span class="n">df_ppg</span><span class="p">,</span> 
-    <span class="n">df_imu</span><span class="o">=</span><span class="n">df_imu</span><span class="p">,</span> 
+    <span class="n">df_acc</span><span class="o">=</span><span class="n">df_acc</span><span class="p">,</span> 
     <span class="n">ppg_config</span><span class="o">=</span><span class="n">ppg_config</span><span class="p">,</span> 
     <span class="n">imu_config</span><span class="o">=</span><span class="n">imu_config</span><span class="p">,</span> 
     <span class="n">start_time_ppg</span><span class="o">=</span><span class="n">metadata_time_ppg</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">,</span>
@@ -792,18 +792,18 @@ The default step size for the signal quality feature extraction is set to 1 seco
 <p>The classification step is implemented in <code class="docutils literal notranslate"><span class="pre">signal_quality_classification</span></code> (documentation can be found <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/heart_rate_pipeline.py#:~:text=signal_quality_classification">here</a>).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.heart_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">signal_quality_classification</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.heart_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">signal_quality_classification</span>
 
-<span class="n">path_to_assets</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../src/paradigma/assets&#39;</span><span class="p">)</span> 
 <span class="n">ppg_quality_classifier_package_filename</span> <span class="o">=</span> <span class="s1">&#39;ppg_quality_clf_package.pkl&#39;</span>
-<span class="n">path_to_classifier_package</span> <span class="o">=</span> <span class="n">path_to_assets</span> <span class="o">/</span> <span class="n">ppg_quality_classifier_package_filename</span>
+<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;assets&#39;</span> <span class="o">/</span> <span class="n">ppg_quality_classifier_package_filename</span>
 
 <span class="n">config</span> <span class="o">=</span> <span class="n">HeartRateConfig</span><span class="p">()</span>
 
 <span class="n">df_sqa</span> <span class="o">=</span> <span class="n">signal_quality_classification</span><span class="p">(</span>
     <span class="n">df</span><span class="o">=</span><span class="n">df_features</span><span class="p">,</span> 
     <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> 
-    <span class="n">full_path_to_classifier_package</span><span class="o">=</span><span class="n">path_to_classifier_package</span>
+    <span class="n">full_path_to_classifier_package</span><span class="o">=</span><span class="n">full_path_to_classifier_package</span>
 <span class="p">)</span>
 
 <span class="n">df_sqa</span>
