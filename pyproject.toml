@@ -5,9 +5,10 @@ description = "Paradigma - a toolbox for Digital Biomarkers for Parkinson's Dise
 authors = [ "Erik Post <erik.post@radboudumc.nl>",
             "Kars Veldkamp <kars.veldkamp@radboudumc.nl>",
             "Nienke Timmermans <nienke.timmermans@radboudumc.nl>",
-            "Luc Evers <luc.evers@radboudumc.nl>",
+            "Diogo Soriano",
+            "Vedran Kasalica <v.kaslica@esciencecenter.nl>",
             "Peter Kok <p.kok@esciencecenter.nl>",
-            "Vedran Kasalica <v.kaslica@esciencecenter.nl>"
+            "Luc Evers <luc.evers@radboudumc.nl>",
             ]
 license = "Apache License 2.0"
 readme = "README.md"

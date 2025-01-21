@@ -7,9 +7,9 @@
 # -- Project information -----------------------------------------------------
 
 project = "paradigma"
-copyright = "2023, Erik Post, Kars Veldkamp, Nienke Timmermans, Peter Kok, Vedran Kasalica, Diogo Coutinho Soriano, Luc Evers"
+copyright = "2025, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, and Luc Evers"
 author = (
-    "Erik Post, Kars Veldkamp, Nienke Timmermans, Peter Kok, Vedran Kasalica, Diogo Coutinho Soriano, Luc Evers"
+    "Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, and Luc Evers"
 )
 
 # -- General configuration ---------------------------------------------------
