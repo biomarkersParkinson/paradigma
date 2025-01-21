@@ -101,7 +101,7 @@
 <td><p><a class="reference external" href="https://github.com/biomarkersparkinson/paradigma/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/release/biomarkersparkinson/paradigma.svg" /></a> <a class="reference external" href="https://pypi.python.org/pypi/paradigma/"><img alt="PyPI" src="https://img.shields.io/pypi/v/paradigma.svg" /></a>  <a class="reference external" href="https://research-software-directory.org/software/paradigma"><img alt="Static Badge" src="https://img.shields.io/badge/RSD-paradigma-lib" /></a></p></td>
 </tr>
 <tr class="row-odd"><td class="text-center"><p><strong>DOI</strong></p></td>
-<td><p><a class="reference external" href="https://doi.org/10.5281/zenodo.13838393"><img alt="DOI" src="https://zenodo.org/badge/DOI/10.5281/zenodo.13838393.svg" /></a></p></td>
+<td><p><a class="reference external" href="https://doi.org/10.5281/zenodo.13838392"><img alt="DOI" src="https://zenodo.org/badge/DOI/10.5281/zenodo.13838392.svg" /></a></p></td>
 </tr>
 <tr class="row-even"><td class="text-center"><p><strong>Build Status</strong></p></td>
 <td><p><a class="reference external" href="https://www.python.org/downloads/"><img alt="" src="https://img.shields.io/badge/python-3.10+-blue.svg" /></a> <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/actions/workflows/build-and-test.yml"><img alt="Build and test" src="https://github.com/biomarkersParkinson/paradigma/actions/workflows/build-and-test.yml/badge.svg" /></a> <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/actions/workflows/pages/pages-build-deployment"><img alt="pages-build-deployment" src="https://github.com/biomarkersParkinson/paradigma/actions/workflows/pages/pages-build-deployment/badge.svg" /></a></p></td>
@@ -114,16 +114,23 @@
 <!-- | **Fairness** |  [![fair-software.eu](https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F-green)](https://fair-software.eu) [![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/8083/badge)](https://www.bestpractices.dev/projects/8083) | --> 
 <section id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h1>
-<p>ParaDigMa is a Python package for processing time series data of wrist-worn sensors to quantify signs of Parkinson’s disease (PD). It contains functionalities for processing the following sensor types:</p>
+<p>The Parkinsons Disease Digital Markers (ParaDigMa) toolbox is a Python
+software package designed for processing passively collected wrist
+sensor data to extract digital measures of motor and non-motor signs
+of Parkinson’s disease (PD).</p>
+<p>Specifically, the toolbox contains three data processing pipelines:
+(1) arm swing during gait, (2) tremor, and (3) heart rate analysis.
+Furthermore, the toolbox contains general functionalities for signal
+processing and feature extraction, such as filtering, peak detection,
+and spectral analysis. The toolbox is designed to be user-friendly and
+modular, enabling researchers to easily extend the toolbox with new
+algorithms and functionalities. The toolbox is accompanied by a set of
+example scripts and notebooks for each domain that demonstrate how to use
+the toolbox for processing sensor data and extracting digital measures.</p>
+<p>It contains functionalities for processing the following sensor types:</p>
 <ul class="simple">
 <li><p>Inertial Measurement Units (accelerometer, gyroscope)</p></li>
 <li><p>Photoplethysmogram (PPG)</p></li>
-</ul>
-<p>And analyses of the following motor and non-motor domains:</p>
-<ul class="simple">
-<li><p>Gait</p></li>
-<li><p>Tremor</p></li>
-<li><p>Heart Rate</p></li>
 </ul>
 </section>
 <section id="more-about-paradigma">
@@ -236,7 +243,8 @@
 </section>
 <section id="license">
 <h1>License<a class="headerlink" href="#license" title="Link to this heading"></a></h1>
-<p>ParaDigMa was created by Peter Kok, Vedran Kasalica, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Luc Evers. It is licensed under the terms of the Apache License 2.0 license.</p>
+<p>The core team of ParaDigMa consists of Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Luc Evers,
+Peter Kok and Vedran Kasalica. Advisors to the project are Max Little, Jordan Raykov, Twan van Laarhoven, Hayriye Cagnan, and Bas Bloem. It is licensed under the terms of the Apache License 2.0 license.</p>
 </section>
 <section id="credits">
 <h1>Credits<a class="headerlink" href="#credits" title="Link to this heading"></a></h1>
@@ -279,7 +287,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Erik Post, Kars Veldkamp, Nienke Timmermans, Peter Kok, Vedran Kasalica, Diogo Coutinho Soriano, Luc Evers.</p>
+    <p>&#169; Copyright 2025, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, and Luc Evers.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
