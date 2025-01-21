@@ -3,31 +3,13 @@
 
 cff-version: 1.2.0
 title: >-
-  Paradigma: Toolbox for Digital Biomarkers in Parkinson's
-  Disease
+  ParaDigMa: Parkinson's Disease Digital Markers Toolbox
 message: >-
   If you use this software, please cite it using the
   metadata from this file.
 type: software
 authors:
-  - given-names: Peter
-    family-names: Kok
-    email: p.kok@esciencecenter.nl
-    affiliation: Netherlands eScience Center
-    orcid: 'https://orcid.org/0000-0002-6630-7326'
-  - given-names: Vedran
-    family-names: Kasalica
-    email: v.kasalica@esciencecenter.nl
-    affiliation: Netherlands eScience Center
-    orcid: 'https://orcid.org/0000-0002-0097-1056'
-  - given-names: Luc J.W.
-    family-names: Evers
-    email: luc.evers@radboudumc.nl
-    affiliation: >-
-      Radboud University, Nijmegen, Netherlands; Radboud
-      University Medical Center, Nijmegen, Netherlands
-    orcid: 'https://orcid.org/0000-0002-8241-5087'
-  - given-names: Erik
+- given-names: Erik
     family-names: Post
     email: erik.post@radboudumc.nl
     affiliation: >-
@@ -53,26 +35,41 @@ authors:
       Center for Engineering, Modeling and Applied Social
       Sciences (CECS), Federal University of ABC (UFABC),
       Brazil
+  - given-names: Vedran
+    family-names: Kasalica
+    email: v.kasalica@esciencecenter.nl
+    affiliation: Netherlands eScience Center
+    orcid: 'https://orcid.org/0000-0002-0097-1056'
+  - given-names: Peter
+    family-names: Kok
+    email: p.kok@esciencecenter.nl
+    affiliation: Netherlands eScience Center
+    orcid: 'https://orcid.org/0000-0002-6630-7326'
+  - given-names: Luc J.W.
+    family-names: Evers
+    email: luc.evers@radboudumc.nl
+    affiliation: >-
+      Radboud University, Nijmegen, Netherlands; Radboud
+      University Medical Center, Nijmegen, Netherlands
+    orcid: 'https://orcid.org/0000-0002-8241-5087'
 repository-code: 'https://github.com/biomarkersParkinson/paradigma'
 url: 'https://biomarkersparkinson.github.io/paradigma/'
 abstract: >-
-  Paradigma: Digital Biomarkers for Parkinson's Disease
-  Toolbox is a Python software package designed for
-  processing wearable sensor data to identify digital
-  biomarkers associated with Parkinson’s disease (PD). The
-  toolbox facilitates the detection and analysis of sensor
-  data, focusing on key gait and photoplethysmography (PPG)
-  features that are critical for PD research. By leveraging
-  the Time Series Data Format (TSDF), a unified and
-  user-friendly format for handling both numerical data and
-  metadata, Paradigma simplifies the process of working with
-  raw binary sensor measurements alongside JSON-based
-  metadata. The toolbox enables researchers to efficiently
-  extract PD biomarkers, aiding in early diagnosis and
-  monitoring. Future updates will introduce tremor detection
-  and expanded feature extraction capabilities, further
-  enhancing its utility for PD research and clinical
-  applications.
+  The Parkinsons Disease Digital Markers (ParaDigMa) toolbox is a Python
+  software package designed for processing passively collected wrist 
+  sensor data to extract digital measures of motor and non-motor signs
+  of Parkinson's disease (PD).  
+  
+  Specifically, the toolbox contains three data processing pipelines: 
+  (1) arm swing during gait, (2) tremor, and (3) heart rate analysis.
+  Furthermore, the toolbox contains general functionalities for signal
+  processing and feature extraction, such as filtering, peak detection,
+  and spectral analysis. The toolbox is designed to be user-friendly and
+  modular, enabling researchers to easily extend the toolbox with new
+  algorithms and functionalities. The toolbox is accompanied by a set of
+  example scripts and notebooks for each domain that demonstrate how to use
+  the toolbox for processing sensor data and extracting digital measures.
+
 keywords:
   - parkinson's disease
   - digital biomarkers
