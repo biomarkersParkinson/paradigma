@@ -1,10 +1,9 @@
 # This CITATION.cff file was generated with cffinit.
 # Visit https://bit.ly/cffinit to generate yours today!
 
-cff-version: 1.2.1
+cff-version: 1.2.0
 title: >-
-  Paradigma: Toolbox for Digital Biomarkers in Parkinson's
-  Disease
+  ParaDigMa: Parkinson's Disease Digital Markers Toolbox
 message: >-
   If you use this software, please cite it using the
   metadata from this file.
