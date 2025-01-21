@@ -479,7 +479,7 @@ def quantify_arm_swing(
             # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
             # Now segments are based on predicted gait without other arm activity for subsequent processes
             df_focus[DataColumns.SEGMENT_NR] = create_segments(
-                time_array=df[DataColumns.TIME], 
+                time_array=df_focus[DataColumns.TIME], 
                 max_segment_gap_s=max_segment_gap_s
             )
         else:
