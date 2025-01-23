@@ -456,13 +456,6 @@ def quantify_arm_swing(
         fs=fs
     )
 
-    df[DataColumns.VELOCITY] = pca_transform_gyroscope(
-        df=df,
-        y_gyro_colname=DataColumns.GYROSCOPE_Y,
-        z_gyro_colname=DataColumns.GYROSCOPE_Z,
-        pred_colname=DataColumns.PRED_NO_OTHER_ARM_ACTIVITY
-    )
-
     # Group and process segments
     arm_swing_quantified = {}
     segment_meta = {}
@@ -482,8 +475,19 @@ def quantify_arm_swing(
                 time_array=df_focus[DataColumns.TIME], 
                 max_segment_gap_s=max_segment_gap_s
             )
+
+            pred_colname_pca = DataColumns.PRED_NO_OTHER_ARM_ACTIVITY
         else:
             df_focus = df.copy()
+
+            pred_colname_pca = None
+
+        df_focus[DataColumns.VELOCITY] = pca_transform_gyroscope(
+            df=df_focus,
+            y_gyro_colname=DataColumns.GYROSCOPE_Y,
+            z_gyro_colname=DataColumns.GYROSCOPE_Z,
+            pred_colname=pred_colname_pca
+        )
 
         arm_swing_quantified[df_name] = []
         segment_meta[df_name] = {}
