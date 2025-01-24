@@ -285,7 +285,7 @@ def convert_units_gyroscope(data: np.ndarray, units: str) -> np.ndarray:
         raise ValueError(f"Unsupported unit: {units}")
     
 
-def invert_watch_side(df: pd.DataFrame, side: str) -> np.ndarray:
+def invert_watch_side(df: pd.DataFrame, side: str, sensor='both') -> np.ndarray:
     """
     Invert the data based on the watch side.
 
@@ -295,6 +295,8 @@ def invert_watch_side(df: pd.DataFrame, side: str) -> np.ndarray:
         The data.
     side : str
         The watch side (left or right).
+    sensor: str
+        The sensor(s) to invert: 'accelerometer', 'gyroscope', or 'both'
 
     Returns
     -------
@@ -304,10 +306,15 @@ def invert_watch_side(df: pd.DataFrame, side: str) -> np.ndarray:
     """
     if side not in ["left", "right"]:
         raise ValueError(f"Unsupported side: {side}")
+    if sensor not in ['accelerometer', 'gyroscope', 'both']:
+        raise ValueError(f"Unsupported sensor: {sensor}")
+
     elif side == "right":
-        df[DataColumns.GYROSCOPE_Y] *= -1
-        df[DataColumns.GYROSCOPE_Z] *= -1
-        df[DataColumns.ACCELEROMETER_X] *= -1
+        if sensor in ['gyroscope', 'both']:
+            df[DataColumns.GYROSCOPE_Y] *= -1
+            df[DataColumns.GYROSCOPE_Z] *= -1
+        if sensor in ['accelerometer', 'both']:
+            df[DataColumns.ACCELEROMETER_X] *= -1
 
     return df
 
