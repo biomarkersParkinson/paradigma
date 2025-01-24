@@ -358,7 +358,7 @@ def quantify_arm_swing(
         min_segment_length_s: float,
         fs: int,
         df_to_quantify: str = 'filtered',
-    ) -> Tuple[dict[str, pd.DataFrame], dict]:
+    ) -> Tuple[pd.DataFrame, dict]:
     """
     Quantify arm swing parameters for segments of motion based on gyroscope data.
 
@@ -391,7 +391,7 @@ def quantify_arm_swing(
 
     Returns
     -------
-    Tuple[dict, dict]
+    Tuple[pd.DataFrame, dict]
         A tuple containing a dictionary with quantified arm swing parameters for dfs_to_quantify, 
         and a dictionary containing metadata for each segment.
     """
@@ -446,10 +446,6 @@ def quantify_arm_swing(
         df=df,
         fs=fs
     )
-
-    # Group and process segments
-    arm_swing_quantified = {}
-    segment_meta = {}
 
     if df_to_quantify == 'filtered':
         # Filter the DataFrame to only include predicted no other arm activity (1)
