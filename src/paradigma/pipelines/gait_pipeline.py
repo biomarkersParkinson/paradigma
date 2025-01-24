@@ -357,7 +357,7 @@ def quantify_arm_swing(
         max_segment_gap_s: float, 
         min_segment_length_s: float,
         fs: int,
-        dfs_to_quantify: List[str] | str = ['unfiltered', 'filtered'],
+        df_to_quantify: str = 'filtered',
     ) -> Tuple[dict[str, pd.DataFrame], dict]:
     """
     Quantify arm swing parameters for segments of motion based on gyroscope data.
@@ -385,9 +385,9 @@ def quantify_arm_swing(
     fs : int
         The sampling frequency of the sensor data.
 
-    dfs_to_quantify : List[str] | str, optional
-        The DataFrames to quantify arm swing parameters for. Options are 'unfiltered' and 'filtered', with 'unfiltered' being predicted gait, and 
-        'filtered' being predicted gait without other arm activities.
+    df_to_quantify : str, optional
+        The DataFrame to quantify arm swing parameters for. Options are 'unfiltered' and 'filtered', with 'unfiltered' being predicted gait, and 
+        'filtered' being predicted gait without other arm activities. The default is 'filtered'.
 
     Returns
     -------
@@ -395,20 +395,14 @@ def quantify_arm_swing(
         A tuple containing a dictionary with quantified arm swing parameters for dfs_to_quantify, 
         and a dictionary containing metadata for each segment.
     """
-    if not any(df_predictions[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= classification_threshold):
+    if df_to_quantify == 'filtered' and not any(df_predictions[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= classification_threshold):
         raise ValueError("No gait without other arm activity detected in the input data.")
     
-    if isinstance(dfs_to_quantify, str):
-        dfs_to_quantify = [dfs_to_quantify]
-    elif not isinstance(dfs_to_quantify, list):
-        raise ValueError("dfs_to_quantify must be either 'unfiltered', 'filtered', or a list containing both.")
-
-    valid_values = {'unfiltered', 'filtered'}
-    if set(dfs_to_quantify) - valid_values:
+    if df_to_quantify not in {'unfiltered', 'filtered'}:
         raise ValueError(
-            f"Invalid value in dfs_to_quantify: {dfs_to_quantify}. "
-            f"Valid options are 'unfiltered', 'filtered', or both in a list."
-        ) 
+            f"Invalid value in df_to_quantify: {df_to_quantify}. "
+            f"Valid options are 'unfiltered' and 'filtered'."
+        )
     
     # Merge arm activity predictions with timestamps
     df = merge_predictions_with_timestamps(
@@ -418,11 +412,6 @@ def quantify_arm_swing(
         window_length_s=window_length_s, 
         fs=fs
     )
-
-    # Add a column for predicted no other arm activity based on a fitted threshold
-    df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
-        df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= classification_threshold
-    ).astype(int)
 
     # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap.
     # Segments are made based on predicted gait
@@ -442,15 +431,17 @@ def quantify_arm_swing(
 
     if df.empty:
         raise ValueError("No segments found in the input data.")
+    
+    if df_to_quantify == 'filtered':
+        # Add a column for predicted no other arm activity based on a fitted threshold
+        df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
+            df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= classification_threshold
+        ).astype(int)
 
-    # If no arm swing data is remaining, return an empty dictionary
-    if df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].empty:
-        
-        if 'filtered' in dfs_to_quantify and len(dfs_to_quantify) == 1:
+        # If no arm swing data is remaining, return an empty dictionary
+        if df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].empty:
             raise ValueError("No gait without other arm activities to quantify.")
-        
-        dfs_to_quantify = [x for x in dfs_to_quantify if x != 'filtered']
-
+            
     df[DataColumns.SEGMENT_CAT] = categorize_segments(
         df=df,
         fs=fs
@@ -460,99 +451,92 @@ def quantify_arm_swing(
     arm_swing_quantified = {}
     segment_meta = {}
 
-    # If both unfiltered and filtered gait are to be quantified, start with the unfiltered data
-    # and subset to get filtered data afterwards.
-    dfs_to_quantify = sorted(dfs_to_quantify, reverse=True)
+    if df_to_quantify == 'filtered':
+        # Filter the DataFrame to only include predicted no other arm activity (1)
+        df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True)
 
-    for df_name in dfs_to_quantify:    
-        if df_name == 'filtered':
-            # Filter the DataFrame to only include predicted no other arm activity (1)
-            df_focus = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].copy().reset_index(drop=True)
-
-            # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
-            # Now segments are based on predicted gait without other arm activity for subsequent processes
-            df_focus[DataColumns.SEGMENT_NR] = create_segments(
-                time_array=df_focus[DataColumns.TIME], 
-                max_segment_gap_s=max_segment_gap_s
-            )
-
-            pred_colname_pca = DataColumns.PRED_NO_OTHER_ARM_ACTIVITY
-        else:
-            df_focus = df.copy()
-
-            pred_colname_pca = None
-
-        df_focus[DataColumns.VELOCITY] = pca_transform_gyroscope(
-            df=df_focus,
-            y_gyro_colname=DataColumns.GYROSCOPE_Y,
-            z_gyro_colname=DataColumns.GYROSCOPE_Z,
-            pred_colname=pred_colname_pca
+        # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
+        # Now segments are based on predicted gait without other arm activity for subsequent processes
+        df[DataColumns.SEGMENT_NR] = create_segments(
+            time_array=df[DataColumns.TIME], 
+            max_segment_gap_s=max_segment_gap_s
         )
 
-        arm_swing_quantified[df_name] = []
-        segment_meta[df_name] = {}
+        pred_colname_pca = DataColumns.PRED_NO_OTHER_ARM_ACTIVITY
+    else:
+        pred_colname_pca = None
 
-        for segment_nr, group in df_focus.groupby(DataColumns.SEGMENT_NR, sort=False):
-            segment_cat = group[DataColumns.SEGMENT_CAT].iloc[0]
-            time_array = group[DataColumns.TIME].to_numpy()
-            velocity_array = group[DataColumns.VELOCITY].to_numpy()
+    df[DataColumns.VELOCITY] = pca_transform_gyroscope(
+        df=df,
+        y_gyro_colname=DataColumns.GYROSCOPE_Y,
+        z_gyro_colname=DataColumns.GYROSCOPE_Z,
+        pred_colname=pred_colname_pca
+    )
 
-            # Integrate the angular velocity to obtain an estimation of the angle
-            angle_array = compute_angle(
-                time_array=time_array,
-                velocity_array=velocity_array,
-            )
+    arm_swing_quantified = []
+    segment_meta = {}
 
-            # Detrend angle using moving average
-            angle_array = remove_moving_average_angle(
+    for segment_nr, group in df.groupby(DataColumns.SEGMENT_NR, sort=False):
+        segment_cat = group[DataColumns.SEGMENT_CAT].iloc[0]
+        time_array = group[DataColumns.TIME].to_numpy()
+        velocity_array = group[DataColumns.VELOCITY].to_numpy()
+
+        # Integrate the angular velocity to obtain an estimation of the angle
+        angle_array = compute_angle(
+            time_array=time_array,
+            velocity_array=velocity_array,
+        )
+
+        # Detrend angle using moving average
+        angle_array = remove_moving_average_angle(
+            angle_array=angle_array,
+            fs=fs,
+        )
+
+        segment_meta[segment_nr] = {
+            'time_s': len(angle_array) / fs,
+            DataColumns.SEGMENT_CAT: segment_cat
+        }
+
+        if angle_array.size > 0:  
+            angle_extrema_indices, _, _ = extract_angle_extremes(
                 angle_array=angle_array,
-                fs=fs,
+                sampling_frequency=fs,
+                max_frequency_activity=1.75
             )
 
-            segment_meta[df_name][segment_nr] = {
-                'time_s': len(angle_array) / fs,
-                DataColumns.SEGMENT_CAT: segment_cat
-            }
+            if len(angle_extrema_indices) > 1:  # Requires at minimum 2 peaks
+                try:
+                    rom = compute_range_of_motion(
+                        angle_array=angle_array,
+                        extrema_indices=angle_extrema_indices,
+                    )
+                except Exception as e:
+                    # Handle the error, set RoM to NaN, and log the error
+                    print(f"Error computing range of motion for segment {segment_nr}: {e}")
+                    rom = np.array([np.nan])
 
-            if angle_array.size > 0:  
-                angle_extrema_indices, _, _ = extract_angle_extremes(
-                    angle_array=angle_array,
-                    sampling_frequency=fs,
-                    max_frequency_activity=1.75
-                )
+                try:
+                    pav = compute_peak_angular_velocity(
+                        velocity_array=velocity_array,
+                        angle_extrema_indices=angle_extrema_indices
+                    )
+                except Exception as e:
+                    # Handle the error, set pav to NaN, and log the error
+                    print(f"Error computing peak angular velocity for segment {segment_nr}: {e}")
+                    pav = np.array([np.nan])
 
-                if len(angle_extrema_indices) > 1:  # Requires at minimum 2 peaks
-                    try:
-                        rom = compute_range_of_motion(
-                            angle_array=angle_array,
-                            extrema_indices=angle_extrema_indices,
-                        )
-                    except Exception as e:
-                        # Handle the error, set RoM to NaN, and log the error
-                        print(f"Error computing range of motion for segment {segment_nr}: {e}")
-                        rom = np.array([np.nan])
+                df_params_segment = pd.DataFrame({
+                    DataColumns.SEGMENT_NR: segment_nr,
+                    DataColumns.RANGE_OF_MOTION: rom,
+                    DataColumns.PEAK_VELOCITY: pav
+                })
 
-                    try:
-                        pav = compute_peak_angular_velocity(
-                            velocity_array=velocity_array,
-                            angle_extrema_indices=angle_extrema_indices
-                        )
-                    except Exception as e:
-                        # Handle the error, set pav to NaN, and log the error
-                        print(f"Error computing peak angular velocity for segment {segment_nr}: {e}")
-                        pav = np.array([np.nan])
+                arm_swing_quantified.append(df_params_segment)
 
-                    df_params_segment = pd.DataFrame({
-                        DataColumns.SEGMENT_NR: segment_nr,
-                        DataColumns.RANGE_OF_MOTION: rom,
-                        DataColumns.PEAK_VELOCITY: pav
-                    })
-
-                    arm_swing_quantified[df_name].append(df_params_segment)
-
-        arm_swing_quantified[df_name] = pd.concat(arm_swing_quantified[df_name], ignore_index=True)
-            
-    return {df_name: arm_swing_quantified[df_name] for df_name in dfs_to_quantify}, segment_meta
+    arm_swing_quantified = pd.concat(arm_swing_quantified, ignore_index=True)
+        
+    return arm_swing_quantified, segment_meta
 
 
 def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: dict, aggregates: List[str] = ['median']) -> dict:
