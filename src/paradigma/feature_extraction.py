@@ -420,7 +420,7 @@ def compute_mfccs(
         multiplication_factor: float = 1
     ) -> np.ndarray:
     """
-    Generate Mel Frequency Cepstral Coefficients (MFCCs) from the total power spectral density of the signal.
+    Generate Mel Frequency Cepstral Coefficients (MFCCs) from the total power spectral density or spectrogram of the signal.
 
     MFCCs are commonly used features in signal processing for tasks like audio and 
     vibration analysis. In this version, we adjusted the MFFCs to the human activity
@@ -433,6 +433,9 @@ def compute_mfccs(
     ----------
     total_power_array : np.ndarray
         2D array of shape (n_windows, n_frequencies) containing the total power 
+        of the signal for each window.
+        OR
+        3D array of shape (n_windows, n_frequencies, n_segments) containing the total spectrogram
         of the signal for each window.
     config : object
         Configuration object containing the following attributes:
@@ -469,6 +472,10 @@ def compute_mfccs(
     # Compute window length in samples
     window_length = config.window_length_s * config.sampling_frequency
     
+    # Determine the lenght of subwindows used in the spectrogram computation
+    if total_power_array.ndim == 3:
+        window_length = int(window_length/(total_power_array.shape[2] - (total_power_array.shape[2] - 1) * config.overlap_fraction))
+
     # Generate filter points
     if mel_scale:
         freqs = np.linspace(
@@ -483,8 +490,8 @@ def compute_mfccs(
             config.mfcc_high_frequency, 
             num=config.mfcc_n_dct_filters + 2
         )
-
-    filter_points = np.floor(
+    
+    filter_points = np.round(
         window_length / config.sampling_frequency * freqs
     ).astype(int)  + 1
 
@@ -500,8 +507,11 @@ def compute_mfccs(
         ) 
 
     # Apply filterbank to total power
-    power_filtered = np.dot(total_power_array, filters.T) 
-    
+    if total_power_array.ndim == 3:
+        power_filtered = np.tensordot(total_power_array, filters.T, axes=(1,0))
+    else:
+        power_filtered = np.dot(total_power_array, filters.T)
+        
     # Convert power to logarithmic scale
     log_power_filtered = np.log10(power_filtered + 1e-10)
 
@@ -518,6 +528,9 @@ def compute_mfccs(
 
     # Compute MFCCs
     mfccs = np.dot(log_power_filtered, dct_filters.T) 
+
+    if mfccs.ndim == 3:
+        mfccs = np.mean(mfccs, axis=1)
 
     return mfccs
 

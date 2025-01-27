@@ -246,13 +246,14 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
 
     # Initialize parameters
     sampling_frequency = config.sampling_frequency
-    segment_length_s = config.segment_length_s
+    segment_length_psd_s = config.segment_length_psd_s
+    segment_length_spectrogram_s = config.segment_length_spectrogram_s
     overlap_fraction = config.overlap_fraction
     spectral_resolution = config.spectral_resolution
     window_type = 'hann'
 
     # Compute the power spectral density
-    segment_length_n = sampling_frequency * segment_length_s
+    segment_length_n = sampling_frequency * segment_length_psd_s
     overlap_n = segment_length_n * overlap_fraction
     window = signal.get_window(window_type, segment_length_n, fftbins=False)
     nfft = sampling_frequency / spectral_resolution
@@ -269,8 +270,24 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
         axis=1
     )
 
-    # Compute total power in the PSD (over the three axes)
+    # Compute the spectrogram
+    segment_length_n = sampling_frequency * segment_length_spectrogram_s
+    overlap_n = segment_length_n * overlap_fraction
+    window = signal.get_window(window_type, segment_length_n)
+
+    f, t, S1 = signal.stft(
+        x=data, 
+        fs=sampling_frequency, 
+        window=window, 
+        nperseg=segment_length_n, 
+        noverlap=overlap_n,
+        boundary=None,
+        axis=1
+    )
+
+    # Compute total power in the PSD and the total spectrogram (summed over the three axes)
     total_psd = compute_total_power(psd)
+    total_spectrogram = np.sum(np.abs(S1)*sampling_frequency, axis=2)
 
     # Compute the MFCC's
     config.mfcc_low_frequency = config.fmin_mfcc
@@ -279,7 +296,7 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     config.mfcc_n_coefficients = config.n_coefficients_mfcc
 
     mfccs = compute_mfccs(
-        total_power_array=total_psd,
+        total_power_array=total_spectrogram,
         config=config,
         multiplication_factor=1
     )
