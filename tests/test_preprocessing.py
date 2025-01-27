@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from paradigma.preprocessing import preprocess_imu_data_io
+from paradigma.testing import preprocess_imu_data_io
 from paradigma.config import IMUConfig
 from test_notebooks import compare_data
 
@@ -29,5 +29,5 @@ def test_1_imu_preprocessing_outputs(shared_datadir: Path):
     path_to_tested_output = path_to_reference_output / "test-output"
 
     config = IMUConfig()
-    preprocess_imu_data_io(path_to_imu_input, path_to_tested_output, config, sensor='both')
+    preprocess_imu_data_io(path_to_imu_input, path_to_tested_output, config, sensor='both', watch_side='left')
     compare_data(path_to_reference_output, path_to_tested_output, imu_binaries_pairs)

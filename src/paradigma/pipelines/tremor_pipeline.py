@@ -69,31 +69,6 @@ def extract_tremor_features(df: pd.DataFrame, config: TremorConfig) -> pd.DataFr
 
     return df_features
 
-def extract_tremor_features_io(input_path: str | Path, output_path: str | Path, config: TremorConfig) -> None:
-    # Load data
-    metadata_time, metadata_values = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
-    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
-
-    # Extract tremor features
-    df_windowed = extract_tremor_features(df, config)
-
-    # Store data
-    end_iso8601 = get_end_iso8601(start_iso8601=metadata_time.start_iso8601,
-                                  window_length_seconds=int(df_windowed[DataColumns.TIME][-1:].values[0] + config.window_length_s))
-
-    metadata_values.end_iso8601 = end_iso8601
-    metadata_values.file_name = 'tremor_values.bin'
-    metadata_time.end_iso8601 = end_iso8601
-    metadata_time.file_name = 'tremor_time.bin'
-
-    metadata_values.channels = list(config.d_channels_values.keys())
-    metadata_values.units = list(config.d_channels_values.values())
-
-    metadata_time.channels = [DataColumns.TIME]
-    metadata_time.units = ['relative_time_ms']
-
-    write_df_data(metadata_time, metadata_values, output_path, 'tremor_meta.json', df_windowed)
-
 
 def detect_tremor(df: pd.DataFrame, config: TremorConfig, full_path_to_classifier_package: str | Path) -> pd.DataFrame:
     """
@@ -171,29 +146,6 @@ def detect_tremor(df: pd.DataFrame, config: TremorConfig, full_path_to_classifie
     return df
 
 
-def detect_tremor_io(input_path: str | Path, output_path: str | Path, path_to_classifier_input: str | Path, config: TremorConfig) -> None:
-    
-    # Load the data
-    config.set_filenames('tremor')
-
-    metadata_time, metadata_values = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
-    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
-
-    df = detect_tremor(df, config, path_to_classifier_input)
-
-    # Prepare the metadata
-    metadata_values.file_name = 'tremor_values.bin'
-    metadata_time.file_name = 'tremor_time.bin'
-
-    metadata_values.channels = list(config.d_channels_values.keys())
-    metadata_values.units = list(config.d_channels_values.values())
-
-    metadata_time.channels = [DataColumns.TIME]
-    metadata_time.units = ['relative_time_ms']
-
-    write_df_data(metadata_time, metadata_values, output_path, 'tremor_meta.json', df)
-
-
 def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     """
     Quantifies the amount of tremor time and tremor power, aggregated over all windows in the input dataframe.
@@ -265,31 +217,6 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     }
 
     return d_aggregates
-
-
-def aggregate_tremor_io(path_to_feature_input: str | Path, path_to_prediction_input: str | Path, output_path: str | Path, config: TremorConfig) -> None:
-    
-    # Load the features & predictions
-    metadata_time, metadata_values = read_metadata(path_to_feature_input, config.meta_filename, config.time_filename, config.values_filename)
-    df_features = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
-
-    metadata_dict = tsdf.load_metadata_from_path(path_to_prediction_input / config.meta_filename)
-    metadata_time = metadata_dict[config.time_filename]
-    metadata_values = metadata_dict[config.values_filename]
-    df_predictions = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
-
-    # Subset features
-    df_features = df_features[['tremor_power', 'below_tremor_power']]
-
-    # Concatenate predictions and tremor power
-    df = pd.concat([df_predictions, df_features], axis=1)
-
-    # Compute aggregated tremor measures
-    d_aggregates = aggregate_tremor(df, config)
-
-    # Save output
-    with open(output_path / "tremor_aggregates.json", 'w') as json_file:
-        json.dump(d_aggregates, json_file, indent=4)
 
 
 def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:

@@ -1,34 +1,24 @@
+```{include} ../README.md
+```
+
 ```{toctree}
-:maxdepth: 2
+:maxdepth: 1
 :caption: Tutorials
 tutorials/data_preparation.ipynb
+tutorials/gait_analysis.ipynb
+tutorials/tremor_analysis.ipynb
+tutorials/heart_rate_analysis.ipynb
 ```
 
 ```{toctree}
-:maxdepth: 2
-:caption: Template Notebooks
-notebooks/gait/gait_analysis.ipynb
-notebooks/ppg/ppg_analysis.ipynb
-```
-
-```{toctree}
-:maxdepth: 2
-:caption: User Guides
+:maxdepth: 1
+:caption: User guides
+guides/config.md
 guides/coordinate_system.md
 ```
 
 ```{toctree}
-:maxdepth: 2
+:maxdepth: 1
 :caption: API
 autoapi/index
 ```
-
-<!-- ```{toctree}
-:maxdepth: 2
-:caption: TSDF schema
-tsdf_paradigma_schemas.md
-tsdf_paradigma_channels_and_units.md
-``` -->
-
-```{toctree}
-:maxdepth: 2

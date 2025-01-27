@@ -7,9 +7,9 @@
 # -- Project information -----------------------------------------------------
 
 project = "paradigma"
-copyright = "2023, Peter Kok, Vedran Kasalica, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Luc Evers"
+copyright = "2025, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, and Luc Evers"
 author = (
-    "Peter Kok, Vedran Kasalica, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Luc Evers"
+    "Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, and Luc Evers"
 )
 
 # -- General configuration ---------------------------------------------------
@@ -22,6 +22,12 @@ extensions = [
     "autoapi.extension",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
+    'nbsphinx',
+]
+
+myst_enable_extensions = [
+    "substitution",
+    "deflist",
 ]
 
 autoapi_dirs = ["../src"]

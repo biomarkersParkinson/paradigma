@@ -116,6 +116,7 @@ def write_df_data(
     tsdf.write_dataframe_to_binaries(output_path, df, [metadata_time, metadata_values])
     tsdf.write_metadata([metadata_time, metadata_values], output_filename)
 
+
 def read_metadata(
     input_path: str, meta_filename: str, time_filename: str, values_filename: str
 ) -> Tuple[TSDFMetadata, TSDFMetadata]:
@@ -126,6 +127,7 @@ def read_metadata(
     metadata_values = metadata_dict[values_filename]
     return metadata_time, metadata_values
 
+
 def load_tsdf_dataframe(path_to_data, prefix, meta_suffix='meta.json', time_suffix='time.bin', values_suffix='values.bin'):
     meta_filename = f"{prefix}_{meta_suffix}"
     time_filename = f"{prefix}_{time_suffix}"
@@ -135,6 +137,7 @@ def load_tsdf_dataframe(path_to_data, prefix, meta_suffix='meta.json', time_suff
     df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
 
     return df, metadata_time, metadata_values
+
 
 def load_metadata_list(
     dir_path: str, meta_filename: str, filenames: List[str]
@@ -160,42 +163,6 @@ def load_metadata_list(
         metadata_list.append(metadata_dict[filename])
 
     return metadata_list
-
-def extract_meta_from_tsdf_files(tsdf_data_dir : str) -> List[dict]:
-    """
-    For each given TSDF directory, transcribe TSDF metadata contents to a list of dictionaries.
-    
-    Parameters
-    ----------
-    tsdf_data_dir : str
-        Path to the directory containing TSDF metadata files.
-
-    Returns
-    -------
-    List[Dict]
-        List of dictionaries with metadata from each JSON file in the directory.
-
-    Examples
-    --------
-    >>> extract_meta_from_tsdf_files('/path/to/tsdf_data')
-    [{'start_iso8601': '2021-06-27T16:52:20Z', 'end_iso8601': '2021-06-27T17:52:20Z'}, ...]
-    """
-    metas = []
-    
-    # Collect all metadata JSON files in the specified directory
-    meta_list = list(Path(tsdf_data_dir).rglob('*_meta.json'))
-    for meta_file in meta_list:
-        with open(meta_file, 'r') as file:
-            json_obj = json.load(file)
-            meta_data = {
-                'tsdf_meta_fullpath': str(meta_file),
-                'subject_id': json_obj['subject_id'],
-                'start_iso8601': json_obj['start_iso8601'],
-                'end_iso8601': json_obj['end_iso8601']
-            }
-            metas.append(meta_data)
-    
-    return metas
 
 
 def transform_time_array(
