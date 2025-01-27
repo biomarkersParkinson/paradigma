@@ -1,5 +1,3 @@
-import tsdf
-import json
 import pandas as pd
 import numpy as np
 from pathlib import Path
@@ -12,7 +10,7 @@ from paradigma.config import TremorConfig
 from paradigma.feature_extraction import compute_mfccs, compute_power_in_bandwidth, compute_total_power, extract_frequency_peak, \
     extract_tremor_power
 from paradigma.segmenting import tabulate_windows, WindowedDataExtractor
-from paradigma.util import get_end_iso8601, write_df_data, read_metadata, aggregate_parameter
+from paradigma.util import aggregate_parameter
 
 
 def extract_tremor_features(df: pd.DataFrame, config: TremorConfig) -> pd.DataFrame:
