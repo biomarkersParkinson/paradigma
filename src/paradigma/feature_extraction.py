@@ -416,9 +416,10 @@ def compute_spectral_entropy(
 def compute_mfccs(
         total_power_array: np.ndarray, 
         config, 
-        pipeline: str,
+        total_power_type: str = 'psd',
         mel_scale: bool = True,
-        multiplication_factor: float = 1        
+        multiplication_factor: float = 1,
+        rounding_method: str = 'floor'       
     ) -> np.ndarray:
     """
     Generate Mel Frequency Cepstral Coefficients (MFCCs) from the total power spectral density or spectrogram of the signal.
@@ -452,13 +453,15 @@ def compute_mfccs(
             Number of triangular filters in the filterbank (default: 20).
         - mfcc_n_coefficients : int
             Number of coefficients to extract (default: 12).
-    pipeline : str
-        The pipeline for which the MFCCs are computes. Options are 'tremor' and 'gait'.
+    total_power_type : str, optional
+        The type of the total power array. Supported values are 'psd' and 'spectrogram' (default: 'psd').
     mel_scale : bool, optional
         Whether to use the mel scale for the filterbank (default: True).
     multiplication_factor : float, optional
         Multiplication factor for the Mel scale conversion (default: 1). For tremor, the recommended
         value is 1. For gait, this is 4.
+    rounding_method : str, optional
+        The method used to round the filter points. Supported values are 'round' and 'floor' (default: 'floor').
 
     Returns
     -------
@@ -475,9 +478,10 @@ def compute_mfccs(
     # Compute window length in samples
     window_length = config.window_length_s * config.sampling_frequency
     
-    # Determine the lenght of subwindows used in the spectrogram computation
-    if total_power_array.ndim == 3:
-        window_length = int(window_length/(total_power_array.shape[2] - (total_power_array.shape[2] - 1) * config.overlap_fraction))
+    # Determine the length of subwindows used in the spectrogram computation
+    if total_power_type == 'spectrogram':
+        nr_subwindows = total_power_array.shape[2]
+        window_length = int(window_length/(nr_subwindows - (nr_subwindows - 1) * config.overlap_fraction))
 
     # Generate filter points
     if mel_scale:
@@ -494,12 +498,12 @@ def compute_mfccs(
             num=config.mfcc_n_dct_filters + 2
         )
     
-    if pipeline == 'tremor':
+    if rounding_method == 'round':
         filter_points = np.round(
             window_length / config.sampling_frequency * freqs
         ).astype(int)  + 1
-        
-    elif pipeline == 'gait':
+
+    elif rounding_method == 'floor':
         filter_points = np.floor(
             window_length / config.sampling_frequency * freqs
         ).astype(int) + 1
@@ -516,9 +520,9 @@ def compute_mfccs(
         ) 
 
     # Apply filterbank to total power
-    if total_power_array.ndim == 3:
+    if total_power_type == 'spectrogram':
         power_filtered = np.tensordot(total_power_array, filters.T, axes=(1,0))
-    else:
+    elif total_power_type == 'psd':
         power_filtered = np.dot(total_power_array, filters.T)
         
     # Convert power to logarithmic scale
@@ -538,7 +542,7 @@ def compute_mfccs(
     # Compute MFCCs
     mfccs = np.dot(log_power_filtered, dct_filters.T) 
 
-    if mfccs.ndim == 3:
+    if total_power_type == 'spectrogram':
         mfccs = np.mean(mfccs, axis=1)
 
     return mfccs

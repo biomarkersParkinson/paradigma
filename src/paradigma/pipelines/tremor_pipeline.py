@@ -296,7 +296,8 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     mfccs = compute_mfccs(
         total_power_array=total_spectrogram,
         config=config,
-        pipeline='tremor',
+        total_power_type='spectrogram',
+        rounding_method='round',
         multiplication_factor=1
     )
 
