@@ -475,6 +475,11 @@ def compute_mfccs(
     - The function includes filterbank normalization to ensure proper scaling.
     - DCT filters are constructed to minimize spectral leakage.
     """
+    
+    # Check if total_power_type is either 'psd' or 'spectrogram'
+    if total_power_type not in ['psd', 'spectrogram']:
+        raise ValueError("total_power_type should be set to either 'psd' or 'spectrogram'")
+
     # Compute window length in samples
     window_length = config.window_length_s * config.sampling_frequency
     
