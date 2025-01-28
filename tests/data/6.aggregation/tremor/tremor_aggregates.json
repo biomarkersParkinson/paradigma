@@ -4,9 +4,9 @@
         "nr_windows_rest": 89
     },
     "aggregated_tremor_measures": {
-        "perc_windows_tremor": 11.235955056179774,
-        "median_tremor_power": 0.545156024401169,
-        "modal_tremor_power": 0.52,
-        "90p_tremor_power": 1.796145868028196
+        "perc_windows_tremor": 16.853932584269664,
+        "median_tremor_power": 0.4242462829851676,
+        "modal_tremor_power": 0.42,
+        "90p_tremor_power": 0.8001855655603451
     }
 }
