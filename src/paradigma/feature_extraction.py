@@ -416,8 +416,9 @@ def compute_spectral_entropy(
 def compute_mfccs(
         total_power_array: np.ndarray, 
         config, 
+        pipeline: str,
         mel_scale: bool = True,
-        multiplication_factor: float = 1
+        multiplication_factor: float = 1        
     ) -> np.ndarray:
     """
     Generate Mel Frequency Cepstral Coefficients (MFCCs) from the total power spectral density or spectrogram of the signal.
@@ -451,6 +452,8 @@ def compute_mfccs(
             Number of triangular filters in the filterbank (default: 20).
         - mfcc_n_coefficients : int
             Number of coefficients to extract (default: 12).
+    pipeline : str
+        The pipeline for which the MFCCs are computes. Options are 'tremor' and 'gait'.
     mel_scale : bool, optional
         Whether to use the mel scale for the filterbank (default: True).
     multiplication_factor : float, optional
@@ -491,9 +494,15 @@ def compute_mfccs(
             num=config.mfcc_n_dct_filters + 2
         )
     
-    filter_points = np.round(
-        window_length / config.sampling_frequency * freqs
-    ).astype(int)  + 1
+    if pipeline == 'tremor':
+        filter_points = np.round(
+            window_length / config.sampling_frequency * freqs
+        ).astype(int)  + 1
+        
+    elif pipeline == 'gait':
+        filter_points = np.floor(
+            window_length / config.sampling_frequency * freqs
+        ).astype(int) + 1
 
     # Construct triangular filterbank
     filters = np.zeros((len(filter_points) - 2, int(window_length / 2 + 1)))

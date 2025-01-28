@@ -716,6 +716,7 @@ def extract_spectral_domain_features(
     mfccs = compute_mfccs(
         total_power_array=total_power_psd,
         config=config,
+        pipeline='gait',
         multiplication_factor=4
     )
 
