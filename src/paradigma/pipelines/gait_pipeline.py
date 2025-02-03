@@ -350,25 +350,22 @@ def filter_gait(
 
 
 def quantify_arm_swing(
-        df_timestamps: pd.DataFrame, 
-        df_predictions: pd.DataFrame, 
+        df: pd.DataFrame, 
         classification_threshold: float, 
         window_length_s: float,
         max_segment_gap_s: float, 
         min_segment_length_s: float,
         fs: int,
-        filtered: bool = True,
+        filtered: bool = False,
     ) -> Tuple[dict[str, pd.DataFrame], dict]:
     """
     Quantify arm swing parameters for segments of motion based on gyroscope data.
 
     Parameters
     ----------
-    df_timestamps : pd.DataFrame
-        A DataFrame containing the raw sensor data, including gyroscope columns.
-
-    df_predictions : pd.DataFrame
-        A DataFrame containing the predicted probabilities for no other arm activity per window.
+    df : pd.DataFrame
+        A DataFrame containing the raw sensor data, including gyroscope columns. Should include a column
+        for predicted no other arm activity based on a fitted threshold if filtered is True.
 
     classification_threshold : float
         The threshold used to classify no other arm activity based on the predicted probabilities.
@@ -394,26 +391,9 @@ def quantify_arm_swing(
         A tuple containing a dictionary with quantified arm swing parameters for dfs_to_quantify, 
         and a dictionary containing metadata for each segment.
     """
-    if filtered and not any(df_predictions[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= classification_threshold):
+    if filtered and not any(df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= classification_threshold):
         raise ValueError("No gait without other arm activity detected in the input data.")
     
-    # Merge arm activity predictions with timestamps
-    if filtered:
-        df = merge_predictions_with_timestamps(
-            df_ts=df_timestamps, 
-            df_predictions=df_predictions, 
-            pred_proba_colname=DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA,
-            window_length_s=window_length_s, 
-            fs=fs
-        )
-
-        # Add a column for predicted no other arm activity based on a fitted threshold
-        df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
-            df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= classification_threshold
-        ).astype(int)
-    else:
-        df = df_timestamps
-
     # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap.
     # Segments are made based on predicted gait
     df[DataColumns.SEGMENT_NR] = create_segments(
