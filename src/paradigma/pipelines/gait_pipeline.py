@@ -357,8 +357,8 @@ def quantify_arm_swing(
         max_segment_gap_s: float, 
         min_segment_length_s: float,
         fs: int,
-        df_to_quantify: str = 'filtered',
-    ) -> Tuple[pd.DataFrame, dict]:
+        filtered: bool = True,
+    ) -> Tuple[dict[str, pd.DataFrame], dict]:
     """
     Quantify arm swing parameters for segments of motion based on gyroscope data.
 
@@ -385,33 +385,34 @@ def quantify_arm_swing(
     fs : int
         The sampling frequency of the sensor data.
 
-    df_to_quantify : str, optional
-        The DataFrame to quantify arm swing parameters for. Options are 'unfiltered' and 'filtered', with 'unfiltered' being predicted gait, and 
-        'filtered' being predicted gait without other arm activities. The default is 'filtered'.
+    filtered : bool, optional, default=True
+        If `True`, the gyroscope data is filtered to only include predicted no other arm activity.
 
     Returns
     -------
-    Tuple[pd.DataFrame, dict]
+    Tuple[dict, dict]
         A tuple containing a dictionary with quantified arm swing parameters for dfs_to_quantify, 
         and a dictionary containing metadata for each segment.
     """
-    if df_to_quantify == 'filtered' and not any(df_predictions[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= classification_threshold):
+    if filtered and not any(df_predictions[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= classification_threshold):
         raise ValueError("No gait without other arm activity detected in the input data.")
     
-    if df_to_quantify not in {'unfiltered', 'filtered'}:
-        raise ValueError(
-            f"Invalid value in df_to_quantify: {df_to_quantify}. "
-            f"Valid options are 'unfiltered' and 'filtered'."
-        )
-    
     # Merge arm activity predictions with timestamps
-    df = merge_predictions_with_timestamps(
-        df_ts=df_timestamps, 
-        df_predictions=df_predictions, 
-        pred_proba_colname=DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA,
-        window_length_s=window_length_s, 
-        fs=fs
-    )
+    if filtered:
+        df = merge_predictions_with_timestamps(
+            df_ts=df_timestamps, 
+            df_predictions=df_predictions, 
+            pred_proba_colname=DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA,
+            window_length_s=window_length_s, 
+            fs=fs
+        )
+
+        # Add a column for predicted no other arm activity based on a fitted threshold
+        df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
+            df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= classification_threshold
+        ).astype(int)
+    else:
+        df = df_timestamps
 
     # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap.
     # Segments are made based on predicted gait
@@ -431,23 +432,18 @@ def quantify_arm_swing(
 
     if df.empty:
         raise ValueError("No segments found in the input data.")
-    
-    if df_to_quantify == 'filtered':
-        # Add a column for predicted no other arm activity based on a fitted threshold
-        df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
-            df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= classification_threshold
-        ).astype(int)
 
-        # If no arm swing data is remaining, return an empty dictionary
-        if df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].empty:
-            raise ValueError("No gait without other arm activities to quantify.")
-            
-    df[DataColumns.SEGMENT_CAT] = categorize_segments(
-        df=df,
-        fs=fs
-    )
+    # If no arm swing data is remaining, return an empty dictionary
+    if filtered and df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].empty:
+        raise ValueError("No gait without other arm activities to quantify.")
+        
+    df[DataColumns.SEGMENT_CAT] = categorize_segments(df=df, fs=fs)
 
-    if df_to_quantify == 'filtered':
+    # Group and process segments
+    arm_swing_quantified = {}
+    segment_meta = {}
+
+    if filtered:
         # Filter the DataFrame to only include predicted no other arm activity (1)
         df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True)
 
@@ -468,9 +464,6 @@ def quantify_arm_swing(
         z_gyro_colname=DataColumns.GYROSCOPE_Z,
         pred_colname=pred_colname_pca
     )
-
-    arm_swing_quantified = []
-    segment_meta = {}
 
     for segment_nr, group in df.groupby(DataColumns.SEGMENT_NR, sort=False):
         segment_cat = group[DataColumns.SEGMENT_CAT].iloc[0]
@@ -531,7 +524,7 @@ def quantify_arm_swing(
                 arm_swing_quantified.append(df_params_segment)
 
     arm_swing_quantified = pd.concat(arm_swing_quantified, ignore_index=True)
-        
+            
     return arm_swing_quantified, segment_meta
 
 
