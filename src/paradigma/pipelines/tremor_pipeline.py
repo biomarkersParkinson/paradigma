@@ -183,36 +183,53 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     # calculate tremor time
     perc_windows_tremor= np.sum(df_filtered['pred_tremor_checked']) / nr_windows_rest * 100 # as percentage of total measured time without non-tremor arm movement
 
-    # calculate aggregated tremor power measures
-    tremor_power = df_filtered.loc[df_filtered['pred_tremor_checked'] == 1, 'tremor_power']
-    tremor_power = np.log10(tremor_power+1) # convert to log scale
-    aggregated_tremor_power = {}
-    
-    for aggregate in config.aggregates_tremor_power:
-        aggregate_name = f"{aggregate}_tremor_power"
-        if aggregate == 'mode':
-            # calculate modal tremor power
-            bin_edges = np.linspace(0, 6, 301)
-            kde = gaussian_kde(tremor_power)
-            kde_values = kde(bin_edges)
-            max_index = np.argmax(kde_values)
-            aggregated_tremor_power['modal_tremor_power'] = bin_edges[max_index]
-        else: # calculate te other aggregates (e.g. median and 90th percentile) of tremor power
-            aggregated_tremor_power[aggregate_name] = aggregate_parameter(tremor_power, aggregate)
-    
-    # store aggregates in json format
-    d_aggregates = {
-        'metadata': {
-            'nr_windows_total': nr_windows_total,
-            'nr_windows_rest': nr_windows_rest
-        },
-        'aggregated_tremor_measures': {
-            'perc_windows_tremor': perc_windows_tremor,
-            'median_tremor_power': aggregated_tremor_power['median_tremor_power'],
-            'modal_tremor_power': aggregated_tremor_power['modal_tremor_power'],
-            '90p_tremor_power': aggregated_tremor_power['90p_tremor_power']
+    if perc_windows_tremor == 0: # if no tremor is detected 
+
+        d_aggregates = {
+            'metadata': {
+                'nr_windows_total': nr_windows_total,
+                'nr_windows_rest': nr_windows_rest
+            },
+            'aggregated_tremor_measures': {
+                'perc_windows_tremor': perc_windows_tremor,
+                'median_tremor_power': np.nan,
+                'modal_tremor_power': np.nan,
+                '90p_tremor_power': np.nan
+            }
         }
-    }
+
+    else:
+        
+        # calculate aggregated tremor power measures
+        tremor_power = df_filtered.loc[df_filtered['pred_tremor_checked'] == 1, 'tremor_power']
+        tremor_power = np.log10(tremor_power+1) # convert to log scale
+        aggregated_tremor_power = {}
+    
+        for aggregate in config.aggregates_tremor_power:
+            aggregate_name = f"{aggregate}_tremor_power"
+            if aggregate == 'mode':
+                # calculate modal tremor power
+                bin_edges = np.linspace(0, 6, 301)
+                kde = gaussian_kde(tremor_power)
+                kde_values = kde(bin_edges)
+                max_index = np.argmax(kde_values)
+                aggregated_tremor_power['modal_tremor_power'] = bin_edges[max_index]
+            else: # calculate te other aggregates (e.g. median and 90th percentile) of tremor power
+                aggregated_tremor_power[aggregate_name] = aggregate_parameter(tremor_power, aggregate)
+    
+        # store aggregates in json format
+        d_aggregates = {
+            'metadata': {
+                'nr_windows_total': nr_windows_total,
+                'nr_windows_rest': nr_windows_rest
+            },
+            'aggregated_tremor_measures': {
+                'perc_windows_tremor': perc_windows_tremor,
+                'median_tremor_power': aggregated_tremor_power['median_tremor_power'],
+                'modal_tremor_power': aggregated_tremor_power['modal_tremor_power'],
+                '90p_tremor_power': aggregated_tremor_power['90p_tremor_power']
+            }
+        }
 
     return d_aggregates
 
