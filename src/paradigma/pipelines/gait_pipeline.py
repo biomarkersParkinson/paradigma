@@ -410,7 +410,7 @@ def quantify_arm_swing(
     df[DataColumns.SEGMENT_CAT] = categorize_segments(df=df, fs=fs)
 
     # Group and process segments
-    arm_swing_quantified = {}
+    arm_swing_quantified = []
     segment_meta = {}
 
     if filtered:
