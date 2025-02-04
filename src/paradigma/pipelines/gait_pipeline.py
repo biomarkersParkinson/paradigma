@@ -351,8 +351,6 @@ def filter_gait(
 
 def quantify_arm_swing(
         df: pd.DataFrame, 
-        classification_threshold: float, 
-        window_length_s: float,
         max_segment_gap_s: float, 
         min_segment_length_s: float,
         fs: int,
@@ -366,12 +364,6 @@ def quantify_arm_swing(
     df : pd.DataFrame
         A DataFrame containing the raw sensor data, including gyroscope columns. Should include a column
         for predicted no other arm activity based on a fitted threshold if filtered is True.
-
-    classification_threshold : float
-        The threshold used to classify no other arm activity based on the predicted probabilities.
-
-    window_length_s : float
-        The length of the window used for feature extraction.
 
     max_segment_gap_s : float
         The maximum gap allowed between segments.
@@ -387,12 +379,10 @@ def quantify_arm_swing(
 
     Returns
     -------
-    Tuple[dict, dict]
-        A tuple containing a dictionary with quantified arm swing parameters for dfs_to_quantify, 
-        and a dictionary containing metadata for each segment.
+    Tuple[pd.DataFrame, dict]
+        A tuple containing a dataframe with quantified arm swing parameters and a dictionary containing 
+        metadata for each segment.
     """
-    if filtered and not any(df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= classification_threshold):
-        raise ValueError("No gait without other arm activity detected in the input data.")
     
     # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap.
     # Segments are made based on predicted gait
