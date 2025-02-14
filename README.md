@@ -12,13 +12,13 @@
 
 ## Overview
 The Parkinsons Disease Digital Markers (ParaDigMa) toolbox is a Python
-software package designed for analyzing real-life wrist sensor data
+software package designed for processing and analyzing real-life wrist sensor data
 to extract digital measures of motor and non-motor signs of Parkinson's disease (PD).  
 
 Specifically, the toolbox is designed to process accelerometer, gyroscope and 
-photoplethysmography signals, collected during passive monitoring in daily life. 
+photoplethysmography (PPG) signals, collected during passive monitoring in daily life. 
 It contains three data processing pipelines: (1) arm swing during gait, (2) tremor, 
-and (3) pulse rate analysis. These pipelines are scientifically validated for their 
+and (3) pulse rate. These pipelines are scientifically validated for their 
 use in persons with PD. Furthermore, the toolbox contains general functionalities for 
 signal processing and feature extraction, such as filtering, peak detection, and 
 spectral analysis. 
@@ -34,30 +34,31 @@ The components of ParaDigMa are shown in the diagram below.
 <p align="center">
   <img src="https://raw.githubusercontent.com/biomarkersParkinson/paradigma/main/docs/source/_static/img/pipeline-architecture.png" alt="Pipeline architeecture"/>
 </p>
-#LJWE: improve readability, add tremor power in quantification of tremor.
+The three colored, shaded columns represent the individual pipelines. Processes of the pipelines are represented by blue ellipses, and input/output data by rectangular boxes. The input/output of each step is indicated by yellow horizontal bars denoting the type of data (e.g., _3. Extracted features_). Arrows indicate the sequential order of the processes of the pipeline.
 
+<br/>
 ParaDigMa can best be understood by categorizing the sequential processes:
 
 | Process | Description |
 | ---- | ---- |
-| Preprocessing | Preparing the raw sensor signals for further processing | 
-| Feature extraction | Extracting features based on the windowed sensor signals |
-| Classification | Detecting segments of interest using validated classifiers (e.g. gait segments) | 
-| Quantification | Extracting specific measures from the detected segments (e.g. arm swing measures) |
-| Aggregation | Aggregating the measures over a specific time period (e.g. week-level aggregates) |
+| Preprocessing | Preparing raw sensor signals for further processing | 
+| Feature extraction | Extracting features based on windowed sensor signals |
+| Classification | Detecting segments of interest using validated classifiers (e.g., gait segments) | 
+| Quantification | Extracting specific measures from the detected segments (e.g., arm swing measures) |
+| Aggregation | Aggregating the measures over a specific time period (e.g., week-level aggregates) |
 
-ParaDigMa contains the following processing pipelines (which use the processes described above): 
+<br/>
+ParaDigMa contains the following processing pipelines (each using the processes described above): 
 
-| Pipeline | Input | Output (window-level) | Output (week-level) | 
+| Pipeline | Input | Output (quantification) | Output (aggregation) | 
 | ---- | ---- | ---- | ---- |
 | Arm swing during gait | Wrist accelerometer and gyroscope data | Gait probability, arm swing probability, arm swing range of motion (RoM) | Typical & maximum arm swing RoM | 
 | Tremor | Wrist gyroscope data | Tremor probability, tremor power | % tremor time, typical & maximum tremor power | 
-| Pulse rate | Wrist photoplethysmography data | PPG signal quality, pulse rate | Resting pulse rate, maximum pulse rate | 
+| Pulse rate | Wrist PPG and accelerometer data | PPG signal quality, pulse rate | Resting & maximum pulse rate | 
 
 ## Installation
 
-The package is available in PyPi and requires [Python 3.10](https://www.python.org/downloads/) or higher. #LJWE: later 3.11 is mentioned, please align
-It can be installed using:
+The package is available in PyPI and requires [Python 3.11](https://www.python.org/downloads/) or higher. It can be installed using:
 
 ```bash
 pip install paradigma
@@ -74,23 +75,23 @@ The user guides provide additional information about specific topics (e.g. the r
 The ParaDigMa toolbox is designed for the analysis of passive monitoring data collected using a wrist sensor in persons with PD. 
 
 Specific requirements include: 
-#LJWE: see attached word table.
-
-| Pipeline 		| 	
-| ----		 	| 
-| All	 	 	|
-| Arm swing during gait | 
-| Tremor 		| 
-| Pulse rate 		| 
+| Pipeline               | Sensor Configuration                                                                                                       | Context of Use                                                                                             |
+|------------------------|--------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
+| **All**               | - Sensor position: wrist-band on most or least affected side (validated for both, but different sensitivity for measuring disease progression for tremor and arm swing during gait).  <br> - Sensor orientation: orientation as described in [Coordinate System](https://biomarkersparkinson.github.io/paradigma/guides/coordinate_system.html). | - Population: persons with PD. <br> - Data collection protocol: passive monitoring in daily life. |
+| **Arm swing during gait** | - Accelerometer: minimum sampling rate of 100 Hz, minimum range of ± 4 g, minimum resolution of xx g. <br> - Gyroscope: minimum sampling rate of 100 Hz, minimum range of ± 100 degrees/sec, minimum resolution of xx degrees/sec. | - Population: no walking aid, no severe dyskinesia in the watch-sided arm. <br> - Compliance: for weekly measures: at least three compliant days (with ≥10 hours of data between 8 am and 10 pm), and at least xx hours of gait. |
+| **Tremor**            | - Gyroscope: minimum sampling rate of 100 Hz, minimum range of ± xx degrees/sec, minimum resolution of xx degrees/sec. | - Compliance: for weekly measures: at least three compliant days (with ≥10 hours of data between 8 am and 10 pm). |
+| **Pulse rate**        | - PPG*: minimum sampling rate of 30 Hz, green LED. <br> - Accelerometer: minimum sampling rate of 100 Hz, minimum range of ± xx g, minimum resolution of xx g. | - Population: no rhythm disorders (e.g. atrial fibrillation, atrial flutter). <br> - Compliance: for weekly measures: minimum average of 12 hours of data per day. |
 
 While the toolbox is designed to work on any wrist sensor device which fulfills the requirements, 
 we have currently verified its performance on data from the Gait-up Physilog 4 (arm swing during gait & tremor) and the Verily Study Watch (all pipelines). 
-We currently support TSDF (#LJWE: include link) as format for the input sensor data. Please see our tutorial "Data preparation" [#LJWE: insert link] for how to use other data formats.
+<br/>
+
+We have included support for [TSDF](https://biomarkersparkinson.github.io/tsdf/) as format for loading and storing sensor data. TSDF enables efficient data storage with added metadata. However, ParaDigMa does not require a particular method of data storage and retrieval. Please see our tutorial [Data preparation](https://biomarkersparkinson.github.io/paradigma/tutorials/data_preparation.html) for examples of loading TSDF and other data formats.
 
 ## Scientific validation
 
-The pipelines were developed and validated using data from the Parkinson@Home Validation study [Evers et al. 2020 #LJWE: INSERT REF] 
-and the Personalized Parkinson Project [Bloem et al. 2019 #LJWE: INSERT REF].
+The pipelines were developed and validated using data from the Parkinson@Home Validation study [[Evers et al. 2020]](https://pmc.ncbi.nlm.nih.gov/articles/PMC7584982/) 
+and the Personalized Parkinson Project [[Bloem et al. 2019]](https://pubmed.ncbi.nlm.nih.gov/31315608/).
 
 Details for the different pipelines can be found in the associated scientific publications:
 
@@ -102,12 +103,12 @@ Details for the different pipelines can be found in the associated scientific pu
 
 ## Contributing
 
-We welcome contributions! Please check out our contributing guidelines [#LJWE: kon deze niet vinden? Graag uploaden bij user guides, en daarin de poetry instructies etc. opnemen, hoeft niet hier in de readme]. 
-Please note that this project is released with a Code of Conduct. By contributing to this project, you agree to abide by its terms [#LJWE: kon deze ook niet vinden?]
+We welcome contributions! Please check out our [contributing guidelines](https://biomarkersparkinson.github.io/paradigma/contributing.html). 
+Please note that this project is released with a [Code of Conduct](https://biomarkersparkinson.github.io/paradigma/conduct.html). By contributing to this project, you agree to abide by its terms.
 
 ## License
 
-It is licensed under the terms of the Apache License 2.0 license. See [#LJWE: INSERT LICENSE LINK] for more details.
+It is licensed under the terms of the Apache License 2.0 license. See [License](https://biomarkersparkinson.github.io/paradigma/license.html) for more details.
 
 ## Acknowledgements
 

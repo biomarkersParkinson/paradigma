@@ -19,6 +19,14 @@ guides/coordinate_system.md
 
 ```{toctree}
 :maxdepth: 1
+:caption: Developer docs
+contributing.md
+conduct.md
+license.md
+```
+
+```{toctree}
+:maxdepth: 1
 :caption: API
 autoapi/index
 ```
