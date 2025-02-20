@@ -50,11 +50,11 @@ ParaDigMa can best be understood by categorizing the sequential processes:
 <br/>
 ParaDigMa contains the following processing pipelines (each using the processes described above): 
 
-| Pipeline | Input | Output (quantification) | Output (aggregation) | 
-| ---- | ---- | ---- | ---- |
-| Arm swing during gait | Wrist accelerometer and gyroscope data | Gait probability, arm swing probability, arm swing range of motion (RoM) | Typical & maximum arm swing RoM | 
-| Tremor | Wrist gyroscope data | Tremor probability, tremor power | % tremor time, typical & maximum tremor power | 
-| Pulse rate | Wrist PPG and accelerometer data | PPG signal quality, pulse rate | Resting & maximum pulse rate | 
+| Pipeline | Input | Output Classification | Output Quantification | Output Aggregation | 
+| ---- | ---- | ---- | ---- | ---- |
+| **Arm swing during gait** | Wrist accelerometer and gyroscope data | Gait probability, gait without other arm activities probability | Arm swing range of motion (RoM) | Typical & maximum arm swing RoM | 
+| **Tremor** | Wrist gyroscope data | Tremor probability | Tremor power | % tremor time, typical & maximum tremor power |   
+| **Pulse rate** | Wrist PPG and accelerometer data | PPG signal quality | Pulse rate | Resting & maximum pulse rate | 
 
 ## Installation
 
@@ -78,28 +78,23 @@ Specific requirements include:
 | Pipeline               | Sensor Configuration                                                                                                       | Context of Use                                                                                             |
 |------------------------|--------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
 | **All**               | - Sensor position: wrist-band on most or least affected side (validated for both, but different sensitivity for measuring disease progression for tremor and arm swing during gait).  <br> - Sensor orientation: orientation as described in [Coordinate System](https://biomarkersparkinson.github.io/paradigma/guides/coordinate_system.html). | - Population: persons with PD. <br> - Data collection protocol: passive monitoring in daily life. |
-| **Arm swing during gait** | - Accelerometer: minimum sampling rate of 100 Hz, minimum range of ± 4 g, minimum resolution of xx g. <br> - Gyroscope: minimum sampling rate of 100 Hz, minimum range of ± 100 degrees/sec, minimum resolution of xx degrees/sec. | - Population: no walking aid, no severe dyskinesia in the watch-sided arm. <br> - Compliance: for weekly measures: at least three compliant days (with ≥10 hours of data between 8 am and 10 pm), and at least xx hours of gait. |
-| **Tremor**            | - Gyroscope: minimum sampling rate of 100 Hz, minimum range of ± xx degrees/sec, minimum resolution of xx degrees/sec. | - Compliance: for weekly measures: at least three compliant days (with ≥10 hours of data between 8 am and 10 pm). |
-| **Pulse rate**        | - PPG*: minimum sampling rate of 30 Hz, green LED. <br> - Accelerometer: minimum sampling rate of 100 Hz, minimum range of ± xx g, minimum resolution of xx g. | - Population: no rhythm disorders (e.g. atrial fibrillation, atrial flutter). <br> - Compliance: for weekly measures: minimum average of 12 hours of data per day. |
+| **Arm swing during gait** | - Accelerometer: minimum sampling rate of 100 Hz, minimum range of ± 4 g. <br> - Gyroscope: minimum sampling rate of 100 Hz, minimum range of ± 100 degrees/sec. | - Population: no walking aid, no severe dyskinesia in the watch-sided arm. <br> - Compliance: for weekly measures: at least three compliant days (with ≥10 hours of data between 8 am and 10 pm), and at least 2 minutes of arm swing. |
+| **Tremor**            | - Gyroscope: minimum sampling rate of 100 Hz, minimum range of ± 100 degrees/sec. | - Compliance: for weekly measures: at least three compliant days (with ≥10 hours of data between 8 am and 10 pm). |
+| **Pulse rate**        | - PPG*: minimum sampling rate of 30 Hz, green LED. <br> - Accelerometer: minimum sampling rate of 100 Hz, minimum range of ± 4 g. | - Population: no rhythm disorders (e.g. atrial fibrillation, atrial flutter). <br> - Compliance: for weekly measures: minimum average of 12 hours of data per day. |
 
-While the toolbox is designed to work on any wrist sensor device which fulfills the requirements, 
-we have currently verified its performance on data from the Gait-up Physilog 4 (arm swing during gait & tremor) and the Verily Study Watch (all pipelines). 
+\* The processing of PPG signals is currently based on the blood volume pulse (arbitrary units) obtained from the Verily Study Watch, and we are currently testing the applicability of the pipeline to other PPG devices.
+
+> [!WARNING]
+> While the toolbox is designed to work on any wrist sensor device which fulfills the requirements, 
+we have currently verified its performance on data from the Gait-up Physilog 4 (arm swing during gait & tremor) and the Verily Study Watch (all pipelines). Furthermore, the specifications above are the minimally validated requirements. For example, while ParaDigMa works with accelerometer and gyroscope data sampled at 50 Hz, its effect on subsequent processes has not been empirically validated. Similarly, a lower range of sensor data can be processed, but specific features may be affected and impact the outcomes.
 <br/>
 
-We have included support for [TSDF](https://biomarkersparkinson.github.io/tsdf/) as format for loading and storing sensor data. TSDF enables efficient data storage with added metadata. However, ParaDigMa does not require a particular method of data storage and retrieval. Please see our tutorial [Data preparation](https://biomarkersparkinson.github.io/paradigma/tutorials/data_preparation.html) for examples of loading TSDF and other data formats.
+We have included support for [TSDF](https://biomarkersparkinson.github.io/tsdf/) as format for loading and storing sensor data. TSDF enables efficient data storage with added metadata. However, ParaDigMa does not require a particular method of data storage and retrieval. Please see our tutorial [Data preparation](https://biomarkersparkinson.github.io/paradigma/tutorials/data_preparation.html) for examples of loading TSDF and other data formats into memory.
 
 ## Scientific validation
 
 The pipelines were developed and validated using data from the Parkinson@Home Validation study [[Evers et al. 2020]](https://pmc.ncbi.nlm.nih.gov/articles/PMC7584982/) 
-and the Personalized Parkinson Project [[Bloem et al. 2019]](https://pubmed.ncbi.nlm.nih.gov/31315608/).
-
-Details for the different pipelines can be found in the associated scientific publications:
-
-| Pipeline | Reference |
-| ---- | ---- | 
-| Arm swing during gait | #LJWE: INSERT REF | 
-| Tremor | #LJWE: INSERT REF | 
-| Pulse rate | #LJWE: INSERT REF | 
+and the Personalized Parkinson Project [[Bloem et al. 2019]](https://pubmed.ncbi.nlm.nih.gov/31315608/). Details and validation of the different pipelines shall be shared in upcoming scientific publications.
 
 ## Contributing
 
