@@ -11,8 +11,8 @@
 <!-- | **Fairness** |  [![fair-software.eu](https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F-green)](https://fair-software.eu) [![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/8083/badge)](https://www.bestpractices.dev/projects/8083) | --> 
 
 ## Overview
-The Parkinsons Disease Digital Markers (ParaDigMa) toolbox is a Python
-software package designed for processing and analyzing real-life wrist sensor data
+The Parkinson's disease Digital Markers (ParaDigMa) toolbox is a Python
+software package designed for processing real-life wrist sensor data
 to extract digital measures of motor and non-motor signs of Parkinson's disease (PD).  
 
 Specifically, the toolbox is designed to process accelerometer, gyroscope and 
@@ -48,9 +48,9 @@ ParaDigMa can best be understood by categorizing the sequential processes:
 | Aggregation | Aggregating the measures over a specific time period (e.g., week-level aggregates) |
 
 <br/>
-ParaDigMa contains the following processing pipelines (each using the processes described above): 
+ParaDigMa contains the following validated processing pipelines (each using the processes described above): 
 
-| Pipeline | Input | Output Classification | Output Quantification | Output Aggregation | 
+| Pipeline | Input | Output classification | Output quantification | Output week-level aggregation | 
 | ---- | ---- | ---- | ---- | ---- |
 | **Arm swing during gait** | Wrist accelerometer and gyroscope data | Gait probability, gait without other arm activities probability | Arm swing range of motion (RoM) | Typical & maximum arm swing RoM | 
 | **Tremor** | Wrist gyroscope data | Tremor probability | Tremor power | % tremor time, typical & maximum tremor power |   
@@ -78,18 +78,18 @@ Specific requirements include:
 | Pipeline               | Sensor Configuration                                                                                                       | Context of Use                                                                                             |
 |------------------------|--------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
 | **All**               | - Sensor position: wrist-band on most or least affected side (validated for both, but different sensitivity for measuring disease progression for tremor and arm swing during gait).  <br> - Sensor orientation: orientation as described in [Coordinate System](https://biomarkersparkinson.github.io/paradigma/guides/coordinate_system.html). | - Population: persons with PD. <br> - Data collection protocol: passive monitoring in daily life. |
-| **Arm swing during gait** | - Accelerometer: minimum sampling rate of 100 Hz, minimum range of ± 4 g. <br> - Gyroscope: minimum sampling rate of 100 Hz, minimum range of ± 100 degrees/sec. | - Population: no walking aid, no severe dyskinesia in the watch-sided arm. <br> - Compliance: for weekly measures: at least three compliant days (with ≥10 hours of data between 8 am and 10 pm), and at least 2 minutes of arm swing. |
-| **Tremor**            | - Gyroscope: minimum sampling rate of 100 Hz, minimum range of ± 100 degrees/sec. | - Compliance: for weekly measures: at least three compliant days (with ≥10 hours of data between 8 am and 10 pm). |
+| **Arm swing during gait** | - Accelerometer: minimum sampling rate of 100 Hz, minimum range of ± 4 g. <br> - Gyroscope: minimum sampling rate of 100 Hz, minimum range of ± 1000 degrees/sec. | - Population: no walking aid, no severe dyskinesia in the watch-sided arm. <br> - Compliance: for weekly measures: at least three compliant days (with ≥10 hours of data between 8 am and 10 pm), and at least 2 minutes of arm swing. |
+| **Tremor**            | - Gyroscope: minimum sampling rate of 100 Hz, minimum range of ± 1000 degrees/sec. | - Compliance: for weekly measures: at least three compliant days (with ≥10 hours of data between 8 am and 10 pm). |
 | **Pulse rate**        | - PPG*: minimum sampling rate of 30 Hz, green LED. <br> - Accelerometer: minimum sampling rate of 100 Hz, minimum range of ± 4 g. | - Population: no rhythm disorders (e.g. atrial fibrillation, atrial flutter). <br> - Compliance: for weekly measures: minimum average of 12 hours of data per day. |
 
 \* The processing of PPG signals is currently based on the blood volume pulse (arbitrary units) obtained from the Verily Study Watch, and we are currently testing the applicability of the pipeline to other PPG devices.
 
 > [!WARNING]
 > While the toolbox is designed to work on any wrist sensor device which fulfills the requirements, 
-we have currently verified its performance on data from the Gait-up Physilog 4 (arm swing during gait & tremor) and the Verily Study Watch (all pipelines). Furthermore, the specifications above are the minimally validated requirements. For example, while ParaDigMa works with accelerometer and gyroscope data sampled at 50 Hz, its effect on subsequent processes has not been empirically validated. Similarly, a lower range of sensor data can be processed, but specific features may be affected and impact the outcomes.
+we have currently verified its performance on data from the Gait-up Physilog 4 (arm swing during gait & tremor) and the Verily Study Watch (all pipelines). Furthermore, the specifications above are the minimally validated requirements. For example, while ParaDigMa works with accelerometer and gyroscope data sampled at 50 Hz, its effect on subsequent processes has not been empirically validated. 
 <br/>
 
-We have included support for [TSDF](https://biomarkersparkinson.github.io/tsdf/) as format for loading and storing sensor data. TSDF enables efficient data storage with added metadata. However, ParaDigMa does not require a particular method of data storage and retrieval. Please see our tutorial [Data preparation](https://biomarkersparkinson.github.io/paradigma/tutorials/data_preparation.html) for examples of loading TSDF and other data formats into memory.
+We have included support for [TSDF](https://biomarkersparkinson.github.io/tsdf/) as format for loading and storing sensor data. TSDF enables efficient data storage with added metadata. However, ParaDigMa does not require a particular method of data storage and retrieval. Please see our tutorial [Data preparation](https://biomarkersparkinson.github.io/paradigma/tutorials/data_preparation.html) for examples of loading TSDF and other data formats into memory, and for preparing raw sensor data as input for the processing pipelines.
 
 ## Scientific validation
 
@@ -113,4 +113,4 @@ The initial release of ParaDigMa was funded by the Michael J Fox Foundation (gra
 ParaDigMa was created with [`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/) and the `py-pkgs-cookiecutter` [template](https://github.com/py-pkgs/py-pkgs-cookiecutter).
 
 ## Contact
-Questions, issues or suggestions about ParaDigMa? Please reach out to erik.post@radboudumc.nl [#LJWE: let's create a seperate toolbox e-mail address], or open an issue in the GitHub repository.
+Questions, issues or suggestions about ParaDigMa? Please reach out to erik.post@radboudumc.nl, or open an issue in the GitHub repository.
