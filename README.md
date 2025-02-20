@@ -34,9 +34,7 @@ The components of ParaDigMa are shown in the diagram below.
 <p align="center">
   <img src="https://raw.githubusercontent.com/biomarkersParkinson/paradigma/main/docs/source/_static/img/pipeline-architecture.png" alt="Pipeline architeecture"/>
 </p>
-The three colored, shaded columns represent the individual pipelines. Processes of the pipelines are represented by blue ellipses, and input/output data by rectangular boxes. The input/output of each step is indicated by yellow horizontal bars denoting the type of data (e.g., _3. Extracted features_). Arrows indicate the sequential order of the processes of the pipeline.
-
-<br/>
+The three colored, shaded columns represent the individual pipelines. Processes of the pipelines are represented by blue ellipses, and input/output data by rectangular boxes. The input/output of each step is indicated by yellow horizontal bars denoting the type of data (e.g., 3. Extracted features). Arrows indicate the sequential order of the processes of the pipeline. <br/> <br/>
 ParaDigMa can best be understood by categorizing the sequential processes:
 
 | Process | Description |
