@@ -1,5 +1,3 @@
-import tsdf
-import json
 import pandas as pd
 import numpy as np
 from pathlib import Path
@@ -12,7 +10,7 @@ from paradigma.config import TremorConfig
 from paradigma.feature_extraction import compute_mfccs, compute_power_in_bandwidth, compute_total_power, extract_frequency_peak, \
     extract_tremor_power
 from paradigma.segmenting import tabulate_windows, WindowedDataExtractor
-from paradigma.util import get_end_iso8601, write_df_data, read_metadata, aggregate_parameter
+from paradigma.util import aggregate_parameter
 
 
 def extract_tremor_features(df: pd.DataFrame, config: TremorConfig) -> pd.DataFrame:
@@ -182,25 +180,38 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     df_filtered = df.loc[df.pred_arm_at_rest == 1]
     nr_windows_rest = df_filtered.shape[0] # number of windows without non-tremor arm movement
 
-    # calculate tremor time
-    perc_windows_tremor= np.sum(df_filtered['pred_tremor_checked']) / nr_windows_rest * 100 # as percentage of total measured time without non-tremor arm movement
+    if nr_windows_rest == 0: # if no windows without non-tremor arm movement are detected
+        raise Warning('No windows without non-tremor arm movement are detected.')
 
-    # calculate aggregated tremor power measures
-    tremor_power = df_filtered.loc[df_filtered['pred_tremor_checked'] == 1, 'tremor_power']
-    tremor_power = np.log10(tremor_power+1) # convert to log scale
-    aggregated_tremor_power = {}
+    # calculate tremor time
+    n_windows_tremor = np.sum(df_filtered['pred_tremor_checked'])
+    perc_windows_tremor = n_windows_tremor / nr_windows_rest * 100 # as percentage of total measured time without non-tremor arm movement
+
+    aggregated_tremor_power = {} # initialize dictionary to store aggregated tremor power measures
     
-    for aggregate in config.aggregates_tremor_power:
-        aggregate_name = f"{aggregate}_tremor_power"
-        if aggregate == 'mode':
-            # calculate modal tremor power
-            bin_edges = np.linspace(0, 6, 301)
-            kde = gaussian_kde(tremor_power)
-            kde_values = kde(bin_edges)
-            max_index = np.argmax(kde_values)
-            aggregated_tremor_power['modal_tremor_power'] = bin_edges[max_index]
-        else: # calculate te other aggregates (e.g. median and 90th percentile) of tremor power
-            aggregated_tremor_power[aggregate_name] = aggregate_parameter(tremor_power, aggregate)
+    if n_windows_tremor == 0: # if no tremor is detected, the tremor power measures are set to NaN
+
+        aggregated_tremor_power['median_tremor_power'] = np.nan
+        aggregated_tremor_power['modal_tremor_power'] = np.nan
+        aggregated_tremor_power['90p_tremor_power'] = np.nan
+
+    else:
+        
+        # calculate aggregated tremor power measures
+        tremor_power = df_filtered.loc[df_filtered['pred_tremor_checked'] == 1, 'tremor_power']
+        tremor_power = np.log10(tremor_power+1) # convert to log scale
+        
+        for aggregate in config.aggregates_tremor_power:
+            aggregate_name = f"{aggregate}_tremor_power"
+            if aggregate == 'mode':
+                # calculate modal tremor power
+                bin_edges = np.linspace(0, 6, 301)
+                kde = gaussian_kde(tremor_power)
+                kde_values = kde(bin_edges)
+                max_index = np.argmax(kde_values)
+                aggregated_tremor_power['modal_tremor_power'] = bin_edges[max_index]
+            else: # calculate te other aggregates (e.g. median and 90th percentile) of tremor power
+                aggregated_tremor_power[aggregate_name] = aggregate_parameter(tremor_power, aggregate)
     
     # store aggregates in json format
     d_aggregates = {
@@ -246,13 +257,14 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
 
     # Initialize parameters
     sampling_frequency = config.sampling_frequency
-    segment_length_s = config.segment_length_s
+    segment_length_psd_s = config.segment_length_psd_s
+    segment_length_spectrogram_s = config.segment_length_spectrogram_s
     overlap_fraction = config.overlap_fraction
     spectral_resolution = config.spectral_resolution
     window_type = 'hann'
 
     # Compute the power spectral density
-    segment_length_n = sampling_frequency * segment_length_s
+    segment_length_n = sampling_frequency * segment_length_psd_s
     overlap_n = segment_length_n * overlap_fraction
     window = signal.get_window(window_type, segment_length_n, fftbins=False)
     nfft = sampling_frequency / spectral_resolution
@@ -269,8 +281,24 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
         axis=1
     )
 
-    # Compute total power in the PSD (over the three axes)
+    # Compute the spectrogram
+    segment_length_n = sampling_frequency * segment_length_spectrogram_s
+    overlap_n = segment_length_n * overlap_fraction
+    window = signal.get_window(window_type, segment_length_n)
+
+    f, t, S1 = signal.stft(
+        x=data, 
+        fs=sampling_frequency, 
+        window=window, 
+        nperseg=segment_length_n, 
+        noverlap=overlap_n,
+        boundary=None,
+        axis=1
+    )
+
+    # Compute total power in the PSD and the total spectrogram (summed over the three axes)
     total_psd = compute_total_power(psd)
+    total_spectrogram = np.sum(np.abs(S1)*sampling_frequency, axis=2)
 
     # Compute the MFCC's
     config.mfcc_low_frequency = config.fmin_mfcc
@@ -279,8 +307,10 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     config.mfcc_n_coefficients = config.n_coefficients_mfcc
 
     mfccs = compute_mfccs(
-        total_power_array=total_psd,
+        total_power_array=total_spectrogram,
         config=config,
+        total_power_type='spectrogram',
+        rounding_method='round',
         multiplication_factor=1
     )
 
