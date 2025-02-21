@@ -191,7 +191,7 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str, watch_
     )
 
     # Invert the IMU data if the watch was worn on the right wrist
-    df = invert_watch_side(df, watch_side)
+    df = invert_watch_side(df, watch_side, sensor)
     
     if sensor in ['accelerometer', 'both']:
       

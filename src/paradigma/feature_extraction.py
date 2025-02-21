@@ -416,11 +416,13 @@ def compute_spectral_entropy(
 def compute_mfccs(
         total_power_array: np.ndarray, 
         config, 
+        total_power_type: str = 'psd',
         mel_scale: bool = True,
-        multiplication_factor: float = 1
+        multiplication_factor: float = 1,
+        rounding_method: str = 'floor'       
     ) -> np.ndarray:
     """
-    Generate Mel Frequency Cepstral Coefficients (MFCCs) from the total power spectral density of the signal.
+    Generate Mel Frequency Cepstral Coefficients (MFCCs) from the total power spectral density or spectrogram of the signal.
 
     MFCCs are commonly used features in signal processing for tasks like audio and 
     vibration analysis. In this version, we adjusted the MFFCs to the human activity
@@ -433,6 +435,9 @@ def compute_mfccs(
     ----------
     total_power_array : np.ndarray
         2D array of shape (n_windows, n_frequencies) containing the total power 
+        of the signal for each window.
+        OR
+        3D array of shape (n_windows, n_frequencies, n_segments) containing the total spectrogram
         of the signal for each window.
     config : object
         Configuration object containing the following attributes:
@@ -448,11 +453,15 @@ def compute_mfccs(
             Number of triangular filters in the filterbank (default: 20).
         - mfcc_n_coefficients : int
             Number of coefficients to extract (default: 12).
+    total_power_type : str, optional
+        The type of the total power array. Supported values are 'psd' and 'spectrogram' (default: 'psd').
     mel_scale : bool, optional
         Whether to use the mel scale for the filterbank (default: True).
     multiplication_factor : float, optional
         Multiplication factor for the Mel scale conversion (default: 1). For tremor, the recommended
         value is 1. For gait, this is 4.
+    rounding_method : str, optional
+        The method used to round the filter points. Supported values are 'round' and 'floor' (default: 'floor').
 
     Returns
     -------
@@ -466,9 +475,19 @@ def compute_mfccs(
     - The function includes filterbank normalization to ensure proper scaling.
     - DCT filters are constructed to minimize spectral leakage.
     """
+    
+    # Check if total_power_type is either 'psd' or 'spectrogram'
+    if total_power_type not in ['psd', 'spectrogram']:
+        raise ValueError("total_power_type should be set to either 'psd' or 'spectrogram'")
+
     # Compute window length in samples
     window_length = config.window_length_s * config.sampling_frequency
     
+    # Determine the length of subwindows used in the spectrogram computation
+    if total_power_type == 'spectrogram':
+        nr_subwindows = total_power_array.shape[2]
+        window_length = int(window_length/(nr_subwindows - (nr_subwindows - 1) * config.overlap_fraction))
+
     # Generate filter points
     if mel_scale:
         freqs = np.linspace(
@@ -483,10 +502,16 @@ def compute_mfccs(
             config.mfcc_high_frequency, 
             num=config.mfcc_n_dct_filters + 2
         )
+    
+    if rounding_method == 'round':
+        filter_points = np.round(
+            window_length / config.sampling_frequency * freqs
+        ).astype(int)  + 1
 
-    filter_points = np.floor(
-        window_length / config.sampling_frequency * freqs
-    ).astype(int)  + 1
+    elif rounding_method == 'floor':
+        filter_points = np.floor(
+            window_length / config.sampling_frequency * freqs
+        ).astype(int) + 1
 
     # Construct triangular filterbank
     filters = np.zeros((len(filter_points) - 2, int(window_length / 2 + 1)))
@@ -500,8 +525,11 @@ def compute_mfccs(
         ) 
 
     # Apply filterbank to total power
-    power_filtered = np.dot(total_power_array, filters.T) 
-    
+    if total_power_type == 'spectrogram':
+        power_filtered = np.tensordot(total_power_array, filters.T, axes=(1,0))
+    elif total_power_type == 'psd':
+        power_filtered = np.dot(total_power_array, filters.T)
+        
     # Convert power to logarithmic scale
     log_power_filtered = np.log10(power_filtered + 1e-10)
 
@@ -518,6 +546,9 @@ def compute_mfccs(
 
     # Compute MFCCs
     mfccs = np.dot(log_power_filtered, dct_filters.T) 
+
+    if total_power_type == 'spectrogram':
+        mfccs = np.mean(mfccs, axis=1)
 
     return mfccs
 

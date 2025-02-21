@@ -195,11 +195,12 @@ class TremorConfig(IMUConfig):
         # Feature extraction
         # -----------------
         self.window_type = 'hann'
-
-        # Power spectral density
         self.overlap_fraction: float = 0.8
-        self.segment_length_s: float = 3
+        self.segment_length_psd_s: float = 3
+        self.segment_length_spectrogram_s: float = 2
         self.spectral_resolution: float = 0.25
+        
+        # PSD based features
         self.fmin_peak_search: float = 1
         self.fmax_peak_search: float = 25
         self.fmin_below_rest_tremor: float = 0.5
