@@ -66,12 +66,21 @@ jobs:
         name: build-artifacts
         path: dist/
 
+    - name: List files before signing
+      run: ls -lh dist/
+
     - name: Sign the dists with Sigstore
       uses: sigstore/gh-action-sigstore-python@v2.1.1
       with:
         inputs: >-
           ./dist/*.tar.gz
           ./dist/*.whl
+
+    - name: List files after signing
+      run: ls -lh dist/
+
+    - name: Verify dist files before GitHub release
+      run: ls -lh dist/ && sha256sum dist/*
 
     - name: Create GitHub Release
       env:
@@ -82,6 +91,12 @@ jobs:
         "v${VERSION}"
         --repo '${{ github.repository }}'
         --notes ""
+
+    - name: Verify uploaded files on GitHub release
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        VERSION: ${{ needs.build-and-test.outputs.version }}
+      run: gh release view "v${VERSION}" --repo '${{ github.repository }}' --json assets
 
     - name: Upload artifact signatures to GitHub Release
       env:
