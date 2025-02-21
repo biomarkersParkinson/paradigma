@@ -9,6 +9,7 @@
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=77836b02" />
 
   
   <!--[if lt IE 9]>
@@ -57,6 +58,12 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/config.html">Config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul class="current">
@@ -304,13 +311,14 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.util.invert_watch_side">
-<span class="sig-prename descclassname"><span class="pre">paradigma.util.</span></span><span class="sig-name descname"><span class="pre">invert_watch_side</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/util.html#invert_watch_side"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.util.invert_watch_side" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">paradigma.util.</span></span><span class="sig-name descname"><span class="pre">invert_watch_side</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'both'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/util.html#invert_watch_side"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.util.invert_watch_side" title="Link to this definition"></a></dt>
 <dd><p>Invert the data based on the watch side.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The data.</p></li>
 <li><p><strong>side</strong> (<em>str</em>) – The watch side (left or right).</p></li>
+<li><p><strong>sensor</strong> (<em>str</em>) – The sensor(s) to invert: ‘accelerometer’, ‘gyroscope’, or ‘both’</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

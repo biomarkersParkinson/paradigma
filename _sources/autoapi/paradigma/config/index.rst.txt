@@ -251,9 +251,15 @@ Module Contents
 
 
 
-   .. py:attribute:: segment_length_s
+   .. py:attribute:: segment_length_psd_s
       :type:  float
       :value: 3
+
+
+
+   .. py:attribute:: segment_length_spectrogram_s
+      :type:  float
+      :value: 2
 
 
 

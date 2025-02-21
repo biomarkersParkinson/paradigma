@@ -9,6 +9,7 @@
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=77836b02" />
 
   
   <!--[if lt IE 9]>
@@ -25,7 +26,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Gait analysis" href="gait_analysis.html" />
-    <link rel="prev" title="Introduction" href="../index.html" /> 
+    <link rel="prev" title="Overview" href="../index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -69,6 +70,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../guides/config.html">Config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../autoapi/index.html">API Reference</a></li>
@@ -100,10 +107,21 @@
              
   <section id="data-preparation">
 <h1>Data preparation<a class="headerlink" href="#data-preparation" title="Link to this heading"></a></h1>
-<p>ParaDigMa requires the data to be of a specific format. This tutorial provides examples of how to prepare your input data for analysis.</p>
+<p>ParaDigMa requires the sensor data to be of a specific format. This tutorial provides examples of how to prepare your input data for subsequent analysis. In the end, the input for ParaDigMa is a dataframe consisting of:</p>
+<ul class="simple">
+<li><p>A column <code class="docutils literal notranslate"><span class="pre">time</span></code>, representing the seconds relative to the first row of the dataframe;</p></li>
+<li><p>One or multiple of the following sensor column categories:</p>
+<ul>
+<li><p>Accelerometer: <code class="docutils literal notranslate"><span class="pre">accelerometer_x</span></code>, <code class="docutils literal notranslate"><span class="pre">accelerometer_y</span></code> and <code class="docutils literal notranslate"><span class="pre">accelerometer_z</span></code> in <em>g</em></p></li>
+<li><p>Gyroscope: <code class="docutils literal notranslate"><span class="pre">gyroscope_x</span></code>, <code class="docutils literal notranslate"><span class="pre">gyroscope_y</span></code> and <code class="docutils literal notranslate"><span class="pre">gyroscope_z</span></code> in <em>deg/s</em></p></li>
+<li><p>PPG: <code class="docutils literal notranslate"><span class="pre">green</span></code></p></li>
+</ul>
+</li>
+</ul>
+<p>The final dataframe should be resampled to 100 Hz, have the correct units for the sensor columns, and the correct format for the <code class="docutils literal notranslate"><span class="pre">time</span></code> column. Also note that the <em>gait</em> pipeline expects a specific orientation of sensor axes, as explained in <a class="reference internal" href="../guides/coordinate_system.html"><span class="std std-doc">Coordinate system</span></a>.</p>
 <section id="load-data">
 <h2>Load data<a class="headerlink" href="#load-data" title="Link to this heading"></a></h2>
-<p>This example uses data of the <a class="reference external" href="https://pubmed.ncbi.nlm.nih.gov/31315608/">Personalized Parkinson Project</a>, which is stored in Time Series Data Format (TSDF). Inertial Measurements Units (IMU) and photoplethysmography (PPG) data are sampled at a different sampling frequency and therefore stored separately.</p>
+<p>This example uses data of the <a class="reference external" href="https://pubmed.ncbi.nlm.nih.gov/31315608/">Personalized Parkinson Project</a>, which is stored in Time Series Data Format (TSDF). Inertial Measurements Units (IMU) and photoplethysmography (PPG) data are sampled at a different sampling frequency and therefore stored separately. Note that ParaDigMa works independent of data storage format; it only requires a <code class="docutils literal notranslate"><span class="pre">pandas</span></code> dataframe as input.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
@@ -843,7 +861,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../index.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../index.html" class="btn btn-neutral float-left" title="Overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="gait_analysis.html" class="btn btn-neutral float-right" title="Gait analysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

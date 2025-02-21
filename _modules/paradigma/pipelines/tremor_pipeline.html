@@ -8,6 +8,7 @@
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=77836b02" />
 
   
   <!--[if lt IE 9]>
@@ -56,6 +57,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/config.html">Config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
@@ -86,9 +93,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for paradigma.pipelines.tremor_pipeline</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tsdf</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">signal</span>
@@ -100,7 +105,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.feature_extraction</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_mfccs</span><span class="p">,</span> <span class="n">compute_power_in_bandwidth</span><span class="p">,</span> <span class="n">compute_total_power</span><span class="p">,</span> <span class="n">extract_frequency_peak</span><span class="p">,</span> \
     <span class="n">extract_tremor_power</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.segmenting</span><span class="w"> </span><span class="kn">import</span> <span class="n">tabulate_windows</span><span class="p">,</span> <span class="n">WindowedDataExtractor</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_end_iso8601</span><span class="p">,</span> <span class="n">write_df_data</span><span class="p">,</span> <span class="n">read_metadata</span><span class="p">,</span> <span class="n">aggregate_parameter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_parameter</span>
 
 
 <div class="viewcode-block" id="extract_tremor_features">
@@ -278,25 +283,38 @@
     <span class="n">df_filtered</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">pred_arm_at_rest</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
     <span class="n">nr_windows_rest</span> <span class="o">=</span> <span class="n">df_filtered</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># number of windows without non-tremor arm movement</span>
 
-    <span class="c1"># calculate tremor time</span>
-    <span class="n">perc_windows_tremor</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">df_filtered</span><span class="p">[</span><span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="n">nr_windows_rest</span> <span class="o">*</span> <span class="mi">100</span> <span class="c1"># as percentage of total measured time without non-tremor arm movement</span>
+    <span class="k">if</span> <span class="n">nr_windows_rest</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># if no windows without non-tremor arm movement are detected</span>
+        <span class="k">raise</span> <span class="ne">Warning</span><span class="p">(</span><span class="s1">&#39;No windows without non-tremor arm movement are detected.&#39;</span><span class="p">)</span>
 
-    <span class="c1"># calculate aggregated tremor power measures</span>
-    <span class="n">tremor_power</span> <span class="o">=</span> <span class="n">df_filtered</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_filtered</span><span class="p">[</span><span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;tremor_power&#39;</span><span class="p">]</span>
-    <span class="n">tremor_power</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">tremor_power</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># convert to log scale</span>
-    <span class="n">aggregated_tremor_power</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c1"># calculate tremor time</span>
+    <span class="n">n_windows_tremor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">df_filtered</span><span class="p">[</span><span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">])</span>
+    <span class="n">perc_windows_tremor</span> <span class="o">=</span> <span class="n">n_windows_tremor</span> <span class="o">/</span> <span class="n">nr_windows_rest</span> <span class="o">*</span> <span class="mi">100</span> <span class="c1"># as percentage of total measured time without non-tremor arm movement</span>
+
+    <span class="n">aggregated_tremor_power</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># initialize dictionary to store aggregated tremor power measures</span>
     
-    <span class="k">for</span> <span class="n">aggregate</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">aggregates_tremor_power</span><span class="p">:</span>
-        <span class="n">aggregate_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">aggregate</span><span class="si">}</span><span class="s2">_tremor_power&quot;</span>
-        <span class="k">if</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s1">&#39;mode&#39;</span><span class="p">:</span>
-            <span class="c1"># calculate modal tremor power</span>
-            <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">301</span><span class="p">)</span>
-            <span class="n">kde</span> <span class="o">=</span> <span class="n">gaussian_kde</span><span class="p">(</span><span class="n">tremor_power</span><span class="p">)</span>
-            <span class="n">kde_values</span> <span class="o">=</span> <span class="n">kde</span><span class="p">(</span><span class="n">bin_edges</span><span class="p">)</span>
-            <span class="n">max_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">kde_values</span><span class="p">)</span>
-            <span class="n">aggregated_tremor_power</span><span class="p">[</span><span class="s1">&#39;modal_tremor_power&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bin_edges</span><span class="p">[</span><span class="n">max_index</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span> <span class="c1"># calculate te other aggregates (e.g. median and 90th percentile) of tremor power</span>
-            <span class="n">aggregated_tremor_power</span><span class="p">[</span><span class="n">aggregate_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregate_parameter</span><span class="p">(</span><span class="n">tremor_power</span><span class="p">,</span> <span class="n">aggregate</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n_windows_tremor</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># if no tremor is detected, the tremor power measures are set to NaN</span>
+
+        <span class="n">aggregated_tremor_power</span><span class="p">[</span><span class="s1">&#39;median_tremor_power&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">aggregated_tremor_power</span><span class="p">[</span><span class="s1">&#39;modal_tremor_power&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">aggregated_tremor_power</span><span class="p">[</span><span class="s1">&#39;90p_tremor_power&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        
+        <span class="c1"># calculate aggregated tremor power measures</span>
+        <span class="n">tremor_power</span> <span class="o">=</span> <span class="n">df_filtered</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_filtered</span><span class="p">[</span><span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;tremor_power&#39;</span><span class="p">]</span>
+        <span class="n">tremor_power</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">tremor_power</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># convert to log scale</span>
+        
+        <span class="k">for</span> <span class="n">aggregate</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">aggregates_tremor_power</span><span class="p">:</span>
+            <span class="n">aggregate_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">aggregate</span><span class="si">}</span><span class="s2">_tremor_power&quot;</span>
+            <span class="k">if</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s1">&#39;mode&#39;</span><span class="p">:</span>
+                <span class="c1"># calculate modal tremor power</span>
+                <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">301</span><span class="p">)</span>
+                <span class="n">kde</span> <span class="o">=</span> <span class="n">gaussian_kde</span><span class="p">(</span><span class="n">tremor_power</span><span class="p">)</span>
+                <span class="n">kde_values</span> <span class="o">=</span> <span class="n">kde</span><span class="p">(</span><span class="n">bin_edges</span><span class="p">)</span>
+                <span class="n">max_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">kde_values</span><span class="p">)</span>
+                <span class="n">aggregated_tremor_power</span><span class="p">[</span><span class="s1">&#39;modal_tremor_power&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bin_edges</span><span class="p">[</span><span class="n">max_index</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span> <span class="c1"># calculate te other aggregates (e.g. median and 90th percentile) of tremor power</span>
+                <span class="n">aggregated_tremor_power</span><span class="p">[</span><span class="n">aggregate_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregate_parameter</span><span class="p">(</span><span class="n">tremor_power</span><span class="p">,</span> <span class="n">aggregate</span><span class="p">)</span>
     
     <span class="c1"># store aggregates in json format</span>
     <span class="n">d_aggregates</span> <span class="o">=</span> <span class="p">{</span>
@@ -345,13 +363,14 @@
 
     <span class="c1"># Initialize parameters</span>
     <span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span>
-    <span class="n">segment_length_s</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">segment_length_s</span>
+    <span class="n">segment_length_psd_s</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">segment_length_psd_s</span>
+    <span class="n">segment_length_spectrogram_s</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">segment_length_spectrogram_s</span>
     <span class="n">overlap_fraction</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">overlap_fraction</span>
     <span class="n">spectral_resolution</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">spectral_resolution</span>
     <span class="n">window_type</span> <span class="o">=</span> <span class="s1">&#39;hann&#39;</span>
 
     <span class="c1"># Compute the power spectral density</span>
-    <span class="n">segment_length_n</span> <span class="o">=</span> <span class="n">sampling_frequency</span> <span class="o">*</span> <span class="n">segment_length_s</span>
+    <span class="n">segment_length_n</span> <span class="o">=</span> <span class="n">sampling_frequency</span> <span class="o">*</span> <span class="n">segment_length_psd_s</span>
     <span class="n">overlap_n</span> <span class="o">=</span> <span class="n">segment_length_n</span> <span class="o">*</span> <span class="n">overlap_fraction</span>
     <span class="n">window</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">get_window</span><span class="p">(</span><span class="n">window_type</span><span class="p">,</span> <span class="n">segment_length_n</span><span class="p">,</span> <span class="n">fftbins</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">nfft</span> <span class="o">=</span> <span class="n">sampling_frequency</span> <span class="o">/</span> <span class="n">spectral_resolution</span>
@@ -368,8 +387,24 @@
         <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
     <span class="p">)</span>
 
-    <span class="c1"># Compute total power in the PSD (over the three axes)</span>
+    <span class="c1"># Compute the spectrogram</span>
+    <span class="n">segment_length_n</span> <span class="o">=</span> <span class="n">sampling_frequency</span> <span class="o">*</span> <span class="n">segment_length_spectrogram_s</span>
+    <span class="n">overlap_n</span> <span class="o">=</span> <span class="n">segment_length_n</span> <span class="o">*</span> <span class="n">overlap_fraction</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">get_window</span><span class="p">(</span><span class="n">window_type</span><span class="p">,</span> <span class="n">segment_length_n</span><span class="p">)</span>
+
+    <span class="n">f</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">S1</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">stft</span><span class="p">(</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> 
+        <span class="n">fs</span><span class="o">=</span><span class="n">sampling_frequency</span><span class="p">,</span> 
+        <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> 
+        <span class="n">nperseg</span><span class="o">=</span><span class="n">segment_length_n</span><span class="p">,</span> 
+        <span class="n">noverlap</span><span class="o">=</span><span class="n">overlap_n</span><span class="p">,</span>
+        <span class="n">boundary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Compute total power in the PSD and the total spectrogram (summed over the three axes)</span>
     <span class="n">total_psd</span> <span class="o">=</span> <span class="n">compute_total_power</span><span class="p">(</span><span class="n">psd</span><span class="p">)</span>
+    <span class="n">total_spectrogram</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">S1</span><span class="p">)</span><span class="o">*</span><span class="n">sampling_frequency</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
     <span class="c1"># Compute the MFCC&#39;s</span>
     <span class="n">config</span><span class="o">.</span><span class="n">mfcc_low_frequency</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">fmin_mfcc</span>
@@ -378,8 +413,10 @@
     <span class="n">config</span><span class="o">.</span><span class="n">mfcc_n_coefficients</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">n_coefficients_mfcc</span>
 
     <span class="n">mfccs</span> <span class="o">=</span> <span class="n">compute_mfccs</span><span class="p">(</span>
-        <span class="n">total_power_array</span><span class="o">=</span><span class="n">total_psd</span><span class="p">,</span>
+        <span class="n">total_power_array</span><span class="o">=</span><span class="n">total_spectrogram</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="n">total_power_type</span><span class="o">=</span><span class="s1">&#39;spectrogram&#39;</span><span class="p">,</span>
+        <span class="n">rounding_method</span><span class="o">=</span><span class="s1">&#39;round&#39;</span><span class="p">,</span>
         <span class="n">multiplication_factor</span><span class="o">=</span><span class="mi">1</span>
     <span class="p">)</span>
 

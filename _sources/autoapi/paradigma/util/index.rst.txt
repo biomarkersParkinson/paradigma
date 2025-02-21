@@ -133,7 +133,7 @@ Module Contents
    :rtype: np.ndarray
 
 
-.. py:function:: invert_watch_side(df: pandas.DataFrame, side: str) -> numpy.ndarray
+.. py:function:: invert_watch_side(df: pandas.DataFrame, side: str, sensor='both') -> numpy.ndarray
 
    Invert the data based on the watch side.
 
@@ -141,6 +141,8 @@ Module Contents
    :type df: pd.DataFrame
    :param side: The watch side (left or right).
    :type side: str
+   :param sensor: The sensor(s) to invert: 'accelerometer', 'gyroscope', or 'both'
+   :type sensor: str
 
    :returns: The inverted data.
    :rtype: pd.DataFrame

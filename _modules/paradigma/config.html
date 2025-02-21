@@ -8,6 +8,7 @@
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=77836b02" />
 
   
   <!--[if lt IE 9]>
@@ -55,6 +56,12 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
@@ -303,11 +310,12 @@
         <span class="c1"># Feature extraction</span>
         <span class="c1"># -----------------</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window_type</span> <span class="o">=</span> <span class="s1">&#39;hann&#39;</span>
-
-        <span class="c1"># Power spectral density</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">overlap_fraction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.8</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">segment_length_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">segment_length_psd_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">segment_length_spectrogram_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">spectral_resolution</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.25</span>
+        
+        <span class="c1"># PSD based features</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fmin_peak_search</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fmax_peak_search</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">25</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fmin_below_rest_tremor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>

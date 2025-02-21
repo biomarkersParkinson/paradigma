@@ -8,6 +8,7 @@
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=77836b02" />
 
   
   <!--[if lt IE 9]>
@@ -55,6 +56,12 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/config.html">Config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
@@ -452,31 +459,20 @@
 <div class="viewcode-block" id="quantify_arm_swing">
 <a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/gait_pipeline/index.html#paradigma.pipelines.gait_pipeline.quantify_arm_swing">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">quantify_arm_swing</span><span class="p">(</span>
-        <span class="n">df_timestamps</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
-        <span class="n">df_predictions</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
-        <span class="n">classification_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> 
-        <span class="n">window_length_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
         <span class="n">max_segment_gap_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> 
         <span class="n">min_segment_length_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">dfs_to_quantify</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;unfiltered&#39;</span><span class="p">,</span> <span class="s1">&#39;filtered&#39;</span><span class="p">],</span>
+        <span class="n">filtered</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Quantify arm swing parameters for segments of motion based on gyroscope data.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    df_timestamps : pd.DataFrame</span>
-<span class="sd">        A DataFrame containing the raw sensor data, including gyroscope columns.</span>
-
-<span class="sd">    df_predictions : pd.DataFrame</span>
-<span class="sd">        A DataFrame containing the predicted probabilities for no other arm activity per window.</span>
-
-<span class="sd">    classification_threshold : float</span>
-<span class="sd">        The threshold used to classify no other arm activity based on the predicted probabilities.</span>
-
-<span class="sd">    window_length_s : float</span>
-<span class="sd">        The length of the window used for feature extraction.</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        A DataFrame containing the raw sensor data, including gyroscope columns. Should include a column</span>
+<span class="sd">        for predicted no other arm activity based on a fitted threshold if filtered is True.</span>
 
 <span class="sd">    max_segment_gap_s : float</span>
 <span class="sd">        The maximum gap allowed between segments.</span>
@@ -487,45 +483,16 @@
 <span class="sd">    fs : int</span>
 <span class="sd">        The sampling frequency of the sensor data.</span>
 
-<span class="sd">    dfs_to_quantify : List[str] | str, optional</span>
-<span class="sd">        The DataFrames to quantify arm swing parameters for. Options are &#39;unfiltered&#39; and &#39;filtered&#39;, with &#39;unfiltered&#39; being predicted gait, and </span>
-<span class="sd">        &#39;filtered&#39; being predicted gait without other arm activities.</span>
+<span class="sd">    filtered : bool, optional, default=True</span>
+<span class="sd">        If `True`, the gyroscope data is filtered to only include predicted no other arm activity.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    Tuple[dict, dict]</span>
-<span class="sd">        A tuple containing a dictionary with quantified arm swing parameters for dfs_to_quantify, </span>
-<span class="sd">        and a dictionary containing metadata for each segment.</span>
+<span class="sd">    Tuple[pd.DataFrame, dict]</span>
+<span class="sd">        A tuple containing a dataframe with quantified arm swing parameters and a dictionary containing </span>
+<span class="sd">        metadata for each segment.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">df_predictions</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">classification_threshold</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No gait without other arm activity detected in the input data.&quot;</span><span class="p">)</span>
     
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dfs_to_quantify</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">dfs_to_quantify</span> <span class="o">=</span> <span class="p">[</span><span class="n">dfs_to_quantify</span><span class="p">]</span>
-    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dfs_to_quantify</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;dfs_to_quantify must be either &#39;unfiltered&#39;, &#39;filtered&#39;, or a list containing both.&quot;</span><span class="p">)</span>
-
-    <span class="n">valid_values</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;unfiltered&#39;</span><span class="p">,</span> <span class="s1">&#39;filtered&#39;</span><span class="p">}</span>
-    <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">dfs_to_quantify</span><span class="p">)</span> <span class="o">-</span> <span class="n">valid_values</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Invalid value in dfs_to_quantify: </span><span class="si">{</span><span class="n">dfs_to_quantify</span><span class="si">}</span><span class="s2">. &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Valid options are &#39;unfiltered&#39;, &#39;filtered&#39;, or both in a list.&quot;</span>
-        <span class="p">)</span> 
-    
-    <span class="c1"># Merge arm activity predictions with timestamps</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">merge_predictions_with_timestamps</span><span class="p">(</span>
-        <span class="n">df_ts</span><span class="o">=</span><span class="n">df_timestamps</span><span class="p">,</span> 
-        <span class="n">df_predictions</span><span class="o">=</span><span class="n">df_predictions</span><span class="p">,</span> 
-        <span class="n">pred_proba_colname</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">,</span>
-        <span class="n">window_length_s</span><span class="o">=</span><span class="n">window_length_s</span><span class="p">,</span> 
-        <span class="n">fs</span><span class="o">=</span><span class="n">fs</span>
-    <span class="p">)</span>
-
-    <span class="c1"># Add a column for predicted no other arm activity based on a fitted threshold</span>
-    <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">classification_threshold</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-
     <span class="c1"># Group consecutive timestamps into segments, with new segments starting after a pre-specified gap.</span>
     <span class="c1"># Segments are made based on predicted gait</span>
     <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_NR</span><span class="p">]</span> <span class="o">=</span> <span class="n">create_segments</span><span class="p">(</span>
@@ -546,111 +513,98 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No segments found in the input data.&quot;</span><span class="p">)</span>
 
     <span class="c1"># If no arm swing data is remaining, return an empty dictionary</span>
-    <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">filtered</span> <span class="ow">and</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No gait without other arm activities to quantify.&quot;</span><span class="p">)</span>
         
-        <span class="k">if</span> <span class="s1">&#39;filtered&#39;</span> <span class="ow">in</span> <span class="n">dfs_to_quantify</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">dfs_to_quantify</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No gait without other arm activities to quantify.&quot;</span><span class="p">)</span>
-        
-        <span class="n">dfs_to_quantify</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dfs_to_quantify</span> <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="s1">&#39;filtered&#39;</span><span class="p">]</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_CAT</span><span class="p">]</span> <span class="o">=</span> <span class="n">categorize_segments</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
 
-    <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_CAT</span><span class="p">]</span> <span class="o">=</span> <span class="n">categorize_segments</span><span class="p">(</span>
-        <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
-        <span class="n">fs</span><span class="o">=</span><span class="n">fs</span>
-    <span class="p">)</span>
+    <span class="c1"># Group and process segments</span>
+    <span class="n">arm_swing_quantified</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">segment_meta</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">filtered</span><span class="p">:</span>
+        <span class="c1"># Filter the DataFrame to only include predicted no other arm activity (1)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Group consecutive timestamps into segments, with new segments starting after a pre-specified gap</span>
+        <span class="c1"># Now segments are based on predicted gait without other arm activity for subsequent processes</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_NR</span><span class="p">]</span> <span class="o">=</span> <span class="n">create_segments</span><span class="p">(</span>
+            <span class="n">time_array</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">],</span> 
+            <span class="n">max_segment_gap_s</span><span class="o">=</span><span class="n">max_segment_gap_s</span>
+        <span class="p">)</span>
+
+        <span class="n">pred_colname_pca</span> <span class="o">=</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pred_colname_pca</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">VELOCITY</span><span class="p">]</span> <span class="o">=</span> <span class="n">pca_transform_gyroscope</span><span class="p">(</span>
         <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
         <span class="n">y_gyro_colname</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Y</span><span class="p">,</span>
         <span class="n">z_gyro_colname</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Z</span><span class="p">,</span>
-        <span class="n">pred_colname</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span>
+        <span class="n">pred_colname</span><span class="o">=</span><span class="n">pred_colname_pca</span>
     <span class="p">)</span>
 
-    <span class="c1"># Group and process segments</span>
-    <span class="n">arm_swing_quantified</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">segment_meta</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">segment_nr</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_NR</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">segment_cat</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_CAT</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">time_array</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="n">velocity_array</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">VELOCITY</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 
-    <span class="c1"># If both unfiltered and filtered gait are to be quantified, start with the unfiltered data</span>
-    <span class="c1"># and subset to get filtered data afterwards.</span>
-    <span class="n">dfs_to_quantify</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dfs_to_quantify</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Integrate the angular velocity to obtain an estimation of the angle</span>
+        <span class="n">angle_array</span> <span class="o">=</span> <span class="n">compute_angle</span><span class="p">(</span>
+            <span class="n">time_array</span><span class="o">=</span><span class="n">time_array</span><span class="p">,</span>
+            <span class="n">velocity_array</span><span class="o">=</span><span class="n">velocity_array</span><span class="p">,</span>
+        <span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">df_name</span> <span class="ow">in</span> <span class="n">dfs_to_quantify</span><span class="p">:</span>    
-        <span class="k">if</span> <span class="n">df_name</span> <span class="o">==</span> <span class="s1">&#39;filtered&#39;</span><span class="p">:</span>
-            <span class="c1"># Filter the DataFrame to only include predicted no other arm activity (1)</span>
-            <span class="n">df_focus</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Detrend angle using moving average</span>
+        <span class="n">angle_array</span> <span class="o">=</span> <span class="n">remove_moving_average_angle</span><span class="p">(</span>
+            <span class="n">angle_array</span><span class="o">=</span><span class="n">angle_array</span><span class="p">,</span>
+            <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+        <span class="p">)</span>
 
-            <span class="c1"># Group consecutive timestamps into segments, with new segments starting after a pre-specified gap</span>
-            <span class="c1"># Now segments are based on predicted gait without other arm activity for subsequent processes</span>
-            <span class="n">df_focus</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_NR</span><span class="p">]</span> <span class="o">=</span> <span class="n">create_segments</span><span class="p">(</span>
-                <span class="n">time_array</span><span class="o">=</span><span class="n">df_focus</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">],</span> 
-                <span class="n">max_segment_gap_s</span><span class="o">=</span><span class="n">max_segment_gap_s</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">df_focus</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">segment_meta</span><span class="p">[</span><span class="n">segment_nr</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;time_s&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">angle_array</span><span class="p">)</span> <span class="o">/</span> <span class="n">fs</span><span class="p">,</span>
+            <span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_CAT</span><span class="p">:</span> <span class="n">segment_cat</span>
+        <span class="p">}</span>
 
-        <span class="n">arm_swing_quantified</span><span class="p">[</span><span class="n">df_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">segment_meta</span><span class="p">[</span><span class="n">df_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-
-        <span class="k">for</span> <span class="n">segment_nr</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">df_focus</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_NR</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-            <span class="n">segment_cat</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_CAT</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">time_array</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-            <span class="n">velocity_array</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">VELOCITY</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-
-            <span class="c1"># Integrate the angular velocity to obtain an estimation of the angle</span>
-            <span class="n">angle_array</span> <span class="o">=</span> <span class="n">compute_angle</span><span class="p">(</span>
-                <span class="n">time_array</span><span class="o">=</span><span class="n">time_array</span><span class="p">,</span>
-                <span class="n">velocity_array</span><span class="o">=</span><span class="n">velocity_array</span><span class="p">,</span>
-            <span class="p">)</span>
-
-            <span class="c1"># Detrend angle using moving average</span>
-            <span class="n">angle_array</span> <span class="o">=</span> <span class="n">remove_moving_average_angle</span><span class="p">(</span>
+        <span class="k">if</span> <span class="n">angle_array</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>  
+            <span class="n">angle_extrema_indices</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">extract_angle_extremes</span><span class="p">(</span>
                 <span class="n">angle_array</span><span class="o">=</span><span class="n">angle_array</span><span class="p">,</span>
-                <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+                <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+                <span class="n">max_frequency_activity</span><span class="o">=</span><span class="mf">1.75</span>
             <span class="p">)</span>
 
-            <span class="n">segment_meta</span><span class="p">[</span><span class="n">df_name</span><span class="p">][</span><span class="n">segment_nr</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s1">&#39;time_s&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">angle_array</span><span class="p">)</span> <span class="o">/</span> <span class="n">fs</span><span class="p">,</span>
-                <span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_CAT</span><span class="p">:</span> <span class="n">segment_cat</span>
-            <span class="p">}</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">angle_extrema_indices</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># Requires at minimum 2 peaks</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">rom</span> <span class="o">=</span> <span class="n">compute_range_of_motion</span><span class="p">(</span>
+                        <span class="n">angle_array</span><span class="o">=</span><span class="n">angle_array</span><span class="p">,</span>
+                        <span class="n">extrema_indices</span><span class="o">=</span><span class="n">angle_extrema_indices</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="c1"># Handle the error, set RoM to NaN, and log the error</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error computing range of motion for segment </span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">rom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">])</span>
 
-            <span class="k">if</span> <span class="n">angle_array</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>  
-                <span class="n">angle_extrema_indices</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">extract_angle_extremes</span><span class="p">(</span>
-                    <span class="n">angle_array</span><span class="o">=</span><span class="n">angle_array</span><span class="p">,</span>
-                    <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
-                    <span class="n">max_frequency_activity</span><span class="o">=</span><span class="mf">1.75</span>
-                <span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">pav</span> <span class="o">=</span> <span class="n">compute_peak_angular_velocity</span><span class="p">(</span>
+                        <span class="n">velocity_array</span><span class="o">=</span><span class="n">velocity_array</span><span class="p">,</span>
+                        <span class="n">angle_extrema_indices</span><span class="o">=</span><span class="n">angle_extrema_indices</span>
+                    <span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="c1"># Handle the error, set pav to NaN, and log the error</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error computing peak angular velocity for segment </span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">pav</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">])</span>
 
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">angle_extrema_indices</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># Requires at minimum 2 peaks</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">rom</span> <span class="o">=</span> <span class="n">compute_range_of_motion</span><span class="p">(</span>
-                            <span class="n">angle_array</span><span class="o">=</span><span class="n">angle_array</span><span class="p">,</span>
-                            <span class="n">extrema_indices</span><span class="o">=</span><span class="n">angle_extrema_indices</span><span class="p">,</span>
-                        <span class="p">)</span>
-                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                        <span class="c1"># Handle the error, set RoM to NaN, and log the error</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error computing range of motion for segment </span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                        <span class="n">rom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">])</span>
+                <span class="n">df_params_segment</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+                    <span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_NR</span><span class="p">:</span> <span class="n">segment_nr</span><span class="p">,</span>
+                    <span class="n">DataColumns</span><span class="o">.</span><span class="n">RANGE_OF_MOTION</span><span class="p">:</span> <span class="n">rom</span><span class="p">,</span>
+                    <span class="n">DataColumns</span><span class="o">.</span><span class="n">PEAK_VELOCITY</span><span class="p">:</span> <span class="n">pav</span>
+                <span class="p">})</span>
 
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">pav</span> <span class="o">=</span> <span class="n">compute_peak_angular_velocity</span><span class="p">(</span>
-                            <span class="n">velocity_array</span><span class="o">=</span><span class="n">velocity_array</span><span class="p">,</span>
-                            <span class="n">angle_extrema_indices</span><span class="o">=</span><span class="n">angle_extrema_indices</span>
-                        <span class="p">)</span>
-                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                        <span class="c1"># Handle the error, set pav to NaN, and log the error</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error computing peak angular velocity for segment </span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                        <span class="n">pav</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">])</span>
+                <span class="n">arm_swing_quantified</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df_params_segment</span><span class="p">)</span>
 
-                    <span class="n">df_params_segment</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-                        <span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_NR</span><span class="p">:</span> <span class="n">segment_nr</span><span class="p">,</span>
-                        <span class="n">DataColumns</span><span class="o">.</span><span class="n">RANGE_OF_MOTION</span><span class="p">:</span> <span class="n">rom</span><span class="p">,</span>
-                        <span class="n">DataColumns</span><span class="o">.</span><span class="n">PEAK_VELOCITY</span><span class="p">:</span> <span class="n">pav</span>
-                    <span class="p">})</span>
-
-                    <span class="n">arm_swing_quantified</span><span class="p">[</span><span class="n">df_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df_params_segment</span><span class="p">)</span>
-
-        <span class="n">arm_swing_quantified</span><span class="p">[</span><span class="n">df_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">arm_swing_quantified</span><span class="p">[</span><span class="n">df_name</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">arm_swing_quantified</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">arm_swing_quantified</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             
-    <span class="k">return</span> <span class="p">{</span><span class="n">df_name</span><span class="p">:</span> <span class="n">arm_swing_quantified</span><span class="p">[</span><span class="n">df_name</span><span class="p">]</span> <span class="k">for</span> <span class="n">df_name</span> <span class="ow">in</span> <span class="n">dfs_to_quantify</span><span class="p">},</span> <span class="n">segment_meta</span></div>
+    <span class="k">return</span> <span class="n">arm_swing_quantified</span><span class="p">,</span> <span class="n">segment_meta</span></div>
 
 
 

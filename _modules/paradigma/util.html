@@ -8,6 +8,7 @@
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=77836b02" />
 
   
   <!--[if lt IE 9]>
@@ -55,6 +56,12 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
@@ -408,7 +415,7 @@
 
 <div class="viewcode-block" id="invert_watch_side">
 <a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.invert_watch_side">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">invert_watch_side</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">side</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">invert_watch_side</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">side</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sensor</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Invert the data based on the watch side.</span>
 
@@ -418,6 +425,8 @@
 <span class="sd">        The data.</span>
 <span class="sd">    side : str</span>
 <span class="sd">        The watch side (left or right).</span>
+<span class="sd">    sensor: str</span>
+<span class="sd">        The sensor(s) to invert: &#39;accelerometer&#39;, &#39;gyroscope&#39;, or &#39;both&#39;</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -427,10 +436,15 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">side</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported side: </span><span class="si">{</span><span class="n">side</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sensor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;accelerometer&#39;</span><span class="p">,</span> <span class="s1">&#39;gyroscope&#39;</span><span class="p">,</span> <span class="s1">&#39;both&#39;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported sensor: </span><span class="si">{</span><span class="n">sensor</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
     <span class="k">elif</span> <span class="n">side</span> <span class="o">==</span> <span class="s2">&quot;right&quot;</span><span class="p">:</span>
-        <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Y</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
-        <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Z</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
-        <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="n">sensor</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;gyroscope&#39;</span><span class="p">,</span> <span class="s1">&#39;both&#39;</span><span class="p">]:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Y</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Z</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="n">sensor</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;accelerometer&#39;</span><span class="p">,</span> <span class="s1">&#39;both&#39;</span><span class="p">]:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
 
     <span class="k">return</span> <span class="n">df</span></div>
 

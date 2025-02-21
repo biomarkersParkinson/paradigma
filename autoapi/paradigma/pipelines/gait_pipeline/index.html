@@ -9,6 +9,7 @@
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=77836b02" />
 
   
   <!--[if lt IE 9]>
@@ -58,6 +59,12 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../guides/config.html">Config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul class="current">
@@ -268,28 +275,25 @@ temporal, and spectral features.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.pipelines.gait_pipeline.quantify_arm_swing">
-<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.gait_pipeline.</span></span><span class="sig-name descname"><span class="pre">quantify_arm_swing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_timestamps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_predictions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classification_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_length_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_segment_gap_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_segment_length_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dfs_to_quantify</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['unfiltered',</span> <span class="pre">'filtered']</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/gait_pipeline.html#quantify_arm_swing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.gait_pipeline.quantify_arm_swing" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.gait_pipeline.</span></span><span class="sig-name descname"><span class="pre">quantify_arm_swing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_segment_gap_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_segment_length_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtered</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/gait_pipeline.html#quantify_arm_swing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.gait_pipeline.quantify_arm_swing" title="Link to this definition"></a></dt>
 <dd><p>Quantify arm swing parameters for segments of motion based on gyroscope data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df_timestamps</strong> (<em>pd.DataFrame</em>) – A DataFrame containing the raw sensor data, including gyroscope columns.</p></li>
-<li><p><strong>df_predictions</strong> (<em>pd.DataFrame</em>) – A DataFrame containing the predicted probabilities for no other arm activity per window.</p></li>
-<li><p><strong>classification_threshold</strong> (<em>float</em>) – The threshold used to classify no other arm activity based on the predicted probabilities.</p></li>
-<li><p><strong>window_length_s</strong> (<em>float</em>) – The length of the window used for feature extraction.</p></li>
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing the raw sensor data, including gyroscope columns. Should include a column
+for predicted no other arm activity based on a fitted threshold if filtered is True.</p></li>
 <li><p><strong>max_segment_gap_s</strong> (<em>float</em>) – The maximum gap allowed between segments.</p></li>
 <li><p><strong>min_segment_length_s</strong> (<em>float</em>) – The minimum length required for a segment to be considered valid.</p></li>
 <li><p><strong>fs</strong> (<em>int</em>) – The sampling frequency of the sensor data.</p></li>
-<li><p><strong>dfs_to_quantify</strong> (<em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>str</em><em>, </em><em>optional</em>) – The DataFrames to quantify arm swing parameters for. Options are ‘unfiltered’ and ‘filtered’, with ‘unfiltered’ being predicted gait, and
-‘filtered’ being predicted gait without other arm activities.</p></li>
+<li><p><strong>filtered</strong> (<em>bool</em><em>, </em><em>optional</em><em>, </em><em>default=True</em>) – If <cite>True</cite>, the gyroscope data is filtered to only include predicted no other arm activity.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A tuple containing a dictionary with quantified arm swing parameters for dfs_to_quantify,
-and a dictionary containing metadata for each segment.</p>
+<dd class="field-even"><p>A tuple containing a dataframe with quantified arm swing parameters and a dictionary containing
+metadata for each segment.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Tuple[dict, dict]</p>
+<dd class="field-odd"><p>Tuple[pd.DataFrame, dict]</p>
 </dd>
 </dl>
 </dd></dl>

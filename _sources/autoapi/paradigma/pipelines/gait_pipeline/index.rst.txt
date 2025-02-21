@@ -122,31 +122,25 @@ Module Contents
    :rtype: pd.Series
 
 
-.. py:function:: quantify_arm_swing(df_timestamps: pandas.DataFrame, df_predictions: pandas.DataFrame, classification_threshold: float, window_length_s: float, max_segment_gap_s: float, min_segment_length_s: float, fs: int, dfs_to_quantify: List[str] | str = ['unfiltered', 'filtered']) -> Tuple[dict[str, pandas.DataFrame], dict]
+.. py:function:: quantify_arm_swing(df: pandas.DataFrame, max_segment_gap_s: float, min_segment_length_s: float, fs: int, filtered: bool = False) -> Tuple[dict[str, pandas.DataFrame], dict]
 
    Quantify arm swing parameters for segments of motion based on gyroscope data.
 
-   :param df_timestamps: A DataFrame containing the raw sensor data, including gyroscope columns.
-   :type df_timestamps: pd.DataFrame
-   :param df_predictions: A DataFrame containing the predicted probabilities for no other arm activity per window.
-   :type df_predictions: pd.DataFrame
-   :param classification_threshold: The threshold used to classify no other arm activity based on the predicted probabilities.
-   :type classification_threshold: float
-   :param window_length_s: The length of the window used for feature extraction.
-   :type window_length_s: float
+   :param df: A DataFrame containing the raw sensor data, including gyroscope columns. Should include a column
+              for predicted no other arm activity based on a fitted threshold if filtered is True.
+   :type df: pd.DataFrame
    :param max_segment_gap_s: The maximum gap allowed between segments.
    :type max_segment_gap_s: float
    :param min_segment_length_s: The minimum length required for a segment to be considered valid.
    :type min_segment_length_s: float
    :param fs: The sampling frequency of the sensor data.
    :type fs: int
-   :param dfs_to_quantify: The DataFrames to quantify arm swing parameters for. Options are 'unfiltered' and 'filtered', with 'unfiltered' being predicted gait, and
-                           'filtered' being predicted gait without other arm activities.
-   :type dfs_to_quantify: List[str] | str, optional
+   :param filtered: If `True`, the gyroscope data is filtered to only include predicted no other arm activity.
+   :type filtered: bool, optional, default=True
 
-   :returns: A tuple containing a dictionary with quantified arm swing parameters for dfs_to_quantify,
-             and a dictionary containing metadata for each segment.
-   :rtype: Tuple[dict, dict]
+   :returns: A tuple containing a dataframe with quantified arm swing parameters and a dictionary containing
+             metadata for each segment.
+   :rtype: Tuple[pd.DataFrame, dict]
 
 
 .. py:function:: aggregate_arm_swing_params(df_arm_swing_params: pandas.DataFrame, segment_meta: dict, aggregates: List[str] = ['median']) -> dict

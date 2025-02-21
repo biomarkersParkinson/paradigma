@@ -9,6 +9,7 @@
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=77836b02" />
 
   
   <!--[if lt IE 9]>
@@ -58,6 +59,12 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/config.html">Config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul class="current">
@@ -141,7 +148,7 @@
 <td><p>Calculate the spectral entropy from the normalized power spectral density.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#paradigma.feature_extraction.compute_mfccs" title="paradigma.feature_extraction.compute_mfccs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_mfccs</span></code></a>(→ numpy.ndarray)</p></td>
-<td><p>Generate Mel Frequency Cepstral Coefficients (MFCCs) from the total power spectral density of the signal.</p></td>
+<td><p>Generate Mel Frequency Cepstral Coefficients (MFCCs) from the total power spectral density or spectrogram of the signal.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.feature_extraction.melscale" title="paradigma.feature_extraction.melscale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">melscale</span></code></a>(→ numpy.ndarray)</p></td>
 <td><p>Maps linear frequency values to the Mel scale.</p></td>
@@ -433,8 +440,8 @@ attributes are used:
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.feature_extraction.compute_mfccs">
-<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">compute_mfccs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">total_power_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mel_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplication_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_mfccs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.compute_mfccs" title="Link to this definition"></a></dt>
-<dd><p>Generate Mel Frequency Cepstral Coefficients (MFCCs) from the total power spectral density of the signal.</p>
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">compute_mfccs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">total_power_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_power_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'psd'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mel_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplication_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rounding_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'floor'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_mfccs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.compute_mfccs" title="Link to this definition"></a></dt>
+<dd><p>Generate Mel Frequency Cepstral Coefficients (MFCCs) from the total power spectral density or spectrogram of the signal.</p>
 <p>MFCCs are commonly used features in signal processing for tasks like audio and
 vibration analysis. In this version, we adjusted the MFFCs to the human activity
 range according to: <a class="reference external" href="https://www.sciencedirect.com/science/article/abs/pii/S016516841500331X#f0050">https://www.sciencedirect.com/science/article/abs/pii/S016516841500331X#f0050</a>.
@@ -445,6 +452,9 @@ followed by a Discrete Cosine Transform (DCT) to obtain coefficients.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>total_power_array</strong> (<em>np.ndarray</em>) – 2D array of shape (n_windows, n_frequencies) containing the total power
+of the signal for each window.
+OR
+3D array of shape (n_windows, n_frequencies, n_segments) containing the total spectrogram
 of the signal for each window.</p></li>
 <li><p><strong>config</strong> (<em>object</em>) – <p>Configuration object containing the following attributes:
 - window_length_s : int</p>
@@ -479,9 +489,11 @@ of the signal for each window.</p></li>
 </li>
 </ul>
 </p></li>
+<li><p><strong>total_power_type</strong> (<em>str</em><em>, </em><em>optional</em>) – The type of the total power array. Supported values are ‘psd’ and ‘spectrogram’ (default: ‘psd’).</p></li>
 <li><p><strong>mel_scale</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use the mel scale for the filterbank (default: True).</p></li>
 <li><p><strong>multiplication_factor</strong> (<em>float</em><em>, </em><em>optional</em>) – Multiplication factor for the Mel scale conversion (default: 1). For tremor, the recommended
 value is 1. For gait, this is 4.</p></li>
+<li><p><strong>rounding_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The method used to round the filter points. Supported values are ‘round’ and ‘floor’ (default: ‘floor’).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
