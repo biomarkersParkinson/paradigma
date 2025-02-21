@@ -1,7 +1,4 @@
-# This CITATION.cff file was generated with cffinit.
-# Visit https://bit.ly/cffinit to generate yours today!
-
-cff-version: 1.2.0
+cff-version: 1.3.0
 title: >-
   ParaDigMa: Parkinson's Disease Digital Markers Toolbox
 message: >-
@@ -10,65 +7,104 @@ message: >-
 type: software
 authors:
 - given-names: Erik
-    family-names: Post
-    email: erik.post@radboudumc.nl
-    affiliation: >-
-      Radboud University, Nijmegen, Netherlands; Radboud
-      University Medical Center, Nijmegen, Netherlands
-    orcid: 'https://orcid.org/0000-0002-1937-9976'
-  - given-names: Kars
-    family-names: Veldkamp
-    email: Kars.Veldkamp@radboudumc.nl
-    affiliation: >-
-      Radboud University Medical Center, Nijmegen,
-      Netherlands
-  - given-names: Nienke
-    family-names: Timmermans
-    email: nienke.timmermans@radboudumc.nl
-    affiliation: >-
-      Radboud University Medical Center, Nijmegen,
-      Netherlands
-  - given-names: Diogo
-    family-names: Soriano
-    email: diogo.soriano@ufabc.edu.br
-    affiliation: >-
-      Center for Engineering, Modeling and Applied Social
-      Sciences (CECS), Federal University of ABC (UFABC),
-      Brazil
-  - given-names: Vedran
-    family-names: Kasalica
-    email: v.kasalica@esciencecenter.nl
-    affiliation: Netherlands eScience Center
-    orcid: 'https://orcid.org/0000-0002-0097-1056'
-  - given-names: Peter
-    family-names: Kok
-    email: p.kok@esciencecenter.nl
-    affiliation: Netherlands eScience Center
-    orcid: 'https://orcid.org/0000-0002-6630-7326'
-  - given-names: Luc J.W.
-    family-names: Evers
-    email: luc.evers@radboudumc.nl
-    affiliation: >-
-      Radboud University, Nijmegen, Netherlands; Radboud
-      University Medical Center, Nijmegen, Netherlands
-    orcid: 'https://orcid.org/0000-0002-8241-5087'
+  family-names: Post
+  email: erik.post@radboudumc.nl
+  affiliation: >-
+    Radboud University, Nijmegen, Netherlands; Radboud
+    University Medical Center, Nijmegen, Netherlands
+  orcid: 'https://orcid.org/0000-0002-1937-9976'
+
+- given-names: Kars
+  family-names: Veldkamp
+  email: Kars.Veldkamp@radboudumc.nl
+  affiliation: >-
+    Radboud University Medical Center, Nijmegen,
+    Netherlands
+
+- given-names: Nienke
+  family-names: Timmermans
+  email: nienke.timmermans@radboudumc.nl
+  affiliation: >-
+    Radboud University Medical Center, Nijmegen,
+    Netherlands
+
+- given-names: Diogo
+  family-names: Soriano
+  email: diogo.soriano@ufabc.edu.br
+  affiliation: >-
+    Center for Engineering, Modeling and Applied Social
+    Sciences (CECS), Federal University of ABC (UFABC),
+    Brazil
+
+- given-names: Vedran
+  family-names: Kasalica
+  email: v.kasalica@esciencecenter.nl
+  affiliation: Netherlands eScience Center
+  orcid: 'https://orcid.org/0000-0002-0097-1056'
+
+- given-names: Peter
+  family-names: Kok
+  email: p.kok@esciencecenter.nl
+  affiliation: Netherlands eScience Center
+  orcid: 'https://orcid.org/0000-0002-6630-7326'
+
+- given-names: Hayriye
+  family-names: Cagnan
+  email: h.cagnan@imperial.ac.uk
+  affiliation: Imperial College London
+  orcid: 'https://orcid.org/0000-0002-1641-115X'
+
+- given-names: Bastiaan R.
+  family-names: Bloem
+  email: bas.bloem@radboudumc.nl
+  affiliation: >-
+    Radboud University Medical Center, Nijmegen,
+    Netherlands
+
+- given-names: Max A.
+  family-names: Little
+  email: max.a.little@gmail.com
+  affiliation: University of Birmingham
+
+- given-names: Jordan P.
+  family-names: Raykov
+  email: yordan.raykov@gmail.com
+  affiliation: University of Nottingham
+  orcid: 'https://orcid.org/0000-0003-0753-717X'
+
+- given-names: Twan
+  family-names: van Laarhoven
+  email: tvanlaarhoven@cs.ru.nl
+  affiliation: Radboud University, Nijmegen, Netherlands
+  orcid: 'https://orcid.org/0000-0001-7597-0579'
+
+- given-names: Luc J.W.
+  family-names: Evers
+  email: luc.evers@radboudumc.nl
+  affiliation: >-
+    Radboud University, Nijmegen, Netherlands; Radboud
+    University Medical Center, Nijmegen, Netherlands
+  orcid: 'https://orcid.org/0000-0002-8241-5087'
+
 repository-code: 'https://github.com/biomarkersParkinson/paradigma'
 url: 'https://biomarkersparkinson.github.io/paradigma/'
 abstract: >-
-  The Parkinsons Disease Digital Markers (ParaDigMa) toolbox is a Python
-  software package designed for processing passively collected wrist 
-  sensor data to extract digital measures of motor and non-motor signs
-  of Parkinson's disease (PD).  
-  
-  Specifically, the toolbox contains three data processing pipelines: 
-  (1) arm swing during gait, (2) tremor, and (3) heart rate analysis.
-  Furthermore, the toolbox contains general functionalities for signal
-  processing and feature extraction, such as filtering, peak detection,
-  and spectral analysis. The toolbox is designed to be user-friendly and
-  modular, enabling researchers to easily extend the toolbox with new
-  algorithms and functionalities. The toolbox is accompanied by a set of
-  example scripts and notebooks for each domain that demonstrate how to use
-  the toolbox for processing sensor data and extracting digital measures.
+  The Parkinsons disease Digital Markers (ParaDigMa) toolbox is a Python software 
+  package designed for processing and analyzing real-life wrist sensor data to 
+  extract digital measures of motor and non-motor signs of Parkinson's disease (PD).  
+
+  Specifically, the toolbox is designed to process accelerometer, gyroscope and  
+  photoplethysmography signals, collected during passive monitoring in daily life.  
+  It contains three data processing pipelines: (1) arm swing during gait, (2) tremor,  
+  and (3) pulse rate analysis. These pipelines are scientifically validated for their 
+  use in persons with PD. Furthermore, the toolbox contains general functionalities 
+  for signal processing and feature extraction, such as filtering, peak detection, and 
+  spectral analysis. 
+
+  The toolbox is accompanied by a set of example scripts and notebooks for each 
+  processing pipeline that demonstrate how to use the toolbox for extracting digital 
+  measures. In addition, the toolbox is designed to be modular, enabling researchers 
+  to easily extend the toolbox with new algorithms and functionalities.
 
 keywords:
   - parkinson's disease
