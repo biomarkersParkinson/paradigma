@@ -89,7 +89,7 @@ authors:
 repository-code: 'https://github.com/biomarkersParkinson/paradigma'
 url: 'https://biomarkersparkinson.github.io/paradigma/'
 abstract: >-
-  The Parkinsons disease Digital Markers (ParaDigMa) toolbox is a Python software 
+  The Parkinson's disease Digital Markers (ParaDigMa) toolbox is a Python software 
   package designed for processing and analyzing real-life wrist sensor data to 
   extract digital measures of motor and non-motor signs of Parkinson's disease (PD).  
 
