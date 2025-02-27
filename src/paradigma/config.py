@@ -269,7 +269,7 @@ class HeartRateConfig(PPGConfig):
         # ---------------------
         self.set_tfd_length(min_window_length_s)  # Set tfd length to default of 30 seconds
         self.threshold_sqa = 0.5
-        self.threshold_sqa_accelerometer = 0.13
+        self.threshold_sqa_accelerometer = 0.10
 
         hr_est_length = 2
         self.hr_est_samples = hr_est_length * self.sampling_frequency
