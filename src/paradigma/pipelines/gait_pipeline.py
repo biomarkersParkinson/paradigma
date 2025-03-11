@@ -473,6 +473,7 @@ def quantify_arm_swing(
                     pav = np.array([np.nan])
 
                 df_params_segment = pd.DataFrame({
+                    DataColumns.SEGMENT_NR: segment_nr,
                     DataColumns.SEGMENT_CAT: segment_cat,
                     DataColumns.RANGE_OF_MOTION: rom,
                     DataColumns.PEAK_VELOCITY: pav
