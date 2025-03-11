@@ -384,16 +384,6 @@ def quantify_arm_swing(
     # before filtering the DataFrame to only include predicted no other arm activity
     df[DataColumns.SEGMENT_CAT] = categorize_segments(df=df, fs=fs)
 
-    arm_swing_quantified = []
-    segment_meta = {
-        'aggregated': {
-            'all': {
-                'time_s': len(df[DataColumns.TIME]) / fs
-            },
-        },
-        'per_segment': {}
-    }
-
     if filtered:
         # Filter the DataFrame to only include predicted no other arm activity (1)
         df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True)
@@ -412,6 +402,16 @@ def quantify_arm_swing(
             min_segment_length_s=1.5,
             fs=fs,
         )
+
+    arm_swing_quantified = []
+    segment_meta = {
+        'aggregated': {
+            'all': {
+                'time_s': len(df[DataColumns.TIME]) / fs
+            },
+        },
+        'per_segment': {}
+    }
 
     # PCA is fitted on only predicted gait without other arm activity if filtered, otherwise
     # it is fitted on the entire gyroscope data
