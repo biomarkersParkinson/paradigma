@@ -411,11 +411,17 @@ def quantify_arm_swing(
 
     # Group and process segments
     arm_swing_quantified = []
-    segment_meta = {}
+    segment_meta = {
+        'all': {
+            'pred_gait_s': len(df[DataColumns.TIME]) / fs
+        }
+    }
 
     if filtered:
         # Filter the DataFrame to only include predicted no other arm activity (1)
         df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True)
+
+        segment_meta['all']['pred_no_other_arm_activity_s'] = len(df[DataColumns.TIME]) / fs
 
         # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
         # Now segments are based on predicted gait without other arm activity for subsequent processes
