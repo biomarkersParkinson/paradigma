@@ -490,7 +490,7 @@ def quantify_arm_swing(
 
     arm_swing_quantified = pd.concat(arm_swing_quantified, ignore_index=True)
             
-    return arm_swing_quantified, segment_meta['aggregated']
+    return arm_swing_quantified, segment_meta
 
 
 def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: dict, aggregates: List[str] = ['median']) -> dict:
