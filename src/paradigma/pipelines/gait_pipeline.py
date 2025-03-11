@@ -351,8 +351,6 @@ def filter_gait(
 
 def quantify_arm_swing(
         df: pd.DataFrame, 
-        max_segment_gap_s: float, 
-        min_segment_length_s: float,
         fs: int,
         filtered: bool = False,
     ) -> Tuple[dict[str, pd.DataFrame], dict]:
@@ -362,14 +360,8 @@ def quantify_arm_swing(
     Parameters
     ----------
     df : pd.DataFrame
-        A DataFrame containing the raw sensor data, including gyroscope columns. Should include a column
+        A DataFrame containing the raw sensor data of predicted gait timestamps. Should include a column
         for predicted no other arm activity based on a fitted threshold if filtered is True.
-
-    max_segment_gap_s : float
-        The maximum gap allowed between segments.
-
-    min_segment_length_s : float
-        The minimum length required for a segment to be considered valid.
 
     fs : int
         The sampling frequency of the sensor data.
@@ -383,64 +375,53 @@ def quantify_arm_swing(
         A tuple containing a dataframe with quantified arm swing parameters and a dictionary containing 
         metadata for each segment.
     """
-    
-    # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap.
-    # Segments are made based on predicted gait
-    df[DataColumns.SEGMENT_NR] = create_segments(
-        time_array=df[DataColumns.TIME], 
-        max_segment_gap_s=max_segment_gap_s
-    )
-
-    # Remove segments that do not meet predetermined criteria
-    df = discard_segments(
-        df=df,
-        segment_nr_colname=DataColumns.SEGMENT_NR,
-        min_segment_length_s=min_segment_length_s,
-        fs=fs,
-        format='timestamps'
-    )
-
-    if df.empty:
-        raise ValueError("No segments found in the input data.")
 
     # If no arm swing data is remaining, return an empty dictionary
     if filtered and df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].empty:
         raise ValueError("No gait without other arm activities to quantify.")
         
+    # Segment category is determined based on predicted gait, hence it is set
+    # before filtering the DataFrame to only include predicted no other arm activity
     df[DataColumns.SEGMENT_CAT] = categorize_segments(df=df, fs=fs)
 
-    # Group and process segments
     arm_swing_quantified = []
     segment_meta = {
-        'all': {
-            'pred_gait_s': len(df[DataColumns.TIME]) / fs
-        }
+        'aggregated': {
+            'all': {
+                'time_s': len(df[DataColumns.TIME]) / fs
+            },
+        },
+        'per_segment': {}
     }
 
     if filtered:
         # Filter the DataFrame to only include predicted no other arm activity (1)
         df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True)
 
-        segment_meta['all']['pred_no_other_arm_activity_s'] = len(df[DataColumns.TIME]) / fs
-
         # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
         # Now segments are based on predicted gait without other arm activity for subsequent processes
         df[DataColumns.SEGMENT_NR] = create_segments(
             time_array=df[DataColumns.TIME], 
-            max_segment_gap_s=max_segment_gap_s
+            max_segment_gap_s=1.5
         )
 
-        pred_colname_pca = DataColumns.PRED_NO_OTHER_ARM_ACTIVITY
-    else:
-        pred_colname_pca = None
+        # Remove segments that do not meet predetermined criteria
+        df = discard_segments(
+            df=df,
+            segment_nr_colname=DataColumns.SEGMENT_NR,
+            min_segment_length_s=1.5,
+            fs=fs,
+        )
 
+    # PCA is fitted on only predicted gait without other arm activity if filtered, otherwise
+    # it is fitted on the entire gyroscope data
     df[DataColumns.VELOCITY] = pca_transform_gyroscope(
         df=df,
         y_gyro_colname=DataColumns.GYROSCOPE_Y,
         z_gyro_colname=DataColumns.GYROSCOPE_Z,
-        pred_colname=pred_colname_pca
     )
 
+    # Group and process segments
     for segment_nr, group in df.groupby(DataColumns.SEGMENT_NR, sort=False):
         segment_cat = group[DataColumns.SEGMENT_CAT].iloc[0]
         time_array = group[DataColumns.TIME].to_numpy()
@@ -458,7 +439,7 @@ def quantify_arm_swing(
             fs=fs,
         )
 
-        segment_meta[segment_nr] = {
+        segment_meta['per_segment'][segment_nr] = {
             'time_s': len(angle_array) / fs,
             DataColumns.SEGMENT_CAT: segment_cat
         }
@@ -492,16 +473,23 @@ def quantify_arm_swing(
                     pav = np.array([np.nan])
 
                 df_params_segment = pd.DataFrame({
-                    DataColumns.SEGMENT_NR: segment_nr,
+                    DataColumns.SEGMENT_CAT: segment_cat,
                     DataColumns.RANGE_OF_MOTION: rom,
                     DataColumns.PEAK_VELOCITY: pav
                 })
 
                 arm_swing_quantified.append(df_params_segment)
 
+    # Combine segment categories
+    segment_categories = set([segment_meta['per_segment'][x][DataColumns.SEGMENT_CAT] for x in segment_meta['per_segment'].keys()])
+    for segment_cat in segment_categories:
+        segment_meta['aggregated'][segment_cat] = {
+            'time_s': sum([segment_meta['per_segment'][x]['time_s'] for x in segment_meta['per_segment'].keys() if segment_meta['per_segment'][x][DataColumns.SEGMENT_CAT] == segment_cat])
+        }
+
     arm_swing_quantified = pd.concat(arm_swing_quantified, ignore_index=True)
             
-    return arm_swing_quantified, segment_meta
+    return arm_swing_quantified, segment_meta['aggregated']
 
 
 def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: dict, aggregates: List[str] = ['median']) -> dict:
