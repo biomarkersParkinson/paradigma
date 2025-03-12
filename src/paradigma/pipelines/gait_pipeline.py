@@ -377,7 +377,7 @@ def quantify_arm_swing(
         A tuple containing a dataframe with quantified arm swing parameters and a dictionary containing 
         metadata for each segment.
     """
-    
+
     # If no arm swing data is remaining, return an empty dictionary
     if filtered and df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].empty:
         raise ValueError("No gait without other arm activities to quantify.")
@@ -406,7 +406,7 @@ def quantify_arm_swing(
     segment_meta = {
         'aggregated': {
             'all': {
-                'time_s': len(df[DataColumns.TIME]) / fs
+                'duration_s': len(df[DataColumns.TIME]) / fs
             },
         },
         'per_segment': {}
@@ -441,7 +441,7 @@ def quantify_arm_swing(
         segment_meta['per_segment'][segment_nr] = {
             'start_time_s': time_array.min(),
             'end_time_s': time_array.max(),
-            'time_s': len(angle_array) / fs,
+            'duration_s': len(angle_array) / fs,
             DataColumns.SEGMENT_CAT: segment_cat
         }
 
