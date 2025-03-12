@@ -6,6 +6,8 @@ from scipy.signal import periodogram
 from typing import List, Tuple
 import tsdf
 
+from datetime import datetime
+
 from paradigma.classification import ClassifierPackage
 from paradigma.constants import DataColumns, TimeUnit
 from paradigma.config import GaitConfig
@@ -352,7 +354,7 @@ def filter_gait(
 def quantify_arm_swing(
         df: pd.DataFrame, 
         fs: int,
-        filtered: bool = False,
+        filtered: bool = False
     ) -> Tuple[dict[str, pd.DataFrame], dict]:
     """
     Quantify arm swing parameters for segments of motion based on gyroscope data.
@@ -375,21 +377,15 @@ def quantify_arm_swing(
         A tuple containing a dataframe with quantified arm swing parameters and a dictionary containing 
         metadata for each segment.
     """
-
+    
     # If no arm swing data is remaining, return an empty dictionary
     if filtered and df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].empty:
         raise ValueError("No gait without other arm activities to quantify.")
-        
-    # Segment category is determined based on predicted gait, hence it is set
-    # before filtering the DataFrame to only include predicted no other arm activity
-    df[DataColumns.SEGMENT_CAT] = categorize_segments(df=df, fs=fs)
-
-    if filtered:
+    elif filtered:
         # Filter the DataFrame to only include predicted no other arm activity (1)
         df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True)
 
-        # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
-        # Now segments are based on predicted gait without other arm activity for subsequent processes
+        # Group consecutive timestamps into segments of filtered gait
         df[DataColumns.SEGMENT_NR] = create_segments(
             time_array=df[DataColumns.TIME], 
             max_segment_gap_s=1.5
@@ -402,6 +398,9 @@ def quantify_arm_swing(
             min_segment_length_s=1.5,
             fs=fs,
         )
+
+        if df.empty:
+            raise ValueError("No filtered gait segments found in the input data after discarding segments of invalid shape.")
 
     arm_swing_quantified = []
     segment_meta = {
@@ -440,6 +439,8 @@ def quantify_arm_swing(
         )
 
         segment_meta['per_segment'][segment_nr] = {
+            'start_time_s': time_array.min(),
+            'end_time_s': time_array.max(),
             'time_s': len(angle_array) / fs,
             DataColumns.SEGMENT_CAT: segment_cat
         }
