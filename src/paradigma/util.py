@@ -6,6 +6,7 @@ from pathlib import Path
 from datetime import timedelta
 from dateutil import parser
 from typing import List, Tuple
+import datetime
 
 import tsdf
 from tsdf import TSDFMetadata
@@ -432,3 +433,61 @@ def merge_predictions_with_timestamps(
     df_ts = df_ts.dropna(subset=[pred_proba_colname])
 
     return df_ts
+
+
+def select_hours(df: pd.DataFrame, start_time: datetime, config) -> pd.DataFrame:
+    
+    """
+    Select hours of interest from the data to include in the aggregation step.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input data.
+
+    config: object
+        Configuration object. The following attributes are used:
+        - selected_hours_start: str
+            The start time of the selected hours.
+        - selected_hours_end: str
+            The end time of the selected hours.
+
+    Returns
+    -------
+    pd.DataFrame
+        The selected data.
+
+    """
+    df = df.assign(datetime_col=start_time + (df['time'].values * datetime.timedelta(seconds=1))) # create datetime column
+    df_subset = df.set_index('datetime_col').between_time(config.selected_hours_start, config.selected_hours_end).reset_index() # select the hours of interest
+
+    return df_subset
+
+
+def select_days(df: pd.DataFrame, config) -> pd.DataFrame:
+
+    """
+    Select days of interest from the data to include in the aggregation step.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input data.
+
+    config: object
+        Configuration object. The following attribute is used:
+        - min_hours_per_day: int
+            The minimum number of hours per day required for including the day in the aggregation step.
+
+    Returns
+    -------
+    pd.DataFrame
+        The selected data.
+
+    """
+                
+    df['date'] = df['datetime_col'].dt.date
+    min_windows_per_day = config.min_hours_per_day*3600/config.window_length_s 
+    df_subset = df.groupby('date').filter(lambda x: len(x) >= min_windows_per_day).drop(columns=['date'])
+
+    return df_subset
