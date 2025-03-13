@@ -486,7 +486,7 @@ def quantify_arm_swing(
     segment_categories = set([segment_meta['per_segment'][x][DataColumns.SEGMENT_CAT] for x in segment_meta['per_segment'].keys()])
     for segment_cat in segment_categories:
         segment_meta['aggregated'][segment_cat] = {
-            'time_s': sum([segment_meta['per_segment'][x]['time_s'] for x in segment_meta['per_segment'].keys() if segment_meta['per_segment'][x][DataColumns.SEGMENT_CAT] == segment_cat])
+            'duration_s': sum([segment_meta['per_segment'][x]['duration_s'] for x in segment_meta['per_segment'].keys() if segment_meta['per_segment'][x][DataColumns.SEGMENT_CAT] == segment_cat])
         }
 
     arm_swing_quantified = pd.concat(arm_swing_quantified, ignore_index=True)
@@ -523,7 +523,7 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
         cat_segments = [x for x in segment_meta.keys() if segment_meta[x][DataColumns.SEGMENT_CAT] == segment_cat]
 
         aggregated_results[segment_cat] = {
-            'time_s': sum([segment_meta[x]['time_s'] for x in cat_segments])
+            'duration_s': sum([segment_meta[x]['duration_s'] for x in cat_segments])
         }
 
         df_arm_swing_params_cat = df_arm_swing_params[df_arm_swing_params[DataColumns.SEGMENT_NR].isin(cat_segments)]
@@ -533,7 +533,7 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
                 aggregated_results[segment_cat][f'{aggregate}_{arm_swing_parameter}'] = aggregate_parameter(df_arm_swing_params_cat[arm_swing_parameter], aggregate)
 
     aggregated_results['all_segment_categories'] = {
-        'time_s': sum([segment_meta[x]['time_s'] for x in segment_meta.keys()])
+        'duration_s': sum([segment_meta[x]['duration_s'] for x in segment_meta.keys()])
     }
 
     for arm_swing_parameter in arm_swing_parameters:
