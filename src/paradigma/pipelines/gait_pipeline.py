@@ -323,7 +323,9 @@ def filter_gait(
 def quantify_arm_swing(
         df: pd.DataFrame, 
         fs: int,
-        filtered: bool = False
+        filtered: bool = False,
+        max_segment_gap_s: float = 1.5,
+        min_segment_length_s: float = 1.5
     ) -> Tuple[dict[str, pd.DataFrame], dict]:
     """
     Quantify arm swing parameters for segments of motion based on gyroscope data.
@@ -340,12 +342,40 @@ def quantify_arm_swing(
     filtered : bool, optional, default=True
         If `True`, the gyroscope data is filtered to only include predicted no other arm activity.
 
+    max_segment_gap_s : float, optional, default=1.5
+        The maximum gap in seconds between consecutive timestamps to group them into segments.
+    
+    min_segment_length_s : float, optional, default=1.5
+        The minimum length in seconds for a segment to be considered valid.
+
     Returns
     -------
     Tuple[pd.DataFrame, dict]
         A tuple containing a dataframe with quantified arm swing parameters and a dictionary containing 
         metadata for each segment.
     """
+    # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap.
+    # Segments are made based on predicted gait
+    df[DataColumns.SEGMENT_NR] = create_segments(
+        time_array=df[DataColumns.TIME], 
+        max_segment_gap_s=max_segment_gap_s
+    )
+
+    # Segment category is determined based on predicted gait, hence it is set
+    # before filtering the DataFrame to only include predicted no other arm activity
+    df[DataColumns.SEGMENT_CAT] = categorize_segments(df=df, fs=fs)
+
+    # Remove segments that do not meet predetermined criteria
+    df = discard_segments(
+        df=df,
+        segment_nr_colname=DataColumns.SEGMENT_NR,
+        min_segment_length_s=min_segment_length_s,
+        fs=fs,
+        format='timestamps'
+    )
+
+    if df.empty:
+        raise ValueError("No segments found in the input data after discarding segments of invalid shape.")
 
     # If no arm swing data is remaining, return an empty dictionary
     if filtered and df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].empty:
