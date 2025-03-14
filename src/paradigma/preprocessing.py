@@ -19,7 +19,7 @@ def resample_data(
     values_column_names: List[str],
     sampling_frequency: int,
     resampling_frequency: int,
-    tolerance: float = None
+    tolerance: float | None = None
 ) -> pd.DataFrame:
     """
     Resamples sensor data to a specified frequency using cubic interpolation.
