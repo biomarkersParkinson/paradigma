@@ -162,66 +162,35 @@ def detect_gait(
 
 
 def extract_arm_activity_features(
+        df: pd.DataFrame, 
         config: GaitConfig,
-        df_timestamps: pd.DataFrame, 
-        df_predictions: pd.DataFrame,
-        threshold: float
     ) -> pd.DataFrame:
     """
     Extract features related to arm activity from a time-series DataFrame.
 
     This function processes a DataFrame containing accelerometer, gravity, and gyroscope signals, 
     and extracts features related to arm activity by performing the following steps:
-    1. Merges the gait predictions with timestamps by expanding overlapping windows into individual timestamps.
-    2. Computes the angle and velocity from gyroscope data.
-    3. Filters the data to include only predicted gait segments.
-    4. Groups the data into segments based on consecutive timestamps and pre-specified gaps.
-    5. Removes segments that do not meet predefined criteria.
-    6. Creates fixed-length windows from the time series data.
-    7. Extracts angle-related features, temporal domain features, and spectral domain features.
+    1. Computes the angle and velocity from gyroscope data.
+    2. Filters the data to include only predicted gait segments.
+    3. Groups the data into segments based on consecutive timestamps and pre-specified gaps.
+    4. Removes segments that do not meet predefined criteria.
+    5. Creates fixed-length windows from the time series data.
+    6. Extracts angle-related features, temporal domain features, and spectral domain features.
 
     Parameters
     ----------
-    config : GaitConfig
-        Configuration object containing column names and parameters for feature extraction.
-
-    df_timestamps : pd.DataFrame
-        A DataFrame containing the raw sensor data, including accelerometer, gravity, and gyroscope columns.
-
-    df_predictions : pd.DataFrame
-        A DataFrame containing the predicted probabilities for gait activity per window.
+    df: pd.DataFrame
+        The input DataFrame containing accelerometer, gravity, and gyroscope data of predicted gait.
 
     config : ArmActivityFeatureExtractionConfig
         Configuration object containing column names and parameters for feature extraction.
 
-    path_to_classifier_input : str | Path
-        The path to the directory containing the classifier files and other necessary input files for feature extraction.
-    
     Returns
     -------
     pd.DataFrame
         A DataFrame containing the extracted arm activity features, including angle, velocity, 
         temporal, and spectral features.
     """
-    if not any(df_predictions[DataColumns.PRED_GAIT_PROBA] >= threshold):
-        raise ValueError("No gait detected in the input data.")
-    
-    # Merge gait predictions with timestamps
-    gait_preprocessing_config = GaitConfig(step='gait')
-    df = merge_predictions_with_timestamps(
-        df_ts=df_timestamps, 
-        df_predictions=df_predictions, 
-        pred_proba_colname=DataColumns.PRED_GAIT_PROBA,
-        window_length_s=gait_preprocessing_config.window_length_s,
-        fs=gait_preprocessing_config.sampling_frequency
-    )
-    
-    # Add a column for predicted gait based on a fitted threshold
-    df[DataColumns.PRED_GAIT] = (df[DataColumns.PRED_GAIT_PROBA] >= threshold).astype(int)
-
-    # Filter the DataFrame to only include predicted gait (1)
-    df = df.loc[df[DataColumns.PRED_GAIT]==1].reset_index(drop=True)
-
     # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
     df[DataColumns.SEGMENT_NR] = create_segments(
         time_array=df[DataColumns.TIME], 
