@@ -207,6 +207,7 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str, watch_
         df=df,
         time_column=DataColumns.TIME,
         values_column_names=values_colnames,
+        sampling_frequency=config.sampling_frequency,
         resampling_frequency=config.sampling_frequency
     )
 
@@ -279,6 +280,7 @@ def preprocess_ppg_data(df_ppg: pd.DataFrame, df_acc: pd.DataFrame, ppg_config: 
         df=df_acc_overlapping,
         time_column=DataColumns.TIME,
         values_column_names = list(imu_config.d_channels_accelerometer.keys()),
+        sampling_frequency=imu_config.sampling_frequency,
         resampling_frequency=imu_config.sampling_frequency
     )
 
@@ -287,6 +289,7 @@ def preprocess_ppg_data(df_ppg: pd.DataFrame, df_acc: pd.DataFrame, ppg_config: 
         df=df_ppg_overlapping,
         time_column=DataColumns.TIME,
         values_column_names = list(ppg_config.d_channels_ppg.keys()),
+        sampling_frequency=ppg_config.sampling_frequency,
         resampling_frequency=ppg_config.sampling_frequency
     )
 
