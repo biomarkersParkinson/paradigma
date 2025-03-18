@@ -1,12 +1,9 @@
-import json
 import os
 import numpy as np
 import pandas as pd
-from pathlib import Path
-from datetime import timedelta
+from datetime import datetime, timedelta
 from dateutil import parser
 from typing import List, Tuple
-import datetime
 
 import tsdf
 from tsdf import TSDFMetadata
@@ -445,6 +442,9 @@ def select_hours(df: pd.DataFrame, start_time: datetime, config) -> pd.DataFrame
     df : pd.DataFrame
         Input data.
 
+    start_time: datetime
+        The start time of the input dataframe (including date and time)
+
     config: object
         Configuration object. The following attributes are used:
         - selected_hours_start: str
@@ -458,7 +458,7 @@ def select_hours(df: pd.DataFrame, start_time: datetime, config) -> pd.DataFrame
         The selected data.
 
     """
-    df = df.assign(datetime_col=start_time + (df['time'].values * datetime.timedelta(seconds=1))) # create datetime column
+    df = df.assign(datetime_col=start_time + (df['time'].values * timedelta(seconds=1))) # create datetime column
     df_subset = df.set_index('datetime_col').between_time(config.selected_hours_start, config.selected_hours_end).reset_index() # select the hours of interest
 
     return df_subset
@@ -472,7 +472,7 @@ def select_days(df: pd.DataFrame, config) -> pd.DataFrame:
     Parameters
     ----------
     df : pd.DataFrame
-        Input data.
+        Input data with column 'datetime_col'.
 
     config: object
         Configuration object. The following attribute is used:
