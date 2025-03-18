@@ -189,9 +189,6 @@ def extract_arm_activity_features(
     df_predictions : pd.DataFrame
         A DataFrame containing the predicted probabilities for gait activity per window.
 
-    config : ArmActivityFeatureExtractionConfig
-        Configuration object containing column names and parameters for feature extraction.
-
     path_to_classifier_input : str | Path
         The path to the directory containing the classifier files and other necessary input files for feature extraction.
     
