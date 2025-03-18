@@ -488,6 +488,7 @@ def select_days(df: pd.DataFrame, config) -> pd.DataFrame:
                 
     df['date'] = df['datetime_col'].dt.date
     min_windows_per_day = config.min_hours_per_day*3600/config.window_length_s 
-    df_subset = df.groupby('date').filter(lambda x: len(x) >= min_windows_per_day).drop(columns=['date'])
+    #df_subset = df.groupby('date').filter(lambda x: len(x) >= min_windows_per_day).drop(columns=['date'])
+    df_subset = df.groupby('date').filter(lambda x: len(x) >= min_windows_per_day)
 
     return df_subset
