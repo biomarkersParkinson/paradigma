@@ -17,7 +17,9 @@ def resample_data(
     df: pd.DataFrame,
     time_column : str,
     values_column_names: List[str],
+    sampling_frequency: int,
     resampling_frequency: int,
+    tolerance: float | None = None
 ) -> pd.DataFrame:
     """
     Resamples sensor data to a specified frequency using cubic interpolation.
@@ -30,8 +32,14 @@ def resample_data(
         The name of the column containing the time data.
     values_column_names : List[str]
         A list of column names that should be resampled.
+    sampling_frequency : int
+        The original sampling frequency of the data (in Hz).
     resampling_frequency : int
         The frequency to which the data should be resampled (in Hz).
+    tolerance : float, optional
+        The tolerance added to the expected difference when checking 
+        for contiguous timestamps. If not provided, it defaults to
+        twice the expected interval.
 
     Returns
     -------
@@ -46,23 +54,35 @@ def resample_data(
 
     Notes
     -----
-    The function uses cubic interpolation to resample the data to the specified frequency.
-    It requires the input time array to be strictly increasing.
+    - Uses cubic interpolation for smooth resampling if there are enough points.
+    - If only two timestamps are available, it falls back to linear interpolation.
     """
+    # Set default tolerance if not provided to twice the expected interval
+    if tolerance is None:
+        tolerance = 2 * 1 / sampling_frequency
 
-    # Extract time and values from DataFrame
+    # Extract time and values
     time_abs_array = np.array(df[time_column])
     values_array = np.array(df[values_column_names])
 
     # Ensure the time array is strictly increasing
     if not np.all(np.diff(time_abs_array) > 0):
-        raise ValueError("time_abs_array is not strictly increasing")
+        raise ValueError("Time array is not strictly increasing")
+    
+    # Ensure the time array is contiguous
+    expected_interval = 1 / sampling_frequency
+    timestamp_diffs = np.diff(time_abs_array)
+    if np.any(np.abs(timestamp_diffs - expected_interval) > tolerance):
+        raise ValueError("Time array is not contiguous")
 
     # Resample the time data using the specified frequency
     t_resampled = np.arange(time_abs_array[0], time_abs_array[-1], 1 / resampling_frequency)
     
-    # Interpolate the data using cubic interpolation
-    interpolator = interp1d(time_abs_array, values_array, axis=0, kind="cubic")
+    # Choose interpolation method
+    interpolation_kind = "cubic" if len(time_abs_array) > 3 else "linear"
+    interpolator = interp1d(time_abs_array, values_array, axis=0, kind=interpolation_kind, fill_value="extrapolate")
+    
+    # Interpolate
     resampled_values = interpolator(t_resampled)
 
     # Create a DataFrame with the resampled data
@@ -186,7 +206,8 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str, watch_
     df = resample_data(
         df=df,
         time_column=DataColumns.TIME,
-        values_column_names = values_colnames,
+        values_column_names=values_colnames,
+        sampling_frequency=config.sampling_frequency,
         resampling_frequency=config.sampling_frequency
     )
 
@@ -259,6 +280,7 @@ def preprocess_ppg_data(df_ppg: pd.DataFrame, df_acc: pd.DataFrame, ppg_config: 
         df=df_acc_overlapping,
         time_column=DataColumns.TIME,
         values_column_names = list(imu_config.d_channels_accelerometer.keys()),
+        sampling_frequency=imu_config.sampling_frequency,
         resampling_frequency=imu_config.sampling_frequency
     )
 
@@ -267,6 +289,7 @@ def preprocess_ppg_data(df_ppg: pd.DataFrame, df_acc: pd.DataFrame, ppg_config: 
         df=df_ppg_overlapping,
         time_column=DataColumns.TIME,
         values_column_names = list(ppg_config.d_channels_ppg.keys()),
+        sampling_frequency=ppg_config.sampling_frequency,
         resampling_frequency=ppg_config.sampling_frequency
     )
 
