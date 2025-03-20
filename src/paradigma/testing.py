@@ -16,7 +16,7 @@ from paradigma.pipelines.tremor_pipeline import extract_tremor_features, detect_
 from paradigma.pipelines.heart_rate_pipeline import extract_signal_quality_features, signal_quality_classification, \
     aggregate_heart_rate
 from paradigma.preprocessing import preprocess_imu_data, preprocess_ppg_data
-from paradigma.util import read_metadata, write_df_data, get_end_iso8601
+from paradigma.util import read_metadata, write_df_data, get_end_iso8601, merge_predictions_with_timestamps
 
 
 def preprocess_imu_data_io(path_to_input: str | Path, path_to_output: str | Path, 
@@ -208,13 +208,27 @@ def extract_arm_activity_features_io(
 
     clf_package = ClassifierPackage.load(full_path_to_classifier_package)
 
+    gait_preprocessing_config = GaitConfig(step='gait')
+
+    df = merge_predictions_with_timestamps(
+        df_ts=df_ts, 
+        df_predictions=df_pred_gait, 
+        pred_proba_colname=DataColumns.PRED_GAIT_PROBA,
+        window_length_s=gait_preprocessing_config.window_length_s,
+        fs=gait_preprocessing_config.sampling_frequency
+    )
+
+    # Add a column for predicted gait based on a fitted threshold
+    df[DataColumns.PRED_GAIT] = (df[DataColumns.PRED_GAIT_PROBA] >= clf_package.threshold).astype(int)
+
+    # Filter the DataFrame to only include predicted gait (1)
+    df = df.loc[df[DataColumns.PRED_GAIT]==1].reset_index(drop=True)
+
     # Extract arm activity features
     config = GaitConfig(step='arm_activity')
     df_features = extract_arm_activity_features(
+        df=df, 
         config=config,
-        df_timestamps=df_ts, 
-        df_predictions=df_pred_gait, 
-        threshold=clf_package.threshold
     )
 
     end_iso8601 = get_end_iso8601(metadata_ts_values.start_iso8601, df_features[DataColumns.TIME][-1:].values[0] + config.window_length_s)

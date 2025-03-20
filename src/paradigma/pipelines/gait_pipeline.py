@@ -1,20 +1,17 @@
 import numpy as np
-import os
 import pandas as pd
-from pathlib import Path
 from scipy.signal import periodogram
 from typing import List, Tuple
-import tsdf
 
 from paradigma.classification import ClassifierPackage
-from paradigma.constants import DataColumns, TimeUnit
+from paradigma.constants import DataColumns
 from paradigma.config import GaitConfig
 from paradigma.feature_extraction import pca_transform_gyroscope, compute_angle, remove_moving_average_angle, \
     extract_angle_extremes, compute_range_of_motion, compute_peak_angular_velocity, compute_statistics, \
     compute_std_euclidean_norm, compute_power_in_bandwidth, compute_dominant_frequency, compute_mfccs, \
     compute_total_power
 from paradigma.segmenting import tabulate_windows, create_segments, discard_segments, categorize_segments, WindowedDataExtractor
-from paradigma.util import aggregate_parameter, merge_predictions_with_timestamps, read_metadata, write_df_data, get_end_iso8601
+from paradigma.util import aggregate_parameter
 
 
 def extract_gait_features(
@@ -160,63 +157,35 @@ def detect_gait(
 
 
 def extract_arm_activity_features(
+        df: pd.DataFrame, 
         config: GaitConfig,
-        df_timestamps: pd.DataFrame, 
-        df_predictions: pd.DataFrame,
-        threshold: float
     ) -> pd.DataFrame:
     """
     Extract features related to arm activity from a time-series DataFrame.
 
     This function processes a DataFrame containing accelerometer, gravity, and gyroscope signals, 
     and extracts features related to arm activity by performing the following steps:
-    1. Merges the gait predictions with timestamps by expanding overlapping windows into individual timestamps.
-    2. Computes the angle and velocity from gyroscope data.
-    3. Filters the data to include only predicted gait segments.
-    4. Groups the data into segments based on consecutive timestamps and pre-specified gaps.
-    5. Removes segments that do not meet predefined criteria.
-    6. Creates fixed-length windows from the time series data.
-    7. Extracts angle-related features, temporal domain features, and spectral domain features.
+    1. Computes the angle and velocity from gyroscope data.
+    2. Filters the data to include only predicted gait segments.
+    3. Groups the data into segments based on consecutive timestamps and pre-specified gaps.
+    4. Removes segments that do not meet predefined criteria.
+    5. Creates fixed-length windows from the time series data.
+    6. Extracts angle-related features, temporal domain features, and spectral domain features.
 
     Parameters
     ----------
-    config : GaitConfig
+    df: pd.DataFrame
+        The input DataFrame containing accelerometer, gravity, and gyroscope data of predicted gait.
+
+    config : ArmActivityFeatureExtractionConfig
         Configuration object containing column names and parameters for feature extraction.
 
-    df_timestamps : pd.DataFrame
-        A DataFrame containing the raw sensor data, including accelerometer, gravity, and gyroscope columns.
-
-    df_predictions : pd.DataFrame
-        A DataFrame containing the predicted probabilities for gait activity per window.
-
-    path_to_classifier_input : str | Path
-        The path to the directory containing the classifier files and other necessary input files for feature extraction.
-    
     Returns
     -------
     pd.DataFrame
         A DataFrame containing the extracted arm activity features, including angle, velocity, 
         temporal, and spectral features.
     """
-    if not any(df_predictions[DataColumns.PRED_GAIT_PROBA] >= threshold):
-        raise ValueError("No gait detected in the input data.")
-    
-    # Merge gait predictions with timestamps
-    gait_preprocessing_config = GaitConfig(step='gait')
-    df = merge_predictions_with_timestamps(
-        df_ts=df_timestamps, 
-        df_predictions=df_predictions, 
-        pred_proba_colname=DataColumns.PRED_GAIT_PROBA,
-        window_length_s=gait_preprocessing_config.window_length_s,
-        fs=gait_preprocessing_config.sampling_frequency
-    )
-    
-    # Add a column for predicted gait based on a fitted threshold
-    df[DataColumns.PRED_GAIT] = (df[DataColumns.PRED_GAIT_PROBA] >= threshold).astype(int)
-
-    # Filter the DataFrame to only include predicted gait (1)
-    df = df.loc[df[DataColumns.PRED_GAIT]==1].reset_index(drop=True)
-
     # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
     df[DataColumns.SEGMENT_NR] = create_segments(
         time_array=df[DataColumns.TIME], 
@@ -312,8 +281,8 @@ def filter_gait(
     ----------
     df : pd.DataFrame
         The input DataFrame containing features extracted from gait data.
-    full_path_to_classifier_package : str | Path
-        The path to the pre-trained classifier file.
+    clf_package: ClassifierPackage
+        The pre-trained classifier package containing the classifier, threshold, and scaler.
     parallel : bool, optional, default=False
         If `True`, enables parallel processing.
 
@@ -348,10 +317,10 @@ def filter_gait(
 
 def quantify_arm_swing(
         df: pd.DataFrame, 
-        max_segment_gap_s: float, 
-        min_segment_length_s: float,
         fs: int,
         filtered: bool = False,
+        max_segment_gap_s: float = 1.5,
+        min_segment_length_s: float = 1.5
     ) -> Tuple[dict[str, pd.DataFrame], dict]:
     """
     Quantify arm swing parameters for segments of motion based on gyroscope data.
@@ -359,14 +328,8 @@ def quantify_arm_swing(
     Parameters
     ----------
     df : pd.DataFrame
-        A DataFrame containing the raw sensor data, including gyroscope columns. Should include a column
+        A DataFrame containing the raw sensor data of predicted gait timestamps. Should include a column
         for predicted no other arm activity based on a fitted threshold if filtered is True.
-
-    max_segment_gap_s : float
-        The maximum gap allowed between segments.
-
-    min_segment_length_s : float
-        The minimum length required for a segment to be considered valid.
 
     fs : int
         The sampling frequency of the sensor data.
@@ -374,19 +337,28 @@ def quantify_arm_swing(
     filtered : bool, optional, default=True
         If `True`, the gyroscope data is filtered to only include predicted no other arm activity.
 
+    max_segment_gap_s : float, optional, default=1.5
+        The maximum gap in seconds between consecutive timestamps to group them into segments.
+    
+    min_segment_length_s : float, optional, default=1.5
+        The minimum length in seconds for a segment to be considered valid.
+
     Returns
     -------
     Tuple[pd.DataFrame, dict]
         A tuple containing a dataframe with quantified arm swing parameters and a dictionary containing 
         metadata for each segment.
     """
-    
     # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap.
     # Segments are made based on predicted gait
     df[DataColumns.SEGMENT_NR] = create_segments(
         time_array=df[DataColumns.TIME], 
         max_segment_gap_s=max_segment_gap_s
     )
+
+    # Segment category is determined based on predicted gait, hence it is set
+    # before filtering the DataFrame to only include predicted no other arm activity
+    df[DataColumns.SEGMENT_CAT] = categorize_segments(df=df, fs=fs)
 
     # Remove segments that do not meet predetermined criteria
     df = discard_segments(
@@ -398,40 +370,51 @@ def quantify_arm_swing(
     )
 
     if df.empty:
-        raise ValueError("No segments found in the input data.")
+        raise ValueError("No segments found in the input data after discarding segments of invalid shape.")
 
     # If no arm swing data is remaining, return an empty dictionary
     if filtered and df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].empty:
         raise ValueError("No gait without other arm activities to quantify.")
-        
-    df[DataColumns.SEGMENT_CAT] = categorize_segments(df=df, fs=fs)
-
-    # Group and process segments
-    arm_swing_quantified = []
-    segment_meta = {}
-
-    if filtered:
+    elif filtered:
         # Filter the DataFrame to only include predicted no other arm activity (1)
         df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True)
 
-        # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
-        # Now segments are based on predicted gait without other arm activity for subsequent processes
+        # Group consecutive timestamps into segments of filtered gait
         df[DataColumns.SEGMENT_NR] = create_segments(
             time_array=df[DataColumns.TIME], 
             max_segment_gap_s=max_segment_gap_s
         )
 
-        pred_colname_pca = DataColumns.PRED_NO_OTHER_ARM_ACTIVITY
-    else:
-        pred_colname_pca = None
+        # Remove segments that do not meet predetermined criteria
+        df = discard_segments(
+            df=df,
+            segment_nr_colname=DataColumns.SEGMENT_NR,
+            min_segment_length_s=min_segment_length_s,
+            fs=fs,
+        )
 
+        if df.empty:
+            raise ValueError("No filtered gait segments found in the input data after discarding segments of invalid shape.")
+
+    arm_swing_quantified = []
+    segment_meta = {
+        'aggregated': {
+            'all': {
+                'duration_s': len(df[DataColumns.TIME]) / fs
+            },
+        },
+        'per_segment': {}
+    }
+
+    # PCA is fitted on only predicted gait without other arm activity if filtered, otherwise
+    # it is fitted on the entire gyroscope data
     df[DataColumns.VELOCITY] = pca_transform_gyroscope(
         df=df,
         y_gyro_colname=DataColumns.GYROSCOPE_Y,
         z_gyro_colname=DataColumns.GYROSCOPE_Z,
-        pred_colname=pred_colname_pca
     )
 
+    # Group and process segments
     for segment_nr, group in df.groupby(DataColumns.SEGMENT_NR, sort=False):
         segment_cat = group[DataColumns.SEGMENT_CAT].iloc[0]
         time_array = group[DataColumns.TIME].to_numpy()
@@ -449,8 +432,10 @@ def quantify_arm_swing(
             fs=fs,
         )
 
-        segment_meta[segment_nr] = {
-            'time_s': len(angle_array) / fs,
+        segment_meta['per_segment'][segment_nr] = {
+            'start_time_s': time_array.min(),
+            'end_time_s': time_array.max(),
+            'duration_s': len(angle_array) / fs,
             DataColumns.SEGMENT_CAT: segment_cat
         }
 
@@ -484,11 +469,19 @@ def quantify_arm_swing(
 
                 df_params_segment = pd.DataFrame({
                     DataColumns.SEGMENT_NR: segment_nr,
+                    DataColumns.SEGMENT_CAT: segment_cat,
                     DataColumns.RANGE_OF_MOTION: rom,
                     DataColumns.PEAK_VELOCITY: pav
                 })
 
                 arm_swing_quantified.append(df_params_segment)
+
+    # Combine segment categories
+    segment_categories = set([segment_meta['per_segment'][x][DataColumns.SEGMENT_CAT] for x in segment_meta['per_segment'].keys()])
+    for segment_cat in segment_categories:
+        segment_meta['aggregated'][segment_cat] = {
+            'duration_s': sum([segment_meta['per_segment'][x]['duration_s'] for x in segment_meta['per_segment'].keys() if segment_meta['per_segment'][x][DataColumns.SEGMENT_CAT] == segment_cat])
+        }
 
     arm_swing_quantified = pd.concat(arm_swing_quantified, ignore_index=True)
             
@@ -524,7 +517,7 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
         cat_segments = [x for x in segment_meta.keys() if segment_meta[x][DataColumns.SEGMENT_CAT] == segment_cat]
 
         aggregated_results[segment_cat] = {
-            'time_s': sum([segment_meta[x]['time_s'] for x in cat_segments])
+            'duration_s': sum([segment_meta[x]['duration_s'] for x in cat_segments])
         }
 
         df_arm_swing_params_cat = df_arm_swing_params[df_arm_swing_params[DataColumns.SEGMENT_NR].isin(cat_segments)]
@@ -534,7 +527,7 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
                 aggregated_results[segment_cat][f'{aggregate}_{arm_swing_parameter}'] = aggregate_parameter(df_arm_swing_params_cat[arm_swing_parameter], aggregate)
 
     aggregated_results['all_segment_categories'] = {
-        'time_s': sum([segment_meta[x]['time_s'] for x in segment_meta.keys()])
+        'duration_s': sum([segment_meta[x]['duration_s'] for x in segment_meta.keys()])
     }
 
     for arm_swing_parameter in arm_swing_parameters:
