@@ -382,14 +382,14 @@ def quantify_arm_swing(
         # Group consecutive timestamps into segments of filtered gait
         df[DataColumns.SEGMENT_NR] = create_segments(
             time_array=df[DataColumns.TIME], 
-            max_segment_gap_s=1.5
+            max_segment_gap_s=max_segment_gap_s
         )
 
         # Remove segments that do not meet predetermined criteria
         df = discard_segments(
             df=df,
             segment_nr_colname=DataColumns.SEGMENT_NR,
-            min_segment_length_s=1.5,
+            min_segment_length_s=min_segment_length_s,
             fs=fs,
         )
 
