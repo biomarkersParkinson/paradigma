@@ -1,22 +1,17 @@
 import numpy as np
-import os
 import pandas as pd
-from pathlib import Path
 from scipy.signal import periodogram
 from typing import List, Tuple
-import tsdf
-
-from datetime import datetime
 
 from paradigma.classification import ClassifierPackage
-from paradigma.constants import DataColumns, TimeUnit
+from paradigma.constants import DataColumns
 from paradigma.config import GaitConfig
 from paradigma.feature_extraction import pca_transform_gyroscope, compute_angle, remove_moving_average_angle, \
     extract_angle_extremes, compute_range_of_motion, compute_peak_angular_velocity, compute_statistics, \
     compute_std_euclidean_norm, compute_power_in_bandwidth, compute_dominant_frequency, compute_mfccs, \
     compute_total_power
 from paradigma.segmenting import tabulate_windows, create_segments, discard_segments, categorize_segments, WindowedDataExtractor
-from paradigma.util import aggregate_parameter, merge_predictions_with_timestamps, read_metadata, write_df_data, get_end_iso8601
+from paradigma.util import aggregate_parameter
 
 
 def extract_gait_features(
@@ -286,8 +281,8 @@ def filter_gait(
     ----------
     df : pd.DataFrame
         The input DataFrame containing features extracted from gait data.
-    full_path_to_classifier_package : str | Path
-        The path to the pre-trained classifier file.
+    clf_package: ClassifierPackage
+        The pre-trained classifier package containing the classifier, threshold, and scaler.
     parallel : bool, optional, default=False
         If `True`, enables parallel processing.
 
