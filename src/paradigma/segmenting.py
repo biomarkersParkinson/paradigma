@@ -236,6 +236,9 @@ def discard_segments(
 
     df = df[valid_segment_mask].copy()
 
+    if df.empty:
+        raise ValueError("All segments were removed.")
+
     # Reset segment numbers in a single step
     unique_segments = pd.factorize(df[segment_nr_colname])[0] + 1
     df[segment_nr_colname] = unique_segments
