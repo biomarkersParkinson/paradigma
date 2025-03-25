@@ -173,7 +173,7 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     - The modal tremor power is computed based on gaussian kernel density estimation.
   
     """
-    nr_valid_days = df['date'].unique().size # number of valid days in the input dataframe
+    nr_valid_days = df['time_dt'].dt.date.unique().size # number of valid days in the input dataframe
     nr_windows_total = df.shape[0] # number of windows in the input dataframe
 
     # remove windows with detected non-tremor arm movements to control for the amount of arm activities performed

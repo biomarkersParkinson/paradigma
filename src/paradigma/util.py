@@ -432,7 +432,7 @@ def merge_predictions_with_timestamps(
     return df_ts
 
 
-def select_hours(df: pd.DataFrame, start_time: datetime, config) -> pd.DataFrame:
+def select_hours(df: pd.DataFrame, select_hours_start: str, select_hours_end: str) -> pd.DataFrame:
     
     """
     Select hours of interest from the data to include in the aggregation step.
@@ -442,15 +442,11 @@ def select_hours(df: pd.DataFrame, start_time: datetime, config) -> pd.DataFrame
     df : pd.DataFrame
         Input data.
 
-    start_time: datetime
-        The start time of the input dataframe (including date and time)
-
-    config: object
-        Configuration object. The following attributes are used:
-        - selected_hours_start: str
-            The start time of the selected hours.
-        - selected_hours_end: str
-            The end time of the selected hours.
+    select_hours_start: str
+        The start time of the selected hours in "HH:MM" format.
+    
+    select_hours_end: str
+            The end time of the selected hours in "HH:MM" format.
 
     Returns
     -------
@@ -458,13 +454,14 @@ def select_hours(df: pd.DataFrame, start_time: datetime, config) -> pd.DataFrame
         The selected data.
 
     """
-    df = df.assign(datetime_col=start_time + (df['time'].values * timedelta(seconds=1))) # create datetime column
-    df_subset = df.set_index('datetime_col').between_time(config.selected_hours_start, config.selected_hours_end).reset_index() # select the hours of interest
+
+    select_hours_start = datetime.strptime(select_hours_start, '%H:%M').time() # convert to time object
+    select_hours_end = datetime.strptime(select_hours_end, '%H:%M').time() 
+    df_subset = df[df['time_dt'].dt.time.between(select_hours_start, select_hours_end)] # select the hours of interest
 
     return df_subset
 
-
-def select_days(df: pd.DataFrame, config) -> pd.DataFrame:
+def select_days(df: pd.DataFrame, min_hours_per_day: int) -> pd.DataFrame:
 
     """
     Select days of interest from the data to include in the aggregation step.
@@ -472,12 +469,11 @@ def select_days(df: pd.DataFrame, config) -> pd.DataFrame:
     Parameters
     ----------
     df : pd.DataFrame
-        Input data with column 'datetime_col'.
+        Input data with column 'time_dt' in which the date is stored.
 
-    config: object
-        Configuration object. The following attribute is used:
-        - min_hours_per_day: int
-            The minimum number of hours per day required for including the day in the aggregation step.
+    min_hours_per_day: int
+        The minimum number of hours per day required for including the day in the aggregation step.
+
 
     Returns
     -------
@@ -485,10 +481,10 @@ def select_days(df: pd.DataFrame, config) -> pd.DataFrame:
         The selected data.
 
     """
-                
-    df['date'] = df['datetime_col'].dt.date
-    min_windows_per_day = config.min_hours_per_day*3600/config.window_length_s 
-    #df_subset = df.groupby('date').filter(lambda x: len(x) >= min_windows_per_day).drop(columns=['date'])
-    df_subset = df.groupby('date').filter(lambda x: len(x) >= min_windows_per_day)
+
+    min_s_per_day = min_hours_per_day * 3600
+    window_length_s = df['time_dt'].diff().dt.total_seconds()[1] # determine the length of the first window in seconds
+    min_windows_per_day = min_s_per_day / window_length_s
+    df_subset = df.groupby(df['time_dt'].dt.date).filter(lambda x: len(x) >= min_windows_per_day)
 
     return df_subset

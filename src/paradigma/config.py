@@ -223,9 +223,6 @@ class TremorConfig(IMUConfig):
         # Aggregation
         # -----------
         self.aggregates_tremor_power: List[str] = ['mode', 'median', '90p']
-        self.selected_hours_start: str = '08:00'
-        self.selected_hours_end: str = '22:00'
-        self.min_hours_per_day: int = 10
 
         # -----------------
         # TSDF data storage
