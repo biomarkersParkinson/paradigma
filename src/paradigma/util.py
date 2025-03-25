@@ -1,9 +1,7 @@
-import json
 import os
 import numpy as np
 import pandas as pd
-from pathlib import Path
-from datetime import timedelta
+from datetime import datetime, timedelta
 from dateutil import parser
 from typing import List, Tuple
 
@@ -432,3 +430,61 @@ def merge_predictions_with_timestamps(
     df_ts = df_ts.dropna(subset=[pred_proba_colname])
 
     return df_ts
+
+
+def select_hours(df: pd.DataFrame, select_hours_start: str, select_hours_end: str) -> pd.DataFrame:
+    
+    """
+    Select hours of interest from the data to include in the aggregation step.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input data.
+
+    select_hours_start: str
+        The start time of the selected hours in "HH:MM" format.
+    
+    select_hours_end: str
+            The end time of the selected hours in "HH:MM" format.
+
+    Returns
+    -------
+    pd.DataFrame
+        The selected data.
+
+    """
+
+    select_hours_start = datetime.strptime(select_hours_start, '%H:%M').time() # convert to time object
+    select_hours_end = datetime.strptime(select_hours_end, '%H:%M').time() 
+    df_subset = df[df['time_dt'].dt.time.between(select_hours_start, select_hours_end)] # select the hours of interest
+
+    return df_subset
+
+def select_days(df: pd.DataFrame, min_hours_per_day: int) -> pd.DataFrame:
+
+    """
+    Select days of interest from the data to include in the aggregation step.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input data with column 'time_dt' in which the date is stored.
+
+    min_hours_per_day: int
+        The minimum number of hours per day required for including the day in the aggregation step.
+
+
+    Returns
+    -------
+    pd.DataFrame
+        The selected data.
+
+    """
+
+    min_s_per_day = min_hours_per_day * 3600
+    window_length_s = df['time_dt'].diff().dt.total_seconds()[1] # determine the length of the first window in seconds
+    min_windows_per_day = min_s_per_day / window_length_s
+    df_subset = df.groupby(df['time_dt'].dt.date).filter(lambda x: len(x) >= min_windows_per_day)
+
+    return df_subset
