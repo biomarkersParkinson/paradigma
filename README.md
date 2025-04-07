@@ -91,8 +91,10 @@ We have included support for [TSDF](https://biomarkersparkinson.github.io/tsdf/)
 
 ## Scientific validation
 
-The pipelines were developed and validated using data from the Parkinson@Home Validation study [[Evers et al. 2020]](https://pmc.ncbi.nlm.nih.gov/articles/PMC7584982/) 
-and the Personalized Parkinson Project [[Bloem et al. 2019]](https://pubmed.ncbi.nlm.nih.gov/31315608/). Details and validation of the different pipelines shall be shared in upcoming scientific publications.
+The pipelines were developed and validated using data from the Parkinson@Home Validation study [[Evers et al. 2020]](https://pmc.ncbi.nlm.nih.gov/articles/PMC7584982/) and the Personalized Parkinson Project [[Bloem et al. 2019]](https://pubmed.ncbi.nlm.nih.gov/31315608/). The following publication contains the details and validation of the arm swing during gait pipeline:
+* [Post, E. et al. - Quantifying arm swing in Parkinson's disease: a method account for arm activities during free-living gait](https://doi.org/10.1186/s12984-025-01578-z)
+
+Details and validation of the other pipelines shall be shared in upcoming scientific publications.
 
 ## Contributing
 
