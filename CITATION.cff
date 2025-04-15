@@ -1,6 +1,6 @@
-cff-version: 1.3.0
+cff-version: 1.3.1
 title: >-
-  ParaDigMa: Parkinson's Disease Digital Markers Toolbox
+  ParaDigMa: A toolbox for deriving Parkinson's disease Digital Markers from real-life wrist sensor data
 message: >-
   If you use this software, please cite it using the
   metadata from this file.
@@ -27,6 +27,7 @@ authors:
   affiliation: >-
     Radboud University Medical Center, Nijmegen,
     Netherlands
+  orcid: 'https://orcid.org/0009-0001-3814-3440'
 
 - given-names: Diogo
   family-names: Soriano

@@ -597,11 +597,9 @@ def pca_transform_gyroscope(
         df: pd.DataFrame,
         y_gyro_colname: str,
         z_gyro_colname: str,
-        pred_colname: str | None = None,
 ) -> np.ndarray:
     """
-    Perform principal component analysis (PCA) on gyroscope data to estimate velocity. If pred_colname is provided, 
-    the PCA is fitted on the predicted gait data. Otherwise, the PCA is fitted on the entire dataset.
+    Perform principal component analysis (PCA) on gyroscope data to estimate velocity.
     
     Parameters
     ----------
@@ -611,8 +609,6 @@ def pca_transform_gyroscope(
         The column name for the y-axis gyroscope data.
     z_gyro_colname : str
         The column name for the z-axis gyroscope data.
-    pred_colname : str, optional
-        The column name for the predicted gait (default: None).
         
     Returns
     -------
@@ -623,19 +619,9 @@ def pca_transform_gyroscope(
     y_gyro_array = df[y_gyro_colname].to_numpy()
     z_gyro_array = df[z_gyro_colname].to_numpy()
 
-    # Filter data based on predicted gait if pred_colname is provided
-    if pred_colname is not None:
-        pred_mask = df[pred_colname] == 1
-        y_gyro_fit_array = y_gyro_array[pred_mask]
-        z_gyro_fit_array = z_gyro_array[pred_mask]
-
-        # Fit PCA on predicted gait data
-        fit_data = np.column_stack((y_gyro_fit_array, z_gyro_fit_array))
-        full_data = np.column_stack((y_gyro_array, z_gyro_array))
-    else:
-        # Fit PCA on entire dataset
-        fit_data = np.column_stack((y_gyro_array, z_gyro_array))
-        full_data = fit_data
+    # Fit PCA
+    fit_data = np.column_stack((y_gyro_array, z_gyro_array))
+    full_data = fit_data
 
     pca = PCA(n_components=2, svd_solver='auto', random_state=22)
     pca.fit(fit_data)

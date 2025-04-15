@@ -163,8 +163,8 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     Returns
     -------
     dict
-        A dictionary with the aggregated tremor time and tremor power measures, as well as the total number of windows
-        available in the input dataframe, and the number of windows at rest.
+        A dictionary with the aggregated tremor time and tremor power measures, as well as the number of valid days,
+        the total number of windows, and the number of windows at rest available in the input dataframe.
 
     Notes
     -----
@@ -173,7 +173,7 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     - The modal tremor power is computed based on gaussian kernel density estimation.
   
     """
-
+    nr_valid_days = df['time_dt'].dt.date.unique().size # number of valid days in the input dataframe
     nr_windows_total = df.shape[0] # number of windows in the input dataframe
 
     # remove windows with detected non-tremor arm movements to control for the amount of arm activities performed
@@ -216,6 +216,7 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     # store aggregates in json format
     d_aggregates = {
         'metadata': {
+            'nr_valid_days': nr_valid_days,
             'nr_windows_total': nr_windows_total,
             'nr_windows_rest': nr_windows_rest
         },
