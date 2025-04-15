@@ -9,7 +9,8 @@
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=77836b02" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=1228b8db" />
 
   
   <!--[if lt IE 9]>
@@ -157,7 +158,7 @@
 <td><p>Maps values from the Mel scale back to linear frequencies.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.feature_extraction.pca_transform_gyroscope" title="paradigma.feature_extraction.pca_transform_gyroscope"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pca_transform_gyroscope</span></code></a>(→ numpy.ndarray)</p></td>
-<td><p>Perform principal component analysis (PCA) on gyroscope data to estimate velocity. If pred_colname is provided,</p></td>
+<td><p>Perform principal component analysis (PCA) on gyroscope data to estimate velocity.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#paradigma.feature_extraction.compute_angle" title="paradigma.feature_extraction.compute_angle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_angle</span></code></a>(→ numpy.ndarray)</p></td>
 <td><p>Compute the angle from the angular velocity using cumulative trapezoidal integration.</p></td>
@@ -554,16 +555,14 @@ converting perceptual frequency values to their corresponding linear frequency v
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.feature_extraction.pca_transform_gyroscope">
-<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">pca_transform_gyroscope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_gyro_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_gyro_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#pca_transform_gyroscope"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.pca_transform_gyroscope" title="Link to this definition"></a></dt>
-<dd><p>Perform principal component analysis (PCA) on gyroscope data to estimate velocity. If pred_colname is provided,
-the PCA is fitted on the predicted gait data. Otherwise, the PCA is fitted on the entire dataset.</p>
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">pca_transform_gyroscope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_gyro_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_gyro_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#pca_transform_gyroscope"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.pca_transform_gyroscope" title="Link to this definition"></a></dt>
+<dd><p>Perform principal component analysis (PCA) on gyroscope data to estimate velocity.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The DataFrame containing the gyroscope data.</p></li>
 <li><p><strong>y_gyro_colname</strong> (<em>str</em>) – The column name for the y-axis gyroscope data.</p></li>
 <li><p><strong>z_gyro_colname</strong> (<em>str</em>) – The column name for the z-axis gyroscope data.</p></li>
-<li><p><strong>pred_colname</strong> (<em>str</em><em>, </em><em>optional</em>) – The column name for the predicted gait (default: None).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

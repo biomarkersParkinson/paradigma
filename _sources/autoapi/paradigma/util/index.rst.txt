@@ -23,6 +23,8 @@ Functions
    paradigma.util.invert_watch_side
    paradigma.util.aggregate_parameter
    paradigma.util.merge_predictions_with_timestamps
+   paradigma.util.select_hours
+   paradigma.util.select_days
 
 
 Module Contents
@@ -203,5 +205,33 @@ Module Contents
    ------
    - Rounding is applied to timestamps to mitigate floating-point inaccuracies.
    - Fully vectorized for speed and scalability, avoiding any row-wise operations.
+
+
+.. py:function:: select_hours(df: pandas.DataFrame, select_hours_start: str, select_hours_end: str) -> pandas.DataFrame
+
+   Select hours of interest from the data to include in the aggregation step.
+
+   :param df: Input data.
+   :type df: pd.DataFrame
+   :param select_hours_start: The start time of the selected hours in "HH:MM" format.
+   :type select_hours_start: str
+   :param select_hours_end: The end time of the selected hours in "HH:MM" format.
+   :type select_hours_end: str
+
+   :returns: The selected data.
+   :rtype: pd.DataFrame
+
+
+.. py:function:: select_days(df: pandas.DataFrame, min_hours_per_day: int) -> pandas.DataFrame
+
+   Select days of interest from the data to include in the aggregation step.
+
+   :param df: Input data with column 'time_dt' in which the date is stored.
+   :type df: pd.DataFrame
+   :param min_hours_per_day: The minimum number of hours per day required for including the day in the aggregation step.
+   :type min_hours_per_day: int
+
+   :returns: The selected data.
+   :rtype: pd.DataFrame
 
 

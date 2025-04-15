@@ -1,0 +1,128 @@
+Traceback (most recent call last):
+  File "/home/runner/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.12/lib/python3.12/site-packages/jupyter_cache/executors/utils.py", line 58, in single_nb_execution
+    executenb(
+  File "/home/runner/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.12/lib/python3.12/site-packages/nbclient/client.py", line 1319, in execute
+    return NotebookClient(nb=nb, resources=resources, km=km, **kwargs).execute()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.12/lib/python3.12/site-packages/jupyter_core/utils/__init__.py", line 165, in wrapped
+    return loop.run_until_complete(inner)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.12/lib/python3.12/site-packages/nbclient/client.py", line 709, in async_execute
+    await self.async_execute_cell(
+  File "/home/runner/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.12/lib/python3.12/site-packages/nbclient/client.py", line 1062, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "/home/runner/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.12/lib/python3.12/site-packages/nbclient/client.py", line 918, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+from pathlib import Path
+from paradigma.util import load_tsdf_dataframe
+
+# Set the path to where the prepared data is saved and load the data.
+# Note: the test data is stored in TSDF, but you can load your data in your own way
+path_to_prepared_data =  Path('../../example_data')
+
+ppg_prefix = 'ppg'
+imu_prefix = 'imu'
+
+segment_nr = '0001' 
+
+df_ppg, metadata_time_ppg, metadata_values_ppg = load_tsdf_dataframe(
+    path_to_data=path_to_prepared_data / ppg_prefix, 
+    prefix=f'PPG_segment{segment_nr}'
+)
+df_imu, metadata_time_imu, metadata_values_imu = load_tsdf_dataframe(
+    path_to_data=path_to_prepared_data / imu_prefix, 
+    prefix=f'IMU_segment{segment_nr}'
+)
+
+# Drop the gyroscope columns from the IMU data
+cols_to_drop = df_imu.filter(regex='^gyroscope_').columns
+df_acc = df_imu.drop(cols_to_drop, axis=1)
+
+display(df_ppg, df_acc)
+------------------
+
+
+[31m---------------------------------------------------------------------------[39m
+[31mJSONDecodeError[39m                           Traceback (most recent call last)
+[36mCell[39m[36m [39m[32mIn[1][39m[32m, line 13[39m
+[32m      9[39m imu_prefix = [33m'[39m[33mimu[39m[33m'[39m
+[32m     11[39m segment_nr = [33m'[39m[33m0001[39m[33m'[39m 
+[32m---> [39m[32m13[39m df_ppg, metadata_time_ppg, metadata_values_ppg = [43mload_tsdf_dataframe[49m[43m([49m
+[32m     14[39m [43m    [49m[43mpath_to_data[49m[43m=[49m[43mpath_to_prepared_data[49m[43m [49m[43m/[49m[43m [49m[43mppg_prefix[49m[43m,[49m[43m [49m
+[32m     15[39m [43m    [49m[43mprefix[49m[43m=[49m[33;43mf[39;49m[33;43m'[39;49m[33;43mPPG_segment[39;49m[38;5;132;43;01m{[39;49;00m[43msegment_nr[49m[38;5;132;43;01m}[39;49;00m[33;43m'[39;49m
+[32m     16[39m [43m)[49m
+[32m     17[39m df_imu, metadata_time_imu, metadata_values_imu = load_tsdf_dataframe(
+[32m     18[39m     path_to_data=path_to_prepared_data / imu_prefix, 
+[32m     19[39m     prefix=[33mf[39m[33m'[39m[33mIMU_segment[39m[38;5;132;01m{[39;00msegment_nr[38;5;132;01m}[39;00m[33m'[39m
+[32m     20[39m )
+[32m     22[39m [38;5;66;03m# Drop the gyroscope columns from the IMU data[39;00m
+
+[36mFile [39m[32m~/work/paradigma/paradigma/src/paradigma/util.py:134[39m, in [36mload_tsdf_dataframe[39m[34m(path_to_data, prefix, meta_suffix, time_suffix, values_suffix)[39m
+[32m    131[39m time_filename = [33mf[39m[33m"[39m[38;5;132;01m{[39;00mprefix[38;5;132;01m}[39;00m[33m_[39m[38;5;132;01m{[39;00mtime_suffix[38;5;132;01m}[39;00m[33m"[39m
+[32m    132[39m values_filename = [33mf[39m[33m"[39m[38;5;132;01m{[39;00mprefix[38;5;132;01m}[39;00m[33m_[39m[38;5;132;01m{[39;00mvalues_suffix[38;5;132;01m}[39;00m[33m"[39m
+[32m--> [39m[32m134[39m metadata_time, metadata_values = [43mread_metadata[49m[43m([49m[43mpath_to_data[49m[43m,[49m[43m [49m[43mmeta_filename[49m[43m,[49m[43m [49m[43mtime_filename[49m[43m,[49m[43m [49m[43mvalues_filename[49m[43m)[49m
+[32m    135[39m df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
+[32m    137[39m [38;5;28;01mreturn[39;00m df, metadata_time, metadata_values
+
+[36mFile [39m[32m~/work/paradigma/paradigma/src/paradigma/util.py:121[39m, in [36mread_metadata[39m[34m(input_path, meta_filename, time_filename, values_filename)[39m
+[32m    118[39m [38;5;28;01mdef[39;00m[38;5;250m [39m[34mread_metadata[39m(
+[32m    119[39m     input_path: [38;5;28mstr[39m, meta_filename: [38;5;28mstr[39m, time_filename: [38;5;28mstr[39m, values_filename: [38;5;28mstr[39m
+[32m    120[39m ) -> Tuple[TSDFMetadata, TSDFMetadata]:
+[32m--> [39m[32m121[39m     metadata_dict = [43mtsdf[49m[43m.[49m[43mload_metadata_from_path[49m[43m([49m
+[32m    122[39m [43m        [49m[43mos[49m[43m.[49m[43mpath[49m[43m.[49m[43mjoin[49m[43m([49m[43minput_path[49m[43m,[49m[43m [49m[43mmeta_filename[49m[43m)[49m
+[32m    123[39m [43m    [49m[43m)[49m
+[32m    124[39m     metadata_time = metadata_dict[time_filename]
+[32m    125[39m     metadata_values = metadata_dict[values_filename]
+
+[36mFile [39m[32m~/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.12/lib/python3.12/site-packages/tsdf/read_tsdf.py:84[39m, in [36mload_metadata_from_path[39m[34m(path)[39m
+[32m     82[39m [38;5;66;03m# The data is isomorphic to a JSON[39;00m
+[32m     83[39m [38;5;28;01mwith[39;00m [38;5;28mopen[39m(path, [33m"[39m[33mr[39m[33m"[39m) [38;5;28;01mas[39;00m file:
+[32m---> [39m[32m84[39m     data = [43mjson[49m[43m.[49m[43mload[49m[43m([49m[43mfile[49m[43m)[49m
+[32m     86[39m abs_path = os.path.realpath(path)
+[32m     87[39m [38;5;66;03m# Parse the data and verify that it complies with TSDF requirements[39;00m
+
+[36mFile [39m[32m/usr/lib/python3.12/json/__init__.py:293[39m, in [36mload[39m[34m(fp, cls, object_hook, parse_float, parse_int, parse_constant, object_pairs_hook, **kw)[39m
+[32m    274[39m [38;5;28;01mdef[39;00m[38;5;250m [39m[34mload[39m(fp, *, [38;5;28mcls[39m=[38;5;28;01mNone[39;00m, object_hook=[38;5;28;01mNone[39;00m, parse_float=[38;5;28;01mNone[39;00m,
+[32m    275[39m         parse_int=[38;5;28;01mNone[39;00m, parse_constant=[38;5;28;01mNone[39;00m, object_pairs_hook=[38;5;28;01mNone[39;00m, **kw):
+[32m    276[39m [38;5;250m    [39m[33;03m"""Deserialize ``fp`` (a ``.read()``-supporting file-like object containing[39;00m
+[32m    277[39m [33;03m    a JSON document) to a Python object.[39;00m
+[32m    278[39m 
+[32m   (...)[39m[32m    291[39m [33;03m    kwarg; otherwise ``JSONDecoder`` is used.[39;00m
+[32m    292[39m [33;03m    """[39;00m
+[32m--> [39m[32m293[39m     [38;5;28;01mreturn[39;00m [43mloads[49m[43m([49m[43mfp[49m[43m.[49m[43mread[49m[43m([49m[43m)[49m[43m,[49m
+[32m    294[39m [43m        [49m[38;5;28;43mcls[39;49m[43m=[49m[38;5;28;43mcls[39;49m[43m,[49m[43m [49m[43mobject_hook[49m[43m=[49m[43mobject_hook[49m[43m,[49m
+[32m    295[39m [43m        [49m[43mparse_float[49m[43m=[49m[43mparse_float[49m[43m,[49m[43m [49m[43mparse_int[49m[43m=[49m[43mparse_int[49m[43m,[49m
+[32m    296[39m [43m        [49m[43mparse_constant[49m[43m=[49m[43mparse_constant[49m[43m,[49m[43m [49m[43mobject_pairs_hook[49m[43m=[49m[43mobject_pairs_hook[49m[43m,[49m[43m [49m[43m*[49m[43m*[49m[43mkw[49m[43m)[49m
+
+[36mFile [39m[32m/usr/lib/python3.12/json/__init__.py:346[39m, in [36mloads[39m[34m(s, cls, object_hook, parse_float, parse_int, parse_constant, object_pairs_hook, **kw)[39m
+[32m    341[39m     s = s.decode(detect_encoding(s), [33m'[39m[33msurrogatepass[39m[33m'[39m)
+[32m    343[39m [38;5;28;01mif[39;00m ([38;5;28mcls[39m [38;5;129;01mis[39;00m [38;5;28;01mNone[39;00m [38;5;129;01mand[39;00m object_hook [38;5;129;01mis[39;00m [38;5;28;01mNone[39;00m [38;5;129;01mand[39;00m
+[32m    344[39m         parse_int [38;5;129;01mis[39;00m [38;5;28;01mNone[39;00m [38;5;129;01mand[39;00m parse_float [38;5;129;01mis[39;00m [38;5;28;01mNone[39;00m [38;5;129;01mand[39;00m
+[32m    345[39m         parse_constant [38;5;129;01mis[39;00m [38;5;28;01mNone[39;00m [38;5;129;01mand[39;00m object_pairs_hook [38;5;129;01mis[39;00m [38;5;28;01mNone[39;00m [38;5;129;01mand[39;00m [38;5;129;01mnot[39;00m kw):
+[32m--> [39m[32m346[39m     [38;5;28;01mreturn[39;00m [43m_default_decoder[49m[43m.[49m[43mdecode[49m[43m([49m[43ms[49m[43m)[49m
+[32m    347[39m [38;5;28;01mif[39;00m [38;5;28mcls[39m [38;5;129;01mis[39;00m [38;5;28;01mNone[39;00m:
+[32m    348[39m     [38;5;28mcls[39m = JSONDecoder
+
+[36mFile [39m[32m/usr/lib/python3.12/json/decoder.py:337[39m, in [36mJSONDecoder.decode[39m[34m(self, s, _w)[39m
+[32m    332[39m [38;5;28;01mdef[39;00m[38;5;250m [39m[34mdecode[39m([38;5;28mself[39m, s, _w=WHITESPACE.match):
+[32m    333[39m [38;5;250m    [39m[33;03m"""Return the Python representation of ``s`` (a ``str`` instance[39;00m
+[32m    334[39m [33;03m    containing a JSON document).[39;00m
+[32m    335[39m 
+[32m    336[39m [33;03m    """[39;00m
+[32m--> [39m[32m337[39m     obj, end = [38;5;28;43mself[39;49m[43m.[49m[43mraw_decode[49m[43m([49m[43ms[49m[43m,[49m[43m [49m[43midx[49m[43m=[49m[43m_w[49m[43m([49m[43ms[49m[43m,[49m[43m [49m[32;43m0[39;49m[43m)[49m[43m.[49m[43mend[49m[43m([49m[43m)[49m[43m)[49m
+[32m    338[39m     end = _w(s, end).end()
+[32m    339[39m     [38;5;28;01mif[39;00m end != [38;5;28mlen[39m(s):
+
+[36mFile [39m[32m/usr/lib/python3.12/json/decoder.py:355[39m, in [36mJSONDecoder.raw_decode[39m[34m(self, s, idx)[39m
+[32m    353[39m     obj, end = [38;5;28mself[39m.scan_once(s, idx)
+[32m    354[39m [38;5;28;01mexcept[39;00m [38;5;167;01mStopIteration[39;00m [38;5;28;01mas[39;00m err:
+[32m--> [39m[32m355[39m     [38;5;28;01mraise[39;00m JSONDecodeError([33m"[39m[33mExpecting value[39m[33m"[39m, s, err.value) [38;5;28;01mfrom[39;00m[38;5;250m [39m[38;5;28;01mNone[39;00m
+[32m    356[39m [38;5;28;01mreturn[39;00m obj, end
+
+[31mJSONDecodeError[39m: Expecting value: line 1 column 1 (char 0)
+

@@ -8,7 +8,8 @@
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=77836b02" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=1228b8db" />
 
   
   <!--[if lt IE 9]>
@@ -266,8 +267,8 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    dict</span>
-<span class="sd">        A dictionary with the aggregated tremor time and tremor power measures, as well as the total number of windows</span>
-<span class="sd">        available in the input dataframe, and the number of windows at rest.</span>
+<span class="sd">        A dictionary with the aggregated tremor time and tremor power measures, as well as the number of valid days,</span>
+<span class="sd">        the total number of windows, and the number of windows at rest available in the input dataframe.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -276,7 +277,7 @@
 <span class="sd">    - The modal tremor power is computed based on gaussian kernel density estimation.</span>
 <span class="sd">  </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
+    <span class="n">nr_valid_days</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;time_dt&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">size</span> <span class="c1"># number of valid days in the input dataframe</span>
     <span class="n">nr_windows_total</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># number of windows in the input dataframe</span>
 
     <span class="c1"># remove windows with detected non-tremor arm movements to control for the amount of arm activities performed</span>
@@ -319,6 +320,7 @@
     <span class="c1"># store aggregates in json format</span>
     <span class="n">d_aggregates</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;nr_valid_days&#39;</span><span class="p">:</span> <span class="n">nr_valid_days</span><span class="p">,</span>
             <span class="s1">&#39;nr_windows_total&#39;</span><span class="p">:</span> <span class="n">nr_windows_total</span><span class="p">,</span>
             <span class="s1">&#39;nr_windows_rest&#39;</span><span class="p">:</span> <span class="n">nr_windows_rest</span>
         <span class="p">},</span>

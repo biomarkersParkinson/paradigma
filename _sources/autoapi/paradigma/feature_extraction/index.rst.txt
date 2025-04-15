@@ -309,10 +309,9 @@ Module Contents
    :rtype: np.ndarray
 
 
-.. py:function:: pca_transform_gyroscope(df: pandas.DataFrame, y_gyro_colname: str, z_gyro_colname: str, pred_colname: str | None = None) -> numpy.ndarray
+.. py:function:: pca_transform_gyroscope(df: pandas.DataFrame, y_gyro_colname: str, z_gyro_colname: str) -> numpy.ndarray
 
-   Perform principal component analysis (PCA) on gyroscope data to estimate velocity. If pred_colname is provided,
-   the PCA is fitted on the predicted gait data. Otherwise, the PCA is fitted on the entire dataset.
+   Perform principal component analysis (PCA) on gyroscope data to estimate velocity.
 
    :param df: The DataFrame containing the gyroscope data.
    :type df: pd.DataFrame
@@ -320,8 +319,6 @@ Module Contents
    :type y_gyro_colname: str
    :param z_gyro_colname: The column name for the z-axis gyroscope data.
    :type z_gyro_colname: str
-   :param pred_colname: The column name for the predicted gait (default: None).
-   :type pred_colname: str, optional
 
    :returns: The estimated velocity based on the principal component of the gyroscope data.
    :rtype: np.ndarray

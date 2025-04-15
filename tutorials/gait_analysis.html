@@ -9,7 +9,8 @@
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=77836b02" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1228b8db" />
 
   
   <!--[if lt IE 9]>
@@ -55,10 +56,16 @@
 <li class="toctree-l2"><a class="reference internal" href="#load-data">Load data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#step-1-preprocess-data">Step 1: Preprocess data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#step-2-extract-gait-features">Step 2: Extract gait features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#step-3-gait-detection">Step 3: Gait detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-3-gait-detection">Step 3: Gait detection</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#store-as-tsdf">Store as TSDF</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#step-4-arm-activity-feature-extraction">Step 4: Arm activity feature extraction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#step-5-filtering-gait">Step 5: Filtering gait</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#step-6-arm-swing-quantification">Step 6: Arm swing quantification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-6-arm-swing-quantification">Step 6: Arm swing quantification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#run-steps-1-6-for-the-all-raw-data-segment-s">Run steps 1-6 for the all raw data segment(s) <a id='multiple_segments_cell'></a></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#step-7-aggregation">Step 7: Aggregation</a></li>
 </ul>
 </li>
@@ -108,7 +115,7 @@
   <section id="gait-analysis">
 <h1>Gait analysis<a class="headerlink" href="#gait-analysis" title="Link to this heading"></a></h1>
 <p>This tutorial showcases the high-level functions composing the gait pipeline. Before following along, make sure all data preparation steps have been followed in the data preparation tutorial.</p>
-<p>To run the complete gait pipeline, a prerequisite is to have both accelerometer and gyroscope data, although a small part of the pipeline requires only accelerometer data. Roughly, the pipeline can be split into seven segments:</p>
+<p>In this tutorial, we use two days of data from a participant of the Personalized Parkinson Project to demonstrate the functionalities. Since <code class="docutils literal notranslate"><span class="pre">ParaDigMa</span></code> expects contiguous time series, the collected data was stored in two segments each with contiguous timestamps. Per segment, we load the data and perform the following steps:</p>
 <ol class="arabic simple">
 <li><p>Data preprocessing</p></li>
 <li><p>Gait feature extraction</p></li>
@@ -116,178 +123,115 @@
 <li><p>Arm activity feature extraction</p></li>
 <li><p>Filtering gait</p></li>
 <li><p>Arm swing quantification</p></li>
+</ol>
+<p>We then combine the output of the different raw data segments for the final step:</p>
+<ol class="arabic simple" start="7">
 <li><p>Aggregation</p></li>
 </ol>
-<p>Using only accelerometer data, the first three steps can be completed.</p>
+<p>To run the complete gait pipeline, a prerequisite is to have both accelerometer and gyroscope data, although the first three steps can be completed using only accelerometer data.</p>
 <p>[!WARNING] The gait pipeline has been developed on data of the Gait Up Physilog 4, and is currently being validated on the Verily Study Watch. Different sensors and positions on the wrist may affect outcomes.</p>
-<p>Throughout the tutorial, a small segment of data from a participant of the Personalized Parkinson Project is used to demonstrate the functionalities.</p>
 <section id="load-data">
 <h2>Load data<a class="headerlink" href="#load-data" title="Link to this heading"></a></h2>
-<p>Load the prepared data into memory. For example, the following functions can be used depending on the file extension of the data:</p>
+<p>Here, we start by loading a single contiguous time series (segment), for which we continue running steps 1-6. Below we show how to run these steps for multiple raw data segments.</p>
+<p>We use the interally developed <code class="docutils literal notranslate"><span class="pre">TSDF</span></code> (<a class="reference external" href="https://biomarkersparkinson.github.io/tsdf/">documentation</a>) to load and store data [<a class="reference external" href="https://arxiv.org/abs/2211.11294">1</a>]. Depending on the file extension of your time series data, examples of other Python functions for loading the data into memory include:</p>
 <ul class="simple">
 <li><p><em>.csv</em>: <code class="docutils literal notranslate"><span class="pre">pandas.read_csv()</span></code> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html">documentation</a>)</p></li>
 <li><p><em>.json</em>: <code class="docutils literal notranslate"><span class="pre">json.load()</span></code> (<a class="reference external" href="https://docs.python.org/3/library/json.html#json.load">documentation</a>)</p></li>
 </ul>
-<p>We use the interally developed <code class="docutils literal notranslate"><span class="pre">TSDF</span></code> (<a class="reference external" href="https://biomarkersparkinson.github.io/tsdf/">documentation</a>) to load and store data [<a class="reference external" href="https://arxiv.org/abs/2211.11294">1</a>].</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span>
 
-<span class="c1"># Set the path to the data file location</span>
-<span class="n">path_to_data</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../tests/data&#39;</span><span class="p">)</span>
-<span class="n">path_to_prepared_data</span> <span class="o">=</span>  <span class="n">path_to_data</span> <span class="o">/</span> <span class="s1">&#39;1.prepared_data&#39;</span> <span class="o">/</span> <span class="s1">&#39;imu&#39;</span>
+<span class="c1"># Set the path to where the prepared data is saved and load the data.</span>
+<span class="c1"># Note: the test data is stored in TSDF, but you can load your data in your own way</span>
+<span class="n">path_to_data</span> <span class="o">=</span>  <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../example_data&#39;</span><span class="p">)</span>
+<span class="n">path_to_prepared_data</span> <span class="o">=</span> <span class="n">path_to_data</span> <span class="o">/</span> <span class="s1">&#39;imu&#39;</span>
+
+<span class="n">raw_data_segment_nr</span>  <span class="o">=</span> <span class="s1">&#39;0001&#39;</span> 
 
 <span class="c1"># Load the data from the file</span>
-<span class="n">df_imu</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_prepared_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;IMU&#39;</span><span class="p">)</span>
+<span class="n">df_imu</span><span class="p">,</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_prepared_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">raw_data_segment_nr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
 <span class="n">df_imu</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_html"><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">JSONDecodeError</span><span class="g g-Whitespace">                           </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">12</span>
+<span class="g g-Whitespace">      </span><span class="mi">9</span> <span class="n">raw_data_segment_nr</span>  <span class="o">=</span> <span class="s1">&#39;0001&#39;</span> 
+<span class="g g-Whitespace">     </span><span class="mi">11</span> <span class="c1"># Load the data from the file</span>
+<span class="ne">---&gt; </span><span class="mi">12</span> <span class="n">df_imu</span><span class="p">,</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_prepared_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">raw_data_segment_nr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">14</span> <span class="n">df_imu</span>
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+<span class="nn">File ~/work/paradigma/paradigma/src/paradigma/util.py:134,</span> in <span class="ni">load_tsdf_dataframe</span><span class="nt">(path_to_data, prefix, meta_suffix, time_suffix, values_suffix)</span>
+<span class="g g-Whitespace">    </span><span class="mi">131</span> <span class="n">time_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">time_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="g g-Whitespace">    </span><span class="mi">132</span> <span class="n">values_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">values_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="ne">--&gt; </span><span class="mi">134</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">path_to_data</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">,</span> <span class="n">time_filename</span><span class="p">,</span> <span class="n">values_filename</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">135</span> <span class="n">df</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">137</span> <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>time</th>
-      <th>accelerometer_x</th>
-      <th>accelerometer_y</th>
-      <th>accelerometer_z</th>
-      <th>gyroscope_x</th>
-      <th>gyroscope_y</th>
-      <th>gyroscope_z</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.00000</td>
-      <td>0.550718</td>
-      <td>0.574163</td>
-      <td>-0.273684</td>
-      <td>-115.670732</td>
-      <td>32.012195</td>
-      <td>-26.097561</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.01004</td>
-      <td>0.535885</td>
-      <td>0.623445</td>
-      <td>-0.254545</td>
-      <td>-110.609757</td>
-      <td>34.634146</td>
-      <td>-24.695122</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>0.02008</td>
-      <td>0.504306</td>
-      <td>0.651675</td>
-      <td>-0.251675</td>
-      <td>-103.231708</td>
-      <td>36.768293</td>
-      <td>-22.926829</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0.03012</td>
-      <td>0.488517</td>
-      <td>0.686603</td>
-      <td>-0.265550</td>
-      <td>-96.280488</td>
-      <td>38.719512</td>
-      <td>-21.158537</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>0.04016</td>
-      <td>0.494258</td>
-      <td>0.725359</td>
-      <td>-0.278469</td>
-      <td>-92.560976</td>
-      <td>41.280488</td>
-      <td>-20.304878</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>72942</th>
-      <td>730.74468</td>
-      <td>0.234928</td>
-      <td>-0.516268</td>
-      <td>-0.802871</td>
-      <td>0.975610</td>
-      <td>-2.256098</td>
-      <td>2.256098</td>
-    </tr>
-    <tr>
-      <th>72943</th>
-      <td>730.75472</td>
-      <td>0.245455</td>
-      <td>-0.514354</td>
-      <td>-0.806699</td>
-      <td>0.304878</td>
-      <td>-1.707317</td>
-      <td>1.768293</td>
-    </tr>
-    <tr>
-      <th>72944</th>
-      <td>730.76476</td>
-      <td>0.243541</td>
-      <td>-0.511005</td>
-      <td>-0.807177</td>
-      <td>0.304878</td>
-      <td>-1.585366</td>
-      <td>1.890244</td>
-    </tr>
-    <tr>
-      <th>72945</th>
-      <td>730.77480</td>
-      <td>0.240191</td>
-      <td>-0.514354</td>
-      <td>-0.808134</td>
-      <td>0.000000</td>
-      <td>-1.280488</td>
-      <td>1.585366</td>
-    </tr>
-    <tr>
-      <th>72946</th>
-      <td>730.78484</td>
-      <td>0.243541</td>
-      <td>-0.511005</td>
-      <td>-0.808134</td>
-      <td>-0.060976</td>
-      <td>-1.036585</td>
-      <td>1.219512</td>
-    </tr>
-  </tbody>
-</table>
-<p>72947 rows × 7 columns</p>
-</div></div></div>
+<span class="nn">File ~/work/paradigma/paradigma/src/paradigma/util.py:121,</span> in <span class="ni">read_metadata</span><span class="nt">(input_path, meta_filename, time_filename, values_filename)</span>
+<span class="g g-Whitespace">    </span><span class="mi">118</span> <span class="k">def</span><span class="w"> </span><span class="nf">read_metadata</span><span class="p">(</span>
+<span class="g g-Whitespace">    </span><span class="mi">119</span>     <span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">time_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values_filename</span><span class="p">:</span> <span class="nb">str</span>
+<span class="g g-Whitespace">    </span><span class="mi">120</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">TSDFMetadata</span><span class="p">,</span> <span class="n">TSDFMetadata</span><span class="p">]:</span>
+<span class="ne">--&gt; </span><span class="mi">121</span>     <span class="n">metadata_dict</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_metadata_from_path</span><span class="p">(</span>
+<span class="g g-Whitespace">    </span><span class="mi">122</span>         <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">123</span>     <span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">124</span>     <span class="n">metadata_time</span> <span class="o">=</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="n">time_filename</span><span class="p">]</span>
+<span class="g g-Whitespace">    </span><span class="mi">125</span>     <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="n">values_filename</span><span class="p">]</span>
+
+<span class="nn">File ~/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.12/lib/python3.12/site-packages/tsdf/read_tsdf.py:84,</span> in <span class="ni">load_metadata_from_path</span><span class="nt">(path)</span>
+<span class="g g-Whitespace">     </span><span class="mi">82</span> <span class="c1"># The data is isomorphic to a JSON</span>
+<span class="g g-Whitespace">     </span><span class="mi">83</span> <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+<span class="ne">---&gt; </span><span class="mi">84</span>     <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">86</span> <span class="n">abs_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">87</span> <span class="c1"># Parse the data and verify that it complies with TSDF requirements</span>
+
+<span class="nn">File /usr/lib/python3.12/json/__init__.py:293,</span> in <span class="ni">load</span><span class="nt">(fp, cls, object_hook, parse_float, parse_int, parse_constant, object_pairs_hook, **kw)</span>
+<span class="g g-Whitespace">    </span><span class="mi">274</span> <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">object_hook</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parse_float</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">275</span>         <span class="n">parse_int</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parse_constant</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">object_pairs_hook</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+<span class="g g-Whitespace">    </span><span class="mi">276</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;Deserialize ``fp`` (a ``.read()``-supporting file-like object containing</span>
+<span class="g g-Whitespace">    </span><span class="mi">277</span><span class="sd">     a JSON document) to a Python object.</span>
+<span class="g g-Whitespace">    </span><span class="mi">278</span><span class="sd"> </span>
+<span class="sd">   (...)    291     kwarg; otherwise ``JSONDecoder`` is used.</span>
+<span class="g g-Whitespace">    </span><span class="mi">292</span><span class="sd">     &quot;&quot;&quot;</span>
+<span class="ne">--&gt; </span><span class="mi">293</span>     <span class="k">return</span> <span class="n">loads</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span>
+<span class="g g-Whitespace">    </span><span class="mi">294</span>         <span class="bp">cls</span><span class="o">=</span><span class="bp">cls</span><span class="p">,</span> <span class="n">object_hook</span><span class="o">=</span><span class="n">object_hook</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">295</span>         <span class="n">parse_float</span><span class="o">=</span><span class="n">parse_float</span><span class="p">,</span> <span class="n">parse_int</span><span class="o">=</span><span class="n">parse_int</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">296</span>         <span class="n">parse_constant</span><span class="o">=</span><span class="n">parse_constant</span><span class="p">,</span> <span class="n">object_pairs_hook</span><span class="o">=</span><span class="n">object_pairs_hook</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+
+<span class="nn">File /usr/lib/python3.12/json/__init__.py:346,</span> in <span class="ni">loads</span><span class="nt">(s, cls, object_hook, parse_float, parse_int, parse_constant, object_pairs_hook, **kw)</span>
+<span class="g g-Whitespace">    </span><span class="mi">341</span>     <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">detect_encoding</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="s1">&#39;surrogatepass&#39;</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">343</span> <span class="k">if</span> <span class="p">(</span><span class="bp">cls</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">object_hook</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span>
+<span class="g g-Whitespace">    </span><span class="mi">344</span>         <span class="n">parse_int</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">parse_float</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span>
+<span class="g g-Whitespace">    </span><span class="mi">345</span>         <span class="n">parse_constant</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">object_pairs_hook</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">kw</span><span class="p">):</span>
+<span class="ne">--&gt; </span><span class="mi">346</span>     <span class="k">return</span> <span class="n">_default_decoder</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">347</span> <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">348</span>     <span class="bp">cls</span> <span class="o">=</span> <span class="n">JSONDecoder</span>
+
+<span class="nn">File /usr/lib/python3.12/json/decoder.py:337,</span> in <span class="ni">JSONDecoder.decode</span><span class="nt">(self, s, _w)</span>
+<span class="g g-Whitespace">    </span><span class="mi">332</span> <span class="k">def</span><span class="w"> </span><span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">_w</span><span class="o">=</span><span class="n">WHITESPACE</span><span class="o">.</span><span class="n">match</span><span class="p">):</span>
+<span class="g g-Whitespace">    </span><span class="mi">333</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;Return the Python representation of ``s`` (a ``str`` instance</span>
+<span class="g g-Whitespace">    </span><span class="mi">334</span><span class="sd">     containing a JSON document).</span>
+<span class="g g-Whitespace">    </span><span class="mi">335</span><span class="sd"> </span>
+<span class="g g-Whitespace">    </span><span class="mi">336</span><span class="sd">     &quot;&quot;&quot;</span>
+<span class="ne">--&gt; </span><span class="mi">337</span>     <span class="n">obj</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_decode</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="n">_w</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">end</span><span class="p">())</span>
+<span class="g g-Whitespace">    </span><span class="mi">338</span>     <span class="n">end</span> <span class="o">=</span> <span class="n">_w</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
+<span class="g g-Whitespace">    </span><span class="mi">339</span>     <span class="k">if</span> <span class="n">end</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+
+<span class="nn">File /usr/lib/python3.12/json/decoder.py:355,</span> in <span class="ni">JSONDecoder.raw_decode</span><span class="nt">(self, s, idx)</span>
+<span class="g g-Whitespace">    </span><span class="mi">353</span>     <span class="n">obj</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scan_once</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">354</span> <span class="k">except</span> <span class="ne">StopIteration</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+<span class="ne">--&gt; </span><span class="mi">355</span>     <span class="k">raise</span> <span class="n">JSONDecodeError</span><span class="p">(</span><span class="s2">&quot;Expecting value&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">err</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+<span class="g g-Whitespace">    </span><span class="mi">356</span> <span class="k">return</span> <span class="n">obj</span><span class="p">,</span> <span class="n">end</span>
+
+<span class="ne">JSONDecodeError</span>: Expecting value: line 1 column 1 (char 0)
+</pre></div>
+</div>
+</div>
 </div>
 </section>
 <section id="step-1-preprocess-data">
@@ -318,7 +262,7 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The dataset of 730.79 seconds is automatically resampled to 100 Hz.
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The dataset of 34339.61 seconds is automatically resampled to 100 Hz.
 </pre></div>
 </div>
 <div class="output text_html"><div>
@@ -355,67 +299,67 @@
     <tr>
       <th>0</th>
       <td>0.00</td>
-      <td>0.053078</td>
-      <td>0.010040</td>
-      <td>-0.273154</td>
-      <td>-115.670732</td>
-      <td>32.012195</td>
-      <td>-26.097561</td>
-      <td>0.497639</td>
-      <td>0.564123</td>
-      <td>-0.000530</td>
+      <td>-0.002324</td>
+      <td>-0.001442</td>
+      <td>-0.002116</td>
+      <td>0.000000</td>
+      <td>1.402439</td>
+      <td>0.243902</td>
+      <td>-0.472317</td>
+      <td>-0.377984</td>
+      <td>0.772451</td>
     </tr>
     <tr>
       <th>1</th>
       <td>0.01</td>
-      <td>0.038337</td>
-      <td>0.058802</td>
-      <td>-0.256899</td>
-      <td>-110.636301</td>
-      <td>34.624710</td>
-      <td>-24.701537</td>
-      <td>0.497666</td>
-      <td>0.564510</td>
-      <td>0.002305</td>
+      <td>-0.000390</td>
+      <td>-0.000914</td>
+      <td>-0.007396</td>
+      <td>0.432231</td>
+      <td>0.665526</td>
+      <td>-0.123434</td>
+      <td>-0.472326</td>
+      <td>-0.378012</td>
+      <td>0.772464</td>
     </tr>
     <tr>
       <th>2</th>
       <td>0.02</td>
-      <td>0.006824</td>
-      <td>0.086559</td>
-      <td>-0.256739</td>
-      <td>-103.292766</td>
-      <td>36.753000</td>
-      <td>-22.942002</td>
-      <td>0.497698</td>
-      <td>0.564887</td>
-      <td>0.005122</td>
+      <td>0.000567</td>
+      <td>0.002474</td>
+      <td>-0.005445</td>
+      <td>1.164277</td>
+      <td>-0.069584</td>
+      <td>-0.307536</td>
+      <td>-0.472336</td>
+      <td>-0.378040</td>
+      <td>0.772476</td>
     </tr>
     <tr>
       <th>3</th>
       <td>0.03</td>
-      <td>-0.009156</td>
-      <td>0.120855</td>
-      <td>-0.273280</td>
-      <td>-96.349062</td>
-      <td>38.692931</td>
-      <td>-21.175227</td>
-      <td>0.497733</td>
-      <td>0.565254</td>
-      <td>0.007919</td>
+      <td>-0.000425</td>
+      <td>0.002414</td>
+      <td>-0.002099</td>
+      <td>1.151432</td>
+      <td>-0.554928</td>
+      <td>-0.554223</td>
+      <td>-0.472346</td>
+      <td>-0.378068</td>
+      <td>0.772489</td>
     </tr>
     <tr>
       <th>4</th>
       <td>0.04</td>
-      <td>-0.003770</td>
-      <td>0.159316</td>
-      <td>-0.289007</td>
-      <td>-92.585735</td>
-      <td>41.237328</td>
-      <td>-20.311531</td>
-      <td>0.497772</td>
-      <td>0.565610</td>
-      <td>0.010696</td>
+      <td>-0.002807</td>
+      <td>-0.001408</td>
+      <td>-0.000218</td>
+      <td>0.657189</td>
+      <td>-0.603207</td>
+      <td>-0.731570</td>
+      <td>-0.472355</td>
+      <td>-0.378096</td>
+      <td>0.772502</td>
     </tr>
   </tbody>
 </table>
@@ -457,7 +401,7 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>A total of 34 features have been extracted from 725 6-second windows with 5 seconds overlap.
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>A total of 34 features have been extracted from 34334 6-second windows with 5 seconds overlap.
 </pre></div>
 </div>
 <div class="output text_html"><div>
@@ -505,122 +449,122 @@
     <tr>
       <th>0</th>
       <td>0.0</td>
-      <td>0.527557</td>
-      <td>0.485994</td>
-      <td>-0.314004</td>
-      <td>0.045376</td>
-      <td>0.061073</td>
-      <td>0.312533</td>
-      <td>0.187336</td>
-      <td>0.002437</td>
-      <td>0.038174</td>
+      <td>-0.472967</td>
+      <td>-0.380588</td>
+      <td>0.774287</td>
+      <td>0.000270</td>
+      <td>0.000818</td>
+      <td>0.000574</td>
+      <td>0.003377</td>
+      <td>0.000003</td>
+      <td>1.188086e-06</td>
       <td>...</td>
-      <td>0.622230</td>
-      <td>0.700691</td>
-      <td>0.150885</td>
-      <td>0.458676</td>
-      <td>0.033595</td>
-      <td>0.243243</td>
-      <td>0.178762</td>
-      <td>0.066051</td>
-      <td>0.090567</td>
-      <td>0.128075</td>
+      <td>-1.101486</td>
+      <td>0.524288</td>
+      <td>0.215990</td>
+      <td>0.429154</td>
+      <td>0.900923</td>
+      <td>1.135918</td>
+      <td>0.673404</td>
+      <td>-0.128276</td>
+      <td>-0.335655</td>
+      <td>-0.060155</td>
     </tr>
     <tr>
       <th>1</th>
       <td>1.0</td>
-      <td>0.532392</td>
-      <td>0.466982</td>
-      <td>-0.426883</td>
-      <td>0.045834</td>
-      <td>0.052777</td>
-      <td>0.261492</td>
-      <td>0.196270</td>
-      <td>0.001498</td>
-      <td>0.012917</td>
+      <td>-0.473001</td>
+      <td>-0.380704</td>
+      <td>0.774541</td>
+      <td>0.000235</td>
+      <td>0.000588</td>
+      <td>0.000220</td>
+      <td>0.003194</td>
+      <td>0.000003</td>
+      <td>1.210176e-06</td>
       <td>...</td>
-      <td>0.288084</td>
-      <td>0.581373</td>
-      <td>0.086737</td>
-      <td>0.447655</td>
-      <td>-0.129908</td>
-      <td>0.292478</td>
-      <td>0.028656</td>
-      <td>0.123552</td>
-      <td>0.049143</td>
-      <td>0.081229</td>
+      <td>-0.997314</td>
+      <td>0.633275</td>
+      <td>0.327645</td>
+      <td>0.451613</td>
+      <td>0.972729</td>
+      <td>1.120786</td>
+      <td>0.770134</td>
+      <td>-0.115916</td>
+      <td>-0.395856</td>
+      <td>-0.011206</td>
     </tr>
     <tr>
       <th>2</th>
       <td>2.0</td>
-      <td>0.545189</td>
-      <td>0.433756</td>
-      <td>-0.539777</td>
-      <td>0.057979</td>
-      <td>0.080084</td>
-      <td>0.145126</td>
-      <td>0.200461</td>
-      <td>0.001840</td>
-      <td>0.001876</td>
+      <td>-0.473036</td>
+      <td>-0.380563</td>
+      <td>0.774578</td>
+      <td>0.000233</td>
+      <td>0.000619</td>
+      <td>0.000195</td>
+      <td>0.003188</td>
+      <td>0.000002</td>
+      <td>6.693551e-07</td>
       <td>...</td>
-      <td>0.277590</td>
-      <td>0.481786</td>
-      <td>0.069445</td>
-      <td>0.331342</td>
-      <td>-0.197669</td>
-      <td>0.244441</td>
-      <td>-0.151760</td>
-      <td>0.091923</td>
-      <td>-0.100824</td>
-      <td>0.003800</td>
+      <td>-1.040592</td>
+      <td>0.404720</td>
+      <td>0.268514</td>
+      <td>0.507473</td>
+      <td>0.944706</td>
+      <td>1.016282</td>
+      <td>0.785686</td>
+      <td>-0.071433</td>
+      <td>-0.414269</td>
+      <td>0.020690</td>
     </tr>
     <tr>
       <th>3</th>
       <td>3.0</td>
-      <td>0.556586</td>
-      <td>0.397208</td>
-      <td>-0.613691</td>
-      <td>0.070765</td>
-      <td>0.122509</td>
-      <td>0.054681</td>
-      <td>0.104950</td>
-      <td>0.003253</td>
-      <td>0.001985</td>
+      <td>-0.472952</td>
+      <td>-0.380310</td>
+      <td>0.774660</td>
+      <td>0.000301</td>
+      <td>0.000526</td>
+      <td>0.000326</td>
+      <td>0.003020</td>
+      <td>0.000002</td>
+      <td>6.835856e-07</td>
       <td>...</td>
-      <td>0.521323</td>
-      <td>0.321901</td>
-      <td>0.237257</td>
-      <td>0.078296</td>
-      <td>-0.074240</td>
-      <td>0.283644</td>
-      <td>-0.239699</td>
-      <td>0.028845</td>
-      <td>-0.050743</td>
-      <td>0.036805</td>
+      <td>-1.075637</td>
+      <td>0.258352</td>
+      <td>0.257234</td>
+      <td>0.506739</td>
+      <td>0.892823</td>
+      <td>0.900388</td>
+      <td>0.706368</td>
+      <td>-0.080562</td>
+      <td>-0.302595</td>
+      <td>0.054805</td>
     </tr>
     <tr>
       <th>4</th>
       <td>4.0</td>
-      <td>0.571852</td>
-      <td>0.359068</td>
-      <td>-0.639196</td>
-      <td>0.079765</td>
-      <td>0.144845</td>
-      <td>0.042924</td>
-      <td>0.095547</td>
-      <td>0.002794</td>
-      <td>0.002084</td>
+      <td>-0.472692</td>
+      <td>-0.380024</td>
+      <td>0.774889</td>
+      <td>0.000468</td>
+      <td>0.000355</td>
+      <td>0.000470</td>
+      <td>0.002869</td>
+      <td>0.000002</td>
+      <td>1.097557e-06</td>
       <td>...</td>
-      <td>0.538269</td>
-      <td>0.111283</td>
-      <td>0.293136</td>
-      <td>-0.069686</td>
-      <td>-0.059406</td>
-      <td>0.356973</td>
-      <td>-0.266953</td>
-      <td>0.050041</td>
-      <td>0.058963</td>
-      <td>0.082503</td>
+      <td>-1.079496</td>
+      <td>0.264418</td>
+      <td>0.237172</td>
+      <td>0.587941</td>
+      <td>0.936835</td>
+      <td>0.763372</td>
+      <td>0.607845</td>
+      <td>-0.159721</td>
+      <td>-0.184856</td>
+      <td>0.128150</td>
     </tr>
   </tbody>
 </table>
@@ -643,19 +587,19 @@
 <span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;assets&#39;</span> <span class="o">/</span> <span class="n">classifier_package_filename</span>
 
 <span class="c1"># Load the classifier package</span>
-<span class="n">clf_package</span> <span class="o">=</span> <span class="n">ClassifierPackage</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">full_path_to_classifier_package</span><span class="p">)</span>
+<span class="n">clf_package_detection</span> <span class="o">=</span> <span class="n">ClassifierPackage</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">full_path_to_classifier_package</span><span class="p">)</span>
 
 <span class="c1"># Detecting gait returns the probability of gait for each window, which is concatenated to</span>
 <span class="c1"># the original dataframe</span>
 <span class="n">df_gait</span><span class="p">[</span><span class="s1">&#39;pred_gait_proba&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">detect_gait</span><span class="p">(</span>
     <span class="n">df</span><span class="o">=</span><span class="n">df_gait</span><span class="p">,</span>
-    <span class="n">clf_package</span><span class="o">=</span><span class="n">clf_package</span>
+    <span class="n">clf_package</span><span class="o">=</span><span class="n">clf_package_detection</span>
 <span class="p">)</span>
 
 <span class="n">n_windows</span> <span class="o">=</span> <span class="n">df_gait</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">n_predictions_gait</span> <span class="o">=</span> <span class="n">df_gait</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_gait</span><span class="p">[</span><span class="s1">&#39;pred_gait_proba&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">n_predictions_gait</span> <span class="o">=</span> <span class="n">df_gait</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_gait</span><span class="p">[</span><span class="s1">&#39;pred_gait_proba&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_detection</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">perc_predictions_gait</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">n_predictions_gait</span> <span class="o">/</span> <span class="n">n_windows</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">n_predictions_non_gait</span> <span class="o">=</span> <span class="n">df_gait</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_gait</span><span class="p">[</span><span class="s1">&#39;pred_gait_proba&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">clf_package</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">n_predictions_non_gait</span> <span class="o">=</span> <span class="n">df_gait</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_gait</span><span class="p">[</span><span class="s1">&#39;pred_gait_proba&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">clf_package_detection</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">perc_predictions_non_gait</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">n_predictions_non_gait</span> <span class="o">/</span> <span class="n">n_windows</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Out of </span><span class="si">{</span><span class="n">n_windows</span><span class="si">}</span><span class="s2"> windows, </span><span class="si">{</span><span class="n">n_predictions_gait</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">perc_predictions_gait</span><span class="si">}</span><span class="s2">%) were predicted as gait, and </span><span class="si">{</span><span class="n">n_predictions_non_gait</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">perc_predictions_non_gait</span><span class="si">}</span><span class="s2">%) as non-gait.&quot;</span><span class="p">)</span>
@@ -667,7 +611,7 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Out of 725 windows, 53 (7.3%) were predicted as gait, and 672 (92.7%) as non-gait.
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Out of 34334 windows, 2753 (8.0%) were predicted as gait, and 31581 (92.0%) as non-gait.
 </pre></div>
 </div>
 <div class="output text_html"><div>
@@ -696,33 +640,129 @@
     <tr>
       <th>0</th>
       <td>0.0</td>
-      <td>0.093240</td>
+      <td>0.000023</td>
     </tr>
     <tr>
       <th>1</th>
       <td>1.0</td>
-      <td>0.093032</td>
+      <td>0.000024</td>
     </tr>
     <tr>
       <th>2</th>
       <td>2.0</td>
-      <td>0.107607</td>
+      <td>0.000023</td>
     </tr>
     <tr>
       <th>3</th>
       <td>3.0</td>
-      <td>0.132656</td>
+      <td>0.000023</td>
     </tr>
     <tr>
       <th>4</th>
       <td>4.0</td>
-      <td>0.142432</td>
+      <td>0.000023</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<section id="store-as-tsdf">
+<h3>Store as TSDF<a class="headerlink" href="#store-as-tsdf" title="Link to this heading"></a></h3>
+<p>The predicted probabilities (and optionally other features) can be stored and loaded in TSDF as demonstrated below.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tsdf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_df_data</span>
+
+<span class="c1"># Set &#39;path_to_data&#39; to the directory where you want to save the data</span>
+<span class="n">metadata_time_store</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">TSDFMetadata</span><span class="p">(</span><span class="n">metadata_time</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">(),</span> <span class="n">path_to_data</span><span class="p">)</span>
+<span class="n">metadata_values_store</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">TSDFMetadata</span><span class="p">(</span><span class="n">metadata_values</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">(),</span> <span class="n">path_to_data</span><span class="p">)</span>
+
+<span class="c1"># Select the columns to be saved </span>
+<span class="n">metadata_time_store</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
+<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pred_gait_proba&#39;</span><span class="p">]</span>
+
+<span class="c1"># Set the units</span>
+<span class="n">metadata_time_store</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Relative seconds&#39;</span><span class="p">]</span>
+<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Unitless&#39;</span><span class="p">]</span>
+<span class="n">metadata_time_store</span><span class="o">.</span><span class="n">data_type</span> <span class="o">=</span> <span class="nb">float</span>
+<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">data_type</span> <span class="o">=</span> <span class="nb">float</span>
+
+<span class="c1"># Set the filenames</span>
+<span class="n">meta_store_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;segment</span><span class="si">{</span><span class="n">raw_data_segment_nr</span><span class="si">}</span><span class="s1">_meta.json&#39;</span>
+<span class="n">values_store_filename</span> <span class="o">=</span> <span class="n">meta_store_filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_meta.json&#39;</span><span class="p">,</span> <span class="s1">&#39;_values.bin&#39;</span><span class="p">)</span>
+<span class="n">time_store_filename</span> <span class="o">=</span> <span class="n">meta_store_filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_meta.json&#39;</span><span class="p">,</span> <span class="s1">&#39;_time.bin&#39;</span><span class="p">)</span>
+
+<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="n">values_store_filename</span>
+<span class="n">metadata_time_store</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="n">time_store_filename</span>
+
+<span class="n">write_df_data</span><span class="p">(</span><span class="n">metadata_time_store</span><span class="p">,</span> <span class="n">metadata_values_store</span><span class="p">,</span> <span class="n">path_to_data</span><span class="p">,</span> <span class="n">meta_store_filename</span><span class="p">,</span> <span class="n">df_gait</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df_gait</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;segment</span><span class="si">{</span><span class="n">raw_data_segment_nr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">df_gait</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>pred_gait_proba</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>0.000023</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.0</td>
+      <td>0.000024</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2.0</td>
+      <td>0.000023</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3.0</td>
+      <td>0.000023</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4.0</td>
+      <td>0.000023</td>
     </tr>
   </tbody>
 </table>
 </div></div></div>
 </div>
 <p>Once again, the <code class="docutils literal notranslate"><span class="pre">time</span></code> column indicates the start time of the window. Therefore, it can be observed that probabilities are predicted of overlapping windows, and not of individual timestamps. The function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/util.py"><code class="docutils literal notranslate"><span class="pre">merge_timestamps_with_predictions</span></code></a> can be used to retrieve predicted probabilities per timestamp by aggregating the predicted probabilities of overlapping windows. This function is included in the next step.</p>
+</section>
 </section>
 <section id="step-4-arm-activity-feature-extraction">
 <h2>Step 4: Arm activity feature extraction<a class="headerlink" href="#step-4-arm-activity-feature-extraction" title="Link to this heading"></a></h2>
@@ -733,6 +773,35 @@
 <li><p>Discard predicted non-gait activities</p></li>
 <li><p>Create windows of the time series data and extract features</p></li>
 </ul>
+<p>But, first, the gait predictions should be merged with the preprocessed time series data, such that individual timestamps have a corresponding probability of gait. The function <code class="docutils literal notranslate"><span class="pre">extract_arm_activity_features</span></code> expects a time series dataframe of predicted gait.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">merge_predictions_with_timestamps</span>
+
+<span class="c1"># Merge gait predictions into timeseries data</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">df_gait</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_detection</span><span class="o">.</span><span class="n">threshold</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No gait detected in the input data.&quot;</span><span class="p">)</span>
+
+<span class="n">gait_preprocessing_config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;gait&#39;</span><span class="p">)</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">merge_predictions_with_timestamps</span><span class="p">(</span>
+    <span class="n">df_ts</span><span class="o">=</span><span class="n">df_preprocessed</span><span class="p">,</span> 
+    <span class="n">df_predictions</span><span class="o">=</span><span class="n">df_gait</span><span class="p">,</span> 
+    <span class="n">pred_proba_colname</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">,</span>
+    <span class="n">window_length_s</span><span class="o">=</span><span class="n">gait_preprocessing_config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">,</span>
+    <span class="n">fs</span><span class="o">=</span><span class="n">gait_preprocessing_config</span><span class="o">.</span><span class="n">sampling_frequency</span>
+<span class="p">)</span>
+
+<span class="c1"># Add a column for predicted gait based on a fitted threshold</span>
+<span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_detection</span><span class="o">.</span><span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="c1"># Filter the DataFrame to only include predicted gait (1)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_arm_activity_features</span>
@@ -740,19 +809,17 @@
 <span class="n">config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;arm_activity&#39;</span><span class="p">)</span>
 
 <span class="n">df_arm_activity</span> <span class="o">=</span> <span class="n">extract_arm_activity_features</span><span class="p">(</span>
-    <span class="n">df_timestamps</span><span class="o">=</span><span class="n">df_preprocessed</span><span class="p">,</span> 
-    <span class="n">df_predictions</span><span class="o">=</span><span class="n">df_gait</span><span class="p">,</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> 
     <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-    <span class="n">threshold</span><span class="o">=</span><span class="n">clf_package</span><span class="o">.</span><span class="n">threshold</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A total of </span><span class="si">{</span><span class="n">df_arm_activity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="si">}</span><span class="s2"> features have been extracted from </span><span class="si">{</span><span class="n">df_arm_activity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="si">}</span><span class="s2">-second windows with </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="o">-</span><span class="n">config</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="si">}</span><span class="s2"> seconds overlap.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A total of </span><span class="si">{</span><span class="n">df_arm_activity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> features have been extracted from </span><span class="si">{</span><span class="n">df_arm_activity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="si">}</span><span class="s2"> - second windows with </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="si">}</span><span class="s2"> seconds overlap.&quot;</span><span class="p">)</span>
 <span class="n">df_arm_activity</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>A total of 61 features have been extracted from 50 3-second windows with 2.25 seconds overlap.
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>A total of 61 features have been extracted from 2749 3 - second windows with 2.25 seconds overlap.
 </pre></div>
 </div>
 <div class="output text_html"><div>
@@ -799,123 +866,123 @@
   <tbody>
     <tr>
       <th>0</th>
-      <td>484.00</td>
-      <td>0.977134</td>
-      <td>0.105431</td>
-      <td>0.045578</td>
-      <td>0.015722</td>
-      <td>0.026817</td>
-      <td>0.015546</td>
-      <td>0.085454</td>
-      <td>0.000284</td>
-      <td>0.000632</td>
+      <td>1463.00</td>
+      <td>-0.941812</td>
+      <td>-0.216149</td>
+      <td>-0.129170</td>
+      <td>0.031409</td>
+      <td>0.089397</td>
+      <td>0.060771</td>
+      <td>0.166084</td>
+      <td>0.000596</td>
+      <td>0.007746</td>
       <td>...</td>
-      <td>0.042879</td>
-      <td>0.054217</td>
-      <td>0.275817</td>
-      <td>0.463253</td>
-      <td>-0.061382</td>
-      <td>0.144563</td>
-      <td>0.243984</td>
-      <td>-0.174514</td>
-      <td>-0.254318</td>
-      <td>0.118443</td>
+      <td>-0.555190</td>
+      <td>0.735644</td>
+      <td>0.180382</td>
+      <td>0.044897</td>
+      <td>-0.645257</td>
+      <td>-0.255383</td>
+      <td>0.121998</td>
+      <td>0.297776</td>
+      <td>0.326170</td>
+      <td>0.348648</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>484.75</td>
-      <td>0.981950</td>
-      <td>0.102169</td>
-      <td>0.041451</td>
-      <td>0.006373</td>
-      <td>0.019288</td>
-      <td>0.018058</td>
-      <td>0.084179</td>
-      <td>0.000445</td>
-      <td>0.000663</td>
+      <td>1463.75</td>
+      <td>-0.933787</td>
+      <td>-0.198807</td>
+      <td>-0.092710</td>
+      <td>0.045961</td>
+      <td>0.066987</td>
+      <td>0.038606</td>
+      <td>0.363777</td>
+      <td>0.001216</td>
+      <td>0.002593</td>
       <td>...</td>
-      <td>-0.139456</td>
-      <td>-0.195451</td>
-      <td>0.357785</td>
-      <td>0.270232</td>
-      <td>-0.250594</td>
-      <td>-0.216808</td>
-      <td>-0.085842</td>
-      <td>0.197042</td>
-      <td>0.004748</td>
-      <td>0.044400</td>
+      <td>-0.722972</td>
+      <td>0.686450</td>
+      <td>-0.254451</td>
+      <td>-0.282469</td>
+      <td>-0.798232</td>
+      <td>-0.100043</td>
+      <td>0.028278</td>
+      <td>0.114591</td>
+      <td>0.160311</td>
+      <td>0.372009</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>485.50</td>
-      <td>0.978526</td>
-      <td>0.115141</td>
-      <td>0.030499</td>
-      <td>0.006440</td>
-      <td>0.022474</td>
-      <td>0.015048</td>
-      <td>0.089055</td>
-      <td>0.000328</td>
-      <td>0.000408</td>
+      <td>1464.50</td>
+      <td>-0.882285</td>
+      <td>-0.265160</td>
+      <td>-0.080937</td>
+      <td>0.094924</td>
+      <td>0.146720</td>
+      <td>0.021218</td>
+      <td>0.362434</td>
+      <td>0.002429</td>
+      <td>0.001315</td>
       <td>...</td>
-      <td>-0.068866</td>
-      <td>-0.180071</td>
-      <td>0.474648</td>
-      <td>0.314642</td>
-      <td>-0.180227</td>
-      <td>-0.348940</td>
-      <td>-0.157215</td>
-      <td>0.166344</td>
-      <td>0.019357</td>
-      <td>-0.024083</td>
+      <td>-1.134321</td>
+      <td>0.773245</td>
+      <td>-0.218279</td>
+      <td>-0.430585</td>
+      <td>-0.437373</td>
+      <td>-0.065236</td>
+      <td>0.014411</td>
+      <td>0.083823</td>
+      <td>0.181666</td>
+      <td>0.079949</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>486.25</td>
-      <td>0.974692</td>
-      <td>0.128219</td>
-      <td>0.025009</td>
-      <td>0.003139</td>
-      <td>0.014035</td>
-      <td>0.007913</td>
-      <td>0.092204</td>
-      <td>0.000594</td>
-      <td>0.000150</td>
+      <td>1465.25</td>
+      <td>-0.794800</td>
+      <td>-0.405043</td>
+      <td>-0.094178</td>
+      <td>0.126863</td>
+      <td>0.212621</td>
+      <td>0.034948</td>
+      <td>0.363425</td>
+      <td>0.004974</td>
+      <td>0.008407</td>
       <td>...</td>
-      <td>-0.120759</td>
-      <td>-0.079569</td>
-      <td>0.482182</td>
-      <td>0.455254</td>
-      <td>-0.317632</td>
-      <td>-0.206404</td>
-      <td>-0.065104</td>
-      <td>0.022460</td>
-      <td>0.065246</td>
-      <td>0.070507</td>
+      <td>-1.154252</td>
+      <td>1.024267</td>
+      <td>-0.161531</td>
+      <td>-0.217479</td>
+      <td>-0.153630</td>
+      <td>-0.016550</td>
+      <td>0.119570</td>
+      <td>0.095287</td>
+      <td>0.231406</td>
+      <td>0.015294</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>487.00</td>
-      <td>0.972715</td>
-      <td>0.131813</td>
-      <td>0.029218</td>
-      <td>0.000881</td>
-      <td>0.008492</td>
-      <td>0.013129</td>
-      <td>0.078673</td>
-      <td>0.000717</td>
-      <td>0.000138</td>
+      <td>1466.00</td>
+      <td>-0.691081</td>
+      <td>-0.578715</td>
+      <td>-0.118220</td>
+      <td>0.127414</td>
+      <td>0.219660</td>
+      <td>0.035758</td>
+      <td>0.360352</td>
+      <td>0.003998</td>
+      <td>0.004305</td>
       <td>...</td>
-      <td>-0.277626</td>
-      <td>-0.092605</td>
-      <td>0.103249</td>
-      <td>0.414886</td>
-      <td>-0.316136</td>
-      <td>-0.200999</td>
-      <td>-0.090632</td>
-      <td>0.077541</td>
-      <td>0.111759</td>
-      <td>0.061460</td>
+      <td>-0.763188</td>
+      <td>0.763812</td>
+      <td>-0.158849</td>
+      <td>-0.023935</td>
+      <td>-0.006564</td>
+      <td>-0.185257</td>
+      <td>-0.120585</td>
+      <td>0.090823</td>
+      <td>0.171506</td>
+      <td>-0.038381</td>
     </tr>
   </tbody>
 </table>
@@ -937,19 +1004,19 @@
 <span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;assets&#39;</span> <span class="o">/</span> <span class="n">classifier_package_filename</span>
 
 <span class="c1"># Load the classifier package</span>
-<span class="n">clf_package</span> <span class="o">=</span> <span class="n">ClassifierPackage</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">full_path_to_classifier_package</span><span class="p">)</span>
+<span class="n">clf_package_filtering</span> <span class="o">=</span> <span class="n">ClassifierPackage</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">full_path_to_classifier_package</span><span class="p">)</span>
 
 <span class="c1"># Detecting no_other_arm_activity returns the probability of no_other_arm_activity for each window, which is concatenated to</span>
 <span class="c1"># the original dataframe</span>
 <span class="n">df_arm_activity</span><span class="p">[</span><span class="s1">&#39;pred_no_other_arm_activity_proba&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filter_gait</span><span class="p">(</span>
     <span class="n">df</span><span class="o">=</span><span class="n">df_arm_activity</span><span class="p">,</span>
-    <span class="n">clf_package</span><span class="o">=</span><span class="n">clf_package</span>
+    <span class="n">clf_package</span><span class="o">=</span><span class="n">clf_package_filtering</span>
 <span class="p">)</span>
 
 <span class="n">n_windows</span> <span class="o">=</span> <span class="n">df_arm_activity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">n_predictions_no_other_arm_activity</span> <span class="o">=</span> <span class="n">df_arm_activity</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_arm_activity</span><span class="p">[</span><span class="s1">&#39;pred_no_other_arm_activity_proba&#39;</span><span class="p">]</span><span class="o">&gt;=</span><span class="n">clf_package</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">n_predictions_no_other_arm_activity</span> <span class="o">=</span> <span class="n">df_arm_activity</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_arm_activity</span><span class="p">[</span><span class="s1">&#39;pred_no_other_arm_activity_proba&#39;</span><span class="p">]</span><span class="o">&gt;=</span><span class="n">clf_package_filtering</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">perc_predictions_no_other_arm_activity</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">n_predictions_no_other_arm_activity</span> <span class="o">/</span> <span class="n">n_windows</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">n_predictions_other_arm_activity</span> <span class="o">=</span> <span class="n">df_arm_activity</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_arm_activity</span><span class="p">[</span><span class="s1">&#39;pred_no_other_arm_activity_proba&#39;</span><span class="p">]</span><span class="o">&lt;</span><span class="n">clf_package</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">n_predictions_other_arm_activity</span> <span class="o">=</span> <span class="n">df_arm_activity</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_arm_activity</span><span class="p">[</span><span class="s1">&#39;pred_no_other_arm_activity_proba&#39;</span><span class="p">]</span><span class="o">&lt;</span><span class="n">clf_package_filtering</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">perc_predictions_other_arm_activity</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">n_predictions_other_arm_activity</span> <span class="o">/</span> <span class="n">n_windows</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Out of </span><span class="si">{</span><span class="n">n_windows</span><span class="si">}</span><span class="s2"> windows, </span><span class="si">{</span><span class="n">n_predictions_no_other_arm_activity</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">perc_predictions_no_other_arm_activity</span><span class="si">}</span><span class="s2">%) were predicted as no_other_arm_activity, and </span><span class="si">{</span><span class="n">n_predictions_other_arm_activity</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">perc_predictions_other_arm_activity</span><span class="si">}</span><span class="s2">%) as other_arm_activity.&quot;</span><span class="p">)</span>
@@ -961,7 +1028,7 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Out of 50 windows, 0 (0.0%) were predicted as no_other_arm_activity, and 50 (100.0%) as other_arm_activity.
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Out of 2749 windows, 916 (33.3%) were predicted as no_other_arm_activity, and 1833 (66.7%) as other_arm_activity.
 </pre></div>
 </div>
 <div class="output text_html"><div>
@@ -989,28 +1056,28 @@
   <tbody>
     <tr>
       <th>0</th>
-      <td>484.00</td>
-      <td>0.000002</td>
+      <td>1463.00</td>
+      <td>0.199764</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>484.75</td>
-      <td>0.000004</td>
+      <td>1463.75</td>
+      <td>0.107982</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>485.50</td>
-      <td>0.000020</td>
+      <td>1464.50</td>
+      <td>0.138796</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>486.25</td>
-      <td>0.000013</td>
+      <td>1465.25</td>
+      <td>0.168050</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>487.00</td>
-      <td>0.000011</td>
+      <td>1466.00</td>
+      <td>0.033986</td>
     </tr>
   </tbody>
 </table>
@@ -1020,52 +1087,83 @@
 <section id="step-6-arm-swing-quantification">
 <h2>Step 6: Arm swing quantification<a class="headerlink" href="#step-6-arm-swing-quantification" title="Link to this heading"></a></h2>
 <p>The next step is to extract arm swing estimates from the predicted gait segments without other arm activities. Arm swing estimates can be calculated for both filtered and unfiltered gait, with the latter being predicted gait including all arm activities. Specifically, the range of motion (<code class="docutils literal notranslate"><span class="pre">'range_of_motion'</span></code>) and peak angular velocity (<code class="docutils literal notranslate"><span class="pre">'peak_velocity'</span></code>) are extracted.</p>
-<p>This step creates gait segments based on consecutively predicted gait windows. A new gait segment is created if the gap between consecutive gait predictions exceeds <code class="docutils literal notranslate"><span class="pre">config.max_segment_gap_s</span></code>. Furthermore, a segment is considered valid if it is of at minimum length <code class="docutils literal notranslate"><span class="pre">config.min_segment_length_s</span></code>. Note that no gait without other arm activities was detected in the prior step, and therefore we shall modify the classification threshold (<code class="docutils literal notranslate"><span class="pre">clf_package.threshold</span></code>) to ensure we have some quantifications.</p>
+<p>This step creates gait segments based on consecutively predicted gait windows. A new gait segment is created if the gap between consecutive gait predictions exceeds <code class="docutils literal notranslate"><span class="pre">config.max_segment_gap_s</span></code>. Furthermore, a gait segment is considered valid if it is of at minimum length <code class="docutils literal notranslate"><span class="pre">config.min_segment_length_s</span></code>.</p>
+<p>But, first, similar to the step of extracting arm activity features, the predictions of the previous step should be merged with the preprocessed time series data.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Merge arm activity predictions into timeseries data</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">df_arm_activity</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_filtering</span><span class="o">.</span><span class="n">threshold</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No gait without other arm activities detected in the input data.&quot;</span><span class="p">)</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;arm_activity&#39;</span><span class="p">)</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">merge_predictions_with_timestamps</span><span class="p">(</span>
+    <span class="n">df_ts</span><span class="o">=</span><span class="n">df_preprocessed</span><span class="p">,</span> 
+    <span class="n">df_predictions</span><span class="o">=</span><span class="n">df_arm_activity</span><span class="p">,</span> 
+    <span class="n">pred_proba_colname</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">,</span>
+    <span class="n">window_length_s</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">,</span>
+    <span class="n">fs</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span>
+<span class="p">)</span>
+
+<span class="c1"># Add a column for predicted gait based on a fitted threshold</span>
+<span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_filtering</span><span class="o">.</span><span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="c1"># Filter the DataFrame to only include predicted gait (1)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">quantify_arm_swing</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pprint</span><span class="w"> </span><span class="kn">import</span> <span class="n">pprint</span>
 
-<span class="n">temporary_clf_threshold</span> <span class="o">=</span> <span class="mf">0.00001</span>
-<span class="n">dfs_to_quantify</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;unfiltered&#39;</span><span class="p">,</span> <span class="s1">&#39;filtered&#39;</span><span class="p">]</span>
+<span class="c1"># Set to True to quantify arm swing based on the filtered gait segments, and False</span>
+<span class="c1"># to quantify arm swing based on all gait segments</span>
+<span class="n">filtered</span> <span class="o">=</span> <span class="kc">True</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The original classification threshold of </span><span class="si">{</span><span class="n">clf_package</span><span class="o">.</span><span class="n">threshold</span><span class="si">}</span><span class="s2"> is for this tutorial temporarily set to </span><span class="si">{</span><span class="n">temporary_clf_threshold</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">filtered</span><span class="p">:</span>
+    <span class="n">dataset_used</span> <span class="o">=</span> <span class="s1">&#39;filtered&#39;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The arm swing quantification is based on the filtered gait segments.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">dataset_used</span> <span class="o">=</span> <span class="s1">&#39;unfiltered&#39;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The arm swing quantification is based on all gait segments.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<span class="n">clf_package</span><span class="o">.</span><span class="n">threshold</span> <span class="o">=</span> <span class="n">temporary_clf_threshold</span>
-
-<span class="n">quantified_arm_swing</span><span class="p">,</span> <span class="n">segment_meta</span> <span class="o">=</span> <span class="n">quantify_arm_swing</span><span class="p">(</span>
-    <span class="n">df_timestamps</span><span class="o">=</span><span class="n">df_preprocessed</span><span class="p">,</span>
-    <span class="n">df_predictions</span><span class="o">=</span><span class="n">df_arm_activity</span><span class="p">,</span>
-    <span class="n">classification_threshold</span><span class="o">=</span><span class="n">clf_package</span><span class="o">.</span><span class="n">threshold</span><span class="p">,</span>
-    <span class="n">window_length_s</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">,</span>
+<span class="n">quantified_arm_swing</span><span class="p">,</span> <span class="n">gait_segment_meta</span> <span class="o">=</span> <span class="n">quantify_arm_swing</span><span class="p">(</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+    <span class="n">fs</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
+    <span class="n">filtered</span><span class="o">=</span><span class="n">filtered</span><span class="p">,</span>
     <span class="n">max_segment_gap_s</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">max_segment_gap_s</span><span class="p">,</span>
     <span class="n">min_segment_length_s</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">min_segment_length_s</span><span class="p">,</span>
-    <span class="n">fs</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
-    <span class="n">dfs_to_quantify</span><span class="o">=</span><span class="n">dfs_to_quantify</span>
 <span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Gait segments are created of minimum </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">min_segment_length_s</span><span class="si">}</span><span class="s2"> seconds and maximum </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">max_segment_gap_s</span><span class="si">}</span><span class="s2"> seconds gap between segments.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">df_name</span> <span class="ow">in</span> <span class="n">dfs_to_quantify</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A total of </span><span class="si">{</span><span class="n">quantified_arm_swing</span><span class="p">[</span><span class="n">df_name</span><span class="p">][</span><span class="s1">&#39;segment_nr&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">df_name</span><span class="si">}</span><span class="s2"> gait segments have been quantified.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A total of </span><span class="si">{</span><span class="n">quantified_arm_swing</span><span class="p">[</span><span class="s1">&#39;segment_nr&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">dataset_used</span><span class="si">}</span><span class="s2"> gait segments have been quantified.&quot;</span><span class="p">)</span>
 
-<span class="c1"># The arm swing quantification is returned as a dictionary with two dataframes: &#39;unfiltered&#39; and &#39;filtered&#39;.</span>
-<span class="c1"># The &#39;unfiltered&#39; dataframe contains the quantification of all gait segments, while the &#39;filtered&#39; dataframe</span>
-<span class="c1"># contains only the segments that are classified as gait and no_other_arm_activity.</span>
-<span class="n">dataset_used</span> <span class="o">=</span> <span class="s1">&#39;filtered&#39;</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Metadata of the first gait segment:&quot;</span><span class="p">)</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The first rows of the </span><span class="si">{</span><span class="n">dataset_used</span><span class="si">}</span><span class="s2"> dataset&quot;</span><span class="p">)</span>
-<span class="n">quantified_arm_swing</span><span class="p">[</span><span class="n">dataset_used</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Individual arm swings of the first gait segment of the </span><span class="si">{</span><span class="n">dataset_used</span><span class="si">}</span><span class="s2"> dataset:&quot;</span><span class="p">)</span>
+<span class="n">quantified_arm_swing</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">quantified_arm_swing</span><span class="p">[</span><span class="s1">&#39;segment_nr&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The original classification threshold of 0.4691878519863539 is for this tutorial temporarily set to 1e-05.
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The arm swing quantification is based on the filtered gait segments.
 
 Gait segments are created of minimum 1.5 seconds and maximum 1.5 seconds gap between segments.
 
-A total of 5 unfiltered gait segments have been quantified.
-A total of 3 filtered gait segments have been quantified.
+A total of 84 filtered gait segments have been quantified.
 
-The first rows of the filtered dataset
+Metadata of the first gait segment:
+{&#39;duration_s&#39;: 9.0,
+ &#39;end_time_s&#39;: 2230.74,
+ &#39;segment_category&#39;: &#39;moderately_long&#39;,
+ &#39;start_time_s&#39;: 2221.75}
+
+Individual arm swings of the first gait segment of the filtered dataset:
 </pre></div>
 </div>
 <div class="output text_html"><div>
@@ -1087,6 +1185,7 @@ The first rows of the filtered dataset
     <tr style="text-align: right;">
       <th></th>
       <th>segment_nr</th>
+      <th>segment_category</th>
       <th>range_of_motion</th>
       <th>peak_velocity</th>
     </tr>
@@ -1094,108 +1193,283 @@ The first rows of the filtered dataset
   <tbody>
     <tr>
       <th>0</th>
-      <td>2</td>
-      <td>7.511588</td>
-      <td>66.135460</td>
+      <td>1</td>
+      <td>moderately_long</td>
+      <td>19.218491</td>
+      <td>90.807689</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>2</td>
-      <td>19.391911</td>
-      <td>78.645638</td>
+      <td>1</td>
+      <td>moderately_long</td>
+      <td>21.267287</td>
+      <td>105.781357</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>2</td>
-      <td>18.928598</td>
-      <td>95.738234</td>
+      <td>1</td>
+      <td>moderately_long</td>
+      <td>23.582098</td>
+      <td>103.932332</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>2</td>
-      <td>14.612863</td>
-      <td>57.997025</td>
+      <td>1</td>
+      <td>moderately_long</td>
+      <td>23.757712</td>
+      <td>114.846304</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>2</td>
-      <td>14.536349</td>
-      <td>98.900658</td>
+      <td>1</td>
+      <td>moderately_long</td>
+      <td>17.430734</td>
+      <td>63.297391</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>1</td>
+      <td>moderately_long</td>
+      <td>12.139037</td>
+      <td>59.740258</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>1</td>
+      <td>moderately_long</td>
+      <td>6.681346</td>
+      <td>36.802784</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>1</td>
+      <td>moderately_long</td>
+      <td>6.293493</td>
+      <td>30.793498</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>1</td>
+      <td>moderately_long</td>
+      <td>7.892546</td>
+      <td>42.481470</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>1</td>
+      <td>moderately_long</td>
+      <td>9.633521</td>
+      <td>43.837249</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>1</td>
+      <td>moderately_long</td>
+      <td>9.679263</td>
+      <td>38.867993</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>1</td>
+      <td>moderately_long</td>
+      <td>9.437900</td>
+      <td>34.112233</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>1</td>
+      <td>moderately_long</td>
+      <td>9.272199</td>
+      <td>33.344802</td>
     </tr>
   </tbody>
 </table>
 </div></div></div>
 </div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pprint</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Furthermore, per gait segment the following metadata is stored:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">segment_meta</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Furthermore, per gait segment the following metadata is stored:
-
-{&#39;filtered&#39;: {2: {&#39;segment_category&#39;: &#39;long&#39;, &#39;time_s&#39;: 2.25},
-              3: {&#39;segment_category&#39;: &#39;long&#39;, &#39;time_s&#39;: 0.75},
-              4: {&#39;segment_category&#39;: &#39;moderately_long&#39;, &#39;time_s&#39;: 6.75},
-              5: {&#39;segment_category&#39;: &#39;moderately_long&#39;, &#39;time_s&#39;: 6.0},
-              6: {&#39;segment_category&#39;: &#39;moderately_long&#39;, &#39;time_s&#39;: 0.75}},
- &#39;unfiltered&#39;: {1: {&#39;segment_category&#39;: &#39;long&#39;, &#39;time_s&#39;: 12.75},
-                2: {&#39;segment_category&#39;: &#39;moderately_long&#39;, &#39;time_s&#39;: 9.0},
-                3: {&#39;segment_category&#39;: &#39;long&#39;, &#39;time_s&#39;: 12.0},
-                4: {&#39;segment_category&#39;: &#39;moderately_long&#39;, &#39;time_s&#39;: 7.5},
-                5: {&#39;segment_category&#39;: &#39;moderately_long&#39;, &#39;time_s&#39;: 7.5}}}
-</pre></div>
-</div>
-</div>
-</div>
-<p>The segment categories are defined as follows:</p>
+<p>The gait segment categories are defined as follows:</p>
 <ul class="simple">
 <li><p>short: &lt; 5 seconds</p></li>
 <li><p>moderately_long: 5-10 seconds</p></li>
 <li><p>long: 10-20 seconds</p></li>
 <li><p>very_long: &gt; 20 seconds</p></li>
 </ul>
-<p>As noted before, the segments (and categories) are determined based on predicted gait (unfiltered gait). Therefore, for the arm swing of filtered gait, a segment may be smaller as parts of the segment were predicted to have other arm activities, yet the category remained the same.</p>
+<p>As noted before, the gait segments (and categories) are determined based on predicted gait (unfiltered gait). Therefore, for the arm swing of filtered gait, a gait segment may be smaller as parts of the gait segment were predicted to have other arm activities, yet the category remained the same.</p>
+<section id="run-steps-1-6-for-the-all-raw-data-segment-s">
+<h3>Run steps 1-6 for the all raw data segment(s) <a id='multiple_segments_cell'></a><a class="headerlink" href="#run-steps-1-6-for-the-all-raw-data-segment-s" title="Link to this heading"></a></h3>
+<p>If your data is also stored in multiple raw data segments, you can modify <code class="docutils literal notranslate"><span class="pre">raw_data_segments</span></code> in the cell below to a list of the filenames of your respective segmented data.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pprint</span><span class="w"> </span><span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span><span class="p">,</span> <span class="n">merge_predictions_with_timestamps</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span><span class="p">,</span> <span class="n">GaitConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_imu_data</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_gait_features</span><span class="p">,</span> <span class="n">detect_gait</span><span class="p">,</span><span class="n">extract_arm_activity_features</span><span class="p">,</span> <span class="n">filter_gait</span><span class="p">,</span> <span class="n">quantify_arm_swing</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassifierPackage</span>
+
+<span class="c1"># Set the path to where the prepared data is saved</span>
+<span class="n">path_to_data</span> <span class="o">=</span>  <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../example_data&#39;</span><span class="p">)</span>
+<span class="n">path_to_prepared_data</span> <span class="o">=</span> <span class="n">path_to_data</span> <span class="o">/</span> <span class="s1">&#39;imu&#39;</span>
+
+<span class="c1"># Load the gait detection classifier package</span>
+<span class="n">classifier_package_filename</span> <span class="o">=</span> <span class="s1">&#39;gait_detection_clf_package.pkl&#39;</span>
+<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;assets&#39;</span> <span class="o">/</span> <span class="n">classifier_package_filename</span>
+<span class="n">clf_package_detection</span> <span class="o">=</span> <span class="n">ClassifierPackage</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">full_path_to_classifier_package</span><span class="p">)</span>
+
+<span class="c1"># Load the gait filtering classifier package</span>
+<span class="n">classifier_package_filename</span> <span class="o">=</span> <span class="s1">&#39;gait_filtering_clf_package.pkl&#39;</span>
+<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;assets&#39;</span> <span class="o">/</span> <span class="n">classifier_package_filename</span>
+<span class="n">clf_package_filtering</span> <span class="o">=</span> <span class="n">ClassifierPackage</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">full_path_to_classifier_package</span><span class="p">)</span>
+
+<span class="c1"># Set to True to quantify arm swing based on the filtered gait segments, and False</span>
+<span class="c1"># to quantify arm swing based on all gait segments</span>
+<span class="n">filtered</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># Create a list to store all quantified arm swing segments </span>
+<span class="n">list_quantified_arm_swing</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">raw_data_segments</span>  <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;0001&#39;</span><span class="p">,</span><span class="s1">&#39;0002&#39;</span><span class="p">]</span> <span class="c1"># list with all available raw data segments</span>
+
+<span class="k">for</span> <span class="n">raw_data_segment_nr</span> <span class="ow">in</span> <span class="n">raw_data_segments</span><span class="p">:</span>
+    
+    <span class="c1"># Load the data</span>
+    <span class="n">df_imu</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_prepared_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">raw_data_segment_nr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># 1: Preprocess the data</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span>
+
+    <span class="n">df_preprocessed</span> <span class="o">=</span> <span class="n">preprocess_imu_data</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">df_imu</span><span class="p">,</span> 
+        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="n">sensor</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span>
+        <span class="n">watch_side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># 2: Extract gait features</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;gait&#39;</span><span class="p">)</span>
+
+    <span class="n">df_gait</span> <span class="o">=</span> <span class="n">extract_gait_features</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">df_preprocessed</span><span class="p">,</span> 
+        <span class="n">config</span><span class="o">=</span><span class="n">config</span>
+    <span class="p">)</span>
+
+    <span class="c1"># 3: Detect gait</span>
+    <span class="n">df_gait</span><span class="p">[</span><span class="s1">&#39;pred_gait_proba&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">detect_gait</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">df_gait</span><span class="p">,</span>
+        <span class="n">clf_package</span><span class="o">=</span><span class="n">clf_package_detection</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Merge gait predictions into timeseries data</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">df_gait</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_detection</span><span class="o">.</span><span class="n">threshold</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No gait detected in the input data.&quot;</span><span class="p">)</span>
+    
+    <span class="n">df</span> <span class="o">=</span> <span class="n">merge_predictions_with_timestamps</span><span class="p">(</span>
+        <span class="n">df_ts</span><span class="o">=</span><span class="n">df_preprocessed</span><span class="p">,</span> 
+        <span class="n">df_predictions</span><span class="o">=</span><span class="n">df_gait</span><span class="p">,</span> 
+        <span class="n">pred_proba_colname</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">,</span>
+        <span class="n">window_length_s</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">,</span>
+        <span class="n">fs</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span>
+    <span class="p">)</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_detection</span><span class="o">.</span><span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># 4: Extract arm activity features</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;arm_activity&#39;</span><span class="p">)</span>
+
+    <span class="n">df_arm_activity</span> <span class="o">=</span> <span class="n">extract_arm_activity_features</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> 
+        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># 5: Filter gait</span>
+    <span class="n">df_arm_activity</span><span class="p">[</span><span class="s1">&#39;pred_no_other_arm_activity_proba&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filter_gait</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">df_arm_activity</span><span class="p">,</span>
+        <span class="n">clf_package</span><span class="o">=</span><span class="n">clf_package_filtering</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Merge arm activity predictions into timeseries data</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">df_arm_activity</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_filtering</span><span class="o">.</span><span class="n">threshold</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No gait without other arm activities detected in the input data.&quot;</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">merge_predictions_with_timestamps</span><span class="p">(</span>
+        <span class="n">df_ts</span><span class="o">=</span><span class="n">df_preprocessed</span><span class="p">,</span> 
+        <span class="n">df_predictions</span><span class="o">=</span><span class="n">df_arm_activity</span><span class="p">,</span> 
+        <span class="n">pred_proba_colname</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">,</span>
+        <span class="n">window_length_s</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">,</span>
+        <span class="n">fs</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span>
+    <span class="p">)</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_filtering</span><span class="o">.</span><span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># 6: Quantify arm swing</span>
+    <span class="n">quantified_arm_swing</span><span class="p">,</span> <span class="n">gait_segment_meta</span> <span class="o">=</span> <span class="n">quantify_arm_swing</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+        <span class="n">fs</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
+        <span class="n">filtered</span><span class="o">=</span><span class="n">filtered</span><span class="p">,</span>
+        <span class="n">max_segment_gap_s</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">max_segment_gap_s</span><span class="p">,</span>
+        <span class="n">min_segment_length_s</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">min_segment_length_s</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Add the predictions of the current raw data segment to the list</span>
+    <span class="n">quantified_arm_swing</span><span class="p">[</span><span class="s1">&#39;raw_data_segment_nr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw_data_segment_nr</span>
+    <span class="n">list_quantified_arm_swing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">quantified_arm_swing</span><span class="p">)</span>
+
+<span class="n">quantified_arm_swing</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">list_quantified_arm_swing</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
 </section>
 <section id="step-7-aggregation">
 <h2>Step 7: Aggregation<a class="headerlink" href="#step-7-aggregation" title="Link to this heading"></a></h2>
-<p>Finally, the arm swing estimates can be aggregated across segments.</p>
+<p>Finally, the arm swing estimates can be aggregated across all gait segments.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_arm_swing_params</span>
 
-<span class="n">dataset_used</span> <span class="o">=</span> <span class="s1">&#39;filtered&#39;</span>
-
 <span class="n">arm_swing_aggregations</span> <span class="o">=</span> <span class="n">aggregate_arm_swing_params</span><span class="p">(</span>
-    <span class="n">df_arm_swing_params</span><span class="o">=</span><span class="n">quantified_arm_swing</span><span class="p">[</span><span class="n">dataset_used</span><span class="p">],</span>
-    <span class="n">segment_meta</span><span class="o">=</span><span class="n">segment_meta</span><span class="p">[</span><span class="n">dataset_used</span><span class="p">],</span>
+    <span class="n">df_arm_swing_params</span><span class="o">=</span><span class="n">quantified_arm_swing</span><span class="p">,</span>
+    <span class="n">segment_meta</span><span class="o">=</span><span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">],</span>
     <span class="n">aggregates</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;median&#39;</span><span class="p">,</span> <span class="s1">&#39;95p&#39;</span><span class="p">]</span>
 <span class="p">)</span>
 
-<span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">arm_swing_aggregations</span><span class="p">,</span> <span class="n">sort_dicts</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">arm_swing_aggregations</span><span class="p">,</span> <span class="n">sort_dicts</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;moderately_long&#39;: {&#39;time_s&#39;: 13.5,
-                     &#39;median_range_of_motion&#39;: 14.394662839301768,
-                     &#39;95p_range_of_motion&#39;: 22.658748546739268,
-                     &#39;median_peak_velocity&#39;: 59.475147961606005,
-                     &#39;95p_peak_velocity&#39;: 105.31356363194875},
- &#39;long&#39;: {&#39;time_s&#39;: 3.0,
-          &#39;median_range_of_motion&#39;: 14.612862824791089,
-          &#39;95p_range_of_motion&#39;: 19.29924826375146,
-          &#39;median_peak_velocity&#39;: 78.64563778043262,
-          &#39;95p_peak_velocity&#39;: 98.26817330011067},
- &#39;all_segment_categories&#39;: {&#39;time_s&#39;: 16.5,
-                            &#39;median_range_of_motion&#39;: 14.57460571480515,
-                            &#39;95p_range_of_motion&#39;: 22.180208543070503,
-                            &#39;median_peak_velocity&#39;: 65.54184788176072,
-                            &#39;95p_peak_velocity&#39;: 105.21165557470036}}
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;long&#39;: {&#39;duration_s&#39;: 60.75,
+          &#39;median_range_of_motion&#39;: 15.78108745792784,
+          &#39;95p_range_of_motion&#39;: 45.16540046751929,
+          &#39;median_peak_velocity&#39;: 86.83257977334745,
+          &#39;95p_peak_velocity&#39;: 219.97254034894718},
+ &#39;short&#39;: {&#39;duration_s&#39;: 153.75,
+           &#39;median_range_of_motion&#39;: 14.225382307390944,
+           &#39;95p_range_of_motion&#39;: 40.53847370093226,
+           &#39;median_peak_velocity&#39;: 71.56035976932178,
+           &#39;95p_peak_velocity&#39;: 197.13328716416063},
+ &#39;very_long&#39;: {&#39;duration_s&#39;: 1905.75,
+               &#39;median_range_of_motion&#39;: 25.2896510096605,
+               &#39;95p_range_of_motion&#39;: 43.74907398039543,
+               &#39;median_peak_velocity&#39;: 125.9443142903539,
+               &#39;95p_peak_velocity&#39;: 217.80854223601992},
+ &#39;moderately_long&#39;: {&#39;duration_s&#39;: 187.5,
+                     &#39;median_range_of_motion&#39;: 15.73004566220565,
+                     &#39;95p_range_of_motion&#39;: 54.55881567144294,
+                     &#39;median_peak_velocity&#39;: 77.94780939826387,
+                     &#39;95p_peak_velocity&#39;: 256.9799773546029},
+ &#39;all_segment_categories&#39;: {&#39;duration_s&#39;: 2307.75,
+                            &#39;median_range_of_motion&#39;: 23.100608971051315,
+                            &#39;95p_range_of_motion&#39;: 45.92600123148869,
+                            &#39;median_peak_velocity&#39;: 116.50364930684765,
+                            &#39;95p_peak_velocity&#39;: 219.2008357820751}}
 </pre></div>
 </div>
 </div>

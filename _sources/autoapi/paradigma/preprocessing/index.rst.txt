@@ -19,7 +19,7 @@ Functions
 Module Contents
 ---------------
 
-.. py:function:: resample_data(df: pandas.DataFrame, time_column: str, values_column_names: List[str], resampling_frequency: int) -> pandas.DataFrame
+.. py:function:: resample_data(df: pandas.DataFrame, time_column: str, values_column_names: List[str], sampling_frequency: int, resampling_frequency: int, tolerance: float | None = None) -> pandas.DataFrame
 
    Resamples sensor data to a specified frequency using cubic interpolation.
 
@@ -29,8 +29,14 @@ Module Contents
    :type time_column: str
    :param values_column_names: A list of column names that should be resampled.
    :type values_column_names: List[str]
+   :param sampling_frequency: The original sampling frequency of the data (in Hz).
+   :type sampling_frequency: int
    :param resampling_frequency: The frequency to which the data should be resampled (in Hz).
    :type resampling_frequency: int
+   :param tolerance: The tolerance added to the expected difference when checking
+                     for contiguous timestamps. If not provided, it defaults to
+                     twice the expected interval.
+   :type tolerance: float, optional
 
    :returns: A DataFrame with the resampled data, where each column contains resampled values.
              The time column will reflect the new resampling frequency.
@@ -40,8 +46,8 @@ Module Contents
 
    .. rubric:: Notes
 
-   The function uses cubic interpolation to resample the data to the specified frequency.
-   It requires the input time array to be strictly increasing.
+   - Uses cubic interpolation for smooth resampling if there are enough points.
+   - If only two timestamps are available, it falls back to linear interpolation.
 
 
 .. py:function:: butterworth_filter(data: numpy.ndarray, order: int, cutoff_frequency: Union[float, List[float]], passband: str, sampling_frequency: int)

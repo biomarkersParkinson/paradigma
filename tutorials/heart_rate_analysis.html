@@ -9,7 +9,8 @@
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=77836b02" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1228b8db" />
 
   
   <!--[if lt IE 9]>
@@ -57,8 +58,14 @@
 <li class="toctree-l2"><a class="reference internal" href="#load-data">Load data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#step-1-preprocess-data">Step 1: Preprocess data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#step-2-extract-signal-quality-features">Step 2: Extract signal quality features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#step-3-signal-quality-classification">Step 3: Signal quality classification</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#step-4-heart-rate-estimation">Step 4: Heart rate estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-3-signal-quality-classification">Step 3: Signal quality classification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#store-as-tsdf">Store as TSDF</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#step-4-heart-rate-estimation">Step 4: Heart rate estimation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#run-steps-1-4-for-multiple-segments">Run steps 1 - 4 for multiple segments <a id='multiple_segments_cell'></a></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#step-5-heart-rate-aggregation">Step 5: Heart rate aggregation</a></li>
 </ul>
 </li>
@@ -106,11 +113,21 @@
   <section id="heart-rate-analysis">
 <h1>Heart rate analysis<a class="headerlink" href="#heart-rate-analysis" title="Link to this heading"></a></h1>
 <p>This tutorial shows how to extract heart rate estimates using photoplethysmography (PPG) data and accelerometer data. The pipeline consists of a stepwise approach to determine signal quality, assessing both PPG morphology and accounting for periodic artifacts using the accelerometer. Based on the signal quality, we extract high-quality segments and estimate the heart rate for every 2 s using the smoothed pseudo Wigner-Ville Distribution.</p>
+<p>In this tutorial, we use two days of data from a participant of the Personalized Parkinson Project to demonstrate the functionalities. Since <code class="docutils literal notranslate"><span class="pre">ParaDigMa</span></code> expects contiguous time series, the collected data was stored in two segments each with contiguous timestamps. Per segment, we load the data and perform the following steps:</p>
+<ol class="arabic simple">
+<li><p>Preprocess the time series data</p></li>
+<li><p>Extract signal quality features</p></li>
+<li><p>Signal quality classification</p></li>
+<li><p>Heart rate estimation</p></li>
+</ol>
+<p>We then combine the output of the different segments for the final step:</p>
+<ol class="arabic simple" start="5">
+<li><p>Heart rate aggregation</p></li>
+</ol>
 <section id="load-data">
 <h2>Load data<a class="headerlink" href="#load-data" title="Link to this heading"></a></h2>
-<p>This pipeline requires accelerometer and PPG data to run. In this example we loaded data from a participant of the Personalized Parkinson Project. We load the corresponding dataframes using the <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/util.py#:~:text=load_tsdf_dataframe">load_tsdf_dataframe</a> function. The channel <code class="docutils literal notranslate"><span class="pre">green</span></code> represents the values obtained with PPG using green light.</p>
-<p>In this example we use the interally developed <code class="docutils literal notranslate"><span class="pre">TSDF</span></code> (<a class="reference external" href="https://biomarkersparkinson.github.io/tsdf/">documentation</a>) to load and store data [<a class="reference external" href="https://arxiv.org/abs/2211.11294">1</a>].</p>
-<p>However, we are aware that there are other common data formats. For example, the following functions can be used depending on the file extension of the data:</p>
+<p>This pipeline requires accelerometer and PPG data to run. Here, we start by loading a single contiguous time series (segment), for which we continue running steps 1-4. Below we show how to run these steps for multiple segments. The channel <code class="docutils literal notranslate"><span class="pre">green</span></code> represents the values obtained with PPG using green light.</p>
+<p>In this example we use the interally developed <code class="docutils literal notranslate"><span class="pre">TSDF</span></code> (<a class="reference external" href="https://biomarkersparkinson.github.io/tsdf/">documentation</a>) to load and store data [<a class="reference external" href="https://arxiv.org/abs/2211.11294">1</a>]. However, we are aware that there are other common data formats. For example, the following functions can be used depending on the file extension of the data:</p>
 <ul class="simple">
 <li><p><em>.csv</em>: <code class="docutils literal notranslate"><span class="pre">pandas.read_csv()</span></code> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html">documentation</a>)</p></li>
 <li><p><em>.json</em>: <code class="docutils literal notranslate"><span class="pre">json.load()</span></code> (<a class="reference external" href="https://docs.python.org/3/library/json.html#json.load">documentation</a>)</p></li>
@@ -120,19 +137,22 @@
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span>
 
-<span class="n">path_to_data</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../tests/data&#39;</span><span class="p">)</span>
-<span class="n">path_to_prepared_data</span> <span class="o">=</span> <span class="n">path_to_data</span> <span class="o">/</span> <span class="s1">&#39;1.prepared_data&#39;</span>
+<span class="c1"># Set the path to where the prepared data is saved and load the data.</span>
+<span class="c1"># Note: the test data is stored in TSDF, but you can load your data in your own way</span>
+<span class="n">path_to_prepared_data</span> <span class="o">=</span>  <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../example_data&#39;</span><span class="p">)</span>
 
-<span class="n">ppg_prefix</span> <span class="o">=</span> <span class="s1">&#39;PPG&#39;</span>
-<span class="n">imu_prefix</span> <span class="o">=</span> <span class="s1">&#39;IMU&#39;</span>
+<span class="n">ppg_prefix</span> <span class="o">=</span> <span class="s1">&#39;ppg&#39;</span>
+<span class="n">imu_prefix</span> <span class="o">=</span> <span class="s1">&#39;imu&#39;</span>
 
-<span class="n">df_ppg</span><span class="p">,</span> <span class="n">metadata_time_ppg</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
+<span class="n">segment_nr</span> <span class="o">=</span> <span class="s1">&#39;0001&#39;</span> 
+
+<span class="n">df_ppg</span><span class="p">,</span> <span class="n">metadata_time_ppg</span><span class="p">,</span> <span class="n">metadata_values_ppg</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
     <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_prepared_data</span> <span class="o">/</span> <span class="n">ppg_prefix</span><span class="p">,</span> 
-    <span class="n">prefix</span><span class="o">=</span><span class="n">ppg_prefix</span>
+    <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;PPG_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
 <span class="p">)</span>
-<span class="n">df_imu</span><span class="p">,</span> <span class="n">metadata_time_imu</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
+<span class="n">df_imu</span><span class="p">,</span> <span class="n">metadata_time_imu</span><span class="p">,</span> <span class="n">metadata_values_imu</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
     <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_prepared_data</span> <span class="o">/</span> <span class="n">imu_prefix</span><span class="p">,</span> 
-    <span class="n">prefix</span><span class="o">=</span><span class="n">imu_prefix</span>
+    <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
 <span class="p">)</span>
 
 <span class="c1"># Drop the gyroscope columns from the IMU data</span>
@@ -144,193 +164,87 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_html"><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">JSONDecodeError</span><span class="g g-Whitespace">                           </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">13</span>
+<span class="g g-Whitespace">      </span><span class="mi">9</span> <span class="n">imu_prefix</span> <span class="o">=</span> <span class="s1">&#39;imu&#39;</span>
+<span class="g g-Whitespace">     </span><span class="mi">11</span> <span class="n">segment_nr</span> <span class="o">=</span> <span class="s1">&#39;0001&#39;</span> 
+<span class="ne">---&gt; </span><span class="mi">13</span> <span class="n">df_ppg</span><span class="p">,</span> <span class="n">metadata_time_ppg</span><span class="p">,</span> <span class="n">metadata_values_ppg</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
+<span class="g g-Whitespace">     </span><span class="mi">14</span>     <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_prepared_data</span> <span class="o">/</span> <span class="n">ppg_prefix</span><span class="p">,</span> 
+<span class="g g-Whitespace">     </span><span class="mi">15</span>     <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;PPG_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="g g-Whitespace">     </span><span class="mi">16</span> <span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">17</span> <span class="n">df_imu</span><span class="p">,</span> <span class="n">metadata_time_imu</span><span class="p">,</span> <span class="n">metadata_values_imu</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
+<span class="g g-Whitespace">     </span><span class="mi">18</span>     <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_prepared_data</span> <span class="o">/</span> <span class="n">imu_prefix</span><span class="p">,</span> 
+<span class="g g-Whitespace">     </span><span class="mi">19</span>     <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="g g-Whitespace">     </span><span class="mi">20</span> <span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">22</span> <span class="c1"># Drop the gyroscope columns from the IMU data</span>
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+<span class="nn">File ~/work/paradigma/paradigma/src/paradigma/util.py:134,</span> in <span class="ni">load_tsdf_dataframe</span><span class="nt">(path_to_data, prefix, meta_suffix, time_suffix, values_suffix)</span>
+<span class="g g-Whitespace">    </span><span class="mi">131</span> <span class="n">time_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">time_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="g g-Whitespace">    </span><span class="mi">132</span> <span class="n">values_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">values_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="ne">--&gt; </span><span class="mi">134</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">path_to_data</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">,</span> <span class="n">time_filename</span><span class="p">,</span> <span class="n">values_filename</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">135</span> <span class="n">df</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">137</span> <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>time</th>
-      <th>green</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.00000</td>
-      <td>649511</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.00996</td>
-      <td>648214</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>0.01992</td>
-      <td>646786</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0.02988</td>
-      <td>645334</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>0.03984</td>
-      <td>644317</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>64770</th>
-      <td>644.54720</td>
-      <td>553884</td>
-    </tr>
-    <tr>
-      <th>64771</th>
-      <td>644.55716</td>
-      <td>554088</td>
-    </tr>
-    <tr>
-      <th>64772</th>
-      <td>644.56712</td>
-      <td>554240</td>
-    </tr>
-    <tr>
-      <th>64773</th>
-      <td>644.57708</td>
-      <td>555134</td>
-    </tr>
-    <tr>
-      <th>64774</th>
-      <td>644.58704</td>
-      <td>557205</td>
-    </tr>
-  </tbody>
-</table>
-<p>64775 rows × 2 columns</p>
-</div></div><div class="output text_html"><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
+<span class="nn">File ~/work/paradigma/paradigma/src/paradigma/util.py:121,</span> in <span class="ni">read_metadata</span><span class="nt">(input_path, meta_filename, time_filename, values_filename)</span>
+<span class="g g-Whitespace">    </span><span class="mi">118</span> <span class="k">def</span><span class="w"> </span><span class="nf">read_metadata</span><span class="p">(</span>
+<span class="g g-Whitespace">    </span><span class="mi">119</span>     <span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">time_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values_filename</span><span class="p">:</span> <span class="nb">str</span>
+<span class="g g-Whitespace">    </span><span class="mi">120</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">TSDFMetadata</span><span class="p">,</span> <span class="n">TSDFMetadata</span><span class="p">]:</span>
+<span class="ne">--&gt; </span><span class="mi">121</span>     <span class="n">metadata_dict</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_metadata_from_path</span><span class="p">(</span>
+<span class="g g-Whitespace">    </span><span class="mi">122</span>         <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">123</span>     <span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">124</span>     <span class="n">metadata_time</span> <span class="o">=</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="n">time_filename</span><span class="p">]</span>
+<span class="g g-Whitespace">    </span><span class="mi">125</span>     <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="n">values_filename</span><span class="p">]</span>
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+<span class="nn">File ~/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.12/lib/python3.12/site-packages/tsdf/read_tsdf.py:84,</span> in <span class="ni">load_metadata_from_path</span><span class="nt">(path)</span>
+<span class="g g-Whitespace">     </span><span class="mi">82</span> <span class="c1"># The data is isomorphic to a JSON</span>
+<span class="g g-Whitespace">     </span><span class="mi">83</span> <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+<span class="ne">---&gt; </span><span class="mi">84</span>     <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">86</span> <span class="n">abs_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">87</span> <span class="c1"># Parse the data and verify that it complies with TSDF requirements</span>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>time</th>
-      <th>accelerometer_x</th>
-      <th>accelerometer_y</th>
-      <th>accelerometer_z</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.00000</td>
-      <td>0.550718</td>
-      <td>0.574163</td>
-      <td>-0.273684</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.01004</td>
-      <td>0.535885</td>
-      <td>0.623445</td>
-      <td>-0.254545</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>0.02008</td>
-      <td>0.504306</td>
-      <td>0.651675</td>
-      <td>-0.251675</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0.03012</td>
-      <td>0.488517</td>
-      <td>0.686603</td>
-      <td>-0.265550</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>0.04016</td>
-      <td>0.494258</td>
-      <td>0.725359</td>
-      <td>-0.278469</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>72942</th>
-      <td>730.74468</td>
-      <td>0.234928</td>
-      <td>-0.516268</td>
-      <td>-0.802871</td>
-    </tr>
-    <tr>
-      <th>72943</th>
-      <td>730.75472</td>
-      <td>0.245455</td>
-      <td>-0.514354</td>
-      <td>-0.806699</td>
-    </tr>
-    <tr>
-      <th>72944</th>
-      <td>730.76476</td>
-      <td>0.243541</td>
-      <td>-0.511005</td>
-      <td>-0.807177</td>
-    </tr>
-    <tr>
-      <th>72945</th>
-      <td>730.77480</td>
-      <td>0.240191</td>
-      <td>-0.514354</td>
-      <td>-0.808134</td>
-    </tr>
-    <tr>
-      <th>72946</th>
-      <td>730.78484</td>
-      <td>0.243541</td>
-      <td>-0.511005</td>
-      <td>-0.808134</td>
-    </tr>
-  </tbody>
-</table>
-<p>72947 rows × 4 columns</p>
-</div></div></div>
+<span class="nn">File /usr/lib/python3.12/json/__init__.py:293,</span> in <span class="ni">load</span><span class="nt">(fp, cls, object_hook, parse_float, parse_int, parse_constant, object_pairs_hook, **kw)</span>
+<span class="g g-Whitespace">    </span><span class="mi">274</span> <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">object_hook</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parse_float</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">275</span>         <span class="n">parse_int</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parse_constant</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">object_pairs_hook</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+<span class="g g-Whitespace">    </span><span class="mi">276</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;Deserialize ``fp`` (a ``.read()``-supporting file-like object containing</span>
+<span class="g g-Whitespace">    </span><span class="mi">277</span><span class="sd">     a JSON document) to a Python object.</span>
+<span class="g g-Whitespace">    </span><span class="mi">278</span><span class="sd"> </span>
+<span class="sd">   (...)    291     kwarg; otherwise ``JSONDecoder`` is used.</span>
+<span class="g g-Whitespace">    </span><span class="mi">292</span><span class="sd">     &quot;&quot;&quot;</span>
+<span class="ne">--&gt; </span><span class="mi">293</span>     <span class="k">return</span> <span class="n">loads</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span>
+<span class="g g-Whitespace">    </span><span class="mi">294</span>         <span class="bp">cls</span><span class="o">=</span><span class="bp">cls</span><span class="p">,</span> <span class="n">object_hook</span><span class="o">=</span><span class="n">object_hook</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">295</span>         <span class="n">parse_float</span><span class="o">=</span><span class="n">parse_float</span><span class="p">,</span> <span class="n">parse_int</span><span class="o">=</span><span class="n">parse_int</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">296</span>         <span class="n">parse_constant</span><span class="o">=</span><span class="n">parse_constant</span><span class="p">,</span> <span class="n">object_pairs_hook</span><span class="o">=</span><span class="n">object_pairs_hook</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+
+<span class="nn">File /usr/lib/python3.12/json/__init__.py:346,</span> in <span class="ni">loads</span><span class="nt">(s, cls, object_hook, parse_float, parse_int, parse_constant, object_pairs_hook, **kw)</span>
+<span class="g g-Whitespace">    </span><span class="mi">341</span>     <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">detect_encoding</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="s1">&#39;surrogatepass&#39;</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">343</span> <span class="k">if</span> <span class="p">(</span><span class="bp">cls</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">object_hook</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span>
+<span class="g g-Whitespace">    </span><span class="mi">344</span>         <span class="n">parse_int</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">parse_float</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span>
+<span class="g g-Whitespace">    </span><span class="mi">345</span>         <span class="n">parse_constant</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">object_pairs_hook</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">kw</span><span class="p">):</span>
+<span class="ne">--&gt; </span><span class="mi">346</span>     <span class="k">return</span> <span class="n">_default_decoder</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">347</span> <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">348</span>     <span class="bp">cls</span> <span class="o">=</span> <span class="n">JSONDecoder</span>
+
+<span class="nn">File /usr/lib/python3.12/json/decoder.py:337,</span> in <span class="ni">JSONDecoder.decode</span><span class="nt">(self, s, _w)</span>
+<span class="g g-Whitespace">    </span><span class="mi">332</span> <span class="k">def</span><span class="w"> </span><span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">_w</span><span class="o">=</span><span class="n">WHITESPACE</span><span class="o">.</span><span class="n">match</span><span class="p">):</span>
+<span class="g g-Whitespace">    </span><span class="mi">333</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;Return the Python representation of ``s`` (a ``str`` instance</span>
+<span class="g g-Whitespace">    </span><span class="mi">334</span><span class="sd">     containing a JSON document).</span>
+<span class="g g-Whitespace">    </span><span class="mi">335</span><span class="sd"> </span>
+<span class="g g-Whitespace">    </span><span class="mi">336</span><span class="sd">     &quot;&quot;&quot;</span>
+<span class="ne">--&gt; </span><span class="mi">337</span>     <span class="n">obj</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_decode</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="n">_w</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">end</span><span class="p">())</span>
+<span class="g g-Whitespace">    </span><span class="mi">338</span>     <span class="n">end</span> <span class="o">=</span> <span class="n">_w</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
+<span class="g g-Whitespace">    </span><span class="mi">339</span>     <span class="k">if</span> <span class="n">end</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+
+<span class="nn">File /usr/lib/python3.12/json/decoder.py:355,</span> in <span class="ni">JSONDecoder.raw_decode</span><span class="nt">(self, s, idx)</span>
+<span class="g g-Whitespace">    </span><span class="mi">353</span>     <span class="n">obj</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scan_once</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">354</span> <span class="k">except</span> <span class="ne">StopIteration</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+<span class="ne">--&gt; </span><span class="mi">355</span>     <span class="k">raise</span> <span class="n">JSONDecodeError</span><span class="p">(</span><span class="s2">&quot;Expecting value&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">err</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+<span class="g g-Whitespace">    </span><span class="mi">356</span> <span class="k">return</span> <span class="n">obj</span><span class="p">,</span> <span class="n">end</span>
+
+<span class="ne">JSONDecodeError</span>: Expecting value: line 1 column 1 (char 0)
+</pre></div>
+</div>
+</div>
 </div>
 </section>
 <section id="step-1-preprocess-data">
@@ -362,11 +276,11 @@
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Original data shapes:
-- PPG data: (64775, 2)
-- Accelerometer data: (72947, 7)
+- PPG data: (1029375, 2)
+- Accelerometer data: (3455331, 7)
 Overlapping preprocessed data shapes:
-- PPG data: (19338, 2)
-- Accelerometer data: (64459, 4)
+- PPG data: (1030188, 2)
+- Accelerometer data: (3433961, 4)
 </pre></div>
 </div>
 <div class="output text_html"><div>
@@ -395,27 +309,27 @@ Overlapping preprocessed data shapes:
     <tr>
       <th>0</th>
       <td>0.000000</td>
-      <td>-1434.856838</td>
+      <td>-26.315811</td>
     </tr>
     <tr>
       <th>1</th>
       <td>0.033333</td>
-      <td>-3461.717789</td>
+      <td>91.335299</td>
     </tr>
     <tr>
       <th>2</th>
       <td>0.066667</td>
-      <td>-5172.913796</td>
+      <td>181.603416</td>
     </tr>
     <tr>
       <th>3</th>
       <td>0.100000</td>
-      <td>-6343.203160</td>
+      <td>225.760466</td>
     </tr>
     <tr>
       <th>4</th>
       <td>0.133333</td>
-      <td>-6875.904054</td>
+      <td>219.937282</td>
     </tr>
     <tr>
       <th>...</th>
@@ -423,33 +337,33 @@ Overlapping preprocessed data shapes:
       <td>...</td>
     </tr>
     <tr>
-      <th>19333</th>
-      <td>644.433333</td>
-      <td>-2403.547097</td>
+      <th>1030183</th>
+      <td>34339.433333</td>
+      <td>224556.234611</td>
     </tr>
     <tr>
-      <th>19334</th>
-      <td>644.466667</td>
-      <td>-7434.311944</td>
+      <th>1030184</th>
+      <td>34339.466667</td>
+      <td>210075.529517</td>
     </tr>
     <tr>
-      <th>19335</th>
-      <td>644.500000</td>
-      <td>-8214.847078</td>
+      <th>1030185</th>
+      <td>34339.500000</td>
+      <td>163811.629247</td>
     </tr>
     <tr>
-      <th>19336</th>
-      <td>644.533333</td>
-      <td>-5194.393329</td>
+      <th>1030186</th>
+      <td>34339.533333</td>
+      <td>94537.897763</td>
     </tr>
     <tr>
-      <th>19337</th>
-      <td>644.566667</td>
-      <td>70.147000</td>
+      <th>1030187</th>
+      <td>34339.566667</td>
+      <td>12915.304284</td>
     </tr>
   </tbody>
 </table>
-<p>19338 rows × 2 columns</p>
+<p>1030188 rows × 2 columns</p>
 </div></div><div class="output text_html"><div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -478,37 +392,37 @@ Overlapping preprocessed data shapes:
     <tr>
       <th>0</th>
       <td>0.00</td>
-      <td>0.053078</td>
-      <td>0.010040</td>
-      <td>-0.273154</td>
+      <td>-0.002324</td>
+      <td>-0.001442</td>
+      <td>-0.002116</td>
     </tr>
     <tr>
       <th>1</th>
       <td>0.01</td>
-      <td>0.038337</td>
-      <td>0.058802</td>
-      <td>-0.256899</td>
+      <td>-0.000390</td>
+      <td>-0.000914</td>
+      <td>-0.007396</td>
     </tr>
     <tr>
       <th>2</th>
       <td>0.02</td>
-      <td>0.006824</td>
-      <td>0.086559</td>
-      <td>-0.256739</td>
+      <td>0.000567</td>
+      <td>0.002474</td>
+      <td>-0.005445</td>
     </tr>
     <tr>
       <th>3</th>
       <td>0.03</td>
-      <td>-0.009156</td>
-      <td>0.120855</td>
-      <td>-0.273280</td>
+      <td>-0.000425</td>
+      <td>0.002414</td>
+      <td>-0.002099</td>
     </tr>
     <tr>
       <th>4</th>
       <td>0.04</td>
-      <td>-0.003770</td>
-      <td>0.159316</td>
-      <td>-0.289007</td>
+      <td>-0.002807</td>
+      <td>-0.001408</td>
+      <td>-0.000218</td>
     </tr>
     <tr>
       <th>...</th>
@@ -518,43 +432,43 @@ Overlapping preprocessed data shapes:
       <td>...</td>
     </tr>
     <tr>
-      <th>64454</th>
-      <td>644.54</td>
-      <td>0.104185</td>
-      <td>0.101627</td>
-      <td>-0.029342</td>
+      <th>3433956</th>
+      <td>34339.56</td>
+      <td>-0.402941</td>
+      <td>0.038710</td>
+      <td>0.461449</td>
     </tr>
     <tr>
-      <th>64455</th>
-      <td>644.55</td>
-      <td>0.120403</td>
-      <td>0.090413</td>
-      <td>0.051113</td>
+      <th>3433957</th>
+      <td>34339.57</td>
+      <td>-0.659832</td>
+      <td>0.098696</td>
+      <td>0.817136</td>
     </tr>
     <tr>
-      <th>64456</th>
-      <td>644.56</td>
-      <td>0.101289</td>
-      <td>0.128684</td>
-      <td>0.037951</td>
+      <th>3433958</th>
+      <td>34339.58</td>
+      <td>-0.464138</td>
+      <td>0.033607</td>
+      <td>0.471552</td>
     </tr>
     <tr>
-      <th>64457</th>
-      <td>644.57</td>
-      <td>0.073139</td>
-      <td>0.137399</td>
-      <td>0.030834</td>
+      <th>3433959</th>
+      <td>34339.59</td>
+      <td>-0.389065</td>
+      <td>0.108485</td>
+      <td>0.622471</td>
     </tr>
     <tr>
-      <th>64458</th>
-      <td>644.58</td>
-      <td>0.004578</td>
-      <td>0.102862</td>
-      <td>0.025627</td>
+      <th>3433960</th>
+      <td>34339.60</td>
+      <td>-0.082625</td>
+      <td>-0.014490</td>
+      <td>0.119875</td>
     </tr>
   </tbody>
 </table>
-<p>64459 rows × 4 columns</p>
+<p>3433961 rows × 4 columns</p>
 </div></div></div>
 </div>
 </section>
@@ -625,77 +539,77 @@ The default step size for the signal quality feature extraction is set to 1 seco
     <tr>
       <th>0</th>
       <td>0.0</td>
-      <td>1.697510e+07</td>
-      <td>3418.696392</td>
-      <td>2892.815105</td>
-      <td>2.540447</td>
-      <td>0.277237</td>
-      <td>3.241634</td>
-      <td>0.282452</td>
-      <td>1.171875</td>
-      <td>0.179922</td>
-      <td>0.561186</td>
-      <td>0.014196</td>
+      <td>1.145652e+05</td>
+      <td>282.401234</td>
+      <td>238.829637</td>
+      <td>2.170853</td>
+      <td>0.107401</td>
+      <td>3.320049</td>
+      <td>0.544165</td>
+      <td>0.585938</td>
+      <td>0.138454</td>
+      <td>0.516336</td>
+      <td>0.026409</td>
     </tr>
     <tr>
       <th>1</th>
       <td>1.0</td>
-      <td>1.635033e+07</td>
-      <td>3350.769158</td>
-      <td>2892.815105</td>
-      <td>2.647951</td>
-      <td>0.420163</td>
-      <td>3.202313</td>
-      <td>0.276526</td>
-      <td>1.171875</td>
-      <td>0.201972</td>
-      <td>0.547812</td>
-      <td>0.015343</td>
+      <td>1.102401e+05</td>
+      <td>271.582177</td>
+      <td>236.891936</td>
+      <td>2.251393</td>
+      <td>-0.029309</td>
+      <td>3.041878</td>
+      <td>0.491829</td>
+      <td>0.585938</td>
+      <td>0.160433</td>
+      <td>0.511626</td>
+      <td>0.023402</td>
     </tr>
     <tr>
       <th>2</th>
       <td>2.0</td>
-      <td>1.921248e+07</td>
-      <td>3698.963099</td>
-      <td>3310.773556</td>
-      <td>2.333687</td>
-      <td>0.481974</td>
-      <td>3.521882</td>
-      <td>0.210984</td>
-      <td>0.820312</td>
-      <td>0.264922</td>
-      <td>0.509015</td>
-      <td>0.042583</td>
+      <td>1.061479e+05</td>
+      <td>262.348604</td>
+      <td>225.915756</td>
+      <td>2.415221</td>
+      <td>0.216631</td>
+      <td>2.818552</td>
+      <td>0.469092</td>
+      <td>0.585938</td>
+      <td>0.167007</td>
+      <td>0.525025</td>
+      <td>0.028592</td>
     </tr>
     <tr>
       <th>3</th>
       <td>3.0</td>
-      <td>1.646562e+07</td>
-      <td>3389.325775</td>
-      <td>2946.588526</td>
-      <td>2.608187</td>
-      <td>0.733913</td>
-      <td>3.346236</td>
-      <td>0.225823</td>
-      <td>0.703125</td>
-      <td>0.270707</td>
-      <td>0.496051</td>
-      <td>0.034215</td>
+      <td>9.514719e+04</td>
+      <td>245.089445</td>
+      <td>203.417715</td>
+      <td>2.481465</td>
+      <td>0.110420</td>
+      <td>2.677071</td>
+      <td>0.415071</td>
+      <td>0.585938</td>
+      <td>0.170626</td>
+      <td>0.550495</td>
+      <td>0.019296</td>
     </tr>
     <tr>
       <th>4</th>
       <td>4.0</td>
-      <td>1.603135e+07</td>
-      <td>3364.366313</td>
-      <td>2912.280798</td>
-      <td>2.268768</td>
-      <td>0.440357</td>
-      <td>3.314565</td>
-      <td>0.305998</td>
-      <td>0.820312</td>
-      <td>0.264097</td>
-      <td>0.496697</td>
-      <td>0.056204</td>
+      <td>7.393010e+04</td>
+      <td>218.379138</td>
+      <td>187.583267</td>
+      <td>2.405921</td>
+      <td>0.084566</td>
+      <td>2.796140</td>
+      <td>0.338369</td>
+      <td>0.585938</td>
+      <td>0.121113</td>
+      <td>0.595214</td>
+      <td>0.020083</td>
     </tr>
     <tr>
       <th>...</th>
@@ -713,83 +627,83 @@ The default step size for the signal quality feature extraction is set to 1 seco
       <td>...</td>
     </tr>
     <tr>
-      <th>634</th>
-      <td>634.0</td>
-      <td>2.281660e+06</td>
-      <td>1106.006037</td>
-      <td>838.307729</td>
-      <td>4.058037</td>
-      <td>0.674184</td>
-      <td>2.072660</td>
-      <td>0.172052</td>
-      <td>0.703125</td>
-      <td>0.204028</td>
-      <td>0.577570</td>
-      <td>0.060486</td>
+      <th>34329</th>
+      <td>34329.0</td>
+      <td>8.176078e+06</td>
+      <td>1613.021494</td>
+      <td>438.201240</td>
+      <td>6.122772</td>
+      <td>-1.792336</td>
+      <td>1.378694</td>
+      <td>0.104389</td>
+      <td>0.351562</td>
+      <td>0.046616</td>
+      <td>0.356027</td>
+      <td>0.110219</td>
     </tr>
     <tr>
-      <th>635</th>
-      <td>635.0</td>
-      <td>2.224441e+06</td>
-      <td>1113.194933</td>
-      <td>838.307729</td>
-      <td>3.684159</td>
-      <td>0.067979</td>
-      <td>2.118019</td>
-      <td>0.236408</td>
-      <td>0.703125</td>
-      <td>0.221044</td>
-      <td>0.560362</td>
-      <td>0.053120</td>
+      <th>34330</th>
+      <td>34330.0</td>
+      <td>3.512188e+07</td>
+      <td>3307.888927</td>
+      <td>1069.775894</td>
+      <td>8.160698</td>
+      <td>1.746472</td>
+      <td>1.442643</td>
+      <td>0.142226</td>
+      <td>0.351562</td>
+      <td>0.049424</td>
+      <td>0.371163</td>
+      <td>0.178742</td>
     </tr>
     <tr>
-      <th>636</th>
-      <td>636.0</td>
-      <td>5.103141e+06</td>
-      <td>1627.618918</td>
-      <td>1030.113303</td>
-      <td>3.913068</td>
-      <td>0.852331</td>
-      <td>2.040094</td>
-      <td>0.235822</td>
+      <th>34331</th>
+      <td>34331.0</td>
+      <td>1.181350e+08</td>
+      <td>6648.535487</td>
+      <td>2743.478312</td>
+      <td>5.654373</td>
+      <td>0.018587</td>
+      <td>1.558314</td>
+      <td>0.136803</td>
+      <td>0.351562</td>
+      <td>0.048211</td>
+      <td>0.366386</td>
+      <td>0.153351</td>
+    </tr>
+    <tr>
+      <th>34332</th>
+      <td>34332.0</td>
+      <td>1.252829e+09</td>
+      <td>20165.525309</td>
+      <td>6452.244225</td>
+      <td>6.805051</td>
+      <td>-1.222184</td>
+      <td>1.310088</td>
+      <td>0.666123</td>
+      <td>0.351562</td>
+      <td>0.037812</td>
+      <td>0.359105</td>
+      <td>0.154910</td>
+    </tr>
+    <tr>
+      <th>34333</th>
+      <td>34333.0</td>
+      <td>1.008217e+10</td>
+      <td>42271.328020</td>
+      <td>12552.656437</td>
+      <td>23.756877</td>
+      <td>4.167326</td>
+      <td>1.212179</td>
+      <td>0.044647</td>
       <td>0.585938</td>
-      <td>0.157667</td>
-      <td>0.514717</td>
-      <td>0.058853</td>
-    </tr>
-    <tr>
-      <th>637</th>
-      <td>637.0</td>
-      <td>7.428728e+06</td>
-      <td>2093.736007</td>
-      <td>1520.640067</td>
-      <td>3.188753</td>
-      <td>0.305780</td>
-      <td>2.457446</td>
-      <td>0.322034</td>
-      <td>0.468750</td>
-      <td>0.150582</td>
-      <td>0.458477</td>
-      <td>0.061269</td>
-    </tr>
-    <tr>
-      <th>638</th>
-      <td>638.0</td>
-      <td>1.549534e+07</td>
-      <td>2974.462555</td>
-      <td>2482.703944</td>
-      <td>4.042171</td>
-      <td>-0.628008</td>
-      <td>2.228730</td>
-      <td>0.095918</td>
-      <td>0.468750</td>
-      <td>0.102976</td>
-      <td>0.493830</td>
-      <td>0.105554</td>
+      <td>0.113283</td>
+      <td>0.632749</td>
+      <td>0.093221</td>
     </tr>
   </tbody>
 </table>
-<p>639 rows × 12 columns</p>
+<p>34334 rows × 12 columns</p>
 </div></div></div>
 </div>
 </section>
@@ -845,31 +759,31 @@ The default step size for the signal quality feature extraction is set to 1 seco
     <tr>
       <th>0</th>
       <td>0.0</td>
-      <td>0.006031</td>
+      <td>1.121315e-02</td>
       <td>1</td>
     </tr>
     <tr>
       <th>1</th>
       <td>1.0</td>
-      <td>0.011725</td>
+      <td>7.126135e-03</td>
       <td>1</td>
     </tr>
     <tr>
       <th>2</th>
       <td>2.0</td>
-      <td>0.068063</td>
+      <td>7.017555e-03</td>
       <td>1</td>
     </tr>
     <tr>
       <th>3</th>
       <td>3.0</td>
-      <td>0.080808</td>
+      <td>4.134224e-03</td>
       <td>1</td>
     </tr>
     <tr>
       <th>4</th>
       <td>4.0</td>
-      <td>0.074591</td>
+      <td>9.195340e-04</td>
       <td>1</td>
     </tr>
     <tr>
@@ -879,40 +793,142 @@ The default step size for the signal quality feature extraction is set to 1 seco
       <td>...</td>
     </tr>
     <tr>
-      <th>634</th>
-      <td>634.0</td>
-      <td>0.001387</td>
+      <th>34329</th>
+      <td>34329.0</td>
+      <td>1.782669e-08</td>
       <td>1</td>
     </tr>
     <tr>
-      <th>635</th>
-      <td>635.0</td>
-      <td>0.001570</td>
-      <td>1</td>
+      <th>34330</th>
+      <td>34330.0</td>
+      <td>2.078262e-06</td>
+      <td>0</td>
     </tr>
     <tr>
-      <th>636</th>
-      <td>636.0</td>
-      <td>0.000380</td>
-      <td>1</td>
+      <th>34331</th>
+      <td>34331.0</td>
+      <td>1.190223e-07</td>
+      <td>0</td>
     </tr>
     <tr>
-      <th>637</th>
-      <td>637.0</td>
-      <td>0.000406</td>
-      <td>1</td>
+      <th>34332</th>
+      <td>34332.0</td>
+      <td>1.383614e-08</td>
+      <td>0</td>
     </tr>
     <tr>
-      <th>638</th>
-      <td>638.0</td>
-      <td>0.000004</td>
+      <th>34333</th>
+      <td>34333.0</td>
+      <td>7.587516e-07</td>
       <td>1</td>
     </tr>
   </tbody>
 </table>
-<p>639 rows × 3 columns</p>
+<p>34334 rows × 3 columns</p>
 </div></div></div>
 </div>
+<section id="store-as-tsdf">
+<h3>Store as TSDF<a class="headerlink" href="#store-as-tsdf" title="Link to this heading"></a></h3>
+<p>The predicted probabilities (and optionally other features) can be stored and loaded in TSDF as demonstrated below.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tsdf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_df_data</span>
+
+<span class="c1"># Set &#39;path_to_data&#39; to the directory where you want to save the data</span>
+<span class="n">metadata_time_store</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">TSDFMetadata</span><span class="p">(</span><span class="n">metadata_time_ppg</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">(),</span> <span class="n">path_to_prepared_data</span><span class="p">)</span>
+<span class="n">metadata_values_store</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">TSDFMetadata</span><span class="p">(</span><span class="n">metadata_values_ppg</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">(),</span> <span class="n">path_to_prepared_data</span><span class="p">)</span>
+
+<span class="c1"># Select the columns to be saved </span>
+<span class="n">metadata_time_store</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
+<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pred_sqa_proba&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_sqa_acc_label&#39;</span><span class="p">]</span>
+
+<span class="c1"># Set the units</span>
+<span class="n">metadata_time_store</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Relative seconds&#39;</span><span class="p">]</span>
+<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">]</span>
+<span class="n">metadata_time_store</span><span class="o">.</span><span class="n">data_type</span> <span class="o">=</span> <span class="nb">float</span>
+<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">data_type</span> <span class="o">=</span> <span class="nb">float</span>
+
+<span class="c1"># Set the filenames</span>
+<span class="n">meta_store_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">_meta.json&#39;</span>
+<span class="n">values_store_filename</span> <span class="o">=</span> <span class="n">meta_store_filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_meta.json&#39;</span><span class="p">,</span> <span class="s1">&#39;_values.bin&#39;</span><span class="p">)</span>
+<span class="n">time_store_filename</span> <span class="o">=</span> <span class="n">meta_store_filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_meta.json&#39;</span><span class="p">,</span> <span class="s1">&#39;_time.bin&#39;</span><span class="p">)</span>
+
+<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="n">values_store_filename</span>
+<span class="n">metadata_time_store</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="n">time_store_filename</span>
+
+<span class="n">write_df_data</span><span class="p">(</span><span class="n">metadata_time_store</span><span class="p">,</span> <span class="n">metadata_values_store</span><span class="p">,</span> <span class="n">path_to_prepared_data</span><span class="p">,</span> <span class="n">meta_store_filename</span><span class="p">,</span> <span class="n">df_sqa</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df_sqa</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_prepared_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">df_sqa</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>pred_sqa_proba</th>
+      <th>pred_sqa_acc_label</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>0.011213</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.0</td>
+      <td>0.007126</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2.0</td>
+      <td>0.007018</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3.0</td>
+      <td>0.004134</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4.0</td>
+      <td>0.000920</td>
+      <td>1.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
 </section>
 <section id="step-4-heart-rate-estimation">
 <h2>Step 4: Heart rate estimation<a class="headerlink" href="#step-4-heart-rate-estimation" title="Link to this heading"></a></h2>
@@ -924,7 +940,7 @@ The default step size for the signal quality feature extraction is set to 1 seco
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The standard default minimal window length for the heart rate extraction is set to&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">tfd_length</span><span class="p">,</span> <span class="s2">&quot;seconds.&quot;</span><span class="p">)</span>
 <span class="c1"># set the minimal window length for the heart rate extraction to 10 seconds instead of default of 30 seconds.</span>
-<span class="n">config</span><span class="o">.</span><span class="n">set_tfd_length</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>       
+<span class="c1">#config.set_tfd_length(10)       </span>
 
 <span class="n">df_hr</span> <span class="o">=</span> <span class="n">estimate_heart_rate</span><span class="p">(</span>
     <span class="n">df_sqa</span><span class="o">=</span><span class="n">df_sqa</span><span class="p">,</span> 
@@ -965,38 +981,160 @@ The default step size for the signal quality feature extraction is set to 1 seco
   <tbody>
     <tr>
       <th>0</th>
-      <td>56.0</td>
-      <td>86.404715</td>
+      <td>47.0</td>
+      <td>80.372915</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>58.0</td>
-      <td>86.640472</td>
+      <td>49.0</td>
+      <td>79.769382</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>60.0</td>
-      <td>86.345776</td>
+      <td>51.0</td>
+      <td>79.136408</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>62.0</td>
-      <td>84.872299</td>
+      <td>53.0</td>
+      <td>78.606477</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>64.0</td>
-      <td>84.872299</td>
+      <td>55.0</td>
+      <td>77.870461</td>
     </tr>
     <tr>
-      <th>5</th>
-      <td>66.0</td>
-      <td>84.194499</td>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>825</th>
+      <td>32876.0</td>
+      <td>78.220133</td>
+    </tr>
+    <tr>
+      <th>826</th>
+      <td>32878.0</td>
+      <td>78.047301</td>
+    </tr>
+    <tr>
+      <th>827</th>
+      <td>32880.0</td>
+      <td>78.047301</td>
+    </tr>
+    <tr>
+      <th>828</th>
+      <td>32882.0</td>
+      <td>78.238326</td>
+    </tr>
+    <tr>
+      <th>829</th>
+      <td>32884.0</td>
+      <td>78.556701</td>
     </tr>
   </tbody>
 </table>
+<p>830 rows × 2 columns</p>
 </div></div></div>
 </div>
+<section id="run-steps-1-4-for-multiple-segments">
+<h3>Run steps 1 - 4 for multiple segments <a id='multiple_segments_cell'></a><a class="headerlink" href="#run-steps-1-4-for-multiple-segments" title="Link to this heading"></a></h3>
+<p>If your data is also stored in multiple segments, you can modify <code class="docutils literal notranslate"><span class="pre">segments</span></code> in the cell below to a list of the filenames of your respective segmented data.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PPGConfig</span><span class="p">,</span> <span class="n">IMUConfig</span><span class="p">,</span> <span class="n">HeartRateConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_ppg_data</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.heart_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_signal_quality_features</span><span class="p">,</span> <span class="n">signal_quality_classification</span><span class="p">,</span> <span class="n">estimate_heart_rate</span>
+
+<span class="c1"># Set the path to where the prepared data is saved</span>
+<span class="n">path_to_prepared_data</span> <span class="o">=</span>  <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../example_data&#39;</span><span class="p">)</span>
+
+<span class="n">ppg_prefix</span> <span class="o">=</span> <span class="s1">&#39;ppg&#39;</span>
+<span class="n">imu_prefix</span> <span class="o">=</span> <span class="s1">&#39;imu&#39;</span>
+
+<span class="c1"># Set the path to the classifier package</span>
+<span class="n">ppg_quality_classifier_package_filename</span> <span class="o">=</span> <span class="s1">&#39;ppg_quality_clf_package.pkl&#39;</span>
+<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;assets&#39;</span> <span class="o">/</span> <span class="n">ppg_quality_classifier_package_filename</span>
+
+<span class="c1"># Create a list of dataframes to store the estimated heart rates of all segments</span>
+<span class="n">list_df_hr</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">segments</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;0001&#39;</span><span class="p">,</span> <span class="s1">&#39;0002&#39;</span><span class="p">]</span> <span class="c1"># list with all available segments</span>
+
+<span class="k">for</span> <span class="n">segment_nr</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">:</span>
+    
+    <span class="c1"># Load the data</span>
+    <span class="n">df_ppg</span><span class="p">,</span> <span class="n">metadata_time_ppg</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
+        <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_prepared_data</span> <span class="o">/</span> <span class="n">ppg_prefix</span><span class="p">,</span> 
+        <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;PPG_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="p">)</span>
+    <span class="n">df_imu</span><span class="p">,</span> <span class="n">metadata_time_imu</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
+        <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_prepared_data</span> <span class="o">/</span> <span class="n">imu_prefix</span><span class="p">,</span> 
+        <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>   
+    <span class="p">)</span>
+
+    <span class="c1"># Drop the gyroscope columns from the IMU data</span>
+    <span class="n">cols_to_drop</span> <span class="o">=</span> <span class="n">df_imu</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s1">&#39;^gyroscope_&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+    <span class="n">df_acc</span> <span class="o">=</span> <span class="n">df_imu</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">cols_to_drop</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># 1: Preprocess the data</span>
+
+    <span class="n">ppg_config</span> <span class="o">=</span> <span class="n">PPGConfig</span><span class="p">()</span>
+    <span class="n">imu_config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span>
+
+    <span class="n">df_ppg_proc</span><span class="p">,</span> <span class="n">df_acc_proc</span> <span class="o">=</span> <span class="n">preprocess_ppg_data</span><span class="p">(</span>
+        <span class="n">df_ppg</span><span class="o">=</span><span class="n">df_ppg</span><span class="p">,</span> 
+        <span class="n">df_acc</span><span class="o">=</span><span class="n">df_acc</span><span class="p">,</span> 
+        <span class="n">ppg_config</span><span class="o">=</span><span class="n">ppg_config</span><span class="p">,</span> 
+        <span class="n">imu_config</span><span class="o">=</span><span class="n">imu_config</span><span class="p">,</span> 
+        <span class="n">start_time_ppg</span><span class="o">=</span><span class="n">metadata_time_ppg</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">,</span>
+        <span class="n">start_time_imu</span><span class="o">=</span><span class="n">metadata_time_imu</span><span class="o">.</span><span class="n">start_iso8601</span>
+    <span class="p">)</span>
+
+    <span class="c1"># 2: Extract signal quality features</span>
+    <span class="n">ppg_config</span> <span class="o">=</span> <span class="n">HeartRateConfig</span><span class="p">(</span><span class="s1">&#39;ppg&#39;</span><span class="p">)</span>
+    <span class="n">acc_config</span> <span class="o">=</span> <span class="n">HeartRateConfig</span><span class="p">(</span><span class="s1">&#39;imu&#39;</span><span class="p">)</span>
+
+    <span class="n">df_features</span> <span class="o">=</span> <span class="n">extract_signal_quality_features</span><span class="p">(</span>
+        <span class="n">df_ppg</span><span class="o">=</span><span class="n">df_ppg_proc</span><span class="p">,</span>
+        <span class="n">df_acc</span><span class="o">=</span><span class="n">df_acc_proc</span><span class="p">,</span>
+        <span class="n">ppg_config</span><span class="o">=</span><span class="n">ppg_config</span><span class="p">,</span> 
+        <span class="n">acc_config</span><span class="o">=</span><span class="n">acc_config</span><span class="p">,</span> 
+    <span class="p">)</span>
+    
+    <span class="c1"># 3: Signal quality classification</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">HeartRateConfig</span><span class="p">()</span>
+
+    <span class="n">df_sqa</span> <span class="o">=</span> <span class="n">signal_quality_classification</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">df_features</span><span class="p">,</span> 
+        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> 
+        <span class="n">full_path_to_classifier_package</span><span class="o">=</span><span class="n">full_path_to_classifier_package</span>
+    <span class="p">)</span>
+
+    <span class="c1"># 4: Estimate heart rate</span>
+    <span class="n">df_hr</span> <span class="o">=</span> <span class="n">estimate_heart_rate</span><span class="p">(</span>
+        <span class="n">df_sqa</span><span class="o">=</span><span class="n">df_sqa</span><span class="p">,</span> 
+        <span class="n">df_ppg_preprocessed</span><span class="o">=</span><span class="n">df_ppg_proc</span><span class="p">,</span> 
+        <span class="n">config</span><span class="o">=</span><span class="n">config</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Add the hr estimations of the current segment to the list</span>
+    <span class="n">df_hr</span><span class="p">[</span><span class="s1">&#39;segment_nr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">segment_nr</span>
+    <span class="n">list_df_hr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df_hr</span><span class="p">)</span>
+
+<span class="n">df_hr</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">list_df_hr</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
 </section>
 <section id="step-5-heart-rate-aggregation">
 <h2>Step 5: Heart rate aggregation<a class="headerlink" href="#step-5-heart-rate-aggregation" title="Link to this heading"></a></h2>
@@ -1017,9 +1155,9 @@ The default step size for the signal quality feature extraction is set to 1 seco
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;hr_aggregates&#39;: {&#39;99p_heart_rate&#39;: 86.62868369351669,
-                   &#39;mode_heart_rate&#39;: 84.8722986247544},
- &#39;metadata&#39;: {&#39;nr_hr_est&#39;: 6}}
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;hr_aggregates&#39;: {&#39;99p_heart_rate&#39;: 85.77263444520081,
+                   &#39;mode_heart_rate&#39;: 63.59175662414131},
+ &#39;metadata&#39;: {&#39;nr_hr_est&#39;: 8684}}
 </pre></div>
 </div>
 </div>

@@ -8,7 +8,8 @@
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=77836b02" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
 
   
   <!--[if lt IE 9]>
@@ -730,11 +731,9 @@
         <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">y_gyro_colname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">z_gyro_colname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">pred_colname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Perform principal component analysis (PCA) on gyroscope data to estimate velocity. If pred_colname is provided, </span>
-<span class="sd">    the PCA is fitted on the predicted gait data. Otherwise, the PCA is fitted on the entire dataset.</span>
+<span class="sd">    Perform principal component analysis (PCA) on gyroscope data to estimate velocity.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -744,8 +743,6 @@
 <span class="sd">        The column name for the y-axis gyroscope data.</span>
 <span class="sd">    z_gyro_colname : str</span>
 <span class="sd">        The column name for the z-axis gyroscope data.</span>
-<span class="sd">    pred_colname : str, optional</span>
-<span class="sd">        The column name for the predicted gait (default: None).</span>
 <span class="sd">        </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -756,19 +753,9 @@
     <span class="n">y_gyro_array</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">y_gyro_colname</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
     <span class="n">z_gyro_array</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">z_gyro_colname</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 
-    <span class="c1"># Filter data based on predicted gait if pred_colname is provided</span>
-    <span class="k">if</span> <span class="n">pred_colname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">pred_mask</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">pred_colname</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
-        <span class="n">y_gyro_fit_array</span> <span class="o">=</span> <span class="n">y_gyro_array</span><span class="p">[</span><span class="n">pred_mask</span><span class="p">]</span>
-        <span class="n">z_gyro_fit_array</span> <span class="o">=</span> <span class="n">z_gyro_array</span><span class="p">[</span><span class="n">pred_mask</span><span class="p">]</span>
-
-        <span class="c1"># Fit PCA on predicted gait data</span>
-        <span class="n">fit_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">y_gyro_fit_array</span><span class="p">,</span> <span class="n">z_gyro_fit_array</span><span class="p">))</span>
-        <span class="n">full_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">y_gyro_array</span><span class="p">,</span> <span class="n">z_gyro_array</span><span class="p">))</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># Fit PCA on entire dataset</span>
-        <span class="n">fit_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">y_gyro_array</span><span class="p">,</span> <span class="n">z_gyro_array</span><span class="p">))</span>
-        <span class="n">full_data</span> <span class="o">=</span> <span class="n">fit_data</span>
+    <span class="c1"># Fit PCA</span>
+    <span class="n">fit_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">y_gyro_array</span><span class="p">,</span> <span class="n">z_gyro_array</span><span class="p">))</span>
+    <span class="n">full_data</span> <span class="o">=</span> <span class="n">fit_data</span>
 
     <span class="n">pca</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">svd_solver</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">22</span><span class="p">)</span>
     <span class="n">pca</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">fit_data</span><span class="p">)</span>

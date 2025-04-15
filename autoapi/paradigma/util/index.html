@@ -9,7 +9,8 @@
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=77836b02" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=1228b8db" />
 
   
   <!--[if lt IE 9]>
@@ -160,6 +161,12 @@
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.merge_predictions_with_timestamps" title="paradigma.util.merge_predictions_with_timestamps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_predictions_with_timestamps</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Merges prediction probabilities with timestamps by expanding overlapping windows</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.select_hours" title="paradigma.util.select_hours"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_hours</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Select hours of interest from the data to include in the aggregation step.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.select_days" title="paradigma.util.select_days"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_days</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Select days of interest from the data to include in the aggregation step.</p></td>
 </tr>
 </tbody>
 </table>
@@ -397,6 +404,47 @@ Must include:
 <li><p>Fully vectorized for speed and scalability, avoiding any row-wise operations.</p></li>
 </ul>
 </section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.util.select_hours">
+<span class="sig-prename descclassname"><span class="pre">paradigma.util.</span></span><span class="sig-name descname"><span class="pre">select_hours</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">select_hours_start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">select_hours_end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../_modules/paradigma/util.html#select_hours"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.util.select_hours" title="Link to this definition"></a></dt>
+<dd><p>Select hours of interest from the data to include in the aggregation step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input data.</p></li>
+<li><p><strong>select_hours_start</strong> (<em>str</em>) – The start time of the selected hours in “HH:MM” format.</p></li>
+<li><p><strong>select_hours_end</strong> (<em>str</em>) – The end time of the selected hours in “HH:MM” format.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The selected data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.util.select_days">
+<span class="sig-prename descclassname"><span class="pre">paradigma.util.</span></span><span class="sig-name descname"><span class="pre">select_days</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_hours_per_day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../_modules/paradigma/util.html#select_days"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.util.select_days" title="Link to this definition"></a></dt>
+<dd><p>Select days of interest from the data to include in the aggregation step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input data with column ‘time_dt’ in which the date is stored.</p></li>
+<li><p><strong>min_hours_per_day</strong> (<em>int</em>) – The minimum number of hours per day required for including the day in the aggregation step.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The selected data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

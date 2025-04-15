@@ -8,7 +8,8 @@
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=77836b02" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=1228b8db" />
 
   
   <!--[if lt IE 9]>
@@ -94,22 +95,19 @@
              
   <h1>Source code for paradigma.pipelines.gait_pipeline</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">periodogram</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">tsdf</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassifierPackage</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span><span class="p">,</span> <span class="n">TimeUnit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">GaitConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.feature_extraction</span><span class="w"> </span><span class="kn">import</span> <span class="n">pca_transform_gyroscope</span><span class="p">,</span> <span class="n">compute_angle</span><span class="p">,</span> <span class="n">remove_moving_average_angle</span><span class="p">,</span> \
     <span class="n">extract_angle_extremes</span><span class="p">,</span> <span class="n">compute_range_of_motion</span><span class="p">,</span> <span class="n">compute_peak_angular_velocity</span><span class="p">,</span> <span class="n">compute_statistics</span><span class="p">,</span> \
     <span class="n">compute_std_euclidean_norm</span><span class="p">,</span> <span class="n">compute_power_in_bandwidth</span><span class="p">,</span> <span class="n">compute_dominant_frequency</span><span class="p">,</span> <span class="n">compute_mfccs</span><span class="p">,</span> \
     <span class="n">compute_total_power</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.segmenting</span><span class="w"> </span><span class="kn">import</span> <span class="n">tabulate_windows</span><span class="p">,</span> <span class="n">create_segments</span><span class="p">,</span> <span class="n">discard_segments</span><span class="p">,</span> <span class="n">categorize_segments</span><span class="p">,</span> <span class="n">WindowedDataExtractor</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_parameter</span><span class="p">,</span> <span class="n">merge_predictions_with_timestamps</span><span class="p">,</span> <span class="n">read_metadata</span><span class="p">,</span> <span class="n">write_df_data</span><span class="p">,</span> <span class="n">get_end_iso8601</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_parameter</span>
 
 
 <div class="viewcode-block" id="extract_gait_features">
@@ -263,66 +261,35 @@
 <div class="viewcode-block" id="extract_arm_activity_features">
 <a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/gait_pipeline/index.html#paradigma.pipelines.gait_pipeline.extract_arm_activity_features">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">extract_arm_activity_features</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
         <span class="n">config</span><span class="p">:</span> <span class="n">GaitConfig</span><span class="p">,</span>
-        <span class="n">df_timestamps</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
-        <span class="n">df_predictions</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-        <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extract features related to arm activity from a time-series DataFrame.</span>
 
 <span class="sd">    This function processes a DataFrame containing accelerometer, gravity, and gyroscope signals, </span>
 <span class="sd">    and extracts features related to arm activity by performing the following steps:</span>
-<span class="sd">    1. Merges the gait predictions with timestamps by expanding overlapping windows into individual timestamps.</span>
-<span class="sd">    2. Computes the angle and velocity from gyroscope data.</span>
-<span class="sd">    3. Filters the data to include only predicted gait segments.</span>
-<span class="sd">    4. Groups the data into segments based on consecutive timestamps and pre-specified gaps.</span>
-<span class="sd">    5. Removes segments that do not meet predefined criteria.</span>
-<span class="sd">    6. Creates fixed-length windows from the time series data.</span>
-<span class="sd">    7. Extracts angle-related features, temporal domain features, and spectral domain features.</span>
+<span class="sd">    1. Computes the angle and velocity from gyroscope data.</span>
+<span class="sd">    2. Filters the data to include only predicted gait segments.</span>
+<span class="sd">    3. Groups the data into segments based on consecutive timestamps and pre-specified gaps.</span>
+<span class="sd">    4. Removes segments that do not meet predefined criteria.</span>
+<span class="sd">    5. Creates fixed-length windows from the time series data.</span>
+<span class="sd">    6. Extracts angle-related features, temporal domain features, and spectral domain features.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    config : GaitConfig</span>
-<span class="sd">        Configuration object containing column names and parameters for feature extraction.</span>
-
-<span class="sd">    df_timestamps : pd.DataFrame</span>
-<span class="sd">        A DataFrame containing the raw sensor data, including accelerometer, gravity, and gyroscope columns.</span>
-
-<span class="sd">    df_predictions : pd.DataFrame</span>
-<span class="sd">        A DataFrame containing the predicted probabilities for gait activity per window.</span>
+<span class="sd">    df: pd.DataFrame</span>
+<span class="sd">        The input DataFrame containing accelerometer, gravity, and gyroscope data of predicted gait.</span>
 
 <span class="sd">    config : ArmActivityFeatureExtractionConfig</span>
 <span class="sd">        Configuration object containing column names and parameters for feature extraction.</span>
 
-<span class="sd">    path_to_classifier_input : str | Path</span>
-<span class="sd">        The path to the directory containing the classifier files and other necessary input files for feature extraction.</span>
-<span class="sd">    </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    pd.DataFrame</span>
 <span class="sd">        A DataFrame containing the extracted arm activity features, including angle, velocity, </span>
 <span class="sd">        temporal, and spectral features.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">df_predictions</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No gait detected in the input data.&quot;</span><span class="p">)</span>
-    
-    <span class="c1"># Merge gait predictions with timestamps</span>
-    <span class="n">gait_preprocessing_config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;gait&#39;</span><span class="p">)</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">merge_predictions_with_timestamps</span><span class="p">(</span>
-        <span class="n">df_ts</span><span class="o">=</span><span class="n">df_timestamps</span><span class="p">,</span> 
-        <span class="n">df_predictions</span><span class="o">=</span><span class="n">df_predictions</span><span class="p">,</span> 
-        <span class="n">pred_proba_colname</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">,</span>
-        <span class="n">window_length_s</span><span class="o">=</span><span class="n">gait_preprocessing_config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">,</span>
-        <span class="n">fs</span><span class="o">=</span><span class="n">gait_preprocessing_config</span><span class="o">.</span><span class="n">sampling_frequency</span>
-    <span class="p">)</span>
-    
-    <span class="c1"># Add a column for predicted gait based on a fitted threshold</span>
-    <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-
-    <span class="c1"># Filter the DataFrame to only include predicted gait (1)</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
     <span class="c1"># Group consecutive timestamps into segments, with new segments starting after a pre-specified gap</span>
     <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_NR</span><span class="p">]</span> <span class="o">=</span> <span class="n">create_segments</span><span class="p">(</span>
         <span class="n">time_array</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">],</span> 
@@ -421,8 +388,8 @@
 <span class="sd">    ----------</span>
 <span class="sd">    df : pd.DataFrame</span>
 <span class="sd">        The input DataFrame containing features extracted from gait data.</span>
-<span class="sd">    full_path_to_classifier_package : str | Path</span>
-<span class="sd">        The path to the pre-trained classifier file.</span>
+<span class="sd">    clf_package: ClassifierPackage</span>
+<span class="sd">        The pre-trained classifier package containing the classifier, threshold, and scaler.</span>
 <span class="sd">    parallel : bool, optional, default=False</span>
 <span class="sd">        If `True`, enables parallel processing.</span>
 
@@ -460,10 +427,10 @@
 <a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/gait_pipeline/index.html#paradigma.pipelines.gait_pipeline.quantify_arm_swing">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">quantify_arm_swing</span><span class="p">(</span>
         <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
-        <span class="n">max_segment_gap_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> 
-        <span class="n">min_segment_length_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">filtered</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">max_segment_gap_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">,</span>
+        <span class="n">min_segment_length_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.5</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Quantify arm swing parameters for segments of motion based on gyroscope data.</span>
@@ -471,14 +438,8 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    df : pd.DataFrame</span>
-<span class="sd">        A DataFrame containing the raw sensor data, including gyroscope columns. Should include a column</span>
+<span class="sd">        A DataFrame containing the raw sensor data of predicted gait timestamps. Should include a column</span>
 <span class="sd">        for predicted no other arm activity based on a fitted threshold if filtered is True.</span>
-
-<span class="sd">    max_segment_gap_s : float</span>
-<span class="sd">        The maximum gap allowed between segments.</span>
-
-<span class="sd">    min_segment_length_s : float</span>
-<span class="sd">        The minimum length required for a segment to be considered valid.</span>
 
 <span class="sd">    fs : int</span>
 <span class="sd">        The sampling frequency of the sensor data.</span>
@@ -486,19 +447,28 @@
 <span class="sd">    filtered : bool, optional, default=True</span>
 <span class="sd">        If `True`, the gyroscope data is filtered to only include predicted no other arm activity.</span>
 
+<span class="sd">    max_segment_gap_s : float, optional, default=1.5</span>
+<span class="sd">        The maximum gap in seconds between consecutive timestamps to group them into segments.</span>
+<span class="sd">    </span>
+<span class="sd">    min_segment_length_s : float, optional, default=1.5</span>
+<span class="sd">        The minimum length in seconds for a segment to be considered valid.</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    Tuple[pd.DataFrame, dict]</span>
 <span class="sd">        A tuple containing a dataframe with quantified arm swing parameters and a dictionary containing </span>
 <span class="sd">        metadata for each segment.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
     <span class="c1"># Group consecutive timestamps into segments, with new segments starting after a pre-specified gap.</span>
     <span class="c1"># Segments are made based on predicted gait</span>
     <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_NR</span><span class="p">]</span> <span class="o">=</span> <span class="n">create_segments</span><span class="p">(</span>
         <span class="n">time_array</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">],</span> 
         <span class="n">max_segment_gap_s</span><span class="o">=</span><span class="n">max_segment_gap_s</span>
     <span class="p">)</span>
+
+    <span class="c1"># Segment category is determined based on predicted gait, hence it is set</span>
+    <span class="c1"># before filtering the DataFrame to only include predicted no other arm activity</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_CAT</span><span class="p">]</span> <span class="o">=</span> <span class="n">categorize_segments</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
 
     <span class="c1"># Remove segments that do not meet predetermined criteria</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">discard_segments</span><span class="p">(</span>
@@ -510,40 +480,51 @@
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No segments found in the input data.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No segments found in the input data after discarding segments of invalid shape.&quot;</span><span class="p">)</span>
 
     <span class="c1"># If no arm swing data is remaining, return an empty dictionary</span>
     <span class="k">if</span> <span class="n">filtered</span> <span class="ow">and</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No gait without other arm activities to quantify.&quot;</span><span class="p">)</span>
-        
-    <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_CAT</span><span class="p">]</span> <span class="o">=</span> <span class="n">categorize_segments</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
-
-    <span class="c1"># Group and process segments</span>
-    <span class="n">arm_swing_quantified</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">segment_meta</span> <span class="o">=</span> <span class="p">{}</span>
-
-    <span class="k">if</span> <span class="n">filtered</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">filtered</span><span class="p">:</span>
         <span class="c1"># Filter the DataFrame to only include predicted no other arm activity (1)</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="c1"># Group consecutive timestamps into segments, with new segments starting after a pre-specified gap</span>
-        <span class="c1"># Now segments are based on predicted gait without other arm activity for subsequent processes</span>
+        <span class="c1"># Group consecutive timestamps into segments of filtered gait</span>
         <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_NR</span><span class="p">]</span> <span class="o">=</span> <span class="n">create_segments</span><span class="p">(</span>
             <span class="n">time_array</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">],</span> 
             <span class="n">max_segment_gap_s</span><span class="o">=</span><span class="n">max_segment_gap_s</span>
         <span class="p">)</span>
 
-        <span class="n">pred_colname_pca</span> <span class="o">=</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">pred_colname_pca</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># Remove segments that do not meet predetermined criteria</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">discard_segments</span><span class="p">(</span>
+            <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+            <span class="n">segment_nr_colname</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_NR</span><span class="p">,</span>
+            <span class="n">min_segment_length_s</span><span class="o">=</span><span class="n">min_segment_length_s</span><span class="p">,</span>
+            <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+        <span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No filtered gait segments found in the input data after discarding segments of invalid shape.&quot;</span><span class="p">)</span>
+
+    <span class="n">arm_swing_quantified</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">segment_meta</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;aggregated&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;all&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;duration_s&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">])</span> <span class="o">/</span> <span class="n">fs</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;per_segment&#39;</span><span class="p">:</span> <span class="p">{}</span>
+    <span class="p">}</span>
+
+    <span class="c1"># PCA is fitted on only predicted gait without other arm activity if filtered, otherwise</span>
+    <span class="c1"># it is fitted on the entire gyroscope data</span>
     <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">VELOCITY</span><span class="p">]</span> <span class="o">=</span> <span class="n">pca_transform_gyroscope</span><span class="p">(</span>
         <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
         <span class="n">y_gyro_colname</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Y</span><span class="p">,</span>
         <span class="n">z_gyro_colname</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Z</span><span class="p">,</span>
-        <span class="n">pred_colname</span><span class="o">=</span><span class="n">pred_colname_pca</span>
     <span class="p">)</span>
 
+    <span class="c1"># Group and process segments</span>
     <span class="k">for</span> <span class="n">segment_nr</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_NR</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">segment_cat</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_CAT</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">time_array</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
@@ -561,8 +542,10 @@
             <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="n">segment_meta</span><span class="p">[</span><span class="n">segment_nr</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;time_s&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">angle_array</span><span class="p">)</span> <span class="o">/</span> <span class="n">fs</span><span class="p">,</span>
+        <span class="n">segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">][</span><span class="n">segment_nr</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;start_time_s&#39;</span><span class="p">:</span> <span class="n">time_array</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+            <span class="s1">&#39;end_time_s&#39;</span><span class="p">:</span> <span class="n">time_array</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span>
+            <span class="s1">&#39;duration_s&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">angle_array</span><span class="p">)</span> <span class="o">/</span> <span class="n">fs</span><span class="p">,</span>
             <span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_CAT</span><span class="p">:</span> <span class="n">segment_cat</span>
         <span class="p">}</span>
 
@@ -596,11 +579,19 @@
 
                 <span class="n">df_params_segment</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
                     <span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_NR</span><span class="p">:</span> <span class="n">segment_nr</span><span class="p">,</span>
+                    <span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_CAT</span><span class="p">:</span> <span class="n">segment_cat</span><span class="p">,</span>
                     <span class="n">DataColumns</span><span class="o">.</span><span class="n">RANGE_OF_MOTION</span><span class="p">:</span> <span class="n">rom</span><span class="p">,</span>
                     <span class="n">DataColumns</span><span class="o">.</span><span class="n">PEAK_VELOCITY</span><span class="p">:</span> <span class="n">pav</span>
                 <span class="p">})</span>
 
                 <span class="n">arm_swing_quantified</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df_params_segment</span><span class="p">)</span>
+
+    <span class="c1"># Combine segment categories</span>
+    <span class="n">segment_categories</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">][</span><span class="n">x</span><span class="p">][</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_CAT</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
+    <span class="k">for</span> <span class="n">segment_cat</span> <span class="ow">in</span> <span class="n">segment_categories</span><span class="p">:</span>
+        <span class="n">segment_meta</span><span class="p">[</span><span class="s1">&#39;aggregated&#39;</span><span class="p">][</span><span class="n">segment_cat</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;duration_s&#39;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">([</span><span class="n">segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">][</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;duration_s&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">][</span><span class="n">x</span><span class="p">][</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_CAT</span><span class="p">]</span> <span class="o">==</span> <span class="n">segment_cat</span><span class="p">])</span>
+        <span class="p">}</span>
 
     <span class="n">arm_swing_quantified</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">arm_swing_quantified</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             
@@ -639,7 +630,7 @@
         <span class="n">cat_segments</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">segment_meta</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">segment_meta</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_CAT</span><span class="p">]</span> <span class="o">==</span> <span class="n">segment_cat</span><span class="p">]</span>
 
         <span class="n">aggregated_results</span><span class="p">[</span><span class="n">segment_cat</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;time_s&#39;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">([</span><span class="n">segment_meta</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;time_s&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cat_segments</span><span class="p">])</span>
+            <span class="s1">&#39;duration_s&#39;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">([</span><span class="n">segment_meta</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;duration_s&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cat_segments</span><span class="p">])</span>
         <span class="p">}</span>
 
         <span class="n">df_arm_swing_params_cat</span> <span class="o">=</span> <span class="n">df_arm_swing_params</span><span class="p">[</span><span class="n">df_arm_swing_params</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_NR</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">cat_segments</span><span class="p">)]</span>
@@ -649,7 +640,7 @@
                 <span class="n">aggregated_results</span><span class="p">[</span><span class="n">segment_cat</span><span class="p">][</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">aggregate</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">arm_swing_parameter</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregate_parameter</span><span class="p">(</span><span class="n">df_arm_swing_params_cat</span><span class="p">[</span><span class="n">arm_swing_parameter</span><span class="p">],</span> <span class="n">aggregate</span><span class="p">)</span>
 
     <span class="n">aggregated_results</span><span class="p">[</span><span class="s1">&#39;all_segment_categories&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;time_s&#39;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">([</span><span class="n">segment_meta</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;time_s&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">segment_meta</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
+        <span class="s1">&#39;duration_s&#39;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">([</span><span class="n">segment_meta</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;duration_s&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">segment_meta</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
     <span class="p">}</span>
 
     <span class="k">for</span> <span class="n">arm_swing_parameter</span> <span class="ow">in</span> <span class="n">arm_swing_parameters</span><span class="p">:</span>

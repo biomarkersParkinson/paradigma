@@ -8,7 +8,8 @@
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=77836b02" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
 
   
   <!--[if lt IE 9]>
@@ -111,7 +112,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.heart_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_signal_quality_features</span><span class="p">,</span> <span class="n">signal_quality_classification</span><span class="p">,</span> \
     <span class="n">aggregate_heart_rate</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_imu_data</span><span class="p">,</span> <span class="n">preprocess_ppg_data</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_metadata</span><span class="p">,</span> <span class="n">write_df_data</span><span class="p">,</span> <span class="n">get_end_iso8601</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_metadata</span><span class="p">,</span> <span class="n">write_df_data</span><span class="p">,</span> <span class="n">get_end_iso8601</span><span class="p">,</span> <span class="n">merge_predictions_with_timestamps</span>
 
 
 <div class="viewcode-block" id="preprocess_imu_data_io">
@@ -317,13 +318,27 @@
 
     <span class="n">clf_package</span> <span class="o">=</span> <span class="n">ClassifierPackage</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">full_path_to_classifier_package</span><span class="p">)</span>
 
+    <span class="n">gait_preprocessing_config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;gait&#39;</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">merge_predictions_with_timestamps</span><span class="p">(</span>
+        <span class="n">df_ts</span><span class="o">=</span><span class="n">df_ts</span><span class="p">,</span> 
+        <span class="n">df_predictions</span><span class="o">=</span><span class="n">df_pred_gait</span><span class="p">,</span> 
+        <span class="n">pred_proba_colname</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">,</span>
+        <span class="n">window_length_s</span><span class="o">=</span><span class="n">gait_preprocessing_config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">,</span>
+        <span class="n">fs</span><span class="o">=</span><span class="n">gait_preprocessing_config</span><span class="o">.</span><span class="n">sampling_frequency</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Add a column for predicted gait based on a fitted threshold</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package</span><span class="o">.</span><span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="c1"># Filter the DataFrame to only include predicted gait (1)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
     <span class="c1"># Extract arm activity features</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;arm_activity&#39;</span><span class="p">)</span>
     <span class="n">df_features</span> <span class="o">=</span> <span class="n">extract_arm_activity_features</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> 
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-        <span class="n">df_timestamps</span><span class="o">=</span><span class="n">df_ts</span><span class="p">,</span> 
-        <span class="n">df_predictions</span><span class="o">=</span><span class="n">df_pred_gait</span><span class="p">,</span> 
-        <span class="n">threshold</span><span class="o">=</span><span class="n">clf_package</span><span class="o">.</span><span class="n">threshold</span>
     <span class="p">)</span>
 
     <span class="n">end_iso8601</span> <span class="o">=</span> <span class="n">get_end_iso8601</span><span class="p">(</span><span class="n">metadata_ts_values</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">,</span> <span class="n">df_features</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">)</span>

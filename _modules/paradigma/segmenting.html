@@ -8,7 +8,8 @@
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=77836b02" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
 
   
   <!--[if lt IE 9]>
@@ -271,7 +272,7 @@
     <span class="n">gap_exceeds</span> <span class="o">=</span> <span class="n">time_diff</span> <span class="o">&gt;</span> <span class="n">max_segment_gap_s</span>
 
     <span class="c1"># Create the segment number based on the cumulative sum of the gap_exceeds mask</span>
-    <span class="n">segments</span> <span class="o">=</span> <span class="n">gap_exceeds</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>  <span class="c1"># +1 to start enumeration from 1</span>
+    <span class="n">segments</span> <span class="o">=</span> <span class="n">gap_exceeds</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">segments</span></div>
 
@@ -341,6 +342,9 @@
     <span class="p">)</span>
 
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">valid_segment_mask</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;All segments were removed.&quot;</span><span class="p">)</span>
 
     <span class="c1"># Reset segment numbers in a single step</span>
     <span class="n">unique_segments</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">factorize</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">segment_nr_colname</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
