@@ -234,7 +234,6 @@ class TremorConfig(IMUConfig):
 
             self.d_channels_values["freq_peak"] = "Hz"
             self.d_channels_values["below_tremor_power"] = "(deg/s)^2"
-            self.d_channels_values["tremor_power"] = "(deg/s)^2"
         elif step == 'classification':
             self.d_channels_values = {
                 DataColumns.PRED_TREMOR_PROBA: "probability",

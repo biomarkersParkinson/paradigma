@@ -16,7 +16,9 @@ from paradigma.util import aggregate_parameter
 def extract_tremor_features(df: pd.DataFrame, config: TremorConfig) -> pd.DataFrame:
     """
     This function groups sequences of timestamps into windows and subsequently extracts 
-    tremor features from windowed gyroscope data.
+    tremor features from windowed gyroscope data. It also returns the total power spectral density 
+    and the corresponding frequencies for later tremor power computation.
+
 
     Parameters
     ----------
@@ -32,6 +34,12 @@ def extract_tremor_features(df: pd.DataFrame, config: TremorConfig) -> pd.DataFr
     -------
     pd.DataFrame
         A DataFrame containing extracted tremor features and a column corresponding to time.
+
+    freqs : numpy.ndarray
+        The frequencies corresponding to the power spectral density.
+
+    total_psd : numpy.ndarray
+        The total power spectral density (summed across the three axes) computed from the gyroscope data.
     
     Notes
     -----
@@ -60,12 +68,12 @@ def extract_tremor_features(df: pd.DataFrame, config: TremorConfig) -> pd.DataFr
     df_features = pd.DataFrame(start_time, columns=[DataColumns.TIME])
     
     # transform the signals from the temporal domain to the spectral domain and extract tremor features
-    df_spectral_features = extract_spectral_domain_features(windowed_gyro, config)
+    df_spectral_features, freqs, total_psd = extract_spectral_domain_features(windowed_gyro, config)
 
     # Combine spectral features with the start time
     df_features = pd.concat([df_features, df_spectral_features], axis=1)
 
-    return df_features
+    return df_features, freqs, total_psd
 
 
 def detect_tremor(df: pd.DataFrame, config: TremorConfig, full_path_to_classifier_package: str | Path) -> pd.DataFrame:
@@ -143,6 +151,39 @@ def detect_tremor(df: pd.DataFrame, config: TremorConfig, full_path_to_classifie
     
     return df
 
+def compute_tremor_power(df, freqs, total_psd, config: TremorConfig) -> pd.DataFrame:
+    """
+    This function computes the tremor power for the detected tremor windows in the input DataFrame.
+    Tremor power is computed as the area under the tremor peak in the total power spectral density.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The input DataFrame containing tremor predictions.
+
+    freqs : numpy.ndarray
+        The frequencies corresponding to the power spectral density.
+
+    total_psd : numpy.ndarray
+        The total power spectral density (summed across the three axes) computed from the windowed gyroscope data.
+
+    config : TremorConfig
+        Configuration object containing parameters for tremor power computation, including the minimum and maximum frequency range 
+        to consider for the tremor peak.
+
+    Returns
+    -------
+    pd.DataFrame
+        A DataFrame containing the tremor predictions and computed tremor power for predicted tremor windows.
+    
+    """
+    
+    total_psd_tremor_windows = total_psd[df['pred_tremor_checked'] == 1]
+    tremor_power = extract_tremor_power(freqs, total_psd_tremor_windows, config.fmin_rest_tremor, config.fmax_rest_tremor)
+    df.loc[df['pred_tremor_checked'] == 1, 'tremor_power'] = tremor_power
+    
+    return df
+
 
 def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     """
@@ -154,8 +195,8 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     Parameters
     ----------
     df : pd.DataFrame
-        The input DataFrame containing extracted tremor features. The DataFrame must include
-        the necessary columns as specified in the classifier's feature names.
+        The input DataFrame containing the tremor predictions and computed tremor power.
+        The DataFrame must also contain a datatime column ('time_dt').
 
     config : TremorConfig
         Configuration object containing the percentile for aggregating tremor power.
@@ -235,8 +276,9 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     """
     Compute spectral domain features from the gyroscope data.
 
-    This function computes Mel-frequency cepstral coefficients (MFCCs), the frequency of the peak, 
-    the tremor power, and the below tremor power based on the total power spectral density of the windowed gyroscope data.
+    This function computes Mel-frequency cepstral coefficients (MFCCs), the frequency of the peak,
+    and the below tremor power based on the total power spectral density of the windowed gyroscope data.
+    It also returns the total power spectral density and the corresponding frequencies for later tremor power computation.
 
     Parameters
     ----------
@@ -250,7 +292,14 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     -------
     pd.DataFrame
         The feature dataframe containing the extracted spectral features, including 
-        MFCCs, the frequency of the peak, the tremor power and below tremor power for each window.
+        MFCCs, the frequency of the peak and below tremor power for each window.
+
+    freqs : numpy.ndarray
+        The frequencies corresponding to the power spectral density.
+
+    total_psd : numpy.ndarray
+        The total power spectral density (summed across the three axes) computed from the gyroscope data.
+        
     """
 
     # Initialize a dictionary to hold the results
@@ -320,11 +369,10 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     for i, colname in enumerate(mfcc_colnames):
         feature_dict[colname] = mfccs[:, i]
 
-    # Compute the frequency of the peak, non-tremor power and tremor power
+    # Compute the frequency of the peak and non-tremor power 
     feature_dict['freq_peak'] = extract_frequency_peak(freqs, total_psd, config.fmin_peak_search, config.fmax_peak_search)
     feature_dict['below_tremor_power'] = compute_power_in_bandwidth(freqs, total_psd, config.fmin_below_rest_tremor, config.fmax_below_rest_tremor, 
                                                                 include_max=False, spectral_resolution=config.spectral_resolution, 
                                                                 cumulative_sum_method='sum')
-    feature_dict['tremor_power'] = extract_tremor_power(freqs, total_psd, config.fmin_rest_tremor, config.fmax_rest_tremor)
 
-    return pd.DataFrame(feature_dict)
+    return pd.DataFrame(feature_dict), freqs, total_psd
