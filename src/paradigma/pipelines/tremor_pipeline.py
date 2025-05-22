@@ -30,7 +30,7 @@ def extract_tremor_features(df: pd.DataFrame, config: TremorConfig) -> pd.DataFr
 
     Returns
     -------
-    df : pd.DataFrame
+    pd.DataFrame
         A DataFrame containing extracted tremor features and a column corresponding to time.
     
     Notes
@@ -247,7 +247,7 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     
     Returns
     -------
-    df : pd.DataFrame
+    pd.DataFrame
         The feature dataframe containing the extracted spectral features, including 
         MFCCs, the frequency of the peak, tremor power and below tremor power for each window.
         
