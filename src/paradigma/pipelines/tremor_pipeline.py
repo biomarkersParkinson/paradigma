@@ -16,7 +16,7 @@ from paradigma.util import aggregate_parameter
 def extract_tremor_features(df: pd.DataFrame, config: TremorConfig) -> pd.DataFrame:
     """
     This function groups sequences of timestamps into windows and subsequently extracts 
-    tremor features from windowed gyroscope data. 
+    tremor features from windowed gyroscope data.
 
     Parameters
     ----------
@@ -234,8 +234,8 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     """
     Compute spectral domain features from the gyroscope data.
 
-    This function computes Mel-frequency cepstral coefficients (MFCCs), the frequency of the peak, the tremor power,
-    and the below tremor power based on the total power spectral density of the windowed gyroscope data.
+    This function computes Mel-frequency cepstral coefficients (MFCCs), the frequency of the peak, 
+    the tremor power, and the below tremor power based on the total power spectral density of the windowed gyroscope data.
 
     Parameters
     ----------
@@ -249,7 +249,7 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     -------
     pd.DataFrame
         The feature dataframe containing the extracted spectral features, including 
-        MFCCs, the frequency of the peak, tremor power and below tremor power for each window.
+        MFCCs, the frequency of the peak, the tremor power and below tremor power for each window.
         
     """
 
@@ -320,7 +320,7 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     for i, colname in enumerate(mfcc_colnames):
         feature_dict[colname] = mfccs[:, i]
 
-    # Compute the frequency of the peak and non-tremor power 
+    # Compute the frequency of the peak, non-tremor power and tremor power
     feature_dict['freq_peak'] = extract_frequency_peak(freqs, total_psd, config.fmin_peak_search, config.fmax_peak_search)
     feature_dict['below_tremor_power'] = compute_power_in_bandwidth(freqs, total_psd, config.fmin_below_rest_tremor, config.fmax_below_rest_tremor, 
                                                                 include_max=False, spectral_resolution=config.spectral_resolution, 
