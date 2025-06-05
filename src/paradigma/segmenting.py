@@ -168,7 +168,7 @@ def create_segments(
     gap_exceeds = time_diff > max_segment_gap_s
 
     # Create the segment number based on the cumulative sum of the gap_exceeds mask
-    segments = gap_exceeds.cumsum() + 1  # +1 to start enumeration from 1
+    segments = gap_exceeds.cumsum()
 
     return segments
 
@@ -235,6 +235,9 @@ def discard_segments(
     )
 
     df = df[valid_segment_mask].copy()
+
+    if df.empty:
+        raise ValueError("All segments were removed.")
 
     # Reset segment numbers in a single step
     unique_segments = pd.factorize(df[segment_nr_colname])[0] + 1

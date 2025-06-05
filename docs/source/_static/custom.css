@@ -3,3 +3,16 @@
     display: block;
     max-width: 100%;
 }
+
+table.docutils {
+    width: 100%;
+    table-layout: fixed;
+  }
+  
+  table.docutils td, 
+  table.docutils th {
+    word-wrap: break-word;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }

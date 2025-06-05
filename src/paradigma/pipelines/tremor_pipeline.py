@@ -143,7 +143,6 @@ def detect_tremor(df: pd.DataFrame, config: TremorConfig, full_path_to_classifie
     
     return df
 
-
 def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     """
     Quantifies the amount of tremor time and tremor power, aggregated over all windows in the input dataframe.
@@ -154,8 +153,8 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     Parameters
     ----------
     df : pd.DataFrame
-        The input DataFrame containing extracted tremor features. The DataFrame must include
-        the necessary columns as specified in the classifier's feature names.
+        The input DataFrame containing the tremor predictions and computed tremor power.
+        The DataFrame must also contain a datatime column ('time_dt').
 
     config : TremorConfig
         Configuration object containing the percentile for aggregating tremor power.
@@ -163,8 +162,8 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     Returns
     -------
     dict
-        A dictionary with the aggregated tremor time and tremor power measures, as well as the total number of windows
-        available in the input dataframe, and the number of windows at rest.
+        A dictionary with the aggregated tremor time and tremor power measures, as well as the number of valid days,
+        the total number of windows, and the number of windows at rest available in the input dataframe.
 
     Notes
     -----
@@ -173,7 +172,7 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     - The modal tremor power is computed based on gaussian kernel density estimation.
   
     """
-
+    nr_valid_days = df['time_dt'].dt.date.unique().size # number of valid days in the input dataframe
     nr_windows_total = df.shape[0] # number of windows in the input dataframe
 
     # remove windows with detected non-tremor arm movements to control for the amount of arm activities performed
@@ -216,6 +215,7 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     # store aggregates in json format
     d_aggregates = {
         'metadata': {
+            'nr_valid_days': nr_valid_days,
             'nr_windows_total': nr_windows_total,
             'nr_windows_rest': nr_windows_rest
         },
@@ -250,6 +250,7 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     pd.DataFrame
         The feature dataframe containing the extracted spectral features, including 
         MFCCs, the frequency of the peak, the tremor power and below tremor power for each window.
+        
     """
 
     # Initialize a dictionary to hold the results
