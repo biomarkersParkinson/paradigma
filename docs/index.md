@@ -4,10 +4,10 @@
 ```{toctree}
 :maxdepth: 1
 :caption: Tutorials
-tutorials/data_preparation.ipynb
-tutorials/gait_analysis.ipynb
-tutorials/tremor_analysis.ipynb
-tutorials/heart_rate_analysis.ipynb
+tutorials/_static/data_preparation.md
+tutorials/_static/gait_analysis.md
+tutorials/_static/tremor_analysis.md
+tutorials/_static/heart_rate_analysis.md
 ```
 
 ```{toctree}

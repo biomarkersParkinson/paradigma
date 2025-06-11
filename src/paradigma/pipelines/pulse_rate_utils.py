@@ -2,12 +2,12 @@ import numpy as np
 from scipy import signal
 from typing import Tuple
 
-from paradigma.config import HeartRateConfig
+from paradigma.config import PulseRateConfig
 
 
 def assign_sqa_label(
         ppg_prob: np.ndarray, 
-        config: HeartRateConfig, 
+        config: PulseRateConfig, 
         acc_label=None
     ) -> np.ndarray:
     """
@@ -17,7 +17,7 @@ def assign_sqa_label(
     ----------
     ppg_prob : np.ndarray
         The probabilities for PPG.
-    config : HeartRateConfig
+    config : PulseRateConfig
         The configuration parameters.
     acc_label : np.ndarray, optional
         The labels for the accelerometer.
@@ -61,23 +61,23 @@ def assign_sqa_label(
     return sqa_label
 
 
-def extract_hr_segments(sqa_label: np.ndarray, min_hr_samples: int) -> Tuple[np.ndarray, np.ndarray]:
+def extract_pr_segments(sqa_label: np.ndarray, min_pr_samples: int) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Extracts heart rate segments based on the SQA label.
+    Extracts pulse rate segments based on the SQA label.
 
     Parameters
     ----------
     sqa_label : np.ndarray
         The signal quality assessment label.
-    min_hr_samples : int
-        The minimum number of samples required for a heart rate segment.
+    min_pr_samples : int
+        The minimum number of samples required for a pulse rate segment.
 
     Returns
     -------
     Tuple[v_start_idx_long, v_end_idx_long]
-        The start and end indices of the heart rate segments.
+        The start and end indices of the pulse rate segments.
     """
-    # Find the start and end indices of the heart rate segments
+    # Find the start and end indices of the pulse rate segments
     v_start_idx = np.where(np.diff(sqa_label.astype(int)) == 1)[0] + 1
     v_end_idx = np.where(np.diff(sqa_label.astype(int)) == -1)[0] + 1
 
@@ -88,13 +88,13 @@ def extract_hr_segments(sqa_label: np.ndarray, min_hr_samples: int) -> Tuple[np.
         v_end_idx = np.append(v_end_idx, len(sqa_label))
 
     # Check if the segments are long enough
-    v_start_idx_long = v_start_idx[(v_end_idx - v_start_idx) >= min_hr_samples]
-    v_end_idx_long = v_end_idx[(v_end_idx - v_start_idx) >= min_hr_samples]
+    v_start_idx_long = v_start_idx[(v_end_idx - v_start_idx) >= min_pr_samples]
+    v_end_idx_long = v_end_idx[(v_end_idx - v_start_idx) >= min_pr_samples]
 
     return v_start_idx_long, v_end_idx_long
 
 
-def extract_hr_from_segment(
+def extract_pr_from_segment(
         ppg: np.ndarray, 
         tfd_length: int, 
         fs: int, 
@@ -102,7 +102,7 @@ def extract_hr_from_segment(
         kern_params: dict
     ) -> np.ndarray:
     """
-    Extracts heart rate from the time-frequency distribution of the PPG signal.
+    Extracts pulse rate from the time-frequency distribution of the PPG signal.
 
     Parameters
     ----------
@@ -121,7 +121,7 @@ def extract_hr_from_segment(
     Returns
     -------
     np.ndarray
-        The estimated heart rate.
+        The estimated pulse rate.
     """
 
     # Constants to handle boundary effects
@@ -145,23 +145,23 @@ def extract_hr_from_segment(
             end_idx = len(ppg)
         ppg_segments.append(ppg[start_idx:end_idx])
 
-    hr_est_from_ppg = np.array([])
+    pr_est_from_ppg = np.array([])
     for segment in ppg_segments:
         # Calculate the time-frequency distribution
-        hr_tfd = extract_hr_with_tfd(segment, fs, kern_type, kern_params)
-        hr_est_from_ppg = np.concatenate((hr_est_from_ppg, hr_tfd)) 
+        pr_tfd = extract_pr_with_tfd(segment, fs, kern_type, kern_params)
+        pr_est_from_ppg = np.concatenate((pr_est_from_ppg, pr_tfd)) 
 
-    return hr_est_from_ppg
+    return pr_est_from_ppg
 
 
-def extract_hr_with_tfd(
+def extract_pr_with_tfd(
         ppg: np.ndarray, 
         fs: int, 
         kern_type: str, 
         kern_params: dict
     ) -> np.ndarray:
     """
-    Estimate heart rate (HR) from a PPG segment using a TFD method with optional 
+    Estimate pulse rate (PR) from a PPG segment using a TFD method with optional 
     moving average filtering.
 
     Parameters
@@ -177,8 +177,8 @@ def extract_hr_with_tfd(
 
     Returns
     -------
-    hr_smooth_tfd : np.ndarray
-        Estimated HR values (in beats per minute) for each 2-second segment of the PPG signal.
+    pr_smooth_tfd : np.ndarray
+        Estimated pr values (in beats per minute) for each 2-second segment of the PPG signal.
     """
     # Generate the TFD matrix using the specified kernel
     tfd_obj = TimeFreqDistr()
@@ -189,16 +189,16 @@ def extract_hr_with_tfd(
     time_axis = np.arange(num_time_samples) / fs
     freq_axis = np.linspace(0, 0.5, num_freq_bins) * fs
 
-    # Estimate HR by identifying the max frequency in the TFD
+    # Estimate pulse rate by identifying the max frequency in the TFD
     max_freq_indices = np.argmax(tfd, axis=0)
 
-    hr_smooth_tfd = np.array([])
+    pr_smooth_tfd = np.array([])
     for i in range(2, int(len(ppg) / fs) - 4 + 1, 2):  # Skip the first and last 2 seconds, add 1 to include the last segment
         relevant_indices = (time_axis >= i) & (time_axis < i + 2)
         avg_frequency = np.mean(freq_axis[max_freq_indices[relevant_indices]])
-        hr_smooth_tfd = np.concatenate((hr_smooth_tfd, [60 * avg_frequency]))  # Convert frequency to BPM
+        pr_smooth_tfd = np.concatenate((pr_smooth_tfd, [60 * avg_frequency]))  # Convert frequency to BPM
 
-    return hr_smooth_tfd
+    return pr_smooth_tfd
 
 
 class TimeFreqDistr:

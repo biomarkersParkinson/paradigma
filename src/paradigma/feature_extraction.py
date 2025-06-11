@@ -7,7 +7,7 @@ from scipy.signal import find_peaks, windows
 from scipy.stats import kurtosis, skew
 from sklearn.decomposition import PCA
 
-from paradigma.config import HeartRateConfig
+from paradigma.config import PulseRateConfig
 
 
 def compute_statistics(data: np.ndarray, statistic: str, abs_stats: bool=False) -> np.ndarray:
@@ -353,7 +353,7 @@ def extract_frequency_peak(
 def compute_relative_power(
         freqs: np.ndarray, 
         psd: np.ndarray, 
-        config: HeartRateConfig
+        config: PulseRateConfig
     ) -> list:
     """
     Calculate relative power within the dominant frequency band in the physiological range (0.75 - 3 Hz).
@@ -364,11 +364,11 @@ def compute_relative_power(
         The frequency bins of the power spectral density.
     psd: np.ndarray
         The power spectral density of the signal.
-    config: HeartRateConfig
+    config: PulseRateConfig
         The configuration object containing the parameters for the feature extraction. The following
         attributes are used:
         - freq_band_physio: tuple
-            The frequency band for physiological heart rate (default: (0.75, 3)).
+            The frequency band for physiological pulse rate (default: (0.75, 3)).
         - bandwidth: float
             The bandwidth around the peak frequency to consider for relative power calculation (default: 0.5).
 

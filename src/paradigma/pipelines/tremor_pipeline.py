@@ -143,7 +143,6 @@ def detect_tremor(df: pd.DataFrame, config: TremorConfig, full_path_to_classifie
     
     return df
 
-
 def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     """
     Quantifies the amount of tremor time and tremor power, aggregated over all windows in the input dataframe.
@@ -154,8 +153,8 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     Parameters
     ----------
     df : pd.DataFrame
-        The input DataFrame containing extracted tremor features. The DataFrame must include
-        the necessary columns as specified in the classifier's feature names.
+        The input DataFrame containing the tremor predictions and computed tremor power.
+        The DataFrame must also contain a datatime column ('time_dt').
 
     config : TremorConfig
         Configuration object containing the percentile for aggregating tremor power.
@@ -251,6 +250,7 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     pd.DataFrame
         The feature dataframe containing the extracted spectral features, including 
         MFCCs, the frequency of the peak, the tremor power and below tremor power for each window.
+        
     """
 
     # Initialize a dictionary to hold the results

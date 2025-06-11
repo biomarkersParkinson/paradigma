@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "paradigma"
-version = "1.0.0"
+version = "1.0.1"
 description = "ParaDigMa - A toolbox for deriving Parkinson's disease Digital Markers from real-life wrist sensor data"
 authors = [ "Erik Post <erik.post@radboudumc.nl>",
             "Kars Veldkamp <kars.veldkamp@radboudumc.nl>",
