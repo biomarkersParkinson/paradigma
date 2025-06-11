@@ -82,7 +82,7 @@ def compare_ppg_preprocessing(
 #     reference_output_path = shared_datadir / output_dir_name / "ppg"
 #     tested_output_path = reference_output_path / "test-output"
 
-#     config = HeartRateFeatureExtractionConfig()
+#     config = PulseRateFeatureExtractionConfig()
 #     extract_signal_quality_features(
 #         input_path, classifier_path, tested_output_path, config
 #     )
