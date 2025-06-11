@@ -84,8 +84,8 @@ Module Contents
    without significant non-tremor movement (at rest). For tremor power the following aggregates are derived:
    the median, mode and percentile of tremor power specified in the configuration object.
 
-   :param df: The input DataFrame containing extracted tremor features. The DataFrame must include
-              the necessary columns as specified in the classifier's feature names.
+   :param df: The input DataFrame containing the tremor predictions and computed tremor power.
+              The DataFrame must also contain a datatime column ('time_dt').
    :type df: pd.DataFrame
    :param config: Configuration object containing the percentile for aggregating tremor power.
    :type config: TremorConfig

@@ -14,7 +14,7 @@ Classes
    paradigma.config.PPGConfig
    paradigma.config.GaitConfig
    paradigma.config.TremorConfig
-   paradigma.config.HeartRateConfig
+   paradigma.config.PulseRateConfig
 
 
 Module Contents
@@ -341,7 +341,7 @@ Module Contents
 
 
 
-.. py:class:: HeartRateConfig(sensor: str = 'ppg', min_window_length_s: int = 30)
+.. py:class:: PulseRateConfig(sensor: str = 'ppg', min_window_length_s: int = 30)
 
    Bases: :py:obj:`PPGConfig`
 
@@ -387,11 +387,11 @@ Module Contents
 
 
    .. py:attribute:: threshold_sqa_accelerometer
-      :value: 0.13
+      :value: 0.1
 
 
 
-   .. py:attribute:: hr_est_samples
+   .. py:attribute:: pr_est_samples
       :value: 200
 
 

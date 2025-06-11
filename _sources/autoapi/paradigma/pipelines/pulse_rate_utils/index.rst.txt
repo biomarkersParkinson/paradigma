@@ -1,7 +1,7 @@
-paradigma.pipelines.heart_rate_utils
+paradigma.pipelines.pulse_rate_utils
 ====================================
 
-.. py:module:: paradigma.pipelines.heart_rate_utils
+.. py:module:: paradigma.pipelines.pulse_rate_utils
 
 
 Classes
@@ -9,7 +9,7 @@ Classes
 
 .. autoapisummary::
 
-   paradigma.pipelines.heart_rate_utils.TimeFreqDistr
+   paradigma.pipelines.pulse_rate_utils.TimeFreqDistr
 
 
 Functions
@@ -17,23 +17,23 @@ Functions
 
 .. autoapisummary::
 
-   paradigma.pipelines.heart_rate_utils.assign_sqa_label
-   paradigma.pipelines.heart_rate_utils.extract_hr_segments
-   paradigma.pipelines.heart_rate_utils.extract_hr_from_segment
-   paradigma.pipelines.heart_rate_utils.extract_hr_with_tfd
+   paradigma.pipelines.pulse_rate_utils.assign_sqa_label
+   paradigma.pipelines.pulse_rate_utils.extract_pr_segments
+   paradigma.pipelines.pulse_rate_utils.extract_pr_from_segment
+   paradigma.pipelines.pulse_rate_utils.extract_pr_with_tfd
 
 
 Module Contents
 ---------------
 
-.. py:function:: assign_sqa_label(ppg_prob: numpy.ndarray, config: paradigma.config.HeartRateConfig, acc_label=None) -> numpy.ndarray
+.. py:function:: assign_sqa_label(ppg_prob: numpy.ndarray, config: paradigma.config.PulseRateConfig, acc_label=None) -> numpy.ndarray
 
    Assigns a signal quality label to every individual data point.
 
    :param ppg_prob: The probabilities for PPG.
    :type ppg_prob: np.ndarray
    :param config: The configuration parameters.
-   :type config: HeartRateConfig
+   :type config: PulseRateConfig
    :param acc_label: The labels for the accelerometer.
    :type acc_label: np.ndarray, optional
 
@@ -41,22 +41,22 @@ Module Contents
    :rtype: np.ndarray
 
 
-.. py:function:: extract_hr_segments(sqa_label: numpy.ndarray, min_hr_samples: int) -> Tuple[numpy.ndarray, numpy.ndarray]
+.. py:function:: extract_pr_segments(sqa_label: numpy.ndarray, min_pr_samples: int) -> Tuple[numpy.ndarray, numpy.ndarray]
 
-   Extracts heart rate segments based on the SQA label.
+   Extracts pulse rate segments based on the SQA label.
 
    :param sqa_label: The signal quality assessment label.
    :type sqa_label: np.ndarray
-   :param min_hr_samples: The minimum number of samples required for a heart rate segment.
-   :type min_hr_samples: int
+   :param min_pr_samples: The minimum number of samples required for a pulse rate segment.
+   :type min_pr_samples: int
 
-   :returns: The start and end indices of the heart rate segments.
+   :returns: The start and end indices of the pulse rate segments.
    :rtype: Tuple[v_start_idx_long, v_end_idx_long]
 
 
-.. py:function:: extract_hr_from_segment(ppg: numpy.ndarray, tfd_length: int, fs: int, kern_type: str, kern_params: dict) -> numpy.ndarray
+.. py:function:: extract_pr_from_segment(ppg: numpy.ndarray, tfd_length: int, fs: int, kern_type: str, kern_params: dict) -> numpy.ndarray
 
-   Extracts heart rate from the time-frequency distribution of the PPG signal.
+   Extracts pulse rate from the time-frequency distribution of the PPG signal.
 
    :param ppg: The preprocessed PPG segment with 2 seconds of padding on both sides to reduce boundary effects.
    :type ppg: np.ndarray
@@ -70,13 +70,13 @@ Module Contents
                        kernels like 'spwvd' or 'swvd'. Default is None.
    :type kern_params: dict
 
-   :returns: The estimated heart rate.
+   :returns: The estimated pulse rate.
    :rtype: np.ndarray
 
 
-.. py:function:: extract_hr_with_tfd(ppg: numpy.ndarray, fs: int, kern_type: str, kern_params: dict) -> numpy.ndarray
+.. py:function:: extract_pr_with_tfd(ppg: numpy.ndarray, fs: int, kern_type: str, kern_params: dict) -> numpy.ndarray
 
-   Estimate heart rate (HR) from a PPG segment using a TFD method with optional
+   Estimate pulse rate (PR) from a PPG segment using a TFD method with optional
    moving average filtering.
 
    :param ppg_segment: Segment of the PPG signal to process.
@@ -88,7 +88,7 @@ Module Contents
    :param kern_params: Parameters for the specified kernel.
    :type kern_params: dict
 
-   :returns: **hr_smooth_tfd** -- Estimated HR values (in beats per minute) for each 2-second segment of the PPG signal.
+   :returns: **pr_smooth_tfd** -- Estimated pr values (in beats per minute) for each 2-second segment of the PPG signal.
    :rtype: np.ndarray
 
 

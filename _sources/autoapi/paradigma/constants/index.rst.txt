@@ -270,9 +270,9 @@ Module Contents
 
 
 
-   .. py:attribute:: HEART_RATE
+   .. py:attribute:: PULSE_RATE
       :type:  str
-      :value: 'heart_rate'
+      :value: 'pulse_rate'
 
 
 

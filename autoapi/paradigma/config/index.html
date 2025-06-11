@@ -51,10 +51,10 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/heart_rate_analysis.html">Heart rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/data_preparation.html">Data preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/heart_rate_analysis.html">Heart rate analysis</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
@@ -136,7 +136,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.config.TremorConfig" title="paradigma.config.TremorConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TremorConfig</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.config.HeartRateConfig" title="paradigma.config.HeartRateConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HeartRateConfig</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.config.PulseRateConfig" title="paradigma.config.PulseRateConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PulseRateConfig</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -461,77 +461,77 @@
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="paradigma.config.HeartRateConfig">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.config.</span></span><span class="sig-name descname"><span class="pre">HeartRateConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ppg'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_window_length_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/config.html#HeartRateConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.config.HeartRateConfig" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="paradigma.config.PulseRateConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.config.</span></span><span class="sig-name descname"><span class="pre">PulseRateConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ppg'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_window_length_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/config.html#PulseRateConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.config.PulseRateConfig" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#paradigma.config.PPGConfig" title="paradigma.config.PPGConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PPGConfig</span></code></a></p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.config.HeartRateConfig.window_length_s">
-<span class="sig-name descname"><span class="pre">window_length_s</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#paradigma.config.HeartRateConfig.window_length_s" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="paradigma.config.PulseRateConfig.window_length_s">
+<span class="sig-name descname"><span class="pre">window_length_s</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#paradigma.config.PulseRateConfig.window_length_s" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.config.HeartRateConfig.window_step_length_s">
-<span class="sig-name descname"><span class="pre">window_step_length_s</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#paradigma.config.HeartRateConfig.window_step_length_s" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="paradigma.config.PulseRateConfig.window_step_length_s">
+<span class="sig-name descname"><span class="pre">window_step_length_s</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#paradigma.config.PulseRateConfig.window_step_length_s" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.config.HeartRateConfig.window_overlap_s">
-<span class="sig-name descname"><span class="pre">window_overlap_s</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#paradigma.config.HeartRateConfig.window_overlap_s" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="paradigma.config.PulseRateConfig.window_overlap_s">
+<span class="sig-name descname"><span class="pre">window_overlap_s</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#paradigma.config.PulseRateConfig.window_overlap_s" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.config.HeartRateConfig.accelerometer_cols">
-<span class="sig-name descname"><span class="pre">accelerometer_cols</span></span><a class="headerlink" href="#paradigma.config.HeartRateConfig.accelerometer_cols" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="paradigma.config.PulseRateConfig.accelerometer_cols">
+<span class="sig-name descname"><span class="pre">accelerometer_cols</span></span><a class="headerlink" href="#paradigma.config.PulseRateConfig.accelerometer_cols" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.config.HeartRateConfig.freq_band_physio">
-<span class="sig-name descname"><span class="pre">freq_band_physio</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[0.75,</span> <span class="pre">3]</span></em><a class="headerlink" href="#paradigma.config.HeartRateConfig.freq_band_physio" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="paradigma.config.PulseRateConfig.freq_band_physio">
+<span class="sig-name descname"><span class="pre">freq_band_physio</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[0.75,</span> <span class="pre">3]</span></em><a class="headerlink" href="#paradigma.config.PulseRateConfig.freq_band_physio" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.config.HeartRateConfig.bandwidth">
-<span class="sig-name descname"><span class="pre">bandwidth</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.2</span></em><a class="headerlink" href="#paradigma.config.HeartRateConfig.bandwidth" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="paradigma.config.PulseRateConfig.bandwidth">
+<span class="sig-name descname"><span class="pre">bandwidth</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.2</span></em><a class="headerlink" href="#paradigma.config.PulseRateConfig.bandwidth" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.config.HeartRateConfig.freq_bin_resolution">
-<span class="sig-name descname"><span class="pre">freq_bin_resolution</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.05</span></em><a class="headerlink" href="#paradigma.config.HeartRateConfig.freq_bin_resolution" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="paradigma.config.PulseRateConfig.freq_bin_resolution">
+<span class="sig-name descname"><span class="pre">freq_bin_resolution</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.05</span></em><a class="headerlink" href="#paradigma.config.PulseRateConfig.freq_bin_resolution" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.config.HeartRateConfig.threshold_sqa">
-<span class="sig-name descname"><span class="pre">threshold_sqa</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.5</span></em><a class="headerlink" href="#paradigma.config.HeartRateConfig.threshold_sqa" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="paradigma.config.PulseRateConfig.threshold_sqa">
+<span class="sig-name descname"><span class="pre">threshold_sqa</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.5</span></em><a class="headerlink" href="#paradigma.config.PulseRateConfig.threshold_sqa" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.config.HeartRateConfig.threshold_sqa_accelerometer">
-<span class="sig-name descname"><span class="pre">threshold_sqa_accelerometer</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.13</span></em><a class="headerlink" href="#paradigma.config.HeartRateConfig.threshold_sqa_accelerometer" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="paradigma.config.PulseRateConfig.threshold_sqa_accelerometer">
+<span class="sig-name descname"><span class="pre">threshold_sqa_accelerometer</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.1</span></em><a class="headerlink" href="#paradigma.config.PulseRateConfig.threshold_sqa_accelerometer" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.config.HeartRateConfig.hr_est_samples">
-<span class="sig-name descname"><span class="pre">hr_est_samples</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">200</span></em><a class="headerlink" href="#paradigma.config.HeartRateConfig.hr_est_samples" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="paradigma.config.PulseRateConfig.pr_est_samples">
+<span class="sig-name descname"><span class="pre">pr_est_samples</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">200</span></em><a class="headerlink" href="#paradigma.config.PulseRateConfig.pr_est_samples" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.config.HeartRateConfig.kern_type">
-<span class="sig-name descname"><span class="pre">kern_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sep'</span></em><a class="headerlink" href="#paradigma.config.HeartRateConfig.kern_type" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="paradigma.config.PulseRateConfig.kern_type">
+<span class="sig-name descname"><span class="pre">kern_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sep'</span></em><a class="headerlink" href="#paradigma.config.PulseRateConfig.kern_type" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="paradigma.config.HeartRateConfig.kern_params">
-<span class="sig-name descname"><span class="pre">kern_params</span></span><a class="headerlink" href="#paradigma.config.HeartRateConfig.kern_params" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="paradigma.config.PulseRateConfig.kern_params">
+<span class="sig-name descname"><span class="pre">kern_params</span></span><a class="headerlink" href="#paradigma.config.PulseRateConfig.kern_params" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="paradigma.config.HeartRateConfig.set_tfd_length">
-<span class="sig-name descname"><span class="pre">set_tfd_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tfd_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/config.html#HeartRateConfig.set_tfd_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.config.HeartRateConfig.set_tfd_length" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="paradigma.config.PulseRateConfig.set_tfd_length">
+<span class="sig-name descname"><span class="pre">set_tfd_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tfd_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/config.html#PulseRateConfig.set_tfd_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.config.PulseRateConfig.set_tfd_length" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="paradigma.config.HeartRateConfig.set_sensor">
-<span class="sig-name descname"><span class="pre">set_sensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/config.html#HeartRateConfig.set_sensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.config.HeartRateConfig.set_sensor" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="paradigma.config.PulseRateConfig.set_sensor">
+<span class="sig-name descname"><span class="pre">set_sensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/config.html#PulseRateConfig.set_sensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.config.PulseRateConfig.set_sensor" title="Link to this definition"></a></dt>
 <dd><p>Sets the sensor and derived filenames</p>
 </dd></dl>
 

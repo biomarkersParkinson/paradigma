@@ -48,10 +48,10 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/heart_rate_analysis.html">Heart rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/data_preparation.html">Data preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/heart_rate_analysis.html">Heart rate analysis</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
@@ -245,7 +245,6 @@
     <span class="k">return</span> <span class="n">df</span></div>
 
 
-
 <div class="viewcode-block" id="aggregate_tremor">
 <a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/tremor_pipeline/index.html#paradigma.pipelines.tremor_pipeline.aggregate_tremor">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">aggregate_tremor</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">TremorConfig</span><span class="p">):</span>
@@ -258,8 +257,8 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    df : pd.DataFrame</span>
-<span class="sd">        The input DataFrame containing extracted tremor features. The DataFrame must include</span>
-<span class="sd">        the necessary columns as specified in the classifier&#39;s feature names.</span>
+<span class="sd">        The input DataFrame containing the tremor predictions and computed tremor power.</span>
+<span class="sd">        The DataFrame must also contain a datatime column (&#39;time_dt&#39;).</span>
 
 <span class="sd">    config : TremorConfig</span>
 <span class="sd">        Configuration object containing the percentile for aggregating tremor power.</span>
@@ -358,6 +357,7 @@
 <span class="sd">    pd.DataFrame</span>
 <span class="sd">        The feature dataframe containing the extracted spectral features, including </span>
 <span class="sd">        MFCCs, the frequency of the peak, the tremor power and below tremor power for each window.</span>
+<span class="sd">        </span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Initialize a dictionary to hold the results</span>

@@ -51,10 +51,10 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/heart_rate_analysis.html">Heart rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/data_preparation.html">Data preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/heart_rate_analysis.html">Heart rate analysis</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
@@ -387,18 +387,18 @@ If <cite>psd</cite> is not a 2D or 3D array.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.feature_extraction.compute_relative_power">
-<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">compute_relative_power</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freqs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../config/index.html#paradigma.config.HeartRateConfig" title="paradigma.config.HeartRateConfig"><span class="pre">paradigma.config.HeartRateConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_relative_power"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.compute_relative_power" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">paradigma.feature_extraction.</span></span><span class="sig-name descname"><span class="pre">compute_relative_power</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freqs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../config/index.html#paradigma.config.PulseRateConfig" title="paradigma.config.PulseRateConfig"><span class="pre">paradigma.config.PulseRateConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../../../_modules/paradigma/feature_extraction.html#compute_relative_power"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.feature_extraction.compute_relative_power" title="Link to this definition"></a></dt>
 <dd><p>Calculate relative power within the dominant frequency band in the physiological range (0.75 - 3 Hz).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>freqs</strong> (<em>np.ndarray</em>) – The frequency bins of the power spectral density.</p></li>
 <li><p><strong>psd</strong> (<em>np.ndarray</em>) – The power spectral density of the signal.</p></li>
-<li><p><strong>config</strong> (<a class="reference internal" href="../config/index.html#paradigma.config.HeartRateConfig" title="paradigma.config.HeartRateConfig"><em>HeartRateConfig</em></a>) – <p>The configuration object containing the parameters for the feature extraction. The following
+<li><p><strong>config</strong> (<a class="reference internal" href="../config/index.html#paradigma.config.PulseRateConfig" title="paradigma.config.PulseRateConfig"><em>PulseRateConfig</em></a>) – <p>The configuration object containing the parameters for the feature extraction. The following
 attributes are used:
 - freq_band_physio: tuple</p>
 <blockquote>
-<div><p>The frequency band for physiological heart rate (default: (0.75, 3)).</p>
+<div><p>The frequency band for physiological pulse rate (default: (0.75, 3)).</p>
 </div></blockquote>
 <ul>
 <li><dl class="simple">

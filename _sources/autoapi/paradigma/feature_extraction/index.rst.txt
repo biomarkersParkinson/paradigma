@@ -197,7 +197,7 @@ Module Contents
    :rtype: pd.Series
 
 
-.. py:function:: compute_relative_power(freqs: numpy.ndarray, psd: numpy.ndarray, config: paradigma.config.HeartRateConfig) -> list
+.. py:function:: compute_relative_power(freqs: numpy.ndarray, psd: numpy.ndarray, config: paradigma.config.PulseRateConfig) -> list
 
    Calculate relative power within the dominant frequency band in the physiological range (0.75 - 3 Hz).
 
@@ -208,10 +208,10 @@ Module Contents
    :param config: The configuration object containing the parameters for the feature extraction. The following
                   attributes are used:
                   - freq_band_physio: tuple
-                      The frequency band for physiological heart rate (default: (0.75, 3)).
+                      The frequency band for physiological pulse rate (default: (0.75, 3)).
                   - bandwidth: float
                       The bandwidth around the peak frequency to consider for relative power calculation (default: 0.5).
-   :type config: HeartRateConfig
+   :type config: PulseRateConfig
 
    :returns: The relative power within the dominant frequency band in the physiological range (0.75 - 3 Hz).
    :rtype: list

@@ -48,10 +48,10 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/heart_rate_analysis.html">Heart rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/_static/data_preparation.html">Data preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/_static/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/_static/heart_rate_analysis.html">Heart rate analysis</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
@@ -103,7 +103,6 @@
  | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
- | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
@@ -133,10 +132,10 @@
 </li>
       <li><a href="autoapi/paradigma/config/index.html#paradigma.config.IMUConfig.acceleration_units">acceleration_units (paradigma.config.IMUConfig attribute)</a>
 </li>
-      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.HeartRateConfig.accelerometer_cols">accelerometer_cols (paradigma.config.HeartRateConfig attribute)</a>
+      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.IMUConfig.accelerometer_cols">accelerometer_cols (paradigma.config.IMUConfig attribute)</a>
 
       <ul>
-        <li><a href="autoapi/paradigma/config/index.html#paradigma.config.IMUConfig.accelerometer_cols">(paradigma.config.IMUConfig attribute)</a>
+        <li><a href="autoapi/paradigma/config/index.html#paradigma.config.PulseRateConfig.accelerometer_cols">(paradigma.config.PulseRateConfig attribute)</a>
 </li>
       </ul></li>
       <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataColumns.ACCELEROMETER_X">ACCELEROMETER_X (paradigma.constants.DataColumns attribute)</a>
@@ -149,11 +148,11 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="autoapi/paradigma/pipelines/heart_rate_pipeline/index.html#paradigma.pipelines.heart_rate_pipeline.aggregate_heart_rate">aggregate_heart_rate() (in module paradigma.pipelines.heart_rate_pipeline)</a>
-</li>
-      <li><a href="autoapi/paradigma/testing/index.html#paradigma.testing.aggregate_heart_rate_io">aggregate_heart_rate_io() (in module paradigma.testing)</a>
-</li>
       <li><a href="autoapi/paradigma/util/index.html#paradigma.util.aggregate_parameter">aggregate_parameter() (in module paradigma.util)</a>
+</li>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.aggregate_pulse_rate">aggregate_pulse_rate() (in module paradigma.pipelines.pulse_rate_pipeline)</a>
+</li>
+      <li><a href="autoapi/paradigma/testing/index.html#paradigma.testing.aggregate_pulse_rate_io">aggregate_pulse_rate_io() (in module paradigma.testing)</a>
 </li>
       <li><a href="autoapi/paradigma/pipelines/tremor_pipeline/index.html#paradigma.pipelines.tremor_pipeline.aggregate_tremor">aggregate_tremor() (in module paradigma.pipelines.tremor_pipeline)</a>
 </li>
@@ -167,7 +166,7 @@
 </li>
       <li><a href="autoapi/paradigma/config/index.html#paradigma.config.GaitConfig.angle_fmin">angle_fmin (paradigma.config.GaitConfig attribute)</a>
 </li>
-      <li><a href="autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.assign_sqa_label">assign_sqa_label() (in module paradigma.pipelines.heart_rate_utils)</a>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#paradigma.pipelines.pulse_rate_utils.assign_sqa_label">assign_sqa_label() (in module paradigma.pipelines.pulse_rate_utils)</a>
 </li>
       <li><a href="autoapi/paradigma/config/index.html#paradigma.config.IMUConfig.axes">axes (paradigma.config.IMUConfig attribute)</a>
 </li>
@@ -177,7 +176,7 @@
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.HeartRateConfig.bandwidth">bandwidth (paradigma.config.HeartRateConfig attribute)</a>
+      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.PulseRateConfig.bandwidth">bandwidth (paradigma.config.PulseRateConfig attribute)</a>
 </li>
       <li><a href="autoapi/paradigma/config/index.html#paradigma.config.BaseConfig">BaseConfig (class in paradigma.config)</a>
 </li>
@@ -229,7 +228,7 @@
 </li>
       <li><a href="autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_std_euclidean_norm">compute_std_euclidean_norm() (in module paradigma.feature_extraction)</a>
 </li>
-      <li><a href="autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr.compute_tfd">compute_tfd() (paradigma.pipelines.heart_rate_utils.TimeFreqDistr method)</a>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#paradigma.pipelines.pulse_rate_utils.TimeFreqDistr.compute_tfd">compute_tfd() (paradigma.pipelines.pulse_rate_utils.TimeFreqDistr method)</a>
 </li>
       <li><a href="autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_total_power">compute_total_power() (in module paradigma.feature_extraction)</a>
 </li>
@@ -285,11 +284,11 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="autoapi/paradigma/pipelines/heart_rate_pipeline/index.html#paradigma.pipelines.heart_rate_pipeline.estimate_heart_rate">estimate_heart_rate() (in module paradigma.pipelines.heart_rate_pipeline)</a>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.estimate_pulse_rate">estimate_pulse_rate() (in module paradigma.pipelines.pulse_rate_pipeline)</a>
 </li>
-      <li><a href="autoapi/paradigma/pipelines/heart_rate_pipeline/index.html#paradigma.pipelines.heart_rate_pipeline.extract_acc_power_feature">extract_acc_power_feature() (in module paradigma.pipelines.heart_rate_pipeline)</a>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.extract_acc_power_feature">extract_acc_power_feature() (in module paradigma.pipelines.pulse_rate_pipeline)</a>
 </li>
-      <li><a href="autoapi/paradigma/pipelines/heart_rate_pipeline/index.html#paradigma.pipelines.heart_rate_pipeline.extract_accelerometer_feature">extract_accelerometer_feature() (in module paradigma.pipelines.heart_rate_pipeline)</a>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.extract_accelerometer_feature">extract_accelerometer_feature() (in module paradigma.pipelines.pulse_rate_pipeline)</a>
 </li>
       <li><a href="autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.extract_angle_extremes">extract_angle_extremes() (in module paradigma.feature_extraction)</a>
 </li>
@@ -303,24 +302,24 @@
 </li>
       <li><a href="autoapi/paradigma/testing/index.html#paradigma.testing.extract_gait_features_io">extract_gait_features_io() (in module paradigma.testing)</a>
 </li>
-      <li><a href="autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.extract_hr_from_segment">extract_hr_from_segment() (in module paradigma.pipelines.heart_rate_utils)</a>
+      <li><a href="autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.extract_overlapping_segments">extract_overlapping_segments() (in module paradigma.preprocessing)</a>
 </li>
-      <li><a href="autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.extract_hr_segments">extract_hr_segments() (in module paradigma.pipelines.heart_rate_utils)</a>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#paradigma.pipelines.pulse_rate_utils.extract_pr_from_segment">extract_pr_from_segment() (in module paradigma.pipelines.pulse_rate_utils)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.extract_hr_with_tfd">extract_hr_with_tfd() (in module paradigma.pipelines.heart_rate_utils)</a>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#paradigma.pipelines.pulse_rate_utils.extract_pr_segments">extract_pr_segments() (in module paradigma.pipelines.pulse_rate_utils)</a>
 </li>
-      <li><a href="autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.extract_overlapping_segments">extract_overlapping_segments() (in module paradigma.preprocessing)</a>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#paradigma.pipelines.pulse_rate_utils.extract_pr_with_tfd">extract_pr_with_tfd() (in module paradigma.pipelines.pulse_rate_utils)</a>
 </li>
-      <li><a href="autoapi/paradigma/pipelines/heart_rate_pipeline/index.html#paradigma.pipelines.heart_rate_pipeline.extract_signal_quality_features">extract_signal_quality_features() (in module paradigma.pipelines.heart_rate_pipeline)</a>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.extract_signal_quality_features">extract_signal_quality_features() (in module paradigma.pipelines.pulse_rate_pipeline)</a>
 </li>
       <li><a href="autoapi/paradigma/testing/index.html#paradigma.testing.extract_signal_quality_features_io">extract_signal_quality_features_io() (in module paradigma.testing)</a>
 </li>
       <li><a href="autoapi/paradigma/pipelines/gait_pipeline/index.html#paradigma.pipelines.gait_pipeline.extract_spectral_domain_features">extract_spectral_domain_features() (in module paradigma.pipelines.gait_pipeline)</a>
 
       <ul>
-        <li><a href="autoapi/paradigma/pipelines/heart_rate_pipeline/index.html#paradigma.pipelines.heart_rate_pipeline.extract_spectral_domain_features">(in module paradigma.pipelines.heart_rate_pipeline)</a>
+        <li><a href="autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.extract_spectral_domain_features">(in module paradigma.pipelines.pulse_rate_pipeline)</a>
 </li>
         <li><a href="autoapi/paradigma/pipelines/tremor_pipeline/index.html#paradigma.pipelines.tremor_pipeline.extract_spectral_domain_features">(in module paradigma.pipelines.tremor_pipeline)</a>
 </li>
@@ -328,7 +327,7 @@
       <li><a href="autoapi/paradigma/pipelines/gait_pipeline/index.html#paradigma.pipelines.gait_pipeline.extract_temporal_domain_features">extract_temporal_domain_features() (in module paradigma.pipelines.gait_pipeline)</a>
 
       <ul>
-        <li><a href="autoapi/paradigma/pipelines/heart_rate_pipeline/index.html#paradigma.pipelines.heart_rate_pipeline.extract_temporal_domain_features">(in module paradigma.pipelines.heart_rate_pipeline)</a>
+        <li><a href="autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.extract_temporal_domain_features">(in module paradigma.pipelines.pulse_rate_pipeline)</a>
 </li>
       </ul></li>
       <li><a href="autoapi/paradigma/pipelines/tremor_pipeline/index.html#paradigma.pipelines.tremor_pipeline.extract_tremor_features">extract_tremor_features() (in module paradigma.pipelines.tremor_pipeline)</a>
@@ -373,9 +372,9 @@
 </li>
       <li><a href="autoapi/paradigma/util/index.html#paradigma.util.format_datetime_to_iso8601">format_datetime_to_iso8601() (in module paradigma.util)</a>
 </li>
-      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.HeartRateConfig.freq_band_physio">freq_band_physio (paradigma.config.HeartRateConfig attribute)</a>
+      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.PulseRateConfig.freq_band_physio">freq_band_physio (paradigma.config.PulseRateConfig attribute)</a>
 </li>
-      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.HeartRateConfig.freq_bin_resolution">freq_bin_resolution (paradigma.config.HeartRateConfig attribute)</a>
+      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.PulseRateConfig.freq_bin_resolution">freq_bin_resolution (paradigma.config.PulseRateConfig attribute)</a>
 </li>
       <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataUnits.FREQUENCY">FREQUENCY (paradigma.constants.DataUnits attribute)</a>
 </li>
@@ -387,27 +386,27 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/paradigma/config/index.html#paradigma.config.GaitConfig">GaitConfig (class in paradigma.config)</a>
 </li>
-      <li><a href="autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr.gen_analytic">gen_analytic() (paradigma.pipelines.heart_rate_utils.TimeFreqDistr method)</a>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#paradigma.pipelines.pulse_rate_utils.TimeFreqDistr.gen_analytic">gen_analytic() (paradigma.pipelines.pulse_rate_utils.TimeFreqDistr method)</a>
 </li>
-      <li><a href="autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr.gen_doppler_lag_kern">gen_doppler_lag_kern() (paradigma.pipelines.heart_rate_utils.TimeFreqDistr method)</a>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#paradigma.pipelines.pulse_rate_utils.TimeFreqDistr.gen_doppler_lag_kern">gen_doppler_lag_kern() (paradigma.pipelines.pulse_rate_utils.TimeFreqDistr method)</a>
 </li>
-      <li><a href="autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr.gen_time_lag">gen_time_lag() (paradigma.pipelines.heart_rate_utils.TimeFreqDistr method)</a>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#paradigma.pipelines.pulse_rate_utils.TimeFreqDistr.gen_time_lag">gen_time_lag() (paradigma.pipelines.pulse_rate_utils.TimeFreqDistr method)</a>
 </li>
-      <li><a href="autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr.get_analytic_signal">get_analytic_signal() (paradigma.pipelines.heart_rate_utils.TimeFreqDistr method)</a>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#paradigma.pipelines.pulse_rate_utils.TimeFreqDistr.get_analytic_signal">get_analytic_signal() (paradigma.pipelines.pulse_rate_utils.TimeFreqDistr method)</a>
 </li>
       <li><a href="autoapi/paradigma/util/index.html#paradigma.util.get_end_iso8601">get_end_iso8601() (in module paradigma.util)</a>
 </li>
       <li><a href="autoapi/paradigma/segmenting/index.html#id1">get_index() (paradigma.segmenting.WindowedDataExtractor method)</a>, <a href="autoapi/paradigma/segmenting/index.html#paradigma.segmenting.WindowedDataExtractor.get_index">[1]</a>
 </li>
-      <li><a href="autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr.get_kern">get_kern() (paradigma.pipelines.heart_rate_utils.TimeFreqDistr method)</a>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#paradigma.pipelines.pulse_rate_utils.TimeFreqDistr.get_kern">get_kern() (paradigma.pipelines.pulse_rate_utils.TimeFreqDistr method)</a>
 </li>
       <li><a href="autoapi/paradigma/segmenting/index.html#id2">get_slice() (paradigma.segmenting.WindowedDataExtractor method)</a>, <a href="autoapi/paradigma/segmenting/index.html#paradigma.segmenting.WindowedDataExtractor.get_slice">[1]</a>
 </li>
-      <li><a href="autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr.get_win">get_win() (paradigma.pipelines.heart_rate_utils.TimeFreqDistr method)</a>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#paradigma.pipelines.pulse_rate_utils.TimeFreqDistr.get_win">get_win() (paradigma.pipelines.pulse_rate_utils.TimeFreqDistr method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr.get_window">get_window() (paradigma.pipelines.heart_rate_utils.TimeFreqDistr method)</a>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#paradigma.pipelines.pulse_rate_utils.TimeFreqDistr.get_window">get_window() (paradigma.pipelines.pulse_rate_utils.TimeFreqDistr method)</a>
 </li>
       <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataColumns.GRAV_ACCELEROMETER_X">GRAV_ACCELEROMETER_X (paradigma.constants.DataColumns attribute)</a>
 </li>
@@ -430,20 +429,6 @@
   </ul></td>
 </tr></table>
 
-<h2 id="H">H</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataColumns.HEART_RATE">HEART_RATE (paradigma.constants.DataColumns attribute)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.HeartRateConfig">HeartRateConfig (class in paradigma.config)</a>
-</li>
-      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.HeartRateConfig.hr_est_samples">hr_est_samples (paradigma.config.HeartRateConfig attribute)</a>
-</li>
-  </ul></td>
-</tr></table>
-
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -461,11 +446,11 @@
 <h2 id="K">K</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.HeartRateConfig.kern_params">kern_params (paradigma.config.HeartRateConfig attribute)</a>
+      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.PulseRateConfig.kern_params">kern_params (paradigma.config.PulseRateConfig attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.HeartRateConfig.kern_type">kern_type (paradigma.config.HeartRateConfig attribute)</a>
+      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.PulseRateConfig.kern_type">kern_type (paradigma.config.PulseRateConfig attribute)</a>
 </li>
       <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataColumns.KURTOSIS">KURTOSIS (paradigma.constants.DataColumns attribute)</a>
 </li>
@@ -535,9 +520,9 @@
 </li>
         <li><a href="autoapi/paradigma/pipelines/gait_pipeline/index.html#module-paradigma.pipelines.gait_pipeline">paradigma.pipelines.gait_pipeline</a>
 </li>
-        <li><a href="autoapi/paradigma/pipelines/heart_rate_pipeline/index.html#module-paradigma.pipelines.heart_rate_pipeline">paradigma.pipelines.heart_rate_pipeline</a>
+        <li><a href="autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#module-paradigma.pipelines.pulse_rate_pipeline">paradigma.pipelines.pulse_rate_pipeline</a>
 </li>
-        <li><a href="autoapi/paradigma/pipelines/heart_rate_utils/index.html#module-paradigma.pipelines.heart_rate_utils">paradigma.pipelines.heart_rate_utils</a>
+        <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#module-paradigma.pipelines.pulse_rate_utils">paradigma.pipelines.pulse_rate_utils</a>
 </li>
         <li><a href="autoapi/paradigma/pipelines/tremor_pipeline/index.html#module-paradigma.pipelines.tremor_pipeline">paradigma.pipelines.tremor_pipeline</a>
 </li>
@@ -554,7 +539,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/paradigma/config/index.html#paradigma.config.TremorConfig.movement_threshold">movement_threshold (paradigma.config.TremorConfig attribute)</a>
 </li>
-      <li><a href="autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr.multiply_kernel_signal">multiply_kernel_signal() (paradigma.pipelines.heart_rate_utils.TimeFreqDistr method)</a>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#paradigma.pipelines.pulse_rate_utils.TimeFreqDistr.multiply_kernel_signal">multiply_kernel_signal() (paradigma.pipelines.pulse_rate_utils.TimeFreqDistr method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -570,7 +555,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataUnits.NONE">NONE (paradigma.constants.DataUnits attribute)</a>
 </li>
-      <li><a href="autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr.nonsep_gdtfd">nonsep_gdtfd() (paradigma.pipelines.heart_rate_utils.TimeFreqDistr method)</a>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#paradigma.pipelines.pulse_rate_utils.TimeFreqDistr.nonsep_gdtfd">nonsep_gdtfd() (paradigma.pipelines.pulse_rate_utils.TimeFreqDistr method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -586,7 +571,7 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr.pad_window">pad_window() (paradigma.pipelines.heart_rate_utils.TimeFreqDistr method)</a>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#paradigma.pipelines.pulse_rate_utils.TimeFreqDistr.pad_window">pad_window() (paradigma.pipelines.pulse_rate_utils.TimeFreqDistr method)</a>
 </li>
       <li>
     paradigma
@@ -638,17 +623,17 @@
 </li>
       </ul></li>
       <li>
-    paradigma.pipelines.heart_rate_pipeline
+    paradigma.pipelines.pulse_rate_pipeline
 
       <ul>
-        <li><a href="autoapi/paradigma/pipelines/heart_rate_pipeline/index.html#module-paradigma.pipelines.heart_rate_pipeline">module</a>
+        <li><a href="autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#module-paradigma.pipelines.pulse_rate_pipeline">module</a>
 </li>
       </ul></li>
       <li>
-    paradigma.pipelines.heart_rate_utils
+    paradigma.pipelines.pulse_rate_utils
 
       <ul>
-        <li><a href="autoapi/paradigma/pipelines/heart_rate_utils/index.html#module-paradigma.pipelines.heart_rate_utils">module</a>
+        <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#module-paradigma.pipelines.pulse_rate_utils">module</a>
 </li>
       </ul></li>
       <li>
@@ -679,8 +664,6 @@
         <li><a href="autoapi/paradigma/testing/index.html#module-paradigma.testing">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     paradigma.util
 
@@ -688,6 +671,8 @@
         <li><a href="autoapi/paradigma/util/index.html#module-paradigma.util">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/paradigma/util/index.html#paradigma.util.parse_iso8601_to_datetime">parse_iso8601_to_datetime() (in module paradigma.util)</a>
 </li>
       <li><a href="autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.pca_transform_gyroscope">pca_transform_gyroscope() (in module paradigma.feature_extraction)</a>
@@ -703,6 +688,8 @@
       <li><a href="autoapi/paradigma/config/index.html#paradigma.config.PPGConfig.ppg_colname">ppg_colname (paradigma.config.PPGConfig attribute)</a>
 </li>
       <li><a href="autoapi/paradigma/config/index.html#paradigma.config.PPGConfig">PPGConfig (class in paradigma.config)</a>
+</li>
+      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.PulseRateConfig.pr_est_samples">pr_est_samples (paradigma.config.PulseRateConfig attribute)</a>
 </li>
       <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataColumns.PRED_ARM_AT_REST">PRED_ARM_AT_REST (paradigma.constants.DataColumns attribute)</a>
 </li>
@@ -737,6 +724,10 @@
       <li><a href="autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.preprocess_ppg_data">preprocess_ppg_data() (in module paradigma.preprocessing)</a>
 </li>
       <li><a href="autoapi/paradigma/testing/index.html#paradigma.testing.preprocess_ppg_data_io">preprocess_ppg_data_io() (in module paradigma.testing)</a>
+</li>
+      <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataColumns.PULSE_RATE">PULSE_RATE (paradigma.constants.DataColumns attribute)</a>
+</li>
+      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.PulseRateConfig">PulseRateConfig (class in paradigma.config)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -809,16 +800,16 @@
       <li><a href="autoapi/paradigma/config/index.html#paradigma.config.BaseConfig.set_sensor">set_sensor() (paradigma.config.BaseConfig method)</a>
 
       <ul>
-        <li><a href="autoapi/paradigma/config/index.html#paradigma.config.HeartRateConfig.set_sensor">(paradigma.config.HeartRateConfig method)</a>
+        <li><a href="autoapi/paradigma/config/index.html#paradigma.config.PulseRateConfig.set_sensor">(paradigma.config.PulseRateConfig method)</a>
 </li>
       </ul></li>
-      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.HeartRateConfig.set_tfd_length">set_tfd_length() (paradigma.config.HeartRateConfig method)</a>
+      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.PulseRateConfig.set_tfd_length">set_tfd_length() (paradigma.config.PulseRateConfig method)</a>
 </li>
-      <li><a href="autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr.shift_window">shift_window() (paradigma.pipelines.heart_rate_utils.TimeFreqDistr method)</a>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#paradigma.pipelines.pulse_rate_utils.TimeFreqDistr.shift_window">shift_window() (paradigma.pipelines.pulse_rate_utils.TimeFreqDistr method)</a>
 </li>
       <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataColumns.SIGNAL_NOISE_RATIO">SIGNAL_NOISE_RATIO (paradigma.constants.DataColumns attribute)</a>
 </li>
-      <li><a href="autoapi/paradigma/pipelines/heart_rate_pipeline/index.html#paradigma.pipelines.heart_rate_pipeline.signal_quality_classification">signal_quality_classification() (in module paradigma.pipelines.heart_rate_pipeline)</a>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.signal_quality_classification">signal_quality_classification() (in module paradigma.pipelines.pulse_rate_pipeline)</a>
 </li>
       <li><a href="autoapi/paradigma/testing/index.html#paradigma.testing.signal_quality_classification_io">signal_quality_classification_io() (in module paradigma.testing)</a>
 </li>
@@ -844,9 +835,9 @@
 </li>
       <li><a href="autoapi/paradigma/classification/index.html#paradigma.classification.ClassifierPackage.threshold">threshold (paradigma.classification.ClassifierPackage attribute)</a>
 </li>
-      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.HeartRateConfig.threshold_sqa">threshold_sqa (paradigma.config.HeartRateConfig attribute)</a>
+      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.PulseRateConfig.threshold_sqa">threshold_sqa (paradigma.config.PulseRateConfig attribute)</a>
 </li>
-      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.HeartRateConfig.threshold_sqa_accelerometer">threshold_sqa_accelerometer (paradigma.config.HeartRateConfig attribute)</a>
+      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.PulseRateConfig.threshold_sqa_accelerometer">threshold_sqa_accelerometer (paradigma.config.PulseRateConfig attribute)</a>
 </li>
       <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataColumns.TIME">TIME (paradigma.constants.DataColumns attribute)</a>
 </li>
@@ -854,7 +845,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/paradigma/config/index.html#paradigma.config.BaseConfig.time_filename">time_filename (paradigma.config.BaseConfig attribute)</a>
 </li>
-      <li><a href="autoapi/paradigma/pipelines/heart_rate_utils/index.html#paradigma.pipelines.heart_rate_utils.TimeFreqDistr">TimeFreqDistr (class in paradigma.pipelines.heart_rate_utils)</a>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#paradigma.pipelines.pulse_rate_utils.TimeFreqDistr">TimeFreqDistr (class in paradigma.pipelines.pulse_rate_utils)</a>
 </li>
       <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.TimeUnit">TimeUnit (class in paradigma.constants)</a>
 </li>
@@ -900,15 +891,15 @@
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.HeartRateConfig.window_length_s">window_length_s (paradigma.config.HeartRateConfig attribute)</a>
+      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.PulseRateConfig.window_length_s">window_length_s (paradigma.config.PulseRateConfig attribute)</a>
 
       <ul>
         <li><a href="autoapi/paradigma/config/index.html#paradigma.config.TremorConfig.window_length_s">(paradigma.config.TremorConfig attribute)</a>
 </li>
       </ul></li>
-      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.HeartRateConfig.window_overlap_s">window_overlap_s (paradigma.config.HeartRateConfig attribute)</a>
+      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.PulseRateConfig.window_overlap_s">window_overlap_s (paradigma.config.PulseRateConfig attribute)</a>
 </li>
-      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.HeartRateConfig.window_step_length_s">window_step_length_s (paradigma.config.HeartRateConfig attribute)</a>
+      <li><a href="autoapi/paradigma/config/index.html#paradigma.config.PulseRateConfig.window_step_length_s">window_step_length_s (paradigma.config.PulseRateConfig attribute)</a>
 
       <ul>
         <li><a href="autoapi/paradigma/config/index.html#paradigma.config.TremorConfig.window_step_length_s">(paradigma.config.TremorConfig attribute)</a>

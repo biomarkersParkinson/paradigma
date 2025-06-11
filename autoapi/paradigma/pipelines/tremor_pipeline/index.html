@@ -27,7 +27,7 @@
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
     <link rel="next" title="paradigma.preprocessing" href="../../preprocessing/index.html" />
-    <link rel="prev" title="paradigma.pipelines.heart_rate_utils" href="../heart_rate_utils/index.html" /> 
+    <link rel="prev" title="paradigma.pipelines.pulse_rate_utils" href="../pulse_rate_utils/index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -51,10 +51,10 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/heart_rate_analysis.html">Heart rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/_static/data_preparation.html">Data preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/_static/heart_rate_analysis.html">Heart rate analysis</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
@@ -228,8 +228,8 @@ the median, mode and percentile of tremor power specified in the configuration o
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The input DataFrame containing extracted tremor features. The DataFrame must include
-the necessary columns as specified in the classifier’s feature names.</p></li>
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The input DataFrame containing the tremor predictions and computed tremor power.
+The DataFrame must also contain a datatime column (‘time_dt’).</p></li>
 <li><p><strong>config</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.TremorConfig" title="paradigma.config.TremorConfig"><em>TremorConfig</em></a>) – Configuration object containing the percentile for aggregating tremor power.</p></li>
 </ul>
 </dd>
@@ -280,7 +280,7 @@ MFCCs, the frequency of the peak, the tremor power and below tremor power for ea
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../heart_rate_utils/index.html" class="btn btn-neutral float-left" title="paradigma.pipelines.heart_rate_utils" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../pulse_rate_utils/index.html" class="btn btn-neutral float-left" title="paradigma.pipelines.pulse_rate_utils" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../../preprocessing/index.html" class="btn btn-neutral float-right" title="paradigma.preprocessing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

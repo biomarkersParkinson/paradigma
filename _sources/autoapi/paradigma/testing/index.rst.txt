@@ -20,7 +20,7 @@ Functions
    paradigma.testing.aggregate_tremor_io
    paradigma.testing.extract_signal_quality_features_io
    paradigma.testing.signal_quality_classification_io
-   paradigma.testing.aggregate_heart_rate_io
+   paradigma.testing.aggregate_pulse_rate_io
 
 
 Module Contents
@@ -60,7 +60,7 @@ Module Contents
 
 .. py:function:: aggregate_tremor_io(path_to_feature_input: str | pathlib.Path, path_to_prediction_input: str | pathlib.Path, output_path: str | pathlib.Path, config: paradigma.config.TremorConfig) -> None
 
-.. py:function:: extract_signal_quality_features_io(input_path: str | pathlib.Path, output_path: str | pathlib.Path, ppg_config: paradigma.config.HeartRateConfig, acc_config: paradigma.config.HeartRateConfig) -> pandas.DataFrame
+.. py:function:: extract_signal_quality_features_io(input_path: str | pathlib.Path, output_path: str | pathlib.Path, ppg_config: paradigma.config.PulseRateConfig, acc_config: paradigma.config.PulseRateConfig) -> pandas.DataFrame
 
    Extract signal quality features from the PPG signal and save them to a file.
 
@@ -69,25 +69,25 @@ Module Contents
    :param output_path: The path to the directory where the extracted features will be saved.
    :type output_path: str | Path
    :param ppg_config: The configuration for the signal quality feature extraction of the ppg signal.
-   :type ppg_config: HeartRateConfig
+   :type ppg_config: PulseRateConfig
    :param acc_config: The configuration for the signal quality feature extraction of the accelerometer signal.
-   :type acc_config: HeartRateConfig
+   :type acc_config: PulseRateConfig
 
    :returns: **df_windowed** -- The DataFrame containing the extracted signal quality features.
    :rtype: pd.DataFrame
 
 
-.. py:function:: signal_quality_classification_io(input_path: str | pathlib.Path, output_path: str | pathlib.Path, path_to_classifier_input: str | pathlib.Path, config: paradigma.config.HeartRateConfig) -> None
+.. py:function:: signal_quality_classification_io(input_path: str | pathlib.Path, output_path: str | pathlib.Path, path_to_classifier_input: str | pathlib.Path, config: paradigma.config.PulseRateConfig) -> None
 
-.. py:function:: aggregate_heart_rate_io(full_path_to_input: str | pathlib.Path, full_path_to_output: str | pathlib.Path, aggregates: List[str] = ['mode', '99p']) -> None
+.. py:function:: aggregate_pulse_rate_io(full_path_to_input: str | pathlib.Path, full_path_to_output: str | pathlib.Path, aggregates: List[str] = ['mode', '99p']) -> None
 
-   Extract heart rate from the PPG signal and save the aggregated heart rate estimates to a file.
+   Extract pulse rate from the PPG signal and save the aggregated pulse rate estimates to a file.
 
-   :param input_path: The path to the directory containing the heart rate estimates.
+   :param input_path: The path to the directory containing the pulse rate estimates.
    :type input_path: str | Path
-   :param output_path: The path to the directory where the aggregated heart rate estimates will be saved.
+   :param output_path: The path to the directory where the aggregated pulse rate estimates will be saved.
    :type output_path: str | Path
-   :param aggregates: The list of aggregation methods to be used for the heart rate estimates. The default is ['mode', '99p'].
+   :param aggregates: The list of aggregation methods to be used for the pulse rate estimates. The default is ['mode', '99p'].
    :type aggregates: List[str]
 
 

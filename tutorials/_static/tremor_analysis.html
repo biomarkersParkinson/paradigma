@@ -1,31 +1,33 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../">
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tremor analysis &mdash; paradigma  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
-      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1228b8db" />
-      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
 
   
   <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
+    <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script src="../_static/js/theme.js"></script>
-    <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Heart rate analysis" href="heart_rate_analysis.html" />
+    <link rel="prev" title="Gait analysis" href="gait_analysis.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -36,11 +38,11 @@
 
           
           
-          <a href="../index.html" class="icon icon-home">
+          <a href="../../index.html" class="icon icon-home">
             paradigma
           </a>
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -48,26 +50,40 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="_static/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/heart_rate_analysis.html">Heart rate analysis</a></li>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="data_preparation.html">Data preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tremor analysis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#load-example-data">Load example data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-1-preprocess-data">Step 1: Preprocess data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-2-extract-tremor-features">Step 2: Extract tremor features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-3-detect-tremor">Step 3: Detect tremor</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#store-as-tsdf">Store as TSDF</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#step-4-quantify-tremor">Step 4: Quantify tremor</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#run-steps-1-4-for-all-segments">Run steps 1 - 4 for all segments <a id='multiple_segments_cell'></a></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#step-5-compute-aggregated-tremor-measures">Step 5: Compute aggregated tremor measures</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="heart_rate_analysis.html">Heart rate analysis</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../guides/config.html">Config</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../guides/coordinate_system.html">Coordinate System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../autoapi/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
 </ul>
 
         </div>
@@ -76,17 +92,17 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">paradigma</a>
+          <a href="../../index.html">paradigma</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Tremor analysis</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/tutorials/tremor_analysis.ipynb.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/tutorials/_static/tremor_analysis.md.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -116,9 +132,7 @@
 <li><p><em>.csv</em>: <code class="docutils literal notranslate"><span class="pre">pandas.read_csv()</span></code> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html">documentation</a>)</p></li>
 <li><p><em>.json</em>: <code class="docutils literal notranslate"><span class="pre">json.load()</span></code> (<a class="reference external" href="https://docs.python.org/3/library/json.html#json.load">documentation</a>)</p></li>
 </ul>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span>
 
 <span class="c1"># Set the path to where the prepared data is saved and load the data.</span>
@@ -133,21 +147,20 @@
 <span class="n">df_data</span>
 </pre></div>
 </div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_html"><div>
+<div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</pre></div>
+</div>
 </style>
 <table border="1" class="dataframe">
   <thead>
@@ -276,15 +289,12 @@
   </tbody>
 </table>
 <p>3455331 rows × 7 columns</p>
-</div></div></div>
 </div>
 </section>
 <section id="step-1-preprocess-data">
 <h2>Step 1: Preprocess data<a class="headerlink" href="#step-1-preprocess-data" title="Link to this heading"></a></h2>
 <p>IMU sensors collect data at a fixed sampling frequency, but the sampling rate is not uniform, causing variation in time differences between timestamps. The <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_imu_data">preprocess_imu_data</a> function therefore resamples the timestamps to be uniformly distributed, and then interpolates IMU values at these new timestamps using the original timestamps and corresponding IMU values. By setting <code class="docutils literal notranslate"><span class="pre">sensor</span></code> to ‘gyroscope’, only gyroscope data is preprocessed and the accelerometer data is removed from the dataframe. Also a <code class="docutils literal notranslate"><span class="pre">watch_side</span></code> should be provided, although for the tremor analysis it does not matter whether this is the correct side since the tremor features are not influenced by the gyroscope axes orientation.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_imu_data</span>
 
 <span class="n">config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span>
@@ -295,24 +305,23 @@
 <span class="n">df_preprocessed_data</span>
 </pre></div>
 </div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The data is resampled to 100 Hz.
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>The data is resampled to 100 Hz.
 </pre></div>
 </div>
-<div class="output text_html"><div>
+<div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</pre></div>
+</div>
 </style>
 <table border="1" class="dataframe">
   <thead>
@@ -405,15 +414,12 @@
   </tbody>
 </table>
 <p>3433961 rows × 4 columns</p>
-</div></div></div>
 </div>
 </section>
 <section id="step-2-extract-tremor-features">
 <h2>Step 2: Extract tremor features<a class="headerlink" href="#step-2-extract-tremor-features" title="Link to this heading"></a></h2>
 <p>The function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/tremor_pipeline.py#:~:text=extract_tremor_features"><code class="docutils literal notranslate"><span class="pre">extract_tremor_features</span></code></a> extracts windows from the preprocessed gyroscope data using non-overlapping windows of length <code class="docutils literal notranslate"><span class="pre">config.window_length_s</span></code>. Next, from these windows the tremor features are extracted: 12 mel-frequency cepstral coefficients (MFCCs), frequency of the peak in the power spectral density, power below tremor (0.5 - 3 Hz), and power around the tremor peak. The latter is not used for tremor detection, but stored for tremor quantification in Step 4.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">TremorConfig</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">TremorConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.tremor_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_tremor_features</span>
 
 <span class="n">config</span> <span class="o">=</span> <span class="n">TremorConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;features&#39;</span><span class="p">)</span>
@@ -424,24 +430,23 @@
 <span class="n">df_features</span>
 </pre></div>
 </div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The window length is 4 seconds
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>The window length is 4 seconds
 </pre></div>
 </div>
-<div class="output text_html"><div>
+<div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</pre></div>
+</div>
 </style>
 <table border="1" class="dataframe">
   <thead>
@@ -678,15 +683,12 @@
   </tbody>
 </table>
 <p>8584 rows × 16 columns</p>
-</div></div></div>
 </div>
 </section>
 <section id="step-3-detect-tremor">
 <h2>Step 3: Detect tremor<a class="headerlink" href="#step-3-detect-tremor" title="Link to this heading"></a></h2>
 <p>The function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/tremor_pipeline.py#:~:text=detect_tremor"><code class="docutils literal notranslate"><span class="pre">detect_tremor</span></code></a> uses a pretrained logistic regression classifier to predict the tremor probability (<code class="docutils literal notranslate"><span class="pre">pred_tremor_proba</span></code>) for each window, based on the MFCCs. Using the prespecified threshold, a tremor label of 0 (no tremor) or 1 (tremor) is assigned (<code class="docutils literal notranslate"><span class="pre">pred_tremor_logreg</span></code>). Furthermore, the detected tremor windows are checked for rest tremor in two ways. First, the frequency of the peak should be between 3-7 Hz. Second, we want to exclude windows with significant arm movements. We consider a window to have significant arm movement if <code class="docutils literal notranslate"><span class="pre">below_tremor_power</span></code> exceeds <code class="docutils literal notranslate"><span class="pre">config.movement_threshold</span></code>. The final tremor label is saved in <code class="docutils literal notranslate"><span class="pre">pred_tremor_checked</span></code>. A label for predicted arm at rest (<code class="docutils literal notranslate"><span class="pre">pred_arm_at_rest</span></code>, which is 1 when at rest and 0 when not at rest) was also saved, to control for the amount of arm movement during the observed time period when aggregating the amount of tremor time in Step 4 (if a person is moving their arm, they cannot have rest tremor).</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.tremor_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">detect_tremor</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;A threshold of </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">movement_threshold</span><span class="si">}</span><span class="s1"> deg</span><span class="se">\u00b2</span><span class="s1">/s</span><span class="se">\u00b2</span><span class="s1"> </span><span class="se">\</span>
@@ -702,24 +704,23 @@
 <span class="n">df_predictions</span><span class="p">[[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_proba&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_logreg&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">]]</span>
 </pre></div>
 </div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>A threshold of 50 deg²/s² is used to determine whether the arm is at rest or in stable posture.
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>A threshold of 50 deg²/s² is used to determine whether the arm is at rest or in stable posture.
 </pre></div>
 </div>
-<div class="output text_html"><div>
+<div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</pre></div>
+</div>
 </style>
 <table border="1" class="dataframe">
   <thead>
@@ -824,14 +825,11 @@
   </tbody>
 </table>
 <p>8584 rows × 5 columns</p>
-</div></div></div>
 </div>
 <section id="store-as-tsdf">
 <h3>Store as TSDF<a class="headerlink" href="#store-as-tsdf" title="Link to this heading"></a></h3>
 <p>The predicted probabilities (and optionally other features) can be stored and loaded in TSDF as demonstrated below.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tsdf</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tsdf</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_df_data</span>
 
 <span class="c1"># Set &#39;path_to_data&#39; to the directory where you want to save the data</span>
@@ -859,94 +857,16 @@
 <span class="n">write_df_data</span><span class="p">(</span><span class="n">metadata_time_store</span><span class="p">,</span> <span class="n">metadata_values_store</span><span class="p">,</span> <span class="n">path_to_data</span><span class="p">,</span> <span class="n">meta_store_filename</span><span class="p">,</span> <span class="n">df_predictions</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df_predictions</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df_predictions</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="n">df_predictions</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_html"><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>time</th>
-      <th>pred_tremor_proba</th>
-      <th>pred_tremor_logreg</th>
-      <th>pred_arm_at_rest</th>
-      <th>pred_tremor_checked</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.0</td>
-      <td>0.038968</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>4.0</td>
-      <td>0.035365</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>8.0</td>
-      <td>0.031255</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>12.0</td>
-      <td>0.021106</td>
-      <td>0.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>16.0</td>
-      <td>0.021078</td>
-      <td>0.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-    </tr>
-  </tbody>
-</table>
-</div></div></div>
 </div>
 </section>
 </section>
 <section id="step-4-quantify-tremor">
 <h2>Step 4: Quantify tremor<a class="headerlink" href="#step-4-quantify-tremor" title="Link to this heading"></a></h2>
 <p>The tremor power of all predicted tremor windows (where <code class="docutils literal notranslate"><span class="pre">pred_tremor_checked</span></code> is 1) is used for tremor quantification. A datetime column is also added, providing necessary information before aggregating over specified hours in Step 5.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pytz</span>
 
@@ -962,48 +882,129 @@
 <span class="n">df_quantification</span>
 </pre></div>
 </div>
-</div>
-<div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">KeyError</span><span class="g g-Whitespace">                                  </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="n">line</span> <span class="mi">5</span>
-<span class="g g-Whitespace">      </span><span class="mi">2</span> <span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
-<span class="g g-Whitespace">      </span><span class="mi">3</span> <span class="kn">import</span><span class="w"> </span><span class="nn">pytz</span>
-<span class="ne">----&gt; </span><span class="mi">5</span> <span class="n">df_quantification</span> <span class="o">=</span> <span class="n">df_predictions</span><span class="p">[[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">,</span><span class="s1">&#39;tremor_power&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-<span class="g g-Whitespace">      </span><span class="mi">6</span> <span class="n">df_quantification</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_predictions</span><span class="p">[</span><span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;tremor_power&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># tremor power of non-tremor windows is set to None</span>
-<span class="g g-Whitespace">      </span><span class="mi">8</span> <span class="c1"># Create datetime column based on the start time of the segment</span>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-<span class="nn">File ~/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.12/lib/python3.12/site-packages/pandas/core/frame.py:4108,</span> in <span class="ni">DataFrame.__getitem__</span><span class="nt">(self, key)</span>
-<span class="g g-Whitespace">   </span><span class="mi">4106</span>     <span class="k">if</span> <span class="n">is_iterator</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
-<span class="g g-Whitespace">   </span><span class="mi">4107</span>         <span class="n">key</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-<span class="ne">-&gt; </span><span class="mi">4108</span>     <span class="n">indexer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">_get_indexer_strict</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s2">&quot;columns&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
-<span class="g g-Whitespace">   </span><span class="mi">4110</span> <span class="c1"># take() does not accept boolean indexers</span>
-<span class="g g-Whitespace">   </span><span class="mi">4111</span> <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">indexer</span><span class="p">,</span> <span class="s2">&quot;dtype&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">:</span>
-
-<span class="nn">File ~/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.12/lib/python3.12/site-packages/pandas/core/indexes/base.py:6200,</span> in <span class="ni">Index._get_indexer_strict</span><span class="nt">(self, key, axis_name)</span>
-<span class="g g-Whitespace">   </span><span class="mi">6197</span> <span class="k">else</span><span class="p">:</span>
-<span class="g g-Whitespace">   </span><span class="mi">6198</span>     <span class="n">keyarr</span><span class="p">,</span> <span class="n">indexer</span><span class="p">,</span> <span class="n">new_indexer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reindex_non_unique</span><span class="p">(</span><span class="n">keyarr</span><span class="p">)</span>
-<span class="ne">-&gt; </span><span class="mi">6200</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raise_if_missing</span><span class="p">(</span><span class="n">keyarr</span><span class="p">,</span> <span class="n">indexer</span><span class="p">,</span> <span class="n">axis_name</span><span class="p">)</span>
-<span class="g g-Whitespace">   </span><span class="mi">6202</span> <span class="n">keyarr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">indexer</span><span class="p">)</span>
-<span class="g g-Whitespace">   </span><span class="mi">6203</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">Index</span><span class="p">):</span>
-<span class="g g-Whitespace">   </span><span class="mi">6204</span>     <span class="c1"># GH 42790 - Preserve name from an Index</span>
-
-<span class="nn">File ~/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.12/lib/python3.12/site-packages/pandas/core/indexes/base.py:6252,</span> in <span class="ni">Index._raise_if_missing</span><span class="nt">(self, key, indexer, axis_name)</span>
-<span class="g g-Whitespace">   </span><span class="mi">6249</span>     <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;None of [</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">] are in the [</span><span class="si">{</span><span class="n">axis_name</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
-<span class="g g-Whitespace">   </span><span class="mi">6251</span> <span class="n">not_found</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ensure_index</span><span class="p">(</span><span class="n">key</span><span class="p">)[</span><span class="n">missing_mask</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
-<span class="ne">-&gt; </span><span class="mi">6252</span> <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">not_found</span><span class="si">}</span><span class="s2"> not in index&quot;</span><span class="p">)</span>
-
-<span class="ne">KeyError</span>: &quot;[&#39;tremor_power&#39;] not in index&quot;
+.dataframe thead th {
+    text-align: right;
+}
 </pre></div>
 </div>
-</div>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>time_dt</th>
+      <th>pred_arm_at_rest</th>
+      <th>pred_tremor_checked</th>
+      <th>tremor_power</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>2019-08-20 12:39:16+02:00</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0.471588</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>4.0</td>
+      <td>2019-08-20 12:39:20+02:00</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0.327252</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>8.0</td>
+      <td>2019-08-20 12:39:24+02:00</td>
+      <td>1</td>
+      <td>0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>12.0</td>
+      <td>2019-08-20 12:39:28+02:00</td>
+      <td>1</td>
+      <td>0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>16.0</td>
+      <td>2019-08-20 12:39:32+02:00</td>
+      <td>1</td>
+      <td>0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>8579</th>
+      <td>34316.0</td>
+      <td>2019-08-20 22:11:12+02:00</td>
+      <td>1</td>
+      <td>0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>8580</th>
+      <td>34320.0</td>
+      <td>2019-08-20 22:11:16+02:00</td>
+      <td>1</td>
+      <td>0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>8581</th>
+      <td>34324.0</td>
+      <td>2019-08-20 22:11:20+02:00</td>
+      <td>1</td>
+      <td>0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>8582</th>
+      <td>34328.0</td>
+      <td>2019-08-20 22:11:24+02:00</td>
+      <td>1</td>
+      <td>0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>8583</th>
+      <td>34332.0</td>
+      <td>2019-08-20 22:11:28+02:00</td>
+      <td>1</td>
+      <td>0</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+<p>8584 rows × 5 columns</p>
 </div>
 <section id="run-steps-1-4-for-all-segments">
 <h3>Run steps 1 - 4 for all segments <a id='multiple_segments_cell'></a><a class="headerlink" href="#run-steps-1-4-for-all-segments" title="Link to this heading"></a></h3>
 <p>If your data is also stored in multiple segments, you can modify <code class="docutils literal notranslate"><span class="pre">segments</span></code> in the cell below to a list of the filenames of your respective segmented data.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span>
@@ -1057,8 +1058,6 @@
 <span class="n">df_quantification</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">list_df_quantifications</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-</div>
 </section>
 </section>
 <section id="step-5-compute-aggregated-tremor-measures">
@@ -1068,9 +1067,7 @@
 <li><p>Tremor time is calculated as the number of detected tremor windows, as percentage of the number of windows while the arm is at rest or in stable posture (when <code class="docutils literal notranslate"><span class="pre">below_tremor_power</span></code> does not exceed <code class="docutils literal notranslate"><span class="pre">config.movement_threshold</span></code>). This way the tremor time is controlled for the amount of time the arm is at rest or in stable posture, when rest tremor and re-emergent tremor could occur.</p></li>
 <li><p>For tremor power the following aggregates are derived: the mode, median and 90th percentile of tremor power (specified in <code class="docutils literal notranslate"><span class="pre">config.aggregates_tremor_power</span></code>). The median and modal tremor power reflect the typical tremor severity, whereas the 90th percentile reflects the maximal tremor severity within the observed timeframe. The aggregated tremor measures and metadata are stored in a json file.</p></li>
 </ul>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pprint</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pprint</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">select_hours</span><span class="p">,</span> <span class="n">select_days</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.tremor_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_tremor</span>
 
@@ -1095,9 +1092,7 @@
 <span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">d_tremor_aggregates</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Before aggregation we select data collected between 08:00 and 22:00. We also select days with at least 10 hours of data.
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Before aggregation we select data collected between 08:00 and 22:00. We also select days with at least 10 hours of data.
 The following tremor power aggregates are derived: [&#39;mode&#39;, &#39;median&#39;, &#39;90p&#39;].
 {&#39;aggregated_tremor_measures&#39;: {&#39;90p_tremor_power&#39;: 1.3259483071516063,
                                 &#39;median_tremor_power&#39;: 0.5143985314908104,
@@ -1108,15 +1103,16 @@ The following tremor power aggregates are derived: [&#39;mode&#39;, &#39;median&
               &#39;nr_windows_total&#39;: 12600}}
 </pre></div>
 </div>
-</div>
-</div>
 </section>
 </section>
 
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="gait_analysis.html" class="btn btn-neutral float-left" title="Gait analysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="heart_rate_analysis.html" class="btn btn-neutral float-right" title="Heart rate analysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

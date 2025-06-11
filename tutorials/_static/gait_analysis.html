@@ -1,31 +1,33 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../">
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gait analysis &mdash; paradigma  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
-      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1228b8db" />
-      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
 
   
   <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
+    <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script src="../_static/js/theme.js"></script>
-    <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Tremor analysis" href="tremor_analysis.html" />
+    <link rel="prev" title="Data preparation" href="data_preparation.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -36,11 +38,11 @@
 
           
           
-          <a href="../index.html" class="icon icon-home">
+          <a href="../../index.html" class="icon icon-home">
             paradigma
           </a>
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -48,26 +50,42 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="_static/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/heart_rate_analysis.html">Heart rate analysis</a></li>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="data_preparation.html">Data preparation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Gait analysis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#load-data">Load data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-1-preprocess-data">Step 1: Preprocess data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-2-extract-gait-features">Step 2: Extract gait features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-3-gait-detection">Step 3: Gait detection</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#store-as-tsdf">Store as TSDF</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#step-4-arm-activity-feature-extraction">Step 4: Arm activity feature extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-5-filtering-gait">Step 5: Filtering gait</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-6-arm-swing-quantification">Step 6: Arm swing quantification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#run-steps-1-6-for-the-all-raw-data-segment-s">Run steps 1-6 for the all raw data segment(s) <a id='multiple_segments_cell'></a></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#step-7-aggregation">Step 7: Aggregation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="heart_rate_analysis.html">Heart rate analysis</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../guides/config.html">Config</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../guides/coordinate_system.html">Coordinate System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../autoapi/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
 </ul>
 
         </div>
@@ -76,17 +94,17 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">paradigma</a>
+          <a href="../../index.html">paradigma</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Gait analysis</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/tutorials/gait_analysis.ipynb.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/tutorials/_static/gait_analysis.md.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -120,9 +138,7 @@
 <li><p><em>.csv</em>: <code class="docutils literal notranslate"><span class="pre">pandas.read_csv()</span></code> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html">documentation</a>)</p></li>
 <li><p><em>.json</em>: <code class="docutils literal notranslate"><span class="pre">json.load()</span></code> (<a class="reference external" href="https://docs.python.org/3/library/json.html#json.load">documentation</a>)</p></li>
 </ul>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span>
 
 <span class="c1"># Set the path to where the prepared data is saved and load the data.</span>
@@ -138,21 +154,20 @@
 <span class="n">df_imu</span>
 </pre></div>
 </div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_html"><div>
+<div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</pre></div>
+</div>
 </style>
 <table border="1" class="dataframe">
   <thead>
@@ -281,7 +296,6 @@
   </tbody>
 </table>
 <p>3455331 rows × 7 columns</p>
-</div></div></div>
 </div>
 </section>
 <section id="step-1-preprocess-data">
@@ -292,9 +306,7 @@
 <li><p>Resample the data to ensure uniformly distributed sampling rate</p></li>
 <li><p>Apply filtering to separate the gravity component from the accelerometer</p></li>
 </ol>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_imu_data</span>
 
 <span class="n">config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span>
@@ -310,24 +322,23 @@
 <span class="n">df_preprocessed</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The dataset of 34339.61 seconds is automatically resampled to 100 Hz.
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>The dataset of 34339.61 seconds is automatically resampled to 100 Hz.
 </pre></div>
 </div>
-<div class="output text_html"><div>
+<div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</pre></div>
+</div>
 </style>
 <table border="1" class="dataframe">
   <thead>
@@ -413,7 +424,6 @@
     </tr>
   </tbody>
 </table>
-</div></div></div>
 </div>
 <p>The resulting dataframe shown above contains uniformly distributed timestamps with corresponding accelerometer and gyroscope values. Note the for accelerometer values, the following notation is used:</p>
 <ul class="simple">
@@ -433,9 +443,7 @@
 <li><p>Combine both temporal and spectral features into a final dataframe</p></li>
 </ul>
 <p>These steps are encapsulated in <code class="docutils literal notranslate"><span class="pre">extract_gait_features</span></code> (documentation can be found <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/gait_pipeline.py">here</a>).</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">GaitConfig</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">GaitConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_gait_features</span>
 
 <span class="n">config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;gait&#39;</span><span class="p">)</span>
@@ -449,24 +457,23 @@
 <span class="n">df_gait</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>A total of 34 features have been extracted from 34334 6-second windows with 5 seconds overlap.
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>A total of 34 features have been extracted from 34334 6-second windows with 5 seconds overlap.
 </pre></div>
 </div>
-<div class="output text_html"><div>
+<div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</pre></div>
+</div>
 </style>
 <table border="1" class="dataframe">
   <thead>
@@ -619,16 +626,13 @@
   </tbody>
 </table>
 <p>5 rows × 35 columns</p>
-</div></div></div>
 </div>
 <p>Each row in this dataframe corresponds to a single window, with the window length and overlap set in the <code class="docutils literal notranslate"><span class="pre">config</span></code> object. Note that the <code class="docutils literal notranslate"><span class="pre">time</span></code> column has a 1-second interval instead of the 10-millisecond interval before, as it now represents the starting time of the window.</p>
 </section>
 <section id="step-3-gait-detection">
 <h2>Step 3: Gait detection<a class="headerlink" href="#step-3-gait-detection" title="Link to this heading"></a></h2>
 <p>For classification, ParaDigMa uses so-called Classifier Packages which contain a classifier, classification threshold, and a feature scaler as attributes. The classifier is a <a class="reference external" href="https://scikit-learn.org/1.5/modules/generated/sklearn.ensemble.RandomForestClassifier.html">random forest</a> trained on a dataset of people with PD performing a wide range of activities in free-living conditions: <a class="reference external" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7584982/">The Parkinson&#64;Home Validation Study</a>. The classification threshold was set to limit the amount of false-positive predictions in the original study, i.e., to limit non-gait to be predicted as gait. The classification threshold can be changed by setting <code class="docutils literal notranslate"><span class="pre">clf_package.threshold</span></code> to a different float value. The feature scaler was similarly fitted on the original dataset, ensuring the features are within expected confined spaces to make reliable predictions.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassifierPackage</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">detect_gait</span>
 
@@ -659,24 +663,23 @@
 <span class="n">df_gait</span><span class="p">[[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_gait_proba&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Out of 34334 windows, 2753 (8.0%) were predicted as gait, and 31581 (92.0%) as non-gait.
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Out of 34334 windows, 2753 (8.0%) were predicted as gait, and 31581 (92.0%) as non-gait.
 </pre></div>
 </div>
-<div class="output text_html"><div>
+<div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</pre></div>
+</div>
 </style>
 <table border="1" class="dataframe">
   <thead>
@@ -714,14 +717,11 @@
     </tr>
   </tbody>
 </table>
-</div></div></div>
 </div>
 <section id="store-as-tsdf">
 <h3>Store as TSDF<a class="headerlink" href="#store-as-tsdf" title="Link to this heading"></a></h3>
 <p>The predicted probabilities (and optionally other features) can be stored and loaded in TSDF as demonstrated below.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tsdf</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tsdf</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_df_data</span>
 
 <span class="c1"># Set &#39;path_to_data&#39; to the directory where you want to save the data</span>
@@ -749,29 +749,24 @@
 <span class="n">write_df_data</span><span class="p">(</span><span class="n">metadata_time_store</span><span class="p">,</span> <span class="n">metadata_values_store</span><span class="p">,</span> <span class="n">path_to_data</span><span class="p">,</span> <span class="n">meta_store_filename</span><span class="p">,</span> <span class="n">df_gait</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df_gait</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;segment</span><span class="si">{</span><span class="n">raw_data_segment_nr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df_gait</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;segment</span><span class="si">{</span><span class="n">raw_data_segment_nr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="n">df_gait</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_html"><div>
+<div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</pre></div>
+</div>
 </style>
 <table border="1" class="dataframe">
   <thead>
@@ -809,7 +804,6 @@
     </tr>
   </tbody>
 </table>
-</div></div></div>
 </div>
 <p>Once again, the <code class="docutils literal notranslate"><span class="pre">time</span></code> column indicates the start time of the window. Therefore, it can be observed that probabilities are predicted of overlapping windows, and not of individual timestamps. The function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/util.py"><code class="docutils literal notranslate"><span class="pre">merge_timestamps_with_predictions</span></code></a> can be used to retrieve predicted probabilities per timestamp by aggregating the predicted probabilities of overlapping windows. This function is included in the next step.</p>
 </section>
@@ -824,9 +818,7 @@
 <li><p>Create windows of the time series data and extract features</p></li>
 </ul>
 <p>But, first, the gait predictions should be merged with the preprocessed time series data, such that individual timestamps have a corresponding probability of gait. The function <code class="docutils literal notranslate"><span class="pre">extract_arm_activity_features</span></code> expects a time series dataframe of predicted gait.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">merge_predictions_with_timestamps</span>
 
 <span class="c1"># Merge gait predictions into timeseries data</span>
@@ -850,11 +842,7 @@
 <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_arm_activity_features</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_arm_activity_features</span>
 
 <span class="n">config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;arm_activity&#39;</span><span class="p">)</span>
 
@@ -867,24 +855,23 @@
 <span class="n">df_arm_activity</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>A total of 61 features have been extracted from 2749 3 - second windows with 2.25 seconds overlap.
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>A total of 61 features have been extracted from 2749 3 - second windows with 2.25 seconds overlap.
 </pre></div>
 </div>
-<div class="output text_html"><div>
+<div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</pre></div>
+</div>
 </style>
 <table border="1" class="dataframe">
   <thead>
@@ -1037,16 +1024,13 @@
   </tbody>
 </table>
 <p>5 rows × 62 columns</p>
-</div></div></div>
 </div>
 <p>The features extracted are similar to the features extracted for gait detection, but the gyroscope has been added to extract additional MFCCs of this sensor. The gyroscope (measuring angular velocity) is relevant to distinguish between arm activities. Also note that the <code class="docutils literal notranslate"><span class="pre">time</span></code> column no longer starts at 0, since the first timestamps were predicted as non-gait and therefore discarded.</p>
 </section>
 <section id="step-5-filtering-gait">
 <h2>Step 5: Filtering gait<a class="headerlink" href="#step-5-filtering-gait" title="Link to this heading"></a></h2>
 <p>This classification task is similar to gait detection, although it uses a different classification object. The trained classifier is a logistic regression, similarly trained on the dataset of the <a class="reference external" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7584982/">Parkinson&#64;Home Validation Study</a>. Filtering gait is the process of detecting and removing gait segments containing other arm activities. This is an important process since individuals entertain a wide array of arm activities during gait: having hands in pockets, holding a dog leash, or carrying a plate to the kitchen. We trained a classifier to detect these other arm activities during gait, enabling accurate estimations of the arm swing.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassifierPackage</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassifierPackage</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">filter_gait</span>
 
 <span class="c1"># Set the path to the classifier package</span>
@@ -1076,24 +1060,23 @@
 <span class="n">df_arm_activity</span><span class="p">[[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_no_other_arm_activity_proba&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Out of 2749 windows, 916 (33.3%) were predicted as no_other_arm_activity, and 1833 (66.7%) as other_arm_activity.
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Out of 2749 windows, 916 (33.3%) were predicted as no_other_arm_activity, and 1833 (66.7%) as other_arm_activity.
 </pre></div>
 </div>
-<div class="output text_html"><div>
+<div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</pre></div>
+</div>
 </style>
 <table border="1" class="dataframe">
   <thead>
@@ -1131,7 +1114,6 @@
     </tr>
   </tbody>
 </table>
-</div></div></div>
 </div>
 </section>
 <section id="step-6-arm-swing-quantification">
@@ -1139,9 +1121,7 @@
 <p>The next step is to extract arm swing estimates from the predicted gait segments without other arm activities. Arm swing estimates can be calculated for both filtered and unfiltered gait, with the latter being predicted gait including all arm activities. Specifically, the range of motion (<code class="docutils literal notranslate"><span class="pre">'range_of_motion'</span></code>) and peak angular velocity (<code class="docutils literal notranslate"><span class="pre">'peak_velocity'</span></code>) are extracted.</p>
 <p>This step creates gait segments based on consecutively predicted gait windows. A new gait segment is created if the gap between consecutive gait predictions exceeds <code class="docutils literal notranslate"><span class="pre">config.max_segment_gap_s</span></code>. Furthermore, a gait segment is considered valid if it is of at minimum length <code class="docutils literal notranslate"><span class="pre">config.min_segment_length_s</span></code>.</p>
 <p>But, first, similar to the step of extracting arm activity features, the predictions of the previous step should be merged with the preprocessed time series data.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Merge arm activity predictions into timeseries data</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Merge arm activity predictions into timeseries data</span>
 
 <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">df_arm_activity</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_filtering</span><span class="o">.</span><span class="n">threshold</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No gait without other arm activities detected in the input data.&quot;</span><span class="p">)</span>
@@ -1163,11 +1143,7 @@
 <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">quantify_arm_swing</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">quantify_arm_swing</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pprint</span><span class="w"> </span><span class="kn">import</span> <span class="n">pprint</span>
 
 <span class="c1"># Set to True to quantify arm swing based on the filtered gait segments, and False</span>
@@ -1199,9 +1175,7 @@
 <span class="n">quantified_arm_swing</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">quantified_arm_swing</span><span class="p">[</span><span class="s1">&#39;segment_nr&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
 </div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The arm swing quantification is based on the filtered gait segments.
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>The arm swing quantification is based on the filtered gait segments.
 
 Gait segments are created of minimum 1.5 seconds and maximum 1.5 seconds gap between segments.
 
@@ -1216,19 +1190,20 @@ Metadata of the first gait segment:
 Individual arm swings of the first gait segment of the filtered dataset:
 </pre></div>
 </div>
-<div class="output text_html"><div>
+<div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</pre></div>
+</div>
 </style>
 <table border="1" class="dataframe">
   <thead>
@@ -1334,7 +1309,6 @@ Individual arm swings of the first gait segment of the filtered dataset:
     </tr>
   </tbody>
 </table>
-</div></div></div>
 </div>
 <p>The gait segment categories are defined as follows:</p>
 <ul class="simple">
@@ -1347,9 +1321,7 @@ Individual arm swings of the first gait segment of the filtered dataset:
 <section id="run-steps-1-6-for-the-all-raw-data-segment-s">
 <h3>Run steps 1-6 for the all raw data segment(s) <a id='multiple_segments_cell'></a><a class="headerlink" href="#run-steps-1-6-for-the-all-raw-data-segment-s" title="Link to this heading"></a></h3>
 <p>If your data is also stored in multiple raw data segments, you can modify <code class="docutils literal notranslate"><span class="pre">raw_data_segments</span></code> in the cell below to a list of the filenames of your respective segmented data.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pprint</span><span class="w"> </span><span class="kn">import</span> <span class="n">pprint</span>
@@ -1473,16 +1445,12 @@ Individual arm swings of the first gait segment of the filtered dataset:
 <span class="n">quantified_arm_swing</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">list_quantified_arm_swing</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-</div>
 </section>
 </section>
 <section id="step-7-aggregation">
 <h2>Step 7: Aggregation<a class="headerlink" href="#step-7-aggregation" title="Link to this heading"></a></h2>
 <p>Finally, the arm swing estimates can be aggregated across all gait segments.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_arm_swing_params</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_arm_swing_params</span>
 
 <span class="n">arm_swing_aggregations</span> <span class="o">=</span> <span class="n">aggregate_arm_swing_params</span><span class="p">(</span>
     <span class="n">df_arm_swing_params</span><span class="o">=</span><span class="n">quantified_arm_swing</span><span class="p">,</span>
@@ -1493,36 +1461,32 @@ Individual arm swings of the first gait segment of the filtered dataset:
 <span class="n">pprint</span><span class="p">(</span><span class="n">arm_swing_aggregations</span><span class="p">,</span> <span class="n">sort_dicts</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;very_long&#39;: {&#39;duration_s&#39;: 1905.75,
-               &#39;median_range_of_motion&#39;: 25.28965100966046,
-               &#39;95p_range_of_motion&#39;: 43.74907398039543,
-               &#39;median_peak_velocity&#39;: 125.9443142903539,
-               &#39;95p_peak_velocity&#39;: 217.80854223601995},
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;long&#39;: {&#39;duration_s&#39;: 60.75,
+          &#39;median_range_of_motion&#39;: 15.78108745792784,
+          &#39;95p_range_of_motion&#39;: 45.16540046751929,
+          &#39;median_peak_velocity&#39;: 86.83257977334745,
+          &#39;95p_peak_velocity&#39;: 219.97254034894718},
  &#39;short&#39;: {&#39;duration_s&#39;: 153.75,
-           &#39;median_range_of_motion&#39;: 14.225382307390879,
-           &#39;95p_range_of_motion&#39;: 40.538473700932244,
+           &#39;median_range_of_motion&#39;: 14.225382307390944,
+           &#39;95p_range_of_motion&#39;: 40.53847370093226,
            &#39;median_peak_velocity&#39;: 71.56035976932178,
            &#39;95p_peak_velocity&#39;: 197.13328716416063},
+ &#39;very_long&#39;: {&#39;duration_s&#39;: 1905.75,
+               &#39;median_range_of_motion&#39;: 25.2896510096605,
+               &#39;95p_range_of_motion&#39;: 43.74907398039543,
+               &#39;median_peak_velocity&#39;: 125.9443142903539,
+               &#39;95p_peak_velocity&#39;: 217.80854223601992},
  &#39;moderately_long&#39;: {&#39;duration_s&#39;: 187.5,
-                     &#39;median_range_of_motion&#39;: 15.730045662205637,
-                     &#39;95p_range_of_motion&#39;: 54.55881567144295,
+                     &#39;median_range_of_motion&#39;: 15.73004566220565,
+                     &#39;95p_range_of_motion&#39;: 54.55881567144294,
                      &#39;median_peak_velocity&#39;: 77.94780939826387,
-                     &#39;95p_peak_velocity&#39;: 256.97997735460285},
- &#39;long&#39;: {&#39;duration_s&#39;: 60.75,
-          &#39;median_range_of_motion&#39;: 15.781087457927846,
-          &#39;95p_range_of_motion&#39;: 45.165400467519284,
-          &#39;median_peak_velocity&#39;: 86.83257977334742,
-          &#39;95p_peak_velocity&#39;: 219.97254034894718},
+                     &#39;95p_peak_velocity&#39;: 256.9799773546029},
  &#39;all_segment_categories&#39;: {&#39;duration_s&#39;: 2307.75,
                             &#39;median_range_of_motion&#39;: 23.100608971051315,
                             &#39;95p_range_of_motion&#39;: 45.92600123148869,
                             &#39;median_peak_velocity&#39;: 116.50364930684765,
                             &#39;95p_peak_velocity&#39;: 219.2008357820751}}
 </pre></div>
-</div>
-</div>
 </div>
 <p>The output of the aggregation step contains the aggregated arm swing parameters per gait segment category. Additionally, the total time in seconds <code class="docutils literal notranslate"><span class="pre">time_s</span></code> is added to inform based on how much data the aggregations were created.</p>
 </section>
@@ -1531,7 +1495,10 @@ Individual arm swings of the first gait segment of the filtered dataset:
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="data_preparation.html" class="btn btn-neutral float-left" title="Data preparation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tremor_analysis.html" class="btn btn-neutral float-right" title="Tremor analysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

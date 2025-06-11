@@ -48,10 +48,10 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/heart_rate_analysis.html">Heart rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/data_preparation.html">Data preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/heart_rate_analysis.html">Heart rate analysis</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
@@ -103,7 +103,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">kurtosis</span><span class="p">,</span> <span class="n">skew</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.decomposition</span><span class="w"> </span><span class="kn">import</span> <span class="n">PCA</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">HeartRateConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PulseRateConfig</span>
 
 
 <div class="viewcode-block" id="compute_statistics">
@@ -472,7 +472,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_relative_power</span><span class="p">(</span>
         <span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
         <span class="n">psd</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
-        <span class="n">config</span><span class="p">:</span> <span class="n">HeartRateConfig</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">PulseRateConfig</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate relative power within the dominant frequency band in the physiological range (0.75 - 3 Hz).</span>
@@ -483,11 +483,11 @@
 <span class="sd">        The frequency bins of the power spectral density.</span>
 <span class="sd">    psd: np.ndarray</span>
 <span class="sd">        The power spectral density of the signal.</span>
-<span class="sd">    config: HeartRateConfig</span>
+<span class="sd">    config: PulseRateConfig</span>
 <span class="sd">        The configuration object containing the parameters for the feature extraction. The following</span>
 <span class="sd">        attributes are used:</span>
 <span class="sd">        - freq_band_physio: tuple</span>
-<span class="sd">            The frequency band for physiological heart rate (default: (0.75, 3)).</span>
+<span class="sd">            The frequency band for physiological pulse rate (default: (0.75, 3)).</span>
 <span class="sd">        - bandwidth: float</span>
 <span class="sd">            The bandwidth around the peak frequency to consider for relative power calculation (default: 0.5).</span>
 

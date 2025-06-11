@@ -48,10 +48,10 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/heart_rate_analysis.html">Heart rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/data_preparation.html">Data preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/heart_rate_analysis.html">Heart rate analysis</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
@@ -103,14 +103,14 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassifierPackage</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span><span class="p">,</span> <span class="n">PPGConfig</span><span class="p">,</span> <span class="n">GaitConfig</span><span class="p">,</span> <span class="n">TremorConfig</span><span class="p">,</span> <span class="n">HeartRateConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span><span class="p">,</span> <span class="n">PPGConfig</span><span class="p">,</span> <span class="n">GaitConfig</span><span class="p">,</span> <span class="n">TremorConfig</span><span class="p">,</span> <span class="n">PulseRateConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span><span class="p">,</span> <span class="n">TimeUnit</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_gait_features</span><span class="p">,</span> <span class="n">detect_gait</span><span class="p">,</span> \
     <span class="n">extract_arm_activity_features</span><span class="p">,</span> <span class="n">filter_gait</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.tremor_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_tremor_features</span><span class="p">,</span> <span class="n">detect_tremor</span><span class="p">,</span> \
     <span class="n">aggregate_tremor</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.heart_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_signal_quality_features</span><span class="p">,</span> <span class="n">signal_quality_classification</span><span class="p">,</span> \
-    <span class="n">aggregate_heart_rate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.pulse_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_signal_quality_features</span><span class="p">,</span> <span class="n">signal_quality_classification</span><span class="p">,</span> \
+    <span class="n">aggregate_pulse_rate</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_imu_data</span><span class="p">,</span> <span class="n">preprocess_ppg_data</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_metadata</span><span class="p">,</span> <span class="n">write_df_data</span><span class="p">,</span> <span class="n">get_end_iso8601</span><span class="p">,</span> <span class="n">merge_predictions_with_timestamps</span>
 
@@ -478,7 +478,7 @@
 
 <div class="viewcode-block" id="extract_signal_quality_features_io">
 <a class="viewcode-back" href="../../autoapi/paradigma/testing/index.html#paradigma.testing.extract_signal_quality_features_io">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">extract_signal_quality_features_io</span><span class="p">(</span><span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">ppg_config</span><span class="p">:</span> <span class="n">HeartRateConfig</span><span class="p">,</span> <span class="n">acc_config</span><span class="p">:</span> <span class="n">HeartRateConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_signal_quality_features_io</span><span class="p">(</span><span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">ppg_config</span><span class="p">:</span> <span class="n">PulseRateConfig</span><span class="p">,</span> <span class="n">acc_config</span><span class="p">:</span> <span class="n">PulseRateConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extract signal quality features from the PPG signal and save them to a file.</span>
 
@@ -488,9 +488,9 @@
 <span class="sd">        The path to the directory containing the preprocessed PPG and accelerometer data.</span>
 <span class="sd">    output_path : str | Path</span>
 <span class="sd">        The path to the directory where the extracted features will be saved.</span>
-<span class="sd">    ppg_config: HeartRateConfig</span>
+<span class="sd">    ppg_config: PulseRateConfig</span>
 <span class="sd">        The configuration for the signal quality feature extraction of the ppg signal.</span>
-<span class="sd">    acc_config: HeartRateConfig</span>
+<span class="sd">    acc_config: PulseRateConfig</span>
 <span class="sd">        The configuration for the signal quality feature extraction of the accelerometer signal.</span>
 
 <span class="sd">    Returns</span>
@@ -518,7 +518,7 @@
 
 <div class="viewcode-block" id="signal_quality_classification_io">
 <a class="viewcode-back" href="../../autoapi/paradigma/testing/index.html#paradigma.testing.signal_quality_classification_io">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">signal_quality_classification_io</span><span class="p">(</span><span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">path_to_classifier_input</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">HeartRateConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">signal_quality_classification_io</span><span class="p">(</span><span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">path_to_classifier_input</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">PulseRateConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     
     <span class="c1"># Load the data</span>
     <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">meta_filename</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">time_filename</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">values_filename</span><span class="p">)</span>
@@ -528,37 +528,37 @@
 
 
 
-<div class="viewcode-block" id="aggregate_heart_rate_io">
-<a class="viewcode-back" href="../../autoapi/paradigma/testing/index.html#paradigma.testing.aggregate_heart_rate_io">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">aggregate_heart_rate_io</span><span class="p">(</span>
+<div class="viewcode-block" id="aggregate_pulse_rate_io">
+<a class="viewcode-back" href="../../autoapi/paradigma/testing/index.html#paradigma.testing.aggregate_pulse_rate_io">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">aggregate_pulse_rate_io</span><span class="p">(</span>
         <span class="n">full_path_to_input</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> 
         <span class="n">full_path_to_output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> 
         <span class="n">aggregates</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">,</span> <span class="s1">&#39;99p&#39;</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Extract heart rate from the PPG signal and save the aggregated heart rate estimates to a file.</span>
+<span class="sd">    Extract pulse rate from the PPG signal and save the aggregated pulse rate estimates to a file.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    input_path : str | Path</span>
-<span class="sd">        The path to the directory containing the heart rate estimates.</span>
+<span class="sd">        The path to the directory containing the pulse rate estimates.</span>
 <span class="sd">    output_path : str | Path</span>
-<span class="sd">        The path to the directory where the aggregated heart rate estimates will be saved.</span>
+<span class="sd">        The path to the directory where the aggregated pulse rate estimates will be saved.</span>
 <span class="sd">    aggregates : List[str]</span>
-<span class="sd">        The list of aggregation methods to be used for the heart rate estimates. The default is [&#39;mode&#39;, &#39;99p&#39;].</span>
+<span class="sd">        The list of aggregation methods to be used for the pulse rate estimates. The default is [&#39;mode&#39;, &#39;99p&#39;].</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Load the heart rate estimates</span>
+    <span class="c1"># Load the pulse rate estimates</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">full_path_to_input</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">df_hr</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="n">df_pr</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
     
-    <span class="c1"># Aggregate the heart rate estimates</span>
-    <span class="n">hr_values</span> <span class="o">=</span> <span class="n">df_hr</span><span class="p">[</span><span class="s1">&#39;heart_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-    <span class="n">df_hr_aggregates</span> <span class="o">=</span> <span class="n">aggregate_heart_rate</span><span class="p">(</span><span class="n">hr_values</span><span class="p">,</span> <span class="n">aggregates</span><span class="p">)</span>
+    <span class="c1"># Aggregate the pulse rate estimates</span>
+    <span class="n">pr_values</span> <span class="o">=</span> <span class="n">df_pr</span><span class="p">[</span><span class="s1">&#39;pulse_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">df_pr_aggregates</span> <span class="o">=</span> <span class="n">aggregate_pulse_rate</span><span class="p">(</span><span class="n">pr_values</span><span class="p">,</span> <span class="n">aggregates</span><span class="p">)</span>
 
-    <span class="c1"># Save the aggregated heart rate estimates</span>
+    <span class="c1"># Save the aggregated pulse rate estimates</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">full_path_to_output</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
-        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">df_hr_aggregates</span><span class="p">,</span> <span class="n">json_file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">df_pr_aggregates</span><span class="p">,</span> <span class="n">json_file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
 
 </pre></div>
 

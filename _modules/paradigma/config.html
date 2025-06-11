@@ -48,10 +48,10 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/heart_rate_analysis.html">Heart rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/data_preparation.html">Data preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/heart_rate_analysis.html">Heart rate analysis</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
@@ -361,9 +361,9 @@
 
 
         
-<div class="viewcode-block" id="HeartRateConfig">
-<a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.HeartRateConfig">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">HeartRateConfig</span><span class="p">(</span><span class="n">PPGConfig</span><span class="p">):</span>
+<div class="viewcode-block" id="PulseRateConfig">
+<a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.PulseRateConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PulseRateConfig</span><span class="p">(</span><span class="n">PPGConfig</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sensor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;ppg&#39;</span><span class="p">,</span> <span class="n">min_window_length_s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
@@ -384,14 +384,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">freq_bin_resolution</span> <span class="o">=</span> <span class="mf">0.05</span> <span class="c1"># Hz</span>
 
         <span class="c1"># ---------------------</span>
-        <span class="c1"># Heart rate estimation</span>
+        <span class="c1"># Pulse rate estimation</span>
         <span class="c1"># ---------------------</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_tfd_length</span><span class="p">(</span><span class="n">min_window_length_s</span><span class="p">)</span>  <span class="c1"># Set tfd length to default of 30 seconds</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">threshold_sqa</span> <span class="o">=</span> <span class="mf">0.5</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">threshold_sqa_accelerometer</span> <span class="o">=</span> <span class="mf">0.13</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threshold_sqa_accelerometer</span> <span class="o">=</span> <span class="mf">0.10</span>
 
-        <span class="n">hr_est_length</span> <span class="o">=</span> <span class="mi">2</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">hr_est_samples</span> <span class="o">=</span> <span class="n">hr_est_length</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span>
+        <span class="n">pr_est_length</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># pulse rate estimation length in seconds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pr_est_samples</span> <span class="o">=</span> <span class="n">pr_est_length</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span>
 
         <span class="c1"># Time-frequency distribution parameters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kern_type</span> <span class="o">=</span> <span class="s1">&#39;sep&#39;</span>
@@ -414,15 +414,15 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_sensor</span><span class="p">(</span><span class="n">sensor</span><span class="p">)</span>
 
-<div class="viewcode-block" id="HeartRateConfig.set_tfd_length">
-<a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.HeartRateConfig.set_tfd_length">[docs]</a>
+<div class="viewcode-block" id="PulseRateConfig.set_tfd_length">
+<a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.PulseRateConfig.set_tfd_length">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_tfd_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tfd_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tfd_length</span> <span class="o">=</span> <span class="n">tfd_length</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">min_hr_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tfd_length</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_pr_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tfd_length</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="HeartRateConfig.set_sensor">
-<a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.HeartRateConfig.set_sensor">[docs]</a>
+<div class="viewcode-block" id="PulseRateConfig.set_sensor">
+<a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.PulseRateConfig.set_sensor">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_sensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sensor</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sensor</span> <span class="o">=</span> <span class="n">sensor</span> 
 
