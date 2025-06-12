@@ -1,16 +1,16 @@
-# Heart rate analysis
+# Pulse rate analysis
 
-This tutorial shows how to extract heart rate estimates using photoplethysmography (PPG) data and accelerometer data. The pipeline consists of a stepwise approach to determine signal quality, assessing both PPG morphology and accounting for periodic artifacts using the accelerometer. Based on the signal quality, we extract high-quality segments and estimate the heart rate for every 2 s using the smoothed pseudo Wigner-Ville Distribution.
+This tutorial shows how to extract pulse rate estimates using photoplethysmography (PPG) data and accelerometer data. The pipeline consists of a stepwise approach to determine signal quality, assessing both PPG morphology and accounting for periodic artifacts using the accelerometer. Based on the signal quality, we extract high-quality segments and estimate the pulse rate for every 2 s using the smoothed pseudo Wigner-Ville Distribution.
 
 In this tutorial, we use two days of data from a participant of the Personalized Parkinson Project to demonstrate the functionalities. Since `ParaDigMa` expects contiguous time series, the collected data was stored in two segments each with contiguous timestamps. Per segment, we load the data and perform the following steps:
 1. Preprocess the time series data
 2. Extract signal quality features
 3. Signal quality classification
-4. Heart rate estimation
+4. Pulse rate estimation
 
 We then combine the output of the different segments for the final step:
 
-5. Heart rate aggregation
+5. Pulse rate aggregation
 
 ## Load data
 
@@ -479,15 +479,15 @@ display(df_ppg_proc, df_acc_proc)
 
 The preprocessed data (PPG & accelerometer) is windowed into overlapping windows of length `ppg_config.window_length_s` with a window step of `ppg_config.window_step_length_s`. From the PPG windows 10 time- and frequency domain features are extracted to assess PPG morphology and from the accelerometer windows one relative power feature is calculated to assess periodic motion artifacts.
 
-The detailed steps are encapsulated in `extract_signal_quality_features` (documentation can be found [here](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/heart_rate_pipeline.py#:~:text=extract_signal_quality_features)).
+The detailed steps are encapsulated in `extract_signal_quality_features` (documentation can be found [here](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=extract_signal_quality_features)).
 
 
 ```python
-from paradigma.config import HeartRateConfig
-from paradigma.pipelines.heart_rate_pipeline import extract_signal_quality_features
+from paradigma.config import PulseRateConfig
+from paradigma.pipelines.pulse_rate_pipeline import extract_signal_quality_features
 
-ppg_config = HeartRateConfig('ppg')
-acc_config = HeartRateConfig('imu')
+ppg_config = PulseRateConfig('ppg')
+acc_config = PulseRateConfig('imu')
 
 print("The default window length for the signal quality feature extraction is set to", ppg_config.window_length_s, "seconds.")
 print("The default step size for the signal quality feature extraction is set to", ppg_config.window_step_length_s, "seconds.")
@@ -608,7 +608,7 @@ df_features
       <td>4.0</td>
       <td>7.393010e+04</td>
       <td>218.379138</td>
-      <td>187.583267</td>
+      <td>187.583266</td>
       <td>2.405921</td>
       <td>0.084566</td>
       <td>2.796140</td>
@@ -719,17 +719,17 @@ df_features
 
 A trained logistic classifier is used to predict PPG signal quality and returns the `pred_sqa_proba`, which is the posterior probability of a PPG window to look like the typical PPG morphology (higher probability indicates toward the typical PPG morphology). The relative power feature from the accelerometer is compared to a threshold for periodic artifacts and therefore `pred_sqa_acc_label` is used to return a label indicating predicted periodic motion artifacts (label 0) or no periodic motion artifacts (label 1).
 
-The classification step is implemented in `signal_quality_classification` (documentation can be found [here](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/heart_rate_pipeline.py#:~:text=signal_quality_classification)).
+The classification step is implemented in `signal_quality_classification` (documentation can be found [here](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=signal_quality_classification)).
 
 
 ```python
 from importlib.resources import files
-from paradigma.pipelines.heart_rate_pipeline import signal_quality_classification
+from paradigma.pipelines.pulse_rate_pipeline import signal_quality_classification
 
 ppg_quality_classifier_package_filename = 'ppg_quality_clf_package.pkl'
 full_path_to_classifier_package = files('paradigma') / 'assets' / ppg_quality_classifier_package_filename
 
-config = HeartRateConfig()
+config = PulseRateConfig()
 
 df_sqa = signal_quality_classification(
     df=df_features, 
@@ -807,7 +807,7 @@ df_sqa
       <th>34329</th>
       <td>34329.0</td>
       <td>1.782669e-08</td>
-      <td>1</td>
+      <td>0</td>
     </tr>
     <tr>
       <th>34330</th>
@@ -942,30 +942,28 @@ df_sqa.head()
 
 
 
-## Step 4: Heart rate estimation
+## Step 4: Pulse rate estimation
 
-For heart rate estimation, we extract segments of `config.tfd_length` using [estimate_heart_rate](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/heart_rate_pipeline.py#:~:text=estimate_heart_rate). We calculate the smoothed-pseudo Wigner-Ville Distribution (SPWVD) to obtain the frequency content of the PPG signal over time. We extract for every timestamp in the SPWVD the frequency with the highest power. For every non-overlapping 2 s window we average the corresponding frequencies to obtain a heart rate per window.
+For pulse rate estimation, we extract segments of `config.tfd_length` using [estimate_pulse_rate](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=estimate_pulse_rate). We calculate the smoothed-pseudo Wigner-Ville Distribution (SPWVD) to obtain the frequency content of the PPG signal over time. We extract for every timestamp in the SPWVD the frequency with the highest power. For every non-overlapping 2 s window we average the corresponding frequencies to obtain a pulse rate per window.
 
 Note: for the test data we set the tfd_length to 10 s instead of the default of 30 s, because the small PPP test data doesn't have 30 s of consecutive high-quality PPG data.
 
 
 ```python
-from paradigma.pipelines.heart_rate_pipeline import estimate_heart_rate
+from paradigma.pipelines.pulse_rate_pipeline import estimate_pulse_rate
 
-print("The standard default minimal window length for the heart rate extraction is set to", config.tfd_length, "seconds.")
-# set the minimal window length for the heart rate extraction to 10 seconds instead of default of 30 seconds.
-#config.set_tfd_length(10)       
+print("The standard default minimal window length for the pulse rate extraction is set to", config.tfd_length, "seconds.")
 
-df_hr = estimate_heart_rate(
+df_pr = estimate_pulse_rate(
     df_sqa=df_sqa, 
     df_ppg_preprocessed=df_ppg_proc, 
     config=config
 )
 
-df_hr
+df_pr
 ```
 
-    The standard default minimal window length for the heart rate extraction is set to 30 seconds.
+    The standard default minimal window length for the pulse rate extraction is set to 30 seconds.
     
 
 
@@ -990,7 +988,7 @@ df_hr
     <tr style="text-align: right;">
       <th></th>
       <th>time</th>
-      <th>heart_rate</th>
+      <th>pulse_rate</th>
     </tr>
   </thead>
   <tbody>
@@ -1025,33 +1023,33 @@ df_hr
       <td>...</td>
     </tr>
     <tr>
-      <th>825</th>
+      <th>801</th>
       <td>32876.0</td>
       <td>78.220133</td>
     </tr>
     <tr>
-      <th>826</th>
+      <th>802</th>
       <td>32878.0</td>
       <td>78.047301</td>
     </tr>
     <tr>
-      <th>827</th>
+      <th>803</th>
       <td>32880.0</td>
       <td>78.047301</td>
     </tr>
     <tr>
-      <th>828</th>
+      <th>804</th>
       <td>32882.0</td>
       <td>78.238326</td>
     </tr>
     <tr>
-      <th>829</th>
+      <th>805</th>
       <td>32884.0</td>
       <td>78.556701</td>
     </tr>
   </tbody>
 </table>
-<p>830 rows × 2 columns</p>
+<p>806 rows × 2 columns</p>
 </div>
 
 
@@ -1067,9 +1065,9 @@ from pathlib import Path
 from importlib.resources import files
 
 from paradigma.util import load_tsdf_dataframe
-from paradigma.config import PPGConfig, IMUConfig, HeartRateConfig
+from paradigma.config import PPGConfig, IMUConfig, PulseRateConfig
 from paradigma.preprocessing import preprocess_ppg_data
-from paradigma.pipelines.heart_rate_pipeline import extract_signal_quality_features, signal_quality_classification, estimate_heart_rate
+from paradigma.pipelines.pulse_rate_pipeline import extract_signal_quality_features, signal_quality_classification, estimate_pulse_rate
 
 # Set the path to where the prepared data is saved
 path_to_prepared_data =  Path('../../example_data')
@@ -1081,8 +1079,8 @@ imu_prefix = 'imu'
 ppg_quality_classifier_package_filename = 'ppg_quality_clf_package.pkl'
 full_path_to_classifier_package = files('paradigma') / 'assets' / ppg_quality_classifier_package_filename
 
-# Create a list of dataframes to store the estimated heart rates of all segments
-list_df_hr = []
+# Create a list of dataframes to store the estimated pulse rates of all segments
+list_df_pr = []
 
 segments = ['0001', '0002'] # list with all available segments
 
@@ -1117,8 +1115,8 @@ for segment_nr in segments:
     )
 
     # 2: Extract signal quality features
-    ppg_config = HeartRateConfig('ppg')
-    acc_config = HeartRateConfig('imu')
+    ppg_config = PulseRateConfig('ppg')
+    acc_config = PulseRateConfig('imu')
 
     df_features = extract_signal_quality_features(
         df_ppg=df_ppg_proc,
@@ -1128,7 +1126,7 @@ for segment_nr in segments:
     )
     
     # 3: Signal quality classification
-    config = HeartRateConfig()
+    config = PulseRateConfig()
 
     df_sqa = signal_quality_classification(
         df=df_features, 
@@ -1136,39 +1134,39 @@ for segment_nr in segments:
         full_path_to_classifier_package=full_path_to_classifier_package
     )
 
-    # 4: Estimate heart rate
-    df_hr = estimate_heart_rate(
+    # 4: Estimate pulse rate
+    df_pr = estimate_pulse_rate(
         df_sqa=df_sqa, 
         df_ppg_preprocessed=df_ppg_proc, 
         config=config
     )
 
     # Add the hr estimations of the current segment to the list
-    df_hr['segment_nr'] = segment_nr
-    list_df_hr.append(df_hr)
+    df_pr['segment_nr'] = segment_nr
+    list_df_pr.append(df_pr)
 
-df_hr = pd.concat(list_df_hr, ignore_index=True)
+df_hr = pd.concat(list_df_pr, ignore_index=True)
 ```
 
-## Step 5: Heart rate aggregation
+## Step 5: Pulse rate aggregation
 
-The final step is to aggregate all 2 s heart rate estimates using [aggregate_heart_rate](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/heart_rate_pipeline.py#:~:text=aggregate_heart_rate). In the current example, the mode and 99th percentile are calculated. We hypothesize that the mode gives representation of the resting heart rate while the 99th percentile indicates the maximum heart rate. In Parkinson's disease, we expect that these two measures could reflect autonomic (dys)functioning. The `nr_hr_est` in the metadata indicates based on how many 2 s windows these aggregates are determined.
+The final step is to aggregate all 2 s pulse rate estimates using [aggregate_pulse_rate](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=aggregate_pulse_rate). In the current example, the mode and 99th percentile are calculated. We hypothesize that the mode gives representation of the resting pulse rate while the 99th percentile indicates the maximum pulse rate. In Parkinson's disease, we expect that these two measures could reflect autonomic (dys)functioning. The `nr_pr_est` in the metadata indicates based on how many 2 s windows these aggregates are determined.
 
 
 ```python
 import pprint
-from paradigma.pipelines.heart_rate_pipeline import aggregate_heart_rate
+from paradigma.pipelines.pulse_rate_pipeline import aggregate_pulse_rate
 
-hr_values = df_hr['heart_rate'].values
-df_hr_agg = aggregate_heart_rate(
-    hr_values=hr_values, 
+pr_values = df_pr['pulse_rate'].values
+df_pr_agg = aggregate_pulse_rate(
+    pr_values=pr_values, 
     aggregates = ['mode', '99p']
 )
 
-pprint.pprint(df_hr_agg)
+pprint.pprint(df_pr_agg)
 ```
 
-    {'hr_aggregates': {'99p_heart_rate': 85.77263444520081,
-                       'mode_heart_rate': 63.59175662414131},
-     'metadata': {'nr_hr_est': 8684}}
+    {'metadata': {'nr_pr_est': 806},
+     'pr_aggregates': {'99p_pulse_rate': 87.65865011636926,
+                       'mode_pulse_rate': 81.25613346418058}}
     

@@ -7,7 +7,7 @@
 tutorials/_static/data_preparation.md
 tutorials/_static/gait_analysis.md
 tutorials/_static/tremor_analysis.md
-tutorials/_static/heart_rate_analysis.md
+tutorials/_static/pulse_rate_analysis.md
 ```
 
 ```{toctree}
