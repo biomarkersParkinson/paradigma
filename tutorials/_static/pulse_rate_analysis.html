@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Heart rate analysis &mdash; paradigma  documentation</title>
+  <title>Pulse rate analysis &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -54,7 +54,7 @@
 <li class="toctree-l1"><a class="reference internal" href="data_preparation.html">Data preparation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gait_analysis.html">Gait analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Heart rate analysis</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Pulse rate analysis</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#load-data">Load data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#step-1-preprocess-data">Step 1: Preprocess data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#step-2-extract-signal-quality-features">Step 2: Extract signal quality features</a></li>
@@ -62,11 +62,11 @@
 <li class="toctree-l3"><a class="reference internal" href="#store-as-tsdf">Store as TSDF</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#step-4-heart-rate-estimation">Step 4: Heart rate estimation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#step-4-pulse-rate-estimation">Step 4: Pulse rate estimation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#run-steps-1-4-for-multiple-segments">Run steps 1 - 4 for multiple segments <a id='multiple_segments_cell'></a></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#step-5-heart-rate-aggregation">Step 5: Heart rate aggregation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-5-pulse-rate-aggregation">Step 5: Pulse rate aggregation</a></li>
 </ul>
 </li>
 </ul>
@@ -100,9 +100,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Heart rate analysis</li>
+      <li class="breadcrumb-item active">Pulse rate analysis</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/tutorials/_static/heart_rate_analysis.md.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/tutorials/_static/pulse_rate_analysis.md.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -110,19 +110,19 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="heart-rate-analysis">
-<h1>Heart rate analysis<a class="headerlink" href="#heart-rate-analysis" title="Link to this heading"></a></h1>
-<p>This tutorial shows how to extract heart rate estimates using photoplethysmography (PPG) data and accelerometer data. The pipeline consists of a stepwise approach to determine signal quality, assessing both PPG morphology and accounting for periodic artifacts using the accelerometer. Based on the signal quality, we extract high-quality segments and estimate the heart rate for every 2 s using the smoothed pseudo Wigner-Ville Distribution.</p>
+  <section id="pulse-rate-analysis">
+<h1>Pulse rate analysis<a class="headerlink" href="#pulse-rate-analysis" title="Link to this heading"></a></h1>
+<p>This tutorial shows how to extract pulse rate estimates using photoplethysmography (PPG) data and accelerometer data. The pipeline consists of a stepwise approach to determine signal quality, assessing both PPG morphology and accounting for periodic artifacts using the accelerometer. Based on the signal quality, we extract high-quality segments and estimate the pulse rate for every 2 s using the smoothed pseudo Wigner-Ville Distribution.</p>
 <p>In this tutorial, we use two days of data from a participant of the Personalized Parkinson Project to demonstrate the functionalities. Since <code class="docutils literal notranslate"><span class="pre">ParaDigMa</span></code> expects contiguous time series, the collected data was stored in two segments each with contiguous timestamps. Per segment, we load the data and perform the following steps:</p>
 <ol class="arabic simple">
 <li><p>Preprocess the time series data</p></li>
 <li><p>Extract signal quality features</p></li>
 <li><p>Signal quality classification</p></li>
-<li><p>Heart rate estimation</p></li>
+<li><p>Pulse rate estimation</p></li>
 </ol>
 <p>We then combine the output of the different segments for the final step:</p>
 <ol class="arabic simple" start="5">
-<li><p>Heart rate aggregation</p></li>
+<li><p>Pulse rate aggregation</p></li>
 </ol>
 <section id="load-data">
 <h2>Load data<a class="headerlink" href="#load-data" title="Link to this heading"></a></h2>
@@ -577,12 +577,12 @@ Overlapping preprocessed data shapes:
 <section id="step-2-extract-signal-quality-features">
 <h2>Step 2: Extract signal quality features<a class="headerlink" href="#step-2-extract-signal-quality-features" title="Link to this heading"></a></h2>
 <p>The preprocessed data (PPG &amp; accelerometer) is windowed into overlapping windows of length <code class="docutils literal notranslate"><span class="pre">ppg_config.window_length_s</span></code> with a window step of <code class="docutils literal notranslate"><span class="pre">ppg_config.window_step_length_s</span></code>. From the PPG windows 10 time- and frequency domain features are extracted to assess PPG morphology and from the accelerometer windows one relative power feature is calculated to assess periodic motion artifacts.</p>
-<p>The detailed steps are encapsulated in <code class="docutils literal notranslate"><span class="pre">extract_signal_quality_features</span></code> (documentation can be found <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/heart_rate_pipeline.py#:~:text=extract_signal_quality_features">here</a>).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">HeartRateConfig</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.heart_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_signal_quality_features</span>
+<p>The detailed steps are encapsulated in <code class="docutils literal notranslate"><span class="pre">extract_signal_quality_features</span></code> (documentation can be found <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=extract_signal_quality_features">here</a>).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PulseRateConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.pulse_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_signal_quality_features</span>
 
-<span class="n">ppg_config</span> <span class="o">=</span> <span class="n">HeartRateConfig</span><span class="p">(</span><span class="s1">&#39;ppg&#39;</span><span class="p">)</span>
-<span class="n">acc_config</span> <span class="o">=</span> <span class="n">HeartRateConfig</span><span class="p">(</span><span class="s1">&#39;imu&#39;</span><span class="p">)</span>
+<span class="n">ppg_config</span> <span class="o">=</span> <span class="n">PulseRateConfig</span><span class="p">(</span><span class="s1">&#39;ppg&#39;</span><span class="p">)</span>
+<span class="n">acc_config</span> <span class="o">=</span> <span class="n">PulseRateConfig</span><span class="p">(</span><span class="s1">&#39;imu&#39;</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The default window length for the signal quality feature extraction is set to&quot;</span><span class="p">,</span> <span class="n">ppg_config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">,</span> <span class="s2">&quot;seconds.&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The default step size for the signal quality feature extraction is set to&quot;</span><span class="p">,</span> <span class="n">ppg_config</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="p">,</span> <span class="s2">&quot;seconds.&quot;</span><span class="p">)</span>
@@ -701,7 +701,7 @@ The default step size for the signal quality feature extraction is set to 1 seco
       <td>4.0</td>
       <td>7.393010e+04</td>
       <td>218.379138</td>
-      <td>187.583267</td>
+      <td>187.583266</td>
       <td>2.405921</td>
       <td>0.084566</td>
       <td>2.796140</td>
@@ -809,14 +809,14 @@ The default step size for the signal quality feature extraction is set to 1 seco
 <section id="step-3-signal-quality-classification">
 <h2>Step 3: Signal quality classification<a class="headerlink" href="#step-3-signal-quality-classification" title="Link to this heading"></a></h2>
 <p>A trained logistic classifier is used to predict PPG signal quality and returns the <code class="docutils literal notranslate"><span class="pre">pred_sqa_proba</span></code>, which is the posterior probability of a PPG window to look like the typical PPG morphology (higher probability indicates toward the typical PPG morphology). The relative power feature from the accelerometer is compared to a threshold for periodic artifacts and therefore <code class="docutils literal notranslate"><span class="pre">pred_sqa_acc_label</span></code> is used to return a label indicating predicted periodic motion artifacts (label 0) or no periodic motion artifacts (label 1).</p>
-<p>The classification step is implemented in <code class="docutils literal notranslate"><span class="pre">signal_quality_classification</span></code> (documentation can be found <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/heart_rate_pipeline.py#:~:text=signal_quality_classification">here</a>).</p>
+<p>The classification step is implemented in <code class="docutils literal notranslate"><span class="pre">signal_quality_classification</span></code> (documentation can be found <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=signal_quality_classification">here</a>).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.heart_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">signal_quality_classification</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.pulse_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">signal_quality_classification</span>
 
 <span class="n">ppg_quality_classifier_package_filename</span> <span class="o">=</span> <span class="s1">&#39;ppg_quality_clf_package.pkl&#39;</span>
 <span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;assets&#39;</span> <span class="o">/</span> <span class="n">ppg_quality_classifier_package_filename</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">HeartRateConfig</span><span class="p">()</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">PulseRateConfig</span><span class="p">()</span>
 
 <span class="n">df_sqa</span> <span class="o">=</span> <span class="n">signal_quality_classification</span><span class="p">(</span>
     <span class="n">df</span><span class="o">=</span><span class="n">df_features</span><span class="p">,</span> 
@@ -892,7 +892,7 @@ The default step size for the signal quality feature extraction is set to 1 seco
       <th>34329</th>
       <td>34329.0</td>
       <td>1.782669e-08</td>
-      <td>1</td>
+      <td>0</td>
     </tr>
     <tr>
       <th>34330</th>
@@ -1017,26 +1017,24 @@ The default step size for the signal quality feature extraction is set to 1 seco
 </div>
 </section>
 </section>
-<section id="step-4-heart-rate-estimation">
-<h2>Step 4: Heart rate estimation<a class="headerlink" href="#step-4-heart-rate-estimation" title="Link to this heading"></a></h2>
-<p>For heart rate estimation, we extract segments of <code class="docutils literal notranslate"><span class="pre">config.tfd_length</span></code> using <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/heart_rate_pipeline.py#:~:text=estimate_heart_rate">estimate_heart_rate</a>. We calculate the smoothed-pseudo Wigner-Ville Distribution (SPWVD) to obtain the frequency content of the PPG signal over time. We extract for every timestamp in the SPWVD the frequency with the highest power. For every non-overlapping 2 s window we average the corresponding frequencies to obtain a heart rate per window.</p>
+<section id="step-4-pulse-rate-estimation">
+<h2>Step 4: Pulse rate estimation<a class="headerlink" href="#step-4-pulse-rate-estimation" title="Link to this heading"></a></h2>
+<p>For pulse rate estimation, we extract segments of <code class="docutils literal notranslate"><span class="pre">config.tfd_length</span></code> using <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=estimate_pulse_rate">estimate_pulse_rate</a>. We calculate the smoothed-pseudo Wigner-Ville Distribution (SPWVD) to obtain the frequency content of the PPG signal over time. We extract for every timestamp in the SPWVD the frequency with the highest power. For every non-overlapping 2 s window we average the corresponding frequencies to obtain a pulse rate per window.</p>
 <p>Note: for the test data we set the tfd_length to 10 s instead of the default of 30 s, because the small PPP test data doesn’t have 30 s of consecutive high-quality PPG data.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.heart_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">estimate_heart_rate</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.pulse_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">estimate_pulse_rate</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The standard default minimal window length for the heart rate extraction is set to&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">tfd_length</span><span class="p">,</span> <span class="s2">&quot;seconds.&quot;</span><span class="p">)</span>
-<span class="c1"># set the minimal window length for the heart rate extraction to 10 seconds instead of default of 30 seconds.</span>
-<span class="c1">#config.set_tfd_length(10)       </span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The standard default minimal window length for the pulse rate extraction is set to&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">tfd_length</span><span class="p">,</span> <span class="s2">&quot;seconds.&quot;</span><span class="p">)</span>
 
-<span class="n">df_hr</span> <span class="o">=</span> <span class="n">estimate_heart_rate</span><span class="p">(</span>
+<span class="n">df_pr</span> <span class="o">=</span> <span class="n">estimate_pulse_rate</span><span class="p">(</span>
     <span class="n">df_sqa</span><span class="o">=</span><span class="n">df_sqa</span><span class="p">,</span> 
     <span class="n">df_ppg_preprocessed</span><span class="o">=</span><span class="n">df_ppg_proc</span><span class="p">,</span> 
     <span class="n">config</span><span class="o">=</span><span class="n">config</span>
 <span class="p">)</span>
 
-<span class="n">df_hr</span>
+<span class="n">df_pr</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>The standard default minimal window length for the heart rate extraction is set to 30 seconds.
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>The standard default minimal window length for the pulse rate extraction is set to 30 seconds.
 </pre></div>
 </div>
 <div>
@@ -1059,7 +1057,7 @@ The default step size for the signal quality feature extraction is set to 1 seco
     <tr style="text-align: right;">
       <th></th>
       <th>time</th>
-      <th>heart_rate</th>
+      <th>pulse_rate</th>
     </tr>
   </thead>
   <tbody>
@@ -1094,33 +1092,33 @@ The default step size for the signal quality feature extraction is set to 1 seco
       <td>...</td>
     </tr>
     <tr>
-      <th>825</th>
+      <th>801</th>
       <td>32876.0</td>
       <td>78.220133</td>
     </tr>
     <tr>
-      <th>826</th>
+      <th>802</th>
       <td>32878.0</td>
       <td>78.047301</td>
     </tr>
     <tr>
-      <th>827</th>
+      <th>803</th>
       <td>32880.0</td>
       <td>78.047301</td>
     </tr>
     <tr>
-      <th>828</th>
+      <th>804</th>
       <td>32882.0</td>
       <td>78.238326</td>
     </tr>
     <tr>
-      <th>829</th>
+      <th>805</th>
       <td>32884.0</td>
       <td>78.556701</td>
     </tr>
   </tbody>
 </table>
-<p>830 rows × 2 columns</p>
+<p>806 rows × 2 columns</p>
 </div>
 <section id="run-steps-1-4-for-multiple-segments">
 <h3>Run steps 1 - 4 for multiple segments <a id='multiple_segments_cell'></a><a class="headerlink" href="#run-steps-1-4-for-multiple-segments" title="Link to this heading"></a></h3>
@@ -1130,9 +1128,9 @@ The default step size for the signal quality feature extraction is set to 1 seco
 <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PPGConfig</span><span class="p">,</span> <span class="n">IMUConfig</span><span class="p">,</span> <span class="n">HeartRateConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PPGConfig</span><span class="p">,</span> <span class="n">IMUConfig</span><span class="p">,</span> <span class="n">PulseRateConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_ppg_data</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.heart_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_signal_quality_features</span><span class="p">,</span> <span class="n">signal_quality_classification</span><span class="p">,</span> <span class="n">estimate_heart_rate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.pulse_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_signal_quality_features</span><span class="p">,</span> <span class="n">signal_quality_classification</span><span class="p">,</span> <span class="n">estimate_pulse_rate</span>
 
 <span class="c1"># Set the path to where the prepared data is saved</span>
 <span class="n">path_to_prepared_data</span> <span class="o">=</span>  <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../example_data&#39;</span><span class="p">)</span>
@@ -1144,8 +1142,8 @@ The default step size for the signal quality feature extraction is set to 1 seco
 <span class="n">ppg_quality_classifier_package_filename</span> <span class="o">=</span> <span class="s1">&#39;ppg_quality_clf_package.pkl&#39;</span>
 <span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;assets&#39;</span> <span class="o">/</span> <span class="n">ppg_quality_classifier_package_filename</span>
 
-<span class="c1"># Create a list of dataframes to store the estimated heart rates of all segments</span>
-<span class="n">list_df_hr</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="c1"># Create a list of dataframes to store the estimated pulse rates of all segments</span>
+<span class="n">list_df_pr</span> <span class="o">=</span> <span class="p">[]</span>
 
 <span class="n">segments</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;0001&#39;</span><span class="p">,</span> <span class="s1">&#39;0002&#39;</span><span class="p">]</span> <span class="c1"># list with all available segments</span>
 
@@ -1180,8 +1178,8 @@ The default step size for the signal quality feature extraction is set to 1 seco
     <span class="p">)</span>
 
     <span class="c1"># 2: Extract signal quality features</span>
-    <span class="n">ppg_config</span> <span class="o">=</span> <span class="n">HeartRateConfig</span><span class="p">(</span><span class="s1">&#39;ppg&#39;</span><span class="p">)</span>
-    <span class="n">acc_config</span> <span class="o">=</span> <span class="n">HeartRateConfig</span><span class="p">(</span><span class="s1">&#39;imu&#39;</span><span class="p">)</span>
+    <span class="n">ppg_config</span> <span class="o">=</span> <span class="n">PulseRateConfig</span><span class="p">(</span><span class="s1">&#39;ppg&#39;</span><span class="p">)</span>
+    <span class="n">acc_config</span> <span class="o">=</span> <span class="n">PulseRateConfig</span><span class="p">(</span><span class="s1">&#39;imu&#39;</span><span class="p">)</span>
 
     <span class="n">df_features</span> <span class="o">=</span> <span class="n">extract_signal_quality_features</span><span class="p">(</span>
         <span class="n">df_ppg</span><span class="o">=</span><span class="n">df_ppg_proc</span><span class="p">,</span>
@@ -1191,7 +1189,7 @@ The default step size for the signal quality feature extraction is set to 1 seco
     <span class="p">)</span>
     
     <span class="c1"># 3: Signal quality classification</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="n">HeartRateConfig</span><span class="p">()</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">PulseRateConfig</span><span class="p">()</span>
 
     <span class="n">df_sqa</span> <span class="o">=</span> <span class="n">signal_quality_classification</span><span class="p">(</span>
         <span class="n">df</span><span class="o">=</span><span class="n">df_features</span><span class="p">,</span> 
@@ -1199,40 +1197,40 @@ The default step size for the signal quality feature extraction is set to 1 seco
         <span class="n">full_path_to_classifier_package</span><span class="o">=</span><span class="n">full_path_to_classifier_package</span>
     <span class="p">)</span>
 
-    <span class="c1"># 4: Estimate heart rate</span>
-    <span class="n">df_hr</span> <span class="o">=</span> <span class="n">estimate_heart_rate</span><span class="p">(</span>
+    <span class="c1"># 4: Estimate pulse rate</span>
+    <span class="n">df_pr</span> <span class="o">=</span> <span class="n">estimate_pulse_rate</span><span class="p">(</span>
         <span class="n">df_sqa</span><span class="o">=</span><span class="n">df_sqa</span><span class="p">,</span> 
         <span class="n">df_ppg_preprocessed</span><span class="o">=</span><span class="n">df_ppg_proc</span><span class="p">,</span> 
         <span class="n">config</span><span class="o">=</span><span class="n">config</span>
     <span class="p">)</span>
 
     <span class="c1"># Add the hr estimations of the current segment to the list</span>
-    <span class="n">df_hr</span><span class="p">[</span><span class="s1">&#39;segment_nr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">segment_nr</span>
-    <span class="n">list_df_hr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df_hr</span><span class="p">)</span>
+    <span class="n">df_pr</span><span class="p">[</span><span class="s1">&#39;segment_nr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">segment_nr</span>
+    <span class="n">list_df_pr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df_pr</span><span class="p">)</span>
 
-<span class="n">df_hr</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">list_df_hr</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">df_hr</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">list_df_pr</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 </section>
-<section id="step-5-heart-rate-aggregation">
-<h2>Step 5: Heart rate aggregation<a class="headerlink" href="#step-5-heart-rate-aggregation" title="Link to this heading"></a></h2>
-<p>The final step is to aggregate all 2 s heart rate estimates using <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/heart_rate_pipeline.py#:~:text=aggregate_heart_rate">aggregate_heart_rate</a>. In the current example, the mode and 99th percentile are calculated. We hypothesize that the mode gives representation of the resting heart rate while the 99th percentile indicates the maximum heart rate. In Parkinson’s disease, we expect that these two measures could reflect autonomic (dys)functioning. The <code class="docutils literal notranslate"><span class="pre">nr_hr_est</span></code> in the metadata indicates based on how many 2 s windows these aggregates are determined.</p>
+<section id="step-5-pulse-rate-aggregation">
+<h2>Step 5: Pulse rate aggregation<a class="headerlink" href="#step-5-pulse-rate-aggregation" title="Link to this heading"></a></h2>
+<p>The final step is to aggregate all 2 s pulse rate estimates using <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=aggregate_pulse_rate">aggregate_pulse_rate</a>. In the current example, the mode and 99th percentile are calculated. We hypothesize that the mode gives representation of the resting pulse rate while the 99th percentile indicates the maximum pulse rate. In Parkinson’s disease, we expect that these two measures could reflect autonomic (dys)functioning. The <code class="docutils literal notranslate"><span class="pre">nr_pr_est</span></code> in the metadata indicates based on how many 2 s windows these aggregates are determined.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pprint</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.heart_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_heart_rate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.pulse_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_pulse_rate</span>
 
-<span class="n">hr_values</span> <span class="o">=</span> <span class="n">df_hr</span><span class="p">[</span><span class="s1">&#39;heart_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-<span class="n">df_hr_agg</span> <span class="o">=</span> <span class="n">aggregate_heart_rate</span><span class="p">(</span>
-    <span class="n">hr_values</span><span class="o">=</span><span class="n">hr_values</span><span class="p">,</span> 
+<span class="n">pr_values</span> <span class="o">=</span> <span class="n">df_pr</span><span class="p">[</span><span class="s1">&#39;pulse_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<span class="n">df_pr_agg</span> <span class="o">=</span> <span class="n">aggregate_pulse_rate</span><span class="p">(</span>
+    <span class="n">pr_values</span><span class="o">=</span><span class="n">pr_values</span><span class="p">,</span> 
     <span class="n">aggregates</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">,</span> <span class="s1">&#39;99p&#39;</span><span class="p">]</span>
 <span class="p">)</span>
 
-<span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">df_hr_agg</span><span class="p">)</span>
+<span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">df_pr_agg</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;hr_aggregates&#39;: {&#39;99p_heart_rate&#39;: 85.77263444520081,
-                   &#39;mode_heart_rate&#39;: 63.59175662414131},
- &#39;metadata&#39;: {&#39;nr_hr_est&#39;: 8684}}
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;metadata&#39;: {&#39;nr_pr_est&#39;: 806},
+ &#39;pr_aggregates&#39;: {&#39;99p_pulse_rate&#39;: 87.65865011636926,
+                   &#39;mode_pulse_rate&#39;: 81.25613346418058}}
 </pre></div>
 </div>
 </section>
