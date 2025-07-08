@@ -371,6 +371,8 @@ def quantify_arm_swing(
 
     if df.empty:
         raise ValueError("No segments found in the input data after discarding segments of invalid shape.")
+    
+    print("X")
 
     # If no arm swing data is remaining, return an empty dictionary
     if filtered and df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].empty:
@@ -378,6 +380,8 @@ def quantify_arm_swing(
     elif filtered:
         # Filter the DataFrame to only include predicted no other arm activity (1)
         df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True)
+
+        print("Y")
 
         # Group consecutive timestamps into segments of filtered gait
         df['arm_swing_segment_nr'] = create_segments(
@@ -400,6 +404,8 @@ def quantify_arm_swing(
     else:
         grouping_colname = DataColumns.SEGMENT_NR
 
+    print("Z")
+
     arm_swing_quantified = []
     segment_meta = {
         'aggregated': {
@@ -419,11 +425,19 @@ def quantify_arm_swing(
     )
 
     # Group and process segments
+    print("A")
     for segment_nr, group in df.groupby(grouping_colname, sort=False):
+        if filtered:
+            gait_segment_nr = group[DataColumns.SEGMENT_NR].iloc[0]
+        else:
+            gait_segment_nr = segment_nr
+
         # segment_cat = group[DataColumns.SEGMENT_CAT].iloc[0]
-        gait_segment_duration_s = gait_segment_duration_dict[group[DataColumns.SEGMENT_NR].iloc[0]]
+        gait_segment_duration_s = gait_segment_duration_dict[gait_segment_nr]
         time_array = group[DataColumns.TIME].to_numpy()
         velocity_array = group[DataColumns.VELOCITY].to_numpy()
+
+        print("B")
 
         # Integrate the angular velocity to obtain an estimation of the angle
         angle_array = compute_angle(
@@ -446,6 +460,8 @@ def quantify_arm_swing(
 
         if filtered:
             segment_meta['per_segment'][segment_nr]['duration_arm_swing_segment_s'] = len(time_array) / fs
+
+        print("C")
 
         if angle_array.size > 0:  
             angle_extrema_indices, _, _ = extract_angle_extremes(
@@ -485,6 +501,8 @@ def quantify_arm_swing(
                 arm_swing_quantified.append(df_params_segment)
 
     arm_swing_quantified = pd.concat(arm_swing_quantified, ignore_index=True)
+
+    print("D")
             
     return arm_swing_quantified, segment_meta
 
@@ -523,7 +541,7 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
             'duration_s': sum([segment_meta[x]['duration_s'] for x in cat_segments])
         }
 
-        df_arm_swing_params_cat = df_arm_swing_params[df_arm_swing_params[DataColums.SEGMENT_NR].isin(cat_segments)]
+        df_arm_swing_params_cat = df_arm_swing_params[df_arm_swing_params[DataColumns.SEGMENT_NR].isin(cat_segments)]
         
         # Aggregate across all segments
         aggregates_per_segment = ['median', 'mean']
