@@ -534,7 +534,8 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
             for arm_swing_parameter in arm_swing_parameters:
                 per_segment_std[segment_nr][arm_swing_parameter].append(aggregate_parameter(segment_df[arm_swing_parameter], 'std'))
 
-        aggregated_results[segment_cat][f'per_segment_std_{arm_swing_parameter}'] = per_segment_std
+        for aggregate in aggregates_per_segment:
+            aggregated_results[segment_cat][f'{aggregate}_per_arm_swing_segment_std_{arm_swing_parameter}'] = aggregate_parameter(per_segment_std, aggregate)
 
     # aggregated_results['all_segment_categories'] = {
     #     'duration_s': sum([segment_meta[x]['duration_s'] for x in segment_meta.keys()])
