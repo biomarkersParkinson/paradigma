@@ -489,7 +489,7 @@ def quantify_arm_swing(
     return arm_swing_quantified, segment_meta
 
 
-def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: dict, segment_cats : dict, aggregates: List[str] = ['median', 'std']) -> dict:
+def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: dict, segment_cats : List[tuple], aggregates: List[str] = ['median', 'std']) -> dict:
     """
     Aggregate the quantification results for arm swing parameters.
     
@@ -501,9 +501,8 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
     segment_meta : dict
         A dictionary containing metadata for each segment.
 
-    segment_cats : dict
-        A dictionary defining segment categories and their corresponding duration ranges. For example:
-        {'short': [0, 10], ...}
+    segment_cats : List[tuple]
+        A list of tuples defining the segment categories, where each tuple contains the lower and upper bounds for the segment duration.
         
     aggregates : List[str], optional
         A list of aggregation methods to apply to the quantification results.
@@ -516,10 +515,11 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
     arm_swing_parameters = [DataColumns.RANGE_OF_MOTION, DataColumns.PEAK_VELOCITY]
 
     aggregated_results = {}
-    for segment_cat, segment_cat_range in segment_cats.items():
+    for segment_cat_range in segment_cats:
+        segment_cat_str = f'{segment_cat_range[0]}_{segment_cat_range[1]}'
         cat_segments = [x for x in segment_meta.keys() if segment_meta[x]['gait_segment_duration_s'] >= segment_cat_range[0] and segment_meta[x]['gait_segment_duration_s'] < segment_cat_range[1]]
 
-        aggregated_results[segment_cat] = {
+        aggregated_results[segment_cat_str] = {
             'duration_s': sum([segment_meta[x]['duration_s'] for x in cat_segments])
         }
 
@@ -530,7 +530,7 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
 
         for arm_swing_parameter in arm_swing_parameters:
             for aggregate in aggregates:
-                aggregated_results[segment_cat][f'{aggregate}_{arm_swing_parameter}'] = aggregate_parameter(df_arm_swing_params_cat[arm_swing_parameter], aggregate)
+                aggregated_results[segment_cat_str][f'{aggregate}_{arm_swing_parameter}'] = aggregate_parameter(df_arm_swing_params_cat[arm_swing_parameter], aggregate)
 
                 if aggregate == 'std':
                     per_segment_std = []
@@ -540,15 +540,15 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
                         per_segment_std.append(aggregate_parameter(segment_df[arm_swing_parameter], 'std'))
 
                         for aggregate_segment in aggregates_per_segment:
-                            aggregated_results[segment_cat][f'{aggregate_segment}_of_std_{arm_swing_parameter}_per_arm_swing_segment'] = aggregate_parameter(per_segment_std, aggregate_segment)
+                            aggregated_results[segment_cat_str][f'{aggregate_segment}_of_std_{arm_swing_parameter}_per_arm_swing_segment'] = aggregate_parameter(per_segment_std, aggregate_segment)
 
     # aggregated_results['all_segment_categories'] = {
     #     'duration_s': sum([segment_meta[x]['duration_s'] for x in segment_meta.keys()])
     # }
 
-    for arm_swing_parameter in arm_swing_parameters:
-        for aggregate in aggregates:
-            aggregated_results['all_segment_categories'][f'{aggregate}_{arm_swing_parameter}'] = aggregate_parameter(df_arm_swing_params[arm_swing_parameter], aggregate)
+    # for arm_swing_parameter in arm_swing_parameters:
+    #     for aggregate in aggregates:
+    #         aggregated_results['all_segment_categories'][f'{aggregate}_{arm_swing_parameter}'] = aggregate_parameter(df_arm_swing_params[arm_swing_parameter], aggregate)
 
     return aggregated_results
 
