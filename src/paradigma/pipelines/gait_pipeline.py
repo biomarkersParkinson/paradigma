@@ -426,7 +426,11 @@ def quantify_arm_swing(
             gait_segment_nr = segment_nr
 
         # segment_cat = group[DataColumns.SEGMENT_CAT].iloc[0]
-        gait_segment_duration_s = gait_segment_duration_dict[gait_segment_nr]
+        try:
+            gait_segment_duration_s = gait_segment_duration_dict[gait_segment_nr]
+        except:
+            print(f"Warning: Segment {gait_segment_nr} not found in gait segment duration dictionary. Skipping this segment.")
+            continue
         time_array = group[DataColumns.TIME].to_numpy()
         velocity_array = group[DataColumns.VELOCITY].to_numpy()
 
