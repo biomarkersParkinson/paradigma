@@ -483,7 +483,7 @@ def quantify_arm_swing(
     return arm_swing_quantified, segment_meta
 
 
-def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: dict, aggregates: List[str] = ['median']) -> dict:
+def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: dict, segment_cats : dict, aggregates: List[str] = ['median']) -> dict:
     """
     Aggregate the quantification results for arm swing parameters.
     
@@ -494,6 +494,10 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
 
     segment_meta : dict
         A dictionary containing metadata for each segment.
+
+    segment_cats : dict
+        A dictionary defining segment categories and their corresponding duration ranges. For example:
+        {'short': [0, 10], ...}
         
     aggregates : List[str], optional
         A list of aggregation methods to apply to the quantification results.
@@ -505,25 +509,36 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
     """
     arm_swing_parameters = [DataColumns.RANGE_OF_MOTION, DataColumns.PEAK_VELOCITY]
 
-    uq_segment_cats = set([segment_meta[x][DataColumns.SEGMENT_CAT] for x in df_arm_swing_params[DataColumns.SEGMENT_NR].unique()])
-
     aggregated_results = {}
-    for segment_cat in uq_segment_cats:
-        cat_segments = [x for x in segment_meta.keys() if segment_meta[x][DataColumns.SEGMENT_CAT] == segment_cat]
+    for segment_cat, segment_cat_range in segment_cats.items():
+        cat_segments = [x for x in segment_meta.keys() if segment_meta[x]['gait_segment_duration_s'] >= segment_cat_range[0] and segment_meta[x]['gait_segment_duration_s'] < segment_cat_range[1]]
 
         aggregated_results[segment_cat] = {
             'duration_s': sum([segment_meta[x]['duration_s'] for x in cat_segments])
         }
 
-        df_arm_swing_params_cat = df_arm_swing_params[df_arm_swing_params[DataColumns.SEGMENT_NR].isin(cat_segments)]
+        df_arm_swing_params_cat = df_arm_swing_params[df_arm_swing_params['arm_swing_segment_nr'].isin(cat_segments)]
         
+        # Aggregate across all segments
         for arm_swing_parameter in arm_swing_parameters:
             for aggregate in aggregates:
                 aggregated_results[segment_cat][f'{aggregate}_{arm_swing_parameter}'] = aggregate_parameter(df_arm_swing_params_cat[arm_swing_parameter], aggregate)
 
-    aggregated_results['all_segment_categories'] = {
-        'duration_s': sum([segment_meta[x]['duration_s'] for x in segment_meta.keys()])
-    }
+        # Aggregate per segment (only for std)
+        aggregates_per_segment = ['median', 'mean']
+        per_segment_std = {}
+
+        for segment_nr in cat_segments:
+            per_segment_std[segment_nr] = {}
+            segment_df = df_arm_swing_params_cat[df_arm_swing_params_cat['arm_swing_segment_nr'] == segment_nr]
+            for arm_swing_parameter in arm_swing_parameters:
+                per_segment_std[segment_nr][arm_swing_parameter].append(aggregate_parameter(segment_df[arm_swing_parameter], 'std'))
+
+        aggregated_results[segment_cat][f'per_segment_std_{arm_swing_parameter}'] = per_segment_std
+
+    # aggregated_results['all_segment_categories'] = {
+    #     'duration_s': sum([segment_meta[x]['duration_s'] for x in segment_meta.keys()])
+    # }
 
     for arm_swing_parameter in arm_swing_parameters:
         for aggregate in aggregates:
