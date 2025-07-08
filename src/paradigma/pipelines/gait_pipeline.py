@@ -351,19 +351,19 @@ def quantify_arm_swing(
     """
     # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap.
     # Segments are made based on predicted gait
-    df['gait_segment_nr'] = create_segments(
+    df[DataColumns.SEGMENT_NR] = create_segments(
         time_array=df[DataColumns.TIME], 
         max_segment_gap_s=max_segment_gap_s
     )
 
     # Create dictionary of gait segment number and duration
-    gait_segment_duration_dict = {segment_nr: len(group[DataColumns.TIME]) / fs for segment_nr, group in df.groupby('gait_segment_nr', sort=False)}
+    gait_segment_duration_dict = {segment_nr: len(group[DataColumns.TIME]) / fs for segment_nr, group in df.groupby(DataColumns.SEGMENT_NR, sort=False)}
     # df[DataColumns.SEGMENT_CAT] = categorize_segments(df=df, fs=fs)
 
     # Remove segments that do not meet predetermined criteria
     df = discard_segments(
         df=df,
-        segment_nr_colname='gait_segment_nr',
+        segment_nr_colname=DataColumns.SEGMENT_NR,
         min_segment_length_s=min_segment_length_s,
         fs=fs,
         format='timestamps'
@@ -395,6 +395,10 @@ def quantify_arm_swing(
 
         if df.empty:
             raise ValueError("No filtered gait segments found in the input data after discarding segments of invalid shape.")
+        
+        grouping_colname = 'arm_swing_segment_nr'
+    else:
+        grouping_colname = DataColumns.SEGMENT_NR
 
     arm_swing_quantified = []
     segment_meta = {
@@ -415,9 +419,9 @@ def quantify_arm_swing(
     )
 
     # Group and process segments
-    for segment_nr, group in df.groupby('arm_swing_segment_nr', sort=False):
+    for segment_nr, group in df.groupby(grouping_colname, sort=False):
         # segment_cat = group[DataColumns.SEGMENT_CAT].iloc[0]
-        gait_segment_duration_s = gait_segment_duration_dict[group['gait_segment_nr'].iloc[0]]
+        gait_segment_duration_s = gait_segment_duration_dict[group[DataColumns.SEGMENT_NR].iloc[0]]
         time_array = group[DataColumns.TIME].to_numpy()
         velocity_array = group[DataColumns.VELOCITY].to_numpy()
 
@@ -436,10 +440,12 @@ def quantify_arm_swing(
         segment_meta['per_arm_swing_segment'][segment_nr] = {
             'start_time_s': time_array.min(),
             'end_time_s': time_array.max(),
-            'duration_arm_swing_segment_s': len(angle_array) / fs,
             'duration_gait_segment_s': gait_segment_duration_s,
             # DataColumns.SEGMENT_CAT: segment_cat
         }
+
+        if filtered:
+            segment_meta['per_arm_swing_segment'][segment_nr]['duration_arm_swing_segment_s'] = len(time_array) / fs
 
         if angle_array.size > 0:  
             angle_extrema_indices, _, _ = extract_angle_extremes(
