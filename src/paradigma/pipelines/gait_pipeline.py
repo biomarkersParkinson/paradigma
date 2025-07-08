@@ -351,19 +351,19 @@ def quantify_arm_swing(
     """
     # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap.
     # Segments are made based on predicted gait
-    df[DataColumns.SEGMENT_NR] = create_segments(
+    df['gait_segment_nr'] = create_segments(
         time_array=df[DataColumns.TIME], 
         max_segment_gap_s=max_segment_gap_s
     )
 
-    # Segment category is determined based on predicted gait, hence it is set
-    # before filtering the DataFrame to only include predicted no other arm activity
-    df[DataColumns.SEGMENT_CAT] = categorize_segments(df=df, fs=fs)
+    # Create dictionary of gait segment number and duration
+    gait_segment_duration_dict = {segment_nr: len(group[DataColumns.TIME]) / fs for segment_nr, group in df.groupby('gait_segment_nr', sort=False)}
+    # df[DataColumns.SEGMENT_CAT] = categorize_segments(df=df, fs=fs)
 
     # Remove segments that do not meet predetermined criteria
     df = discard_segments(
         df=df,
-        segment_nr_colname=DataColumns.SEGMENT_NR,
+        segment_nr_colname='gait_segment_nr',
         min_segment_length_s=min_segment_length_s,
         fs=fs,
         format='timestamps'
@@ -380,7 +380,7 @@ def quantify_arm_swing(
         df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True)
 
         # Group consecutive timestamps into segments of filtered gait
-        df[DataColumns.SEGMENT_NR] = create_segments(
+        df['arm_swing_segment_nr'] = create_segments(
             time_array=df[DataColumns.TIME], 
             max_segment_gap_s=max_segment_gap_s
         )
@@ -388,7 +388,7 @@ def quantify_arm_swing(
         # Remove segments that do not meet predetermined criteria
         df = discard_segments(
             df=df,
-            segment_nr_colname=DataColumns.SEGMENT_NR,
+            segment_nr_colname='arm_swing_segment_nr',
             min_segment_length_s=min_segment_length_s,
             fs=fs,
         )
@@ -403,7 +403,7 @@ def quantify_arm_swing(
                 'duration_s': len(df[DataColumns.TIME]) / fs
             },
         },
-        'per_segment': {}
+        'per_arm_swing_segment': {}
     }
 
     # PCA is fitted on only predicted gait without other arm activity if filtered, otherwise
@@ -415,8 +415,9 @@ def quantify_arm_swing(
     )
 
     # Group and process segments
-    for segment_nr, group in df.groupby(DataColumns.SEGMENT_NR, sort=False):
-        segment_cat = group[DataColumns.SEGMENT_CAT].iloc[0]
+    for segment_nr, group in df.groupby('arm_swing_segment_nr', sort=False):
+        # segment_cat = group[DataColumns.SEGMENT_CAT].iloc[0]
+        gait_segment_duration_s = gait_segment_duration_dict[group['gait_segment_nr'].iloc[0]]
         time_array = group[DataColumns.TIME].to_numpy()
         velocity_array = group[DataColumns.VELOCITY].to_numpy()
 
@@ -432,11 +433,12 @@ def quantify_arm_swing(
             fs=fs,
         )
 
-        segment_meta['per_segment'][segment_nr] = {
+        segment_meta['per_arm_swing_segment'][segment_nr] = {
             'start_time_s': time_array.min(),
             'end_time_s': time_array.max(),
-            'duration_s': len(angle_array) / fs,
-            DataColumns.SEGMENT_CAT: segment_cat
+            'duration_arm_swing_segment_s': len(angle_array) / fs,
+            'duration_gait_segment_s': gait_segment_duration_s,
+            # DataColumns.SEGMENT_CAT: segment_cat
         }
 
         if angle_array.size > 0:  
@@ -469,19 +471,12 @@ def quantify_arm_swing(
 
                 df_params_segment = pd.DataFrame({
                     DataColumns.SEGMENT_NR: segment_nr,
-                    DataColumns.SEGMENT_CAT: segment_cat,
+                    # DataColumns.SEGMENT_CAT: segment_cat,
                     DataColumns.RANGE_OF_MOTION: rom,
                     DataColumns.PEAK_VELOCITY: pav
                 })
 
                 arm_swing_quantified.append(df_params_segment)
-
-    # Combine segment categories
-    segment_categories = set([segment_meta['per_segment'][x][DataColumns.SEGMENT_CAT] for x in segment_meta['per_segment'].keys()])
-    for segment_cat in segment_categories:
-        segment_meta['aggregated'][segment_cat] = {
-            'duration_s': sum([segment_meta['per_segment'][x]['duration_s'] for x in segment_meta['per_segment'].keys() if segment_meta['per_segment'][x][DataColumns.SEGMENT_CAT] == segment_cat])
-        }
 
     arm_swing_quantified = pd.concat(arm_swing_quantified, ignore_index=True)
             
