@@ -356,8 +356,6 @@ def quantify_arm_swing(
         max_segment_gap_s=max_segment_gap_s
     )
 
-    # Create dictionary of gait segment number and duration
-    gait_segment_duration_dict = {segment_nr: len(group[DataColumns.TIME]) / fs for segment_nr, group in df.groupby('unfiltered_segment_nr', sort=False)}
     # df[DataColumns.SEGMENT_CAT] = categorize_segments(df=df, fs=fs)
 
     # Remove segments that do not meet predetermined criteria
@@ -371,6 +369,9 @@ def quantify_arm_swing(
 
     if df.empty:
         raise ValueError("No segments found in the input data after discarding segments of invalid shape.")
+    
+    # Create dictionary of gait segment number and duration
+    gait_segment_duration_dict = {segment_nr: len(group[DataColumns.TIME]) / fs for segment_nr, group in df.groupby('unfiltered_segment_nr', sort=False)}
     
     # If no arm swing data is remaining, return an empty dictionary
     if filtered and df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].empty:
