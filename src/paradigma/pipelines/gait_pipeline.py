@@ -447,7 +447,7 @@ def quantify_arm_swing(
             fs=fs,
         )
 
-        segment_meta[segment_nr] = {
+        segment_meta['per_segment'][segment_nr] = {
             'start_time_s': time_array.min(),
             'end_time_s': time_array.max(),
             'duration_unfiltered_segment_s': gait_segment_duration_s,
@@ -455,7 +455,7 @@ def quantify_arm_swing(
         }
 
         if filtered:
-            segment_meta[segment_nr]['duration_filtered_segment_s'] = len(time_array) / fs
+            segment_meta['per_segment'][segment_nr]['duration_filtered_segment_s'] = len(time_array) / fs
 
         if angle_array.size > 0:  
             angle_extrema_indices, _, _ = extract_angle_extremes(
