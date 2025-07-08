@@ -450,12 +450,12 @@ def quantify_arm_swing(
         segment_meta[segment_nr] = {
             'start_time_s': time_array.min(),
             'end_time_s': time_array.max(),
-            'duration_gait_segment_s': gait_segment_duration_s,
+            'duration_unfiltered_segment_s': gait_segment_duration_s,
             # DataColumns.SEGMENT_CAT: segment_cat
         }
 
         if filtered:
-            segment_meta[segment_nr]['duration_arm_swing_segment_s'] = len(time_array) / fs
+            segment_meta[segment_nr]['duration_filtered_segment_s'] = len(time_array) / fs
 
         if angle_array.size > 0:  
             angle_extrema_indices, _, _ = extract_angle_extremes(
@@ -529,22 +529,24 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
         segment_cat_str = f'{segment_cat_range[0]}_{segment_cat_range[1]}'
         cat_segments = [
             x for x in segment_meta.keys() 
-            if segment_meta[x]['duration_gait_segment_s'] >= segment_cat_range[0] 
-            and segment_meta[x]['duration_gait_segment_s'] < segment_cat_range[1]
+            if segment_meta[x]['duration_unfiltered_segment_s'] >= segment_cat_range[0] 
+            and segment_meta[x]['duration_unfiltered_segment_s'] < segment_cat_range[1]
         ]
 
-        if 'duration_arm_swing_segment_s' in segment_meta[cat_segments[0]]:
-            duration_col = 'duration_arm_swing_segment_s'
+        if 'duration_filtered_segment_s' in segment_meta[cat_segments[0]]:
+            duration_col = 'duration_filtered_segment_s'
             segment_nr_col = 'filtered_segment_nr'
         else:
-            duration_col = 'duration_gait_segment_s'
+            duration_col = 'duration_unfiltered_segment_s'
             segment_nr_col = 'unfiltered_segment_nr'
             
         aggregated_results[segment_cat_str] = {
             'duration_s': sum([segment_meta[x][duration_col] for x in cat_segments])
         }
 
-        df_arm_swing_params_cat = df_arm_swing_params[df_arm_swing_params[segment_nr_col].isin(cat_segments)]
+        print(df_arm_swing_params.columns)
+
+        df_arm_swing_params_cat = df_arm_swing_params.loc[df_arm_swing_params[segment_nr_col].isin(cat_segments)]
         
         # Aggregate across all segments
         aggregates_per_segment = ['median', 'mean']
