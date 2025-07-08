@@ -407,7 +407,7 @@ def quantify_arm_swing(
                 'duration_s': len(df[DataColumns.TIME]) / fs
             },
         },
-        'per_arm_swing_segment': {}
+        'per_segment': {}
     }
 
     # PCA is fitted on only predicted gait without other arm activity if filtered, otherwise
@@ -437,7 +437,7 @@ def quantify_arm_swing(
             fs=fs,
         )
 
-        segment_meta['per_arm_swing_segment'][segment_nr] = {
+        segment_meta['per_segment'][segment_nr] = {
             'start_time_s': time_array.min(),
             'end_time_s': time_array.max(),
             'duration_gait_segment_s': gait_segment_duration_s,
@@ -445,7 +445,7 @@ def quantify_arm_swing(
         }
 
         if filtered:
-            segment_meta['per_arm_swing_segment'][segment_nr]['duration_arm_swing_segment_s'] = len(time_array) / fs
+            segment_meta['per_segment'][segment_nr]['duration_arm_swing_segment_s'] = len(time_array) / fs
 
         if angle_array.size > 0:  
             angle_extrema_indices, _, _ = extract_angle_extremes(
@@ -523,7 +523,7 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
             'duration_s': sum([segment_meta[x]['duration_s'] for x in cat_segments])
         }
 
-        df_arm_swing_params_cat = df_arm_swing_params[df_arm_swing_params['arm_swing_segment_nr'].isin(cat_segments)]
+        df_arm_swing_params_cat = df_arm_swing_params[df_arm_swing_params[DataColums.SEGMENT_NR].isin(cat_segments)]
         
         # Aggregate across all segments
         aggregates_per_segment = ['median', 'mean']
@@ -540,7 +540,7 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
                         per_segment_std.append(aggregate_parameter(segment_df[arm_swing_parameter], 'std'))
 
                         for aggregate_segment in aggregates_per_segment:
-                            aggregated_results[segment_cat_str][f'{aggregate_segment}_of_std_{arm_swing_parameter}_per_arm_swing_segment'] = aggregate_parameter(per_segment_std, aggregate_segment)
+                            aggregated_results[segment_cat_str][f'{aggregate_segment}_of_std_{arm_swing_parameter}_per_segment'] = aggregate_parameter(per_segment_std, aggregate_segment)
 
     # aggregated_results['all_segment_categories'] = {
     #     'duration_s': sum([segment_meta[x]['duration_s'] for x in segment_meta.keys()])
