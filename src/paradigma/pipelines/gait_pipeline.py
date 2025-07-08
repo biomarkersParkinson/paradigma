@@ -529,11 +529,18 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
         segment_cat_str = f'{segment_cat_range[0]}_{segment_cat_range[1]}'
         cat_segments = [x for x in segment_meta.keys() if segment_meta[x]['gait_segment_duration_s'] >= segment_cat_range[0] and segment_meta[x]['gait_segment_duration_s'] < segment_cat_range[1]]
 
+        if 'duration_arm_swing_segment_s' in segment_meta[0]:
+            duration_col = 'duration_arm_swing_segment_s'
+            segment_nr_col = 'filtered_segment_nr'
+        else:
+            duration_col = 'duration_gait_segment_s'
+            segment_nr_col = 'unfiltered_segment_nr'
+            
         aggregated_results[segment_cat_str] = {
-            'duration_s': sum([segment_meta[x]['duration_s'] for x in cat_segments])
+            'duration_s': sum([segment_meta[x][duration_col] for x in cat_segments])
         }
 
-        df_arm_swing_params_cat = df_arm_swing_params[df_arm_swing_params[DataColumns.SEGMENT_NR].isin(cat_segments)]
+        df_arm_swing_params_cat = df_arm_swing_params[df_arm_swing_params[segment_nr_col].isin(cat_segments)]
         
         # Aggregate across all segments
         aggregates_per_segment = ['median', 'mean']
@@ -546,7 +553,7 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
                     per_segment_std = []
                     # If the aggregate is 'std', we also compute the standard deviation per segment
                     for segment_nr in cat_segments:
-                        segment_df = df_arm_swing_params_cat[df_arm_swing_params_cat['arm_swing_segment_nr'] == segment_nr]
+                        segment_df = df_arm_swing_params_cat[df_arm_swing_params_cat[segment_nr_col] == segment_nr]
                         per_segment_std.append(aggregate_parameter(segment_df[arm_swing_parameter], 'std'))
 
                         for aggregate_segment in aggregates_per_segment:
