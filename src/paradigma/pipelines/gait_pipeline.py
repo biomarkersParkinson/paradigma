@@ -351,19 +351,19 @@ def quantify_arm_swing(
     """
     # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap.
     # Segments are made based on predicted gait
-    df[DataColumns.SEGMENT_NR] = create_segments(
+    df['unfiltered_segment_nr'] = create_segments(
         time_array=df[DataColumns.TIME], 
         max_segment_gap_s=max_segment_gap_s
     )
 
     # Create dictionary of gait segment number and duration
-    gait_segment_duration_dict = {segment_nr: len(group[DataColumns.TIME]) / fs for segment_nr, group in df.groupby(DataColumns.SEGMENT_NR, sort=False)}
+    gait_segment_duration_dict = {segment_nr: len(group[DataColumns.TIME]) / fs for segment_nr, group in df.groupby('unfiltered_segment_nr', sort=False)}
     # df[DataColumns.SEGMENT_CAT] = categorize_segments(df=df, fs=fs)
 
     # Remove segments that do not meet predetermined criteria
     df = discard_segments(
         df=df,
-        segment_nr_colname=DataColumns.SEGMENT_NR,
+        segment_nr_colname='unfiltered_segment_nr',
         min_segment_length_s=min_segment_length_s,
         fs=fs,
         format='timestamps'
@@ -380,7 +380,7 @@ def quantify_arm_swing(
         df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True)
 
         # Group consecutive timestamps into segments of filtered gait
-        df['arm_swing_segment_nr'] = create_segments(
+        df['filtered_segment_nr'] = create_segments(
             time_array=df[DataColumns.TIME], 
             max_segment_gap_s=max_segment_gap_s
         )
@@ -388,7 +388,7 @@ def quantify_arm_swing(
         # Remove segments that do not meet predetermined criteria
         df = discard_segments(
             df=df,
-            segment_nr_colname='arm_swing_segment_nr',
+            segment_nr_colname='filtered_segment_nr',
             min_segment_length_s=min_segment_length_s,
             fs=fs,
         )
@@ -396,9 +396,7 @@ def quantify_arm_swing(
         if df.empty:
             raise ValueError("No filtered gait segments found in the input data after discarding segments of invalid shape.")
         
-        grouping_colname = 'arm_swing_segment_nr'
-    else:
-        grouping_colname = DataColumns.SEGMENT_NR
+    grouping_colname = 'filtered_segment_nr' if filtered else 'unfiltered_segment_nr'
 
     arm_swing_quantified = []
     segment_meta = {
@@ -421,7 +419,7 @@ def quantify_arm_swing(
     # Group and process segments
     for segment_nr, group in df.groupby(grouping_colname, sort=False):
         if filtered:
-            gait_segment_nr = group[DataColumns.SEGMENT_NR].iloc[0]
+            gait_segment_nr = group['unfiltered_segment_nr'].iloc[0]  # Each filtered segment is contained within an unfiltered segment
         else:
             gait_segment_nr = segment_nr
 
