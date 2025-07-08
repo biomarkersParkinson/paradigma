@@ -533,37 +533,43 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
             and segment_meta[x]['duration_unfiltered_segment_s'] < segment_cat_range[1]
         ]
 
-        if 'duration_filtered_segment_s' in segment_meta[cat_segments[0]]:
-            duration_col = 'duration_filtered_segment_s'
-            segment_nr_col = 'filtered_segment_nr'
-        else:
-            duration_col = 'duration_unfiltered_segment_s'
-            segment_nr_col = 'unfiltered_segment_nr'
+        if len(cat_segments) > 0:
+
+            if 'duration_filtered_segment_s' in segment_meta[cat_segments[0]]:
+                duration_col = 'duration_filtered_segment_s'
+                segment_nr_col = 'filtered_segment_nr'
+            else:
+                duration_col = 'duration_unfiltered_segment_s'
+                segment_nr_col = 'unfiltered_segment_nr'
+                
+            aggregated_results[segment_cat_str] = {
+                'duration_s': sum([segment_meta[x][duration_col] for x in cat_segments])
+            }
+
+            df_arm_swing_params_cat = df_arm_swing_params.loc[df_arm_swing_params[segment_nr_col].isin(cat_segments)]
             
-        aggregated_results[segment_cat_str] = {
-            'duration_s': sum([segment_meta[x][duration_col] for x in cat_segments])
-        }
+            # Aggregate across all segments
+            aggregates_per_segment = ['median', 'mean']
 
-        print(df_arm_swing_params.columns)
+            for arm_swing_parameter in arm_swing_parameters:
+                for aggregate in aggregates:
+                    aggregated_results[segment_cat_str][f'{aggregate}_{arm_swing_parameter}'] = aggregate_parameter(df_arm_swing_params_cat[arm_swing_parameter], aggregate)
 
-        df_arm_swing_params_cat = df_arm_swing_params.loc[df_arm_swing_params[segment_nr_col].isin(cat_segments)]
-        
-        # Aggregate across all segments
-        aggregates_per_segment = ['median', 'mean']
+                    if aggregate == 'std':
+                        per_segment_std = []
+                        # If the aggregate is 'std', we also compute the standard deviation per segment
+                        for segment_nr in cat_segments:
+                            segment_df = df_arm_swing_params_cat[df_arm_swing_params_cat[segment_nr_col] == segment_nr]
+                            per_segment_std.append(aggregate_parameter(segment_df[arm_swing_parameter], 'std'))
 
-        for arm_swing_parameter in arm_swing_parameters:
-            for aggregate in aggregates:
-                aggregated_results[segment_cat_str][f'{aggregate}_{arm_swing_parameter}'] = aggregate_parameter(df_arm_swing_params_cat[arm_swing_parameter], aggregate)
+                            for aggregate_segment in aggregates_per_segment:
+                                aggregated_results[segment_cat_str][f'{aggregate_segment}_of_std_{arm_swing_parameter}_per_segment'] = aggregate_parameter(per_segment_std, aggregate_segment)
 
-                if aggregate == 'std':
-                    per_segment_std = []
-                    # If the aggregate is 'std', we also compute the standard deviation per segment
-                    for segment_nr in cat_segments:
-                        segment_df = df_arm_swing_params_cat[df_arm_swing_params_cat[segment_nr_col] == segment_nr]
-                        per_segment_std.append(aggregate_parameter(segment_df[arm_swing_parameter], 'std'))
-
-                        for aggregate_segment in aggregates_per_segment:
-                            aggregated_results[segment_cat_str][f'{aggregate_segment}_of_std_{arm_swing_parameter}_per_segment'] = aggregate_parameter(per_segment_std, aggregate_segment)
+        else:
+            # If no segments are found for this category, initialize with NaN
+            aggregated_results[segment_cat_str] = {
+                'duration_s': 0,
+            }
 
     # aggregated_results['all_segment_categories'] = {
     #     'duration_s': sum([segment_meta[x]['duration_s'] for x in segment_meta.keys()])
