@@ -447,7 +447,7 @@ def quantify_arm_swing(
             fs=fs,
         )
 
-        segment_meta['per_segment'][segment_nr] = {
+        segment_meta[segment_nr] = {
             'start_time_s': time_array.min(),
             'end_time_s': time_array.max(),
             'duration_gait_segment_s': gait_segment_duration_s,
@@ -455,7 +455,7 @@ def quantify_arm_swing(
         }
 
         if filtered:
-            segment_meta['per_segment'][segment_nr]['duration_arm_swing_segment_s'] = len(time_array) / fs
+            segment_meta[segment_nr]['duration_arm_swing_segment_s'] = len(time_array) / fs
 
         if angle_array.size > 0:  
             angle_extrema_indices, _, _ = extract_angle_extremes(
@@ -527,9 +527,13 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
     aggregated_results = {}
     for segment_cat_range in segment_cats:
         segment_cat_str = f'{segment_cat_range[0]}_{segment_cat_range[1]}'
-        cat_segments = [x for x in segment_meta.keys() if segment_meta[x]['gait_segment_duration_s'] >= segment_cat_range[0] and segment_meta[x]['gait_segment_duration_s'] < segment_cat_range[1]]
+        cat_segments = [
+            x for x in segment_meta.keys() 
+            if segment_meta[x]['duration_gait_segment_s'] >= segment_cat_range[0] 
+            and segment_meta[x]['duration_gait_segment_s'] < segment_cat_range[1]
+        ]
 
-        if 'duration_arm_swing_segment_s' in segment_meta[0]:
+        if 'duration_arm_swing_segment_s' in segment_meta[cat_segments[0]]:
             duration_col = 'duration_arm_swing_segment_s'
             segment_nr_col = 'filtered_segment_nr'
         else:
