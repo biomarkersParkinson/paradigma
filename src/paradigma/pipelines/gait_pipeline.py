@@ -551,34 +551,26 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
 
             for arm_swing_parameter in arm_swing_parameters:
                 for aggregate in aggregates:
-                    aggregated_results[segment_cat_str][f'{aggregate}_{arm_swing_parameter}'] = aggregate_parameter(df_arm_swing_params_cat[arm_swing_parameter], aggregate)
-
                     if aggregate == 'cov':
                         per_segment_cov = []
-                        # If the aggregate is 'std', we also compute the standard deviation per segment
+                        # If the aggregate is 'cov' (coefficient of variation), we also compute the mean and standard deviation per segment
                         for segment_nr in cat_segments:
                             segment_df = df_arm_swing_params_cat[df_arm_swing_params_cat[DataColumns.SEGMENT_NR] == segment_nr]
                             per_segment_cov.append(aggregate_parameter(segment_df[arm_swing_parameter], 'cov'))
 
-                            # drop nans
+                            # Drop nans
                             per_segment_cov = [x for x in per_segment_cov if not np.isnan(x)]
 
                             for aggregate_segment in aggregates_per_segment:
-                                aggregated_results[segment_cat_str][f'{aggregate_segment}_of_cov_{arm_swing_parameter}_per_segment'] = aggregate_parameter(per_segment_cov, aggregate_segment)
+                                aggregated_results[segment_cat_str][f'{aggregate_segment}_cov_{arm_swing_parameter}'] = aggregate_parameter(per_segment_cov, aggregate_segment)
+                    else:
+                        aggregated_results[segment_cat_str][f'{aggregate}_{arm_swing_parameter}'] = aggregate_parameter(df_arm_swing_params_cat[arm_swing_parameter], aggregate)
 
         else:
             # If no segments are found for this category, initialize with NaN
             aggregated_results[segment_cat_str] = {
                 'duration_s': 0,
             }
-
-    # aggregated_results['all_segment_categories'] = {
-    #     'duration_s': sum([segment_meta[x]['duration_s'] for x in segment_meta.keys()])
-    # }
-
-    # for arm_swing_parameter in arm_swing_parameters:
-    #     for aggregate in aggregates:
-    #         aggregated_results['all_segment_categories'][f'{aggregate}_{arm_swing_parameter}'] = aggregate_parameter(df_arm_swing_params[arm_swing_parameter], aggregate)
 
     return aggregated_results
 
