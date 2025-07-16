@@ -553,18 +553,18 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
                 for aggregate in aggregates:
                     aggregated_results[segment_cat_str][f'{aggregate}_{arm_swing_parameter}'] = aggregate_parameter(df_arm_swing_params_cat[arm_swing_parameter], aggregate)
 
-                    if aggregate == 'std':
-                        per_segment_std = []
+                    if aggregate == 'cov':
+                        per_segment_cov = []
                         # If the aggregate is 'std', we also compute the standard deviation per segment
                         for segment_nr in cat_segments:
                             segment_df = df_arm_swing_params_cat[df_arm_swing_params_cat[DataColumns.SEGMENT_NR] == segment_nr]
-                            per_segment_std.append(aggregate_parameter(segment_df[arm_swing_parameter], 'std'))
+                            per_segment_cov.append(aggregate_parameter(segment_df[arm_swing_parameter], 'cov'))
 
                             # drop nans
-                            per_segment_std = [x for x in per_segment_std if not np.isnan(x)]
+                            per_segment_cov = [x for x in per_segment_cov if not np.isnan(x)]
 
                             for aggregate_segment in aggregates_per_segment:
-                                aggregated_results[segment_cat_str][f'{aggregate_segment}_of_std_{arm_swing_parameter}_per_segment'] = aggregate_parameter(per_segment_std, aggregate_segment)
+                                aggregated_results[segment_cat_str][f'{aggregate_segment}_of_cov_{arm_swing_parameter}_per_segment'] = aggregate_parameter(per_segment_cov, aggregate_segment)
 
         else:
             # If no segments are found for this category, initialize with NaN

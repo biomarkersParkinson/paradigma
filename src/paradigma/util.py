@@ -346,8 +346,8 @@ def aggregate_parameter(parameter: np.ndarray, aggregate: str) -> np.ndarray:
         return np.percentile(parameter, 95)
     elif aggregate == '99p':
         return np.percentile(parameter, 99)
-    elif aggregate == 'std':
-        return np.std(parameter)
+    elif aggregate == 'cov':
+        return np.std(parameter) / np.mean(parameter) if np.mean(parameter) != 0 else 0
     else:
         raise ValueError(f"Invalid aggregation method: {aggregate}")
 
