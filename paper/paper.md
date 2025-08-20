@@ -108,4 +108,7 @@ To facilitate standardization and reproducibility, ParaDigMa includes optional f
 
 Driven by the need for more sensitive biomarkers of therapeutical efficacy and disease progression, the use of wearable sensors in the context of clinical trials is rapidly increasing [@masanneckEvidenceClinicalTrialsgovGrowth2023], providing numerous opportunities for the application of ParaDigMa. Currently, ParaDigMa is being used in multiple clinical trials to derive exploratory endpoints, including the Slow-SPEED trial [@radbouduniversitymedicalcenterSlowSPEEDNLSlowingParkinsons2025], which evaluates the effects of an exercise intervention, and the Orchestra trial, which investigates the effects of an alpha-synuclein misfolding inhibitor on PD progression [@ucbbiopharmasrlDoubleBlindPlaceboControlledRandomized2024]. In addition, ParaDigMa is being applied in large cohort studies to better understand the heterogeneity of PD progression, including the PPP [@bloemPersonalizedParkinsonProject2019a] and Parkinson’s Progression Markers Initiative (PPMI) [@marekParkinsonProgressionMarker2011a] cohort studies.
 
+# Acknowledgements
+The initial release of ParaDigMa was funded by the Michael J Fox Foundation (grant #020425) and the Dutch Research Council (grant #ASDI.2020.060 & grant #2023.010).
+
 # References
