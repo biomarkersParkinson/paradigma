@@ -7,14 +7,14 @@ import tsdf
 from typing import List
 
 from paradigma.classification import ClassifierPackage
-from paradigma.config import IMUConfig, PPGConfig, GaitConfig, TremorConfig, HeartRateConfig
+from paradigma.config import IMUConfig, PPGConfig, GaitConfig, TremorConfig, PulseRateConfig
 from paradigma.constants import DataColumns, TimeUnit
 from paradigma.pipelines.gait_pipeline import extract_gait_features, detect_gait, \
     extract_arm_activity_features, filter_gait
 from paradigma.pipelines.tremor_pipeline import extract_tremor_features, detect_tremor, \
     aggregate_tremor
-from paradigma.pipelines.heart_rate_pipeline import extract_signal_quality_features, signal_quality_classification, \
-    aggregate_heart_rate
+from paradigma.pipelines.pulse_rate_pipeline import extract_signal_quality_features, signal_quality_classification, \
+    aggregate_pulse_rate
 from paradigma.preprocessing import preprocess_imu_data, preprocess_ppg_data
 from paradigma.util import read_metadata, write_df_data, get_end_iso8601, merge_predictions_with_timestamps
 
@@ -353,7 +353,7 @@ def aggregate_tremor_io(path_to_feature_input: str | Path, path_to_prediction_in
         json.dump(d_aggregates, json_file, indent=4)
 
 
-def extract_signal_quality_features_io(input_path: str | Path, output_path: str | Path, ppg_config: HeartRateConfig, acc_config: HeartRateConfig) -> pd.DataFrame:
+def extract_signal_quality_features_io(input_path: str | Path, output_path: str | Path, ppg_config: PulseRateConfig, acc_config: PulseRateConfig) -> pd.DataFrame:
     """
     Extract signal quality features from the PPG signal and save them to a file.
 
@@ -363,9 +363,9 @@ def extract_signal_quality_features_io(input_path: str | Path, output_path: str 
         The path to the directory containing the preprocessed PPG and accelerometer data.
     output_path : str | Path
         The path to the directory where the extracted features will be saved.
-    ppg_config: HeartRateConfig
+    ppg_config: PulseRateConfig
         The configuration for the signal quality feature extraction of the ppg signal.
-    acc_config: HeartRateConfig
+    acc_config: PulseRateConfig
         The configuration for the signal quality feature extraction of the accelerometer signal.
 
     Returns
@@ -390,7 +390,7 @@ def extract_signal_quality_features_io(input_path: str | Path, output_path: str 
     return df_windowed
 
 
-def signal_quality_classification_io(input_path: str | Path, output_path: str | Path, path_to_classifier_input: str | Path, config: HeartRateConfig) -> None:
+def signal_quality_classification_io(input_path: str | Path, output_path: str | Path, path_to_classifier_input: str | Path, config: PulseRateConfig) -> None:
     
     # Load the data
     metadata_time, metadata_values = read_metadata(input_path, config.meta_filename, config.time_filename, config.values_filename)
@@ -399,32 +399,32 @@ def signal_quality_classification_io(input_path: str | Path, output_path: str | 
     df_sqa = signal_quality_classification(df_windowed, config, path_to_classifier_input)
 
 
-def aggregate_heart_rate_io(
+def aggregate_pulse_rate_io(
         full_path_to_input: str | Path, 
         full_path_to_output: str | Path, 
         aggregates: List[str] = ['mode', '99p']
     ) -> None:
     """
-    Extract heart rate from the PPG signal and save the aggregated heart rate estimates to a file.
+    Extract pulse rate from the PPG signal and save the aggregated pulse rate estimates to a file.
 
     Parameters
     ----------
     input_path : str | Path
-        The path to the directory containing the heart rate estimates.
+        The path to the directory containing the pulse rate estimates.
     output_path : str | Path
-        The path to the directory where the aggregated heart rate estimates will be saved.
+        The path to the directory where the aggregated pulse rate estimates will be saved.
     aggregates : List[str]
-        The list of aggregation methods to be used for the heart rate estimates. The default is ['mode', '99p'].
+        The list of aggregation methods to be used for the pulse rate estimates. The default is ['mode', '99p'].
     """
 
-    # Load the heart rate estimates
+    # Load the pulse rate estimates
     with open(full_path_to_input, 'r') as f:
-        df_hr = json.load(f)
+        df_pr = json.load(f)
     
-    # Aggregate the heart rate estimates
-    hr_values = df_hr['heart_rate'].values
-    df_hr_aggregates = aggregate_heart_rate(hr_values, aggregates)
+    # Aggregate the pulse rate estimates
+    pr_values = df_pr['pulse_rate'].values
+    df_pr_aggregates = aggregate_pulse_rate(pr_values, aggregates)
 
-    # Save the aggregated heart rate estimates
+    # Save the aggregated pulse rate estimates
     with open(full_path_to_output, 'w') as json_file:
-        json.dump(df_hr_aggregates, json_file, indent=4)
+        json.dump(df_pr_aggregates, json_file, indent=4)

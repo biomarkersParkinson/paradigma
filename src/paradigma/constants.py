@@ -58,8 +58,8 @@ class DataColumns():
     PRED_SQA_ACC_LABEL: str = "pred_sqa_acc_label"
     PRED_SQA: str = "pred_sqa"
 
-    # Constants for heart rate
-    HEART_RATE: str = "heart_rate"
+    # Constants for pulse rate
+    PULSE_RATE: str = "pulse_rate"
     
 @dataclass(frozen=True)
 class DataUnits():

@@ -10,14 +10,14 @@ from typing import List
 
 from paradigma.classification import ClassifierPackage
 from paradigma.constants import DataColumns
-from paradigma.config import HeartRateConfig
+from paradigma.config import PulseRateConfig
 from paradigma.feature_extraction import compute_statistics, compute_signal_to_noise_ratio, compute_auto_correlation, \
     compute_dominant_frequency, compute_relative_power, compute_spectral_entropy
-from paradigma.pipelines.heart_rate_utils import assign_sqa_label, extract_hr_segments, extract_hr_from_segment
+from paradigma.pipelines.pulse_rate_utils import assign_sqa_label, extract_pr_segments, extract_pr_from_segment
 from paradigma.segmenting import tabulate_windows, WindowedDataExtractor
-from paradigma.util import read_metadata, aggregate_parameter
+from paradigma.util import aggregate_parameter
 
-def extract_signal_quality_features(df_ppg: pd.DataFrame, df_acc: pd.DataFrame, ppg_config: HeartRateConfig, acc_config: HeartRateConfig) -> pd.DataFrame:
+def extract_signal_quality_features(df_ppg: pd.DataFrame, df_acc: pd.DataFrame, ppg_config: PulseRateConfig, acc_config: PulseRateConfig) -> pd.DataFrame:
     """	
     Extract signal quality features from the PPG signal.
     The features are extracted from the temporal and spectral domain of the PPG signal.
@@ -30,9 +30,9 @@ def extract_signal_quality_features(df_ppg: pd.DataFrame, df_acc: pd.DataFrame, 
         The DataFrame containing the PPG signal.
     df_acc : pd.DataFrame
         The DataFrame containing the accelerometer signal.
-    ppg_config: HeartRateConfig
+    ppg_config: PulseRateConfig
         The configuration for the signal quality feature extraction of the PPG signal.
-    acc_config: HeartRateConfig
+    acc_config: PulseRateConfig
         The configuration for the signal quality feature extraction of the accelerometer signal.
 
     Returns
@@ -94,7 +94,7 @@ def extract_signal_quality_features(df_ppg: pd.DataFrame, df_acc: pd.DataFrame, 
     return df_features
 
 
-def signal_quality_classification(df: pd.DataFrame, config: HeartRateConfig, full_path_to_classifier_package: str | Path) -> pd.DataFrame:
+def signal_quality_classification(df: pd.DataFrame, config: PulseRateConfig, full_path_to_classifier_package: str | Path) -> pd.DataFrame:
     """
     Classify the signal quality of the PPG signal using a logistic regression classifier. A probability close to 1 indicates a high-quality signal, while a probability close to 0 indicates a low-quality signal.
     The classifier is trained on features extracted from the PPG signal. The features are extracted using the extract_signal_quality_features function.
@@ -105,7 +105,7 @@ def signal_quality_classification(df: pd.DataFrame, config: HeartRateConfig, ful
     ----------
     df : pd.DataFrame
         The DataFrame containing the PPG features and the accelerometer feature for signal quality classification.
-    config : HeartRateConfig
+    config : PulseRateConfig
         The configuration for the signal quality classification.
     full_path_to_classifier_package : str | Path
         The path to the directory containing the classifier.
@@ -128,9 +128,9 @@ def signal_quality_classification(df: pd.DataFrame, config: HeartRateConfig, ful
     return df[[DataColumns.TIME, DataColumns.PRED_SQA_PROBA, DataColumns.PRED_SQA_ACC_LABEL]]  # Return only the relevant columns, namely the predicted probabilities for the PPG signal quality and the accelerometer label
 
 
-def estimate_heart_rate(df_sqa: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame, config: HeartRateConfig) -> pd.DataFrame:  
+def estimate_pulse_rate(df_sqa: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame, config: PulseRateConfig) -> pd.DataFrame:  
     """
-    Estimate the heart rate from the PPG signal using the time-frequency domain method.
+    Estimate the pulse rate from the PPG signal using the time-frequency domain method.
 
     Parameters
     ----------
@@ -138,13 +138,13 @@ def estimate_heart_rate(df_sqa: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame,
         The DataFrame containing the signal quality assessment predictions.
     df_ppg_preprocessed : pd.DataFrame
         The DataFrame containing the preprocessed PPG signal.
-    config : HeartRateConfig
-        The configuration for the heart rate estimation.
+    config : PulseRateConfig
+        The configuration for the pulse rate estimation.
 
     Returns
     -------
-    df_hr : pd.DataFrame
-        The DataFrame containing the heart rate estimations.
+    df_pr : pd.DataFrame
+        The DataFrame containing the pulse rate estimations.
     """
 
     # Extract NumPy arrays for faster operations
@@ -156,13 +156,13 @@ def estimate_heart_rate(df_sqa: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame,
     
     # Assign window-level probabilities to individual samples
     sqa_label = assign_sqa_label(ppg_post_prob, config, acc_label) # assigns a signal quality label to every individual data point
-    v_start_idx, v_end_idx = extract_hr_segments(sqa_label, config.min_hr_samples) # extracts heart rate segments based on the SQA label
+    v_start_idx, v_end_idx = extract_pr_segments(sqa_label, config.min_pr_samples) # extracts pulse rate segments based on the SQA label
     
-    v_hr_rel = np.array([])
-    t_hr_rel = np.array([])
+    v_pr_rel = np.array([])
+    t_pr_rel = np.array([])
 
-    edge_add = 2 * config.sampling_frequency  # Add 2s on both sides of the segment for HR estimation
-    step_size = config.hr_est_samples  # Step size for HR estimation
+    edge_add = 2 * config.sampling_frequency  # Add 2s on both sides of the segment for PR estimation
+    step_size = config.pr_est_samples  # Step size for PR estimation
 
     # Estimate the maximum size for preallocation
     valid_segments = (v_start_idx >= edge_add) & (v_end_idx <= len(ppg_preprocessed) - edge_add) # check if the segments are valid, e.g. not too close to the edges (2s)
@@ -171,55 +171,55 @@ def estimate_heart_rate(df_sqa: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame,
     max_size = np.sum((valid_end_idx - valid_start_idx) // step_size) # maximum size for preallocation
   
     # Preallocate arrays
-    v_hr_rel = np.empty(max_size, dtype=float) 
-    t_hr_rel = np.empty(max_size, dtype=float)  
+    v_pr_rel = np.empty(max_size, dtype=float) 
+    t_pr_rel = np.empty(max_size, dtype=float)  
 
     # Track current position
-    hr_pos = 0
+    pr_pos = 0
 
     for start_idx, end_idx in zip(valid_start_idx, valid_end_idx):
         # Extract extended PPG segment
         extended_ppg_segment = ppg_preprocessed[start_idx - edge_add : end_idx + edge_add, ppg_idx]
 
-        # Estimate heart rate
-        hr_est = extract_hr_from_segment(
+        # Estimate pulse rate
+        pr_est = extract_pr_from_segment(
             extended_ppg_segment,
             config.tfd_length,
             config.sampling_frequency,
             config.kern_type,
             config.kern_params,
         )
-        n_hr = len(hr_est)  # Number of heart rate estimates
-        end_idx_time = n_hr * step_size + start_idx  # Calculate end index for time, different from end_idx since it is always a multiple of step_size, while end_idx is not
+        n_pr = len(pr_est)  # Number of pulse rate estimates
+        end_idx_time = n_pr * step_size + start_idx  # Calculate end index for time, different from end_idx since it is always a multiple of step_size, while end_idx is not
 
-        # Extract relative time for HR estimates
-        hr_time = ppg_preprocessed[start_idx : end_idx_time : step_size, time_idx]
+        # Extract relative time for PR estimates
+        pr_time = ppg_preprocessed[start_idx : end_idx_time : step_size, time_idx]
 
         # Insert into preallocated arrays
-        v_hr_rel[hr_pos:hr_pos + n_hr] = hr_est
-        t_hr_rel[hr_pos:hr_pos + n_hr] = hr_time
-        hr_pos += n_hr
+        v_pr_rel[pr_pos:pr_pos + n_pr] = pr_est
+        t_pr_rel[pr_pos:pr_pos + n_pr] = pr_time
+        pr_pos += n_pr
 
-    df_hr = pd.DataFrame({"time": t_hr_rel, "heart_rate": v_hr_rel})
+    df_pr = pd.DataFrame({"time": t_pr_rel, "pulse_rate": v_pr_rel})
 
-    return df_hr
+    return df_pr
 
 
-def aggregate_heart_rate(hr_values: np.ndarray, aggregates: List[str] = ['mode', '99p']) -> dict:
+def aggregate_pulse_rate(pr_values: np.ndarray, aggregates: List[str] = ['mode', '99p']) -> dict:
     """
-    Aggregate the heart rate estimates using the specified aggregation methods.
+    Aggregate the pulse rate estimates using the specified aggregation methods.
 
     Parameters
     ----------
-    hr_values : np.ndarray
-        The array containing the heart rate estimates
+    pr_values : np.ndarray
+        The array containing the pulse rate estimates
     aggregates : List[str]
-        The list of aggregation methods to be used for the heart rate estimates. The default is ['mode', '99p'].
+        The list of aggregation methods to be used for the pulse rate estimates. The default is ['mode', '99p'].
 
     Returns
     -------
     aggregated_results : dict
-        The dictionary containing the aggregated results of the heart rate estimates.
+        The dictionary containing the aggregated results of the pulse rate estimates.
     """
     # Initialize the dictionary for the aggregated results
     aggregated_results = {}
@@ -227,19 +227,19 @@ def aggregate_heart_rate(hr_values: np.ndarray, aggregates: List[str] = ['mode',
     # Initialize the dictionary for the aggregated results with the metadata
     aggregated_results = {
     'metadata': {
-        'nr_hr_est': len(hr_values)
+        'nr_pr_est': len(pr_values)
     },
-    'hr_aggregates': {}
+    'pr_aggregates': {}
 }
     for aggregate in aggregates:
-        aggregated_results['hr_aggregates'][f'{aggregate}_{DataColumns.HEART_RATE}'] = aggregate_parameter(hr_values, aggregate)
+        aggregated_results['pr_aggregates'][f'{aggregate}_{DataColumns.PULSE_RATE}'] = aggregate_parameter(pr_values, aggregate)
 
     return aggregated_results
 
 
 def extract_temporal_domain_features(
         ppg_windowed: np.ndarray, 
-        config: HeartRateConfig, 
+        config: PulseRateConfig, 
         quality_stats: List[str] = ['mean', 'std']
     ) -> pd.DataFrame:
     """
@@ -250,7 +250,7 @@ def extract_temporal_domain_features(
     ppg_windowed: np.ndarray
         The dataframe containing the windowed accelerometer signal
 
-    config: HeartRateConfig
+    config: PulseRateConfig
         The configuration object containing the parameters for the feature extraction
 
     quality_stats: list, optional
@@ -273,7 +273,7 @@ def extract_temporal_domain_features(
 
 def extract_spectral_domain_features(
         ppg_windowed: np.ndarray,
-        config: HeartRateConfig, 
+        config: PulseRateConfig, 
     ) -> pd.DataFrame:
     """
     Calculate the spectral features (dominant frequency, relative power, and spectral entropy)
@@ -285,7 +285,7 @@ def extract_spectral_domain_features(
     ppg_windowed: np.ndarray
         The dataframe containing the windowed ppg signal
 
-    config: HeartRateConfig
+    config: PulseRateConfig
         The configuration object containing the parameters for the feature extraction
 
     Returns
@@ -371,7 +371,7 @@ def extract_acc_power_feature(
 def extract_accelerometer_feature(
         acc_windowed: np.ndarray, 
         ppg_windowed: np.ndarray,
-        config: HeartRateConfig
+        config: PulseRateConfig
     ) -> pd.DataFrame:
     """
     Extract accelerometer features from the accelerometer signal in the PPG frequency range.
@@ -384,7 +384,7 @@ def extract_accelerometer_feature(
     ppg_windowed: np.ndarray
         The dataframe containing the corresponding windowed ppg signal
     
-    config: HeartRateConfig
+    config: PulseRateConfig
         The configuration object containing the parameters for the feature extraction
 
     Returns
