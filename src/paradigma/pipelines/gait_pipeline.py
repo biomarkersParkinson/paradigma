@@ -424,7 +424,6 @@ def quantify_arm_swing(
         else:
             gait_segment_nr = segment_nr
 
-        # segment_cat = group[DataColumns.SEGMENT_CAT].iloc[0]
         try:
             gait_segment_duration_s = gait_segment_duration_dict[gait_segment_nr]
         except:
@@ -451,7 +450,6 @@ def quantify_arm_swing(
             'start_time_s': time_array.min(),
             'end_time_s': time_array.max(),
             'duration_unfiltered_segment_s': gait_segment_duration_s,
-            # DataColumns.SEGMENT_CAT: segment_cat
         }
 
         if filtered:
@@ -487,7 +485,6 @@ def quantify_arm_swing(
 
                 df_params_segment = pd.DataFrame({
                     DataColumns.SEGMENT_NR: segment_nr,
-                    # DataColumns.SEGMENT_CAT: segment_cat,
                     DataColumns.RANGE_OF_MOTION: rom,
                     DataColumns.PEAK_VELOCITY: pav
                 })
