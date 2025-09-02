@@ -349,7 +349,8 @@ def aggregate_parameter(parameter: np.ndarray, aggregate: str) -> np.ndarray | i
     elif aggregate == 'std':
         return np.std(parameter)
     elif aggregate == 'cov':
-        return np.std(parameter) / np.mean(parameter) if np.mean(parameter) != 0 else 0
+        mean_value = np.mean(parameter)
+        return np.std(parameter) / mean_value if mean_value != 0 else 0
     else:
         raise ValueError(f"Invalid aggregation method: {aggregate}")
 

@@ -1,3 +1,4 @@
+import logging
 import numpy as np
 import pandas as pd
 from scipy.signal import periodogram
@@ -10,9 +11,15 @@ from paradigma.feature_extraction import pca_transform_gyroscope, compute_angle,
     extract_angle_extremes, compute_range_of_motion, compute_peak_angular_velocity, compute_statistics, \
     compute_std_euclidean_norm, compute_power_in_bandwidth, compute_dominant_frequency, compute_mfccs, \
     compute_total_power
-from paradigma.segmenting import tabulate_windows, create_segments, discard_segments, categorize_segments, WindowedDataExtractor
+from paradigma.segmenting import tabulate_windows, create_segments, discard_segments, WindowedDataExtractor
 from paradigma.util import aggregate_parameter
 
+
+logger = logging.getLogger(__name__)
+
+# Only configure basic logging if no handlers exist
+if not logger.hasHandlers():
+    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
 def extract_gait_features(
         df: pd.DataFrame,
@@ -427,8 +434,11 @@ def quantify_arm_swing(
         try:
             gait_segment_duration_s = gait_segment_duration_dict[gait_segment_nr]
         except KeyError:
-            print(f"Warning: Segment {gait_segment_nr} (filtered = {filtered}) not found in gait segment duration dictionary. Skipping this segment.")
-            print("Available segments:", gait_segment_duration_dict.keys())
+            logging.warning(
+                "Segment %s (filtered = %s) not found in gait segment duration dictionary. Skipping this segment.",
+                gait_segment_nr, filtered
+            )
+            logging.debug("Available segments: %s", list(gait_segment_duration_dict.keys()))
             continue
 
         time_array = group[DataColumns.TIME].to_numpy()
@@ -496,7 +506,7 @@ def quantify_arm_swing(
     return arm_swing_quantified, segment_meta
 
 
-def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: dict, segment_cats: List[tuple], aggregates: List[str] = ['median', 'std']) -> dict:
+def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: dict, segment_cats: List[tuple], aggregates: List[str] = ['median']) -> dict:
     """
     Aggregate the quantification results for arm swing parameters.
     
