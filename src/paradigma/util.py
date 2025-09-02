@@ -316,7 +316,7 @@ def invert_watch_side(df: pd.DataFrame, side: str, sensor='both') -> np.ndarray:
 
     return df
 
-def aggregate_parameter(parameter: np.ndarray, aggregate: str) -> np.ndarray:
+def aggregate_parameter(parameter: np.ndarray, aggregate: str) -> np.ndarray | int:
     """
     Aggregate a parameter based on the specified method.
     

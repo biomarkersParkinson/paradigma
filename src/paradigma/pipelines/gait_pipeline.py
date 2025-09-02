@@ -426,7 +426,7 @@ def quantify_arm_swing(
 
         try:
             gait_segment_duration_s = gait_segment_duration_dict[gait_segment_nr]
-        except:
+        except KeyError:
             print(f"Warning: Segment {gait_segment_nr} (filtered = {filtered}) not found in gait segment duration dictionary. Skipping this segment.")
             print("Available segments:", gait_segment_duration_dict.keys())
             continue
@@ -496,7 +496,7 @@ def quantify_arm_swing(
     return arm_swing_quantified, segment_meta
 
 
-def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: dict, segment_cats : List[tuple], aggregates: List[str] = ['median', 'std']) -> dict:
+def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: dict, segment_cats: List[tuple], aggregates: List[str] = ['median', 'std']) -> dict:
     """
     Aggregate the quantification results for arm swing parameters.
     
