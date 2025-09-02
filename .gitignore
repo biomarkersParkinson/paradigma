@@ -92,7 +92,6 @@ ipython_config.py
 # Environment / dependency managers
 # =========================
 .python-version  # pyenv
-Pipfile.lock     # pipenv (optional, can comment out)
 __pypackages__/  # PEP 582
 
 # =========================
