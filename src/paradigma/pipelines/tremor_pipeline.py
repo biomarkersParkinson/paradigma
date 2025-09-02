@@ -214,16 +214,16 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     
     # store aggregates in json format
     d_aggregates = {
-        'metadata': {
-            'nr_valid_days': nr_valid_days,
-            'nr_windows_total': nr_windows_total,
-            'nr_windows_rest': nr_windows_rest
+        "metadata": {
+            "nr_valid_days": nr_valid_days,
+            "nr_windows_total": nr_windows_total,
+            "nr_windows_rest": nr_windows_rest
         },
-        'aggregated_tremor_measures': {
-            'perc_windows_tremor': perc_windows_tremor,
-            'median_tremor_power': aggregated_tremor_power['median_tremor_power'],
-            'modal_tremor_power': aggregated_tremor_power['modal_tremor_power'],
-            '90p_tremor_power': aggregated_tremor_power['90p_tremor_power']
+        "aggregated_tremor_measures": {
+            "perc_windows_tremor": perc_windows_tremor,
+            "median_tremor_power": aggregated_tremor_power['median_tremor_power'],
+            "modal_tremor_power": aggregated_tremor_power['modal_tremor_power'],
+            "90p_tremor_power": aggregated_tremor_power['90p_tremor_power']
         }
     }
 
