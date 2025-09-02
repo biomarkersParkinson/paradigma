@@ -363,8 +363,6 @@ def quantify_arm_swing(
         max_segment_gap_s=max_segment_gap_s
     )
 
-    # df[DataColumns.SEGMENT_CAT] = categorize_segments(df=df, fs=fs)
-
     # Remove segments that do not meet predetermined criteria
     df = discard_segments(
         df=df,
@@ -434,11 +432,11 @@ def quantify_arm_swing(
         try:
             gait_segment_duration_s = gait_segment_duration_dict[gait_segment_nr]
         except KeyError:
-            logging.warning(
+            logger.warning(
                 "Segment %s (filtered = %s) not found in gait segment duration dictionary. Skipping this segment.",
                 gait_segment_nr, filtered
             )
-            logging.debug("Available segments: %s", list(gait_segment_duration_dict.keys()))
+            logger.debug("Available segments: %s", list(gait_segment_duration_dict.keys()))
             continue
 
         time_array = group[DataColumns.TIME].to_numpy()
@@ -540,16 +538,17 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
             and segment_meta[x]['duration_unfiltered_segment_s'] < segment_cat_range[1]
         ]
 
-        if len(cat_segments) > 0:
-
-            if 'duration_filtered_segment_s' in segment_meta[cat_segments[0]]:
-                duration_col = 'duration_filtered_segment_s'
-            else:
-                duration_col = 'duration_unfiltered_segment_s'
-                
+        if len(cat_segments) > 0:                
+            # For each segment, use 'duration_filtered_segment_s' if present, else 'duration_unfiltered_segment_s'
             aggregated_results[segment_cat_str] = {
-                'duration_s': sum([segment_meta[x][duration_col] for x in cat_segments])
-            }
+                'duration_s': sum(
+                    [
+                        segment_meta[x]['duration_filtered_segment_s']
+                        if 'duration_filtered_segment_s' in segment_meta[x]
+                        else segment_meta[x]['duration_unfiltered_segment_s']
+                        for x in cat_segments
+                    ]
+                )}
 
             df_arm_swing_params_cat = df_arm_swing_params.loc[df_arm_swing_params[DataColumns.SEGMENT_NR].isin(cat_segments)]
             
@@ -561,9 +560,11 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
                     if aggregate in ['std', 'cov']:
                         per_segment_agg = []
                         # If the aggregate is 'cov' (coefficient of variation), we also compute the mean and standard deviation per segment
+                        segment_groups = dict(tuple(df_arm_swing_params_cat.groupby(DataColumns.SEGMENT_NR)))
                         for segment_nr in cat_segments:
-                            segment_df = df_arm_swing_params_cat[df_arm_swing_params_cat[DataColumns.SEGMENT_NR] == segment_nr]
-                            per_segment_agg.append(aggregate_parameter(segment_df[arm_swing_parameter], aggregate))
+                            segment_df = segment_groups.get(segment_nr)
+                            if segment_df is not None:
+                                per_segment_agg.append(aggregate_parameter(segment_df[arm_swing_parameter], aggregate))
 
                         # Drop nans
                         per_segment_agg = np.array(per_segment_agg)
