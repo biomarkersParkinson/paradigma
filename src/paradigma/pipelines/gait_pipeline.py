@@ -556,7 +556,9 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
                             per_segment_agg.append(aggregate_parameter(segment_df[arm_swing_parameter], aggregate))
 
                         # Drop nans
-                        per_segment_agg = [x for x in per_segment_agg if not np.isnan(x)]
+                        per_segment_agg = np.array(per_segment_agg)
+                        per_segment_agg = per_segment_agg[~np.isnan(per_segment_agg)]
+
 
                         for segment_level_aggregate in aggregates_per_segment:
                             aggregated_results[segment_cat_str][f'{segment_level_aggregate}_{aggregate}_{arm_swing_parameter}'] = aggregate_parameter(per_segment_agg, segment_level_aggregate)
