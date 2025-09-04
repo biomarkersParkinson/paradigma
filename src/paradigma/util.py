@@ -486,7 +486,7 @@ def select_days(df: pd.DataFrame, min_hours_per_day: int) -> pd.DataFrame:
     """
 
     min_s_per_day = min_hours_per_day * 3600
-    window_length_s = df['time_dt'].diff().dt.total_seconds()[1] # determine the length of the first window in seconds
+    window_length_s = df['time_dt'].diff().dt.total_seconds().iloc[1] # determine the length of the first window in seconds
     min_windows_per_day = min_s_per_day / window_length_s
     df_subset = df.groupby(df['time_dt'].dt.date).filter(lambda x: len(x) >= min_windows_per_day)
 
