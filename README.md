@@ -21,7 +21,7 @@ It contains three data processing pipelines: (1) arm swing during gait, (2) trem
 and (3) pulse rate. These pipelines are scientifically validated for their 
 use in persons with PD. Furthermore, the toolbox contains general functionalities for 
 signal processing and feature extraction, such as filtering, peak detection, and 
-spectral analysis. 
+spectral analysis.
 
 The toolbox is accompanied by a set of example scripts and notebooks for 
 each processing pipeline that demonstrate how to use the toolbox for extracting 

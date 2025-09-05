@@ -316,7 +316,7 @@ def invert_watch_side(df: pd.DataFrame, side: str, sensor='both') -> np.ndarray:
 
     return df
 
-def aggregate_parameter(parameter: np.ndarray, aggregate: str) -> np.ndarray:
+def aggregate_parameter(parameter: np.ndarray, aggregate: str) -> np.ndarray | int:
     """
     Aggregate a parameter based on the specified method.
     
@@ -348,6 +348,9 @@ def aggregate_parameter(parameter: np.ndarray, aggregate: str) -> np.ndarray:
         return np.percentile(parameter, 99)
     elif aggregate == 'std':
         return np.std(parameter)
+    elif aggregate == 'cov':
+        mean_value = np.mean(parameter)
+        return np.std(parameter) / mean_value if mean_value != 0 else 0
     else:
         raise ValueError(f"Invalid aggregation method: {aggregate}")
 
