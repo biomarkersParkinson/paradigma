@@ -3,7 +3,8 @@ import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
 from dateutil import parser
-from typing import List, Tuple
+from typing import List, Tuple, Optional
+from scipy.stats import gaussian_kde
 
 import tsdf
 from tsdf import TSDFMetadata
@@ -316,7 +317,7 @@ def invert_watch_side(df: pd.DataFrame, side: str, sensor='both') -> np.ndarray:
 
     return df
 
-def aggregate_parameter(parameter: np.ndarray, aggregate: str) -> np.ndarray | int:
+def aggregate_parameter(parameter: np.ndarray, aggregate: str, bin_edges: Optional[np.ndarray] = None) -> np.ndarray | int:
     """
     Aggregate a parameter based on the specified method.
     
@@ -327,6 +328,10 @@ def aggregate_parameter(parameter: np.ndarray, aggregate: str) -> np.ndarray | i
         
     aggregate : str
         The aggregation method to apply.
+
+    bin_edges : np.ndarray, optional
+        Should be specified if the mode is derived for a continuous parameter. 
+        Defines the bin edges for binning the parameter before calculating the mode.
         
     Returns
     -------
@@ -337,6 +342,11 @@ def aggregate_parameter(parameter: np.ndarray, aggregate: str) -> np.ndarray | i
         return np.mean(parameter)
     elif aggregate == 'median':
         return np.median(parameter)
+    elif aggregate == 'mode' and bin_edges is not None:
+        kde = gaussian_kde(parameter)
+        kde_values = kde(bin_edges)
+        max_index = np.argmax(kde_values)
+        return bin_edges[max_index]
     elif aggregate == 'mode':
         unique_values, counts = np.unique(parameter, return_counts=True)
         return unique_values[np.argmax(counts)]
