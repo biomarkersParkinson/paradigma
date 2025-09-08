@@ -342,11 +342,14 @@ def aggregate_parameter(parameter: np.ndarray, aggregate: str, bin_edges: Option
         return np.mean(parameter)
     elif aggregate == 'median':
         return np.median(parameter)
-    elif aggregate == 'mode' and bin_edges is not None:
-        kde = gaussian_kde(parameter)
-        kde_values = kde(bin_edges)
-        max_index = np.argmax(kde_values)
-        return bin_edges[max_index]
+    elif aggregate == 'mode_binned':
+        if bin_edges is None:
+            raise ValueError("bin_edges must be provided for 'mode_binned' aggregation.")
+        else:
+            kde = gaussian_kde(parameter)
+            kde_values = kde(bin_edges)
+            max_index = np.argmax(kde_values)
+            return bin_edges[max_index]
     elif aggregate == 'mode':
         unique_values, counts = np.unique(parameter, return_counts=True)
         return unique_values[np.argmax(counts)]
