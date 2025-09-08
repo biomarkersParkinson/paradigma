@@ -4,8 +4,10 @@
 
 ## v1.0.3 (08/09/2025)
 - Added flexibility to let user specify gait segment duration categories.
+- Added the within-segment coefficient of variation to list of arm swing parameters.
 - Fixed bug where users were unable to change resampling frequency.
-- Added the mode of continuous variables to the list of aggregations.
+- Added the mode of continuous variables using bins to the list of aggregations.
+- Increased tolerance for contiguous segments.
 - Changed contact details.
 
 ## v1.0.2 (12/06/2025)
