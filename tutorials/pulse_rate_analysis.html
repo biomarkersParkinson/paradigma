@@ -7,7 +7,7 @@
   <title>Pulse rate analysis &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1228b8db" />
       <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1228b8db" />
@@ -148,193 +148,87 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_html"><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">JSONDecodeError</span><span class="g g-Whitespace">                           </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">13</span>
+<span class="g g-Whitespace">      </span><span class="mi">9</span> <span class="n">imu_prefix</span> <span class="o">=</span> <span class="s1">&#39;imu&#39;</span>
+<span class="g g-Whitespace">     </span><span class="mi">11</span> <span class="n">segment_nr</span> <span class="o">=</span> <span class="s1">&#39;0001&#39;</span> 
+<span class="ne">---&gt; </span><span class="mi">13</span> <span class="n">df_ppg</span><span class="p">,</span> <span class="n">metadata_time_ppg</span><span class="p">,</span> <span class="n">metadata_values_ppg</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
+<span class="g g-Whitespace">     </span><span class="mi">14</span>     <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_prepared_data</span> <span class="o">/</span> <span class="n">ppg_prefix</span><span class="p">,</span> 
+<span class="g g-Whitespace">     </span><span class="mi">15</span>     <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;PPG_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="g g-Whitespace">     </span><span class="mi">16</span> <span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">17</span> <span class="n">df_imu</span><span class="p">,</span> <span class="n">metadata_time_imu</span><span class="p">,</span> <span class="n">metadata_values_imu</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
+<span class="g g-Whitespace">     </span><span class="mi">18</span>     <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_prepared_data</span> <span class="o">/</span> <span class="n">imu_prefix</span><span class="p">,</span> 
+<span class="g g-Whitespace">     </span><span class="mi">19</span>     <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="g g-Whitespace">     </span><span class="mi">20</span> <span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">22</span> <span class="c1"># Drop the gyroscope columns from the IMU data</span>
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+<span class="nn">File ~/work/paradigma/paradigma/src/paradigma/util.py:135,</span> in <span class="ni">load_tsdf_dataframe</span><span class="nt">(path_to_data, prefix, meta_suffix, time_suffix, values_suffix)</span>
+<span class="g g-Whitespace">    </span><span class="mi">132</span> <span class="n">time_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">time_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="g g-Whitespace">    </span><span class="mi">133</span> <span class="n">values_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">values_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="ne">--&gt; </span><span class="mi">135</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">path_to_data</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">,</span> <span class="n">time_filename</span><span class="p">,</span> <span class="n">values_filename</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">136</span> <span class="n">df</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">138</span> <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>time</th>
-      <th>green</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.00000</td>
-      <td>262316</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.03340</td>
-      <td>262320</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>0.06680</td>
-      <td>262446</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0.10020</td>
-      <td>262770</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>0.13360</td>
-      <td>262623</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>1029370</th>
-      <td>34339.49720</td>
-      <td>1049632</td>
-    </tr>
-    <tr>
-      <th>1029371</th>
-      <td>34339.53056</td>
-      <td>1049632</td>
-    </tr>
-    <tr>
-      <th>1029372</th>
-      <td>34339.56392</td>
-      <td>1049632</td>
-    </tr>
-    <tr>
-      <th>1029373</th>
-      <td>34339.59728</td>
-      <td>1049632</td>
-    </tr>
-    <tr>
-      <th>1029374</th>
-      <td>34339.63064</td>
-      <td>1020788</td>
-    </tr>
-  </tbody>
-</table>
-<p>1029375 rows × 2 columns</p>
-</div></div><div class="output text_html"><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
+<span class="nn">File ~/work/paradigma/paradigma/src/paradigma/util.py:122,</span> in <span class="ni">read_metadata</span><span class="nt">(input_path, meta_filename, time_filename, values_filename)</span>
+<span class="g g-Whitespace">    </span><span class="mi">119</span> <span class="k">def</span><span class="w"> </span><span class="nf">read_metadata</span><span class="p">(</span>
+<span class="g g-Whitespace">    </span><span class="mi">120</span>     <span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">time_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values_filename</span><span class="p">:</span> <span class="nb">str</span>
+<span class="g g-Whitespace">    </span><span class="mi">121</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">TSDFMetadata</span><span class="p">,</span> <span class="n">TSDFMetadata</span><span class="p">]:</span>
+<span class="ne">--&gt; </span><span class="mi">122</span>     <span class="n">metadata_dict</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_metadata_from_path</span><span class="p">(</span>
+<span class="g g-Whitespace">    </span><span class="mi">123</span>         <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">124</span>     <span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">125</span>     <span class="n">metadata_time</span> <span class="o">=</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="n">time_filename</span><span class="p">]</span>
+<span class="g g-Whitespace">    </span><span class="mi">126</span>     <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="n">values_filename</span><span class="p">]</span>
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+<span class="nn">File ~/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.12/lib/python3.12/site-packages/tsdf/read_tsdf.py:84,</span> in <span class="ni">load_metadata_from_path</span><span class="nt">(path)</span>
+<span class="g g-Whitespace">     </span><span class="mi">82</span> <span class="c1"># The data is isomorphic to a JSON</span>
+<span class="g g-Whitespace">     </span><span class="mi">83</span> <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+<span class="ne">---&gt; </span><span class="mi">84</span>     <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">86</span> <span class="n">abs_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">87</span> <span class="c1"># Parse the data and verify that it complies with TSDF requirements</span>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>time</th>
-      <th>accelerometer_x</th>
-      <th>accelerometer_y</th>
-      <th>accelerometer_z</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.000000</td>
-      <td>-0.474641</td>
-      <td>-0.379426</td>
-      <td>0.770335</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.009933</td>
-      <td>-0.472727</td>
-      <td>-0.378947</td>
-      <td>0.765072</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>0.019867</td>
-      <td>-0.471770</td>
-      <td>-0.375598</td>
-      <td>0.766986</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0.029800</td>
-      <td>-0.472727</td>
-      <td>-0.375598</td>
-      <td>0.770335</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>0.039733</td>
-      <td>-0.475120</td>
-      <td>-0.379426</td>
-      <td>0.772249</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>3455326</th>
-      <td>34339.561333</td>
-      <td>-0.257895</td>
-      <td>-0.319139</td>
-      <td>-0.761244</td>
-    </tr>
-    <tr>
-      <th>3455327</th>
-      <td>34339.571267</td>
-      <td>-0.555502</td>
-      <td>-0.153110</td>
-      <td>-0.671292</td>
-    </tr>
-    <tr>
-      <th>3455328</th>
-      <td>34339.581200</td>
-      <td>-0.286124</td>
-      <td>-0.263636</td>
-      <td>-0.981340</td>
-    </tr>
-    <tr>
-      <th>3455329</th>
-      <td>34339.591133</td>
-      <td>-0.232536</td>
-      <td>-0.161722</td>
-      <td>-0.832536</td>
-    </tr>
-    <tr>
-      <th>3455330</th>
-      <td>34339.601067</td>
-      <td>0.180383</td>
-      <td>-0.368421</td>
-      <td>-1.525837</td>
-    </tr>
-  </tbody>
-</table>
-<p>3455331 rows × 4 columns</p>
-</div></div></div>
+<span class="nn">File /opt/hostedtoolcache/Python/3.12.11/x64/lib/python3.12/json/__init__.py:293,</span> in <span class="ni">load</span><span class="nt">(fp, cls, object_hook, parse_float, parse_int, parse_constant, object_pairs_hook, **kw)</span>
+<span class="g g-Whitespace">    </span><span class="mi">274</span> <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">object_hook</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parse_float</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">275</span>         <span class="n">parse_int</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parse_constant</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">object_pairs_hook</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+<span class="g g-Whitespace">    </span><span class="mi">276</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;Deserialize ``fp`` (a ``.read()``-supporting file-like object containing</span>
+<span class="g g-Whitespace">    </span><span class="mi">277</span><span class="sd">     a JSON document) to a Python object.</span>
+<span class="g g-Whitespace">    </span><span class="mi">278</span><span class="sd"> </span>
+<span class="sd">   (...)    291     kwarg; otherwise ``JSONDecoder`` is used.</span>
+<span class="g g-Whitespace">    </span><span class="mi">292</span><span class="sd">     &quot;&quot;&quot;</span>
+<span class="ne">--&gt; </span><span class="mi">293</span>     <span class="k">return</span> <span class="n">loads</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span>
+<span class="g g-Whitespace">    </span><span class="mi">294</span>         <span class="bp">cls</span><span class="o">=</span><span class="bp">cls</span><span class="p">,</span> <span class="n">object_hook</span><span class="o">=</span><span class="n">object_hook</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">295</span>         <span class="n">parse_float</span><span class="o">=</span><span class="n">parse_float</span><span class="p">,</span> <span class="n">parse_int</span><span class="o">=</span><span class="n">parse_int</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">296</span>         <span class="n">parse_constant</span><span class="o">=</span><span class="n">parse_constant</span><span class="p">,</span> <span class="n">object_pairs_hook</span><span class="o">=</span><span class="n">object_pairs_hook</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+
+<span class="nn">File /opt/hostedtoolcache/Python/3.12.11/x64/lib/python3.12/json/__init__.py:346,</span> in <span class="ni">loads</span><span class="nt">(s, cls, object_hook, parse_float, parse_int, parse_constant, object_pairs_hook, **kw)</span>
+<span class="g g-Whitespace">    </span><span class="mi">341</span>     <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">detect_encoding</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="s1">&#39;surrogatepass&#39;</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">343</span> <span class="k">if</span> <span class="p">(</span><span class="bp">cls</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">object_hook</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span>
+<span class="g g-Whitespace">    </span><span class="mi">344</span>         <span class="n">parse_int</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">parse_float</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span>
+<span class="g g-Whitespace">    </span><span class="mi">345</span>         <span class="n">parse_constant</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">object_pairs_hook</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">kw</span><span class="p">):</span>
+<span class="ne">--&gt; </span><span class="mi">346</span>     <span class="k">return</span> <span class="n">_default_decoder</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">347</span> <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">348</span>     <span class="bp">cls</span> <span class="o">=</span> <span class="n">JSONDecoder</span>
+
+<span class="nn">File /opt/hostedtoolcache/Python/3.12.11/x64/lib/python3.12/json/decoder.py:338,</span> in <span class="ni">JSONDecoder.decode</span><span class="nt">(self, s, _w)</span>
+<span class="g g-Whitespace">    </span><span class="mi">333</span> <span class="k">def</span><span class="w"> </span><span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">_w</span><span class="o">=</span><span class="n">WHITESPACE</span><span class="o">.</span><span class="n">match</span><span class="p">):</span>
+<span class="g g-Whitespace">    </span><span class="mi">334</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;Return the Python representation of ``s`` (a ``str`` instance</span>
+<span class="g g-Whitespace">    </span><span class="mi">335</span><span class="sd">     containing a JSON document).</span>
+<span class="g g-Whitespace">    </span><span class="mi">336</span><span class="sd"> </span>
+<span class="g g-Whitespace">    </span><span class="mi">337</span><span class="sd">     &quot;&quot;&quot;</span>
+<span class="ne">--&gt; </span><span class="mi">338</span>     <span class="n">obj</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_decode</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="n">_w</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">end</span><span class="p">())</span>
+<span class="g g-Whitespace">    </span><span class="mi">339</span>     <span class="n">end</span> <span class="o">=</span> <span class="n">_w</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
+<span class="g g-Whitespace">    </span><span class="mi">340</span>     <span class="k">if</span> <span class="n">end</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+
+<span class="nn">File /opt/hostedtoolcache/Python/3.12.11/x64/lib/python3.12/json/decoder.py:356,</span> in <span class="ni">JSONDecoder.raw_decode</span><span class="nt">(self, s, idx)</span>
+<span class="g g-Whitespace">    </span><span class="mi">354</span>     <span class="n">obj</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scan_once</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">355</span> <span class="k">except</span> <span class="ne">StopIteration</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+<span class="ne">--&gt; </span><span class="mi">356</span>     <span class="k">raise</span> <span class="n">JSONDecodeError</span><span class="p">(</span><span class="s2">&quot;Expecting value&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">err</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+<span class="g g-Whitespace">    </span><span class="mi">357</span> <span class="k">return</span> <span class="n">obj</span><span class="p">,</span> <span class="n">end</span>
+
+<span class="ne">JSONDecodeError</span>: Expecting value: line 1 column 1 (char 0)
+</pre></div>
+</div>
+</div>
 </div>
 </section>
 <section id="step-1-preprocess-data">
@@ -368,9 +262,7 @@
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Original data shapes:
 - PPG data: (1029375, 2)
 - Accelerometer data: (3455331, 7)
-</pre></div>
-</div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Overlapping preprocessed data shapes:
+Overlapping preprocessed data shapes:
 - PPG data: (1030188, 2)
 - Accelerometer data: (3433961, 4)
 </pre></div>
@@ -1219,68 +1111,7 @@ The default step size for the signal quality feature extraction is set to 1 seco
     <span class="n">df_pr</span><span class="p">[</span><span class="s1">&#39;segment_nr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">segment_nr</span>
     <span class="n">list_df_pr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df_pr</span><span class="p">)</span>
 
-<span class="n">df_hr</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">list_df_pr</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">KeyboardInterrupt</span><span class="g g-Whitespace">                         </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span> <span class="n">line</span> <span class="mi">46</span>
-<span class="g g-Whitespace">     </span><span class="mi">43</span> <span class="n">ppg_config</span> <span class="o">=</span> <span class="n">PPGConfig</span><span class="p">()</span>
-<span class="g g-Whitespace">     </span><span class="mi">44</span> <span class="n">imu_config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span>
-<span class="ne">---&gt; </span><span class="mi">46</span> <span class="n">df_ppg_proc</span><span class="p">,</span> <span class="n">df_acc_proc</span> <span class="o">=</span> <span class="n">preprocess_ppg_data</span><span class="p">(</span>
-<span class="g g-Whitespace">     </span><span class="mi">47</span>     <span class="n">df_ppg</span><span class="o">=</span><span class="n">df_ppg</span><span class="p">,</span> 
-<span class="g g-Whitespace">     </span><span class="mi">48</span>     <span class="n">df_acc</span><span class="o">=</span><span class="n">df_acc</span><span class="p">,</span> 
-<span class="g g-Whitespace">     </span><span class="mi">49</span>     <span class="n">ppg_config</span><span class="o">=</span><span class="n">ppg_config</span><span class="p">,</span> 
-<span class="g g-Whitespace">     </span><span class="mi">50</span>     <span class="n">imu_config</span><span class="o">=</span><span class="n">imu_config</span><span class="p">,</span> 
-<span class="g g-Whitespace">     </span><span class="mi">51</span>     <span class="n">start_time_ppg</span><span class="o">=</span><span class="n">metadata_time_ppg</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">,</span>
-<span class="g g-Whitespace">     </span><span class="mi">52</span>     <span class="n">start_time_imu</span><span class="o">=</span><span class="n">metadata_time_imu</span><span class="o">.</span><span class="n">start_iso8601</span>
-<span class="g g-Whitespace">     </span><span class="mi">53</span> <span class="p">)</span>
-<span class="g g-Whitespace">     </span><span class="mi">55</span> <span class="c1"># 2: Extract signal quality features</span>
-<span class="g g-Whitespace">     </span><span class="mi">56</span> <span class="n">ppg_config</span> <span class="o">=</span> <span class="n">PulseRateConfig</span><span class="p">(</span><span class="s1">&#39;ppg&#39;</span><span class="p">)</span>
-
-<span class="nn">File ~/work/paradigma/paradigma/src/paradigma/preprocessing.py:279,</span> in <span class="ni">preprocess_ppg_data</span><span class="nt">(df_ppg, df_acc, ppg_config, imu_config, start_time_ppg, start_time_imu)</span>
-<span class="g g-Whitespace">    </span><span class="mi">276</span> <span class="n">df_ppg_overlapping</span><span class="p">,</span> <span class="n">df_acc_overlapping</span> <span class="o">=</span> <span class="n">extract_overlapping_segments</span><span class="p">(</span><span class="n">df_ppg</span><span class="p">,</span> <span class="n">df_acc</span><span class="p">,</span> <span class="n">start_time_ppg</span><span class="p">,</span> <span class="n">start_time_imu</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">278</span> <span class="c1"># Resample accelerometer data</span>
-<span class="ne">--&gt; </span><span class="mi">279</span> <span class="n">df_acc_proc</span> <span class="o">=</span> <span class="n">resample_data</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">280</span>     <span class="n">df</span><span class="o">=</span><span class="n">df_acc_overlapping</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">281</span>     <span class="n">time_column</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">282</span>     <span class="n">values_column_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">imu_config</span><span class="o">.</span><span class="n">d_channels_accelerometer</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
-<span class="g g-Whitespace">    </span><span class="mi">283</span>     <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">284</span>     <span class="n">resampling_frequency</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">sampling_frequency</span>
-<span class="g g-Whitespace">    </span><span class="mi">285</span> <span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">287</span> <span class="c1"># Resample PPG data</span>
-<span class="g g-Whitespace">    </span><span class="mi">288</span> <span class="n">df_ppg_proc</span> <span class="o">=</span> <span class="n">resample_data</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">289</span>     <span class="n">df</span><span class="o">=</span><span class="n">df_ppg_overlapping</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">290</span>     <span class="n">time_column</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span>
-   <span class="p">(</span><span class="o">...</span><span class="p">)</span>    <span class="mi">293</span>     <span class="n">resampling_frequency</span><span class="o">=</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">sampling_frequency</span>
-<span class="g g-Whitespace">    </span><span class="mi">294</span> <span class="p">)</span>
-
-<span class="nn">File ~/work/paradigma/paradigma/src/paradigma/preprocessing.py:83,</span> in <span class="ni">resample_data</span><span class="nt">(df, time_column, values_column_names, sampling_frequency, resampling_frequency, tolerance)</span>
-<span class="g g-Whitespace">     </span><span class="mi">81</span> <span class="c1"># Choose interpolation method</span>
-<span class="g g-Whitespace">     </span><span class="mi">82</span> <span class="n">interpolation_kind</span> <span class="o">=</span> <span class="s2">&quot;cubic&quot;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_abs_array</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span> <span class="k">else</span> <span class="s2">&quot;linear&quot;</span>
-<span class="ne">---&gt; </span><span class="mi">83</span> <span class="n">interpolator</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">time_abs_array</span><span class="p">,</span> <span class="n">values_array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="n">interpolation_kind</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s2">&quot;extrapolate&quot;</span><span class="p">)</span>
-<span class="g g-Whitespace">     </span><span class="mi">85</span> <span class="c1"># Interpolate</span>
-<span class="g g-Whitespace">     </span><span class="mi">86</span> <span class="n">resampled_values</span> <span class="o">=</span> <span class="n">interpolator</span><span class="p">(</span><span class="n">t_resampled</span><span class="p">)</span>
-
-<span class="nn">File ~/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.12/lib/python3.12/site-packages/scipy/interpolate/_interpolate.py:397,</span> in <span class="ni">interp1d.__init__</span><span class="nt">(***failed resolving arguments***)</span>
-<span class="g g-Whitespace">    </span><span class="mi">394</span>         <span class="n">yy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_y</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">395</span>         <span class="n">rewrite_nan</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="ne">--&gt; </span><span class="mi">397</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spline</span> <span class="o">=</span> <span class="n">make_interp_spline</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">order</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">398</span>                                   <span class="n">check_finite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">399</span> <span class="k">if</span> <span class="n">rewrite_nan</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">400</span>     <span class="bp">self</span><span class="o">.</span><span class="n">_call</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">_call_nan_spline</span>
-
-<span class="nn">File ~/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.12/lib/python3.12/site-packages/scipy/interpolate/_bsplines.py:1629,</span> in <span class="ni">make_interp_spline</span><span class="nt">(x, y, k, t, bc_type, axis, check_finite)</span>
-<span class="g g-Whitespace">   </span><span class="mi">1627</span>     <span class="n">ab</span><span class="p">,</span> <span class="n">rhs</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray_chkfinite</span><span class="p">,</span> <span class="p">(</span><span class="n">ab</span><span class="p">,</span> <span class="n">rhs</span><span class="p">))</span>
-<span class="g g-Whitespace">   </span><span class="mi">1628</span> <span class="n">gbsv</span><span class="p">,</span> <span class="o">=</span> <span class="n">get_lapack_funcs</span><span class="p">((</span><span class="s1">&#39;gbsv&#39;</span><span class="p">,),</span> <span class="p">(</span><span class="n">ab</span><span class="p">,</span> <span class="n">rhs</span><span class="p">))</span>
-<span class="ne">-&gt; </span><span class="mi">1629</span> <span class="n">lu</span><span class="p">,</span> <span class="n">piv</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">gbsv</span><span class="p">(</span><span class="n">kl</span><span class="p">,</span> <span class="n">ku</span><span class="p">,</span> <span class="n">ab</span><span class="p">,</span> <span class="n">rhs</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">1630</span>                         <span class="n">overwrite_ab</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">overwrite_b</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="g g-Whitespace">   </span><span class="mi">1632</span> <span class="k">if</span> <span class="n">info</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-<span class="g g-Whitespace">   </span><span class="mi">1633</span>     <span class="k">raise</span> <span class="n">LinAlgError</span><span class="p">(</span><span class="s2">&quot;Colocation matrix is singular.&quot;</span><span class="p">)</span>
-
-<span class="ne">KeyboardInterrupt</span>: 
+<span class="n">df_pr</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">list_df_pr</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

@@ -7,7 +7,7 @@
   <title>paradigma.util &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=1228b8db" />
       <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=1228b8db" />
@@ -156,7 +156,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.invert_watch_side" title="paradigma.util.invert_watch_side"><code class="xref py py-obj docutils literal notranslate"><span class="pre">invert_watch_side</span></code></a>(→ numpy.ndarray)</p></td>
 <td><p>Invert the data based on the watch side.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.aggregate_parameter" title="paradigma.util.aggregate_parameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_parameter</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.aggregate_parameter" title="paradigma.util.aggregate_parameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_parameter</span></code></a>(→ numpy.ndarray | int)</p></td>
 <td><p>Aggregate a parameter based on the specified method.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.merge_predictions_with_timestamps" title="paradigma.util.merge_predictions_with_timestamps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_predictions_with_timestamps</span></code></a>(→ pandas.DataFrame)</p></td>
@@ -339,13 +339,15 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.util.aggregate_parameter">
-<span class="sig-prename descclassname"><span class="pre">paradigma.util.</span></span><span class="sig-name descname"><span class="pre">aggregate_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/util.html#aggregate_parameter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.util.aggregate_parameter" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">paradigma.util.</span></span><span class="sig-name descname"><span class="pre">aggregate_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluation_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/paradigma/util.html#aggregate_parameter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.util.aggregate_parameter" title="Link to this definition"></a></dt>
 <dd><p>Aggregate a parameter based on the specified method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>parameter</strong> (<em>np.ndarray</em>) – The parameter to aggregate.</p></li>
 <li><p><strong>aggregate</strong> (<em>str</em>) – The aggregation method to apply.</p></li>
+<li><p><strong>evaluation_points</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Should be specified if the mode is derived for a continuous parameter.
+Defines the evaluation points for the kernel density estimation function, from which the maximum is derived as the mode.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

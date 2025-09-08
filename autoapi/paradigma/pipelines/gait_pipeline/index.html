@@ -7,7 +7,7 @@
   <title>paradigma.pipelines.gait_pipeline &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=1228b8db" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=1228b8db" />
@@ -118,6 +118,16 @@
              
   <section id="module-paradigma.pipelines.gait_pipeline">
 <span id="paradigma-pipelines-gait-pipeline"></span><h1>paradigma.pipelines.gait_pipeline<a class="headerlink" href="#module-paradigma.pipelines.gait_pipeline" title="Link to this heading"></a></h1>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.logger" title="paradigma.pipelines.gait_pipeline.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="functions">
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
@@ -151,6 +161,11 @@
 </section>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="paradigma.pipelines.gait_pipeline.logger">
+<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.gait_pipeline.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#paradigma.pipelines.gait_pipeline.logger" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.pipelines.gait_pipeline.extract_gait_features">
 <span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.gait_pipeline.</span></span><span class="sig-name descname"><span class="pre">extract_gait_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.GaitConfig" title="paradigma.config.GaitConfig"><span class="pre">paradigma.config.GaitConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/gait_pipeline.html#extract_gait_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.gait_pipeline.extract_gait_features" title="Link to this definition"></a></dt>
@@ -297,13 +312,14 @@ metadata for each segment.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.pipelines.gait_pipeline.aggregate_arm_swing_params">
-<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.gait_pipeline.</span></span><span class="sig-name descname"><span class="pre">aggregate_arm_swing_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_arm_swing_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_meta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['median']</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/gait_pipeline.html#aggregate_arm_swing_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.gait_pipeline.aggregate_arm_swing_params" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.gait_pipeline.</span></span><span class="sig-name descname"><span class="pre">aggregate_arm_swing_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_arm_swing_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_meta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_cats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['median']</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/gait_pipeline.html#aggregate_arm_swing_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.gait_pipeline.aggregate_arm_swing_params" title="Link to this definition"></a></dt>
 <dd><p>Aggregate the quantification results for arm swing parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df_arm_swing_params</strong> (<em>pd.DataFrame</em>) – A dataframe containing the arm swing parameters to be aggregated</p></li>
 <li><p><strong>segment_meta</strong> (<em>dict</em>) – A dictionary containing metadata for each segment.</p></li>
+<li><p><strong>segment_cats</strong> (<em>List</em><em>[</em><em>tuple</em><em>]</em>) – A list of tuples defining the segment categories, where each tuple contains the lower and upper bounds for the segment duration.</p></li>
 <li><p><strong>aggregates</strong> (<em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – A list of aggregation methods to apply to the quantification results.</p></li>
 </ul>
 </dd>

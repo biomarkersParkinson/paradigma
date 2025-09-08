@@ -7,7 +7,7 @@
   <title>Tremor analysis &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1228b8db" />
       <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1228b8db" />
@@ -135,148 +135,80 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_html"><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">JSONDecodeError</span><span class="g g-Whitespace">                           </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">11</span>
+<span class="g g-Whitespace">      </span><span class="mi">7</span> <span class="n">path_to_prepared_data</span> <span class="o">=</span> <span class="n">path_to_data</span> <span class="o">/</span> <span class="s1">&#39;imu&#39;</span>
+<span class="g g-Whitespace">      </span><span class="mi">9</span> <span class="n">segment_nr</span>  <span class="o">=</span> <span class="s1">&#39;0001&#39;</span> 
+<span class="ne">---&gt; </span><span class="mi">11</span> <span class="n">df_data</span><span class="p">,</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_prepared_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">13</span> <span class="n">df_data</span>
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+<span class="nn">File ~/work/paradigma/paradigma/src/paradigma/util.py:135,</span> in <span class="ni">load_tsdf_dataframe</span><span class="nt">(path_to_data, prefix, meta_suffix, time_suffix, values_suffix)</span>
+<span class="g g-Whitespace">    </span><span class="mi">132</span> <span class="n">time_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">time_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="g g-Whitespace">    </span><span class="mi">133</span> <span class="n">values_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">values_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="ne">--&gt; </span><span class="mi">135</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">path_to_data</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">,</span> <span class="n">time_filename</span><span class="p">,</span> <span class="n">values_filename</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">136</span> <span class="n">df</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">138</span> <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>time</th>
-      <th>accelerometer_x</th>
-      <th>accelerometer_y</th>
-      <th>accelerometer_z</th>
-      <th>gyroscope_x</th>
-      <th>gyroscope_y</th>
-      <th>gyroscope_z</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.000000</td>
-      <td>-0.474641</td>
-      <td>-0.379426</td>
-      <td>0.770335</td>
-      <td>0.000000</td>
-      <td>1.402439</td>
-      <td>0.243902</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.009933</td>
-      <td>-0.472727</td>
-      <td>-0.378947</td>
-      <td>0.765072</td>
-      <td>0.426829</td>
-      <td>0.670732</td>
-      <td>-0.121951</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>0.019867</td>
-      <td>-0.471770</td>
-      <td>-0.375598</td>
-      <td>0.766986</td>
-      <td>1.158537</td>
-      <td>-0.060976</td>
-      <td>-0.304878</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0.029800</td>
-      <td>-0.472727</td>
-      <td>-0.375598</td>
-      <td>0.770335</td>
-      <td>1.158537</td>
-      <td>-0.548780</td>
-      <td>-0.548780</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>0.039733</td>
-      <td>-0.475120</td>
-      <td>-0.379426</td>
-      <td>0.772249</td>
-      <td>0.670732</td>
-      <td>-0.609756</td>
-      <td>-0.731707</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>3455326</th>
-      <td>34339.561333</td>
-      <td>-0.257895</td>
-      <td>-0.319139</td>
-      <td>-0.761244</td>
-      <td>159.329269</td>
-      <td>14.634146</td>
-      <td>-28.658537</td>
-    </tr>
-    <tr>
-      <th>3455327</th>
-      <td>34339.571267</td>
-      <td>-0.555502</td>
-      <td>-0.153110</td>
-      <td>-0.671292</td>
-      <td>125.060976</td>
-      <td>-213.902440</td>
-      <td>-19.329268</td>
-    </tr>
-    <tr>
-      <th>3455328</th>
-      <td>34339.581200</td>
-      <td>-0.286124</td>
-      <td>-0.263636</td>
-      <td>-0.981340</td>
-      <td>158.658537</td>
-      <td>-328.170733</td>
-      <td>-3.170732</td>
-    </tr>
-    <tr>
-      <th>3455329</th>
-      <td>34339.591133</td>
-      <td>-0.232536</td>
-      <td>-0.161722</td>
-      <td>-0.832536</td>
-      <td>288.841465</td>
-      <td>-281.707318</td>
-      <td>17.073171</td>
-    </tr>
-    <tr>
-      <th>3455330</th>
-      <td>34339.601067</td>
-      <td>0.180383</td>
-      <td>-0.368421</td>
-      <td>-1.525837</td>
-      <td>376.219514</td>
-      <td>-140.853659</td>
-      <td>37.256098</td>
-    </tr>
-  </tbody>
-</table>
-<p>3455331 rows × 7 columns</p>
-</div></div></div>
+<span class="nn">File ~/work/paradigma/paradigma/src/paradigma/util.py:122,</span> in <span class="ni">read_metadata</span><span class="nt">(input_path, meta_filename, time_filename, values_filename)</span>
+<span class="g g-Whitespace">    </span><span class="mi">119</span> <span class="k">def</span><span class="w"> </span><span class="nf">read_metadata</span><span class="p">(</span>
+<span class="g g-Whitespace">    </span><span class="mi">120</span>     <span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">time_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values_filename</span><span class="p">:</span> <span class="nb">str</span>
+<span class="g g-Whitespace">    </span><span class="mi">121</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">TSDFMetadata</span><span class="p">,</span> <span class="n">TSDFMetadata</span><span class="p">]:</span>
+<span class="ne">--&gt; </span><span class="mi">122</span>     <span class="n">metadata_dict</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_metadata_from_path</span><span class="p">(</span>
+<span class="g g-Whitespace">    </span><span class="mi">123</span>         <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">124</span>     <span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">125</span>     <span class="n">metadata_time</span> <span class="o">=</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="n">time_filename</span><span class="p">]</span>
+<span class="g g-Whitespace">    </span><span class="mi">126</span>     <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="n">values_filename</span><span class="p">]</span>
+
+<span class="nn">File ~/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.12/lib/python3.12/site-packages/tsdf/read_tsdf.py:84,</span> in <span class="ni">load_metadata_from_path</span><span class="nt">(path)</span>
+<span class="g g-Whitespace">     </span><span class="mi">82</span> <span class="c1"># The data is isomorphic to a JSON</span>
+<span class="g g-Whitespace">     </span><span class="mi">83</span> <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+<span class="ne">---&gt; </span><span class="mi">84</span>     <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">86</span> <span class="n">abs_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">87</span> <span class="c1"># Parse the data and verify that it complies with TSDF requirements</span>
+
+<span class="nn">File /opt/hostedtoolcache/Python/3.12.11/x64/lib/python3.12/json/__init__.py:293,</span> in <span class="ni">load</span><span class="nt">(fp, cls, object_hook, parse_float, parse_int, parse_constant, object_pairs_hook, **kw)</span>
+<span class="g g-Whitespace">    </span><span class="mi">274</span> <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">object_hook</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parse_float</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">275</span>         <span class="n">parse_int</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parse_constant</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">object_pairs_hook</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+<span class="g g-Whitespace">    </span><span class="mi">276</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;Deserialize ``fp`` (a ``.read()``-supporting file-like object containing</span>
+<span class="g g-Whitespace">    </span><span class="mi">277</span><span class="sd">     a JSON document) to a Python object.</span>
+<span class="g g-Whitespace">    </span><span class="mi">278</span><span class="sd"> </span>
+<span class="sd">   (...)    291     kwarg; otherwise ``JSONDecoder`` is used.</span>
+<span class="g g-Whitespace">    </span><span class="mi">292</span><span class="sd">     &quot;&quot;&quot;</span>
+<span class="ne">--&gt; </span><span class="mi">293</span>     <span class="k">return</span> <span class="n">loads</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span>
+<span class="g g-Whitespace">    </span><span class="mi">294</span>         <span class="bp">cls</span><span class="o">=</span><span class="bp">cls</span><span class="p">,</span> <span class="n">object_hook</span><span class="o">=</span><span class="n">object_hook</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">295</span>         <span class="n">parse_float</span><span class="o">=</span><span class="n">parse_float</span><span class="p">,</span> <span class="n">parse_int</span><span class="o">=</span><span class="n">parse_int</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">296</span>         <span class="n">parse_constant</span><span class="o">=</span><span class="n">parse_constant</span><span class="p">,</span> <span class="n">object_pairs_hook</span><span class="o">=</span><span class="n">object_pairs_hook</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+
+<span class="nn">File /opt/hostedtoolcache/Python/3.12.11/x64/lib/python3.12/json/__init__.py:346,</span> in <span class="ni">loads</span><span class="nt">(s, cls, object_hook, parse_float, parse_int, parse_constant, object_pairs_hook, **kw)</span>
+<span class="g g-Whitespace">    </span><span class="mi">341</span>     <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">detect_encoding</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="s1">&#39;surrogatepass&#39;</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">343</span> <span class="k">if</span> <span class="p">(</span><span class="bp">cls</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">object_hook</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span>
+<span class="g g-Whitespace">    </span><span class="mi">344</span>         <span class="n">parse_int</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">parse_float</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span>
+<span class="g g-Whitespace">    </span><span class="mi">345</span>         <span class="n">parse_constant</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">object_pairs_hook</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">kw</span><span class="p">):</span>
+<span class="ne">--&gt; </span><span class="mi">346</span>     <span class="k">return</span> <span class="n">_default_decoder</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">347</span> <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">348</span>     <span class="bp">cls</span> <span class="o">=</span> <span class="n">JSONDecoder</span>
+
+<span class="nn">File /opt/hostedtoolcache/Python/3.12.11/x64/lib/python3.12/json/decoder.py:338,</span> in <span class="ni">JSONDecoder.decode</span><span class="nt">(self, s, _w)</span>
+<span class="g g-Whitespace">    </span><span class="mi">333</span> <span class="k">def</span><span class="w"> </span><span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">_w</span><span class="o">=</span><span class="n">WHITESPACE</span><span class="o">.</span><span class="n">match</span><span class="p">):</span>
+<span class="g g-Whitespace">    </span><span class="mi">334</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;Return the Python representation of ``s`` (a ``str`` instance</span>
+<span class="g g-Whitespace">    </span><span class="mi">335</span><span class="sd">     containing a JSON document).</span>
+<span class="g g-Whitespace">    </span><span class="mi">336</span><span class="sd"> </span>
+<span class="g g-Whitespace">    </span><span class="mi">337</span><span class="sd">     &quot;&quot;&quot;</span>
+<span class="ne">--&gt; </span><span class="mi">338</span>     <span class="n">obj</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_decode</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="n">_w</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">end</span><span class="p">())</span>
+<span class="g g-Whitespace">    </span><span class="mi">339</span>     <span class="n">end</span> <span class="o">=</span> <span class="n">_w</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
+<span class="g g-Whitespace">    </span><span class="mi">340</span>     <span class="k">if</span> <span class="n">end</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+
+<span class="nn">File /opt/hostedtoolcache/Python/3.12.11/x64/lib/python3.12/json/decoder.py:356,</span> in <span class="ni">JSONDecoder.raw_decode</span><span class="nt">(self, s, idx)</span>
+<span class="g g-Whitespace">    </span><span class="mi">354</span>     <span class="n">obj</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scan_once</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">355</span> <span class="k">except</span> <span class="ne">StopIteration</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+<span class="ne">--&gt; </span><span class="mi">356</span>     <span class="k">raise</span> <span class="n">JSONDecodeError</span><span class="p">(</span><span class="s2">&quot;Expecting value&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">err</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+<span class="g g-Whitespace">    </span><span class="mi">357</span> <span class="k">return</span> <span class="n">obj</span><span class="p">,</span> <span class="n">end</span>
+
+<span class="ne">JSONDecodeError</span>: Expecting value: line 1 column 1 (char 0)
+</pre></div>
+</div>
+</div>
 </div>
 </section>
 <section id="step-1-preprocess-data">
@@ -840,11 +772,11 @@
 
 <span class="c1"># Select the columns to be saved </span>
 <span class="n">metadata_time_store</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
-<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pred_tremor_proba&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_logreg&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">]</span>
+<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;tremor_power&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_proba&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_logreg&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">]</span>
 
 <span class="c1"># Set the units</span>
 <span class="n">metadata_time_store</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Relative seconds&#39;</span><span class="p">]</span>
-<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">]</span>  
+<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">]</span>  
 <span class="n">metadata_time_store</span><span class="o">.</span><span class="n">data_type</span> <span class="o">=</span> <span class="nb">float</span>
 <span class="n">metadata_values_store</span><span class="o">.</span><span class="n">data_type</span> <span class="o">=</span> <span class="nb">float</span>
 
@@ -868,76 +800,6 @@
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output text_html"><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>time</th>
-      <th>pred_tremor_proba</th>
-      <th>pred_tremor_logreg</th>
-      <th>pred_arm_at_rest</th>
-      <th>pred_tremor_checked</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.0</td>
-      <td>0.038968</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>4.0</td>
-      <td>0.035365</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>8.0</td>
-      <td>0.031255</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>12.0</td>
-      <td>0.021106</td>
-      <td>0.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>16.0</td>
-      <td>0.021078</td>
-      <td>0.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-    </tr>
-  </tbody>
-</table>
-</div></div></div>
 </div>
 </section>
 </section>
@@ -964,39 +826,124 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">KeyError</span><span class="g g-Whitespace">                                  </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="n">line</span> <span class="mi">5</span>
-<span class="g g-Whitespace">      </span><span class="mi">2</span> <span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
-<span class="g g-Whitespace">      </span><span class="mi">3</span> <span class="kn">import</span><span class="w"> </span><span class="nn">pytz</span>
-<span class="ne">----&gt; </span><span class="mi">5</span> <span class="n">df_quantification</span> <span class="o">=</span> <span class="n">df_predictions</span><span class="p">[[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">,</span><span class="s1">&#39;tremor_power&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-<span class="g g-Whitespace">      </span><span class="mi">6</span> <span class="n">df_quantification</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_predictions</span><span class="p">[</span><span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;tremor_power&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># tremor power of non-tremor windows is set to None</span>
-<span class="g g-Whitespace">      </span><span class="mi">8</span> <span class="c1"># Create datetime column based on the start time of the segment</span>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
 
-<span class="nn">File ~/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.12/lib/python3.12/site-packages/pandas/core/frame.py:4113,</span> in <span class="ni">DataFrame.__getitem__</span><span class="nt">(self, key)</span>
-<span class="g g-Whitespace">   </span><span class="mi">4111</span>     <span class="k">if</span> <span class="n">is_iterator</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
-<span class="g g-Whitespace">   </span><span class="mi">4112</span>         <span class="n">key</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-<span class="ne">-&gt; </span><span class="mi">4113</span>     <span class="n">indexer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">_get_indexer_strict</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s2">&quot;columns&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
-<span class="g g-Whitespace">   </span><span class="mi">4115</span> <span class="c1"># take() does not accept boolean indexers</span>
-<span class="g g-Whitespace">   </span><span class="mi">4116</span> <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">indexer</span><span class="p">,</span> <span class="s2">&quot;dtype&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">:</span>
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
 
-<span class="nn">File ~/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.12/lib/python3.12/site-packages/pandas/core/indexes/base.py:6212,</span> in <span class="ni">Index._get_indexer_strict</span><span class="nt">(self, key, axis_name)</span>
-<span class="g g-Whitespace">   </span><span class="mi">6209</span> <span class="k">else</span><span class="p">:</span>
-<span class="g g-Whitespace">   </span><span class="mi">6210</span>     <span class="n">keyarr</span><span class="p">,</span> <span class="n">indexer</span><span class="p">,</span> <span class="n">new_indexer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reindex_non_unique</span><span class="p">(</span><span class="n">keyarr</span><span class="p">)</span>
-<span class="ne">-&gt; </span><span class="mi">6212</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raise_if_missing</span><span class="p">(</span><span class="n">keyarr</span><span class="p">,</span> <span class="n">indexer</span><span class="p">,</span> <span class="n">axis_name</span><span class="p">)</span>
-<span class="g g-Whitespace">   </span><span class="mi">6214</span> <span class="n">keyarr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">indexer</span><span class="p">)</span>
-<span class="g g-Whitespace">   </span><span class="mi">6215</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">Index</span><span class="p">):</span>
-<span class="g g-Whitespace">   </span><span class="mi">6216</span>     <span class="c1"># GH 42790 - Preserve name from an Index</span>
-
-<span class="nn">File ~/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.12/lib/python3.12/site-packages/pandas/core/indexes/base.py:6264,</span> in <span class="ni">Index._raise_if_missing</span><span class="nt">(self, key, indexer, axis_name)</span>
-<span class="g g-Whitespace">   </span><span class="mi">6261</span>     <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;None of [</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">] are in the [</span><span class="si">{</span><span class="n">axis_name</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
-<span class="g g-Whitespace">   </span><span class="mi">6263</span> <span class="n">not_found</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ensure_index</span><span class="p">(</span><span class="n">key</span><span class="p">)[</span><span class="n">missing_mask</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
-<span class="ne">-&gt; </span><span class="mi">6264</span> <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">not_found</span><span class="si">}</span><span class="s2"> not in index&quot;</span><span class="p">)</span>
-
-<span class="ne">KeyError</span>: &quot;[&#39;tremor_power&#39;] not in index&quot;
-</pre></div>
-</div>
-</div>
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>time_dt</th>
+      <th>pred_arm_at_rest</th>
+      <th>pred_tremor_checked</th>
+      <th>tremor_power</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>2019-08-20 12:39:16+02:00</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0.471588</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>4.0</td>
+      <td>2019-08-20 12:39:20+02:00</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0.327252</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>8.0</td>
+      <td>2019-08-20 12:39:24+02:00</td>
+      <td>1</td>
+      <td>0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>12.0</td>
+      <td>2019-08-20 12:39:28+02:00</td>
+      <td>1</td>
+      <td>0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>16.0</td>
+      <td>2019-08-20 12:39:32+02:00</td>
+      <td>1</td>
+      <td>0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>8579</th>
+      <td>34316.0</td>
+      <td>2019-08-20 22:11:12+02:00</td>
+      <td>1</td>
+      <td>0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>8580</th>
+      <td>34320.0</td>
+      <td>2019-08-20 22:11:16+02:00</td>
+      <td>1</td>
+      <td>0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>8581</th>
+      <td>34324.0</td>
+      <td>2019-08-20 22:11:20+02:00</td>
+      <td>1</td>
+      <td>0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>8582</th>
+      <td>34328.0</td>
+      <td>2019-08-20 22:11:24+02:00</td>
+      <td>1</td>
+      <td>0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>8583</th>
+      <td>34332.0</td>
+      <td>2019-08-20 22:11:28+02:00</td>
+      <td>1</td>
+      <td>0</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+<p>8584 rows × 5 columns</p>
+</div></div></div>
 </div>
 <section id="run-steps-1-4-for-all-segments">
 <h3>Run steps 1 - 4 for all segments <a id='multiple_segments_cell'></a><a class="headerlink" href="#run-steps-1-4-for-all-segments" title="Link to this heading"></a></h3>
@@ -1005,6 +952,9 @@
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytz</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span><span class="p">,</span> <span class="n">TremorConfig</span>
@@ -1066,7 +1016,7 @@
 <p>The final step is to compute the amount of tremor time and tremor power with the function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/tremor_pipeline.py#:~:text=aggregate_tremor"><code class="docutils literal notranslate"><span class="pre">aggregate_tremor</span></code></a>, which aggregates over all windows in the input dataframe. Depending on the size of the input dateframe, you could select the hours and days (both optional) that you want to include in this analysis. In this case we use data collected between 8 am and 10 pm (specified as <code class="docutils literal notranslate"><span class="pre">select_hours_start</span></code> and <code class="docutils literal notranslate"><span class="pre">select_hours_end</span></code>), and days with at least 10 hours of data (<code class="docutils literal notranslate"><span class="pre">min_hours_per_day</span></code>) based on. Based on the selected data, we compute aggregated measures for tremor time and tremor power:</p>
 <ul class="simple">
 <li><p>Tremor time is calculated as the number of detected tremor windows, as percentage of the number of windows while the arm is at rest or in stable posture (when <code class="docutils literal notranslate"><span class="pre">below_tremor_power</span></code> does not exceed <code class="docutils literal notranslate"><span class="pre">config.movement_threshold</span></code>). This way the tremor time is controlled for the amount of time the arm is at rest or in stable posture, when rest tremor and re-emergent tremor could occur.</p></li>
-<li><p>For tremor power the following aggregates are derived: the mode, median and 90th percentile of tremor power (specified in <code class="docutils literal notranslate"><span class="pre">config.aggregates_tremor_power</span></code>). The median and modal tremor power reflect the typical tremor severity, whereas the 90th percentile reflects the maximal tremor severity within the observed timeframe. The aggregated tremor measures and metadata are stored in a json file.</p></li>
+<li><p>For tremor power the following aggregates are derived: the mode, median and 90th percentile of tremor power (specified in <code class="docutils literal notranslate"><span class="pre">config.aggregates_tremor_power</span></code>). The median and modal tremor power reflect the typical tremor severity, whereas the 90th percentile reflects the maximal tremor severity within the observed timeframe. The modal tremor power is computed as the peak in the probability density function of tremor power, which is evaluated at the points specified in <code class="docutils literal notranslate"><span class="pre">config.evaluation_points_tremor_power</span></code> (300 points between 0 and 6 log tremor power). The aggregated tremor measures and metadata are stored in a json file.</p></li>
 </ul>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -1098,7 +1048,7 @@
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Before aggregation we select data collected between 08:00 and 22:00. We also select days with at least 10 hours of data.
-The following tremor power aggregates are derived: [&#39;mode&#39;, &#39;median&#39;, &#39;90p&#39;].
+The following tremor power aggregates are derived: [&#39;mode_binned&#39;, &#39;median&#39;, &#39;90p&#39;].
 {&#39;aggregated_tremor_measures&#39;: {&#39;90p_tremor_power&#39;: 1.3259483071516063,
                                 &#39;median_tremor_power&#39;: 0.5143985314908104,
                                 &#39;modal_tremor_power&#39;: 0.3,

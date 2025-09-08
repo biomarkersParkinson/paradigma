@@ -7,7 +7,7 @@
   <title>Gait analysis &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1228b8db" />
       <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1228b8db" />
@@ -140,148 +140,80 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_html"><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">JSONDecodeError</span><span class="g g-Whitespace">                           </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">12</span>
+<span class="g g-Whitespace">      </span><span class="mi">9</span> <span class="n">raw_data_segment_nr</span>  <span class="o">=</span> <span class="s1">&#39;0001&#39;</span> 
+<span class="g g-Whitespace">     </span><span class="mi">11</span> <span class="c1"># Load the data from the file</span>
+<span class="ne">---&gt; </span><span class="mi">12</span> <span class="n">df_imu</span><span class="p">,</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_prepared_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">raw_data_segment_nr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">14</span> <span class="n">df_imu</span>
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+<span class="nn">File ~/work/paradigma/paradigma/src/paradigma/util.py:135,</span> in <span class="ni">load_tsdf_dataframe</span><span class="nt">(path_to_data, prefix, meta_suffix, time_suffix, values_suffix)</span>
+<span class="g g-Whitespace">    </span><span class="mi">132</span> <span class="n">time_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">time_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="g g-Whitespace">    </span><span class="mi">133</span> <span class="n">values_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">values_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="ne">--&gt; </span><span class="mi">135</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">path_to_data</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">,</span> <span class="n">time_filename</span><span class="p">,</span> <span class="n">values_filename</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">136</span> <span class="n">df</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">138</span> <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>time</th>
-      <th>accelerometer_x</th>
-      <th>accelerometer_y</th>
-      <th>accelerometer_z</th>
-      <th>gyroscope_x</th>
-      <th>gyroscope_y</th>
-      <th>gyroscope_z</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.000000</td>
-      <td>-0.474641</td>
-      <td>-0.379426</td>
-      <td>0.770335</td>
-      <td>0.000000</td>
-      <td>1.402439</td>
-      <td>0.243902</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.009933</td>
-      <td>-0.472727</td>
-      <td>-0.378947</td>
-      <td>0.765072</td>
-      <td>0.426829</td>
-      <td>0.670732</td>
-      <td>-0.121951</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>0.019867</td>
-      <td>-0.471770</td>
-      <td>-0.375598</td>
-      <td>0.766986</td>
-      <td>1.158537</td>
-      <td>-0.060976</td>
-      <td>-0.304878</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0.029800</td>
-      <td>-0.472727</td>
-      <td>-0.375598</td>
-      <td>0.770335</td>
-      <td>1.158537</td>
-      <td>-0.548780</td>
-      <td>-0.548780</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>0.039733</td>
-      <td>-0.475120</td>
-      <td>-0.379426</td>
-      <td>0.772249</td>
-      <td>0.670732</td>
-      <td>-0.609756</td>
-      <td>-0.731707</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>3455326</th>
-      <td>34339.561333</td>
-      <td>-0.257895</td>
-      <td>-0.319139</td>
-      <td>-0.761244</td>
-      <td>159.329269</td>
-      <td>14.634146</td>
-      <td>-28.658537</td>
-    </tr>
-    <tr>
-      <th>3455327</th>
-      <td>34339.571267</td>
-      <td>-0.555502</td>
-      <td>-0.153110</td>
-      <td>-0.671292</td>
-      <td>125.060976</td>
-      <td>-213.902440</td>
-      <td>-19.329268</td>
-    </tr>
-    <tr>
-      <th>3455328</th>
-      <td>34339.581200</td>
-      <td>-0.286124</td>
-      <td>-0.263636</td>
-      <td>-0.981340</td>
-      <td>158.658537</td>
-      <td>-328.170733</td>
-      <td>-3.170732</td>
-    </tr>
-    <tr>
-      <th>3455329</th>
-      <td>34339.591133</td>
-      <td>-0.232536</td>
-      <td>-0.161722</td>
-      <td>-0.832536</td>
-      <td>288.841465</td>
-      <td>-281.707318</td>
-      <td>17.073171</td>
-    </tr>
-    <tr>
-      <th>3455330</th>
-      <td>34339.601067</td>
-      <td>0.180383</td>
-      <td>-0.368421</td>
-      <td>-1.525837</td>
-      <td>376.219514</td>
-      <td>-140.853659</td>
-      <td>37.256098</td>
-    </tr>
-  </tbody>
-</table>
-<p>3455331 rows × 7 columns</p>
-</div></div></div>
+<span class="nn">File ~/work/paradigma/paradigma/src/paradigma/util.py:122,</span> in <span class="ni">read_metadata</span><span class="nt">(input_path, meta_filename, time_filename, values_filename)</span>
+<span class="g g-Whitespace">    </span><span class="mi">119</span> <span class="k">def</span><span class="w"> </span><span class="nf">read_metadata</span><span class="p">(</span>
+<span class="g g-Whitespace">    </span><span class="mi">120</span>     <span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">time_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values_filename</span><span class="p">:</span> <span class="nb">str</span>
+<span class="g g-Whitespace">    </span><span class="mi">121</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">TSDFMetadata</span><span class="p">,</span> <span class="n">TSDFMetadata</span><span class="p">]:</span>
+<span class="ne">--&gt; </span><span class="mi">122</span>     <span class="n">metadata_dict</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_metadata_from_path</span><span class="p">(</span>
+<span class="g g-Whitespace">    </span><span class="mi">123</span>         <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">124</span>     <span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">125</span>     <span class="n">metadata_time</span> <span class="o">=</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="n">time_filename</span><span class="p">]</span>
+<span class="g g-Whitespace">    </span><span class="mi">126</span>     <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="n">values_filename</span><span class="p">]</span>
+
+<span class="nn">File ~/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.12/lib/python3.12/site-packages/tsdf/read_tsdf.py:84,</span> in <span class="ni">load_metadata_from_path</span><span class="nt">(path)</span>
+<span class="g g-Whitespace">     </span><span class="mi">82</span> <span class="c1"># The data is isomorphic to a JSON</span>
+<span class="g g-Whitespace">     </span><span class="mi">83</span> <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+<span class="ne">---&gt; </span><span class="mi">84</span>     <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">86</span> <span class="n">abs_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">87</span> <span class="c1"># Parse the data and verify that it complies with TSDF requirements</span>
+
+<span class="nn">File /opt/hostedtoolcache/Python/3.12.11/x64/lib/python3.12/json/__init__.py:293,</span> in <span class="ni">load</span><span class="nt">(fp, cls, object_hook, parse_float, parse_int, parse_constant, object_pairs_hook, **kw)</span>
+<span class="g g-Whitespace">    </span><span class="mi">274</span> <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">object_hook</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parse_float</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">275</span>         <span class="n">parse_int</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parse_constant</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">object_pairs_hook</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+<span class="g g-Whitespace">    </span><span class="mi">276</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;Deserialize ``fp`` (a ``.read()``-supporting file-like object containing</span>
+<span class="g g-Whitespace">    </span><span class="mi">277</span><span class="sd">     a JSON document) to a Python object.</span>
+<span class="g g-Whitespace">    </span><span class="mi">278</span><span class="sd"> </span>
+<span class="sd">   (...)    291     kwarg; otherwise ``JSONDecoder`` is used.</span>
+<span class="g g-Whitespace">    </span><span class="mi">292</span><span class="sd">     &quot;&quot;&quot;</span>
+<span class="ne">--&gt; </span><span class="mi">293</span>     <span class="k">return</span> <span class="n">loads</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span>
+<span class="g g-Whitespace">    </span><span class="mi">294</span>         <span class="bp">cls</span><span class="o">=</span><span class="bp">cls</span><span class="p">,</span> <span class="n">object_hook</span><span class="o">=</span><span class="n">object_hook</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">295</span>         <span class="n">parse_float</span><span class="o">=</span><span class="n">parse_float</span><span class="p">,</span> <span class="n">parse_int</span><span class="o">=</span><span class="n">parse_int</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">296</span>         <span class="n">parse_constant</span><span class="o">=</span><span class="n">parse_constant</span><span class="p">,</span> <span class="n">object_pairs_hook</span><span class="o">=</span><span class="n">object_pairs_hook</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+
+<span class="nn">File /opt/hostedtoolcache/Python/3.12.11/x64/lib/python3.12/json/__init__.py:346,</span> in <span class="ni">loads</span><span class="nt">(s, cls, object_hook, parse_float, parse_int, parse_constant, object_pairs_hook, **kw)</span>
+<span class="g g-Whitespace">    </span><span class="mi">341</span>     <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">detect_encoding</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="s1">&#39;surrogatepass&#39;</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">343</span> <span class="k">if</span> <span class="p">(</span><span class="bp">cls</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">object_hook</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span>
+<span class="g g-Whitespace">    </span><span class="mi">344</span>         <span class="n">parse_int</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">parse_float</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span>
+<span class="g g-Whitespace">    </span><span class="mi">345</span>         <span class="n">parse_constant</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">object_pairs_hook</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">kw</span><span class="p">):</span>
+<span class="ne">--&gt; </span><span class="mi">346</span>     <span class="k">return</span> <span class="n">_default_decoder</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">347</span> <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">348</span>     <span class="bp">cls</span> <span class="o">=</span> <span class="n">JSONDecoder</span>
+
+<span class="nn">File /opt/hostedtoolcache/Python/3.12.11/x64/lib/python3.12/json/decoder.py:338,</span> in <span class="ni">JSONDecoder.decode</span><span class="nt">(self, s, _w)</span>
+<span class="g g-Whitespace">    </span><span class="mi">333</span> <span class="k">def</span><span class="w"> </span><span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">_w</span><span class="o">=</span><span class="n">WHITESPACE</span><span class="o">.</span><span class="n">match</span><span class="p">):</span>
+<span class="g g-Whitespace">    </span><span class="mi">334</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;Return the Python representation of ``s`` (a ``str`` instance</span>
+<span class="g g-Whitespace">    </span><span class="mi">335</span><span class="sd">     containing a JSON document).</span>
+<span class="g g-Whitespace">    </span><span class="mi">336</span><span class="sd"> </span>
+<span class="g g-Whitespace">    </span><span class="mi">337</span><span class="sd">     &quot;&quot;&quot;</span>
+<span class="ne">--&gt; </span><span class="mi">338</span>     <span class="n">obj</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_decode</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="n">_w</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">end</span><span class="p">())</span>
+<span class="g g-Whitespace">    </span><span class="mi">339</span>     <span class="n">end</span> <span class="o">=</span> <span class="n">_w</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
+<span class="g g-Whitespace">    </span><span class="mi">340</span>     <span class="k">if</span> <span class="n">end</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+
+<span class="nn">File /opt/hostedtoolcache/Python/3.12.11/x64/lib/python3.12/json/decoder.py:356,</span> in <span class="ni">JSONDecoder.raw_decode</span><span class="nt">(self, s, idx)</span>
+<span class="g g-Whitespace">    </span><span class="mi">354</span>     <span class="n">obj</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scan_once</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">355</span> <span class="k">except</span> <span class="ne">StopIteration</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+<span class="ne">--&gt; </span><span class="mi">356</span>     <span class="k">raise</span> <span class="n">JSONDecodeError</span><span class="p">(</span><span class="s2">&quot;Expecting value&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">err</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+<span class="g g-Whitespace">    </span><span class="mi">357</span> <span class="k">return</span> <span class="n">obj</span><span class="p">,</span> <span class="n">end</span>
+
+<span class="ne">JSONDecodeError</span>: Expecting value: line 1 column 1 (char 0)
+</pre></div>
+</div>
+</div>
 </div>
 </section>
 <section id="step-1-preprocess-data">
@@ -863,13 +795,13 @@
     <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A total of </span><span class="si">{</span><span class="n">df_arm_activity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> features have been extracted from </span><span class="si">{</span><span class="n">df_arm_activity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="si">}</span><span class="s2"> - second windows with </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="si">}</span><span class="s2"> seconds overlap.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A total of </span><span class="si">{</span><span class="n">df_arm_activity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> features have been extracted from </span><span class="si">{</span><span class="n">df_arm_activity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="si">}</span><span class="s2">-second windows with </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="si">}</span><span class="s2"> seconds overlap.&quot;</span><span class="p">)</span>
 <span class="n">df_arm_activity</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>A total of 61 features have been extracted from 2749 3 - second windows with 2.25 seconds overlap.
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>A total of 61 features have been extracted from 2749 3-second windows with 2.25 seconds overlap.
 </pre></div>
 </div>
 <div class="output text_html"><div>
@@ -1195,6 +1127,8 @@
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Metadata of the first gait segment:&quot;</span><span class="p">)</span>
 <span class="n">pprint</span><span class="p">(</span><span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
 
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Of this example, the filtered gait segment of </span><span class="si">{</span><span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;duration_filtered_segment_s&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> seconds is part of an unfiltered segment of </span><span class="si">{</span><span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;duration_unfiltered_segment_s&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> seconds, which is at least as large as the filtered gait segment.&quot;</span><span class="p">)</span>
+
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Individual arm swings of the first gait segment of the </span><span class="si">{</span><span class="n">dataset_used</span><span class="si">}</span><span class="s2"> dataset:&quot;</span><span class="p">)</span>
 <span class="n">quantified_arm_swing</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">quantified_arm_swing</span><span class="p">[</span><span class="s1">&#39;segment_nr&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
@@ -1208,10 +1142,12 @@ Gait segments are created of minimum 1.5 seconds and maximum 1.5 seconds gap bet
 A total of 84 filtered gait segments have been quantified.
 
 Metadata of the first gait segment:
-{&#39;duration_s&#39;: 9.0,
+{&#39;duration_filtered_segment_s&#39;: 9.0,
+ &#39;duration_unfiltered_segment_s&#39;: 9.0,
  &#39;end_time_s&#39;: 2230.74,
- &#39;segment_category&#39;: &#39;moderately_long&#39;,
  &#39;start_time_s&#39;: 2221.75}
+
+Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 9.0 seconds, which is at least as large as the filtered gait segment.
 
 Individual arm swings of the first gait segment of the filtered dataset:
 </pre></div>
@@ -1235,7 +1171,6 @@ Individual arm swings of the first gait segment of the filtered dataset:
     <tr style="text-align: right;">
       <th></th>
       <th>segment_nr</th>
-      <th>segment_category</th>
       <th>range_of_motion</th>
       <th>peak_velocity</th>
     </tr>
@@ -1244,91 +1179,78 @@ Individual arm swings of the first gait segment of the filtered dataset:
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>19.218491</td>
       <td>90.807689</td>
     </tr>
     <tr>
       <th>1</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>21.267287</td>
       <td>105.781357</td>
     </tr>
     <tr>
       <th>2</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>23.582098</td>
       <td>103.932332</td>
     </tr>
     <tr>
       <th>3</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>23.757712</td>
       <td>114.846304</td>
     </tr>
     <tr>
       <th>4</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>17.430734</td>
       <td>63.297391</td>
     </tr>
     <tr>
       <th>5</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>12.139037</td>
       <td>59.740258</td>
     </tr>
     <tr>
       <th>6</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>6.681346</td>
       <td>36.802784</td>
     </tr>
     <tr>
       <th>7</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>6.293493</td>
       <td>30.793498</td>
     </tr>
     <tr>
       <th>8</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>7.892546</td>
       <td>42.481470</td>
     </tr>
     <tr>
       <th>9</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>9.633521</td>
       <td>43.837249</td>
     </tr>
     <tr>
       <th>10</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>9.679263</td>
       <td>38.867993</td>
     </tr>
     <tr>
       <th>11</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>9.437900</td>
       <td>34.112233</td>
     </tr>
     <tr>
       <th>12</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>9.272199</td>
       <td>33.344802</td>
     </tr>
@@ -1336,14 +1258,6 @@ Individual arm swings of the first gait segment of the filtered dataset:
 </table>
 </div></div></div>
 </div>
-<p>The gait segment categories are defined as follows:</p>
-<ul class="simple">
-<li><p>short: &lt; 5 seconds</p></li>
-<li><p>moderately_long: 5-10 seconds</p></li>
-<li><p>long: 10-20 seconds</p></li>
-<li><p>very_long: &gt; 20 seconds</p></li>
-</ul>
-<p>As noted before, the gait segments (and categories) are determined based on predicted gait (unfiltered gait). Therefore, for the arm swing of filtered gait, a gait segment may be smaller as parts of the gait segment were predicted to have other arm activities, yet the category remained the same.</p>
 <section id="run-steps-1-6-for-the-all-raw-data-segment-s">
 <h3>Run steps 1-6 for the all raw data segment(s) <a id='multiple_segments_cell'></a><a class="headerlink" href="#run-steps-1-6-for-the-all-raw-data-segment-s" title="Link to this heading"></a></h3>
 <p>If your data is also stored in multiple raw data segments, you can modify <code class="docutils literal notranslate"><span class="pre">raw_data_segments</span></code> in the cell below to a list of the filenames of your respective segmented data.</p>
@@ -1480,13 +1394,18 @@ Individual arm swings of the first gait segment of the filtered dataset:
 <section id="step-7-aggregation">
 <h2>Step 7: Aggregation<a class="headerlink" href="#step-7-aggregation" title="Link to this heading"></a></h2>
 <p>Finally, the arm swing estimates can be aggregated across all gait segments.</p>
+<p>Optionally, gait segments can be categorized into bins of specific length. Bins are tuples <code class="docutils literal notranslate"><span class="pre">(a,</span> <span class="pre">b)</span></code> including $a$ and excluding $b$, i.e., gait segments $\geq a$ seconds and $&lt; b$ seconds. For example, to analyze gait segments of at least 20 seconds, the tuple <code class="docutils literal notranslate"><span class="pre">(20,</span> <span class="pre">np.inf)</span></code> can be used. In case you want to analyze all gait segments combined, use <code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">np.inf)</span></code>.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_arm_swing_params</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_arm_swing_params</span>
+
+<span class="n">segment_categories</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">),</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)]</span>
 
 <span class="n">arm_swing_aggregations</span> <span class="o">=</span> <span class="n">aggregate_arm_swing_params</span><span class="p">(</span>
     <span class="n">df_arm_swing_params</span><span class="o">=</span><span class="n">quantified_arm_swing</span><span class="p">,</span>
     <span class="n">segment_meta</span><span class="o">=</span><span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">],</span>
+    <span class="n">segment_cats</span><span class="o">=</span><span class="n">segment_categories</span><span class="p">,</span>
     <span class="n">aggregates</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;median&#39;</span><span class="p">,</span> <span class="s1">&#39;95p&#39;</span><span class="p">]</span>
 <span class="p">)</span>
 
@@ -1495,31 +1414,26 @@ Individual arm swings of the first gait segment of the filtered dataset:
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;moderately_long&#39;: {&#39;duration_s&#39;: 187.5,
-                     &#39;median_range_of_motion&#39;: 15.730045662205637,
-                     &#39;95p_range_of_motion&#39;: 54.55881567144295,
-                     &#39;median_peak_velocity&#39;: 77.94780939826387,
-                     &#39;95p_peak_velocity&#39;: 256.97997735460285},
- &#39;long&#39;: {&#39;duration_s&#39;: 60.75,
-          &#39;median_range_of_motion&#39;: 15.781087457927846,
-          &#39;95p_range_of_motion&#39;: 45.165400467519284,
-          &#39;median_peak_velocity&#39;: 86.83257977334742,
-          &#39;95p_peak_velocity&#39;: 219.97254034894718},
- &#39;short&#39;: {&#39;duration_s&#39;: 153.75,
-           &#39;median_range_of_motion&#39;: 14.225382307390879,
-           &#39;95p_range_of_motion&#39;: 40.538473700932244,
-           &#39;median_peak_velocity&#39;: 71.56035976932178,
-           &#39;95p_peak_velocity&#39;: 197.13328716416063},
- &#39;very_long&#39;: {&#39;duration_s&#39;: 1905.75,
-               &#39;median_range_of_motion&#39;: 25.28965100966046,
-               &#39;95p_range_of_motion&#39;: 43.74907398039543,
-               &#39;median_peak_velocity&#39;: 125.9443142903539,
-               &#39;95p_peak_velocity&#39;: 217.80854223601995},
- &#39;all_segment_categories&#39;: {&#39;duration_s&#39;: 2307.75,
-                            &#39;median_range_of_motion&#39;: 23.100608971051315,
-                            &#39;95p_range_of_motion&#39;: 45.92600123148869,
-                            &#39;median_peak_velocity&#39;: 116.50364930684765,
-                            &#39;95p_peak_velocity&#39;: 219.2008357820751}}
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;0_10&#39;: {&#39;duration_s&#39;: 341.25,
+          &#39;median_range_of_motion&#39;: 15.10889561336818,
+          &#39;95p_range_of_motion&#39;: 52.27598270995837,
+          &#39;median_peak_velocity&#39;: 74.63996138215876,
+          &#39;95p_peak_velocity&#39;: 230.71389576502395},
+ &#39;10_20&#39;: {&#39;duration_s&#39;: 60.75,
+           &#39;median_range_of_motion&#39;: 15.781087457927846,
+           &#39;95p_range_of_motion&#39;: 45.165400467519284,
+           &#39;median_peak_velocity&#39;: 86.83257977334742,
+           &#39;95p_peak_velocity&#39;: 219.97254034894718},
+ &#39;20_inf&#39;: {&#39;duration_s&#39;: 1905.75,
+            &#39;median_range_of_motion&#39;: 25.289651009660467,
+            &#39;95p_range_of_motion&#39;: 43.74907398039543,
+            &#39;median_peak_velocity&#39;: 125.9443142903539,
+            &#39;95p_peak_velocity&#39;: 217.80854223601995},
+ &#39;0_inf&#39;: {&#39;duration_s&#39;: 2307.75,
+           &#39;median_range_of_motion&#39;: 23.100608971051322,
+           &#39;95p_range_of_motion&#39;: 45.92600123148869,
+           &#39;median_peak_velocity&#39;: 116.50364930684765,
+           &#39;95p_peak_velocity&#39;: 219.2008357820751}}
 </pre></div>
 </div>
 </div>

@@ -35,7 +35,7 @@ Module Contents
    :type resampling_frequency: int
    :param tolerance: The tolerance added to the expected difference when checking
                      for contiguous timestamps. If not provided, it defaults to
-                     twice the expected interval.
+                     three times the expected interval.
    :type tolerance: float, optional
 
    :returns: A DataFrame with the resampled data, where each column contains resampled values.

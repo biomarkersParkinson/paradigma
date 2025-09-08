@@ -6,7 +6,7 @@
   <title>paradigma.config &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
@@ -173,6 +173,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_imu</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">d_channels_accelerometer</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">d_channels_gyroscope</span><span class="p">}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resampling_frequency</span> <span class="o">=</span> <span class="mi">100</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lower_cutoff_frequency</span> <span class="o">=</span> <span class="mf">0.2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">upper_cutoff_frequency</span> <span class="o">=</span> <span class="mf">3.5</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filter_order</span> <span class="o">=</span> <span class="mi">4</span></div>
@@ -338,7 +339,8 @@
         <span class="c1"># -----------</span>
         <span class="c1"># Aggregation</span>
         <span class="c1"># -----------</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">aggregates_tremor_power</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">,</span> <span class="s1">&#39;median&#39;</span><span class="p">,</span> <span class="s1">&#39;90p&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aggregates_tremor_power</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mode_binned&#39;</span><span class="p">,</span> <span class="s1">&#39;median&#39;</span><span class="p">,</span> <span class="s1">&#39;90p&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evaluation_points_tremor_power</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">301</span><span class="p">)</span> 
 
         <span class="c1"># -----------------</span>
         <span class="c1"># TSDF data storage</span>

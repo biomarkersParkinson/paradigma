@@ -98,6 +98,11 @@ Module Contents
 
 
 
+   .. py:attribute:: resampling_frequency
+      :value: 100
+
+
+
    .. py:attribute:: lower_cutoff_frequency
       :value: 0.2
 
@@ -337,8 +342,12 @@ Module Contents
 
    .. py:attribute:: aggregates_tremor_power
       :type:  List[str]
-      :value: ['mode', 'median', '90p']
+      :value: ['mode_binned', 'median', '90p']
 
+
+
+   .. py:attribute:: evaluation_points_tremor_power
+      :type:  numpy.ndarray
 
 
 .. py:class:: PulseRateConfig(sensor: str = 'ppg', min_window_length_s: int = 30)

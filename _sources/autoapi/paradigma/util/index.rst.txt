@@ -150,7 +150,7 @@ Module Contents
    :rtype: pd.DataFrame
 
 
-.. py:function:: aggregate_parameter(parameter: numpy.ndarray, aggregate: str) -> numpy.ndarray
+.. py:function:: aggregate_parameter(parameter: numpy.ndarray, aggregate: str, evaluation_points: Optional[numpy.ndarray] = None) -> numpy.ndarray | int
 
    Aggregate a parameter based on the specified method.
 
@@ -158,6 +158,9 @@ Module Contents
    :type parameter: np.ndarray
    :param aggregate: The aggregation method to apply.
    :type aggregate: str
+   :param evaluation_points: Should be specified if the mode is derived for a continuous parameter.
+                             Defines the evaluation points for the kernel density estimation function, from which the maximum is derived as the mode.
+   :type evaluation_points: np.ndarray, optional
 
    :returns: The aggregated parameter.
    :rtype: np.ndarray

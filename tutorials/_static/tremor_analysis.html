@@ -7,7 +7,7 @@
   <title>Tremor analysis &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
@@ -838,11 +838,11 @@
 
 <span class="c1"># Select the columns to be saved </span>
 <span class="n">metadata_time_store</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
-<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pred_tremor_proba&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_logreg&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">]</span>
+<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;tremor_power&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_proba&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_logreg&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">]</span>
 
 <span class="c1"># Set the units</span>
 <span class="n">metadata_time_store</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Relative seconds&#39;</span><span class="p">]</span>
-<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">]</span>  
+<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">]</span>  
 <span class="n">metadata_time_store</span><span class="o">.</span><span class="n">data_type</span> <span class="o">=</span> <span class="nb">float</span>
 <span class="n">metadata_values_store</span><span class="o">.</span><span class="n">data_type</span> <span class="o">=</span> <span class="nb">float</span>
 
@@ -1006,6 +1006,9 @@
 <p>If your data is also stored in multiple segments, you can modify <code class="docutils literal notranslate"><span class="pre">segments</span></code> in the cell below to a list of the filenames of your respective segmented data.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytz</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span><span class="p">,</span> <span class="n">TremorConfig</span>
@@ -1065,7 +1068,7 @@
 <p>The final step is to compute the amount of tremor time and tremor power with the function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/tremor_pipeline.py#:~:text=aggregate_tremor"><code class="docutils literal notranslate"><span class="pre">aggregate_tremor</span></code></a>, which aggregates over all windows in the input dataframe. Depending on the size of the input dateframe, you could select the hours and days (both optional) that you want to include in this analysis. In this case we use data collected between 8 am and 10 pm (specified as <code class="docutils literal notranslate"><span class="pre">select_hours_start</span></code> and <code class="docutils literal notranslate"><span class="pre">select_hours_end</span></code>), and days with at least 10 hours of data (<code class="docutils literal notranslate"><span class="pre">min_hours_per_day</span></code>) based on. Based on the selected data, we compute aggregated measures for tremor time and tremor power:</p>
 <ul class="simple">
 <li><p>Tremor time is calculated as the number of detected tremor windows, as percentage of the number of windows while the arm is at rest or in stable posture (when <code class="docutils literal notranslate"><span class="pre">below_tremor_power</span></code> does not exceed <code class="docutils literal notranslate"><span class="pre">config.movement_threshold</span></code>). This way the tremor time is controlled for the amount of time the arm is at rest or in stable posture, when rest tremor and re-emergent tremor could occur.</p></li>
-<li><p>For tremor power the following aggregates are derived: the mode, median and 90th percentile of tremor power (specified in <code class="docutils literal notranslate"><span class="pre">config.aggregates_tremor_power</span></code>). The median and modal tremor power reflect the typical tremor severity, whereas the 90th percentile reflects the maximal tremor severity within the observed timeframe. The aggregated tremor measures and metadata are stored in a json file.</p></li>
+<li><p>For tremor power the following aggregates are derived: the mode, median and 90th percentile of tremor power (specified in <code class="docutils literal notranslate"><span class="pre">config.aggregates_tremor_power</span></code>). The median and modal tremor power reflect the typical tremor severity, whereas the 90th percentile reflects the maximal tremor severity within the observed timeframe. The modal tremor power is computed as the peak in the probability density function of tremor power, which is evaluated at the points specified in <code class="docutils literal notranslate"><span class="pre">config.evaluation_points_tremor_power</span></code> (300 points between 0 and 6 log tremor power). The aggregated tremor measures and metadata are stored in a json file.</p></li>
 </ul>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pprint</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">select_hours</span><span class="p">,</span> <span class="n">select_days</span>
@@ -1093,7 +1096,7 @@
 </pre></div>
 </div>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Before aggregation we select data collected between 08:00 and 22:00. We also select days with at least 10 hours of data.
-The following tremor power aggregates are derived: [&#39;mode&#39;, &#39;median&#39;, &#39;90p&#39;].
+The following tremor power aggregates are derived: [&#39;mode_binned&#39;, &#39;median&#39;, &#39;90p&#39;].
 {&#39;aggregated_tremor_measures&#39;: {&#39;90p_tremor_power&#39;: 1.3259483071516063,
                                 &#39;median_tremor_power&#39;: 0.5143985314908104,
                                 &#39;modal_tremor_power&#39;: 0.3,

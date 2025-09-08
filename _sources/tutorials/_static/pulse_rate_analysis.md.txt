@@ -1145,7 +1145,7 @@ for segment_nr in segments:
     df_pr['segment_nr'] = segment_nr
     list_df_pr.append(df_pr)
 
-df_hr = pd.concat(list_df_pr, ignore_index=True)
+df_pr = pd.concat(list_df_pr, ignore_index=True)
 ```
 
 ## Step 5: Pulse rate aggregation

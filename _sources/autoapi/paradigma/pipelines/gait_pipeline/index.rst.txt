@@ -4,6 +4,14 @@ paradigma.pipelines.gait_pipeline
 .. py:module:: paradigma.pipelines.gait_pipeline
 
 
+Attributes
+----------
+
+.. autoapisummary::
+
+   paradigma.pipelines.gait_pipeline.logger
+
+
 Functions
 ---------
 
@@ -21,6 +29,8 @@ Functions
 
 Module Contents
 ---------------
+
+.. py:data:: logger
 
 .. py:function:: extract_gait_features(df: pandas.DataFrame, config: paradigma.config.GaitConfig) -> pandas.DataFrame
 
@@ -136,7 +146,7 @@ Module Contents
    :rtype: Tuple[pd.DataFrame, dict]
 
 
-.. py:function:: aggregate_arm_swing_params(df_arm_swing_params: pandas.DataFrame, segment_meta: dict, aggregates: List[str] = ['median']) -> dict
+.. py:function:: aggregate_arm_swing_params(df_arm_swing_params: pandas.DataFrame, segment_meta: dict, segment_cats: List[tuple], aggregates: List[str] = ['median']) -> dict
 
    Aggregate the quantification results for arm swing parameters.
 
@@ -144,6 +154,8 @@ Module Contents
    :type df_arm_swing_params: pd.DataFrame
    :param segment_meta: A dictionary containing metadata for each segment.
    :type segment_meta: dict
+   :param segment_cats: A list of tuples defining the segment categories, where each tuple contains the lower and upper bounds for the segment duration.
+   :type segment_cats: List[tuple]
    :param aggregates: A list of aggregation methods to apply to the quantification results.
    :type aggregates: List[str], optional
 

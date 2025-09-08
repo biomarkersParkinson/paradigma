@@ -6,7 +6,7 @@
   <title>paradigma.pipelines.tremor_pipeline &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=1228b8db" />
       <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=1228b8db" />
@@ -98,7 +98,6 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">signal</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">gaussian_kde</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassifierPackage</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span>
@@ -295,7 +294,7 @@
     <span class="k">if</span> <span class="n">n_windows_tremor</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># if no tremor is detected, the tremor power measures are set to NaN</span>
 
         <span class="n">aggregated_tremor_power</span><span class="p">[</span><span class="s1">&#39;median_tremor_power&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-        <span class="n">aggregated_tremor_power</span><span class="p">[</span><span class="s1">&#39;modal_tremor_power&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">aggregated_tremor_power</span><span class="p">[</span><span class="s1">&#39;mode_binned_tremor_power&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
         <span class="n">aggregated_tremor_power</span><span class="p">[</span><span class="s1">&#39;90p_tremor_power&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
 
     <span class="k">else</span><span class="p">:</span>
@@ -306,16 +305,8 @@
         
         <span class="k">for</span> <span class="n">aggregate</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">aggregates_tremor_power</span><span class="p">:</span>
             <span class="n">aggregate_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">aggregate</span><span class="si">}</span><span class="s2">_tremor_power&quot;</span>
-            <span class="k">if</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s1">&#39;mode&#39;</span><span class="p">:</span>
-                <span class="c1"># calculate modal tremor power</span>
-                <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">301</span><span class="p">)</span>
-                <span class="n">kde</span> <span class="o">=</span> <span class="n">gaussian_kde</span><span class="p">(</span><span class="n">tremor_power</span><span class="p">)</span>
-                <span class="n">kde_values</span> <span class="o">=</span> <span class="n">kde</span><span class="p">(</span><span class="n">bin_edges</span><span class="p">)</span>
-                <span class="n">max_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">kde_values</span><span class="p">)</span>
-                <span class="n">aggregated_tremor_power</span><span class="p">[</span><span class="s1">&#39;modal_tremor_power&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bin_edges</span><span class="p">[</span><span class="n">max_index</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span> <span class="c1"># calculate te other aggregates (e.g. median and 90th percentile) of tremor power</span>
-                <span class="n">aggregated_tremor_power</span><span class="p">[</span><span class="n">aggregate_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregate_parameter</span><span class="p">(</span><span class="n">tremor_power</span><span class="p">,</span> <span class="n">aggregate</span><span class="p">)</span>
-    
+            <span class="n">aggregated_tremor_power</span><span class="p">[</span><span class="n">aggregate_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregate_parameter</span><span class="p">(</span><span class="n">tremor_power</span><span class="p">,</span> <span class="n">aggregate</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">evaluation_points_tremor_power</span><span class="p">)</span>
+
     <span class="c1"># store aggregates in json format</span>
     <span class="n">d_aggregates</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="p">{</span>
@@ -326,7 +317,7 @@
         <span class="s1">&#39;aggregated_tremor_measures&#39;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s1">&#39;perc_windows_tremor&#39;</span><span class="p">:</span> <span class="n">perc_windows_tremor</span><span class="p">,</span>
             <span class="s1">&#39;median_tremor_power&#39;</span><span class="p">:</span> <span class="n">aggregated_tremor_power</span><span class="p">[</span><span class="s1">&#39;median_tremor_power&#39;</span><span class="p">],</span>
-            <span class="s1">&#39;modal_tremor_power&#39;</span><span class="p">:</span> <span class="n">aggregated_tremor_power</span><span class="p">[</span><span class="s1">&#39;modal_tremor_power&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;modal_tremor_power&#39;</span><span class="p">:</span> <span class="n">aggregated_tremor_power</span><span class="p">[</span><span class="s1">&#39;mode_binned_tremor_power&#39;</span><span class="p">],</span>
             <span class="s1">&#39;90p_tremor_power&#39;</span><span class="p">:</span> <span class="n">aggregated_tremor_power</span><span class="p">[</span><span class="s1">&#39;90p_tremor_power&#39;</span><span class="p">]</span>
         <span class="p">}</span>
     <span class="p">}</span>

@@ -7,7 +7,7 @@
   <title>paradigma.config &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=1228b8db" />
       <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=1228b8db" />
@@ -236,6 +236,11 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.config.IMUConfig.resampling_frequency">
+<span class="sig-name descname"><span class="pre">resampling_frequency</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">100</span></em><a class="headerlink" href="#paradigma.config.IMUConfig.resampling_frequency" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="paradigma.config.IMUConfig.lower_cutoff_frequency">
 <span class="sig-name descname"><span class="pre">lower_cutoff_frequency</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.2</span></em><a class="headerlink" href="#paradigma.config.IMUConfig.lower_cutoff_frequency" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -455,7 +460,12 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="paradigma.config.TremorConfig.aggregates_tremor_power">
-<span class="sig-name descname"><span class="pre">aggregates_tremor_power</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['mode',</span> <span class="pre">'median',</span> <span class="pre">'90p']</span></em><a class="headerlink" href="#paradigma.config.TremorConfig.aggregates_tremor_power" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">aggregates_tremor_power</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['mode_binned',</span> <span class="pre">'median',</span> <span class="pre">'90p']</span></em><a class="headerlink" href="#paradigma.config.TremorConfig.aggregates_tremor_power" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paradigma.config.TremorConfig.evaluation_points_tremor_power">
+<span class="sig-name descname"><span class="pre">evaluation_points_tremor_power</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#paradigma.config.TremorConfig.evaluation_points_tremor_power" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

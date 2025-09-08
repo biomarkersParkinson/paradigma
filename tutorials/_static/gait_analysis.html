@@ -7,7 +7,7 @@
   <title>Gait analysis &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
@@ -851,11 +851,11 @@
     <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A total of </span><span class="si">{</span><span class="n">df_arm_activity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> features have been extracted from </span><span class="si">{</span><span class="n">df_arm_activity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="si">}</span><span class="s2"> - second windows with </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="si">}</span><span class="s2"> seconds overlap.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A total of </span><span class="si">{</span><span class="n">df_arm_activity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> features have been extracted from </span><span class="si">{</span><span class="n">df_arm_activity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="si">}</span><span class="s2">-second windows with </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="si">}</span><span class="s2"> seconds overlap.&quot;</span><span class="p">)</span>
 <span class="n">df_arm_activity</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>A total of 61 features have been extracted from 2749 3 - second windows with 2.25 seconds overlap.
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>A total of 61 features have been extracted from 2749 3-second windows with 2.25 seconds overlap.
 </pre></div>
 </div>
 <div>
@@ -1171,6 +1171,8 @@
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Metadata of the first gait segment:&quot;</span><span class="p">)</span>
 <span class="n">pprint</span><span class="p">(</span><span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
 
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Of this example, the filtered gait segment of </span><span class="si">{</span><span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;duration_filtered_segment_s&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> seconds is part of an unfiltered segment of </span><span class="si">{</span><span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;duration_unfiltered_segment_s&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> seconds, which is at least as large as the filtered gait segment.&quot;</span><span class="p">)</span>
+
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Individual arm swings of the first gait segment of the </span><span class="si">{</span><span class="n">dataset_used</span><span class="si">}</span><span class="s2"> dataset:&quot;</span><span class="p">)</span>
 <span class="n">quantified_arm_swing</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">quantified_arm_swing</span><span class="p">[</span><span class="s1">&#39;segment_nr&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
@@ -1182,10 +1184,12 @@ Gait segments are created of minimum 1.5 seconds and maximum 1.5 seconds gap bet
 A total of 84 filtered gait segments have been quantified.
 
 Metadata of the first gait segment:
-{&#39;duration_s&#39;: 9.0,
+{&#39;duration_filtered_segment_s&#39;: 9.0,
+ &#39;duration_unfiltered_segment_s&#39;: 9.0,
  &#39;end_time_s&#39;: 2230.74,
- &#39;segment_category&#39;: &#39;moderately_long&#39;,
  &#39;start_time_s&#39;: 2221.75}
+
+Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 9.0 seconds, which is at least as large as the filtered gait segment.
 
 Individual arm swings of the first gait segment of the filtered dataset:
 </pre></div>
@@ -1210,7 +1214,6 @@ Individual arm swings of the first gait segment of the filtered dataset:
     <tr style="text-align: right;">
       <th></th>
       <th>segment_nr</th>
-      <th>segment_category</th>
       <th>range_of_motion</th>
       <th>peak_velocity</th>
     </tr>
@@ -1219,105 +1222,84 @@ Individual arm swings of the first gait segment of the filtered dataset:
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>19.218491</td>
       <td>90.807689</td>
     </tr>
     <tr>
       <th>1</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>21.267287</td>
       <td>105.781357</td>
     </tr>
     <tr>
       <th>2</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>23.582098</td>
       <td>103.932332</td>
     </tr>
     <tr>
       <th>3</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>23.757712</td>
       <td>114.846304</td>
     </tr>
     <tr>
       <th>4</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>17.430734</td>
       <td>63.297391</td>
     </tr>
     <tr>
       <th>5</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>12.139037</td>
       <td>59.740258</td>
     </tr>
     <tr>
       <th>6</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>6.681346</td>
       <td>36.802784</td>
     </tr>
     <tr>
       <th>7</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>6.293493</td>
       <td>30.793498</td>
     </tr>
     <tr>
       <th>8</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>7.892546</td>
       <td>42.481470</td>
     </tr>
     <tr>
       <th>9</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>9.633521</td>
       <td>43.837249</td>
     </tr>
     <tr>
       <th>10</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>9.679263</td>
       <td>38.867993</td>
     </tr>
     <tr>
       <th>11</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>9.437900</td>
       <td>34.112233</td>
     </tr>
     <tr>
       <th>12</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>9.272199</td>
       <td>33.344802</td>
     </tr>
   </tbody>
 </table>
 </div>
-<p>The gait segment categories are defined as follows:</p>
-<ul class="simple">
-<li><p>short: &lt; 5 seconds</p></li>
-<li><p>moderately_long: 5-10 seconds</p></li>
-<li><p>long: 10-20 seconds</p></li>
-<li><p>very_long: &gt; 20 seconds</p></li>
-</ul>
-<p>As noted before, the gait segments (and categories) are determined based on predicted gait (unfiltered gait). Therefore, for the arm swing of filtered gait, a gait segment may be smaller as parts of the gait segment were predicted to have other arm activities, yet the category remained the same.</p>
 <section id="run-steps-1-6-for-the-all-raw-data-segment-s">
 <h3>Run steps 1-6 for the all raw data segment(s) <a id='multiple_segments_cell'></a><a class="headerlink" href="#run-steps-1-6-for-the-all-raw-data-segment-s" title="Link to this heading"></a></h3>
 <p>If your data is also stored in multiple raw data segments, you can modify <code class="docutils literal notranslate"><span class="pre">raw_data_segments</span></code> in the cell below to a list of the filenames of your respective segmented data.</p>
@@ -1450,42 +1432,42 @@ Individual arm swings of the first gait segment of the filtered dataset:
 <section id="step-7-aggregation">
 <h2>Step 7: Aggregation<a class="headerlink" href="#step-7-aggregation" title="Link to this heading"></a></h2>
 <p>Finally, the arm swing estimates can be aggregated across all gait segments.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_arm_swing_params</span>
+<p>Optionally, gait segments can be categorized into bins of specific length. Bins are tuples <code class="docutils literal notranslate"><span class="pre">(a,</span> <span class="pre">b)</span></code> including $a$ and excluding $b$, i.e., gait segments $\geq a$ seconds and $&lt; b$ seconds. For example, to analyze gait segments of at least 20 seconds, the tuple <code class="docutils literal notranslate"><span class="pre">(20,</span> <span class="pre">np.inf)</span></code> can be used. In case you want to analyze all gait segments combined, use <code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">np.inf)</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_arm_swing_params</span>
+
+<span class="n">segment_categories</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">),</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)]</span>
 
 <span class="n">arm_swing_aggregations</span> <span class="o">=</span> <span class="n">aggregate_arm_swing_params</span><span class="p">(</span>
     <span class="n">df_arm_swing_params</span><span class="o">=</span><span class="n">quantified_arm_swing</span><span class="p">,</span>
     <span class="n">segment_meta</span><span class="o">=</span><span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">],</span>
+    <span class="n">segment_cats</span><span class="o">=</span><span class="n">segment_categories</span><span class="p">,</span>
     <span class="n">aggregates</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;median&#39;</span><span class="p">,</span> <span class="s1">&#39;95p&#39;</span><span class="p">]</span>
 <span class="p">)</span>
 
 <span class="n">pprint</span><span class="p">(</span><span class="n">arm_swing_aggregations</span><span class="p">,</span> <span class="n">sort_dicts</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;long&#39;: {&#39;duration_s&#39;: 60.75,
-          &#39;median_range_of_motion&#39;: 15.78108745792784,
-          &#39;95p_range_of_motion&#39;: 45.16540046751929,
-          &#39;median_peak_velocity&#39;: 86.83257977334745,
-          &#39;95p_peak_velocity&#39;: 219.97254034894718},
- &#39;short&#39;: {&#39;duration_s&#39;: 153.75,
-           &#39;median_range_of_motion&#39;: 14.225382307390944,
-           &#39;95p_range_of_motion&#39;: 40.53847370093226,
-           &#39;median_peak_velocity&#39;: 71.56035976932178,
-           &#39;95p_peak_velocity&#39;: 197.13328716416063},
- &#39;very_long&#39;: {&#39;duration_s&#39;: 1905.75,
-               &#39;median_range_of_motion&#39;: 25.2896510096605,
-               &#39;95p_range_of_motion&#39;: 43.74907398039543,
-               &#39;median_peak_velocity&#39;: 125.9443142903539,
-               &#39;95p_peak_velocity&#39;: 217.80854223601992},
- &#39;moderately_long&#39;: {&#39;duration_s&#39;: 187.5,
-                     &#39;median_range_of_motion&#39;: 15.73004566220565,
-                     &#39;95p_range_of_motion&#39;: 54.55881567144294,
-                     &#39;median_peak_velocity&#39;: 77.94780939826387,
-                     &#39;95p_peak_velocity&#39;: 256.9799773546029},
- &#39;all_segment_categories&#39;: {&#39;duration_s&#39;: 2307.75,
-                            &#39;median_range_of_motion&#39;: 23.100608971051315,
-                            &#39;95p_range_of_motion&#39;: 45.92600123148869,
-                            &#39;median_peak_velocity&#39;: 116.50364930684765,
-                            &#39;95p_peak_velocity&#39;: 219.2008357820751}}
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;0_10&#39;: {&#39;duration_s&#39;: 341.25,
+          &#39;median_range_of_motion&#39;: 15.10889561336818,
+          &#39;95p_range_of_motion&#39;: 52.27598270995837,
+          &#39;median_peak_velocity&#39;: 74.63996138215876,
+          &#39;95p_peak_velocity&#39;: 230.71389576502395},
+ &#39;10_20&#39;: {&#39;duration_s&#39;: 60.75,
+           &#39;median_range_of_motion&#39;: 15.781087457927846,
+           &#39;95p_range_of_motion&#39;: 45.165400467519284,
+           &#39;median_peak_velocity&#39;: 86.83257977334742,
+           &#39;95p_peak_velocity&#39;: 219.97254034894718},
+ &#39;20_inf&#39;: {&#39;duration_s&#39;: 1905.75,
+            &#39;median_range_of_motion&#39;: 25.289651009660467,
+            &#39;95p_range_of_motion&#39;: 43.74907398039543,
+            &#39;median_peak_velocity&#39;: 125.9443142903539,
+            &#39;95p_peak_velocity&#39;: 217.80854223601995},
+ &#39;0_inf&#39;: {&#39;duration_s&#39;: 2307.75,
+           &#39;median_range_of_motion&#39;: 23.100608971051322,
+           &#39;95p_range_of_motion&#39;: 45.92600123148869,
+           &#39;median_peak_velocity&#39;: 116.50364930684765,
+           &#39;95p_peak_velocity&#39;: 219.2008357820751}}
 </pre></div>
 </div>
 <p>The output of the aggregation step contains the aggregated arm swing parameters per gait segment category. Additionally, the total time in seconds <code class="docutils literal notranslate"><span class="pre">time_s</span></code> is added to inform based on how much data the aggregations were created.</p>
