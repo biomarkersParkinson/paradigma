@@ -3,7 +3,8 @@ import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
 from dateutil import parser
-from typing import List, Tuple
+from typing import List, Tuple, Optional
+from scipy.stats import gaussian_kde
 
 import tsdf
 from tsdf import TSDFMetadata
@@ -316,7 +317,7 @@ def invert_watch_side(df: pd.DataFrame, side: str, sensor='both') -> np.ndarray:
 
     return df
 
-def aggregate_parameter(parameter: np.ndarray, aggregate: str) -> np.ndarray | int:
+def aggregate_parameter(parameter: np.ndarray, aggregate: str, evaluation_points: Optional[np.ndarray] = None) -> np.ndarray | int:
     """
     Aggregate a parameter based on the specified method.
     
@@ -327,7 +328,11 @@ def aggregate_parameter(parameter: np.ndarray, aggregate: str) -> np.ndarray | i
         
     aggregate : str
         The aggregation method to apply.
-        
+
+    evaluation_points : np.ndarray, optional
+        Should be specified if the mode is derived for a continuous parameter. 
+        Defines the evaluation points for the kernel density estimation function, from which the maximum is derived as the mode.
+
     Returns
     -------
     np.ndarray
@@ -337,6 +342,14 @@ def aggregate_parameter(parameter: np.ndarray, aggregate: str) -> np.ndarray | i
         return np.mean(parameter)
     elif aggregate == 'median':
         return np.median(parameter)
+    elif aggregate == 'mode_binned':
+        if evaluation_points is None:
+            raise ValueError("evaluation_points must be provided for 'mode_binned' aggregation.")
+        else:
+            kde = gaussian_kde(parameter)
+            kde_values = kde(evaluation_points)
+            max_index = np.argmax(kde_values)
+            return evaluation_points[max_index]
     elif aggregate == 'mode':
         unique_values, counts = np.unique(parameter, return_counts=True)
         return unique_values[np.argmax(counts)]

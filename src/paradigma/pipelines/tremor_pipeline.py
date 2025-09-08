@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 from scipy import signal
-from scipy.stats import gaussian_kde
 
 from paradigma.classification import ClassifierPackage
 from paradigma.constants import DataColumns
@@ -191,7 +190,7 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     if n_windows_tremor == 0: # if no tremor is detected, the tremor power measures are set to NaN
 
         aggregated_tremor_power['median_tremor_power'] = np.nan
-        aggregated_tremor_power['modal_tremor_power'] = np.nan
+        aggregated_tremor_power['mode_binned_tremor_power'] = np.nan
         aggregated_tremor_power['90p_tremor_power'] = np.nan
 
     else:
@@ -202,16 +201,8 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
         
         for aggregate in config.aggregates_tremor_power:
             aggregate_name = f"{aggregate}_tremor_power"
-            if aggregate == 'mode':
-                # calculate modal tremor power
-                bin_edges = np.linspace(0, 6, 301)
-                kde = gaussian_kde(tremor_power)
-                kde_values = kde(bin_edges)
-                max_index = np.argmax(kde_values)
-                aggregated_tremor_power['modal_tremor_power'] = bin_edges[max_index]
-            else: # calculate te other aggregates (e.g. median and 90th percentile) of tremor power
-                aggregated_tremor_power[aggregate_name] = aggregate_parameter(tremor_power, aggregate)
-    
+            aggregated_tremor_power[aggregate_name] = aggregate_parameter(tremor_power, aggregate, config.evaluation_points_tremor_power)
+
     # store aggregates in json format
     d_aggregates = {
         'metadata': {
@@ -222,7 +213,7 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
         'aggregated_tremor_measures': {
             'perc_windows_tremor': perc_windows_tremor,
             'median_tremor_power': aggregated_tremor_power['median_tremor_power'],
-            'modal_tremor_power': aggregated_tremor_power['modal_tremor_power'],
+            'modal_tremor_power': aggregated_tremor_power['mode_binned_tremor_power'],
             '90p_tremor_power': aggregated_tremor_power['90p_tremor_power']
         }
     }
