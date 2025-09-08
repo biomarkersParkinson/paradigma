@@ -224,7 +224,7 @@ class TremorConfig(IMUConfig):
         # Aggregation
         # -----------
         self.aggregates_tremor_power: List[str] = ['mode_binned', 'median', '90p']
-        self.bin_edges_tremor_power: np.ndarray = np.linspace(0, 6, 301)
+        self.evaluation_points_tremor_power: np.ndarray = np.linspace(0, 6, 301) 
 
         # -----------------
         # TSDF data storage

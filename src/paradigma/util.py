@@ -317,7 +317,7 @@ def invert_watch_side(df: pd.DataFrame, side: str, sensor='both') -> np.ndarray:
 
     return df
 
-def aggregate_parameter(parameter: np.ndarray, aggregate: str, bin_edges: Optional[np.ndarray] = None) -> np.ndarray | int:
+def aggregate_parameter(parameter: np.ndarray, aggregate: str, evaluation_points: Optional[np.ndarray] = None) -> np.ndarray | int:
     """
     Aggregate a parameter based on the specified method.
     
@@ -329,10 +329,10 @@ def aggregate_parameter(parameter: np.ndarray, aggregate: str, bin_edges: Option
     aggregate : str
         The aggregation method to apply.
 
-    bin_edges : np.ndarray, optional
+    evaluation_points : np.ndarray, optional
         Should be specified if the mode is derived for a continuous parameter. 
-        Defines the bin edges for binning the parameter before calculating the mode.
-        
+        Defines the evaluation points for the kernel density estimation function, from which the maximum is derived as the mode.
+
     Returns
     -------
     np.ndarray
@@ -343,13 +343,13 @@ def aggregate_parameter(parameter: np.ndarray, aggregate: str, bin_edges: Option
     elif aggregate == 'median':
         return np.median(parameter)
     elif aggregate == 'mode_binned':
-        if bin_edges is None:
-            raise ValueError("bin_edges must be provided for 'mode_binned' aggregation.")
+        if evaluation_points is None:
+            raise ValueError("evaluation_points must be provided for 'mode_binned' aggregation.")
         else:
             kde = gaussian_kde(parameter)
-            kde_values = kde(bin_edges)
+            kde_values = kde(evaluation_points)
             max_index = np.argmax(kde_values)
-            return bin_edges[max_index]
+            return evaluation_points[max_index]
     elif aggregate == 'mode':
         unique_values, counts = np.unique(parameter, return_counts=True)
         return unique_values[np.argmax(counts)]

@@ -201,7 +201,7 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
         
         for aggregate in config.aggregates_tremor_power:
             aggregate_name = f"{aggregate}_tremor_power"
-            aggregated_tremor_power[aggregate_name] = aggregate_parameter(tremor_power, aggregate, config.bin_edges_tremor_power)
+            aggregated_tremor_power[aggregate_name] = aggregate_parameter(tremor_power, aggregate, config.evaluation_points_tremor_power)
 
     # store aggregates in json format
     d_aggregates = {
