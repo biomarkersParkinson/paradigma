@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.10']
+        python-version: ['3.12']
     outputs:
       version: ${{ steps.get_version.outputs.version }}
 
@@ -28,7 +28,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-        lfs: true  # Enable Git LFS support
+        lfs: false  # Enable Git LFS support
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
@@ -51,6 +51,11 @@ jobs:
       run: |
         python -m pip install poetry
         poetry install
+
+    # Install the Paradigma Jupyter kernel for notebooks
+    - name: Install Paradigma kernel
+      run: |
+        poetry run python -m ipykernel install --user --name=paradigma --display-name "paradigma (Poetry)"
 
     # Testing and checking
     - name: Test with pytest

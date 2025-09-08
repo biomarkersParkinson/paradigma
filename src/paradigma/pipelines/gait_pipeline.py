@@ -1,3 +1,4 @@
+import logging
 import numpy as np
 import pandas as pd
 from scipy.signal import periodogram
@@ -10,9 +11,15 @@ from paradigma.feature_extraction import pca_transform_gyroscope, compute_angle,
     extract_angle_extremes, compute_range_of_motion, compute_peak_angular_velocity, compute_statistics, \
     compute_std_euclidean_norm, compute_power_in_bandwidth, compute_dominant_frequency, compute_mfccs, \
     compute_total_power
-from paradigma.segmenting import tabulate_windows, create_segments, discard_segments, categorize_segments, WindowedDataExtractor
+from paradigma.segmenting import tabulate_windows, create_segments, discard_segments, WindowedDataExtractor
 from paradigma.util import aggregate_parameter
 
+
+logger = logging.getLogger(__name__)
+
+# Only configure basic logging if no handlers exist
+if not logger.hasHandlers():
+    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
 def extract_gait_features(
         df: pd.DataFrame,
@@ -351,19 +358,15 @@ def quantify_arm_swing(
     """
     # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap.
     # Segments are made based on predicted gait
-    df[DataColumns.SEGMENT_NR] = create_segments(
+    df['unfiltered_segment_nr'] = create_segments(
         time_array=df[DataColumns.TIME], 
         max_segment_gap_s=max_segment_gap_s
     )
 
-    # Segment category is determined based on predicted gait, hence it is set
-    # before filtering the DataFrame to only include predicted no other arm activity
-    df[DataColumns.SEGMENT_CAT] = categorize_segments(df=df, fs=fs)
-
     # Remove segments that do not meet predetermined criteria
     df = discard_segments(
         df=df,
-        segment_nr_colname=DataColumns.SEGMENT_NR,
+        segment_nr_colname='unfiltered_segment_nr',
         min_segment_length_s=min_segment_length_s,
         fs=fs,
         format='timestamps'
@@ -371,7 +374,10 @@ def quantify_arm_swing(
 
     if df.empty:
         raise ValueError("No segments found in the input data after discarding segments of invalid shape.")
-
+    
+    # Create dictionary of gait segment number and duration
+    gait_segment_duration_dict = {segment_nr: len(group[DataColumns.TIME]) / fs for segment_nr, group in df.groupby('unfiltered_segment_nr', sort=False)}
+    
     # If no arm swing data is remaining, return an empty dictionary
     if filtered and df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].empty:
         raise ValueError("No gait without other arm activities to quantify.")
@@ -380,7 +386,7 @@ def quantify_arm_swing(
         df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True)
 
         # Group consecutive timestamps into segments of filtered gait
-        df[DataColumns.SEGMENT_NR] = create_segments(
+        df['filtered_segment_nr'] = create_segments(
             time_array=df[DataColumns.TIME], 
             max_segment_gap_s=max_segment_gap_s
         )
@@ -388,13 +394,15 @@ def quantify_arm_swing(
         # Remove segments that do not meet predetermined criteria
         df = discard_segments(
             df=df,
-            segment_nr_colname=DataColumns.SEGMENT_NR,
+            segment_nr_colname='filtered_segment_nr',
             min_segment_length_s=min_segment_length_s,
             fs=fs,
         )
 
         if df.empty:
             raise ValueError("No filtered gait segments found in the input data after discarding segments of invalid shape.")
+        
+    grouping_colname = 'filtered_segment_nr' if filtered else 'unfiltered_segment_nr'
 
     arm_swing_quantified = []
     segment_meta = {
@@ -415,8 +423,22 @@ def quantify_arm_swing(
     )
 
     # Group and process segments
-    for segment_nr, group in df.groupby(DataColumns.SEGMENT_NR, sort=False):
-        segment_cat = group[DataColumns.SEGMENT_CAT].iloc[0]
+    for segment_nr, group in df.groupby(grouping_colname, sort=False):
+        if filtered:
+            gait_segment_nr = group['unfiltered_segment_nr'].iloc[0]  # Each filtered segment is contained within an unfiltered segment
+        else:
+            gait_segment_nr = segment_nr
+
+        try:
+            gait_segment_duration_s = gait_segment_duration_dict[gait_segment_nr]
+        except KeyError:
+            logger.warning(
+                "Segment %s (filtered = %s) not found in gait segment duration dictionary. Skipping this segment.",
+                gait_segment_nr, filtered
+            )
+            logger.debug("Available segments: %s", list(gait_segment_duration_dict.keys()))
+            continue
+
         time_array = group[DataColumns.TIME].to_numpy()
         velocity_array = group[DataColumns.VELOCITY].to_numpy()
 
@@ -435,9 +457,11 @@ def quantify_arm_swing(
         segment_meta['per_segment'][segment_nr] = {
             'start_time_s': time_array.min(),
             'end_time_s': time_array.max(),
-            'duration_s': len(angle_array) / fs,
-            DataColumns.SEGMENT_CAT: segment_cat
+            'duration_unfiltered_segment_s': gait_segment_duration_s,
         }
+
+        if filtered:
+            segment_meta['per_segment'][segment_nr]['duration_filtered_segment_s'] = len(time_array) / fs
 
         if angle_array.size > 0:  
             angle_extrema_indices, _, _ = extract_angle_extremes(
@@ -469,26 +493,18 @@ def quantify_arm_swing(
 
                 df_params_segment = pd.DataFrame({
                     DataColumns.SEGMENT_NR: segment_nr,
-                    DataColumns.SEGMENT_CAT: segment_cat,
                     DataColumns.RANGE_OF_MOTION: rom,
                     DataColumns.PEAK_VELOCITY: pav
                 })
 
                 arm_swing_quantified.append(df_params_segment)
 
-    # Combine segment categories
-    segment_categories = set([segment_meta['per_segment'][x][DataColumns.SEGMENT_CAT] for x in segment_meta['per_segment'].keys()])
-    for segment_cat in segment_categories:
-        segment_meta['aggregated'][segment_cat] = {
-            'duration_s': sum([segment_meta['per_segment'][x]['duration_s'] for x in segment_meta['per_segment'].keys() if segment_meta['per_segment'][x][DataColumns.SEGMENT_CAT] == segment_cat])
-        }
-
     arm_swing_quantified = pd.concat(arm_swing_quantified, ignore_index=True)
             
     return arm_swing_quantified, segment_meta
 
 
-def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: dict, aggregates: List[str] = ['median']) -> dict:
+def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: dict, segment_cats: List[tuple], aggregates: List[str] = ['median']) -> dict:
     """
     Aggregate the quantification results for arm swing parameters.
     
@@ -499,6 +515,9 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
 
     segment_meta : dict
         A dictionary containing metadata for each segment.
+
+    segment_cats : List[tuple]
+        A list of tuples defining the segment categories, where each tuple contains the lower and upper bounds for the segment duration.
         
     aggregates : List[str], optional
         A list of aggregation methods to apply to the quantification results.
@@ -510,29 +529,58 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
     """
     arm_swing_parameters = [DataColumns.RANGE_OF_MOTION, DataColumns.PEAK_VELOCITY]
 
-    uq_segment_cats = set([segment_meta[x][DataColumns.SEGMENT_CAT] for x in df_arm_swing_params[DataColumns.SEGMENT_NR].unique()])
-
     aggregated_results = {}
-    for segment_cat in uq_segment_cats:
-        cat_segments = [x for x in segment_meta.keys() if segment_meta[x][DataColumns.SEGMENT_CAT] == segment_cat]
+    for segment_cat_range in segment_cats:
+        segment_cat_str = f'{segment_cat_range[0]}_{segment_cat_range[1]}'
+        cat_segments = [
+            x for x in segment_meta.keys() 
+            if segment_meta[x]['duration_unfiltered_segment_s'] >= segment_cat_range[0] 
+            and segment_meta[x]['duration_unfiltered_segment_s'] < segment_cat_range[1]
+        ]
 
-        aggregated_results[segment_cat] = {
-            'duration_s': sum([segment_meta[x]['duration_s'] for x in cat_segments])
-        }
+        if len(cat_segments) > 0:                
+            # For each segment, use 'duration_filtered_segment_s' if present, else 'duration_unfiltered_segment_s'
+            aggregated_results[segment_cat_str] = {
+                'duration_s': sum(
+                    [
+                        segment_meta[x]['duration_filtered_segment_s']
+                        if 'duration_filtered_segment_s' in segment_meta[x]
+                        else segment_meta[x]['duration_unfiltered_segment_s']
+                        for x in cat_segments
+                    ]
+                )}
 
-        df_arm_swing_params_cat = df_arm_swing_params[df_arm_swing_params[DataColumns.SEGMENT_NR].isin(cat_segments)]
-        
-        for arm_swing_parameter in arm_swing_parameters:
-            for aggregate in aggregates:
-                aggregated_results[segment_cat][f'{aggregate}_{arm_swing_parameter}'] = aggregate_parameter(df_arm_swing_params_cat[arm_swing_parameter], aggregate)
+            df_arm_swing_params_cat = df_arm_swing_params.loc[df_arm_swing_params[DataColumns.SEGMENT_NR].isin(cat_segments)]
+            
+            # Aggregate across all segments
+            aggregates_per_segment = ['median', 'mean']
 
-    aggregated_results['all_segment_categories'] = {
-        'duration_s': sum([segment_meta[x]['duration_s'] for x in segment_meta.keys()])
-    }
+            for arm_swing_parameter in arm_swing_parameters:
+                for aggregate in aggregates:
+                    if aggregate in ['std', 'cov']:
+                        per_segment_agg = []
+                        # If the aggregate is 'cov' (coefficient of variation), we also compute the mean and standard deviation per segment
+                        segment_groups = dict(tuple(df_arm_swing_params_cat.groupby(DataColumns.SEGMENT_NR)))
+                        for segment_nr in cat_segments:
+                            segment_df = segment_groups.get(segment_nr)
+                            if segment_df is not None:
+                                per_segment_agg.append(aggregate_parameter(segment_df[arm_swing_parameter], aggregate))
 
-    for arm_swing_parameter in arm_swing_parameters:
-        for aggregate in aggregates:
-            aggregated_results['all_segment_categories'][f'{aggregate}_{arm_swing_parameter}'] = aggregate_parameter(df_arm_swing_params[arm_swing_parameter], aggregate)
+                        # Drop nans
+                        per_segment_agg = np.array(per_segment_agg)
+                        per_segment_agg = per_segment_agg[~np.isnan(per_segment_agg)]
+
+
+                        for segment_level_aggregate in aggregates_per_segment:
+                            aggregated_results[segment_cat_str][f'{segment_level_aggregate}_{aggregate}_{arm_swing_parameter}'] = aggregate_parameter(per_segment_agg, segment_level_aggregate)
+                    else:
+                        aggregated_results[segment_cat_str][f'{aggregate}_{arm_swing_parameter}'] = aggregate_parameter(df_arm_swing_params_cat[arm_swing_parameter], aggregate)
+
+        else:
+            # If no segments are found for this category, initialize with NaN
+            aggregated_results[segment_cat_str] = {
+                'duration_s': 0,
+            }
 
     return aggregated_results
 

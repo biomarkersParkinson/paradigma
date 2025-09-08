@@ -772,11 +772,11 @@ df_arm_activity = extract_arm_activity_features(
     config=config,
 )
 
-print(f"A total of {df_arm_activity.shape[1] - 1} features have been extracted from {df_arm_activity.shape[0]} {config.window_length_s} - second windows with {config.window_length_s - config.window_step_length_s} seconds overlap.")
+print(f"A total of {df_arm_activity.shape[1] - 1} features have been extracted from {df_arm_activity.shape[0]} {config.window_length_s}-second windows with {config.window_length_s - config.window_step_length_s} seconds overlap.")
 df_arm_activity.head()
 ```
 
-    A total of 61 features have been extracted from 2749 3 - second windows with 2.25 seconds overlap.
+    A total of 61 features have been extracted from 2749 3-second windows with 2.25 seconds overlap.
     
 
 
@@ -1109,6 +1109,8 @@ print(f"A total of {quantified_arm_swing['segment_nr'].nunique()} {dataset_used}
 print(f"\nMetadata of the first gait segment:")
 pprint(gait_segment_meta['per_segment'][1])
 
+print(f"\nOf this example, the filtered gait segment of {gait_segment_meta['per_segment'][1]['duration_filtered_segment_s']} seconds is part of an unfiltered segment of {gait_segment_meta['per_segment'][1]['duration_unfiltered_segment_s']} seconds, which is at least as large as the filtered gait segment.")
+
 print(f"\nIndividual arm swings of the first gait segment of the {dataset_used} dataset:")
 quantified_arm_swing.loc[quantified_arm_swing['segment_nr']==1]
 ```
@@ -1120,10 +1122,12 @@ quantified_arm_swing.loc[quantified_arm_swing['segment_nr']==1]
     A total of 84 filtered gait segments have been quantified.
     
     Metadata of the first gait segment:
-    {'duration_s': 9.0,
+    {'duration_filtered_segment_s': 9.0,
+     'duration_unfiltered_segment_s': 9.0,
      'end_time_s': 2230.74,
-     'segment_category': 'moderately_long',
      'start_time_s': 2221.75}
+    
+    Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 9.0 seconds, which is at least as large as the filtered gait segment.
     
     Individual arm swings of the first gait segment of the filtered dataset:
     
@@ -1150,7 +1154,6 @@ quantified_arm_swing.loc[quantified_arm_swing['segment_nr']==1]
     <tr style="text-align: right;">
       <th></th>
       <th>segment_nr</th>
-      <th>segment_category</th>
       <th>range_of_motion</th>
       <th>peak_velocity</th>
     </tr>
@@ -1159,91 +1162,78 @@ quantified_arm_swing.loc[quantified_arm_swing['segment_nr']==1]
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>19.218491</td>
       <td>90.807689</td>
     </tr>
     <tr>
       <th>1</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>21.267287</td>
       <td>105.781357</td>
     </tr>
     <tr>
       <th>2</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>23.582098</td>
       <td>103.932332</td>
     </tr>
     <tr>
       <th>3</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>23.757712</td>
       <td>114.846304</td>
     </tr>
     <tr>
       <th>4</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>17.430734</td>
       <td>63.297391</td>
     </tr>
     <tr>
       <th>5</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>12.139037</td>
       <td>59.740258</td>
     </tr>
     <tr>
       <th>6</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>6.681346</td>
       <td>36.802784</td>
     </tr>
     <tr>
       <th>7</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>6.293493</td>
       <td>30.793498</td>
     </tr>
     <tr>
       <th>8</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>7.892546</td>
       <td>42.481470</td>
     </tr>
     <tr>
       <th>9</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>9.633521</td>
       <td>43.837249</td>
     </tr>
     <tr>
       <th>10</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>9.679263</td>
       <td>38.867993</td>
     </tr>
     <tr>
       <th>11</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>9.437900</td>
       <td>34.112233</td>
     </tr>
     <tr>
       <th>12</th>
       <td>1</td>
-      <td>moderately_long</td>
       <td>9.272199</td>
       <td>33.344802</td>
     </tr>
@@ -1252,14 +1242,6 @@ quantified_arm_swing.loc[quantified_arm_swing['segment_nr']==1]
 </div>
 
 
-
-The gait segment categories are defined as follows:
-- short: < 5 seconds
-- moderately_long: 5-10 seconds
-- long: 10-20 seconds
-- very_long: > 20 seconds
-
-As noted before, the gait segments (and categories) are determined based on predicted gait (unfiltered gait). Therefore, for the arm swing of filtered gait, a gait segment may be smaller as parts of the gait segment were predicted to have other arm activities, yet the category remained the same.
 
 ### Run steps 1-6 for the all raw data segment(s) <a id='multiple_segments_cell'></a>
 
@@ -1392,46 +1374,47 @@ quantified_arm_swing = pd.concat(list_quantified_arm_swing, ignore_index=True)
 ```
 
 ## Step 7: Aggregation
-Finally, the arm swing estimates can be aggregated across all gait segments.
+Finally, the arm swing estimates can be aggregated across all gait segments. 
+
+Optionally, gait segments can be categorized into bins of specific length. Bins are tuples `(a, b)` including $a$ and excluding $b$, i.e., gait segments $\geq a$ seconds and $< b$ seconds. For example, to analyze gait segments of at least 20 seconds, the tuple `(20, np.inf)` can be used. In case you want to analyze all gait segments combined, use `(0, np.inf)`.
 
 
 ```python
+import numpy as np
 from paradigma.pipelines.gait_pipeline import aggregate_arm_swing_params
+
+segment_categories = [(0,10), (10,20), (20, np.inf), (0, np.inf)]
 
 arm_swing_aggregations = aggregate_arm_swing_params(
     df_arm_swing_params=quantified_arm_swing,
     segment_meta=gait_segment_meta['per_segment'],
+    segment_cats=segment_categories,
     aggregates=['median', '95p']
 )
 
 pprint(arm_swing_aggregations, sort_dicts=False)
 ```
 
-    {'long': {'duration_s': 60.75,
-              'median_range_of_motion': 15.78108745792784,
-              '95p_range_of_motion': 45.16540046751929,
-              'median_peak_velocity': 86.83257977334745,
-              '95p_peak_velocity': 219.97254034894718},
-     'short': {'duration_s': 153.75,
-               'median_range_of_motion': 14.225382307390944,
-               '95p_range_of_motion': 40.53847370093226,
-               'median_peak_velocity': 71.56035976932178,
-               '95p_peak_velocity': 197.13328716416063},
-     'very_long': {'duration_s': 1905.75,
-                   'median_range_of_motion': 25.2896510096605,
-                   '95p_range_of_motion': 43.74907398039543,
-                   'median_peak_velocity': 125.9443142903539,
-                   '95p_peak_velocity': 217.80854223601992},
-     'moderately_long': {'duration_s': 187.5,
-                         'median_range_of_motion': 15.73004566220565,
-                         '95p_range_of_motion': 54.55881567144294,
-                         'median_peak_velocity': 77.94780939826387,
-                         '95p_peak_velocity': 256.9799773546029},
-     'all_segment_categories': {'duration_s': 2307.75,
-                                'median_range_of_motion': 23.100608971051315,
-                                '95p_range_of_motion': 45.92600123148869,
-                                'median_peak_velocity': 116.50364930684765,
-                                '95p_peak_velocity': 219.2008357820751}}
+    {'0_10': {'duration_s': 341.25,
+              'median_range_of_motion': 15.10889561336818,
+              '95p_range_of_motion': 52.27598270995837,
+              'median_peak_velocity': 74.63996138215876,
+              '95p_peak_velocity': 230.71389576502395},
+     '10_20': {'duration_s': 60.75,
+               'median_range_of_motion': 15.781087457927846,
+               '95p_range_of_motion': 45.165400467519284,
+               'median_peak_velocity': 86.83257977334742,
+               '95p_peak_velocity': 219.97254034894718},
+     '20_inf': {'duration_s': 1905.75,
+                'median_range_of_motion': 25.289651009660467,
+                '95p_range_of_motion': 43.74907398039543,
+                'median_peak_velocity': 125.9443142903539,
+                '95p_peak_velocity': 217.80854223601995},
+     '0_inf': {'duration_s': 2307.75,
+               'median_range_of_motion': 23.100608971051322,
+               '95p_range_of_motion': 45.92600123148869,
+               'median_peak_velocity': 116.50364930684765,
+               '95p_peak_velocity': 219.2008357820751}}
     
 
 The output of the aggregation step contains the aggregated arm swing parameters per gait segment category. Additionally, the total time in seconds `time_s` is added to inform based on how much data the aggregations were created.

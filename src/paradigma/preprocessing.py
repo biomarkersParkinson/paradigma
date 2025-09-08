@@ -39,7 +39,7 @@ def resample_data(
     tolerance : float, optional
         The tolerance added to the expected difference when checking 
         for contiguous timestamps. If not provided, it defaults to
-        twice the expected interval.
+        three times the expected interval.
 
     Returns
     -------
@@ -57,9 +57,9 @@ def resample_data(
     - Uses cubic interpolation for smooth resampling if there are enough points.
     - If only two timestamps are available, it falls back to linear interpolation.
     """
-    # Set default tolerance if not provided to twice the expected interval
+    # Set default tolerance if not provided to three times the expected interval
     if tolerance is None:
-        tolerance = 2 * 1 / sampling_frequency
+        tolerance = 3 * 1 / sampling_frequency
 
     # Extract time and values
     time_abs_array = np.array(df[time_column])
@@ -208,7 +208,7 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str, watch_
         time_column=DataColumns.TIME,
         values_column_names=values_colnames,
         sampling_frequency=config.sampling_frequency,
-        resampling_frequency=config.sampling_frequency
+        resampling_frequency=config.resampling_frequency
     )
 
     # Invert the IMU data if the watch was worn on the right wrist

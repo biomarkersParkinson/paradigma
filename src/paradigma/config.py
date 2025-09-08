@@ -66,6 +66,7 @@ class IMUConfig(BaseConfig):
         self.d_channels_imu = {**self.d_channels_accelerometer, **self.d_channels_gyroscope}
 
         self.sampling_frequency = 100
+        self.resampling_frequency = 100
         self.lower_cutoff_frequency = 0.2
         self.upper_cutoff_frequency = 3.5
         self.filter_order = 4
@@ -222,7 +223,8 @@ class TremorConfig(IMUConfig):
         # -----------
         # Aggregation
         # -----------
-        self.aggregates_tremor_power: List[str] = ['mode', 'median', '90p']
+        self.aggregates_tremor_power: List[str] = ['mode_binned', 'median', '90p']
+        self.evaluation_points_tremor_power: np.ndarray = np.linspace(0, 6, 301) 
 
         # -----------------
         # TSDF data storage

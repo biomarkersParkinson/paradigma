@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "paradigma"
-version = "1.0.2"
+version = "1.0.3"
 description = "ParaDigMa - A toolbox for deriving Parkinson's disease Digital Markers from real-life wrist sensor data"
 authors = [ "Erik Post <erik.post@radboudumc.nl>",
             "Kars Veldkamp <kars.veldkamp@radboudumc.nl>",
@@ -22,6 +22,7 @@ pytype = "^2024.4.11"
 # for the record: pytype was installed directly with pip (in the poetry environment),
 # because poetry didn't handle the install for different CPU architectures
 python-dateutil = "^2.9.0.post0"
+nbconvert = "^7.16.6"
 
 [tool.poetry.group.testing.dependencies]
 ipykernel = "^6.27.1"
@@ -41,6 +42,8 @@ nbsphinx = "^0.9.6"
 
 [tool.poetry.group.dev.dependencies]
 pytype = "^2024.10.11"
+notebook = "^7.4.5"
+ipykernel = "^6.30.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
