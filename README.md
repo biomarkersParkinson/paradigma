@@ -91,10 +91,10 @@ We have included support for [TSDF](https://biomarkersparkinson.github.io/tsdf/)
 
 ## Scientific validation
 
-The pipelines were developed and validated using data from the Parkinson@Home Validation study [[Evers et al. 2020]](https://pmc.ncbi.nlm.nih.gov/articles/PMC7584982/) and the Personalized Parkinson Project [[Bloem et al. 2019]](https://pubmed.ncbi.nlm.nih.gov/31315608/). The following publication contains the details and validation of the arm swing during gait pipeline:
+The pipelines were developed and validated using data from the Parkinson@Home Validation study [[Evers et al. 2020]](https://pmc.ncbi.nlm.nih.gov/articles/PMC7584982/) and the Personalized Parkinson Project [[Bloem et al. 2019]](https://pubmed.ncbi.nlm.nih.gov/31315608/). The following publications contain details and validation of the pipelines:
 * [Post, E. et al. - Quantifying arm swing in Parkinson's disease: a method account for arm activities during free-living gait](https://doi.org/10.1186/s12984-025-01578-z)
-
-Details and validation of the other pipelines shall be shared in upcoming scientific publications.
+* [Timmermans, N.A. et al. - A generalizable and open-source algorithm for real-life monitoring of tremor in Parkinson's disease](https://doi.org/10.1038/s41531-025-01056-2)
+* [Veldkamp, K.I. et al. - Heart rate monitoring using wrist photoplethysmography in Parkinson disease: feasibility and relation with autonomic dysfunction](https://doi.org/10.1101/2025.08.15.25333751)
 
 ## Contributing
 
@@ -113,4 +113,4 @@ The initial release of ParaDigMa was funded by the Michael J Fox Foundation (gra
 ParaDigMa was created with [`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/) and the `py-pkgs-cookiecutter` [template](https://github.com/py-pkgs/py-pkgs-cookiecutter).
 
 ## Contact
-Questions, issues or suggestions about ParaDigMa? Please reach out to erik.post@radboudumc.nl, or open an issue in the GitHub repository.
+Questions, issues or suggestions about ParaDigMa? Please reach out to paradigma@radboudumc.nl, or open an issue in the GitHub repository.
