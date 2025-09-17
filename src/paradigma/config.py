@@ -67,6 +67,7 @@ class IMUConfig(BaseConfig):
 
         self.sampling_frequency = 100
         self.resampling_frequency = 100
+        self.tolerance = None
         self.lower_cutoff_frequency = 0.2
         self.upper_cutoff_frequency = 3.5
         self.filter_order = 4

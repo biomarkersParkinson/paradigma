@@ -208,7 +208,8 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str, watch_
         time_column=DataColumns.TIME,
         values_column_names=values_colnames,
         sampling_frequency=config.sampling_frequency,
-        resampling_frequency=config.resampling_frequency
+        resampling_frequency=config.resampling_frequency,
+        tolerance=config.tolerance
     )
 
     # Invert the IMU data if the watch was worn on the right wrist
