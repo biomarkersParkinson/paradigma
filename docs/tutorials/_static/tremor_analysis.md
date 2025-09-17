@@ -756,11 +756,11 @@ metadata_values_store = tsdf.TSDFMetadata(metadata_values.get_plain_tsdf_dict_co
 
 # Select the columns to be saved 
 metadata_time_store.channels = ['time']
-metadata_values_store.channels = ['pred_tremor_proba', 'pred_tremor_logreg', 'pred_arm_at_rest', 'pred_tremor_checked']
+metadata_values_store.channels = ['tremor_power', 'pred_tremor_proba', 'pred_tremor_logreg', 'pred_arm_at_rest', 'pred_tremor_checked']
 
 # Set the units
 metadata_time_store.units = ['Relative seconds']
-metadata_values_store.units = ['Unitless', 'Unitless', 'Unitless', 'Unitless']  
+metadata_values_store.units = ['Unitless', 'Unitless', 'Unitless', 'Unitless', 'Unitless']  
 metadata_time_store.data_type = float
 metadata_values_store.data_type = float
 
@@ -935,6 +935,9 @@ If your data is also stored in multiple segments, you can modify `segments` in t
 ```python
 from pathlib import Path
 from importlib.resources import files
+import datetime
+import pytz
+import pandas as pd
 
 from paradigma.util import load_tsdf_dataframe
 from paradigma.config import IMUConfig, TremorConfig
@@ -991,7 +994,7 @@ df_quantification = pd.concat(list_df_quantifications, ignore_index=True)
 
 The final step is to compute the amount of tremor time and tremor power with the function [`aggregate_tremor`](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/tremor_pipeline.py#:~:text=aggregate_tremor), which aggregates over all windows in the input dataframe. Depending on the size of the input dateframe, you could select the hours and days (both optional) that you want to include in this analysis. In this case we use data collected between 8 am and 10 pm (specified as `select_hours_start` and `select_hours_end`), and days with at least 10 hours of data (`min_hours_per_day`) based on. Based on the selected data, we compute aggregated measures for tremor time and tremor power:
 - Tremor time is calculated as the number of detected tremor windows, as percentage of the number of windows while the arm is at rest or in stable posture (when `below_tremor_power` does not exceed `config.movement_threshold`). This way the tremor time is controlled for the amount of time the arm is at rest or in stable posture, when rest tremor and re-emergent tremor could occur.
-- For tremor power the following aggregates are derived: the mode, median and 90th percentile of tremor power (specified in `config.aggregates_tremor_power`). The median and modal tremor power reflect the typical tremor severity, whereas the 90th percentile reflects the maximal tremor severity within the observed timeframe. The aggregated tremor measures and metadata are stored in a json file.
+- For tremor power the following aggregates are derived: the mode, median and 90th percentile of tremor power (specified in `config.aggregates_tremor_power`). The median and modal tremor power reflect the typical tremor severity, whereas the 90th percentile reflects the maximal tremor severity within the observed timeframe. The modal tremor power is computed as the peak in the probability density function of tremor power, which is evaluated at the points specified in `config.evaluation_points_tremor_power` (300 points between 0 and 6 log tremor power). The aggregated tremor measures and metadata are stored in a json file.
 
 
 ```python
@@ -1021,7 +1024,7 @@ pprint.pprint(d_tremor_aggregates)
 ```
 
     Before aggregation we select data collected between 08:00 and 22:00. We also select days with at least 10 hours of data.
-    The following tremor power aggregates are derived: ['mode', 'median', '90p'].
+    The following tremor power aggregates are derived: ['mode_binned', 'median', '90p'].
     {'aggregated_tremor_measures': {'90p_tremor_power': 1.3259483071516063,
                                     'median_tremor_power': 0.5143985314908104,
                                     'modal_tremor_power': 0.3,
