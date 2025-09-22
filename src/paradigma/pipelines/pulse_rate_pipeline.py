@@ -42,34 +42,34 @@ def extract_signal_quality_features(df_ppg: pd.DataFrame, df_acc: pd.DataFrame, 
     
     """
     # Group sequences of timestamps into windows
-    ppg_windowed_cols = [DataColumns.TIME, ppg_config.ppg_colname]
+    ppg_windowed_colnames = [DataColumns.TIME, ppg_config.ppg_colname]
     ppg_windowed = tabulate_windows(
         df=df_ppg, 
-        columns=ppg_windowed_cols,
+        columns=ppg_windowed_colnames,
         window_length_s=ppg_config.window_length_s,
         window_step_length_s=ppg_config.window_step_length_s,
         fs=ppg_config.sampling_frequency
     )
 
     # Extract data from the windowed PPG signal
-    extractor = WindowedDataExtractor(ppg_windowed_cols)
+    extractor = WindowedDataExtractor(ppg_windowed_colnames)
     idx_time = extractor.get_index(DataColumns.TIME)
     idx_ppg = extractor.get_index(ppg_config.ppg_colname)
     start_time_ppg = np.min(ppg_windowed[:, :, idx_time], axis=1) # Start time of the window is relative to the first datapoint in the PPG data
     ppg_values_windowed = ppg_windowed[:, :, idx_ppg]
 
-    acc_windowed_cols = [DataColumns.TIME] + acc_config.accelerometer_cols
+    acc_windowed_colnames = [DataColumns.TIME] + acc_config.accelerometer_colnames
     acc_windowed = tabulate_windows(
         df=df_acc,
-        columns=acc_windowed_cols,
+        columns=acc_windowed_colnames,
         window_length_s=acc_config.window_length_s,
         window_step_length_s=acc_config.window_step_length_s,
         fs=acc_config.sampling_frequency
     )
 
     # Extract data from the windowed accelerometer signal
-    extractor = WindowedDataExtractor(acc_windowed_cols)
-    idx_acc = extractor.get_slice(acc_config.accelerometer_cols)
+    extractor = WindowedDataExtractor(acc_windowed_colnames)
+    idx_acc = extractor.get_slice(acc_config.accelerometer_colnames)
     acc_values_windowed = acc_windowed[:, :, idx_acc]
 
     df_features = pd.DataFrame(start_time_ppg, columns=[DataColumns.TIME])
