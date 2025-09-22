@@ -201,7 +201,7 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str, watch_
     # Resample the data to the specified frequency
     df = resample_data(
         df=df,
-        time_column=config.time_col,
+        time_column=config.time_colname,
         values_column_names=values_colnames,
         sampling_frequency=config.sampling_frequency,
         resampling_frequency=config.resampling_frequency

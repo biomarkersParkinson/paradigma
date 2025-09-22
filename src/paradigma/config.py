@@ -266,8 +266,6 @@ class TremorConfig(IMUConfig):
                 DataColumns.PRED_TREMOR_CHECKED: "boolean",
                 DataColumns.PRED_ARM_AT_REST: "boolean"
             }
-        else:
-            raise ValueError("step must be 'features' or 'classification'")
 
         
 class PulseRateConfig(PPGConfig):

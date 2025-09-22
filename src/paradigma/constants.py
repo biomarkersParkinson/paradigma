@@ -61,6 +61,7 @@ class DataColumns():
     # Constants for pulse rate
     PULSE_RATE: str = "pulse_rate"
     
+    
 @dataclass(frozen=True)
 class DataUnits():
     """
