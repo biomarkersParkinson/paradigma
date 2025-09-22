@@ -275,7 +275,7 @@ class PulseRateConfig(PPGConfig):
             ppg_sampling_frequency: int = 30,
             imu_sampling_frequency: int | None = None,
             min_window_length_s: int = 30, 
-            accelerometer_colnames: list[str] = None
+            accelerometer_colnames: list[str] | None = None
         ) -> None:
         super().__init__()
 
