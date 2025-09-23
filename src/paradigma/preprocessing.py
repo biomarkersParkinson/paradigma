@@ -245,8 +245,8 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str, watch_
     return df
 
 
-def preprocess_ppg_data(df_ppg: pd.DataFrame, df_acc: pd.DataFrame, ppg_config: PPGConfig, 
-                        imu_config: IMUConfig, start_time_ppg: str, start_time_imu: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def preprocess_ppg_data(df_ppg: pd.DataFrame, ppg_config: PPGConfig, start_time_ppg: str, start_time_imu: str, 
+                        df_acc: pd.DataFrame | None = None, imu_config: IMUConfig | None = None) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Preprocess PPG and IMU (accelerometer only) data by resampling, filtering, and aligning the data segments.
 
@@ -271,18 +271,41 @@ def preprocess_ppg_data(df_ppg: pd.DataFrame, df_acc: pd.DataFrame, ppg_config: 
         Preprocessed PPG and IMU data as DataFrames.
     
     """
-
-    # Extract overlapping segments
-    df_ppg_overlapping, df_acc_overlapping = extract_overlapping_segments(df_ppg, df_acc, start_time_ppg, start_time_imu)
+    if df_acc is not None and imu_config is not None:
+        # Extract overlapping segments
+        df_ppg_overlapping, df_acc_overlapping = extract_overlapping_segments(df_ppg, df_acc, start_time_ppg, start_time_imu)
     
-    # Resample accelerometer data
-    df_acc_proc = resample_data(
-        df=df_acc_overlapping,
-        time_column=DataColumns.TIME,
-        values_column_names = list(imu_config.d_channels_accelerometer.keys()),
-        sampling_frequency=imu_config.sampling_frequency,
-        resampling_frequency=imu_config.sampling_frequency
-    )
+        # Resample accelerometer data
+        df_acc_proc = resample_data(
+            df=df_acc_overlapping,
+            time_column=DataColumns.TIME,
+            values_column_names = list(imu_config.d_channels_accelerometer.keys()),
+            sampling_frequency=imu_config.sampling_frequency,
+            resampling_frequency=imu_config.sampling_frequency
+        )
+
+        # Extract accelerometer data for filtering
+        accel_data = df_acc_proc[imu_config.accelerometer_cols].values
+
+            # Define filter configurations for high-pass and low-pass
+        filter_renaming_configs = {
+        "hp": {"result_columns": imu_config.accelerometer_cols, "replace_original": True}}
+
+        # Apply filters in a loop
+        for passband, filter_config in filter_renaming_configs.items():
+            filtered_data = butterworth_filter(
+            data=accel_data,
+            order=imu_config.filter_order,
+            cutoff_frequency=imu_config.lower_cutoff_frequency,
+            passband=passband,
+            sampling_frequency=imu_config.sampling_frequency,
+            )
+
+            # Replace or add new columns based on configuration
+            df_acc_proc[filter_config["result_columns"]] = filtered_data
+
+    else:
+        df_ppg_overlapping = df_ppg
 
     # Resample PPG data
     df_ppg_proc = resample_data(
@@ -292,27 +315,6 @@ def preprocess_ppg_data(df_ppg: pd.DataFrame, df_acc: pd.DataFrame, ppg_config: 
         sampling_frequency=ppg_config.sampling_frequency,
         resampling_frequency=ppg_config.sampling_frequency
     )
-
-
-    # Extract accelerometer data for filtering
-    accel_data = df_acc_proc[imu_config.accelerometer_cols].values
-
-    # Define filter configurations for high-pass and low-pass
-    filter_renaming_configs = {
-    "hp": {"result_columns": imu_config.accelerometer_cols, "replace_original": True}}
-
-    # Apply filters in a loop
-    for passband, filter_config in filter_renaming_configs.items():
-        filtered_data = butterworth_filter(
-        data=accel_data,
-        order=imu_config.filter_order,
-        cutoff_frequency=imu_config.lower_cutoff_frequency,
-        passband=passband,
-        sampling_frequency=imu_config.sampling_frequency,
-        )
-
-        # Replace or add new columns based on configuration
-        df_acc_proc[filter_config["result_columns"]] = filtered_data
     
     # Extract accelerometer data for filtering
     ppg_data = df_ppg_proc[ppg_config.ppg_colname].values
@@ -333,8 +335,12 @@ def preprocess_ppg_data(df_ppg: pd.DataFrame, df_acc: pd.DataFrame, ppg_config: 
 
         # Replace or add new columns based on configuration
         df_ppg_proc[filter_config["result_columns"]] = filtered_data
-    
-    return df_ppg_proc, df_acc_proc
+
+    if df_acc is not None and imu_config is not None:
+        return df_ppg_proc, df_acc_proc
+    else:
+        df_acc_proc = None
+        return df_ppg_proc, df_acc_proc
 
 
 
