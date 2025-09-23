@@ -35,17 +35,6 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    # Get the version from pyproject.toml
-    # This will be used to tag the release in the publishing workflow
-    - name: Install toml package
-      run: pip install toml
-    - name: Get version from pyproject.toml
-      id: get_version
-      run: |
-        VERSION=$(python -c "import toml; print(toml.load('pyproject.toml')['tool']['poetry']['version'])")
-        echo Version: $VERSION
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
-
     - name: Install Poetry and project dependencies
       run: |
         python -m pip install --upgrade pip
