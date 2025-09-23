@@ -1,6 +1,6 @@
 # Pulse rate analysis
 
-This tutorial shows how to extract pulse rate estimates using photoplethysmography (PPG) data and accelerometer data. The pipeline consists of a stepwise approach to determine signal quality, assessing both PPG morphology and accounting for periodic artifacts using the accelerometer. Based on the signal quality, we extract high-quality segments and estimate the pulse rate for every 2 s using the smoothed pseudo Wigner-Ville Distribution.
+This tutorial shows how to extract pulse rate estimates using photoplethysmography (PPG) data and accelerometer data. The pipeline consists of a stepwise approach to determine signal quality, assessing both PPG morphology and accounting for periodic artifacts using the accelerometer. The usage of accelerometer is optional but is recommended to specifically account for periodic motion artifacts. Based on the signal quality, we extract high-quality segments and estimate the pulse rate for every 2 s using the smoothed pseudo Wigner-Ville Distribution.
 
 In this tutorial, we use two days of data from a participant of the Personalized Parkinson Project to demonstrate the functionalities. Since `ParaDigMa` expects contiguous time series, the collected data was stored in two segments each with contiguous timestamps. Per segment, we load the data and perform the following steps:
 1. Preprocess the time series data
@@ -14,7 +14,7 @@ We then combine the output of the different segments for the final step:
 
 ## Load data
 
-This pipeline requires accelerometer and PPG data to run. Here, we start by loading a single contiguous time series (segment), for which we continue running steps 1-4. [Below](#multiple_segments_cell) we show how to run these steps for multiple segments. The channel `green` represents the values obtained with PPG using green light.
+This pipeline requires PPG data and preferably accelerometer data (optional). Here, we start by loading a single contiguous time series (segment), for which we continue running steps 1-4. [Below](#multiple_segments_cell) we show how to run these steps for multiple segments. The channel `green` represents the values obtained with PPG using green light.
 
 In this example we use the interally developed `TSDF` ([documentation](https://biomarkersparkinson.github.io/tsdf/)) to load and store data [[1](https://arxiv.org/abs/2211.11294)]. However, we are aware that there are other common data formats. For example, the following functions can be used depending on the file extension of the data:
 - _.csv_: `pandas.read_csv()` ([documentation](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html))
@@ -39,12 +39,14 @@ df_ppg, metadata_time_ppg, metadata_values_ppg = load_tsdf_dataframe(
     path_to_data=path_to_prepared_data / ppg_prefix, 
     prefix=f'PPG_segment{segment_nr}'
 )
+
+# Only relevant if you have IMU data available
 df_imu, metadata_time_imu, metadata_values_imu = load_tsdf_dataframe(
     path_to_data=path_to_prepared_data / imu_prefix, 
     prefix=f'IMU_segment{segment_nr}'
 )
 
-# Drop the gyroscope columns from the IMU data
+# Drop the gyroscope columns from the IMU data to keep only accelerometer data
 cols_to_drop = df_imu.filter(regex='^gyroscope_').columns
 df_acc = df_imu.drop(cols_to_drop, axis=1)
 
@@ -247,7 +249,7 @@ display(df_ppg, df_acc)
 
 ## Step 1: Preprocess data
 
-The first step after loading the data is preprocessing using the [preprocess_ppg_data](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_ppg_data). This begins by isolating segments containing both PPG and IMU data, discarding portions where one modality (e.g., PPG) extends beyond the other, such as when the PPG recording is longer than the accelerometer data. This functionality requires the starting times (`metadata_time_ppg.start_iso8601` and `metadata_time_imu.start_iso8601`) in iso8601 format as inputs. After this step, the preprocess_ppg_data function resamples the PPG and accelerometer data to uniformly distributed timestamps, addressing the fixed but non-uniform sampling rates of the sensors. After this, a bandpass Butterworth filter (4th-order, bandpass frequencies: 0.4--3.5 Hz) is applied to the PPG signal, while a high-pass Butterworth filter (4th-order, cut-off frequency: 0.2 Hz) is applied to the accelerometer data.
+The first step after loading the data is preprocessing using the [preprocess_ppg_data](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_ppg_data). This begins by isolating segments containing both PPG and IMU data, discarding portions where one modality (e.g., PPG) extends beyond the other, such as when the PPG recording is longer than the accelerometer data. This functionality requires the starting times (`metadata_time_ppg.start_iso8601` and `metadata_time_imu.start_iso8601`) in iso8601 format as inputs. After this step, the preprocess_ppg_data function resamples the PPG and accelerometer data to uniformly distributed timestamps, addressing the fixed but non-uniform sampling rates of the sensors. After this, a bandpass Butterworth filter (4th-order, bandpass frequencies: 0.4--3.5 Hz) is applied to the PPG signal, while a high-pass Butterworth filter (4th-order, cut-off frequency: 0.2 Hz) is applied to the accelerometer data. 
 
 Note: the printed shapes are (rows, columns) with each row corresponding to a single data point and each column representing a data column (e.g.time). The number of rows of the overlapping segments of PPG and accelerometer are not the same due to sampling differences (other sensors and possibly other sampling frequencies).
 
@@ -260,13 +262,15 @@ ppg_config = PPGConfig()
 imu_config = IMUConfig()
 
 print(f"Original data shapes:\n- PPG data: {df_ppg.shape}\n- Accelerometer data: {df_imu.shape}")
+
+# Remove optional arguments if you don't have accelerometer data (set to None or remove arguments)
 df_ppg_proc, df_acc_proc = preprocess_ppg_data(
     df_ppg=df_ppg, 
-    df_acc=df_acc, 
-    ppg_config=ppg_config, 
-    imu_config=imu_config, 
-    start_time_ppg=metadata_time_ppg.start_iso8601,
-    start_time_imu=metadata_time_imu.start_iso8601
+    ppg_config=ppg_config,
+    start_time_ppg=metadata_time_ppg.start_iso8601, # Optional
+    df_acc=df_acc,  # Optional
+    imu_config=imu_config, # Optional
+    start_time_imu=metadata_time_imu.start_iso8601 # Optional
 )
 
 print(f"Overlapping preprocessed data shapes:\n- PPG data: {df_ppg_proc.shape}\n- Accelerometer data: {df_acc_proc.shape}")
@@ -477,7 +481,7 @@ display(df_ppg_proc, df_acc_proc)
 
 ## Step 2: Extract signal quality features
 
-The preprocessed data (PPG & accelerometer) is windowed into overlapping windows of length `ppg_config.window_length_s` with a window step of `ppg_config.window_step_length_s`. From the PPG windows 10 time- and frequency domain features are extracted to assess PPG morphology and from the accelerometer windows one relative power feature is calculated to assess periodic motion artifacts.
+The preprocessed data (PPG & accelerometer) is windowed into overlapping windows of length `ppg_config.window_length_s` with a window step of `ppg_config.window_step_length_s`. From the PPG windows 10 time- and frequency domain features are extracted to assess PPG morphology and from the accelerometer windows (optional) one relative power feature is calculated to assess periodic motion artifacts.
 
 The detailed steps are encapsulated in `extract_signal_quality_features` (documentation can be found [here](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=extract_signal_quality_features)).
 
@@ -492,11 +496,12 @@ acc_config = PulseRateConfig('imu')
 print("The default window length for the signal quality feature extraction is set to", ppg_config.window_length_s, "seconds.")
 print("The default step size for the signal quality feature extraction is set to", ppg_config.window_step_length_s, "seconds.")
 
+# Remove optional arguments if you don't have accelerometer data (set to None or remove arguments)
 df_features = extract_signal_quality_features(
     df_ppg=df_ppg_proc,
-    df_acc=df_acc_proc,
-    ppg_config=ppg_config, 
-    acc_config=acc_config, 
+    ppg_config=ppg_config,
+    df_acc=df_acc_proc,     # Optional
+    acc_config=acc_config,  # Optional
 )
 
 df_features
@@ -529,6 +534,7 @@ df_features
     <tr style="text-align: right;">
       <th></th>
       <th>time</th>
+      <th>acc_power_ratio</th>
       <th>var</th>
       <th>mean</th>
       <th>median</th>
@@ -539,13 +545,13 @@ df_features
       <th>f_dom</th>
       <th>rel_power</th>
       <th>spectral_entropy</th>
-      <th>acc_power_ratio</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
       <td>0.0</td>
+      <td>0.026409</td>
       <td>1.145652e+05</td>
       <td>282.401234</td>
       <td>238.829637</td>
@@ -556,11 +562,11 @@ df_features
       <td>0.585938</td>
       <td>0.138454</td>
       <td>0.516336</td>
-      <td>0.026409</td>
     </tr>
     <tr>
       <th>1</th>
       <td>1.0</td>
+      <td>0.023402</td>
       <td>1.102401e+05</td>
       <td>271.582177</td>
       <td>236.891936</td>
@@ -571,11 +577,11 @@ df_features
       <td>0.585938</td>
       <td>0.160433</td>
       <td>0.511626</td>
-      <td>0.023402</td>
     </tr>
     <tr>
       <th>2</th>
       <td>2.0</td>
+      <td>0.028592</td>
       <td>1.061479e+05</td>
       <td>262.348604</td>
       <td>225.915756</td>
@@ -586,11 +592,11 @@ df_features
       <td>0.585938</td>
       <td>0.167007</td>
       <td>0.525025</td>
-      <td>0.028592</td>
     </tr>
     <tr>
       <th>3</th>
       <td>3.0</td>
+      <td>0.019296</td>
       <td>9.514719e+04</td>
       <td>245.089445</td>
       <td>203.417715</td>
@@ -601,11 +607,11 @@ df_features
       <td>0.585938</td>
       <td>0.170626</td>
       <td>0.550495</td>
-      <td>0.019296</td>
     </tr>
     <tr>
       <th>4</th>
       <td>4.0</td>
+      <td>0.020083</td>
       <td>7.393010e+04</td>
       <td>218.379138</td>
       <td>187.583266</td>
@@ -616,7 +622,6 @@ df_features
       <td>0.585938</td>
       <td>0.121113</td>
       <td>0.595214</td>
-      <td>0.020083</td>
     </tr>
     <tr>
       <th>...</th>
@@ -636,6 +641,7 @@ df_features
     <tr>
       <th>34329</th>
       <td>34329.0</td>
+      <td>0.110219</td>
       <td>8.176078e+06</td>
       <td>1613.021494</td>
       <td>438.201240</td>
@@ -646,11 +652,11 @@ df_features
       <td>0.351562</td>
       <td>0.046616</td>
       <td>0.356027</td>
-      <td>0.110219</td>
     </tr>
     <tr>
       <th>34330</th>
       <td>34330.0</td>
+      <td>0.178742</td>
       <td>3.512188e+07</td>
       <td>3307.888927</td>
       <td>1069.775894</td>
@@ -661,11 +667,11 @@ df_features
       <td>0.351562</td>
       <td>0.049424</td>
       <td>0.371163</td>
-      <td>0.178742</td>
     </tr>
     <tr>
       <th>34331</th>
       <td>34331.0</td>
+      <td>0.153351</td>
       <td>1.181350e+08</td>
       <td>6648.535487</td>
       <td>2743.478312</td>
@@ -676,11 +682,11 @@ df_features
       <td>0.351562</td>
       <td>0.048211</td>
       <td>0.366386</td>
-      <td>0.153351</td>
     </tr>
     <tr>
       <th>34332</th>
       <td>34332.0</td>
+      <td>0.154910</td>
       <td>1.252829e+09</td>
       <td>20165.525309</td>
       <td>6452.244225</td>
@@ -691,11 +697,11 @@ df_features
       <td>0.351562</td>
       <td>0.037812</td>
       <td>0.359105</td>
-      <td>0.154910</td>
     </tr>
     <tr>
       <th>34333</th>
       <td>34333.0</td>
+      <td>0.093221</td>
       <td>1.008217e+10</td>
       <td>42271.328020</td>
       <td>12552.656437</td>
@@ -706,7 +712,6 @@ df_features
       <td>0.585938</td>
       <td>0.113283</td>
       <td>0.632749</td>
-      <td>0.093221</td>
     </tr>
   </tbody>
 </table>
@@ -717,9 +722,14 @@ df_features
 
 ## Step 3: Signal quality classification
 
-A trained logistic classifier is used to predict PPG signal quality and returns the `pred_sqa_proba`, which is the posterior probability of a PPG window to look like the typical PPG morphology (higher probability indicates toward the typical PPG morphology). The relative power feature from the accelerometer is compared to a threshold for periodic artifacts and therefore `pred_sqa_acc_label` is used to return a label indicating predicted periodic motion artifacts (label 0) or no periodic motion artifacts (label 1).
+A trained logistic classifier is used to predict PPG signal quality and returns the `pred_sqa_proba`, which is the posterior probability of a PPG window to look like the typical PPG morphology (higher probability indicates toward the typical PPG morphology). The (optional) relative power feature from the accelerometer is compared to a threshold for periodic artifacts and therefore `pred_sqa_acc_label` is used to return a label indicating predicted periodic motion artifacts (label 0) or no periodic motion artifacts (label 1).
 
 The classification step is implemented in `signal_quality_classification` (documentation can be found [here](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=signal_quality_classification)).
+
+<u>**_Note on scale sensitivity_**</u>  
+The PPG sensor used for developing this pipeline records in arbitrary units. Some features are scale sensitive and require rescaling when applying the pipeline to other datasets or PPG sensors.  
+In this pipeline, the logistic classifier for PPG morphology was trained on z-scored features, using the means (μ) and standard deviations (σ) from the Personalized Parkinson Project training set. These μ and σ values are stored in the `ppg_quality_classifier_package`.  
+When applying the code to another dataset, users are advised to recalculate **_μ_** and **_σ** for each feature on their (training) data and update the classifier package accordingly.
 
 
 ```python

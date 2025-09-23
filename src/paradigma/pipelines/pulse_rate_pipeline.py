@@ -1,11 +1,8 @@
-import json
 import numpy as np
-import os
 import pandas as pd
 from pathlib import Path
 from scipy.signal import welch
 from scipy.signal.windows import hamming, hann
-import tsdf
 from typing import List
 
 from paradigma.classification import ClassifierPackage
@@ -17,7 +14,7 @@ from paradigma.pipelines.pulse_rate_utils import assign_sqa_label, extract_pr_se
 from paradigma.segmenting import tabulate_windows, WindowedDataExtractor
 from paradigma.util import aggregate_parameter
 
-def extract_signal_quality_features(df_ppg: pd.DataFrame, df_acc: pd.DataFrame, ppg_config: PulseRateConfig, acc_config: PulseRateConfig) -> pd.DataFrame:
+def extract_signal_quality_features(df_ppg: pd.DataFrame, ppg_config: PulseRateConfig, df_acc: pd.DataFrame | None = None, acc_config: PulseRateConfig | None = None) -> pd.DataFrame:
     """	
     Extract signal quality features from the PPG signal.
     The features are extracted from the temporal and spectral domain of the PPG signal.
@@ -58,21 +55,30 @@ def extract_signal_quality_features(df_ppg: pd.DataFrame, df_acc: pd.DataFrame, 
     start_time_ppg = np.min(ppg_windowed[:, :, idx_time], axis=1) # Start time of the window is relative to the first datapoint in the PPG data
     ppg_values_windowed = ppg_windowed[:, :, idx_ppg]
 
-    acc_windowed_cols = [DataColumns.TIME] + acc_config.accelerometer_cols
-    acc_windowed = tabulate_windows(
-        df=df_acc,
-        columns=acc_windowed_cols,
-        window_length_s=acc_config.window_length_s,
-        window_step_length_s=acc_config.window_step_length_s,
-        fs=acc_config.sampling_frequency
-    )
-
-    # Extract data from the windowed accelerometer signal
-    extractor = WindowedDataExtractor(acc_windowed_cols)
-    idx_acc = extractor.get_slice(acc_config.accelerometer_cols)
-    acc_values_windowed = acc_windowed[:, :, idx_acc]
-
     df_features = pd.DataFrame(start_time_ppg, columns=[DataColumns.TIME])
+
+    if df_acc is not None and acc_config is not None:
+        
+        acc_windowed_cols = [DataColumns.TIME] + acc_config.accelerometer_cols
+        acc_windowed = tabulate_windows(
+            df=df_acc,
+            columns=acc_windowed_cols,
+            window_length_s=acc_config.window_length_s,
+            window_step_length_s=acc_config.window_step_length_s,
+            fs=acc_config.sampling_frequency
+        )
+
+        # Extract data from the windowed accelerometer signal
+        extractor = WindowedDataExtractor(acc_windowed_cols)
+        idx_acc = extractor.get_slice(acc_config.accelerometer_cols)
+        acc_values_windowed = acc_windowed[:, :, idx_acc]
+
+        # Compute periodicity feature of the accelerometer signal
+        df_accelerometer_feature = extract_accelerometer_feature(acc_values_windowed, ppg_values_windowed, acc_config)
+        # Combine the accelerometer feature with the previously computed features
+        df_features = pd.concat([df_features, df_accelerometer_feature], axis=1)
+
+
     # Compute features of the temporal domain of the PPG signal
     df_temporal_features = extract_temporal_domain_features(ppg_values_windowed, ppg_config, quality_stats=['var', 'mean', 'median', 'kurtosis', 'skewness'])
     
@@ -84,12 +90,6 @@ def extract_signal_quality_features(df_ppg: pd.DataFrame, df_acc: pd.DataFrame, 
 
     # Combine the spectral features with the previously computed temporal features
     df_features = pd.concat([df_features, df_spectral_features], axis=1)
-    
-    # Compute periodicity feature of the accelerometer signal
-    df_accelerometer_feature = extract_accelerometer_feature(acc_values_windowed, ppg_values_windowed, acc_config)
-
-    # Combine the accelerometer feature with the previously computed features
-    df_features = pd.concat([df_features, df_accelerometer_feature], axis=1)
 
     return df_features
 
@@ -108,7 +108,7 @@ def signal_quality_classification(df: pd.DataFrame, config: PulseRateConfig, ful
     config : PulseRateConfig
         The configuration for the signal quality classification.
     full_path_to_classifier_package : str | Path
-        The path to the directory containing the classifier.
+        The path to the directory containing the classifier file, threshold value, scaler parameters, and feature names.
 
     Returns
     -------
@@ -123,9 +123,13 @@ def signal_quality_classification(df: pd.DataFrame, config: PulseRateConfig, ful
 
     # Make predictions for PPG signal quality assessment, and assign the probabilities to the DataFrame and drop the features
     df[DataColumns.PRED_SQA_PROBA] = clf.predict_proba(scaled_features)[:, 0]
-    df[DataColumns.PRED_SQA_ACC_LABEL] = (df[DataColumns.ACC_POWER_RATIO] < config.threshold_sqa_accelerometer).astype(int)  # Assign accelerometer label to the DataFrame based on the threshold
-    
-    return df[[DataColumns.TIME, DataColumns.PRED_SQA_PROBA, DataColumns.PRED_SQA_ACC_LABEL]]  # Return only the relevant columns, namely the predicted probabilities for the PPG signal quality and the accelerometer label
+    keep_cols = [DataColumns.TIME, DataColumns.PRED_SQA_PROBA]
+
+    if DataColumns.ACC_POWER_RATIO in df.columns:
+        df[DataColumns.PRED_SQA_ACC_LABEL] = (df[DataColumns.ACC_POWER_RATIO] < config.threshold_sqa_accelerometer).astype(int)  # Assign accelerometer label to the DataFrame based on the threshold
+        keep_cols += [DataColumns.PRED_SQA_ACC_LABEL]
+        
+    return df[keep_cols]
 
 
 def estimate_pulse_rate(df_sqa: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame, config: PulseRateConfig) -> pd.DataFrame:  
@@ -149,8 +153,13 @@ def estimate_pulse_rate(df_sqa: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame,
 
     # Extract NumPy arrays for faster operations
     ppg_post_prob = df_sqa[DataColumns.PRED_SQA_PROBA].to_numpy()
-    acc_label = df_sqa.loc[:, DataColumns.PRED_SQA_ACC_LABEL].to_numpy() # Adjust later in data columns to get the correct label, should be first intergrated in feature extraction and classification
-    ppg_preprocessed = df_ppg_preprocessed.values 
+
+    if DataColumns.PRED_SQA_ACC_LABEL in df_sqa.columns:
+        acc_label = df_sqa[DataColumns.PRED_SQA_ACC_LABEL].to_numpy()
+    else:
+        acc_label = None
+
+    ppg_preprocessed = df_ppg_preprocessed.values
     time_idx = df_ppg_preprocessed.columns.get_loc(DataColumns.TIME) # Get the index of the time column
     ppg_idx = df_ppg_preprocessed.columns.get_loc(DataColumns.PPG) # Get the index of the PPG column
     
