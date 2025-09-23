@@ -254,10 +254,26 @@ Note: the printed shapes are (rows, columns) with each row corresponding to a si
 
 ```python
 from paradigma.config import PPGConfig, IMUConfig
+from paradigma.constants import DataColumns
 from paradigma.preprocessing import preprocess_ppg_data
 
-ppg_config = PPGConfig()
-imu_config = IMUConfig()
+# Set column names: replace DataColumn.* with your actual column names. 
+# It is only necessary to set the columns that are present in your data, and
+# only if they differ from the default names defined in DataColumns.
+imu_column_mapping = {
+    'TIME': DataColumns.TIME,
+    'ACCELEROMETER_X': DataColumns.ACCELEROMETER_X,
+    'ACCELEROMETER_Y': DataColumns.ACCELEROMETER_Y,
+    'ACCELEROMETER_Z': DataColumns.ACCELEROMETER_Z,
+}
+
+ppg_column_mapping = {
+    'TIME': DataColumns.TIME,
+    'PPG': DataColumns.PPG,
+}
+
+ppg_config = PPGConfig(column_mapping=ppg_column_mapping)
+imu_config = IMUConfig(column_mapping=imu_column_mapping)
 
 print(f"Original data shapes:\n- PPG data: {df_ppg.shape}\n- Accelerometer data: {df_imu.shape}")
 df_ppg_proc, df_acc_proc = preprocess_ppg_data(
@@ -486,17 +502,25 @@ The detailed steps are encapsulated in `extract_signal_quality_features` (docume
 from paradigma.config import PulseRateConfig
 from paradigma.pipelines.pulse_rate_pipeline import extract_signal_quality_features
 
-ppg_config = PulseRateConfig('ppg')
-acc_config = PulseRateConfig('imu')
+pulse_rate_ppg_config = PulseRateConfig(
+    sensor='ppg', 
+    ppg_sampling_frequency=ppg_config.sampling_frequency,
+)
 
-print("The default window length for the signal quality feature extraction is set to", ppg_config.window_length_s, "seconds.")
-print("The default step size for the signal quality feature extraction is set to", ppg_config.window_step_length_s, "seconds.")
+pulse_rate_acc_config = PulseRateConfig(
+    sensor='imu',
+    imu_sampling_frequency=imu_config.sampling_frequency,
+    accelerometer_colnames=imu_config.accelerometer_colnames,
+)
+
+print("The default window length for the signal quality feature extraction is set to", pulse_rate_ppg_config.window_length_s, "seconds.")
+print("The default step size for the signal quality feature extraction is set to", pulse_rate_ppg_config.window_step_length_s, "seconds.")
 
 df_features = extract_signal_quality_features(
     df_ppg=df_ppg_proc,
     df_acc=df_acc_proc,
-    ppg_config=ppg_config, 
-    acc_config=acc_config, 
+    ppg_config=pulse_rate_ppg_config,
+    acc_config=pulse_rate_acc_config,
 )
 
 df_features
@@ -729,11 +753,9 @@ from paradigma.pipelines.pulse_rate_pipeline import signal_quality_classificatio
 ppg_quality_classifier_package_filename = 'ppg_quality_clf_package.pkl'
 full_path_to_classifier_package = files('paradigma') / 'assets' / ppg_quality_classifier_package_filename
 
-config = PulseRateConfig()
-
 df_sqa = signal_quality_classification(
     df=df_features, 
-    config=config, 
+    config=pulse_rate_ppg_config, 
     full_path_to_classifier_package=full_path_to_classifier_package
 )
 
@@ -879,69 +901,6 @@ df_sqa, _, _ = load_tsdf_dataframe(path_to_prepared_data, prefix=f'segment{segme
 df_sqa.head()
 ```
 
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>time</th>
-      <th>pred_sqa_proba</th>
-      <th>pred_sqa_acc_label</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.0</td>
-      <td>0.011213</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1.0</td>
-      <td>0.007126</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>2.0</td>
-      <td>0.007018</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>3.0</td>
-      <td>0.004134</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>4.0</td>
-      <td>0.000920</td>
-      <td>1.0</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
 ## Step 4: Pulse rate estimation
 
 For pulse rate estimation, we extract segments of `config.tfd_length` using [estimate_pulse_rate](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=estimate_pulse_rate). We calculate the smoothed-pseudo Wigner-Ville Distribution (SPWVD) to obtain the frequency content of the PPG signal over time. We extract for every timestamp in the SPWVD the frequency with the highest power. For every non-overlapping 2 s window we average the corresponding frequencies to obtain a pulse rate per window.
@@ -952,12 +911,12 @@ Note: for the test data we set the tfd_length to 10 s instead of the default of 
 ```python
 from paradigma.pipelines.pulse_rate_pipeline import estimate_pulse_rate
 
-print("The standard default minimal window length for the pulse rate extraction is set to", config.tfd_length, "seconds.")
+print("The standard default minimal window length for the pulse rate extraction is set to", pulse_rate_ppg_config.tfd_length, "seconds.")
 
 df_pr = estimate_pulse_rate(
     df_sqa=df_sqa, 
     df_ppg_preprocessed=df_ppg_proc, 
-    config=config
+    config=pulse_rate_ppg_config
 )
 
 df_pr
@@ -1115,8 +1074,15 @@ for segment_nr in segments:
     )
 
     # 2: Extract signal quality features
-    ppg_config = PulseRateConfig('ppg')
-    acc_config = PulseRateConfig('imu')
+    ppg_config = PulseRateConfig(
+        sensor='ppg',
+        ppg_sampling_frequency=ppg_config.sampling_frequency
+    )
+    acc_config = PulseRateConfig(
+        sensor='imu',
+        imu_sampling_frequency=imu_config.sampling_frequency,
+        accelerometer_colnames=imu_config.accelerometer_colnames,
+    )
 
     df_features = extract_signal_quality_features(
         df_ppg=df_ppg_proc,
@@ -1126,11 +1092,9 @@ for segment_nr in segments:
     )
     
     # 3: Signal quality classification
-    config = PulseRateConfig()
-
     df_sqa = signal_quality_classification(
         df=df_features, 
-        config=config, 
+        config=ppg_config, 
         full_path_to_classifier_package=full_path_to_classifier_package
     )
 
@@ -1138,7 +1102,7 @@ for segment_nr in segments:
     df_pr = estimate_pulse_rate(
         df_sqa=df_sqa, 
         df_ppg_preprocessed=df_ppg_proc, 
-        config=config
+        config=ppg_config
     )
 
     # Add the hr estimations of the current segment to the list
@@ -1166,7 +1130,7 @@ df_pr_agg = aggregate_pulse_rate(
 pprint.pprint(df_pr_agg)
 ```
 
-    {'metadata': {'nr_pr_est': 806},
-     'pr_aggregates': {'99p_pulse_rate': 87.65865011636926,
-                       'mode_pulse_rate': 81.25613346418058}}
+    {'metadata': {'nr_pr_est': 8660},
+     'pr_aggregates': {'99p_pulse_rate': 85.77263444520081,
+                       'mode_pulse_rate': 63.59175662414131}}
     

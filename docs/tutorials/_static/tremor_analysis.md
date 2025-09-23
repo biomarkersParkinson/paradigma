@@ -192,9 +192,23 @@ IMU sensors collect data at a fixed sampling frequency, but the sampling rate is
 
 ```python
 from paradigma.config import IMUConfig
+from paradigma.constants import DataColumns
 from paradigma.preprocessing import preprocess_imu_data
 
-config = IMUConfig()
+# Set column names: replace DataColumn.* with your actual column names. 
+# It is only necessary to set the columns that are present in your data, and
+# only if they differ from the default names defined in DataColumns.
+column_mapping = {
+    'TIME': DataColumns.TIME,
+    'ACCELEROMETER_X': DataColumns.ACCELEROMETER_X,
+    'ACCELEROMETER_Y': DataColumns.ACCELEROMETER_Y,
+    'ACCELEROMETER_Z': DataColumns.ACCELEROMETER_Z,
+    'GYROSCOPE_X': DataColumns.GYROSCOPE_X,
+    'GYROSCOPE_Y': DataColumns.GYROSCOPE_Y,
+    'GYROSCOPE_Z': DataColumns.GYROSCOPE_Z,
+}
+
+config = IMUConfig(column_mapping)
 print(f'The data is resampled to {config.sampling_frequency} Hz.')
 
 df_preprocessed_data = preprocess_imu_data(df_data, config, sensor='gyroscope', watch_side='left')
@@ -612,7 +626,7 @@ full_path_to_classifier_package = files('paradigma') / 'assets' / tremor_detecti
 # Use the logistic regression classifier to detect tremor and check for rest tremor
 df_predictions = detect_tremor(df_features, config, full_path_to_classifier_package)
 
-df_predictions[['time', 'pred_tremor_proba', 'pred_tremor_logreg', 'pred_arm_at_rest', 'pred_tremor_checked']]
+df_predictions[[config.time_colname, 'pred_tremor_proba', 'pred_tremor_logreg', 'pred_arm_at_rest', 'pred_tremor_checked']]
 ```
 
     A threshold of 50 deg²/s² is used to determine whether the arm is at rest or in stable posture.
@@ -755,7 +769,7 @@ metadata_time_store = tsdf.TSDFMetadata(metadata_time.get_plain_tsdf_dict_copy()
 metadata_values_store = tsdf.TSDFMetadata(metadata_values.get_plain_tsdf_dict_copy(), path_to_data)
 
 # Select the columns to be saved 
-metadata_time_store.channels = ['time']
+metadata_time_store.channels = [config.time_colname]
 metadata_values_store.channels = ['tremor_power', 'pred_tremor_proba', 'pred_tremor_logreg', 'pred_arm_at_rest', 'pred_tremor_checked']
 
 # Set the units
@@ -791,14 +805,14 @@ import pandas as pd
 import datetime
 import pytz
 
-df_quantification = df_predictions[['time', 'pred_arm_at_rest', 'pred_tremor_checked','tremor_power']].copy()
+df_quantification = df_predictions[[config.time_colname, 'pred_arm_at_rest', 'pred_tremor_checked','tremor_power']].copy()
 df_quantification.loc[df_predictions['pred_tremor_checked'] == 0, 'tremor_power'] = None # tremor power of non-tremor windows is set to None
 
 # Create datetime column based on the start time of the segment
 start_time = datetime.datetime.strptime(metadata_time.start_iso8601, '%Y-%m-%dT%H:%M:%SZ')
 start_time = start_time.replace(tzinfo=pytz.timezone('UTC')).astimezone(pytz.timezone('CET')) # convert to correct timezone if necessary
-df_quantification['time_dt'] = start_time + pd.to_timedelta(df_quantification['time'], unit="s") 
-df_quantification = df_quantification[['time', 'time_dt', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power']]
+df_quantification[f'{config.time_colname}_dt'] = start_time + pd.to_timedelta(df_quantification[config.time_colname], unit="s") 
+df_quantification = df_quantification[[config.time_colname, f'{config.time_colname}_dt', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power']]
 
 df_quantification
 ```
@@ -963,6 +977,7 @@ for segment_nr in segments:
     df_data, metadata_time, _ = load_tsdf_dataframe(path_to_prepared_data, prefix='IMU_segment'+segment_nr)
 
     # 1: Preprocess the data
+    # Change column names if necessary by creating parameter column_mapping (see previous cells for an example)
     config = IMUConfig()
     df_preprocessed_data = preprocess_imu_data(df_data, config, sensor='gyroscope', watch_side='left')
 
@@ -974,14 +989,14 @@ for segment_nr in segments:
     df_predictions = detect_tremor(df_features, config, full_path_to_classifier_package)
 
     # 4: Quantify tremor
-    df_quantification = df_predictions[['time', 'pred_arm_at_rest', 'pred_tremor_checked','tremor_power']].copy()
+    df_quantification = df_predictions[[config.time_colname, 'pred_arm_at_rest', 'pred_tremor_checked','tremor_power']].copy()
     df_quantification.loc[df_predictions['pred_tremor_checked'] == 0, 'tremor_power'] = None
 
     # Create datetime column based on the start time of the segment
     start_time = datetime.datetime.strptime(metadata_time.start_iso8601, '%Y-%m-%dT%H:%M:%SZ')
     start_time = start_time.replace(tzinfo=pytz.timezone('UTC')).astimezone(pytz.timezone('CET')) # convert to correct timezone if necessary
-    df_quantification['time_dt'] = start_time + pd.to_timedelta(df_quantification['time'], unit="s") 
-    df_quantification = df_quantification[['time', 'time_dt', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power']]
+    df_quantification[f'{config.time_colname}_dt'] = start_time + pd.to_timedelta(df_quantification[config.time_colname], unit="s") 
+    df_quantification = df_quantification[[config.time_colname, f'{config.time_colname}_dt', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power']]
 
     # Add the quantifications of the current segment to the list
     df_quantification['segment_nr'] = segment_nr
