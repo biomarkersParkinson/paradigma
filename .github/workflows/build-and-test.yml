@@ -46,26 +46,23 @@ jobs:
         echo Version: $VERSION
         echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-    # Install project dependencies
-    - name: Install dependencies
+    - name: Install Poetry and project dependencies
       run: |
+        python -m pip install --upgrade pip
         python -m pip install poetry
         poetry install
 
-    # Install the Paradigma Jupyter kernel for notebooks
-    - name: Install Paradigma kernel
-      run: |
-        poetry run python -m ipykernel install --user --name=paradigma --display-name "paradigma (Poetry)"
-
     # Testing and checking
-    - name: Test with pytest
+    - name: Run tests
       run: poetry run pytest
+
     - name: Type check
       run: poetry run pytype .
 
     # Build the package
     - name: Build the package
       run: poetry build
+
     - name: Archive build artifacts
       uses: actions/upload-artifact@v4
       if: github.ref == 'refs/heads/release'
