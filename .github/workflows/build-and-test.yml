@@ -29,26 +29,33 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'poetry'  # enables caching of dependencies
 
-      # Install Poetry and dependencies
-      - name: Install Poetry and project dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install poetry
-          poetry install
-
-      # Get project version from pyproject.toml (for release workflow)
-      - name: Get version from pyproject.toml
-        id: get_version
-        run: |
-          VERSION=$(poetry version -s)
-          echo "Version: $VERSION"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       # Run pre-commit hooks (formatting, linting, YAML checks, etc.)
       - name: Run pre-commit hooks
         run: poetry run pre-commit run --all-files --show-diff-on-failure
+
+      # Get the version from pyproject.toml
+      # This will be used to tag the release in the publishing workflow
+      - name: Install toml package
+        run: pip install toml
+      - name: Get version from pyproject.toml
+        id: get_version
+        run: |
+          VERSION=$(python -c "import toml; print(toml.load('pyproject.toml')['tool']['poetry']['version'])")
+          echo Version: $VERSION
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      # Install project dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install poetry
+          poetry install
+
+      # Install the Paradigma Jupyter kernel for notebooks
+      - name: Install Paradigma kernel
+        run: |
+          poetry run python -m ipykernel install --user --name=paradigma --display-name "paradigma (Poetry)"
 
       # Run tests
       - name: Run pytest
