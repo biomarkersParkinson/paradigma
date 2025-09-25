@@ -30,11 +30,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-
-      # Run pre-commit hooks (formatting, linting, YAML checks, etc.)
-      - name: Run pre-commit hooks
-        run: poetry run pre-commit run --all-files --show-diff-on-failure
-
       # Get the version from pyproject.toml
       # This will be used to tag the release in the publishing workflow
       - name: Install toml package
@@ -56,6 +51,10 @@ jobs:
       - name: Install Paradigma kernel
         run: |
           poetry run python -m ipykernel install --user --name=paradigma --display-name "paradigma (Poetry)"
+
+      # Run pre-commit hooks (formatting, linting, YAML checks, etc.)
+      - name: Run pre-commit hooks
+        run: poetry run pre-commit run --all-files --show-diff-on-failure
 
       # Run tests
       - name: Run pytest
