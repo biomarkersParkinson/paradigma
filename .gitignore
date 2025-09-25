@@ -93,6 +93,7 @@ ipython_config.py
 # =========================
 .python-version  # pyenv
 __pypackages__/  # PEP 582
+.ruff*
 
 # =========================
 # Web frameworks

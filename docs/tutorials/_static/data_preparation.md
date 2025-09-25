@@ -4,7 +4,7 @@ ParaDigMa requires the sensor data to be of a specific format. This tutorial pro
 * One or multiple of the following sensor column categories:
   * Accelerometer: `accelerometer_x`, `accelerometer_y` and `accelerometer_z` in _g_
   * Gyroscope: `gyroscope_x`, `gyroscope_y` and `gyroscope_z` in _deg/s_
-  * PPG: `green` 
+  * PPG: `green`
 
 The final dataframe should be resampled to 100 Hz, have the correct units for the sensor columns, and the correct format for the `time` column. Also note that the _gait_ pipeline expects a specific orientation of sensor axes, as explained in [Coordinate system](../guides/coordinate_system.md).
 
@@ -20,7 +20,7 @@ path_to_raw_data = Path('../../tests/data/data_preparation_tutorial')
 path_to_imu_data = path_to_raw_data / 'imu'
 
 df_imu, imu_time, imu_values = load_tsdf_dataframe(
-    path_to_data=path_to_imu_data, 
+    path_to_data=path_to_imu_data,
     prefix='IMU'
 )
 
@@ -122,7 +122,7 @@ from paradigma.util import load_tsdf_dataframe
 path_to_ppg_data = os.path.join(path_to_raw_data, 'ppg')
 
 df_ppg, ppg_time, ppg_values = load_tsdf_dataframe(
-    path_to_data=path_to_ppg_data, 
+    path_to_data=path_to_ppg_data,
     prefix='PPG'
 )
 
@@ -596,8 +596,8 @@ from paradigma.constants import TimeUnit
 from paradigma.util import transform_time_array
 
 df_imu[DataColumns.TIME] = transform_time_array(
-    time_array=df_imu[DataColumns.TIME], 
-    input_unit_type=TimeUnit.DIFFERENCE_MS, 
+    time_array=df_imu[DataColumns.TIME],
+    input_unit_type=TimeUnit.DIFFERENCE_MS,
     output_unit_type=TimeUnit.RELATIVE_S,
 )
 
@@ -697,8 +697,8 @@ from paradigma.constants import TimeUnit
 from paradigma.util import transform_time_array
 
 df_ppg[DataColumns.TIME] = transform_time_array(
-    time_array=df_ppg[DataColumns.TIME], 
-    input_unit_type=TimeUnit.DIFFERENCE_MS, 
+    time_array=df_ppg[DataColumns.TIME],
+    input_unit_type=TimeUnit.DIFFERENCE_MS,
     output_unit_type=TimeUnit.RELATIVE_S,
 )
 
