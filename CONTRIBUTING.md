@@ -26,9 +26,32 @@ Anything tagged with `enhancement` or `help wanted` is open to whoever wants to 
 
 ### Write Documentation
 
-You can never have enough documentation! Please feel free to contribute to any
-part of the documentation, such as the official docs, docstrings, or even
-on the web in blog posts, articles, and such.
+Documentation contributions are always welcome! You can contribute to:
+* Official docs: Located in `docs/`
+* Tutorial notebooks: `docs/tutorials/`
+* Docstrings: In Python modules
+* Articles or blog posts
+
+#### Workflow for notebooks and docs:
+1. Run and export notebooks:
+
+```bash
+poetry run build-docs
+```
+
+This will:
+* Execute all notebooks in `docs/tutorials/`
+* Export them to Markdown in `docs/tutorials/_static/`
+* Strip outputs
+* Build the HTML documentation
+
+2. Serve documentation locally:
+
+```bash
+poetry run serve-docs
+```
+
+This will serve the built HTML at `http://localhost:8000`.
 
 ### Submit Feedback
 
@@ -41,24 +64,43 @@ If you are proposing a feature:
 
 ## Get Started!
 
-Ready to contribute? Here's how to set up `paradigma` for local development.
+Ready to contribute? Here's how to set up `paradigma` locally:
+1. Clone the repository:
 
-1. Download a copy of `paradigma` locally.
-2. Install `paradigma` using `poetry`:
+```bash
+git clone https://github.com/biomarkersParkinson/paradigma.git
+cd paradigma
+```
 
-    ```bash
-    poetry install
-    ```
+2. Install dependencies via Poetry:
 
-3. Use `git` (or similar) to create a branch for local development and make your changes:
+```bash
+poetry install
+```
 
-    ```bash
-    git checkout -b name-of-your-bugfix-or-feature
-    ```
+3. Create a new branch for your work:
 
-4. When you're done making changes, check that your changes conform to any code formatting requirements and pass any tests.
+```bash
+git checkout -b name-of-your-bugfix-or-feature
+```
 
-5. Commit your changes and open a pull request.
+4. Make your changes and run the pre-commit hooks:
+
+```bash
+pre-commit run --all-files
+```
+
+This ensures code formatting (`black`), import sorting (`isort`), stripping notebook outputs, and other checks.
+This is also automatically done when committing.
+
+5. If contributing to docs, build and serve them locally to verify:
+
+```bash
+poetry run build-docs
+poetry run serve-docs
+```
+
+6. Commit your changes and open a pull request.
 
 ## Pull Request Guidelines
 
@@ -71,5 +113,5 @@ Before you submit a pull request, check that it meets these guidelines:
 ## Code of Conduct
 
 Please note that the `paradigma` project is released with a
-[Code of Conduct](https://github.com/biomarkersParkinson/conduct.md).
+[Code of Conduct](https://biomarkersparkinson.github.io/paradigma/conduct.html).
 By contributing to this project you agree to abide by its terms.
