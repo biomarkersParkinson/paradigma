@@ -1,15 +1,14 @@
+from typing import Tuple
+
 import numpy as np
 from scipy import signal
-from typing import Tuple
 
 from paradigma.config import PulseRateConfig
 
 
 def assign_sqa_label(
-        ppg_prob: np.ndarray, 
-        config: PulseRateConfig, 
-        acc_label=None
-    ) -> np.ndarray:
+    ppg_prob: np.ndarray, config: PulseRateConfig, acc_label=None
+) -> np.ndarray:
     """
     Assigns a signal quality label to every individual data point.
 
@@ -43,12 +42,14 @@ def assign_sqa_label(
 
     for i in range(n_samples):
         # Start and end indices for current epoch
-        start_idx = max(0, int((i - (samples_per_epoch - samples_shift)) // fs)) # max to handle first epochs
-        end_idx = min(int(i // fs), len(ppg_prob))  # min to handle last epochs  
+        start_idx = max(
+            0, int((i - (samples_per_epoch - samples_shift)) // fs)
+        )  # max to handle first epochs
+        end_idx = min(int(i // fs), len(ppg_prob))  # min to handle last epochs
 
         # Extract probabilities and labels for the current epoch
-        prob = ppg_prob[start_idx:end_idx+1]
-        label_imu = acc_label[start_idx:end_idx+1]
+        prob = ppg_prob[start_idx : end_idx + 1]
+        label_imu = acc_label[start_idx : end_idx + 1]
 
         # Calculate mean probability and majority voting for labels
         data_prob[i] = np.mean(prob)
@@ -61,7 +62,9 @@ def assign_sqa_label(
     return sqa_label
 
 
-def extract_pr_segments(sqa_label: np.ndarray, min_pr_samples: int) -> Tuple[np.ndarray, np.ndarray]:
+def extract_pr_segments(
+    sqa_label: np.ndarray, min_pr_samples: int
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Extracts pulse rate segments based on the SQA label.
 
@@ -95,12 +98,8 @@ def extract_pr_segments(sqa_label: np.ndarray, min_pr_samples: int) -> Tuple[np.
 
 
 def extract_pr_from_segment(
-        ppg: np.ndarray, 
-        tfd_length: int, 
-        fs: int, 
-        kern_type: str, 
-        kern_params: dict
-    ) -> np.ndarray:
+    ppg: np.ndarray, tfd_length: int, fs: int, kern_type: str, kern_params: dict
+) -> np.ndarray:
     """
     Extracts pulse rate from the time-frequency distribution of the PPG signal.
 
@@ -115,7 +114,7 @@ def extract_pr_from_segment(
     kern_type : str
         Type of TFD kernel to use (e.g., 'wvd' for Wigner-Ville distribution).
     kern_params : dict
-        Parameters for the specified kernel. Not required for 'wvd', but relevant for other 
+        Parameters for the specified kernel. Not required for 'wvd', but relevant for other
         kernels like 'spwvd' or 'swvd'. Default is None.
 
     Returns
@@ -149,19 +148,16 @@ def extract_pr_from_segment(
     for segment in ppg_segments:
         # Calculate the time-frequency distribution
         pr_tfd = extract_pr_with_tfd(segment, fs, kern_type, kern_params)
-        pr_est_from_ppg = np.concatenate((pr_est_from_ppg, pr_tfd)) 
+        pr_est_from_ppg = np.concatenate((pr_est_from_ppg, pr_tfd))
 
     return pr_est_from_ppg
 
 
 def extract_pr_with_tfd(
-        ppg: np.ndarray, 
-        fs: int, 
-        kern_type: str, 
-        kern_params: dict
-    ) -> np.ndarray:
+    ppg: np.ndarray, fs: int, kern_type: str, kern_params: dict
+) -> np.ndarray:
     """
-    Estimate pulse rate (PR) from a PPG segment using a TFD method with optional 
+    Estimate pulse rate (PR) from a PPG segment using a TFD method with optional
     moving average filtering.
 
     Parameters
@@ -193,10 +189,14 @@ def extract_pr_with_tfd(
     max_freq_indices = np.argmax(tfd, axis=0)
 
     pr_smooth_tfd = np.array([])
-    for i in range(2, int(len(ppg) / fs) - 4 + 1, 2):  # Skip the first and last 2 seconds, add 1 to include the last segment
+    for i in range(
+        2, int(len(ppg) / fs) - 4 + 1, 2
+    ):  # Skip the first and last 2 seconds, add 1 to include the last segment
         relevant_indices = (time_axis >= i) & (time_axis < i + 2)
         avg_frequency = np.mean(freq_axis[max_freq_indices[relevant_indices]])
-        pr_smooth_tfd = np.concatenate((pr_smooth_tfd, [60 * avg_frequency]))  # Convert frequency to BPM
+        pr_smooth_tfd = np.concatenate(
+            (pr_smooth_tfd, [60 * avg_frequency])
+        )  # Convert frequency to BPM
 
     return pr_smooth_tfd
 
@@ -205,7 +205,7 @@ class TimeFreqDistr:
     def __init__(self):
         """
         This module contains the implementation of the Generalized Time-Frequency Distribution (TFD) computation using non-separable kernels.
-        This is a Python implementation of the MATLAB code provided by John O Toole in the following repository: https://github.com/otoolej/memeff_TFDs 
+        This is a Python implementation of the MATLAB code provided by John O Toole in the following repository: https://github.com/otoolej/memeff_TFDs
 
         The following functions are implemented for the computation of the TFD:
             - nonsep_gdtfd: Computes the generalized time-frequency distribution using a non-separable kernel.
@@ -220,15 +220,15 @@ class TimeFreqDistr:
             - shift_window: Shifts the window so that positive indices appear first.
             - pad_window: Zero-pads the window to a specified length.
             - compute_tfd: Finalizes the time-frequency distribution computation.
-        """	
+        """
         pass
 
     def nonsep_gdtfd(
-            self,
-            x: np.ndarray, 
-            kern_type: None | str = None,
-            kern_params: None | dict = None
-        ):
+        self,
+        x: np.ndarray,
+        kern_type: None | str = None,
+        kern_params: None | dict = None,
+    ):
         """
         Computes the generalized time-frequency distribution (TFD) using a non-separable kernel.
 
@@ -323,10 +323,10 @@ class TimeFreqDistr:
 
         # Multiply the TFD by the Doppler-lag kernel
         tfd = self.multiply_kernel_signal(tfd, kern_type, kern_params, N, Nh)
-        
+
         # Finalize the TFD computation
         tfd = self.compute_tfd(N, Nh, tfd)
-        
+
         return tfd
 
     def get_analytic_signal(self, x: np.ndarray) -> np.ndarray:
@@ -351,8 +351,8 @@ class TimeFreqDistr:
 
         # Make the analytical signal of the real-valued signal z (preprocessed PPG signal)
         # doesn't work for input of complex numbers
-        z = self.gen_analytic(x)  
-        
+        z = self.gen_analytic(x)
+
         return z
 
     def gen_analytic(self, x: np.ndarray) -> np.ndarray:
@@ -370,17 +370,17 @@ class TimeFreqDistr:
             Analytic signal in the time domain with zeroed second half.
         """
         N = len(x)
-        
+
         # Zero-pad the signal to double its length
         x = np.concatenate((np.real(x), np.zeros(N)))
         x_fft = np.fft.fft(x)
 
         # Generate the analytic signal in the frequency domain
-        H = np.empty(2 * N) # Preallocate an array of size 2*N
-        H[0] = 1 # First element
-        H[1:N] = 2 # Next N-1 elements
-        H[N] = 1 # Middle element
-        H[N+1:] = 0 # Last N-1 elements
+        H = np.empty(2 * N)  # Preallocate an array of size 2*N
+        H[0] = 1  # First element
+        H[1:N] = 2  # Next N-1 elements
+        H[N] = 1  # Middle element
+        H[N + 1 :] = 0  # Last N-1 elements
         z_cb = np.fft.ifft(x_fft * H)
 
         # Force the second half of the time-domain signal to zero
@@ -396,7 +396,7 @@ class TimeFreqDistr:
         -----------
         z : ndarray
             Analytic signal of the input signal x.
-        
+
         Returns:
         --------
         tfd : ndarray
@@ -410,7 +410,7 @@ class TimeFreqDistr:
         tfd = np.zeros((N, N), dtype=complex)
 
         m = np.arange(Nh)
-        
+
         # Loop over time indices
         for n in range(N):
             inp = np.mod(n + m, 2 * N)
@@ -422,17 +422,12 @@ class TimeFreqDistr:
             # Store real and imaginary parts
             tfd[n, :Nh] = np.real(K_time_slice)
             tfd[n, Nh:] = np.imag(K_time_slice)
-        
+
         return tfd
 
-    def multiply_kernel_signal(  
-        self,
-        tfd: np.ndarray, 
-        kern_type: str, 
-        kern_params: dict, 
-        N: int, 
-        Nh: int  
-        ) -> np.ndarray:  
+    def multiply_kernel_signal(
+        self, tfd: np.ndarray, kern_type: str, kern_params: dict, N: int, Nh: int
+    ) -> np.ndarray:
         """
         Multiplies the TFD by the Doppler-lag kernel.
 
@@ -458,26 +453,22 @@ class TimeFreqDistr:
         for m in range(Nh):
             # Generate the Doppler-lag kernel for each lag index
             g_lag_slice = self.gen_doppler_lag_kern(kern_type, kern_params, N, m)
-            
+
             # Extract and transform the TFD slice for this lag
             tfd_slice = np.fft.fft(tfd[:, m]) + 1j * np.fft.fft(tfd[:, Nh + m])
-            
+
             # Multiply by the kernel and perform inverse FFT
             R_lag_slice = np.fft.ifft(tfd_slice * g_lag_slice)
-            
+
             # Store real and imaginary parts back into the TFD
             tfd[:, m] = np.real(R_lag_slice)
             tfd[:, Nh + m] = np.imag(R_lag_slice)
-        
+
         return tfd
 
     def gen_doppler_lag_kern(
-            self, 
-            kern_type: str, 
-            kern_params: dict, 
-            N: int, 
-            lag_index: int
-        ):
+        self, kern_type: str, kern_params: dict, N: int, lag_index: int
+    ):
         """
         Generate the Doppler-lag kernel based on kernel type and parameters.
 
@@ -502,16 +493,11 @@ class TimeFreqDistr:
         # Get kernel based on the type
         g = self.get_kern(g, lag_index, kern_type, kern_params, N)
 
-        return np.real(g) # All kernels are real valued
+        return np.real(g)  # All kernels are real valued
 
     def get_kern(
-            self, 
-            g: np.ndarray, 
-            lag_index: int, 
-            kern_type: str, 
-            kern_params: dict, 
-            N: int
-        ) -> np.ndarray:
+        self, g: np.ndarray, lag_index: int, kern_type: str, kern_params: dict, N: int
+    ) -> np.ndarray:
         """
         Get the kernel based on the provided kernel type.
 
@@ -534,38 +520,51 @@ class TimeFreqDistr:
             Kernel function at the current lag.
         """
         # Validate kern_type
-        valid_kern_types = ['wvd', 'sep', 'swvd', 'pwvd']  # List of valid kernel types which are currently supported
+        valid_kern_types = [
+            "wvd",
+            "sep",
+            "swvd",
+            "pwvd",
+        ]  # List of valid kernel types which are currently supported
         if kern_type not in valid_kern_types:
-            raise ValueError(f"Unknown kernel type: {kern_type}. Expected one of {valid_kern_types}")
-        
+            raise ValueError(
+                f"Unknown kernel type: {kern_type}. Expected one of {valid_kern_types}"
+            )
+
         num_params = len(kern_params)
 
-        if kern_type == 'wvd':
-            g[:] = 1 # WVD kernel is the equal to 1 for all lags
+        if kern_type == "wvd":
+            g[:] = 1  # WVD kernel is the equal to 1 for all lags
 
-        elif kern_type == 'sep':
+        elif kern_type == "sep":
             # Separable Kernel
             g1 = np.copy(g)  # Create a new array for g1
             g2 = np.copy(g)  # Create a new array for g2
-            
+
             # Call recursively to obtain g1 and g2 kernels (no in-place modification of g)
-            g1 = self.get_kern(g1, lag_index, 'swvd', kern_params['lag'], N) # Generate the first kernel
-            g2 = self.get_kern(g2, lag_index, 'pwvd', kern_params['doppler'], N) # Generate the second kernel
-            g = g1 * g2 # Multiply the two kernels to obtain the separable kernel
+            g1 = self.get_kern(
+                g1, lag_index, "swvd", kern_params["lag"], N
+            )  # Generate the first kernel
+            g2 = self.get_kern(
+                g2, lag_index, "pwvd", kern_params["doppler"], N
+            )  # Generate the second kernel
+            g = g1 * g2  # Multiply the two kernels to obtain the separable kernel
 
         else:
             if num_params < 2:
-                raise ValueError("Missing required kernel parameters: 'win_length' and 'win_type'")
+                raise ValueError(
+                    "Missing required kernel parameters: 'win_length' and 'win_type'"
+                )
 
-            win_length = kern_params['win_length']
-            win_type = kern_params['win_type']
-            win_param = kern_params['win_param'] if 'win_param' in kern_params else 0
-            win_param2 = kern_params['win_param2'] if 'win_param2' in kern_params else 1
+            win_length = kern_params["win_length"]
+            win_type = kern_params["win_type"]
+            win_param = kern_params["win_param"] if "win_param" in kern_params else 0
+            win_param2 = kern_params["win_param2"] if "win_param2" in kern_params else 1
 
             G = self.get_window(win_length, win_type, win_param)
             G = self.pad_window(G, N)
 
-            if kern_type == 'swvd' and win_param2 == 0:
+            if kern_type == "swvd" and win_param2 == 0:
                 G = np.fft.fft(G)
                 if G[0] != 0:  # add this check to avoid division by zero
                     G /= G[0]
@@ -576,16 +575,16 @@ class TimeFreqDistr:
         return g
 
     def get_window(
-            self, 
-            win_length: int, 
-            win_type: str,
-            win_param: float | None = None,
-            dft_window: bool = False,
-            Npad: int = 0
-        ) -> np.ndarray:
+        self,
+        win_length: int,
+        win_type: str,
+        win_param: float | None = None,
+        dft_window: bool = False,
+        Npad: int = 0,
+    ) -> np.ndarray:
         """
         General function to calculate a window function.
-        
+
         Parameters:
         -----------
         win_length : int
@@ -599,35 +598,35 @@ class TimeFreqDistr:
             If True, returns the DFT of the window. Default is False.
         Npad : int, optional
             If greater than 0, zero-pads the window to length Npad. Default is 0.
-        
+
         Returns:
         --------
         win : ndarray
             The calculated window (or its DFT if dft_window is True).
         """
-        
+
         # Get the window
         win = self.get_win(win_length, win_type, win_param, dft_window)
-        
+
         # Shift the window so that positive indices are first
         win = self.shift_window(win)
-        
+
         # Zero-pad the window to length Npad if necessary
         if Npad > 0:
             win = self.pad_window(win, Npad)
-        
+
         return win
 
     def get_win(
-            self, 
-            win_length: int, 
-            win_type: str, 
-            win_param: float | None = None, 
-            dft_window: bool = False
-        ) -> np.ndarray:
+        self,
+        win_length: int,
+        win_type: str,
+        win_param: float | None = None,
+        dft_window: bool = False,
+    ) -> np.ndarray:
         """
         Helper function to create the specified window type.
-        
+
         Parameters:
         -----------
         win_length : int
@@ -638,48 +637,52 @@ class TimeFreqDistr:
             Additional parameter for certain window types (e.g., Gaussian alpha). Default is None.
         dft_window : bool, optional
             If True, returns the DFT of the window. Default is False.
-        
+
         Returns:
         --------
         win : ndarray
             The created window (or its DFT if dft_window is True).
         """
-        if win_type == 'delta':
+        if win_type == "delta":
             win = np.zeros(win_length)
             win[win_length // 2] = 1
-        elif win_type == 'rect':
+        elif win_type == "rect":
             win = np.ones(win_length)
-        elif win_type in ['hamm', 'hamming']:
+        elif win_type in ["hamm", "hamming"]:
             win = signal.windows.hamming(win_length)
-        elif win_type in ['hann', 'hanning']:
+        elif win_type in ["hann", "hanning"]:
             win = signal.windows.hann(win_length)
-        elif win_type == 'gauss':
-            win = signal.windows.gaussian(win_length, std=win_param if win_param else 0.4)
-        elif win_type == 'cosh':
+        elif win_type == "gauss":
+            win = signal.windows.gaussian(
+                win_length, std=win_param if win_param else 0.4
+            )
+        elif win_type == "cosh":
             win_hlf = win_length // 2
             if not win_param:
                 win_param = 0.01
-            win = np.array([np.cosh(m) ** (-2 * win_param) for m in range(-win_hlf, win_hlf+1)])
+            win = np.array(
+                [np.cosh(m) ** (-2 * win_param) for m in range(-win_hlf, win_hlf + 1)]
+            )
             win = np.fft.fftshift(win)
         else:
             raise ValueError(f"Unknown window type {win_type}")
-        
+
         # If dft_window is True, return the DFT of the window
         if dft_window:
             win = np.fft.fft(np.roll(win, win_length // 2))
             win = np.roll(win, -win_length // 2)
-        
+
         return win
 
     def shift_window(self, w: np.ndarray) -> np.ndarray:
         """
         Shift the window so that positive indices appear first.
-        
+
         Parameters:
         -----------
         w : ndarray
             Window to be shifted.
-        
+
         Returns:
         --------
         w_shifted : ndarray
@@ -691,19 +694,19 @@ class TimeFreqDistr:
     def pad_window(self, w: np.ndarray, Npad: int) -> np.ndarray:
         """
         Zero-pad the window to a specified length.
-        
+
         Parameters:
         -----------
         w : ndarray
             The original window.
         Npad : int
             Length to zero-pad the window to.
-        
+
         Returns:
         --------
         w_pad : ndarray
             Zero-padded window of length Npad.
-        
+
         Raises:
         -------
         ValueError:
@@ -712,30 +715,25 @@ class TimeFreqDistr:
         N = len(w)
         w_pad = np.zeros(Npad)
         Nh = N // 2
-        
+
         if Npad < N:
             raise ValueError("Npad must be greater than or equal to the window length")
 
         if N == Npad:
             return w
-        
+
         if N % 2 == 1:  # For odd N
-            w_pad[:Nh+1] = w[:Nh+1]
+            w_pad[: Nh + 1] = w[: Nh + 1]
             w_pad[-Nh:] = w[-Nh:]
         else:  # For even N
             w_pad[:Nh] = w[:Nh]
             w_pad[Nh] = w[Nh] / 2
             w_pad[-Nh:] = w[-Nh:]
             w_pad[-Nh] = w[Nh] / 2
-        
+
         return w_pad
 
-    def compute_tfd(
-            self, 
-            N: int, 
-            Nh: int, 
-            tfd: np.ndarray
-        ):
+    def compute_tfd(self, N: int, Nh: int, tfd: np.ndarray):
         """
         Finalizes the time-frequency distribution computation.
 
@@ -756,25 +754,29 @@ class TimeFreqDistr:
         m = np.arange(0, Nh)  # m = 0:(Nh-1)
         mb = np.arange(1, Nh)  # mb = 1:(Nh-1)
 
-        for n in range(0, N-1, 2):  # for n=0:2:N-2
+        for n in range(0, N - 1, 2):  # for n=0:2:N-2
             R_even_half = np.complex128(tfd[n, :Nh]) + 1j * np.complex128(tfd[n, Nh:])
-            R_odd_half = np.complex128(tfd[n+1, :Nh]) + 1j * np.complex128(tfd[n+1, Nh:])
+            R_odd_half = np.complex128(tfd[n + 1, :Nh]) + 1j * np.complex128(
+                tfd[n + 1, Nh:]
+            )
 
-            R_tslice_even = np.zeros(N, dtype=np.complex128)  
+            R_tslice_even = np.zeros(N, dtype=np.complex128)
             R_tslice_odd = np.zeros(N, dtype=np.complex128)
 
             R_tslice_even[m] = R_even_half
             R_tslice_odd[m] = R_odd_half
 
-            R_tslice_even[N-mb] = np.conj(R_even_half[mb])  
-            R_tslice_odd[N-mb] = np.conj(R_odd_half[mb])
-            
+            R_tslice_even[N - mb] = np.conj(R_even_half[mb])
+            R_tslice_odd[N - mb] = np.conj(R_odd_half[mb])
+
             # Perform FFT to compute time slices
             tfd_time_slice = np.fft.fft(R_tslice_even + 1j * R_tslice_odd)
 
             tfd[n, :] = np.real(tfd_time_slice)
-            tfd[n+1, :] = np.imag(tfd_time_slice)
+            tfd[n + 1, :] = np.imag(tfd_time_slice)
 
         tfd = tfd / N  # Normalize the TFD
-        tfd = tfd.transpose()  # Transpose the TFD to have the time on the x-axis and frequency on the y-axis   
+        tfd = (
+            tfd.transpose()
+        )  # Transpose the TFD to have the time on the x-axis and frequency on the y-axis
         return tfd

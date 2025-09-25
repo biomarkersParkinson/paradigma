@@ -9,19 +9,20 @@ helps, and credit will always be given.
 
 If you are reporting a bug, please include:
 
-* Your operating system name and version.
-* Any details about your local setup that might be helpful in troubleshooting.
-* Detailed steps to reproduce the bug.
+* Your operating system name and version
+* Python version
+* Any details about your local setup that might be helpful in troubleshooting
+* Detailed steps to reproduce the bug
 
 ### Fix Bugs
 
-Look through the GitHub issues for bugs. Anything tagged with "bug" and "help
-wanted" is open to whoever wants to implement it.
+Look through the [GitHub issues](https://github.com/biomarkersParkinson/paradigma/issues) for bugs.
+Anything tagged with `bug` or `help wanted` is open to whoever wants to implement it.
 
 ### Implement Features
 
-Look through the GitHub issues for features. Anything tagged with "enhancement"
-and "help wanted" is open to whoever wants to implement it.
+Look through the [GitHub issues](https://github.com/biomarkersParkinson/paradigma/issues) for features.
+Anything tagged with `enhancement` or `help wanted` is open to whoever wants to implement it.
 
 ### Write Documentation
 
@@ -36,7 +37,7 @@ If you are proposing a feature:
 * Explain in detail how it would work.
 * Keep the scope as narrow as possible, to make it easier to implement.
 * Remember that this is a volunteer-driven project, and that contributions
-  are welcome :)
+  are welcome!
 
 ## Get Started!
 
@@ -45,14 +46,14 @@ Ready to contribute? Here's how to set up `paradigma` for local development.
 1. Download a copy of `paradigma` locally.
 2. Install `paradigma` using `poetry`:
 
-    ```console
-    $ poetry install
+    ```bash
+    poetry install
     ```
 
 3. Use `git` (or similar) to create a branch for local development and make your changes:
 
-    ```console
-    $ git checkout -b name-of-your-bugfix-or-feature
+    ```bash
+    git checkout -b name-of-your-bugfix-or-feature
     ```
 
 4. When you're done making changes, check that your changes conform to any code formatting requirements and pass any tests.
@@ -70,4 +71,5 @@ Before you submit a pull request, check that it meets these guidelines:
 ## Code of Conduct
 
 Please note that the `paradigma` project is released with a
-Code of Conduct. By contributing to this project you agree to abide by its terms.
+[Code of Conduct](https://github.com/biomarkersParkinson/conduct.md).
+By contributing to this project you agree to abide by its terms.

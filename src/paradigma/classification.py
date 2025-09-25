@@ -1,14 +1,18 @@
-import numpy as np
 import pickle
-
 from pathlib import Path
-from sklearn.base import BaseEstimator
 from typing import Any, Optional
 
+import numpy as np
+from sklearn.base import BaseEstimator
+
+
 class ClassifierPackage:
-    def __init__(self, classifier: Optional[BaseEstimator] = None, 
-                 threshold: Optional[float] = None, 
-                 scaler: Optional[Any] = None):
+    def __init__(
+        self,
+        classifier: Optional[BaseEstimator] = None,
+        threshold: Optional[float] = None,
+        scaler: Optional[Any] = None,
+    ):
         """
         Initialize the ClassifierPackage with a classifier, threshold, and scaler.
 
@@ -61,7 +65,7 @@ class ClassifierPackage:
         if not self.classifier:
             raise ValueError("Classifier is not loaded.")
         return self.classifier.predict_proba(X)[:, 1]
-    
+
     def predict(self, X) -> int:
         """
         Make predictions using the classifier and apply the threshold.
@@ -80,7 +84,7 @@ class ClassifierPackage:
         if not self.classifier:
             raise ValueError("Classifier is not loaded.")
         return int(self.predict_proba(X) >= self.threshold)
-    
+
     def save(self, filepath: str | Path) -> None:
         """
         Save the ClassifierPackage to a file.
@@ -90,7 +94,7 @@ class ClassifierPackage:
         filepath : str
             The path to the file.
         """
-        with open(filepath, 'wb') as f:
+        with open(filepath, "wb") as f:
             pickle.dump(self, f)
 
     @classmethod
@@ -109,7 +113,7 @@ class ClassifierPackage:
             The loaded classifier package.
         """
         try:
-            with open(filepath, 'rb') as f:
+            with open(filepath, "rb") as f:
                 return pickle.load(f)
         except Exception as e:
             raise ValueError(f"Failed to load classifier package: {e}") from e
