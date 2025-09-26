@@ -38,8 +38,7 @@ def resample_data(
         The frequency to which the data should be resampled (in Hz).
     tolerance : float, optional
         The tolerance added to the expected difference when checking 
-        for contiguous timestamps. If not provided, it defaults to
-        three times the expected interval.
+        for contiguous timestamps. If not provided, it defaults to the tolerance specified in IMUConfig.
 
     Returns
     -------
@@ -57,9 +56,10 @@ def resample_data(
     - Uses cubic interpolation for smooth resampling if there are enough points.
     - If only two timestamps are available, it falls back to linear interpolation.
     """
-    # Set default tolerance if not provided to three times the expected interval
+
+    # Set default tolerance if not provided to tolerance specified in IMUConfig
     if tolerance is None:
-        tolerance = 3 * 1 / sampling_frequency
+        tolerance = IMUConfig().tolerance
 
     # Extract time and values
     time_abs_array = np.array(df[time_column])
@@ -292,7 +292,8 @@ def preprocess_ppg_data(df_ppg: pd.DataFrame, df_acc: pd.DataFrame, ppg_config: 
         time_column=DataColumns.TIME,
         values_column_names = list(ppg_config.d_channels_ppg.keys()),
         sampling_frequency=ppg_config.sampling_frequency,
-        resampling_frequency=ppg_config.sampling_frequency
+        resampling_frequency=ppg_config.resampling_frequency,
+        tolerance=ppg_config.tolerance
     )
 
 
