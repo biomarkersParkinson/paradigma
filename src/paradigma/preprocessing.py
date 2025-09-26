@@ -282,7 +282,8 @@ def preprocess_ppg_data(df_ppg: pd.DataFrame, df_acc: pd.DataFrame, ppg_config: 
         time_column=DataColumns.TIME,
         values_column_names = list(imu_config.d_channels_accelerometer.keys()),
         sampling_frequency=imu_config.sampling_frequency,
-        resampling_frequency=imu_config.sampling_frequency
+        resampling_frequency=imu_config.resampling_frequency,
+        tolerance=imu_config.tolerance
     )
 
     # Resample PPG data
