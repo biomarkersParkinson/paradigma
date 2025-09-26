@@ -67,6 +67,7 @@ class IMUConfig(BaseConfig):
 
         self.sampling_frequency = 100
         self.resampling_frequency = 100
+        self.tolerance = 3 * 1 / self.sampling_frequency
         self.lower_cutoff_frequency = 0.2
         self.upper_cutoff_frequency = 3.5
         self.filter_order = 4
@@ -82,6 +83,8 @@ class PPGConfig(BaseConfig):
         self.ppg_colname = DataColumns.PPG
 
         self.sampling_frequency = 30
+        self.resampling_frequency = 30
+        self.tolerance = 3 * 1 / self.sampling_frequency
         self.lower_cutoff_frequency = 0.4
         self.upper_cutoff_frequency = 3.5
         self.filter_order = 4
