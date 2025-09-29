@@ -1,7 +1,7 @@
 from pathlib import Path
+
 import numpy as np
 import papermill as pm
-
 import tsdf
 
 arm_swing_binaries_pairs: list[tuple[str, str]] = [
@@ -15,6 +15,7 @@ abs_tol: float = 1e-10
 
 # Path to the notebooks
 notebooks_dir: str = "tests/notebooks/gait"
+
 
 def execute_notebook(name: str, parameters: dict[str, str]):
     """
@@ -58,16 +59,12 @@ def compare_data(
     for metadata, binary in binaries_pairs:
 
         # load the reference data
-        reference_metadata = tsdf.load_metadata_from_path(
-            reference_dir / metadata
-        )
+        reference_metadata = tsdf.load_metadata_from_path(reference_dir / metadata)
         ref_metadata_values = reference_metadata[binary]
         ref_data = tsdf.load_ndarray_from_binary(ref_metadata_values)
         # load the generated data
 
-        tested_metadata = tsdf.load_metadata_from_path(
-            tested_dir / metadata
-        )
+        tested_metadata = tsdf.load_metadata_from_path(tested_dir / metadata)
         tested_metadata_values = tested_metadata[binary]
         tested_data = tsdf.load_ndarray_from_binary(tested_metadata_values)
 
