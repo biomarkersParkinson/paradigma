@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from paradigma.config import PPGConfig, IMUConfig
-from paradigma.testing import preprocess_ppg_data_io
 from test_notebooks import compare_data
 
+from paradigma.config import IMUConfig, PPGConfig
+from paradigma.testing import preprocess_ppg_data_io
 
 # Mappings between the metadata and binary files
 
@@ -51,7 +51,11 @@ def compare_ppg_preprocessing(
     imu_config = IMUConfig()
 
     preprocess_ppg_data_io(
-        path_to_ppg_input, path_to_imu_input, path_to_tested_output, ppg_config, imu_config
+        path_to_ppg_input,
+        path_to_imu_input,
+        path_to_tested_output,
+        ppg_config,
+        imu_config,
     )
     compare_data(path_to_reference_output, path_to_tested_output, binaries_pairs)
 

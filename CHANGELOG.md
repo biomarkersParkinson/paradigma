@@ -28,7 +28,7 @@
 - Improved handling of constants in configuration files.
 - Refactored gait configuration files and enhanced constraints.
 - Bumped Python version to 3.10 for compatibility.
-- Tested `Enum` usage for constraints, but reverted to `str` due to the lack of flexibility. 
+- Tested `Enum` usage for constraints, but reverted to `str` due to the lack of flexibility.
 - Fixed typing issues
 - Added project badges and citation file.
 - Updated project naming and authors in citation file.
@@ -45,4 +45,3 @@
 ## v0.1.0 (15/08/2024)
 - First pre-release of `paradigma`!
 - Initial implementation of gait and PPG feature extraction.
-
