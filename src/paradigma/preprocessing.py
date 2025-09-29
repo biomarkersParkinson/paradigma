@@ -202,11 +202,11 @@ def preprocess_imu_data(
 
     # Extract sensor column
     if sensor == "accelerometer":
-        values_colnames = config.accelerometer_cols
+        values_colnames = config.accelerometer_colnames
     elif sensor == "gyroscope":
-        values_colnames = config.gyroscope_cols
+        values_colnames = config.gyroscope_colnames
     elif sensor == "both":
-        values_colnames = config.accelerometer_cols + config.gyroscope_cols
+        values_colnames = config.accelerometer_colnames + config.gyroscope_colnames
     else:
         raise ("Sensor should be either accelerometer, gyroscope, or both")
 
@@ -231,11 +231,13 @@ def preprocess_imu_data(
         # Define filter configurations for high-pass and low-pass
         filter_renaming_configs = {
             "hp": {
-                "result_columns": config.accelerometer_cols,
+                "result_columns": config.accelerometer_colnames,
                 "replace_original": True,
             },
             "lp": {
-                "result_columns": [f"{col}_grav" for col in config.accelerometer_cols],
+                "result_columns": [
+                    f"{col}_grav" for col in config.accelerometer_colnames
+                ],
                 "replace_original": False,
             },
         }
@@ -329,7 +331,7 @@ def preprocess_ppg_data(
     # Define filter configurations for high-pass and low-pass
     filter_renaming_configs = {
         "hp": {
-            "result_columns": imu_config.accelerometer_cols,
+            "result_columns": imu_config.accelerometer_colnames,
             "replace_original": True,
         }
     }

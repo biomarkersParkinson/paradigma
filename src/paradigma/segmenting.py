@@ -85,22 +85,35 @@ def tabulate_windows_legacy(config, df, agg_func="first"):
     """
     Efficiently creates a windowed dataframe from the input dataframe using vectorized operations.
 
-    Args:
-        df: The input dataframe, where each row represents a timestamp (0.01 sec).
-        window_length_s: The number of seconds per window.
-        window_step_length_s: The number of seconds to shift between windows.
-        single_value_cols: List of columns where a single value (e.g., mean) is needed.
-        list_value_cols: List of columns where all 600 values should be stored in a list.
-        agg_func: Aggregation function for single-value columns (e.g., 'mean', 'first').
+    Parameters
+    ----------
+    config : object
+        A configuration object containing:
+        - `window_length_s`: The number of seconds per window.
+        - `window_step_length_s`: The number of seconds to shift between windows.
+        - `sampling_frequency`: The sampling frequency in Hz.
+        - `single_value_colnames`: List of column names where a single value (e.g., mean) is needed.
+        - `list_value_colnames`: List of column names where all 600 values should be stored in a list.
+    agg_func : str or callable, optional
+        Aggregation function for single-value columns. Can be 'mean', 'first', or a custom callable.
+        Default is 'first'.
 
-    Returns:
-        The windowed dataframe.
+    Returns
+    -------
+    pd.DataFrame
+        A new DataFrame where each row corresponds to a window, containing:
+        - `window_nr`: The window number (starting from 1).
+        - `window_start`: The start time of the window.
+        - `window_end`: The end time of the window.
+        - Aggregated values for `single_value_colnames`.
+        - Lists of values for `list_value_colnames`.
+
     """
-    # If single_value_cols or list_value_cols is None, default to an empty list
-    if config.single_value_cols is None:
-        config.single_value_cols = []
-    if config.list_value_cols is None:
-        config.list_value_cols = []
+    # If single_value_colnames or list_value_colnames is None, default to an empty list
+    if config.single_value_colnames is None:
+        config.single_value_colnames = []
+    if config.list_value_colnames is None:
+        config.list_value_colnames = []
 
     window_length = int(config.window_length_s * config.sampling_frequency)
     window_step_size = int(config.window_step_length_s * config.sampling_frequency)
@@ -142,12 +155,12 @@ def tabulate_windows_legacy(config, df, agg_func="first"):
         }
 
         # Aggregate single-value columns
-        for col in config.single_value_cols:
+        for col in config.single_value_colnames:
             if col in window.columns:  # Only process columns that exist in the window
                 agg_data[col] = agg_func_np(window[col].values)
 
         # Collect list-value columns efficiently using numpy slicing
-        for col in config.list_value_cols:
+        for col in config.list_value_colnames:
             if col in window.columns:  # Only process columns that exist in the window
                 agg_data[col] = window[col].values.tolist()
 
@@ -159,8 +172,8 @@ def tabulate_windows_legacy(config, df, agg_func="first"):
     # Ensure the column order is as desired: window_nr, window_start, window_end, pre_or_post, and then the rest
     desired_order = (
         ["window_nr", "window_start", "window_end"]
-        + config.single_value_cols
-        + config.list_value_cols
+        + config.single_value_colnames
+        + config.list_value_colnames
     )
 
     return windowed_df[desired_order]
@@ -267,31 +280,31 @@ class WindowedDataExtractor:
 
     Methods
     -------
-    get_index(col)
-        Returns the index of a specific column.
-    get_slice(cols)
-        Returns a slice object for a range of consecutive columns.
+    get_index(colname)
+        Returns the index of a specific column name.
+    get_slice(colnames)
+        Returns a slice object for a range of consecutive column names.
     """
 
-    def __init__(self, windowed_cols):
+    def __init__(self, windowed_colnames: List[str]):
         """
         Initialize the WindowedDataExtractor.
 
         Parameters
         ----------
-        windowed_cols : list of str
+        windowed_colnames : list of str
             A list of column names in the windowed data.
 
         Raises
          ------
         ValueError
-            If the list of `windowed_cols` is empty.
+            If the list of `windowed_colnames` is empty.
         """
-        if not windowed_cols:
+        if not windowed_colnames:
             raise ValueError("The list of windowed columns cannot be empty.")
-        self.column_indices = {col: idx for idx, col in enumerate(windowed_cols)}
+        self.column_indices = {col: idx for idx, col in enumerate(windowed_colnames)}
 
-    def get_index(self, col):
+    def get_index(self, colname: str) -> int:
         """
         Get the index of a specific column.
 
@@ -308,19 +321,19 @@ class WindowedDataExtractor:
         Raises
         ------
         ValueError
-            If the column is not found in the `windowed_cols` list.
+            If the column is not found in the `windowed_colnames` list.
         """
-        if col not in self.column_indices:
-            raise ValueError(f"Column '{col}' not found in windowed_cols.")
-        return self.column_indices[col]
+        if colname not in self.column_indices:
+            raise ValueError(f"Column name '{colname}' not found in windowed_colnames.")
+        return self.column_indices[colname]
 
-    def get_slice(self, cols):
+    def get_slice(self, colnames: List[str]) -> slice:
         """
         Get a slice object for a range of consecutive columns.
 
         Parameters
         ----------
-        cols : list of str
+        colnames : list of str
             A list of consecutive column names to define the slice.
 
         Returns
@@ -331,13 +344,13 @@ class WindowedDataExtractor:
         Raises
         ------
         ValueError
-            If one or more columns in `cols` are not found in the `windowed_cols` list.
+            If one or more columns in `colnames` are not found in the `windowed_colnames` list.
         """
-        if not all(col in self.column_indices for col in cols):
-            missing = [col for col in cols if col not in self.column_indices]
+        if not all(col in self.column_indices for col in colnames):
+            missing = [col for col in colnames if col not in self.column_indices]
             raise ValueError(
-                f"The following columns are missing from windowed_cols: {missing}"
+                f"The following columns are missing from windowed_colnames: {missing}"
             )
-        start_idx = self.column_indices[cols[0]]
-        end_idx = self.column_indices[cols[-1]] + 1
+        start_idx = self.column_indices[colnames[0]]
+        end_idx = self.column_indices[colnames[-1]] + 1
         return slice(start_idx, end_idx)
