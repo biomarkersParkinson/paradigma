@@ -7,7 +7,6 @@ from scipy import signal
 from scipy.interpolate import interp1d
 
 from paradigma.config import IMUConfig, PPGConfig
-from paradigma.constants import DataColumns
 from paradigma.util import invert_watch_side
 
 
@@ -203,18 +202,18 @@ def preprocess_imu_data(
 
     # Extract sensor column
     if sensor == "accelerometer":
-        values_colnames = config.accelerometer_cols
+        values_colnames = config.accelerometer_colnames
     elif sensor == "gyroscope":
-        values_colnames = config.gyroscope_cols
+        values_colnames = config.gyroscope_colnames
     elif sensor == "both":
-        values_colnames = config.accelerometer_cols + config.gyroscope_cols
+        values_colnames = config.accelerometer_colnames + config.gyroscope_colnames
     else:
         raise ("Sensor should be either accelerometer, gyroscope, or both")
 
     # Resample the data to the specified frequency
     df = resample_data(
         df=df,
-        time_column=DataColumns.TIME,
+        time_column=config.time_colname,
         values_column_names=values_colnames,
         sampling_frequency=config.sampling_frequency,
         resampling_frequency=config.resampling_frequency,
@@ -227,16 +226,18 @@ def preprocess_imu_data(
     if sensor in ["accelerometer", "both"]:
 
         # Extract accelerometer data for filtering
-        accel_data = df[config.accelerometer_cols].values
+        accel_data = df[config.accelerometer_colnames].values
 
         # Define filter configurations for high-pass and low-pass
         filter_renaming_configs = {
             "hp": {
-                "result_columns": config.accelerometer_cols,
+                "result_columns": config.accelerometer_colnames,
                 "replace_original": True,
             },
             "lp": {
-                "result_columns": [f"{col}_grav" for col in config.accelerometer_cols],
+                "result_columns": [
+                    f"{col}_grav" for col in config.accelerometer_colnames
+                ],
                 "replace_original": False,
             },
         }
@@ -254,9 +255,9 @@ def preprocess_imu_data(
             # Replace or add new columns based on configuration
             df[filter_config["result_columns"]] = filtered_data
 
-        values_colnames += config.gravity_cols
+        values_colnames += config.gravity_colnames
 
-    df = df[[DataColumns.TIME, *values_colnames]]
+    df = df[[config.time_colname, *values_colnames]]
 
     return df
 
@@ -296,13 +297,18 @@ def preprocess_ppg_data(
 
     # Extract overlapping segments
     df_ppg_overlapping, df_acc_overlapping = extract_overlapping_segments(
-        df_ppg, df_acc, start_time_ppg, start_time_imu
+        df_ppg=df_ppg,
+        df_acc=df_acc,
+        time_colname_ppg=ppg_config.time_colname,
+        time_colname_imu=imu_config.time_colname,
+        start_time_ppg=start_time_ppg,
+        start_time_acc=start_time_imu,
     )
 
     # Resample accelerometer data
     df_acc_proc = resample_data(
         df=df_acc_overlapping,
-        time_column=DataColumns.TIME,
+        time_column=imu_config.time_colname,
         values_column_names=list(imu_config.d_channels_accelerometer.keys()),
         sampling_frequency=imu_config.sampling_frequency,
         resampling_frequency=imu_config.resampling_frequency,
@@ -312,7 +318,7 @@ def preprocess_ppg_data(
     # Resample PPG data
     df_ppg_proc = resample_data(
         df=df_ppg_overlapping,
-        time_column=DataColumns.TIME,
+        time_column=ppg_config.time_colname,
         values_column_names=list(ppg_config.d_channels_ppg.keys()),
         sampling_frequency=ppg_config.sampling_frequency,
         resampling_frequency=ppg_config.resampling_frequency,
@@ -320,12 +326,12 @@ def preprocess_ppg_data(
     )
 
     # Extract accelerometer data for filtering
-    accel_data = df_acc_proc[imu_config.accelerometer_cols].values
+    accel_data = df_acc_proc[imu_config.accelerometer_colnames].values
 
     # Define filter configurations for high-pass and low-pass
     filter_renaming_configs = {
         "hp": {
-            "result_columns": imu_config.accelerometer_cols,
+            "result_columns": imu_config.accelerometer_colnames,
             "replace_original": True,
         }
     }
@@ -371,7 +377,12 @@ def preprocess_ppg_data(
 
 
 def extract_overlapping_segments(
-    df_ppg: pd.DataFrame, df_acc: pd.DataFrame, start_time_ppg: str, start_time_acc: str
+    df_ppg: pd.DataFrame,
+    df_acc: pd.DataFrame,
+    time_colname_ppg: str,
+    time_colname_imu: str,
+    start_time_ppg: str,
+    start_time_acc: str,
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Extract DataFrames with overlapping data segments between accelerometer (from the IMU) and PPG datasets based on their timestamps.
@@ -382,6 +393,10 @@ def extract_overlapping_segments(
         DataFrame containing PPG data.
     df_acc : pd.DataFrame
         DataFrame containing accelerometer data from the IMU.
+    time_colname_ppg : str
+        The name of the column containing the time data in the PPG dataframe.
+    time_colname_imu : str
+        The name of the column containing the time data in the IMU dataframe.
     start_time_ppg : str
         iso8601 formatted start time of the PPG data.
     start_time_acc : str
@@ -399,8 +414,8 @@ def extract_overlapping_segments(
     start_acc_ppg = int(datetime_acc_start.timestamp())
 
     # Calculate the time in Unix timestamps for each dataset because the timestamps are relative to the start time
-    ppg_time = df_ppg[DataColumns.TIME] + start_unix_ppg
-    acc_time = df_acc[DataColumns.TIME] + start_acc_ppg
+    ppg_time = df_ppg[time_colname_ppg] + start_unix_ppg
+    acc_time = df_acc[time_colname_imu] + start_acc_ppg
 
     # Determine the overlapping time interval
     start_time = max(ppg_time.iloc[0], acc_time.iloc[0])

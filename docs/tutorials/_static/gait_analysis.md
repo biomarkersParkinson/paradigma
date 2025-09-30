@@ -191,18 +191,32 @@ df_imu
 
 
 ## Step 1: Preprocess data
-The single function `preprocess_imu_data` in the cell below runs all necessary preprocessing steps. It requires the loaded dataframe, a configuration object `config` specifying parameters used for preprocessing, and a selection of sensors. For the sensors, options include `'accelerometer'`, `'gyroscope'`, or `'both'`.
+The single function `preprocess_imu_data` in the cell below runs all necessary preprocessing steps. It requires the loaded dataframe, a configuration object `config` specifying parameters used for preprocessing, and a selection of sensors. For the sensors, options include `'accelerometer'`, `'gyroscope'`, or `'both'`.  If the difference between timestamps is larger than a specified tolerance (`config.tolerance`, in seconds), it will return an error that the timestamps are not contiguous. If you still want to process the data in this case, you can create segments from discontiguous samples using the function [`create_segments`](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/segmenting.py) and analyze these segments consecutively as shown in [here](#multiple_segments_cell).
 
 The function `preprocess_imu_data` processes the data as follows:
-1. Resample the data to ensure uniformly distributed sampling rate
-2. Apply filtering to separate the gravity component from the accelerometer
+1. Resample the data to ensure uniformly distributed sampling rate.
+2. Apply filtering to separate the gravity component from the accelerometer.
 
 
 ```python
 from paradigma.config import IMUConfig
+from paradigma.constants import DataColumns
 from paradigma.preprocessing import preprocess_imu_data
 
-config = IMUConfig()
+# Set column names: replace DataColumn.* with your actual column names.
+# It is only necessary to set the columns that are present in your data, and
+# only if they differ from the default names defined in DataColumns.
+column_mapping = {
+    'TIME': DataColumns.TIME,
+    'ACCELEROMETER_X': DataColumns.ACCELEROMETER_X,
+    'ACCELEROMETER_Y': DataColumns.ACCELEROMETER_Y,
+    'ACCELEROMETER_Z': DataColumns.ACCELEROMETER_Z,
+    'GYROSCOPE_X': DataColumns.GYROSCOPE_X,
+    'GYROSCOPE_Y': DataColumns.GYROSCOPE_Y,
+    'GYROSCOPE_Z': DataColumns.GYROSCOPE_Z,
+}
+
+config = IMUConfig(column_mapping)
 
 df_preprocessed = preprocess_imu_data(
     df=df_imu,
@@ -211,11 +225,13 @@ df_preprocessed = preprocess_imu_data(
     watch_side='left',
 )
 
-print(f"The dataset of {df_preprocessed.shape[0] / config.sampling_frequency} seconds is automatically resampled to {config.sampling_frequency} Hz.")
+print(f"The dataset of {df_preprocessed.shape[0] / config.sampling_frequency} seconds is automatically resampled to {config.resampling_frequency} Hz.")
+print(f'The tolerance for checking contiguous timestamps is set to {config.tolerance:.3f} seconds.')
 df_preprocessed.head()
 ```
 
     The dataset of 34339.61 seconds is automatically resampled to 100 Hz.
+    The tolerance for checking contiguous timestamps is set to 0.030 seconds.
 
 
 
@@ -344,7 +360,7 @@ These steps are encapsulated in `extract_gait_features` (documentation can be fo
 from paradigma.config import GaitConfig
 from paradigma.pipelines.gait_pipeline import extract_gait_features
 
-config = GaitConfig(step='gait')
+config = GaitConfig(step='gait', column_mapping=column_mapping)
 
 df_gait = extract_gait_features(
     df=df_preprocessed,
@@ -550,22 +566,22 @@ clf_package_detection = ClassifierPackage.load(full_path_to_classifier_package)
 
 # Detecting gait returns the probability of gait for each window, which is concatenated to
 # the original dataframe
-df_gait['pred_gait_proba'] = detect_gait(
+df_gait[DataColumns.PRED_GAIT_PROBA] = detect_gait(
     df=df_gait,
     clf_package=clf_package_detection
 )
 
 n_windows = df_gait.shape[0]
-n_predictions_gait = df_gait.loc[df_gait['pred_gait_proba'] >= clf_package_detection.threshold].shape[0]
+n_predictions_gait = df_gait.loc[df_gait[DataColumns.PRED_GAIT_PROBA] >= clf_package_detection.threshold].shape[0]
 perc_predictions_gait = round(100 * n_predictions_gait / n_windows, 1)
-n_predictions_non_gait = df_gait.loc[df_gait['pred_gait_proba'] < clf_package_detection.threshold].shape[0]
+n_predictions_non_gait = df_gait.loc[df_gait[DataColumns.PRED_GAIT_PROBA] < clf_package_detection.threshold].shape[0]
 perc_predictions_non_gait = round(100 * n_predictions_non_gait / n_windows, 1)
 
 print(f"Out of {n_windows} windows, {n_predictions_gait} ({perc_predictions_gait}%) were predicted as gait, and {n_predictions_non_gait} ({perc_predictions_non_gait}%) as non-gait.")
 
 # Only the time and the predicted gait probability are shown, but the dataframe also contains
 # the extracted features
-df_gait[['time', 'pred_gait_proba']].head()
+df_gait[[config.time_colname, DataColumns.PRED_GAIT_PROBA]].head()
 ```
 
     Out of 34334 windows, 2753 (8.0%) were predicted as gait, and 31581 (92.0%) as non-gait.
@@ -641,8 +657,8 @@ metadata_time_store = tsdf.TSDFMetadata(metadata_time.get_plain_tsdf_dict_copy()
 metadata_values_store = tsdf.TSDFMetadata(metadata_values.get_plain_tsdf_dict_copy(), path_to_data)
 
 # Select the columns to be saved
-metadata_time_store.channels = ['time']
-metadata_values_store.channels = ['pred_gait_proba']
+metadata_time_store.channels = [config.time_colname]
+metadata_values_store.channels = [DataColumns.PRED_GAIT_PROBA]
 
 # Set the units
 metadata_time_store.units = ['Relative seconds']
@@ -970,22 +986,23 @@ clf_package_filtering = ClassifierPackage.load(full_path_to_classifier_package)
 
 # Detecting no_other_arm_activity returns the probability of no_other_arm_activity for each window, which is concatenated to
 # the original dataframe
-df_arm_activity['pred_no_other_arm_activity_proba'] = filter_gait(
+df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] = filter_gait(
     df=df_arm_activity,
     clf_package=clf_package_filtering
 )
 
+
 n_windows = df_arm_activity.shape[0]
-n_predictions_no_other_arm_activity = df_arm_activity.loc[df_arm_activity['pred_no_other_arm_activity_proba']>=clf_package_filtering.threshold].shape[0]
+n_predictions_no_other_arm_activity = df_arm_activity.loc[df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= clf_package_filtering.threshold].shape[0]
 perc_predictions_no_other_arm_activity = round(100 * n_predictions_no_other_arm_activity / n_windows, 1)
-n_predictions_other_arm_activity = df_arm_activity.loc[df_arm_activity['pred_no_other_arm_activity_proba']<clf_package_filtering.threshold].shape[0]
+n_predictions_other_arm_activity = df_arm_activity.loc[df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] < clf_package_filtering.threshold].shape[0]
 perc_predictions_other_arm_activity = round(100 * n_predictions_other_arm_activity / n_windows, 1)
 
 print(f"Out of {n_windows} windows, {n_predictions_no_other_arm_activity} ({perc_predictions_no_other_arm_activity}%) were predicted as no_other_arm_activity, and {n_predictions_other_arm_activity} ({perc_predictions_other_arm_activity}%) as other_arm_activity.")
 
 # Only the time and predicted probabilities are shown, but the dataframe also contains
 # the extracted features
-df_arm_activity[['time', 'pred_no_other_arm_activity_proba']].head()
+df_arm_activity[[config.time_colname, DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]].head()
 ```
 
     Out of 2749 windows, 916 (33.3%) were predicted as no_other_arm_activity, and 1833 (66.7%) as other_arm_activity.
@@ -1112,7 +1129,7 @@ pprint(gait_segment_meta['per_segment'][1])
 print(f"\nOf this example, the filtered gait segment of {gait_segment_meta['per_segment'][1]['duration_filtered_segment_s']} seconds is part of an unfiltered segment of {gait_segment_meta['per_segment'][1]['duration_unfiltered_segment_s']} seconds, which is at least as large as the filtered gait segment.")
 
 print(f"\nIndividual arm swings of the first gait segment of the {dataset_used} dataset:")
-quantified_arm_swing.loc[quantified_arm_swing['segment_nr']==1]
+quantified_arm_swing.loc[quantified_arm_swing['segment_nr'] == 1]
 ```
 
     The arm swing quantification is based on the filtered gait segments.
@@ -1282,7 +1299,7 @@ filtered = True
 # Create a list to store all quantified arm swing segments
 list_quantified_arm_swing = []
 
-raw_data_segments  = ['0001','0002'] # list with all available raw data segments
+raw_data_segments  = ['0001', '0002'] # list with all available raw data segments
 
 for raw_data_segment_nr in raw_data_segments:
 
@@ -1290,6 +1307,7 @@ for raw_data_segment_nr in raw_data_segments:
     df_imu, _, _ = load_tsdf_dataframe(path_to_prepared_data, prefix=f'IMU_segment{raw_data_segment_nr}')
 
     # 1: Preprocess the data
+    # Change column names if necessary by creating parameter column_mapping (see previous cells for an example)
     config = IMUConfig()
 
     df_preprocessed = preprocess_imu_data(
@@ -1308,7 +1326,7 @@ for raw_data_segment_nr in raw_data_segments:
     )
 
     # 3: Detect gait
-    df_gait['pred_gait_proba'] = detect_gait(
+    df_gait[DataColumns.PRED_GAIT_PROBA] = detect_gait(
         df=df_gait,
         clf_package=clf_package_detection
     )
@@ -1337,7 +1355,7 @@ for raw_data_segment_nr in raw_data_segments:
     )
 
     # 5: Filter gait
-    df_arm_activity['pred_no_other_arm_activity_proba'] = filter_gait(
+    df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] = filter_gait(
         df=df_arm_activity,
         clf_package=clf_package_filtering
     )
@@ -1396,25 +1414,25 @@ pprint(arm_swing_aggregations, sort_dicts=False)
 ```
 
     {'0_10': {'duration_s': 341.25,
-              'median_range_of_motion': 15.108895613368176,
-              '95p_range_of_motion': 52.275982709958384,
-              'median_peak_velocity': 74.6399613821586,
-              '95p_peak_velocity': 230.7138957650239},
+              'median_range_of_motion': 15.10889561336818,
+              '95p_range_of_motion': 52.27598270995837,
+              'median_peak_velocity': 74.63996138215876,
+              '95p_peak_velocity': 230.71389576502395},
      '10_20': {'duration_s': 60.75,
-               'median_range_of_motion': 15.781087457927727,
-               '95p_range_of_motion': 45.165400467519255,
-               'median_peak_velocity': 86.83257977334739,
-               '95p_peak_velocity': 219.97254034894695},
+               'median_range_of_motion': 15.781087457927846,
+               '95p_range_of_motion': 45.165400467519284,
+               'median_peak_velocity': 86.83257977334742,
+               '95p_peak_velocity': 219.97254034894718},
      '20_inf': {'duration_s': 1905.75,
-                'median_range_of_motion': 25.289651009660602,
-                '95p_range_of_motion': 43.7490739803954,
-                'median_peak_velocity': 125.94431429035374,
-                '95p_peak_velocity': 217.80854223602012},
+                'median_range_of_motion': 25.289651009660467,
+                '95p_range_of_motion': 43.74907398039543,
+                'median_peak_velocity': 125.9443142903539,
+                '95p_peak_velocity': 217.80854223601995},
      '0_inf': {'duration_s': 2307.75,
-               'median_range_of_motion': 23.100608971051294,
-               '95p_range_of_motion': 45.92600123148874,
-               'median_peak_velocity': 116.50364930684756,
-               '95p_peak_velocity': 219.2008357820749}}
+               'median_range_of_motion': 23.100608971051322,
+               '95p_range_of_motion': 45.92600123148869,
+               'median_peak_velocity': 116.50364930684765,
+               '95p_peak_velocity': 219.2008357820751}}
 
 
 The output of the aggregation step contains the aggregated arm swing parameters per gait segment category. Additionally, the total time in seconds `time_s` is added to inform based on how much data the aggregations were created.

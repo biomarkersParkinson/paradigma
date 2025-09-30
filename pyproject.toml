@@ -46,6 +46,7 @@ notebook = "^7.4.5"
 ipykernel = "^6.30.1"
 pre-commit = "^4.3.0"
 jupyter-client = "^8.6.3"
+nbstripout = "^0.8.1"
 
 [tool.poetry.scripts]
 build-docs = "scripts.build_docs:main"

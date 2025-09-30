@@ -49,6 +49,13 @@ autoapi_options = [
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["build", "Thumbs.db", ".DS_Store"]
 
+nbsphinx_execute_arguments = ["--ExecutePreprocessor.kernel_name=python3"]
+
+# myst-nb execution settings
+jupyter_execute_notebooks = "force"  # always (re)execute notebooks
+nb_kernel_name = "python3"  # force python3, ignore metadata
+nb_execution_timeout = 600  # bump timeout if needed
+
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for

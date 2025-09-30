@@ -49,26 +49,26 @@ def extract_tremor_features(df: pd.DataFrame, config: TremorConfig) -> pd.DataFr
         If the input DataFrame does not contain the required columns as specified in the configuration or if any step in the feature extraction fails.
     """
     # group sequences of timestamps into windows
-    windowed_cols = [DataColumns.TIME] + config.gyroscope_cols
+    windowed_colnames = [config.time_colname] + config.gyroscope_colnames
     windowed_data = tabulate_windows(
         df,
-        windowed_cols,
+        windowed_colnames,
         config.window_length_s,
         config.window_step_length_s,
         config.sampling_frequency,
     )
 
-    extractor = WindowedDataExtractor(windowed_cols)
+    extractor = WindowedDataExtractor(windowed_colnames)
 
     # Extract the start time and gyroscope data from the windowed data
-    idx_time = extractor.get_index(DataColumns.TIME)
-    idx_gyro = extractor.get_slice(config.gyroscope_cols)
+    idx_time = extractor.get_index(config.time_colname)
+    idx_gyro = extractor.get_slice(config.gyroscope_colnames)
 
     # Extract data
     start_time = np.min(windowed_data[:, :, idx_time], axis=1)
     windowed_gyro = windowed_data[:, :, idx_gyro]
 
-    df_features = pd.DataFrame(start_time, columns=[DataColumns.TIME])
+    df_features = pd.DataFrame(start_time, columns=[config.time_colname])
 
     # transform the signals from the temporal domain to the spectral domain and extract tremor features
     df_spectral_features = extract_spectral_domain_features(windowed_gyro, config)

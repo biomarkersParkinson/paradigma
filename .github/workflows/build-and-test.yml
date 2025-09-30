@@ -47,11 +47,6 @@ jobs:
           python -m pip install poetry
           poetry install
 
-      # Install the Paradigma Jupyter kernel for notebooks
-      - name: Install Paradigma kernel
-        run: |
-          poetry run python -m ipykernel install --user --name=paradigma --display-name "paradigma (Poetry)"
-
       # Run pre-commit hooks (formatting, linting, YAML checks, etc.)
       - name: Run pre-commit hooks
         run: poetry run pre-commit run --all-files --show-diff-on-failure

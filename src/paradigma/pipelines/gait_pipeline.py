@@ -77,27 +77,29 @@ def extract_gait_features(df: pd.DataFrame, config: GaitConfig) -> pd.DataFrame:
         If the input DataFrame does not contain the required columns as specified in the configuration or if any step in the feature extraction fails.
     """
     # Group sequences of timestamps into windows
-    windowed_cols = [DataColumns.TIME] + config.accelerometer_cols + config.gravity_cols
+    windowed_colnames = (
+        [config.time_colname] + config.accelerometer_colnames + config.gravity_colnames
+    )
     windowed_data = tabulate_windows(
         df=df,
-        columns=windowed_cols,
+        columns=windowed_colnames,
         window_length_s=config.window_length_s,
         window_step_length_s=config.window_step_length_s,
         fs=config.sampling_frequency,
     )
 
-    extractor = WindowedDataExtractor(windowed_cols)
+    extractor = WindowedDataExtractor(windowed_colnames)
 
-    idx_time = extractor.get_index(DataColumns.TIME)
-    idx_acc = extractor.get_slice(config.accelerometer_cols)
-    idx_grav = extractor.get_slice(config.gravity_cols)
+    idx_time = extractor.get_index(config.time_colname)
+    idx_acc = extractor.get_slice(config.accelerometer_colnames)
+    idx_grav = extractor.get_slice(config.gravity_colnames)
 
     # Extract data
     start_time = np.min(windowed_data[:, :, idx_time], axis=1)
     windowed_acc = windowed_data[:, :, idx_acc]
     windowed_grav = windowed_data[:, :, idx_grav]
 
-    df_features = pd.DataFrame(start_time, columns=[DataColumns.TIME])
+    df_features = pd.DataFrame(start_time, columns=[config.time_colname])
 
     # Compute statistics of the temporal domain signals (mean, std) for accelerometer and gravity
     df_temporal_features = extract_temporal_domain_features(
@@ -219,18 +221,18 @@ def extract_arm_activity_features(
     # Create windows of fixed length and step size from the time series per segment
     windowed_data = []
     df_grouped = df.groupby(DataColumns.SEGMENT_NR)
-    windowed_cols = (
-        [DataColumns.TIME]
-        + config.accelerometer_cols
-        + config.gravity_cols
-        + config.gyroscope_cols
+    windowed_colnames = (
+        [config.time_colname]
+        + config.accelerometer_colnames
+        + config.gravity_colnames
+        + config.gyroscope_colnames
     )
 
     # Collect windows from all segments in a list for faster concatenation
     for _, group in df_grouped:
         windows = tabulate_windows(
             df=group,
-            columns=windowed_cols,
+            columns=windowed_colnames,
             window_length_s=config.window_length_s,
             window_step_length_s=config.window_step_length_s,
             fs=config.sampling_frequency,
@@ -247,12 +249,12 @@ def extract_arm_activity_features(
     windowed_data = np.concatenate(windowed_data, axis=0)
 
     # Slice columns for accelerometer, gravity, gyroscope, angle, and velocity
-    extractor = WindowedDataExtractor(windowed_cols)
+    extractor = WindowedDataExtractor(windowed_colnames)
 
-    idx_time = extractor.get_index(DataColumns.TIME)
-    idx_acc = extractor.get_slice(config.accelerometer_cols)
-    idx_grav = extractor.get_slice(config.gravity_cols)
-    idx_gyro = extractor.get_slice(config.gyroscope_cols)
+    idx_time = extractor.get_index(config.time_colname)
+    idx_acc = extractor.get_slice(config.accelerometer_colnames)
+    idx_grav = extractor.get_slice(config.gravity_colnames)
+    idx_gyro = extractor.get_slice(config.gyroscope_colnames)
 
     # Extract data
     start_time = np.min(windowed_data[:, :, idx_time], axis=1)
@@ -261,7 +263,7 @@ def extract_arm_activity_features(
     windowed_gyro = windowed_data[:, :, idx_gyro]
 
     # Initialize DataFrame for features
-    df_features = pd.DataFrame(start_time, columns=[DataColumns.TIME])
+    df_features = pd.DataFrame(start_time, columns=[config.time_colname])
 
     # Extract temporal domain features (e.g., mean, std for accelerometer and gravity)
     df_temporal_features = extract_temporal_domain_features(
@@ -670,7 +672,7 @@ def extract_temporal_domain_features(
     feature_dict = {}
     for stat in grav_stats:
         stats_result = compute_statistics(data=windowed_grav, statistic=stat)
-        for i, col in enumerate(config.gravity_cols):
+        for i, col in enumerate(config.gravity_colnames):
             feature_dict[f"{col}_{stat}"] = stats_result[:, i]
 
     # Compute standard deviation of the Euclidean norm of the accelerometer signal

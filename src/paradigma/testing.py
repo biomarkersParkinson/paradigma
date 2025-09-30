@@ -141,8 +141,8 @@ def preprocess_ppg_data_io(
     )
 
     # Drop the gyroscope columns from the IMU data
-    cols_to_drop = df_imu.filter(regex="^gyroscope_").columns
-    df_acc = df_imu.drop(cols_to_drop, axis=1)
+    colnames_to_drop = df_imu.filter(regex="^gyroscope_").columns
+    df_acc = df_imu.drop(colnames_to_drop, axis=1)
 
     # Preprocess data
     df_ppg_proc, df_acc_proc = preprocess_ppg_data(

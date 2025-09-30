@@ -247,19 +247,37 @@ display(df_ppg, df_acc)
 
 ## Step 1: Preprocess data
 
-The first step after loading the data is preprocessing using the [preprocess_ppg_data](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_ppg_data). This begins by isolating segments containing both PPG and IMU data, discarding portions where one modality (e.g., PPG) extends beyond the other, such as when the PPG recording is longer than the accelerometer data. This functionality requires the starting times (`metadata_time_ppg.start_iso8601` and `metadata_time_imu.start_iso8601`) in iso8601 format as inputs. After this step, the preprocess_ppg_data function resamples the PPG and accelerometer data to uniformly distributed timestamps, addressing the fixed but non-uniform sampling rates of the sensors. After this, a bandpass Butterworth filter (4th-order, bandpass frequencies: 0.4--3.5 Hz) is applied to the PPG signal, while a high-pass Butterworth filter (4th-order, cut-off frequency: 0.2 Hz) is applied to the accelerometer data.
+The first step after loading the data is preprocessing using the [preprocess_ppg_data](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_ppg_data). This begins by isolating segments containing both PPG and IMU data, discarding portions where one modality (e.g., PPG) extends beyond the other, such as when the PPG recording is longer than the accelerometer data. This functionality requires the starting times (`metadata_time_ppg.start_iso8601` and `metadata_time_imu.start_iso8601`) in iso8601 format as inputs. After this step, the preprocess_ppg_data function resamples the PPG and accelerometer data to uniformly distributed timestamps, addressing the fixed but non-uniform sampling rates of the sensors. If the difference between timestamps is larger than a specified tolerance (`config.tolerance`, in seconds), it will return an error that the timestamps are not contiguous.  If you still want to process the data in this case, you can create segments from discontiguous samples using the function [`create_segments`](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/segmenting.py) and analyze these segments consecutively as shown in [here](#multiple_segments_cell). After resampling, a bandpass Butterworth filter (4th-order, bandpass frequencies: 0.4--3.5 Hz) is applied to the PPG signal, while a high-pass Butterworth filter (4th-order, cut-off frequency: 0.2 Hz) is applied to the accelerometer data.
 
 Note: the printed shapes are (rows, columns) with each row corresponding to a single data point and each column representing a data column (e.g.time). The number of rows of the overlapping segments of PPG and accelerometer are not the same due to sampling differences (other sensors and possibly other sampling frequencies).
 
 
 ```python
 from paradigma.config import PPGConfig, IMUConfig
+from paradigma.constants import DataColumns
 from paradigma.preprocessing import preprocess_ppg_data
 
-ppg_config = PPGConfig()
-imu_config = IMUConfig()
+# Set column names: replace DataColumn.* with your actual column names.
+# It is only necessary to set the columns that are present in your data, and
+# only if they differ from the default names defined in DataColumns.
+imu_column_mapping = {
+    'TIME': DataColumns.TIME,
+    'ACCELEROMETER_X': DataColumns.ACCELEROMETER_X,
+    'ACCELEROMETER_Y': DataColumns.ACCELEROMETER_Y,
+    'ACCELEROMETER_Z': DataColumns.ACCELEROMETER_Z,
+}
 
+ppg_column_mapping = {
+    'TIME': DataColumns.TIME,
+    'PPG': DataColumns.PPG,
+}
+
+ppg_config = PPGConfig(column_mapping=ppg_column_mapping)
+imu_config = IMUConfig(column_mapping=imu_column_mapping)
+
+print(f'The tolerance for checking contiguous timestamps is set to {ppg_config.tolerance:.3f} seconds for PPG data and {imu_config.tolerance:.3f} seconds for accelerometer data.')
 print(f"Original data shapes:\n- PPG data: {df_ppg.shape}\n- Accelerometer data: {df_imu.shape}")
+
 df_ppg_proc, df_acc_proc = preprocess_ppg_data(
     df_ppg=df_ppg,
     df_acc=df_acc,
@@ -273,6 +291,7 @@ print(f"Overlapping preprocessed data shapes:\n- PPG data: {df_ppg_proc.shape}\n
 display(df_ppg_proc, df_acc_proc)
 ```
 
+    The tolerance for checking contiguous timestamps is set to 0.100 seconds for PPG data and 0.030 seconds for accelerometer data.
     Original data shapes:
     - PPG data: (1029375, 2)
     - Accelerometer data: (3455331, 7)
@@ -488,17 +507,25 @@ The detailed steps are encapsulated in `extract_signal_quality_features` (docume
 from paradigma.config import PulseRateConfig
 from paradigma.pipelines.pulse_rate_pipeline import extract_signal_quality_features
 
-ppg_config = PulseRateConfig('ppg')
-acc_config = PulseRateConfig('imu')
+pulse_rate_ppg_config = PulseRateConfig(
+    sensor='ppg',
+    ppg_sampling_frequency=ppg_config.sampling_frequency,
+)
 
-print("The default window length for the signal quality feature extraction is set to", ppg_config.window_length_s, "seconds.")
-print("The default step size for the signal quality feature extraction is set to", ppg_config.window_step_length_s, "seconds.")
+pulse_rate_acc_config = PulseRateConfig(
+    sensor='imu',
+    imu_sampling_frequency=imu_config.sampling_frequency,
+    accelerometer_colnames=imu_config.accelerometer_colnames,
+)
+
+print("The default window length for the signal quality feature extraction is set to", pulse_rate_ppg_config.window_length_s, "seconds.")
+print("The default step size for the signal quality feature extraction is set to", pulse_rate_ppg_config.window_step_length_s, "seconds.")
 
 df_features = extract_signal_quality_features(
     df_ppg=df_ppg_proc,
     df_acc=df_acc_proc,
-    ppg_config=ppg_config,
-    acc_config=acc_config,
+    ppg_config=pulse_rate_ppg_config,
+    acc_config=pulse_rate_acc_config,
 )
 
 df_features
@@ -731,11 +758,9 @@ from paradigma.pipelines.pulse_rate_pipeline import signal_quality_classificatio
 ppg_quality_classifier_package_filename = 'ppg_quality_clf_package.pkl'
 full_path_to_classifier_package = files('paradigma') / 'assets' / ppg_quality_classifier_package_filename
 
-config = PulseRateConfig()
-
 df_sqa = signal_quality_classification(
     df=df_features,
-    config=config,
+    config=pulse_rate_ppg_config,
     full_path_to_classifier_package=full_path_to_classifier_package
 )
 
@@ -954,12 +979,12 @@ Note: for the test data we set the tfd_length to 10 s instead of the default of 
 ```python
 from paradigma.pipelines.pulse_rate_pipeline import estimate_pulse_rate
 
-print("The standard default minimal window length for the pulse rate extraction is set to", config.tfd_length, "seconds.")
+print("The standard default minimal window length for the pulse rate extraction is set to", pulse_rate_ppg_config.tfd_length, "seconds.")
 
 df_pr = estimate_pulse_rate(
     df_sqa=df_sqa,
     df_ppg_preprocessed=df_ppg_proc,
-    config=config
+    config=pulse_rate_ppg_config
 )
 
 df_pr
@@ -1117,8 +1142,15 @@ for segment_nr in segments:
     )
 
     # 2: Extract signal quality features
-    ppg_config = PulseRateConfig('ppg')
-    acc_config = PulseRateConfig('imu')
+    ppg_config = PulseRateConfig(
+        sensor='ppg',
+        ppg_sampling_frequency=ppg_config.sampling_frequency
+    )
+    acc_config = PulseRateConfig(
+        sensor='imu',
+        imu_sampling_frequency=imu_config.sampling_frequency,
+        accelerometer_colnames=imu_config.accelerometer_colnames,
+    )
 
     df_features = extract_signal_quality_features(
         df_ppg=df_ppg_proc,
@@ -1128,11 +1160,9 @@ for segment_nr in segments:
     )
 
     # 3: Signal quality classification
-    config = PulseRateConfig()
-
     df_sqa = signal_quality_classification(
         df=df_features,
-        config=config,
+        config=ppg_config,
         full_path_to_classifier_package=full_path_to_classifier_package
     )
 
@@ -1140,7 +1170,7 @@ for segment_nr in segments:
     df_pr = estimate_pulse_rate(
         df_sqa=df_sqa,
         df_ppg_preprocessed=df_ppg_proc,
-        config=config
+        config=ppg_config
     )
 
     # Add the hr estimations of the current segment to the list

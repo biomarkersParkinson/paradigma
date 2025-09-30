@@ -1,4 +1,6 @@
+import functools
 import os
+import warnings
 from datetime import datetime, timedelta
 from typing import List, Optional, Tuple
 
@@ -10,6 +12,31 @@ from scipy.stats import gaussian_kde
 from tsdf import TSDFMetadata
 
 from paradigma.constants import DataColumns, TimeUnit
+
+
+def deprecated(reason: str = ""):
+    """
+    Decorator to mark functions as deprecated. It will show a warning when the function is used.
+
+    Parameters
+    ----------
+    reason : str, optional
+        Additional message to explain why it is deprecated and what to use instead.
+    """
+
+    def decorator(func):
+        message = f"Function {func.__name__} is deprecated."
+        if reason:
+            message += f" {reason}"
+
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            warnings.warn(message, category=DeprecationWarning, stacklevel=2)
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
 
 
 def parse_iso8601_to_datetime(date_str):
