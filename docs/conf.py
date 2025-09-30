@@ -49,7 +49,7 @@ autoapi_options = [
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["build", "Thumbs.db", ".DS_Store"]
 
-nbsphinx_execute_arguments = ["--ExecutePreprocessor.kernel_name=paradigma"]
+nbsphinx_execute_arguments = ["--ExecutePreprocessor.kernel_name=python3"]
 
 # -- Options for HTML output -------------------------------------------------
 
