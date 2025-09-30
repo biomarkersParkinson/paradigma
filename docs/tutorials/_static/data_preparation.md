@@ -2,15 +2,9 @@
 ParaDigMa requires the sensor data to be of a specific format. This tutorial provides examples of how to prepare your input data for subsequent analysis. In the end, the input for ParaDigMa is a dataframe consisting of:
 * A time column representing the seconds relative to the first row of the dataframe;
 * One or multiple of the following sensor column categories:
-<<<<<<< HEAD
   * Triaxial accelerometer (x, y, z) in _g_
   * Triaxial gyroscope (x, y, z) in _deg/s_
   * Photoplethysmography (PPG)
-=======
-  * Accelerometer: `accelerometer_x`, `accelerometer_y` and `accelerometer_z` in _g_
-  * Gyroscope: `gyroscope_x`, `gyroscope_y` and `gyroscope_z` in _deg/s_
-  * PPG: `green`
->>>>>>> a47ff03a16b8a7d38611bff19896977d01346e54
 
 The final dataframe should be resampled to 100 Hz, have the correct units for the sensor columns, and the correct format for the time column. Also note that the _gait_ pipeline expects a specific orientation of sensor axes, as explained in [Coordinate system](../guides/coordinate_system.md).
 
@@ -435,15 +429,9 @@ ParaDigMa expects the data to be in seconds relative to the first row, which sho
 from paradigma.constants import TimeUnit
 from paradigma.util import transform_time_array
 
-<<<<<<< HEAD
 df_imu[time_colname] = transform_time_array(
     time_array=df_imu[time_colname],
     input_unit_type=TimeUnit.DIFFERENCE_MS,
-=======
-df_imu[DataColumns.TIME] = transform_time_array(
-    time_array=df_imu[DataColumns.TIME],
-    input_unit_type=TimeUnit.DIFFERENCE_MS,
->>>>>>> a47ff03a16b8a7d38611bff19896977d01346e54
     output_unit_type=TimeUnit.RELATIVE_S,
 )
 
@@ -542,15 +530,9 @@ df_imu.head()
 from paradigma.constants import TimeUnit
 from paradigma.util import transform_time_array
 
-<<<<<<< HEAD
 df_ppg[time_colname] = transform_time_array(
     time_array=df_ppg[time_colname],
     input_unit_type=TimeUnit.DIFFERENCE_MS,
-=======
-df_ppg[DataColumns.TIME] = transform_time_array(
-    time_array=df_ppg[DataColumns.TIME],
-    input_unit_type=TimeUnit.DIFFERENCE_MS,
->>>>>>> a47ff03a16b8a7d38611bff19896977d01346e54
     output_unit_type=TimeUnit.RELATIVE_S,
 )
 

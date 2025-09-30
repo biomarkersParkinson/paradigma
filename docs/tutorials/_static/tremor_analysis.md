@@ -187,7 +187,7 @@ df_data
 
 ## Step 1: Preprocess data
 
-IMU sensors collect data at a fixed sampling frequency, but the sampling rate is not uniform, causing variation in time differences between timestamps. The [preprocess_imu_data](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_imu_data) function therefore resamples the timestamps to be uniformly distributed, and then interpolates IMU values at these new timestamps using the original timestamps and corresponding IMU values. By setting `sensor` to 'gyroscope', only gyroscope data is preprocessed and the accelerometer data is removed from the dataframe. Also a `watch_side` should be provided, although for the tremor analysis it does not matter whether this is the correct side since the tremor features are not influenced by the gyroscope axes orientation.
+IMU sensors collect data at a fixed sampling frequency, but the sampling rate is not uniform, causing variation in time differences between timestamps. The [preprocess_imu_data](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_imu_data) function therefore resamples the timestamps to be uniformly distributed, and then interpolates IMU values at these new timestamps using the original timestamps and corresponding IMU values. If the difference between timestamps is larger than a specified tolerance (`config.tolerance`, in seconds), it will return an error that the timestamps are not contiguous.  If you still want to process the data in this case, you can create segments from discontiguous samples using the function [`create_segments`](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/segmenting.py) and analyze these segments consecutively as shown in [here](#multiple_segments_cell). By setting `sensor` to 'gyroscope', only gyroscope data is preprocessed and the accelerometer data is removed from the dataframe. Also a `watch_side` should be provided, although for the tremor analysis it does not matter whether this is the correct side since the tremor features are not influenced by the gyroscope axes orientation.
 
 
 ```python
@@ -209,7 +209,8 @@ column_mapping = {
 }
 
 config = IMUConfig(column_mapping)
-print(f'The data is resampled to {config.sampling_frequency} Hz.')
+print(f'The data is resampled to {config.resampling_frequency} Hz.')
+print(f'The tolerance for checking contiguous timestamps is set to {config.tolerance:.3f} seconds.')
 
 df_preprocessed_data = preprocess_imu_data(df_data, config, sensor='gyroscope', watch_side='left')
 
@@ -217,6 +218,7 @@ df_preprocessed_data
 ```
 
     The data is resampled to 100 Hz.
+    The tolerance for checking contiguous timestamps is set to 0.030 seconds.
 
 
 
@@ -768,13 +770,8 @@ from paradigma.util import write_df_data
 metadata_time_store = tsdf.TSDFMetadata(metadata_time.get_plain_tsdf_dict_copy(), path_to_data)
 metadata_values_store = tsdf.TSDFMetadata(metadata_values.get_plain_tsdf_dict_copy(), path_to_data)
 
-<<<<<<< HEAD
 # Select the columns to be saved
 metadata_time_store.channels = [config.time_colname]
-=======
-# Select the columns to be saved
-metadata_time_store.channels = ['time']
->>>>>>> a47ff03a16b8a7d38611bff19896977d01346e54
 metadata_values_store.channels = ['tremor_power', 'pred_tremor_proba', 'pred_tremor_logreg', 'pred_arm_at_rest', 'pred_tremor_checked']
 
 # Set the units
@@ -897,13 +894,8 @@ df_quantification.loc[df_predictions['pred_tremor_checked'] == 0, 'tremor_power'
 # Create datetime column based on the start time of the segment
 start_time = datetime.datetime.strptime(metadata_time.start_iso8601, '%Y-%m-%dT%H:%M:%SZ')
 start_time = start_time.replace(tzinfo=pytz.timezone('UTC')).astimezone(pytz.timezone('CET')) # convert to correct timezone if necessary
-<<<<<<< HEAD
 df_quantification[f'{config.time_colname}_dt'] = start_time + pd.to_timedelta(df_quantification[config.time_colname], unit="s")
 df_quantification = df_quantification[[config.time_colname, f'{config.time_colname}_dt', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power']]
-=======
-df_quantification['time_dt'] = start_time + pd.to_timedelta(df_quantification['time'], unit="s")
-df_quantification = df_quantification[['time', 'time_dt', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power']]
->>>>>>> a47ff03a16b8a7d38611bff19896977d01346e54
 
 df_quantification
 ```
@@ -1086,13 +1078,8 @@ for segment_nr in segments:
     # Create datetime column based on the start time of the segment
     start_time = datetime.datetime.strptime(metadata_time.start_iso8601, '%Y-%m-%dT%H:%M:%SZ')
     start_time = start_time.replace(tzinfo=pytz.timezone('UTC')).astimezone(pytz.timezone('CET')) # convert to correct timezone if necessary
-<<<<<<< HEAD
     df_quantification[f'{config.time_colname}_dt'] = start_time + pd.to_timedelta(df_quantification[config.time_colname], unit="s")
     df_quantification = df_quantification[[config.time_colname, f'{config.time_colname}_dt', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power']]
-=======
-    df_quantification['time_dt'] = start_time + pd.to_timedelta(df_quantification['time'], unit="s")
-    df_quantification = df_quantification[['time', 'time_dt', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power']]
->>>>>>> a47ff03a16b8a7d38611bff19896977d01346e54
 
     # Add the quantifications of the current segment to the list
     df_quantification['segment_nr'] = segment_nr

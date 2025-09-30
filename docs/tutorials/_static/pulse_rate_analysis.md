@@ -247,7 +247,7 @@ display(df_ppg, df_acc)
 
 ## Step 1: Preprocess data
 
-The first step after loading the data is preprocessing using the [preprocess_ppg_data](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_ppg_data). This begins by isolating segments containing both PPG and IMU data, discarding portions where one modality (e.g., PPG) extends beyond the other, such as when the PPG recording is longer than the accelerometer data. This functionality requires the starting times (`metadata_time_ppg.start_iso8601` and `metadata_time_imu.start_iso8601`) in iso8601 format as inputs. After this step, the preprocess_ppg_data function resamples the PPG and accelerometer data to uniformly distributed timestamps, addressing the fixed but non-uniform sampling rates of the sensors. After this, a bandpass Butterworth filter (4th-order, bandpass frequencies: 0.4--3.5 Hz) is applied to the PPG signal, while a high-pass Butterworth filter (4th-order, cut-off frequency: 0.2 Hz) is applied to the accelerometer data.
+The first step after loading the data is preprocessing using the [preprocess_ppg_data](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_ppg_data). This begins by isolating segments containing both PPG and IMU data, discarding portions where one modality (e.g., PPG) extends beyond the other, such as when the PPG recording is longer than the accelerometer data. This functionality requires the starting times (`metadata_time_ppg.start_iso8601` and `metadata_time_imu.start_iso8601`) in iso8601 format as inputs. After this step, the preprocess_ppg_data function resamples the PPG and accelerometer data to uniformly distributed timestamps, addressing the fixed but non-uniform sampling rates of the sensors. If the difference between timestamps is larger than a specified tolerance (`config.tolerance`, in seconds), it will return an error that the timestamps are not contiguous.  If you still want to process the data in this case, you can create segments from discontiguous samples using the function [`create_segments`](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/segmenting.py) and analyze these segments consecutively as shown in [here](#multiple_segments_cell). After resampling, a bandpass Butterworth filter (4th-order, bandpass frequencies: 0.4--3.5 Hz) is applied to the PPG signal, while a high-pass Butterworth filter (4th-order, cut-off frequency: 0.2 Hz) is applied to the accelerometer data.
 
 Note: the printed shapes are (rows, columns) with each row corresponding to a single data point and each column representing a data column (e.g.time). The number of rows of the overlapping segments of PPG and accelerometer are not the same due to sampling differences (other sensors and possibly other sampling frequencies).
 
@@ -275,7 +275,9 @@ ppg_column_mapping = {
 ppg_config = PPGConfig(column_mapping=ppg_column_mapping)
 imu_config = IMUConfig(column_mapping=imu_column_mapping)
 
+print(f'The tolerance for checking contiguous timestamps is set to {ppg_config.tolerance:.3f} seconds for PPG data and {imu_config.tolerance:.3f} seconds for accelerometer data.')
 print(f"Original data shapes:\n- PPG data: {df_ppg.shape}\n- Accelerometer data: {df_imu.shape}")
+
 df_ppg_proc, df_acc_proc = preprocess_ppg_data(
     df_ppg=df_ppg,
     df_acc=df_acc,
@@ -289,6 +291,7 @@ print(f"Overlapping preprocessed data shapes:\n- PPG data: {df_ppg_proc.shape}\n
 display(df_ppg_proc, df_acc_proc)
 ```
 
+    The tolerance for checking contiguous timestamps is set to 0.100 seconds for PPG data and 0.030 seconds for accelerometer data.
     Original data shapes:
     - PPG data: (1029375, 2)
     - Accelerometer data: (3455331, 7)
@@ -521,13 +524,8 @@ print("The default step size for the signal quality feature extraction is set to
 df_features = extract_signal_quality_features(
     df_ppg=df_ppg_proc,
     df_acc=df_acc_proc,
-<<<<<<< HEAD
     ppg_config=pulse_rate_ppg_config,
     acc_config=pulse_rate_acc_config,
-=======
-    ppg_config=ppg_config,
-    acc_config=acc_config,
->>>>>>> a47ff03a16b8a7d38611bff19896977d01346e54
 )
 
 df_features
@@ -761,13 +759,8 @@ ppg_quality_classifier_package_filename = 'ppg_quality_clf_package.pkl'
 full_path_to_classifier_package = files('paradigma') / 'assets' / ppg_quality_classifier_package_filename
 
 df_sqa = signal_quality_classification(
-<<<<<<< HEAD
     df=df_features,
     config=pulse_rate_ppg_config,
-=======
-    df=df_features,
-    config=config,
->>>>>>> a47ff03a16b8a7d38611bff19896977d01346e54
     full_path_to_classifier_package=full_path_to_classifier_package
 )
 
@@ -913,6 +906,69 @@ df_sqa, _, _ = load_tsdf_dataframe(path_to_prepared_data, prefix=f'segment{segme
 df_sqa.head()
 ```
 
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>pred_sqa_proba</th>
+      <th>pred_sqa_acc_label</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>0.011213</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.0</td>
+      <td>0.007126</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2.0</td>
+      <td>0.007018</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3.0</td>
+      <td>0.004134</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4.0</td>
+      <td>0.000920</td>
+      <td>1.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
 ## Step 4: Pulse rate estimation
 
 For pulse rate estimation, we extract segments of `config.tfd_length` using [estimate_pulse_rate](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=estimate_pulse_rate). We calculate the smoothed-pseudo Wigner-Ville Distribution (SPWVD) to obtain the frequency content of the PPG signal over time. We extract for every timestamp in the SPWVD the frequency with the highest power. For every non-overlapping 2 s window we average the corresponding frequencies to obtain a pulse rate per window.
@@ -926,15 +982,9 @@ from paradigma.pipelines.pulse_rate_pipeline import estimate_pulse_rate
 print("The standard default minimal window length for the pulse rate extraction is set to", pulse_rate_ppg_config.tfd_length, "seconds.")
 
 df_pr = estimate_pulse_rate(
-<<<<<<< HEAD
     df_sqa=df_sqa,
     df_ppg_preprocessed=df_ppg_proc,
     config=pulse_rate_ppg_config
-=======
-    df_sqa=df_sqa,
-    df_ppg_preprocessed=df_ppg_proc,
-    config=config
->>>>>>> a47ff03a16b8a7d38611bff19896977d01346e54
 )
 
 df_pr
@@ -1111,27 +1161,16 @@ for segment_nr in segments:
 
     # 3: Signal quality classification
     df_sqa = signal_quality_classification(
-<<<<<<< HEAD
         df=df_features,
         config=ppg_config,
-=======
-        df=df_features,
-        config=config,
->>>>>>> a47ff03a16b8a7d38611bff19896977d01346e54
         full_path_to_classifier_package=full_path_to_classifier_package
     )
 
     # 4: Estimate pulse rate
     df_pr = estimate_pulse_rate(
-<<<<<<< HEAD
         df_sqa=df_sqa,
         df_ppg_preprocessed=df_ppg_proc,
         config=ppg_config
-=======
-        df_sqa=df_sqa,
-        df_ppg_preprocessed=df_ppg_proc,
-        config=config
->>>>>>> a47ff03a16b8a7d38611bff19896977d01346e54
     )
 
     # Add the hr estimations of the current segment to the list
@@ -1162,7 +1201,3 @@ pprint.pprint(df_pr_agg)
     {'metadata': {'nr_pr_est': 8660},
      'pr_aggregates': {'99p_pulse_rate': 85.77263444520081,
                        'mode_pulse_rate': 63.59175662414131}}
-<<<<<<< HEAD
-
-=======
->>>>>>> a47ff03a16b8a7d38611bff19896977d01346e54

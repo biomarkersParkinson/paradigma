@@ -191,11 +191,11 @@ df_imu
 
 
 ## Step 1: Preprocess data
-The single function `preprocess_imu_data` in the cell below runs all necessary preprocessing steps. It requires the loaded dataframe, a configuration object `config` specifying parameters used for preprocessing, and a selection of sensors. For the sensors, options include `'accelerometer'`, `'gyroscope'`, or `'both'`.
+The single function `preprocess_imu_data` in the cell below runs all necessary preprocessing steps. It requires the loaded dataframe, a configuration object `config` specifying parameters used for preprocessing, and a selection of sensors. For the sensors, options include `'accelerometer'`, `'gyroscope'`, or `'both'`.  If the difference between timestamps is larger than a specified tolerance (`config.tolerance`, in seconds), it will return an error that the timestamps are not contiguous. If you still want to process the data in this case, you can create segments from discontiguous samples using the function [`create_segments`](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/segmenting.py) and analyze these segments consecutively as shown in [here](#multiple_segments_cell).
 
 The function `preprocess_imu_data` processes the data as follows:
-1. Resample the data to ensure uniformly distributed sampling rate
-2. Apply filtering to separate the gravity component from the accelerometer
+1. Resample the data to ensure uniformly distributed sampling rate.
+2. Apply filtering to separate the gravity component from the accelerometer.
 
 
 ```python
@@ -225,11 +225,13 @@ df_preprocessed = preprocess_imu_data(
     watch_side='left',
 )
 
-print(f"The dataset of {df_preprocessed.shape[0] / config.sampling_frequency} seconds is automatically resampled to {config.sampling_frequency} Hz.")
+print(f"The dataset of {df_preprocessed.shape[0] / config.sampling_frequency} seconds is automatically resampled to {config.resampling_frequency} Hz.")
+print(f'The tolerance for checking contiguous timestamps is set to {config.tolerance:.3f} seconds.')
 df_preprocessed.head()
 ```
 
     The dataset of 34339.61 seconds is automatically resampled to 100 Hz.
+    The tolerance for checking contiguous timestamps is set to 0.030 seconds.
 
 
 
@@ -654,15 +656,9 @@ from paradigma.util import write_df_data
 metadata_time_store = tsdf.TSDFMetadata(metadata_time.get_plain_tsdf_dict_copy(), path_to_data)
 metadata_values_store = tsdf.TSDFMetadata(metadata_values.get_plain_tsdf_dict_copy(), path_to_data)
 
-<<<<<<< HEAD
 # Select the columns to be saved
 metadata_time_store.channels = [config.time_colname]
 metadata_values_store.channels = [DataColumns.PRED_GAIT_PROBA]
-=======
-# Select the columns to be saved
-metadata_time_store.channels = ['time']
-metadata_values_store.channels = ['pred_gait_proba']
->>>>>>> a47ff03a16b8a7d38611bff19896977d01346e54
 
 # Set the units
 metadata_time_store.units = ['Relative seconds']
@@ -686,6 +682,63 @@ write_df_data(metadata_time_store, metadata_values_store, path_to_data, meta_sto
 df_gait, _, _ = load_tsdf_dataframe(path_to_data, prefix=f'segment{raw_data_segment_nr}')
 df_gait.head()
 ```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>pred_gait_proba</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>0.000023</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.0</td>
+      <td>0.000024</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2.0</td>
+      <td>0.000023</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3.0</td>
+      <td>0.000023</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4.0</td>
+      <td>0.000023</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
 
 Once again, the `time` column indicates the start time of the window. Therefore, it can be observed that probabilities are predicted of overlapping windows, and not of individual timestamps. The function [`merge_timestamps_with_predictions`](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/util.py) can be used to retrieve predicted probabilities per timestamp by aggregating the predicted probabilities of overlapping windows. This function is included in the next step.
 
@@ -1360,50 +1413,26 @@ arm_swing_aggregations = aggregate_arm_swing_params(
 pprint(arm_swing_aggregations, sort_dicts=False)
 ```
 
-<<<<<<< HEAD
-    {'0_10': {'duration_s': 379.5,
-              'median_range_of_motion': 11.781191233196704,
-              '95p_range_of_motion': 40.53201409103202,
-              'median_peak_velocity': 58.56619702785924,
-              '95p_peak_velocity': 182.7177098350067},
-     '10_20': {'duration_s': 67.5,
-               'median_range_of_motion': 15.108895613368176,
-               '95p_range_of_motion': 54.9694080654792,
-               'median_peak_velocity': 71.19981331102237,
-               '95p_peak_velocity': 228.84234804496015},
-     '20_inf': {'duration_s': 285.75,
-                'median_range_of_motion': 29.27388623072548,
-                '95p_range_of_motion': 56.74815032228553,
-                'median_peak_velocity': 143.92113449093605,
-                '95p_peak_velocity': 259.42708429148485},
-     '0_inf': {'duration_s': 732.75,
-               'median_range_of_motion': 17.767386841988376,
-               '95p_range_of_motion': 53.934230760263915,
-               'median_peak_velocity': 91.83493870082005,
-               '95p_peak_velocity': 243.4231733752911}}
-
-=======
     {'0_10': {'duration_s': 341.25,
-              'median_range_of_motion': 15.108895613368176,
-              '95p_range_of_motion': 52.275982709958384,
-              'median_peak_velocity': 74.6399613821586,
-              '95p_peak_velocity': 230.7138957650239},
+              'median_range_of_motion': 15.10889561336818,
+              '95p_range_of_motion': 52.27598270995837,
+              'median_peak_velocity': 74.63996138215876,
+              '95p_peak_velocity': 230.71389576502395},
      '10_20': {'duration_s': 60.75,
-               'median_range_of_motion': 15.781087457927727,
-               '95p_range_of_motion': 45.165400467519255,
-               'median_peak_velocity': 86.83257977334739,
-               '95p_peak_velocity': 219.97254034894695},
+               'median_range_of_motion': 15.781087457927846,
+               '95p_range_of_motion': 45.165400467519284,
+               'median_peak_velocity': 86.83257977334742,
+               '95p_peak_velocity': 219.97254034894718},
      '20_inf': {'duration_s': 1905.75,
-                'median_range_of_motion': 25.289651009660602,
-                '95p_range_of_motion': 43.7490739803954,
-                'median_peak_velocity': 125.94431429035374,
-                '95p_peak_velocity': 217.80854223602012},
+                'median_range_of_motion': 25.289651009660467,
+                '95p_range_of_motion': 43.74907398039543,
+                'median_peak_velocity': 125.9443142903539,
+                '95p_peak_velocity': 217.80854223601995},
      '0_inf': {'duration_s': 2307.75,
-               'median_range_of_motion': 23.100608971051294,
-               '95p_range_of_motion': 45.92600123148874,
-               'median_peak_velocity': 116.50364930684756,
-               '95p_peak_velocity': 219.2008357820749}}
+               'median_range_of_motion': 23.100608971051322,
+               '95p_range_of_motion': 45.92600123148869,
+               'median_peak_velocity': 116.50364930684765,
+               '95p_peak_velocity': 219.2008357820751}}
 
->>>>>>> a47ff03a16b8a7d38611bff19896977d01346e54
 
 The output of the aggregation step contains the aggregated arm swing parameters per gait segment category. Additionally, the total time in seconds `time_s` is added to inform based on how much data the aggregations were created.
