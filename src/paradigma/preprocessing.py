@@ -245,10 +245,14 @@ def preprocess_imu_data(df: pd.DataFrame, config: IMUConfig, sensor: str, watch_
     return df
 
 
-def preprocess_ppg_data(df_ppg: pd.DataFrame, ppg_config: PPGConfig, start_time_ppg: str, start_time_imu: str, 
-                        df_acc: pd.DataFrame | None = None, imu_config: IMUConfig | None = None) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def preprocess_ppg_data(df_ppg: pd.DataFrame, ppg_config: PPGConfig, start_time_ppg: str, 
+                        df_acc: pd.DataFrame | None = None, imu_config: IMUConfig | None = None, start_time_imu: str | None = None) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Preprocess PPG and IMU (accelerometer only) data by resampling, filtering, and aligning the data segments.
+    This function preprocesses PPG and accelerometer data by and aligning the data segments of both sensors (if applicable).
+    Aligning is done using the extract_overlapping_segments function which is based on the provided start times of the PPG and IMU data and returns 
+    only the data points where both signals overlap in time. The remaining data points are discarded. 
+    After alignment, the function resamples the data to the specified frequency and applies Butterworth filters to both PPG and accelerometer data (if applicable).
+    The output is two DataFrames: one for the preprocessed PPG data and another for the preprocessed accelerometer data (if provided, otherwise return is None).
 
     Parameters
     ----------
@@ -268,7 +272,17 @@ def preprocess_ppg_data(df_ppg: pd.DataFrame, ppg_config: PPGConfig, start_time_
     Returns
     -------
     Tuple[pd.DataFrame, pd.DataFrame]
-        Preprocessed PPG and IMU data as DataFrames.
+        A tuple containing two DataFrames:
+        - Preprocessed PPG data with the following transformations:
+            - Resampled data at the specified frequency.
+            - Filtered PPG data with bandpass filtering applied.
+        - Preprocessed accelerometer data (if provided, otherwise return is None) with the following transformations:
+            - Resampled data at the specified frequency.
+            - Filtered accelerometer data with high-pass and low-pass filtering applied.
+
+    Notes
+    -----
+    - The function applies Butterworth filters to PPG and accelerometer (if applicable) data, both high-pass and low-pass.
     
     """
     if df_acc is not None and imu_config is not None:

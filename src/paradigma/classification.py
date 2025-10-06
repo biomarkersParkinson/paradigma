@@ -4,6 +4,7 @@ import pickle
 from pathlib import Path
 from sklearn.base import BaseEstimator
 from typing import Any, Optional
+from sklearn.preprocessing import StandardScaler
 
 class ClassifierPackage:
     def __init__(self, classifier: Optional[BaseEstimator] = None, 
@@ -42,6 +43,18 @@ class ClassifierPackage:
         if not self.scaler:
             return X
         return self.scaler.transform(X)
+    
+    def update_scaler(self, x_train) -> None:
+        """
+        Update the standard scaler used for feature transformation.
+
+        Parameters
+        ----------
+        x_train : np.ndarray
+            The training data to fit the scaler.
+        """
+        scaler = StandardScaler()
+        self.scaler = scaler.fit(x_train)  
 
     def predict_proba(self, X) -> float:
         """

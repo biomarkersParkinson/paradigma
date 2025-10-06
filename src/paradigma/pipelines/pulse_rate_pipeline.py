@@ -94,7 +94,7 @@ def extract_signal_quality_features(df_ppg: pd.DataFrame, ppg_config: PulseRateC
     return df_features
 
 
-def signal_quality_classification(df: pd.DataFrame, config: PulseRateConfig, full_path_to_classifier_package: str | Path) -> pd.DataFrame:
+def signal_quality_classification(df: pd.DataFrame, config: PulseRateConfig, clf_package: ClassifierPackage) -> pd.DataFrame:
     """
     Classify the signal quality of the PPG signal using a logistic regression classifier. A probability close to 1 indicates a high-quality signal, while a probability close to 0 indicates a low-quality signal.
     The classifier is trained on features extracted from the PPG signal. The features are extracted using the extract_signal_quality_features function.
@@ -107,15 +107,15 @@ def signal_quality_classification(df: pd.DataFrame, config: PulseRateConfig, ful
         The DataFrame containing the PPG features and the accelerometer feature for signal quality classification.
     config : PulseRateConfig
         The configuration for the signal quality classification.
-    full_path_to_classifier_package : str | Path
-        The path to the directory containing the classifier file, threshold value, scaler parameters, and feature names.
+    clf_package : ClassifierPackage
+        The classifier package containing the classifier and scaler.
 
     Returns
     -------
     df_sqa pd.DataFrame
         The DataFrame containing the PPG signal quality predictions (both probabilities of the PPG signal quality classification and the accelerometer label based on the threshold).
     """
-    clf_package = ClassifierPackage.load(full_path_to_classifier_package)  # Load the classifier package
+    # Set classifier
     clf = clf_package.classifier  # Load the logistic regression classifier
 
     # Apply scaling to relevant columns
