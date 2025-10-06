@@ -262,12 +262,18 @@ def preprocess_imu_data(
     return df
 
 
-def preprocess_ppg_data(df_ppg: pd.DataFrame, ppg_config: PPGConfig, start_time_ppg: str, 
-                        df_acc: pd.DataFrame | None = None, imu_config: IMUConfig | None = None, start_time_imu: str | None = None) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def preprocess_ppg_data(
+    df_ppg: pd.DataFrame,
+    ppg_config: PPGConfig,
+    start_time_ppg: str,
+    df_acc: pd.DataFrame | None = None,
+    imu_config: IMUConfig | None = None,
+    start_time_imu: str | None = None,
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     This function preprocesses PPG and accelerometer data by and aligning the data segments of both sensors (if applicable).
-    Aligning is done using the extract_overlapping_segments function which is based on the provided start times of the PPG and IMU data and returns 
-    only the data points where both signals overlap in time. The remaining data points are discarded. 
+    Aligning is done using the extract_overlapping_segments function which is based on the provided start times of the PPG and IMU data and returns
+    only the data points where both signals overlap in time. The remaining data points are discarded.
     After alignment, the function resamples the data to the specified frequency and applies Butterworth filters to both PPG and accelerometer data (if applicable).
     The output is two DataFrames: one for the preprocessed PPG data and another for the preprocessed accelerometer data (if provided, otherwise return is None).
 
@@ -300,7 +306,7 @@ def preprocess_ppg_data(df_ppg: pd.DataFrame, ppg_config: PPGConfig, start_time_
     Notes
     -----
     - The function applies Butterworth filters to PPG and accelerometer (if applicable) data, both high-pass and low-pass.
-    
+
     """
     if df_acc is not None and imu_config is not None:
         # Extract overlapping segments
@@ -317,7 +323,7 @@ def preprocess_ppg_data(df_ppg: pd.DataFrame, ppg_config: PPGConfig, start_time_
         df_acc_proc = resample_data(
             df=df_acc_overlapping,
             time_column=imu_config.time_colname,
-            values_column_names = list(imu_config.d_channels_accelerometer.keys()),
+            values_column_names=list(imu_config.d_channels_accelerometer.keys()),
             sampling_frequency=imu_config.sampling_frequency,
             resampling_frequency=imu_config.resampling_frequency,
             tolerance=imu_config.tolerance,
@@ -326,21 +332,22 @@ def preprocess_ppg_data(df_ppg: pd.DataFrame, ppg_config: PPGConfig, start_time_
         # Extract accelerometer data for filtering
         accel_data = df_acc_proc[imu_config.accelerometer_colnames].values
 
-            # Define filter configurations for high-pass and low-pass
+        # Define filter configurations for high-pass and low-pass
         filter_renaming_configs = {
-            "hp": {"result_columns": imu_config.accelerometer_colnames, 
-               "replace_original": True
+            "hp": {
+                "result_columns": imu_config.accelerometer_colnames,
+                "replace_original": True,
             }
         }
 
         # Apply filters in a loop
         for passband, filter_config in filter_renaming_configs.items():
             filtered_data = butterworth_filter(
-            data=accel_data,
-            order=imu_config.filter_order,
-            cutoff_frequency=imu_config.lower_cutoff_frequency,
-            passband=passband,
-            sampling_frequency=imu_config.sampling_frequency,
+                data=accel_data,
+                order=imu_config.filter_order,
+                cutoff_frequency=imu_config.lower_cutoff_frequency,
+                passband=passband,
+                sampling_frequency=imu_config.sampling_frequency,
             )
 
             # Replace or add new columns based on configuration
@@ -358,7 +365,7 @@ def preprocess_ppg_data(df_ppg: pd.DataFrame, ppg_config: PPGConfig, start_time_
         resampling_frequency=ppg_config.resampling_frequency,
         tolerance=ppg_config.tolerance,
     )
-    
+
     # Extract accelerometer data for filtering
     ppg_data = df_ppg_proc[ppg_config.ppg_colname].values
 
