@@ -304,23 +304,34 @@ def preprocess_ppg_data(df_ppg: pd.DataFrame, ppg_config: PPGConfig, start_time_
     """
     if df_acc is not None and imu_config is not None:
         # Extract overlapping segments
-        df_ppg_overlapping, df_acc_overlapping = extract_overlapping_segments(df_ppg, df_acc, start_time_ppg, start_time_imu)
-    
+        df_ppg_overlapping, df_acc_overlapping = extract_overlapping_segments(
+            df_ppg=df_ppg,
+            df_acc=df_acc,
+            time_colname_ppg=ppg_config.time_colname,
+            time_colname_imu=imu_config.time_colname,
+            start_time_ppg=start_time_ppg,
+            start_time_acc=start_time_imu,
+        )
+
         # Resample accelerometer data
         df_acc_proc = resample_data(
             df=df_acc_overlapping,
-            time_column=DataColumns.TIME,
+            time_column=imu_config.time_colname,
             values_column_names = list(imu_config.d_channels_accelerometer.keys()),
             sampling_frequency=imu_config.sampling_frequency,
-            resampling_frequency=imu_config.sampling_frequency
+            resampling_frequency=imu_config.resampling_frequency,
+            tolerance=imu_config.tolerance,
         )
 
         # Extract accelerometer data for filtering
-        accel_data = df_acc_proc[imu_config.accelerometer_cols].values
+        accel_data = df_acc_proc[imu_config.accelerometer_colnames].values
 
             # Define filter configurations for high-pass and low-pass
         filter_renaming_configs = {
-        "hp": {"result_columns": imu_config.accelerometer_cols, "replace_original": True}}
+            "hp": {"result_columns": imu_config.accelerometer_colnames, 
+               "replace_original": True
+            }
+        }
 
         # Apply filters in a loop
         for passband, filter_config in filter_renaming_configs.items():
@@ -341,10 +352,11 @@ def preprocess_ppg_data(df_ppg: pd.DataFrame, ppg_config: PPGConfig, start_time_
     # Resample PPG data
     df_ppg_proc = resample_data(
         df=df_ppg_overlapping,
-        time_column=DataColumns.TIME,
-        values_column_names = list(ppg_config.d_channels_ppg.keys()),
+        time_column=ppg_config.time_colname,
+        values_column_names=list(ppg_config.d_channels_ppg.keys()),
         sampling_frequency=ppg_config.sampling_frequency,
-        resampling_frequency=ppg_config.sampling_frequency
+        resampling_frequency=ppg_config.resampling_frequency,
+        tolerance=ppg_config.tolerance,
     )
     
     # Extract accelerometer data for filtering

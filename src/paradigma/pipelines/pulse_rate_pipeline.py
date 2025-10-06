@@ -71,18 +71,18 @@ def extract_signal_quality_features(df_ppg: pd.DataFrame, ppg_config: PulseRateC
 
     if df_acc is not None and acc_config is not None:
         
-        acc_windowed_cols = [DataColumns.TIME] + acc_config.accelerometer_cols
+        acc_windowed_colnames = [DataColumns.TIME] + acc_config.accelerometer_colnames
         acc_windowed = tabulate_windows(
             df=df_acc,
-            columns=acc_windowed_cols,
+            columns=acc_windowed_colnames,
             window_length_s=acc_config.window_length_s,
             window_step_length_s=acc_config.window_step_length_s,
             fs=acc_config.sampling_frequency
         )
 
         # Extract data from the windowed accelerometer signal
-        extractor = WindowedDataExtractor(acc_windowed_cols)
-        idx_acc = extractor.get_slice(acc_config.accelerometer_cols)
+        extractor = WindowedDataExtractor(acc_windowed_colnames)
+        idx_acc = extractor.get_slice(acc_config.accelerometer_colnames)
         acc_values_windowed = acc_windowed[:, :, idx_acc]
 
         # Compute periodicity feature of the accelerometer signal
