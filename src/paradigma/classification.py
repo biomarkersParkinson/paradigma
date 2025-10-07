@@ -4,6 +4,7 @@ from typing import Any, Optional
 
 import numpy as np
 from sklearn.base import BaseEstimator
+from sklearn.preprocessing import StandardScaler
 
 
 class ClassifierPackage:
@@ -46,6 +47,18 @@ class ClassifierPackage:
         if not self.scaler:
             return X
         return self.scaler.transform(X)
+
+    def update_scaler(self, x_train: np.ndarray) -> None:
+        """
+        Update the scaler used for feature transformation.
+
+        Parameters
+        ----------
+        x_train : np.ndarray
+            The training data to fit the scaler.
+        """
+        scaler = StandardScaler()
+        self.scaler = scaler.fit(x_train)
 
     def predict_proba(self, X) -> float:
         """

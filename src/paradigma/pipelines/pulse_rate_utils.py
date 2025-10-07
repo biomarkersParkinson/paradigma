@@ -7,7 +7,7 @@ from paradigma.config import PulseRateConfig
 
 
 def assign_sqa_label(
-    ppg_prob: np.ndarray, config: PulseRateConfig, acc_label=None
+    ppg_prob: np.ndarray, config: PulseRateConfig, acc_label: np.ndarray | None = None
 ) -> np.ndarray:
     """
     Assigns a signal quality label to every individual data point.
