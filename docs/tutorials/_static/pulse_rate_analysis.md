@@ -14,7 +14,7 @@ We then combine the output of the different segments for the final step:
 
 ## Load data
 
-This pipeline requires PPG data and preferably accelerometer data (optional). Here, we start by loading a single contiguous time series (segment), for which we continue running steps 1-4. [Below](#multiple_segments_cell) we show how to run these steps for multiple segments. The channel `green` represents the values obtained with PPG using green light.
+This pipeline requires PPG data and can be enhanced with accelerometer data (optional). Here, we start by loading a single contiguous time series (segment), for which we continue running steps 1-4. [Below](#multiple_segments_cell) we show how to run these steps for multiple segments. The channel `green` represents the values obtained with PPG using green light.
 
 In this example we use the interally developed `TSDF` ([documentation](https://biomarkersparkinson.github.io/tsdf/)) to load and store data [[1](https://arxiv.org/abs/2211.11294)]. However, we are aware that there are other common data formats. For example, the following functions can be used depending on the file extension of the data:
 - _.csv_: `pandas.read_csv()` ([documentation](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html))
@@ -46,9 +46,9 @@ df_imu, metadata_time_imu, metadata_values_imu = load_tsdf_dataframe(
     prefix=f'IMU_segment{segment_nr}'
 )
 
-# Drop the gyroscope columns from the IMU data to keep only accelerometer data
-cols_to_drop = df_imu.filter(regex='^gyroscope_').columns
-df_acc = df_imu.drop(cols_to_drop, axis=1)
+time_col = ['time'] # define time column to keep
+acc_cols = ['accelerometer_x', 'accelerometer_y', 'accelerometer_z'] # define accelerometer columns to keep
+df_acc = df_imu[time_col + acc_cols]
 
 display(df_ppg, df_acc)
 ```
@@ -249,7 +249,7 @@ display(df_ppg, df_acc)
 
 ## Step 1: Preprocess data
 
-The first step after loading the data is preprocessing using the [preprocess_ppg_data](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_ppg_data). This begins by isolating segments containing both PPG and IMU data, discarding portions where one modality (e.g., PPG) extends beyond the other, such as when the PPG recording is longer than the accelerometer data. This functionality requires the starting times (`metadata_time_ppg.start_iso8601` and `metadata_time_imu.start_iso8601`) in iso8601 format as inputs. After this step, the preprocess_ppg_data function resamples the PPG and accelerometer data to uniformly distributed timestamps, addressing the fixed but non-uniform sampling rates of the sensors. If the difference between timestamps is larger than a specified tolerance (`config.tolerance`, in seconds), it will return an error that the timestamps are not contiguous.  If you still want to process the data in this case, you can create segments from discontiguous samples using the function [`create_segments`](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/segmenting.py) and analyze these segments consecutively as shown in [here](#multiple_segments_cell). After resampling, a bandpass Butterworth filter (4th-order, bandpass frequencies: 0.4--3.5 Hz) is applied to the PPG signal, while a high-pass Butterworth filter (4th-order, cut-off frequency: 0.2 Hz) is applied to the accelerometer data.
+The first step after loading the data is preprocessing using the [preprocess_ppg_data](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_ppg_data). This begins by isolating segments containing both PPG and IMU data, discarding portions where one modality (e.g., PPG) extends beyond the other, such as when the PPG recording is longer than the accelerometer data. This functionality requires the starting times (`metadata_time_ppg.start_iso8601` and `metadata_time_imu.start_iso8601`) in iso8601 format as inputs. After this step, the preprocess_ppg_data function resamples the PPG and accelerometer data to uniformly distributed timestamps, addressing the fixed but non-uniform sampling rates of the sensors. After this, a bandpass Butterworth filter (4th-order, bandpass frequencies: 0.4--3.5 Hz) is applied to the PPG signal, while a high-pass Butterworth filter (4th-order, cut-off frequency: 0.2 Hz) is applied to the accelerometer data.
 
 Note: the printed shapes are (rows, columns) with each row corresponding to a single data point and each column representing a data column (e.g.time). The number of rows of the overlapping segments of PPG and accelerometer are not the same due to sampling differences (other sensors and possibly other sampling frequencies).
 
@@ -279,16 +279,13 @@ imu_config = IMUConfig(column_mapping=imu_column_mapping)
 
 print(f'The tolerance for checking contiguous timestamps is set to {ppg_config.tolerance:.3f} seconds for PPG data and {imu_config.tolerance:.3f} seconds for accelerometer data.')
 print(f"Original data shapes:\n- PPG data: {df_ppg.shape}\n- Accelerometer data: {df_imu.shape}")
-
-
-# Remove optional arguments if you don't have accelerometer data (set to None or remove arguments)
 df_ppg_proc, df_acc_proc = preprocess_ppg_data(
     df_ppg=df_ppg,
-    df_acc=df_acc,
     ppg_config=ppg_config,
-    imu_config=imu_config,
-    start_time_ppg=metadata_time_ppg.start_iso8601,
-    start_time_imu=metadata_time_imu.start_iso8601
+    start_time_ppg=metadata_time_ppg.start_iso8601,  # Optional
+    df_acc=df_acc,  # Optional
+    imu_config=imu_config,  # Optional
+    start_time_imu=metadata_time_imu.start_iso8601  # Optional
 )
 
 print(f"Overlapping preprocessed data shapes:\n- PPG data: {df_ppg_proc.shape}\n- Accelerometer data: {df_acc_proc.shape}")
@@ -502,7 +499,7 @@ display(df_ppg_proc, df_acc_proc)
 
 ## Step 2: Extract signal quality features
 
-The preprocessed data (PPG & accelerometer) is windowed into overlapping windows of length `ppg_config.window_length_s` with a window step of `ppg_config.window_step_length_s`. From the PPG windows 10 time- and frequency domain features are extracted to assess PPG morphology and from the accelerometer windows (optional) one relative power feature is calculated to assess periodic motion artifacts.
+The preprocessed data is windowed into overlapping windows of length `ppg_config.window_length_s` with a window step of `ppg_config.window_step_length_s`. From the PPG windows, 10 time- and frequency domain features are extracted to assess PPG morphology. In case of using the accelerometer data (optional),  one relative power feature is calculated per window to assess periodic motion artifacts.
 
 The detailed steps are encapsulated in `extract_signal_quality_features` (documentation can be found [here](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=extract_signal_quality_features)).
 
@@ -533,14 +530,12 @@ df_features = extract_signal_quality_features(
     acc_config=pulse_rate_acc_config,
 )
 
-df_features
+display(df_features)
 
 ```
 
     The default window length for the signal quality feature extraction is set to 6 seconds.
     The default step size for the signal quality feature extraction is set to 1 seconds.
-
-
 
 
 
@@ -748,7 +743,6 @@ df_features
 </div>
 
 
-
 ## Step 3: Signal quality classification
 
 A trained logistic classifier is used to predict PPG signal quality and returns the `pred_sqa_proba`, which is the posterior probability of a PPG window to look like the typical PPG morphology (higher probability indicates toward the typical PPG morphology). The (optional) relative power feature from the accelerometer is compared to a threshold for periodic artifacts and therefore `pred_sqa_acc_label` is used to return a label indicating predicted periodic motion artifacts (label 0) or no periodic motion artifacts (label 1).
@@ -757,21 +751,32 @@ The classification step is implemented in `signal_quality_classification` (docum
 
 <u>**_Note on scale sensitivity_**</u>
 The PPG sensor used for developing this pipeline records in arbitrary units. Some features are scale sensitive and require rescaling when applying the pipeline to other datasets or PPG sensors.
-In this pipeline, the logistic classifier for PPG morphology was trained on z-scored features, using the means (μ) and standard deviations (σ) from the Personalized Parkinson Project training set. These μ and σ values are stored in the `ppg_quality_classifier_package`.
-When applying the code to another dataset, users are advised to recalculate **_μ_** and **_σ** for each feature on their (training) data and update the classifier package accordingly.
+In this pipeline, the logistic classifier for PPG morphology was trained on z-scored features, using the means (μ) and standard deviations (σ) from the Personalized Parkinson Project training set (documentation of the training set can be found in the Signal Quality Assessment section [here](https://www.medrxiv.org/content/10.1101/2025.08.15.25333751v1.full-text)). These μ and σ values are stored in the `ppg_quality_classifier_package`. When applying the code to another dataset, users are advised to recalculate **_μ_** and **_σ_** for each feature on their (training) data and update the classifier package accordingly. Example code to recalculate the **_μ_** and **_σ_** can be found in the code cell below and in section 7.3.1. [here](https://scikit-learn.org/stable/modules/preprocessing.html#standardization-or-mean-removal-and-variance-scaling).
 
 
 ```python
 from importlib.resources import files
+from paradigma.classification import ClassifierPackage
 from paradigma.pipelines.pulse_rate_pipeline import signal_quality_classification
+
+config = PulseRateConfig()
 
 ppg_quality_classifier_package_filename = 'ppg_quality_clf_package.pkl'
 full_path_to_classifier_package = files('paradigma') / 'assets' / ppg_quality_classifier_package_filename
 
+# Load the classifier package
+clf_package = ClassifierPackage.load(full_path_to_classifier_package)
+
+# If you use a different sensor or dataset, you have to update the classifier package with the mu and sigma calculated on your training data.
+# Example code to recalculate the mean and std to update the clf_package:
+# import numpy as np
+# x_train = np.random.rand(100, 10) # create random x_train for demonstration purposes, 100 samples and 10 features
+# clf_package.update_scaler(x_train)
+
 df_sqa = signal_quality_classification(
     df=df_features,
-    config=pulse_rate_ppg_config,
-    full_path_to_classifier_package=full_path_to_classifier_package
+    config=config,
+    clf_package=clf_package
 )
 
 df_sqa
@@ -1173,7 +1178,7 @@ for segment_nr in segments:
     df_sqa = signal_quality_classification(
         df=df_features,
         config=ppg_config,
-        full_path_to_classifier_package=full_path_to_classifier_package
+        clf_package=clf_package
     )
 
     # 4: Estimate pulse rate
