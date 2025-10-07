@@ -269,7 +269,7 @@ def preprocess_ppg_data(
     df_acc: pd.DataFrame | None = None,
     imu_config: IMUConfig | None = None,
     start_time_imu: str | None = None,
-) -> Tuple[pd.DataFrame, Optional[pd.DataFrame]]:
+) -> Tuple[pd.DataFrame, pd.DataFrame | None]:
     """
     This function preprocesses PPG and accelerometer data by resampling, filtering and aligning the data segments of both sensors (if applicable).
     Aligning is done using the extract_overlapping_segments function which is based on the provided start times of the PPG and IMU data and returns
