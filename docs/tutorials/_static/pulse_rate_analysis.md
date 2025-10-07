@@ -745,7 +745,8 @@ display(df_features)
 
 ## Step 3: Signal quality classification
 
-A trained logistic classifier is used to predict PPG signal quality and returns the `pred_sqa_proba`, which is the posterior probability of a PPG window to look like the typical PPG morphology (higher probability indicates toward the typical PPG morphology). The (optional) relative power feature from the accelerometer is compared to a threshold for periodic artifacts and therefore `pred_sqa_acc_label` is used to return a label indicating predicted periodic motion artifacts (label 0) or no periodic motion artifacts (label 1).
+A trained logistic classifier is used to predict PPG signal quality and returns the `pred_sqa_proba`, which is the posterior probability of a PPG window to look like the typical PPG morphology (higher probability indicates toward the typical PPG morphology).
+If accelerometer is used, the relative power feature from the accelerometer is compared to a threshold for periodic artifacts and therefore `pred_sqa_acc_label` is used to return a label indicating predicted periodic motion artifacts (label 0) or no periodic motion artifacts (label 1).
 
 The classification step is implemented in `signal_quality_classification` (documentation can be found [here](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=signal_quality_classification)).
 
