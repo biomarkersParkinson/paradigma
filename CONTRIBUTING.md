@@ -87,11 +87,13 @@ git checkout -b name-of-your-bugfix-or-feature
 4. Make your changes and run the pre-commit hooks:
 
 ```bash
+pip install pre-commit
+pre-commit install
 pre-commit run --all-files
 ```
 
 This ensures code formatting (`black`), import sorting (`isort`), stripping notebook outputs, and other checks.
-This is also automatically done when committing.
+These pre-commit hooks also run for changed and staged files when committing.
 
 5. If contributing to docs, build and serve them locally to verify:
 
