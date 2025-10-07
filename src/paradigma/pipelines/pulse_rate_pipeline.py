@@ -154,7 +154,7 @@ def signal_quality_classification(
 
     # Make predictions for PPG signal quality assessment, and assign the probabilities to the DataFrame and drop the features
     df[DataColumns.PRED_SQA_PROBA] = clf.predict_proba(scaled_features)[:, 0]
-    keep_cols = [DataColumns.TIME, DataColumns.PRED_SQA_PROBA]
+    keep_cols = [config.time_colname, DataColumns.PRED_SQA_PROBA]
 
     if DataColumns.ACC_POWER_RATIO in df.columns:
         df[DataColumns.PRED_SQA_ACC_LABEL] = (
