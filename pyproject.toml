@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "paradigma"
-version = "1.0.3"
+version = "1.0.4"
 description = "ParaDigMa - A toolbox for deriving Parkinson's disease Digital Markers from real-life wrist sensor data"
 authors = [ "Erik Post <erik.post@radboudumc.nl>",
             "Kars Veldkamp <kars.veldkamp@radboudumc.nl>",
@@ -19,8 +19,6 @@ pandas = "^2.1.4"
 scikit-learn = ">=1.3.2,<1.6.1"
 tsdf = "^0.5.2"
 pytype = "^2024.4.11"
-# for the record: pytype was installed directly with pip (in the poetry environment),
-# because poetry didn't handle the install for different CPU architectures
 python-dateutil = "^2.9.0.post0"
 nbconvert = "^7.16.6"
 

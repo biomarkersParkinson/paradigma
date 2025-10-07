@@ -22,8 +22,9 @@ def main():
         with nb_path.open("r", encoding="utf-8") as f:
             nb = read(f, as_version=4)
 
-        kernel_name = f"python{sys.version_info.major}"
-        client = NotebookClient(nb, timeout=600, kernel_name=kernel_name)
+        client = NotebookClient(
+            nb, timeout=600, kernel_name=f"python{sys.version_info.major}"
+        )
         client.execute(cwd=nb_path.parent)
 
         with nb_path.open("w", encoding="utf-8") as f:
