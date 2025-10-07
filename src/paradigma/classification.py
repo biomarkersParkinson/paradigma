@@ -48,9 +48,9 @@ class ClassifierPackage:
             return X
         return self.scaler.transform(X)
 
-    def update_scaler(self, x_train) -> None:
+    def update_scaler(self, x_train: np.ndarray) -> None:
         """
-        Update the standard scaler used for feature transformation.
+        Update the scaler used for feature transformation.
 
         Parameters
         ----------

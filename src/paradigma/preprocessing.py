@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -265,11 +265,11 @@ def preprocess_imu_data(
 def preprocess_ppg_data(
     df_ppg: pd.DataFrame,
     ppg_config: PPGConfig,
-    start_time_ppg: str,
+    start_time_ppg: str | None = None,
     df_acc: pd.DataFrame | None = None,
     imu_config: IMUConfig | None = None,
     start_time_imu: str | None = None,
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+) -> Tuple[pd.DataFrame, Optional[pd.DataFrame]]:
     """
     This function preprocesses PPG and accelerometer data by and aligning the data segments of both sensors (if applicable).
     Aligning is done using the extract_overlapping_segments function which is based on the provided start times of the PPG and IMU data and returns
@@ -294,7 +294,7 @@ def preprocess_ppg_data(
 
     Returns
     -------
-    Tuple[pd.DataFrame, pd.DataFrame]
+    Tuple[pd.DataFrame, pd.DataFrame | None]
         A tuple containing two DataFrames:
         - Preprocessed PPG data with the following transformations:
             - Resampled data at the specified frequency.
@@ -305,6 +305,7 @@ def preprocess_ppg_data(
 
     Notes
     -----
+    - If accelerometer data or IMU configuration is not provided, the function only preprocesses PPG data.
     - The function applies Butterworth filters to PPG and accelerometer (if applicable) data, both high-pass and low-pass.
 
     """

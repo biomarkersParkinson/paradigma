@@ -55,7 +55,7 @@ def extract_signal_quality_features(
 
     """
     # Group sequences of timestamps into windows
-    ppg_windowed_colnames = [DataColumns.TIME, ppg_config.ppg_colname]
+    ppg_windowed_colnames = [ppg_config.time_colname, ppg_config.ppg_colname]
     ppg_windowed = tabulate_windows(
         df=df_ppg,
         columns=ppg_windowed_colnames,
@@ -66,18 +66,20 @@ def extract_signal_quality_features(
 
     # Extract data from the windowed PPG signal
     extractor = WindowedDataExtractor(ppg_windowed_colnames)
-    idx_time = extractor.get_index(DataColumns.TIME)
+    idx_time = extractor.get_index(ppg_config.time_colname)
     idx_ppg = extractor.get_index(ppg_config.ppg_colname)
     start_time_ppg = np.min(
         ppg_windowed[:, :, idx_time], axis=1
     )  # Start time of the window is relative to the first datapoint in the PPG data
     ppg_values_windowed = ppg_windowed[:, :, idx_ppg]
 
-    df_features = pd.DataFrame(start_time_ppg, columns=[DataColumns.TIME])
+    df_features = pd.DataFrame(start_time_ppg, columns=[ppg_config.time_colname])
 
     if df_acc is not None and acc_config is not None:
 
-        acc_windowed_colnames = [DataColumns.TIME] + acc_config.accelerometer_colnames
+        acc_windowed_colnames = [
+            acc_config.time_colname
+        ] + acc_config.accelerometer_colnames
         acc_windowed = tabulate_windows(
             df=df_acc,
             columns=acc_windowed_colnames,
@@ -196,10 +198,10 @@ def estimate_pulse_rate(
 
     ppg_preprocessed = df_ppg_preprocessed.values
     time_idx = df_ppg_preprocessed.columns.get_loc(
-        DataColumns.TIME
+        config.time_colname
     )  # Get the index of the time column
     ppg_idx = df_ppg_preprocessed.columns.get_loc(
-        DataColumns.PPG
+        config.ppg_colname
     )  # Get the index of the PPG column
 
     # Assign window-level probabilities to individual samples
