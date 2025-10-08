@@ -5,10 +5,12 @@ repos:
       - id: nbstripout
 
   - repo: https://github.com/srstevenson/nb-clean
-    rev: 3.0.0
+    rev: 4.0.1
     hooks:
       - id: nb-clean
-        args: ["--remove-kernel-metadata"]
+        args:
+          - clean
+
 
   - repo: https://github.com/psf/black
     rev: 24.8.0
