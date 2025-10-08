@@ -2339,6 +2339,21 @@ testing = ["beautifulsoup4", "coverage[toml]", "defusedxml", "pygments (<2.19)",
 testing-docutils = ["pygments", "pytest (>=8,<9)", "pytest-param-files (>=0.6.0,<0.7.0)"]
 
 [[package]]
+name = "nb-clean"
+version = "4.0.1"
+description = "Clean Jupyter notebooks for versioning"
+optional = false
+python-versions = "<4.0,>=3.9"
+groups = ["dev"]
+files = [
+    {file = "nb_clean-4.0.1-py3-none-any.whl", hash = "sha256:6a673775523ad5ae18566bb0880012c169944a9357760dfcf993cdb14e2e5f82"},
+    {file = "nb_clean-4.0.1.tar.gz", hash = "sha256:f4af1bec3f25e7b18eb09024947bcc809efc97fd68bec482d219c304d850809f"},
+]
+
+[package.dependencies]
+nbformat = ">=5.9.2"
+
+[[package]]
 name = "nbclient"
 version = "0.10.2"
 description = "A client library for executing notebooks. Formerly nbconvert's ExecutePreprocessor."
@@ -4833,4 +4848,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "6de1248e1224c37ca39820353933d1a1995e93ce33613995f464321a85afbfbf"
+content-hash = "4ac19b306143635db9becab7e8ad79840c686e1b18c5ba4bea5580b406adb654"

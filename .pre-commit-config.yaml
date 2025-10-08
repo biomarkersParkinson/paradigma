@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/kynan/nbstripout
-    rev: 0.6.1
+    rev: 0.8.1
     hooks:
       - id: nbstripout
 
@@ -8,32 +8,30 @@ repos:
     rev: 4.0.1
     hooks:
       - id: nb-clean
-        args:
-          - clean
 
 
   - repo: https://github.com/psf/black
-    rev: 24.8.0
+    rev: 25.9.0
     hooks:
       - id: black
         pass_filenames: true
         types: [python]
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.13.2
+    rev: 6.1.0
     hooks:
       - id: isort
         args: ["--profile", "black"]
         types: [python]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.4
+    rev: v0.14.0
     hooks:
       - id: ruff
         args: ["--fix"]  # auto-fix simple issues
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v6.0.0
     hooks:
       - id: check-yaml
       - id: end-of-file-fixer
