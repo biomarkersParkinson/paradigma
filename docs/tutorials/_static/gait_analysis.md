@@ -793,11 +793,7 @@ df_arm_activity.head()
 ```
 
     A total of 61 features have been extracted from 2749 3-second windows with 2.25 seconds overlap.
-<<<<<<< HEAD
 
-=======
-
->>>>>>> e4222a0509fa4ea4cf4333243005d64636c7e84c
 
 
 
@@ -1147,15 +1143,9 @@ quantified_arm_swing.loc[quantified_arm_swing['segment_nr'] == 1]
      'duration_unfiltered_segment_s': 9.0,
      'end_time_s': 2230.74,
      'start_time_s': 2221.75}
-<<<<<<< HEAD
 
     Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 9.0 seconds, which is at least as large as the filtered gait segment.
 
-=======
-
-    Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 9.0 seconds, which is at least as large as the filtered gait segment.
-
->>>>>>> e4222a0509fa4ea4cf4333243005d64636c7e84c
     Individual arm swings of the first gait segment of the filtered dataset:
 
 
@@ -1406,8 +1396,6 @@ Finally, the arm swing estimates can be aggregated across all gait segments.
 
 Optionally, gait segments can be categorized into bins of specific length. Bins are tuples `(a, b)` including $a$ and excluding $b$, i.e., gait segments $\geq a$ seconds and $< b$ seconds. For example, to analyze gait segments of at least 20 seconds, the tuple `(20, np.inf)` can be used. In case you want to analyze all gait segments combined, use `(0, np.inf)`.
 
-Optionally, gait segments can be categorized into bins of specific length. Bins are tuples `(a, b)` including $a$ and excluding $b$, i.e., gait segments $\geq a$ seconds and $< b$ seconds. For example, to analyze gait segments of at least 20 seconds, the tuple `(20, np.inf)` can be used. In case you want to analyze all gait segments combined, use `(0, np.inf)`.
-
 
 ```python
 import numpy as np
@@ -1445,10 +1433,6 @@ pprint(arm_swing_aggregations, sort_dicts=False)
                '95p_range_of_motion': 45.92600123148869,
                'median_peak_velocity': 116.50364930684765,
                '95p_peak_velocity': 219.2008357820751}}
-<<<<<<< HEAD
 
-=======
-
->>>>>>> e4222a0509fa4ea4cf4333243005d64636c7e84c
 
 The output of the aggregation step contains the aggregated arm swing parameters per gait segment category. Additionally, the total time in seconds `time_s` is added to inform based on how much data the aggregations were created.
