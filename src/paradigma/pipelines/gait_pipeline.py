@@ -549,7 +549,6 @@ def aggregate_arm_swing_params(
 
     segment_cats : List[tuple]
         A list of tuples defining the segment categories, where each tuple contains the lower and upper bounds for the segment duration.
-
     aggregates : List[str], optional
         A list of aggregation methods to apply to the quantification results.
 
