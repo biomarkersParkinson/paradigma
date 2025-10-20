@@ -30,8 +30,6 @@ myst_enable_extensions = [
 
 autoapi_dirs = ["../src"]
 
-nb_kernel_name = "paradigma"
-
 # Include the following entities in the API documentation, this explicitly excludes 'imported-members',
 # as we don't want to clutter the documentation with all the imported members.
 # https://sphinx-autoapi.readthedocs.io/en/latest/reference/config.html#confval-autoapi_options
@@ -49,11 +47,9 @@ autoapi_options = [
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["build", "Thumbs.db", ".DS_Store"]
 
-nbsphinx_execute_arguments = ["--ExecutePreprocessor.kernel_name=python3"]
-
 # myst-nb execution settings
-jupyter_execute_notebooks = "force"  # always (re)execute notebooks
-nb_kernel_name = "python3"  # force python3, ignore metadata
+jupyter_execute_notebooks = "off"
+nb_kernel_name = "python3"
 nb_execution_timeout = 600  # bump timeout if needed
 
 # -- Options for HTML output -------------------------------------------------

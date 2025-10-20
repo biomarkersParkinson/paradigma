@@ -1298,6 +1298,7 @@ filtered = True
 
 # Create a list to store all quantified arm swing segments
 list_quantified_arm_swing = []
+max_gait_segment_nr = 0
 
 raw_data_segments  = ['0001', '0002'] # list with all available raw data segments
 
@@ -1384,6 +1385,12 @@ for raw_data_segment_nr in raw_data_segments:
         min_segment_length_s=config.min_segment_length_s,
     )
 
+    # Since segments start at zero, and we are concatenating multiple segments, we need to
+    # update the segment numbers to avoid aggregating multiple segments with the same number.
+    max_gait_segment_nr = quantified_arm_swing['segment_nr'].max() if not list_quantified_arm_swing == [] else 0
+    quantified_arm_swing['segment_nr'] += max_gait_segment_nr
+    gait_segment_meta['per_segment'] = {k + max_gait_segment_nr: v for k, v in gait_segment_meta['per_segment'].items()}
+
     # Add the predictions of the current raw data segment to the list
     quantified_arm_swing['raw_data_segment_nr'] = raw_data_segment_nr
     list_quantified_arm_swing.append(quantified_arm_swing)
@@ -1394,7 +1401,7 @@ quantified_arm_swing = pd.concat(list_quantified_arm_swing, ignore_index=True)
 ## Step 7: Aggregation
 Finally, the arm swing estimates can be aggregated across all gait segments.
 
-Optionally, gait segments can be categorized into bins of specific length. Bins are tuples `(a, b)` including $a$ and excluding $b$, i.e., gait segments $\geq a$ seconds and $< b$ seconds. For example, to analyze gait segments of at least 20 seconds, the tuple `(20, np.inf)` can be used. In case you want to analyze all gait segments combined, use `(0, np.inf)`.
+Optionally, gait segments can be categorized into bins of specific length. Bins are tuples `(a, b)` including `a` and excluding `b`, i.e., gait segments ≥ `a` seconds and < `b` seconds. For example, to analyze gait segments of at least 20 seconds, the tuple `(20, np.inf)` can be used. In case you want to analyze all gait segments combined, use `(0, np.inf)`.
 
 
 ```python
@@ -1414,25 +1421,25 @@ pprint(arm_swing_aggregations, sort_dicts=False)
 ```
 
     {'0_10': {'duration_s': 341.25,
-              'median_range_of_motion': 15.10889561336818,
-              '95p_range_of_motion': 52.27598270995837,
-              'median_peak_velocity': 74.63996138215876,
-              '95p_peak_velocity': 230.71389576502395},
+              'median_range_of_motion': 10.265043828684437,
+              '95p_range_of_motion': 33.23162448765661,
+              'median_peak_velocity': 52.98458323096141,
+              '95p_peak_velocity': 168.65258802439874},
      '10_20': {'duration_s': 60.75,
-               'median_range_of_motion': 15.781087457927846,
-               '95p_range_of_motion': 45.165400467519284,
-               'median_peak_velocity': 86.83257977334742,
-               '95p_peak_velocity': 219.97254034894718},
+               'median_range_of_motion': 21.05381778480308,
+               '95p_range_of_motion': 45.617438049991144,
+               'median_peak_velocity': 117.7375878000595,
+               '95p_peak_velocity': 228.8853651528709},
      '20_inf': {'duration_s': 1905.75,
-                'median_range_of_motion': 25.289651009660467,
-                '95p_range_of_motion': 43.74907398039543,
-                'median_peak_velocity': 125.9443142903539,
-                '95p_peak_velocity': 217.80854223601995},
+                'median_range_of_motion': 25.56899710571253,
+                '95p_range_of_motion': 43.59181429894547,
+                'median_peak_velocity': 127.40063801636731,
+                '95p_peak_velocity': 217.64806342438817},
      '0_inf': {'duration_s': 2307.75,
-               'median_range_of_motion': 23.100608971051322,
-               '95p_range_of_motion': 45.92600123148869,
-               'median_peak_velocity': 116.50364930684765,
-               '95p_peak_velocity': 219.2008357820751}}
+               'median_range_of_motion': 24.07131352109043,
+               '95p_range_of_motion': 43.06891252479739,
+               'median_peak_velocity': 120.43812492382015,
+               '95p_peak_velocity': 215.76855388647215}}
 
 
 The output of the aggregation step contains the aggregated arm swing parameters per gait segment category. Additionally, the total time in seconds `time_s` is added to inform based on how much data the aggregations were created.
