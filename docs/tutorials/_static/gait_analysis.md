@@ -1387,7 +1387,7 @@ for raw_data_segment_nr in raw_data_segments:
 
     # Since segments start at zero, and we are concatenating multiple segments, we need to
     # update the segment numbers to avoid aggregating multiple segments with the same number.
-    max_gait_segment_nr = quantified_arm_swing['segment_nr'].max() if not list_quantified_arm_swing == [] else 0
+    max_gait_segment_nr = quantified_arm_swing['segment_nr'].max() if len(list_quantified_arm_swing) == 0 else 0
     quantified_arm_swing['segment_nr'] += max_gait_segment_nr
     gait_segment_meta['per_segment'] = {k + max_gait_segment_nr: v for k, v in gait_segment_meta['per_segment'].items()}
 
@@ -1421,10 +1421,10 @@ pprint(arm_swing_aggregations, sort_dicts=False)
 ```
 
     {'0_10': {'duration_s': 341.25,
-              'median_range_of_motion': 10.265043828684437,
-              '95p_range_of_motion': 33.23162448765661,
-              'median_peak_velocity': 52.98458323096141,
-              '95p_peak_velocity': 168.65258802439874},
+              'median_range_of_motion': 10.103916338101575,
+              '95p_range_of_motion': 32.90613405134026,
+              'median_peak_velocity': 51.71109278600136,
+              '95p_peak_velocity': 163.04675036294768},
      '10_20': {'duration_s': 60.75,
                'median_range_of_motion': 21.05381778480308,
                '95p_range_of_motion': 45.617438049991144,
@@ -1436,10 +1436,10 @@ pprint(arm_swing_aggregations, sort_dicts=False)
                 'median_peak_velocity': 127.40063801636731,
                 '95p_peak_velocity': 217.64806342438817},
      '0_inf': {'duration_s': 2307.75,
-               'median_range_of_motion': 24.07131352109043,
-               '95p_range_of_motion': 43.06891252479739,
-               'median_peak_velocity': 120.43812492382015,
-               '95p_peak_velocity': 215.76855388647215}}
+               'median_range_of_motion': 23.88140114870256,
+               '95p_range_of_motion': 43.047421805408675,
+               'median_peak_velocity': 119.68741253971183,
+               '95p_peak_velocity': 215.24611069202754}}
 
 
 The output of the aggregation step contains the aggregated arm swing parameters per gait segment category. Additionally, the total time in seconds `time_s` is added to inform based on how much data the aggregations were created.

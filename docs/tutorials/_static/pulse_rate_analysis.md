@@ -534,7 +534,9 @@ display(df_features)
 
 ```
 
-    The default window length for the signal quality feature extraction is set to 6 seconds.
+    The default window length for the signal quality feature extraction is set to
+
+     6 seconds.
     The default step size for the signal quality feature extraction is set to 1 seconds.
 
 
