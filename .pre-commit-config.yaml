@@ -3,7 +3,10 @@ repos:
     rev: 0.8.1
     hooks:
       - id: nbstripout
-        args: ["--extra-keys", "metadata.kernelspec", "--extra-keys", "metadata.language_info"]
+        args:
+          - --extra-keys=metadata.kernelspec
+          - --extra-keys=metadata.language_info
+          - --keep-output=False
 
   - repo: https://github.com/srstevenson/nb-clean
     rev: 4.0.1
