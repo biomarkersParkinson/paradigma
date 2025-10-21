@@ -3,17 +3,14 @@ repos:
     rev: 0.8.1
     hooks:
       - id: nbstripout
-        args:
-          - --extra-keys=metadata.kernelspec
-          - --extra-keys=metadata.language_info
-          - --keep-output=False
 
   - repo: https://github.com/srstevenson/nb-clean
     rev: 4.0.1
     hooks:
       - id: nb-clean
-        args: ["--remove-empty-cells"]
-
+        args:
+          - --remove-empty-cells
+          - --remove-all-notebook-metadata
 
   - repo: https://github.com/psf/black
     rev: 25.9.0
