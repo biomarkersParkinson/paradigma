@@ -770,13 +770,22 @@ from paradigma.util import write_df_data
 metadata_time_store = tsdf.TSDFMetadata(metadata_time.get_plain_tsdf_dict_copy(), path_to_data)
 metadata_values_store = tsdf.TSDFMetadata(metadata_values.get_plain_tsdf_dict_copy(), path_to_data)
 
+<<<<<<< HEAD
+# Select the columns to be saved
+metadata_time_store.channels = ['time']
+=======
 # Select the columns to be saved
 metadata_time_store.channels = [config.time_colname]
+>>>>>>> 37f1c8fea7b90d0e387febafe838f2df6ab9dd47
 metadata_values_store.channels = ['tremor_power', 'pred_tremor_proba', 'pred_tremor_logreg', 'pred_arm_at_rest', 'pred_tremor_checked']
 
 # Set the units
 metadata_time_store.units = ['Relative seconds']
+<<<<<<< HEAD
 metadata_values_store.units = ['Unitless', 'Unitless', 'Unitless', 'Unitless', 'Unitless']
+=======
+metadata_values_store.units = ['Unitless', 'Unitless', 'Unitless', 'Unitless', 'Unitless']
+>>>>>>> 37f1c8fea7b90d0e387febafe838f2df6ab9dd47
 metadata_time_store.data_type = float
 metadata_values_store.data_type = float
 

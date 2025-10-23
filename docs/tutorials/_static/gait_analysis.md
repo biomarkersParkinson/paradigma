@@ -793,7 +793,11 @@ df_arm_activity.head()
 ```
 
     A total of 61 features have been extracted from 2749 3-second windows with 2.25 seconds overlap.
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> 37f1c8fea7b90d0e387febafe838f2df6ab9dd47
 
 
 
@@ -1143,9 +1147,15 @@ quantified_arm_swing.loc[quantified_arm_swing['segment_nr'] == 1]
      'duration_unfiltered_segment_s': 9.0,
      'end_time_s': 2230.74,
      'start_time_s': 2221.75}
+<<<<<<< HEAD
 
     Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 9.0 seconds, which is at least as large as the filtered gait segment.
 
+=======
+
+    Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 9.0 seconds, which is at least as large as the filtered gait segment.
+
+>>>>>>> 37f1c8fea7b90d0e387febafe838f2df6ab9dd47
     Individual arm swings of the first gait segment of the filtered dataset:
 
 
@@ -1401,6 +1411,8 @@ quantified_arm_swing = pd.concat(list_quantified_arm_swing, ignore_index=True)
 ## Step 7: Aggregation
 Finally, the arm swing estimates can be aggregated across all gait segments.
 
+Optionally, gait segments can be categorized into bins of specific length. Bins are tuples `(a, b)` including $a$ and excluding $b$, i.e., gait segments $\geq a$ seconds and $< b$ seconds. For example, to analyze gait segments of at least 20 seconds, the tuple `(20, np.inf)` can be used. In case you want to analyze all gait segments combined, use `(0, np.inf)`.
+
 Optionally, gait segments can be categorized into bins of specific length. Bins are tuples `(a, b)` including `a` and excluding `b`, i.e., gait segments ≥ `a` seconds and < `b` seconds. For example, to analyze gait segments of at least 20 seconds, the tuple `(20, np.inf)` can be used. In case you want to analyze all gait segments combined, use `(0, np.inf)`.
 
 
@@ -1421,6 +1433,28 @@ pprint(arm_swing_aggregations, sort_dicts=False)
 ```
 
     {'0_10': {'duration_s': 341.25,
+<<<<<<< HEAD
+              'median_range_of_motion': 15.10889561336818,
+              '95p_range_of_motion': 52.27598270995837,
+              'median_peak_velocity': 74.63996138215876,
+              '95p_peak_velocity': 230.71389576502395},
+     '10_20': {'duration_s': 60.75,
+               'median_range_of_motion': 15.781087457927846,
+               '95p_range_of_motion': 45.165400467519284,
+               'median_peak_velocity': 86.83257977334742,
+               '95p_peak_velocity': 219.97254034894718},
+     '20_inf': {'duration_s': 1905.75,
+                'median_range_of_motion': 25.289651009660467,
+                '95p_range_of_motion': 43.74907398039543,
+                'median_peak_velocity': 125.9443142903539,
+                '95p_peak_velocity': 217.80854223601995},
+     '0_inf': {'duration_s': 2307.75,
+               'median_range_of_motion': 23.100608971051322,
+               '95p_range_of_motion': 45.92600123148869,
+               'median_peak_velocity': 116.50364930684765,
+               '95p_peak_velocity': 219.2008357820751}}
+
+=======
               'median_range_of_motion': 10.103916338101575,
               '95p_range_of_motion': 32.90613405134026,
               'median_peak_velocity': 51.71109278600136,
@@ -1441,5 +1475,6 @@ pprint(arm_swing_aggregations, sort_dicts=False)
                'median_peak_velocity': 119.68741253971183,
                '95p_peak_velocity': 215.24611069202754}}
 
+>>>>>>> 37f1c8fea7b90d0e387febafe838f2df6ab9dd47
 
 The output of the aggregation step contains the aggregated arm swing parameters per gait segment category. Additionally, the total time in seconds `time_s` is added to inform based on how much data the aggregations were created.
