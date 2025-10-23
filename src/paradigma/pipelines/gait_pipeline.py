@@ -1,30 +1,43 @@
 import logging
+from typing import List, Tuple
+
 import numpy as np
 import pandas as pd
 from scipy.signal import periodogram
-from typing import List, Tuple
 
 from paradigma.classification import ClassifierPackage
-from paradigma.constants import DataColumns
 from paradigma.config import GaitConfig
-from paradigma.feature_extraction import pca_transform_gyroscope, compute_angle, remove_moving_average_angle, \
-    extract_angle_extremes, compute_range_of_motion, compute_peak_angular_velocity, compute_statistics, \
-    compute_std_euclidean_norm, compute_power_in_bandwidth, compute_dominant_frequency, compute_mfccs, \
-    compute_total_power
-from paradigma.segmenting import tabulate_windows, create_segments, discard_segments, WindowedDataExtractor
+from paradigma.constants import DataColumns
+from paradigma.feature_extraction import (
+    compute_angle,
+    compute_dominant_frequency,
+    compute_mfccs,
+    compute_peak_angular_velocity,
+    compute_power_in_bandwidth,
+    compute_range_of_motion,
+    compute_statistics,
+    compute_std_euclidean_norm,
+    compute_total_power,
+    extract_angle_extremes,
+    pca_transform_gyroscope,
+    remove_moving_average_angle,
+)
+from paradigma.segmenting import (
+    WindowedDataExtractor,
+    create_segments,
+    discard_segments,
+    tabulate_windows,
+)
 from paradigma.util import aggregate_parameter
-
 
 logger = logging.getLogger(__name__)
 
 # Only configure basic logging if no handlers exist
 if not logger.hasHandlers():
-    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-def extract_gait_features(
-        df: pd.DataFrame,
-        config: GaitConfig
-    ) -> pd.DataFrame:
+
+def extract_gait_features(df: pd.DataFrame, config: GaitConfig) -> pd.DataFrame:
     """
     Extracts gait features from accelerometer and gravity sensor data in the input DataFrame by computing temporal and spectral features.
 
@@ -51,7 +64,7 @@ def extract_gait_features(
         A DataFrame containing extracted gait features, including temporal and spectral domain features. The DataFrame will have
         columns corresponding to time, statistical features of the accelerometer and gravity data, and spectral features of the
         accelerometer data.
-    
+
     Notes
     -----
     - This function groups the data into windows based on timestamps and applies Fast Fourier Transform to compute spectral features.
@@ -64,34 +77,36 @@ def extract_gait_features(
         If the input DataFrame does not contain the required columns as specified in the configuration or if any step in the feature extraction fails.
     """
     # Group sequences of timestamps into windows
-    windowed_cols = [DataColumns.TIME] + config.accelerometer_cols + config.gravity_cols
+    windowed_colnames = (
+        [config.time_colname] + config.accelerometer_colnames + config.gravity_colnames
+    )
     windowed_data = tabulate_windows(
-        df=df, 
-        columns=windowed_cols,
+        df=df,
+        columns=windowed_colnames,
         window_length_s=config.window_length_s,
         window_step_length_s=config.window_step_length_s,
-        fs=config.sampling_frequency
+        fs=config.sampling_frequency,
     )
 
-    extractor = WindowedDataExtractor(windowed_cols)
+    extractor = WindowedDataExtractor(windowed_colnames)
 
-    idx_time = extractor.get_index(DataColumns.TIME)
-    idx_acc = extractor.get_slice(config.accelerometer_cols)
-    idx_grav = extractor.get_slice(config.gravity_cols)
+    idx_time = extractor.get_index(config.time_colname)
+    idx_acc = extractor.get_slice(config.accelerometer_colnames)
+    idx_grav = extractor.get_slice(config.gravity_colnames)
 
     # Extract data
     start_time = np.min(windowed_data[:, :, idx_time], axis=1)
     windowed_acc = windowed_data[:, :, idx_acc]
     windowed_grav = windowed_data[:, :, idx_grav]
 
-    df_features = pd.DataFrame(start_time, columns=[DataColumns.TIME])
-    
+    df_features = pd.DataFrame(start_time, columns=[config.time_colname])
+
     # Compute statistics of the temporal domain signals (mean, std) for accelerometer and gravity
     df_temporal_features = extract_temporal_domain_features(
-        config=config, 
+        config=config,
         windowed_acc=windowed_acc,
         windowed_grav=windowed_grav,
-        grav_stats=['mean', 'std']
+        grav_stats=["mean", "std"],
     )
 
     # Combine temporal features with the start time
@@ -99,9 +114,7 @@ def extract_gait_features(
 
     # Transform the accelerometer data to the spectral domain using FFT and extract spectral features
     df_spectral_features = extract_spectral_domain_features(
-        config=config, 
-        sensor='accelerometer', 
-        windowed_data=windowed_acc
+        config=config, sensor="accelerometer", windowed_data=windowed_acc
     )
 
     # Combine the spectral features with the previously computed temporal features
@@ -111,10 +124,8 @@ def extract_gait_features(
 
 
 def detect_gait(
-        df: pd.DataFrame, 
-        clf_package: ClassifierPackage, 
-        parallel: bool=False
-    ) -> pd.Series:
+    df: pd.DataFrame, clf_package: ClassifierPackage, parallel: bool = False
+) -> pd.Series:
     """
     Detects gait activity in the input DataFrame using a pre-trained classifier and applies a threshold to classify results.
 
@@ -128,7 +139,7 @@ def detect_gait(
     Parameters
     ----------
     df : pd.DataFrame
-        The input DataFrame containing features extracted from gait data. It must include the necessary columns 
+        The input DataFrame containing features extracted from gait data. It must include the necessary columns
         as specified in the classifier's feature names.
 
     clf_package : ClassifierPackage
@@ -144,7 +155,7 @@ def detect_gait(
     """
     # Set classifier
     clf = clf_package.classifier
-    if not parallel and hasattr(clf, 'n_jobs'):
+    if not parallel and hasattr(clf, "n_jobs"):
         clf.n_jobs = 1
 
     feature_names_scaling = clf_package.scaler.feature_names_in_
@@ -164,13 +175,13 @@ def detect_gait(
 
 
 def extract_arm_activity_features(
-        df: pd.DataFrame, 
-        config: GaitConfig,
-    ) -> pd.DataFrame:
+    df: pd.DataFrame,
+    config: GaitConfig,
+) -> pd.DataFrame:
     """
     Extract features related to arm activity from a time-series DataFrame.
 
-    This function processes a DataFrame containing accelerometer, gravity, and gyroscope signals, 
+    This function processes a DataFrame containing accelerometer, gravity, and gyroscope signals,
     and extracts features related to arm activity by performing the following steps:
     1. Computes the angle and velocity from gyroscope data.
     2. Filters the data to include only predicted gait segments.
@@ -190,13 +201,12 @@ def extract_arm_activity_features(
     Returns
     -------
     pd.DataFrame
-        A DataFrame containing the extracted arm activity features, including angle, velocity, 
+        A DataFrame containing the extracted arm activity features, including angle, velocity,
         temporal, and spectral features.
     """
     # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
     df[DataColumns.SEGMENT_NR] = create_segments(
-        time_array=df[DataColumns.TIME], 
-        max_segment_gap_s=config.max_segment_gap_s
+        time_array=df[DataColumns.TIME], max_segment_gap_s=config.max_segment_gap_s
     )
 
     # Remove segments that do not meet predetermined criteria
@@ -205,27 +215,27 @@ def extract_arm_activity_features(
         segment_nr_colname=DataColumns.SEGMENT_NR,
         min_segment_length_s=config.min_segment_length_s,
         fs=config.sampling_frequency,
-        format='timestamps'
+        format="timestamps",
     )
 
     # Create windows of fixed length and step size from the time series per segment
     windowed_data = []
     df_grouped = df.groupby(DataColumns.SEGMENT_NR)
-    windowed_cols = (
-        [DataColumns.TIME] + 
-        config.accelerometer_cols + 
-        config.gravity_cols + 
-        config.gyroscope_cols
+    windowed_colnames = (
+        [config.time_colname]
+        + config.accelerometer_colnames
+        + config.gravity_colnames
+        + config.gyroscope_colnames
     )
 
     # Collect windows from all segments in a list for faster concatenation
     for _, group in df_grouped:
         windows = tabulate_windows(
-            df=group, 
-            columns=windowed_cols,
+            df=group,
+            columns=windowed_colnames,
             window_length_s=config.window_length_s,
             window_step_length_s=config.window_step_length_s,
-            fs=config.sampling_frequency
+            fs=config.sampling_frequency,
         )
         if len(windows) > 0:  # Skip if no windows are created
             windowed_data.append(windows)
@@ -239,12 +249,12 @@ def extract_arm_activity_features(
     windowed_data = np.concatenate(windowed_data, axis=0)
 
     # Slice columns for accelerometer, gravity, gyroscope, angle, and velocity
-    extractor = WindowedDataExtractor(windowed_cols)
+    extractor = WindowedDataExtractor(windowed_colnames)
 
-    idx_time = extractor.get_index(DataColumns.TIME)
-    idx_acc = extractor.get_slice(config.accelerometer_cols)
-    idx_grav = extractor.get_slice(config.gravity_cols)
-    idx_gyro = extractor.get_slice(config.gyroscope_cols)
+    idx_time = extractor.get_index(config.time_colname)
+    idx_acc = extractor.get_slice(config.accelerometer_colnames)
+    idx_grav = extractor.get_slice(config.gravity_colnames)
+    idx_gyro = extractor.get_slice(config.gyroscope_colnames)
 
     # Extract data
     start_time = np.min(windowed_data[:, :, idx_time], axis=1)
@@ -253,23 +263,23 @@ def extract_arm_activity_features(
     windowed_gyro = windowed_data[:, :, idx_gyro]
 
     # Initialize DataFrame for features
-    df_features = pd.DataFrame(start_time, columns=[DataColumns.TIME])
+    df_features = pd.DataFrame(start_time, columns=[config.time_colname])
 
     # Extract temporal domain features (e.g., mean, std for accelerometer and gravity)
     df_temporal_features = extract_temporal_domain_features(
-        config=config, 
-        windowed_acc=windowed_acc, 
-        windowed_grav=windowed_grav, 
-        grav_stats=['mean', 'std']
+        config=config,
+        windowed_acc=windowed_acc,
+        windowed_grav=windowed_grav,
+        grav_stats=["mean", "std"],
     )
     df_features = pd.concat([df_features, df_temporal_features], axis=1)
 
     # Extract spectral domain features for accelerometer and gyroscope signals
-    for sensor_name, windowed_sensor in zip(['accelerometer', 'gyroscope'], [windowed_acc, windowed_gyro]):
+    for sensor_name, windowed_sensor in zip(
+        ["accelerometer", "gyroscope"], [windowed_acc, windowed_gyro]
+    ):
         df_spectral_features = extract_spectral_domain_features(
-            config=config, 
-            sensor=sensor_name, 
-            windowed_data=windowed_sensor
+            config=config, sensor=sensor_name, windowed_data=windowed_sensor
         )
         df_features = pd.concat([df_features, df_spectral_features], axis=1)
 
@@ -277,10 +287,8 @@ def extract_arm_activity_features(
 
 
 def filter_gait(
-        df: pd.DataFrame, 
-        clf_package: ClassifierPackage, 
-        parallel: bool=False
-    ) -> pd.Series:
+    df: pd.DataFrame, clf_package: ClassifierPackage, parallel: bool = False
+) -> pd.Series:
     """
     Filters gait data to identify windows with no other arm activity using a pre-trained classifier.
 
@@ -300,10 +308,10 @@ def filter_gait(
     """
     if df.shape[0] == 0:
         raise ValueError("No data found in the input DataFrame.")
-    
+
     # Set classifier
     clf = clf_package.classifier
-    if not parallel and hasattr(clf, 'n_jobs'):
+    if not parallel and hasattr(clf, "n_jobs"):
         clf.n_jobs = 1
 
     feature_names_scaling = clf_package.scaler.feature_names_in_
@@ -323,12 +331,12 @@ def filter_gait(
 
 
 def quantify_arm_swing(
-        df: pd.DataFrame, 
-        fs: int,
-        filtered: bool = False,
-        max_segment_gap_s: float = 1.5,
-        min_segment_length_s: float = 1.5
-    ) -> Tuple[dict[str, pd.DataFrame], dict]:
+    df: pd.DataFrame,
+    fs: int,
+    filtered: bool = False,
+    max_segment_gap_s: float = 1.5,
+    min_segment_length_s: float = 1.5,
+) -> Tuple[dict[str, pd.DataFrame], dict]:
     """
     Quantify arm swing parameters for segments of motion based on gyroscope data.
 
@@ -346,72 +354,75 @@ def quantify_arm_swing(
 
     max_segment_gap_s : float, optional, default=1.5
         The maximum gap in seconds between consecutive timestamps to group them into segments.
-    
+
     min_segment_length_s : float, optional, default=1.5
         The minimum length in seconds for a segment to be considered valid.
 
     Returns
     -------
     Tuple[pd.DataFrame, dict]
-        A tuple containing a dataframe with quantified arm swing parameters and a dictionary containing 
+        A tuple containing a dataframe with quantified arm swing parameters and a dictionary containing
         metadata for each segment.
     """
     # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap.
     # Segments are made based on predicted gait
-    df['unfiltered_segment_nr'] = create_segments(
-        time_array=df[DataColumns.TIME], 
-        max_segment_gap_s=max_segment_gap_s
+    df["unfiltered_segment_nr"] = create_segments(
+        time_array=df[DataColumns.TIME], max_segment_gap_s=max_segment_gap_s
     )
 
     # Remove segments that do not meet predetermined criteria
     df = discard_segments(
         df=df,
-        segment_nr_colname='unfiltered_segment_nr',
+        segment_nr_colname="unfiltered_segment_nr",
         min_segment_length_s=min_segment_length_s,
         fs=fs,
-        format='timestamps'
+        format="timestamps",
     )
 
     if df.empty:
-        raise ValueError("No segments found in the input data after discarding segments of invalid shape.")
-    
+        raise ValueError(
+            "No segments found in the input data after discarding segments of invalid shape."
+        )
+
     # Create dictionary of gait segment number and duration
-    gait_segment_duration_dict = {segment_nr: len(group[DataColumns.TIME]) / fs for segment_nr, group in df.groupby('unfiltered_segment_nr', sort=False)}
-    
+    gait_segment_duration_dict = {
+        segment_nr: len(group[DataColumns.TIME]) / fs
+        for segment_nr, group in df.groupby("unfiltered_segment_nr", sort=False)
+    }
+
     # If no arm swing data is remaining, return an empty dictionary
-    if filtered and df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].empty:
+    if filtered and df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] == 1].empty:
         raise ValueError("No gait without other arm activities to quantify.")
     elif filtered:
         # Filter the DataFrame to only include predicted no other arm activity (1)
-        df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True)
+        df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] == 1].reset_index(
+            drop=True
+        )
 
         # Group consecutive timestamps into segments of filtered gait
-        df['filtered_segment_nr'] = create_segments(
-            time_array=df[DataColumns.TIME], 
-            max_segment_gap_s=max_segment_gap_s
+        df["filtered_segment_nr"] = create_segments(
+            time_array=df[DataColumns.TIME], max_segment_gap_s=max_segment_gap_s
         )
 
         # Remove segments that do not meet predetermined criteria
         df = discard_segments(
             df=df,
-            segment_nr_colname='filtered_segment_nr',
+            segment_nr_colname="filtered_segment_nr",
             min_segment_length_s=min_segment_length_s,
             fs=fs,
         )
 
         if df.empty:
-            raise ValueError("No filtered gait segments found in the input data after discarding segments of invalid shape.")
-        
-    grouping_colname = 'filtered_segment_nr' if filtered else 'unfiltered_segment_nr'
+            raise ValueError(
+                "No filtered gait segments found in the input data after discarding segments of invalid shape."
+            )
+
+    grouping_colname = "filtered_segment_nr" if filtered else "unfiltered_segment_nr"
 
     arm_swing_quantified = []
     segment_meta = {
-        'aggregated': {
-            'all': {
-                'duration_s': len(df[DataColumns.TIME]) / fs
-            },
-        },
-        'per_segment': {}
+        "all": {"duration_s": len(df[DataColumns.TIME]) / fs},
+        "per_segment": {},
     }
 
     # PCA is fitted on only predicted gait without other arm activity if filtered, otherwise
@@ -425,7 +436,9 @@ def quantify_arm_swing(
     # Group and process segments
     for segment_nr, group in df.groupby(grouping_colname, sort=False):
         if filtered:
-            gait_segment_nr = group['unfiltered_segment_nr'].iloc[0]  # Each filtered segment is contained within an unfiltered segment
+            gait_segment_nr = group["unfiltered_segment_nr"].iloc[
+                0
+            ]  # Each filtered segment is contained within an unfiltered segment
         else:
             gait_segment_nr = segment_nr
 
@@ -434,9 +447,12 @@ def quantify_arm_swing(
         except KeyError:
             logger.warning(
                 "Segment %s (filtered = %s) not found in gait segment duration dictionary. Skipping this segment.",
-                gait_segment_nr, filtered
+                gait_segment_nr,
+                filtered,
             )
-            logger.debug("Available segments: %s", list(gait_segment_duration_dict.keys()))
+            logger.debug(
+                "Available segments: %s", list(gait_segment_duration_dict.keys())
+            )
             continue
 
         time_array = group[DataColumns.TIME].to_numpy()
@@ -454,20 +470,22 @@ def quantify_arm_swing(
             fs=fs,
         )
 
-        segment_meta['per_segment'][segment_nr] = {
-            'start_time_s': time_array.min(),
-            'end_time_s': time_array.max(),
-            'duration_unfiltered_segment_s': gait_segment_duration_s,
+        segment_meta["per_segment"][segment_nr] = {
+            "start_time_s": time_array.min(),
+            "end_time_s": time_array.max(),
+            "duration_unfiltered_segment_s": gait_segment_duration_s,
         }
 
         if filtered:
-            segment_meta['per_segment'][segment_nr]['duration_filtered_segment_s'] = len(time_array) / fs
+            segment_meta["per_segment"][segment_nr]["duration_filtered_segment_s"] = (
+                len(time_array) / fs
+            )
 
-        if angle_array.size > 0:  
+        if angle_array.size > 0:
             angle_extrema_indices, _, _ = extract_angle_extremes(
                 angle_array=angle_array,
                 sampling_frequency=fs,
-                max_frequency_activity=1.75
+                max_frequency_activity=1.75,
             )
 
             if len(angle_extrema_indices) > 1:  # Requires at minimum 2 peaks
@@ -478,36 +496,47 @@ def quantify_arm_swing(
                     )
                 except Exception as e:
                     # Handle the error, set RoM to NaN, and log the error
-                    print(f"Error computing range of motion for segment {segment_nr}: {e}")
+                    print(
+                        f"Error computing range of motion for segment {segment_nr}: {e}"
+                    )
                     rom = np.array([np.nan])
 
                 try:
                     pav = compute_peak_angular_velocity(
                         velocity_array=velocity_array,
-                        angle_extrema_indices=angle_extrema_indices
+                        angle_extrema_indices=angle_extrema_indices,
                     )
                 except Exception as e:
                     # Handle the error, set pav to NaN, and log the error
-                    print(f"Error computing peak angular velocity for segment {segment_nr}: {e}")
+                    print(
+                        f"Error computing peak angular velocity for segment {segment_nr}: {e}"
+                    )
                     pav = np.array([np.nan])
 
-                df_params_segment = pd.DataFrame({
-                    DataColumns.SEGMENT_NR: segment_nr,
-                    DataColumns.RANGE_OF_MOTION: rom,
-                    DataColumns.PEAK_VELOCITY: pav
-                })
+                df_params_segment = pd.DataFrame(
+                    {
+                        DataColumns.SEGMENT_NR: segment_nr,
+                        DataColumns.RANGE_OF_MOTION: rom,
+                        DataColumns.PEAK_VELOCITY: pav,
+                    }
+                )
 
                 arm_swing_quantified.append(df_params_segment)
 
     arm_swing_quantified = pd.concat(arm_swing_quantified, ignore_index=True)
-            
+
     return arm_swing_quantified, segment_meta
 
 
-def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: dict, segment_cats: List[tuple], aggregates: List[str] = ['median']) -> dict:
+def aggregate_arm_swing_params(
+    df_arm_swing_params: pd.DataFrame,
+    segment_meta: dict,
+    segment_cats: List[tuple],
+    aggregates: List[str] = ["median"],
+) -> dict:
     """
     Aggregate the quantification results for arm swing parameters.
-    
+
     Parameters
     ----------
     df_arm_swing_params : pd.DataFrame
@@ -518,10 +547,9 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
 
     segment_cats : List[tuple]
         A list of tuples defining the segment categories, where each tuple contains the lower and upper bounds for the segment duration.
-        
     aggregates : List[str], optional
         A list of aggregation methods to apply to the quantification results.
-        
+
     Returns
     -------
     dict
@@ -531,70 +559,91 @@ def aggregate_arm_swing_params(df_arm_swing_params: pd.DataFrame, segment_meta: 
 
     aggregated_results = {}
     for segment_cat_range in segment_cats:
-        segment_cat_str = f'{segment_cat_range[0]}_{segment_cat_range[1]}'
+        segment_cat_str = f"{segment_cat_range[0]}_{segment_cat_range[1]}"
         cat_segments = [
-            x for x in segment_meta.keys() 
-            if segment_meta[x]['duration_unfiltered_segment_s'] >= segment_cat_range[0] 
-            and segment_meta[x]['duration_unfiltered_segment_s'] < segment_cat_range[1]
+            x
+            for x in segment_meta.keys()
+            if segment_meta[x]["duration_unfiltered_segment_s"] >= segment_cat_range[0]
+            and segment_meta[x]["duration_unfiltered_segment_s"] < segment_cat_range[1]
         ]
 
-        if len(cat_segments) > 0:                
+        if len(cat_segments) > 0:
             # For each segment, use 'duration_filtered_segment_s' if present, else 'duration_unfiltered_segment_s'
             aggregated_results[segment_cat_str] = {
-                'duration_s': sum(
+                "duration_s": sum(
                     [
-                        segment_meta[x]['duration_filtered_segment_s']
-                        if 'duration_filtered_segment_s' in segment_meta[x]
-                        else segment_meta[x]['duration_unfiltered_segment_s']
+                        (
+                            segment_meta[x]["duration_filtered_segment_s"]
+                            if "duration_filtered_segment_s" in segment_meta[x]
+                            else segment_meta[x]["duration_unfiltered_segment_s"]
+                        )
                         for x in cat_segments
                     ]
-                )}
+                )
+            }
 
-            df_arm_swing_params_cat = df_arm_swing_params.loc[df_arm_swing_params[DataColumns.SEGMENT_NR].isin(cat_segments)]
-            
+            df_arm_swing_params_cat = df_arm_swing_params.loc[
+                df_arm_swing_params[DataColumns.SEGMENT_NR].isin(cat_segments)
+            ]
+
             # Aggregate across all segments
-            aggregates_per_segment = ['median', 'mean']
+            aggregates_per_segment = ["median", "mean"]
 
             for arm_swing_parameter in arm_swing_parameters:
                 for aggregate in aggregates:
-                    if aggregate in ['std', 'cov']:
+                    if aggregate in ["std", "cov"]:
                         per_segment_agg = []
                         # If the aggregate is 'cov' (coefficient of variation), we also compute the mean and standard deviation per segment
-                        segment_groups = dict(tuple(df_arm_swing_params_cat.groupby(DataColumns.SEGMENT_NR)))
+                        segment_groups = dict(
+                            tuple(
+                                df_arm_swing_params_cat.groupby(DataColumns.SEGMENT_NR)
+                            )
+                        )
                         for segment_nr in cat_segments:
                             segment_df = segment_groups.get(segment_nr)
                             if segment_df is not None:
-                                per_segment_agg.append(aggregate_parameter(segment_df[arm_swing_parameter], aggregate))
+                                per_segment_agg.append(
+                                    aggregate_parameter(
+                                        segment_df[arm_swing_parameter], aggregate
+                                    )
+                                )
 
                         # Drop nans
                         per_segment_agg = np.array(per_segment_agg)
                         per_segment_agg = per_segment_agg[~np.isnan(per_segment_agg)]
 
-
                         for segment_level_aggregate in aggregates_per_segment:
-                            aggregated_results[segment_cat_str][f'{segment_level_aggregate}_{aggregate}_{arm_swing_parameter}'] = aggregate_parameter(per_segment_agg, segment_level_aggregate)
+                            aggregated_results[segment_cat_str][
+                                f"{segment_level_aggregate}_{aggregate}_{arm_swing_parameter}"
+                            ] = aggregate_parameter(
+                                per_segment_agg, segment_level_aggregate
+                            )
                     else:
-                        aggregated_results[segment_cat_str][f'{aggregate}_{arm_swing_parameter}'] = aggregate_parameter(df_arm_swing_params_cat[arm_swing_parameter], aggregate)
+                        aggregated_results[segment_cat_str][
+                            f"{aggregate}_{arm_swing_parameter}"
+                        ] = aggregate_parameter(
+                            df_arm_swing_params_cat[arm_swing_parameter], aggregate
+                        )
 
         else:
             # If no segments are found for this category, initialize with NaN
             aggregated_results[segment_cat_str] = {
-                'duration_s': 0,
+                "duration_s": 0,
             }
 
     return aggregated_results
 
 
 def extract_temporal_domain_features(
-        config, 
-        windowed_acc: np.ndarray, 
-        windowed_grav: np.ndarray, 
-        grav_stats: List[str] = ['mean']
-        ) -> pd.DataFrame:
+    config,
+    windowed_acc: np.ndarray,
+    windowed_grav: np.ndarray,
+    grav_stats: List[str] = ["mean"],
+) -> pd.DataFrame:
     """
     Compute temporal domain features for the accelerometer signal.
 
-    This function calculates various statistical features for the gravity signal 
+    This function calculates various statistical features for the gravity signal
     and computes the standard deviation of the accelerometer's Euclidean norm.
 
     Parameters
@@ -602,10 +651,10 @@ def extract_temporal_domain_features(
     config : object
         Configuration object containing the accelerometer and gravity column names.
     windowed_acc : numpy.ndarray
-        A 2D numpy array of shape (N, M) where N is the number of windows and M is 
+        A 2D numpy array of shape (N, M) where N is the number of windows and M is
         the number of accelerometer values per window.
     windowed_grav : numpy.ndarray
-        A 2D numpy array of shape (N, M) where N is the number of windows and M is 
+        A 2D numpy array of shape (N, M) where N is the number of windows and M is
         the number of gravity signal values per window.
     grav_stats : list of str, optional
         A list of statistics to compute for the gravity signal (default is ['mean']).
@@ -613,32 +662,34 @@ def extract_temporal_domain_features(
     Returns
     -------
     pd.DataFrame
-        A DataFrame containing the computed features, with each row corresponding 
+        A DataFrame containing the computed features, with each row corresponding
         to a window and each column representing a specific feature.
     """
     # Compute gravity statistics (e.g., mean, std, etc.)
     feature_dict = {}
     for stat in grav_stats:
         stats_result = compute_statistics(data=windowed_grav, statistic=stat)
-        for i, col in enumerate(config.gravity_cols):
-            feature_dict[f'{col}_{stat}'] = stats_result[:, i]
+        for i, col in enumerate(config.gravity_colnames):
+            feature_dict[f"{col}_{stat}"] = stats_result[:, i]
 
     # Compute standard deviation of the Euclidean norm of the accelerometer signal
-    feature_dict['accelerometer_std_norm'] = compute_std_euclidean_norm(data=windowed_acc)
+    feature_dict["accelerometer_std_norm"] = compute_std_euclidean_norm(
+        data=windowed_acc
+    )
 
     return pd.DataFrame(feature_dict)
 
 
 def extract_spectral_domain_features(
-        windowed_data: np.ndarray,
-        config, 
-        sensor: str, 
-    ) -> pd.DataFrame:
+    windowed_data: np.ndarray,
+    config,
+    sensor: str,
+) -> pd.DataFrame:
     """
     Compute spectral domain features for a sensor's data.
 
-    This function computes the periodogram, extracts power in specific frequency bands, 
-    calculates the dominant frequency, and computes Mel-frequency cepstral coefficients (MFCCs) 
+    This function computes the periodogram, extracts power in specific frequency bands,
+    calculates the dominant frequency, and computes Mel-frequency cepstral coefficients (MFCCs)
     for a given sensor's windowed data.
 
     Parameters
@@ -647,16 +698,16 @@ def extract_spectral_domain_features(
         A 2D numpy array where each row corresponds to a window of sensor data.
 
     config : object
-        Configuration object containing settings such as sampling frequency, window type, 
+        Configuration object containing settings such as sampling frequency, window type,
         frequency bands, and MFCC parameters.
 
     sensor : str
         The name of the sensor (e.g., 'accelerometer', 'gyroscope').
-    
+
     Returns
     -------
     pd.DataFrame
-        A DataFrame containing the computed spectral features, with each row corresponding 
+        A DataFrame containing the computed spectral features, with each row corresponding
         to a window and each column representing a specific feature.
     """
     # Initialize a dictionary to hold the results
@@ -664,48 +715,45 @@ def extract_spectral_domain_features(
 
     # Compute periodogram (power spectral density)
     freqs, psd = periodogram(
-        x=windowed_data, 
-        fs=config.sampling_frequency, 
-        window=config.window_type, 
-        axis=1
+        x=windowed_data, fs=config.sampling_frequency, window=config.window_type, axis=1
     )
 
     # Compute power in specified frequency bands
     for band_name, band_freqs in config.d_frequency_bandwidths.items():
         band_powers = compute_power_in_bandwidth(
             freqs=freqs,
-            psd=psd, 
+            psd=psd,
             fmin=band_freqs[0],
             fmax=band_freqs[1],
-            include_max=False
+            include_max=False,
         )
         for i, col in enumerate(config.axes):
-            feature_dict[f'{sensor}_{col}_{band_name}'] = band_powers[:, i]
+            feature_dict[f"{sensor}_{col}_{band_name}"] = band_powers[:, i]
 
     # Compute dominant frequency for each axis
     dominant_frequencies = compute_dominant_frequency(
-        freqs=freqs, 
-        psd=psd, 
-        fmin=config.spectrum_low_frequency, 
-        fmax=config.spectrum_high_frequency
+        freqs=freqs,
+        psd=psd,
+        fmin=config.spectrum_low_frequency,
+        fmax=config.spectrum_high_frequency,
     )
 
     # Add dominant frequency features to the feature_dict
     for axis, freq in zip(config.axes, dominant_frequencies.T):
-        feature_dict[f'{sensor}_{axis}_dominant_frequency'] = freq
+        feature_dict[f"{sensor}_{axis}_dominant_frequency"] = freq
 
     # Compute total power in the PSD
     total_power_psd = compute_total_power(psd)
 
     # Compute MFCCs
     mfccs = compute_mfccs(
-        total_power_array=total_power_psd,
-        config=config,
-        multiplication_factor=4
+        total_power_array=total_power_psd, config=config, multiplication_factor=4
     )
 
     # Combine the MFCCs into the features DataFrame
-    mfcc_colnames = [f'{sensor}_mfcc_{x}' for x in range(1, config.mfcc_n_coefficients + 1)]
+    mfcc_colnames = [
+        f"{sensor}_mfcc_{x}" for x in range(1, config.mfcc_n_coefficients + 1)
+    ]
     for i, colname in enumerate(mfcc_colnames):
         feature_dict[colname] = mfccs[:, i]
 

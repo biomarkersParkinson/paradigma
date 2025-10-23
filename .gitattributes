@@ -11,3 +11,9 @@ PPG_segment0001_values.bin filter=lfs diff=lfs merge=lfs -text
 PPG_segment0002_meta.json filter=lfs diff=lfs merge=lfs -text
 PPG_segment0002_time.bin filter=lfs diff=lfs merge=lfs -text
 PPG_segment0002_values.bin filter=lfs diff=lfs merge=lfs -text
+
+# Normalize line endings
+*.py text eol=lf
+*.ipynb text eol=lf
+*.ipynb filter=nb-clean
+*.ipynb filter=nbstripout
