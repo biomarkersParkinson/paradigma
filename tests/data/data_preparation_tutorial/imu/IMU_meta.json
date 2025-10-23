@@ -26,12 +26,12 @@
         {
             "file_name": "IMU_values.bin",
             "channels": [
-                "acceleration_x",
-                "acceleration_y",
-                "acceleration_z",
-                "rotation_x",
-                "rotation_y",
-                "rotation_z"
+                "accelerometer_x",
+                "accelerometer_y",
+                "accelerometer_z",
+                "gyroscope_x",
+                "gyroscope_y",
+                "gyroscope_z"
             ],
             "units": [
                 "m/s/s",

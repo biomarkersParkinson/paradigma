@@ -1,20 +1,22 @@
 from pathlib import Path
 
-from paradigma.testing import preprocess_imu_data_io
-from paradigma.config import IMUConfig
 from test_notebooks import compare_data
 
+from paradigma.config import IMUConfig
+from paradigma.testing import preprocess_imu_data_io
 
 # Mappings between the metadata and binary files
 accelerometer_binaries_pairs: list[tuple[str, str]] = [
-        ("accelerometer_meta.json", "accelerometer_values.bin"),
-        ("accelerometer_meta.json", "accelerometer_time.bin"),
-    ]
+    ("accelerometer_meta.json", "accelerometer_values.bin"),
+    ("accelerometer_meta.json", "accelerometer_time.bin"),
+]
 gyroscope_binaries_pairs: list[tuple[str, str]] = [
-        ("gyroscope_meta.json", "gyroscope_values.bin"),
-        ("gyroscope_meta.json", "gyroscope_time.bin"),
-    ]
-imu_binaries_pairs: list[tuple[str, str]] = accelerometer_binaries_pairs + gyroscope_binaries_pairs
+    ("gyroscope_meta.json", "gyroscope_values.bin"),
+    ("gyroscope_meta.json", "gyroscope_time.bin"),
+]
+imu_binaries_pairs: list[tuple[str, str]] = (
+    accelerometer_binaries_pairs + gyroscope_binaries_pairs
+)
 
 
 def test_1_imu_preprocessing_outputs(shared_datadir: Path):
@@ -29,5 +31,11 @@ def test_1_imu_preprocessing_outputs(shared_datadir: Path):
     path_to_tested_output = path_to_reference_output / "test-output"
 
     config = IMUConfig()
-    preprocess_imu_data_io(path_to_imu_input, path_to_tested_output, config, sensor='both', watch_side='left')
+    preprocess_imu_data_io(
+        path_to_imu_input,
+        path_to_tested_output,
+        config,
+        sensor="both",
+        watch_side="left",
+    )
     compare_data(path_to_reference_output, path_to_tested_output, imu_binaries_pairs)
