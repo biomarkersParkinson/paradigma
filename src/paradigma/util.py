@@ -1,15 +1,42 @@
+import functools
 import os
+import warnings
+from datetime import datetime, timedelta
+from typing import List, Optional, Tuple
+
 import numpy as np
 import pandas as pd
-from datetime import datetime, timedelta
-from dateutil import parser
-from typing import List, Tuple, Optional
-from scipy.stats import gaussian_kde
-
 import tsdf
+from dateutil import parser
+from scipy.stats import gaussian_kde
 from tsdf import TSDFMetadata
 
 from paradigma.constants import DataColumns, TimeUnit
+
+
+def deprecated(reason: str = ""):
+    """
+    Decorator to mark functions as deprecated. It will show a warning when the function is used.
+
+    Parameters
+    ----------
+    reason : str, optional
+        Additional message to explain why it is deprecated and what to use instead.
+    """
+
+    def decorator(func):
+        message = f"Function {func.__name__} is deprecated."
+        if reason:
+            message += f" {reason}"
+
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            warnings.warn(message, category=DeprecationWarning, stacklevel=2)
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
 
 
 def parse_iso8601_to_datetime(date_str):
@@ -28,7 +55,7 @@ def get_end_iso8601(start_iso8601, window_length_seconds):
 
 def write_np_data(
     metadata_time: TSDFMetadata,
-    np_array_time: np.ndarray, 
+    np_array_time: np.ndarray,
     metadata_values: TSDFMetadata,
     np_array_values: np.ndarray,
     output_path: str,
@@ -53,7 +80,7 @@ def write_np_data(
         The filename for the metadata.
 
     """
-    
+
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 
@@ -62,9 +89,19 @@ def write_np_data(
     metadata_values.file_dir_path = output_path
 
     # store binaries and metadata
-    time_tsdf = tsdf.write_binary_file(file_dir=output_path, file_name=metadata_time.file_name, data=np_array_time, metadata=metadata_time.get_plain_tsdf_dict_copy())
+    time_tsdf = tsdf.write_binary_file(
+        file_dir=output_path,
+        file_name=metadata_time.file_name,
+        data=np_array_time,
+        metadata=metadata_time.get_plain_tsdf_dict_copy(),
+    )
 
-    samples_tsdf = tsdf.write_binary_file(file_dir=output_path, file_name=metadata_values.file_name, data=np_array_values, metadata=metadata_values.get_plain_tsdf_dict_copy())
+    samples_tsdf = tsdf.write_binary_file(
+        file_dir=output_path,
+        file_name=metadata_values.file_name,
+        data=np_array_values,
+        metadata=metadata_values.get_plain_tsdf_dict_copy(),
+    )
 
     tsdf.write_metadata([time_tsdf, samples_tsdf], output_filename)
 
@@ -127,13 +164,23 @@ def read_metadata(
     return metadata_time, metadata_values
 
 
-def load_tsdf_dataframe(path_to_data, prefix, meta_suffix='meta.json', time_suffix='time.bin', values_suffix='values.bin'):
+def load_tsdf_dataframe(
+    path_to_data,
+    prefix,
+    meta_suffix="meta.json",
+    time_suffix="time.bin",
+    values_suffix="values.bin",
+):
     meta_filename = f"{prefix}_{meta_suffix}"
     time_filename = f"{prefix}_{time_suffix}"
     values_filename = f"{prefix}_{values_suffix}"
 
-    metadata_time, metadata_values = read_metadata(path_to_data, meta_filename, time_filename, values_filename)
-    df = tsdf.load_dataframe_from_binaries([metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns)
+    metadata_time, metadata_values = read_metadata(
+        path_to_data, meta_filename, time_filename, values_filename
+    )
+    df = tsdf.load_dataframe_from_binaries(
+        [metadata_time, metadata_values], tsdf.constants.ConcatenationType.columns
+    )
 
     return df, metadata_time, metadata_values
 
@@ -152,11 +199,9 @@ def load_metadata_list(
         The filename of the metadata file.
     filenames : List[str]
         The list of binary files of which the metadata files need to be loaded
-    
-    """	
-    metadata_dict = tsdf.load_metadata_from_path(
-        os.path.join(dir_path, meta_filename)
-    )
+
+    """
+    metadata_dict = tsdf.load_metadata_from_path(os.path.join(dir_path, meta_filename))
     metadata_list = []
     for filename in filenames:
         metadata_list.append(metadata_dict[filename])
@@ -195,37 +240,54 @@ def transform_time_array(
     - The transformation allows for scaling of the time array, converting between time unit types (e.g., relative, absolute, or difference).
     - When converting to `TimeUnit.RELATIVE_MS`, the function calculates the relative time starting from the provided or default start time.
     """
-    input_units = input_unit_type.split('_')[-1].lower()
-    output_units = output_unit_type.split('_')[-1].lower()
+    input_units = input_unit_type.split("_")[-1].lower()
+    output_units = output_unit_type.split("_")[-1].lower()
 
     if input_units == output_units:
         scale_factor = 1
-    elif input_units == 's' and output_units == 'ms':
+    elif input_units == "s" and output_units == "ms":
         scale_factor = 1e3
-    elif input_units == 'ms' and output_units == 's':
+    elif input_units == "ms" and output_units == "s":
         scale_factor = 1 / 1e3
     else:
-        raise ValueError(f"Unsupported time units conversion: {input_units} to {output_units}")
-    
-    # Transform to relative time (`TimeUnit.RELATIVE_MS`) 
-    if input_unit_type == TimeUnit.DIFFERENCE_MS or input_unit_type == TimeUnit.DIFFERENCE_S:
-    # Convert a series of differences into cumulative sum to reconstruct original time series.
+        raise ValueError(
+            f"Unsupported time units conversion: {input_units} to {output_units}"
+        )
+
+    # Transform to relative time (`TimeUnit.RELATIVE_MS`)
+    if (
+        input_unit_type == TimeUnit.DIFFERENCE_MS
+        or input_unit_type == TimeUnit.DIFFERENCE_S
+    ):
+        # Convert a series of differences into cumulative sum to reconstruct original time series.
         time_array = np.cumsum(np.double(time_array))
-    elif input_unit_type == TimeUnit.ABSOLUTE_MS or input_unit_type == TimeUnit.ABSOLUTE_S:
+    elif (
+        input_unit_type == TimeUnit.ABSOLUTE_MS
+        or input_unit_type == TimeUnit.ABSOLUTE_S
+    ):
         # Set the start time if not provided.
         if np.isclose(start_time, 0.0, rtol=1e-09, atol=1e-09):
             start_time = time_array[0]
         # Convert absolute time stamps into a time series relative to start_time.
-        time_array = (time_array - start_time) 
+        time_array = time_array - start_time
 
     # Transform the time array from `TimeUnit.RELATIVE_MS` to the specified time unit type
-    if output_unit_type == TimeUnit.ABSOLUTE_MS or output_unit_type == TimeUnit.ABSOLUTE_S:
+    if (
+        output_unit_type == TimeUnit.ABSOLUTE_MS
+        or output_unit_type == TimeUnit.ABSOLUTE_S
+    ):
         # Converts time array to absolute time by adding the start time to each element.
         time_array = time_array + start_time
-    elif output_unit_type == TimeUnit.DIFFERENCE_MS or output_unit_type == TimeUnit.DIFFERENCE_S:
+    elif (
+        output_unit_type == TimeUnit.DIFFERENCE_MS
+        or output_unit_type == TimeUnit.DIFFERENCE_S
+    ):
         # Creates a new array starting with 0, followed by the differences between consecutive elements.
         time_array = np.diff(np.insert(time_array, 0, start_time))
-    elif output_unit_type == TimeUnit.RELATIVE_MS or output_unit_type == TimeUnit.RELATIVE_S:
+    elif (
+        output_unit_type == TimeUnit.RELATIVE_MS
+        or output_unit_type == TimeUnit.RELATIVE_S
+    ):
         # The array is already in relative format, do nothing.
         pass
 
@@ -256,25 +318,25 @@ def convert_units_accelerometer(data: np.ndarray, units: str) -> np.ndarray:
         return data
     else:
         raise ValueError(f"Unsupported unit: {units}")
-    
+
 
 def convert_units_gyroscope(data: np.ndarray, units: str) -> np.ndarray:
     """
     Convert gyroscope data to deg/s.
-    
+
     Parameters
     ----------
     data : np.ndarray
         The gyroscope data.
-        
+
     units : str
         The unit of the data (currently supports deg/s and rad/s).
-        
+
     Returns
     -------
     np.ndarray
         The gyroscope data in deg/s.
-        
+
     """
     if units == "deg/s":
         return data
@@ -282,9 +344,9 @@ def convert_units_gyroscope(data: np.ndarray, units: str) -> np.ndarray:
         return np.degrees(data)
     else:
         raise ValueError(f"Unsupported unit: {units}")
-    
 
-def invert_watch_side(df: pd.DataFrame, side: str, sensor='both') -> np.ndarray:
+
+def invert_watch_side(df: pd.DataFrame, side: str, sensor="both") -> np.ndarray:
     """
     Invert the data based on the watch side.
 
@@ -305,32 +367,37 @@ def invert_watch_side(df: pd.DataFrame, side: str, sensor='both') -> np.ndarray:
     """
     if side not in ["left", "right"]:
         raise ValueError(f"Unsupported side: {side}")
-    if sensor not in ['accelerometer', 'gyroscope', 'both']:
+    if sensor not in ["accelerometer", "gyroscope", "both"]:
         raise ValueError(f"Unsupported sensor: {sensor}")
 
     elif side == "right":
-        if sensor in ['gyroscope', 'both']:
+        if sensor in ["gyroscope", "both"]:
             df[DataColumns.GYROSCOPE_Y] *= -1
             df[DataColumns.GYROSCOPE_Z] *= -1
-        if sensor in ['accelerometer', 'both']:
+        if sensor in ["accelerometer", "both"]:
             df[DataColumns.ACCELEROMETER_X] *= -1
 
     return df
 
-def aggregate_parameter(parameter: np.ndarray, aggregate: str, evaluation_points: Optional[np.ndarray] = None) -> np.ndarray | int:
+
+def aggregate_parameter(
+    parameter: np.ndarray,
+    aggregate: str,
+    evaluation_points: Optional[np.ndarray] = None,
+) -> np.ndarray | int:
     """
     Aggregate a parameter based on the specified method.
-    
+
     Parameters
     ----------
     parameter : np.ndarray
         The parameter to aggregate.
-        
+
     aggregate : str
         The aggregation method to apply.
 
     evaluation_points : np.ndarray, optional
-        Should be specified if the mode is derived for a continuous parameter. 
+        Should be specified if the mode is derived for a continuous parameter.
         Defines the evaluation points for the kernel density estimation function, from which the maximum is derived as the mode.
 
     Returns
@@ -338,42 +405,45 @@ def aggregate_parameter(parameter: np.ndarray, aggregate: str, evaluation_points
     np.ndarray
         The aggregated parameter.
     """
-    if aggregate == 'mean':
+    if aggregate == "mean":
         return np.mean(parameter)
-    elif aggregate == 'median':
+    elif aggregate == "median":
         return np.median(parameter)
-    elif aggregate == 'mode_binned':
+    elif aggregate == "mode_binned":
         if evaluation_points is None:
-            raise ValueError("evaluation_points must be provided for 'mode_binned' aggregation.")
+            raise ValueError(
+                "evaluation_points must be provided for 'mode_binned' aggregation."
+            )
         else:
             kde = gaussian_kde(parameter)
             kde_values = kde(evaluation_points)
             max_index = np.argmax(kde_values)
             return evaluation_points[max_index]
-    elif aggregate == 'mode':
+    elif aggregate == "mode":
         unique_values, counts = np.unique(parameter, return_counts=True)
         return unique_values[np.argmax(counts)]
-    elif aggregate == '90p':
+    elif aggregate == "90p":
         return np.percentile(parameter, 90)
-    elif aggregate == '95p':
+    elif aggregate == "95p":
         return np.percentile(parameter, 95)
-    elif aggregate == '99p':
+    elif aggregate == "99p":
         return np.percentile(parameter, 99)
-    elif aggregate == 'std':
+    elif aggregate == "std":
         return np.std(parameter)
-    elif aggregate == 'cov':
+    elif aggregate == "cov":
         mean_value = np.mean(parameter)
         return np.std(parameter) / mean_value if mean_value != 0 else 0
     else:
         raise ValueError(f"Invalid aggregation method: {aggregate}")
 
+
 def merge_predictions_with_timestamps(
-        df_ts: pd.DataFrame, 
-        df_predictions: pd.DataFrame, 
-        pred_proba_colname: str,
-        window_length_s: float, 
-        fs: int
-    ) -> pd.DataFrame:
+    df_ts: pd.DataFrame,
+    df_predictions: pd.DataFrame,
+    pred_proba_colname: str,
+    window_length_s: float,
+    fs: int,
+) -> pd.DataFrame:
     """
     Merges prediction probabilities with timestamps by expanding overlapping windows
     into individual timestamps and averaging probabilities per unique timestamp.
@@ -398,7 +468,7 @@ def merge_predictions_with_timestamps(
 
     fs : int
         The sampling frequency of the data.
-        
+
     Returns:
     -------
     pd.DataFrame
@@ -419,22 +489,18 @@ def merge_predictions_with_timestamps(
     # Step 1: Generate all timestamps for prediction windows using NumPy broadcasting
     window_length = int(window_length_s * fs)
     timestamps = (
-        df_predictions[DataColumns.TIME].values[:, None] +
-        np.arange(0, window_length) / fs
-    )
-    
-    # Flatten timestamps and probabilities into a single array for efficient processing
-    flat_timestamps = timestamps.ravel()
-    flat_proba = np.repeat(
-        df_predictions[pred_proba_colname].values,
-        window_length
+        df_predictions[DataColumns.TIME].values[:, None]
+        + np.arange(0, window_length) / fs
     )
 
+    # Flatten timestamps and probabilities into a single array for efficient processing
+    flat_timestamps = timestamps.ravel()
+    flat_proba = np.repeat(df_predictions[pred_proba_colname].values, window_length)
+
     # Step 2: Create a DataFrame for expanded data
-    expanded_df = pd.DataFrame({
-        DataColumns.TIME: flat_timestamps,
-        pred_proba_colname: flat_proba
-    })
+    expanded_df = pd.DataFrame(
+        {DataColumns.TIME: flat_timestamps, pred_proba_colname: flat_proba}
+    )
 
     # Step 3: Round timestamps and aggregate probabilities
     expanded_df[DataColumns.TIME] = expanded_df[DataColumns.TIME].round(2)
@@ -442,14 +508,15 @@ def merge_predictions_with_timestamps(
 
     # Step 4: Round timestamps in `df_ts` and merge
     df_ts[DataColumns.TIME] = df_ts[DataColumns.TIME].round(2)
-    df_ts = pd.merge(df_ts, mean_proba, how='left', on=DataColumns.TIME)
+    df_ts = pd.merge(df_ts, mean_proba, how="left", on=DataColumns.TIME)
     df_ts = df_ts.dropna(subset=[pred_proba_colname])
 
     return df_ts
 
 
-def select_hours(df: pd.DataFrame, select_hours_start: str, select_hours_end: str) -> pd.DataFrame:
-    
+def select_hours(
+    df: pd.DataFrame, select_hours_start: str, select_hours_end: str
+) -> pd.DataFrame:
     """
     Select hours of interest from the data to include in the aggregation step.
 
@@ -460,7 +527,7 @@ def select_hours(df: pd.DataFrame, select_hours_start: str, select_hours_end: st
 
     select_hours_start: str
         The start time of the selected hours in "HH:MM" format.
-    
+
     select_hours_end: str
             The end time of the selected hours in "HH:MM" format.
 
@@ -471,14 +538,18 @@ def select_hours(df: pd.DataFrame, select_hours_start: str, select_hours_end: st
 
     """
 
-    select_hours_start = datetime.strptime(select_hours_start, '%H:%M').time() # convert to time object
-    select_hours_end = datetime.strptime(select_hours_end, '%H:%M').time() 
-    df_subset = df[df['time_dt'].dt.time.between(select_hours_start, select_hours_end)] # select the hours of interest
+    select_hours_start = datetime.strptime(
+        select_hours_start, "%H:%M"
+    ).time()  # convert to time object
+    select_hours_end = datetime.strptime(select_hours_end, "%H:%M").time()
+    df_subset = df[
+        df["time_dt"].dt.time.between(select_hours_start, select_hours_end)
+    ]  # select the hours of interest
 
     return df_subset
 
-def select_days(df: pd.DataFrame, min_hours_per_day: int) -> pd.DataFrame:
 
+def select_days(df: pd.DataFrame, min_hours_per_day: int) -> pd.DataFrame:
     """
     Select days of interest from the data to include in the aggregation step.
 
@@ -499,8 +570,12 @@ def select_days(df: pd.DataFrame, min_hours_per_day: int) -> pd.DataFrame:
     """
 
     min_s_per_day = min_hours_per_day * 3600
-    window_length_s = df['time_dt'].diff().dt.total_seconds().iloc[1] # determine the length of the first window in seconds
+    window_length_s = (
+        df["time_dt"].diff().dt.total_seconds().iloc[1]
+    )  # determine the length of the first window in seconds
     min_windows_per_day = min_s_per_day / window_length_s
-    df_subset = df.groupby(df['time_dt'].dt.date).filter(lambda x: len(x) >= min_windows_per_day)
+    df_subset = df.groupby(df["time_dt"].dt.date).filter(
+        lambda x: len(x) >= min_windows_per_day
+    )
 
     return df_subset
