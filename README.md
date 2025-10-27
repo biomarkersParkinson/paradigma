@@ -80,7 +80,7 @@ Specific requirements include:
 | **Tremor**            | - Gyroscope: minimum sampling rate of 100 Hz, minimum range of ± 1000 degrees/sec. | - Compliance: for weekly measures: at least three compliant days (with ≥10 hours of data between 8 am and 10 pm). |
 | **Pulse rate**        | - PPG*: minimum sampling rate of 30 Hz, green LED. <br> - Accelerometer: minimum sampling rate of 100 Hz, minimum range of ± 4 g. | - Population: no rhythm disorders (e.g. atrial fibrillation, atrial flutter). <br> - Compliance: for weekly measures: minimum average of 12 hours of data per day. |
 
-\* The processing of PPG signals is currently based on the blood volume pulse (arbitrary units) obtained from the Verily Study Watch. [This](https://biomarkersparkinson.github.io/paradigma/tutorials/_static/pulse_rate_analysis.html#step-3-signal-quality-classification) part of the PPG tutorial provides code and documentation on how to adapt the pipeline for use with other PPG devices.
+\* The processing of PPG signals is currently based on the blood volume pulse (arbitrary units) obtained from the Verily Study Watch. [This](https://biomarkersparkinson.github.io/paradigma/tutorials/_static/pulse_rate_analysis.html#step-3-signal-quality-classification) part of the PPG tutorial provides code and documentation on how to use the pipeline with other PPG devices.
 
 > [!WARNING]
 > While the toolbox is designed to work on any wrist sensor device which fulfills the requirements,
