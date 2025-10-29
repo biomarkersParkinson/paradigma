@@ -8,8 +8,8 @@ table.docutils {
     width: 100%;
     table-layout: fixed;
   }
-  
-  table.docutils td, 
+
+  table.docutils td,
   table.docutils th {
     word-wrap: break-word;
     white-space: normal;

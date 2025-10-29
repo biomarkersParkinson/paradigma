@@ -8,9 +8,7 @@
 
 project = "paradigma"
 copyright = "2025, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, and Luc Evers"
-author = (
-    "Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, and Luc Evers"
-)
+author = "Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, and Luc Evers"
 
 # -- General configuration ---------------------------------------------------
 
@@ -22,7 +20,7 @@ extensions = [
     "autoapi.extension",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
-    'nbsphinx',
+    "nbsphinx",
 ]
 
 myst_enable_extensions = [
@@ -35,13 +33,24 @@ autoapi_dirs = ["../src"]
 # Include the following entities in the API documentation, this explicitly excludes 'imported-members',
 # as we don't want to clutter the documentation with all the imported members.
 # https://sphinx-autoapi.readthedocs.io/en/latest/reference/config.html#confval-autoapi_options
-autoapi_options = ['members', 'undoc-members', 'private-members', 'show-inheritance',
-                   'show-module-summary', 'special-members']
+autoapi_options = [
+    "members",
+    "undoc-members",
+    "private-members",
+    "show-inheritance",
+    "show-module-summary",
+    "special-members",
+]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["build", "Thumbs.db", ".DS_Store"]
+
+# myst-nb execution settings
+jupyter_execute_notebooks = "off"
+nb_kernel_name = "python3"
+nb_execution_timeout = 600  # bump timeout if needed
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -50,8 +59,9 @@ exclude_patterns = ["build", "Thumbs.db", ".DS_Store"]
 #
 html_theme = "sphinx_rtd_theme"
 
-html_static_path = ['source/_static']
-html_css_files = ['custom.css']
+html_static_path = ["source/_static"]
+html_css_files = ["custom.css"]
+
 
 def setup(app):
-    app.add_css_file('custom.css')
+    app.add_css_file("custom.css")

@@ -91,21 +91,21 @@ authors:
 repository-code: 'https://github.com/biomarkersParkinson/paradigma'
 url: 'https://biomarkersparkinson.github.io/paradigma/'
 abstract: >-
-  The Parkinson's disease Digital Markers (ParaDigMa) toolbox is a Python software 
-  package designed for processing and analyzing real-life wrist sensor data to 
-  extract digital measures of motor and non-motor signs of Parkinson's disease (PD).  
+  The Parkinson's disease Digital Markers (ParaDigMa) toolbox is a Python software
+  package designed for processing and analyzing real-life wrist sensor data to
+  extract digital measures of motor and non-motor signs of Parkinson's disease (PD).
 
-  Specifically, the toolbox is designed to process accelerometer, gyroscope and  
-  photoplethysmography signals, collected during passive monitoring in daily life.  
-  It contains three data processing pipelines: (1) arm swing during gait, (2) tremor,  
-  and (3) pulse rate analysis. These pipelines are scientifically validated for their 
-  use in persons with PD. Furthermore, the toolbox contains general functionalities 
-  for signal processing and feature extraction, such as filtering, peak detection, and 
-  spectral analysis. 
+  Specifically, the toolbox is designed to process accelerometer, gyroscope and
+  photoplethysmography signals, collected during passive monitoring in daily life.
+  It contains three data processing pipelines: (1) arm swing during gait, (2) tremor,
+  and (3) pulse rate analysis. These pipelines are scientifically validated for their
+  use in persons with PD. Furthermore, the toolbox contains general functionalities
+  for signal processing and feature extraction, such as filtering, peak detection, and
+  spectral analysis.
 
-  The toolbox is accompanied by a set of example scripts and notebooks for each 
-  processing pipeline that demonstrate how to use the toolbox for extracting digital 
-  measures. In addition, the toolbox is designed to be modular, enabling researchers 
+  The toolbox is accompanied by a set of example scripts and notebooks for each
+  processing pipeline that demonstrate how to use the toolbox for extracting digital
+  measures. In addition, the toolbox is designed to be modular, enabling researchers
   to easily extend the toolbox with new algorithms and functionalities.
 
 keywords:
