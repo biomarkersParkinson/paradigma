@@ -3,14 +3,14 @@
 Within the `paradigma` project, some of the field types are further specialised to provide a better description of the data. These are described in the following sections.
 
 ## Field: `channels`
-**Type:** `channel_type[]`         
+**Type:** `channel_type[]`
 **Description:** Describes the content of the data written. `channel_type` is specific to the `Digital biomarkers for PD` extension.
 
 ---
 
 **General types**
 
-| `channel_type` name       | Recommended `unit` | Description                                                                        
+| `channel_type` name       | Recommended `unit` | Description
 |--------------------------|--------------------|------------------------------------------------------------------------------------|
 | `time`                   | `absolute_ms`      | Time corresponding to the start of each window/segment (also see units below).      |
 | `accelerometer_x`         | `g`            | Acceleration along the x-axis.                                                       |
@@ -125,13 +125,13 @@ Within the `paradigma` project, some of the field types are further specialised 
 | `x_gyro_dominant_frequency`  | `Hz`            | Dominant frequency of the x-axis gyroscope |
 | `y_gyro_dominant_frequency`  | `Hz`            | Dominant frequency of the x-axis gyroscope |
 | `z_gyro_dominant_frequency`  | `Hz`            | Dominant frequency of the x-axis gyroscope |
-| `angle_mean_amplitude` | `deg` | Mean of the sum of consecutive minima and maxima angles (angle amplitude is often referred to as range of motion) | 
+| `angle_mean_amplitude` | `deg` | Mean of the sum of consecutive minima and maxima angles (angle amplitude is often referred to as range of motion) |
 | `angle_std_amplitude` | `deg` | Std of the sum of consecutive minima and maxima angles |
 | `angle_sum_amplitude` | `deg` | Sum of the sum of consecutive minima and maxima angles |
-| `ange_perc_95_amplitude` | `deg` | 95th percentile of the sum of consecutive minima and maxima angles | 
+| `ange_perc_95_amplitude` | `deg` | 95th percentile of the sum of consecutive minima and maxima angles |
 | `forward_peak_ang_vel_mean` | `deg/s` | Angular velocity mean in forward direction of the first principal component |
 | `forward_peak_ang_vel_std` | `deg/s` | Angular velocity standard deviation in forward direction of the first principal component |
-| `backward_peak_ang_vel_mean` | `deg/s` | Angular velocity mean in backward direction of the first principal component | 
+| `backward_peak_ang_vel_mean` | `deg/s` | Angular velocity mean in backward direction of the first principal component |
 | `backward_peak_ang_vel_std` | `deg/s` | Angular velocity standard deviation in backward direction of the first principal component |
 | `angle_perc_power` | `percentage` | Percentage of total power in the arm swing frequency band [0.3 - 3 Hz] |
 </details>

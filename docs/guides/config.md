@@ -5,7 +5,7 @@ Throughout the ParaDigMa toolbox we use configuration objects `Config` to specif
 The config classes are defined either for sensors (IMU, PPG) or for domains (gait, heart rate, tremor).
 
 ### Sensor configs
-There are two sensor config classes: `IMUConfig` and `PPGConfig`. 
+There are two sensor config classes: `IMUConfig` and `PPGConfig`.
 
 ### Domain configs
-For the latter category, config classes can further be distinguished by the processing steps displayed [here](https://github.com/biomarkersParkinson/paradigma). 
+For the latter category, config classes can further be distinguished by the processing steps displayed [here](https://github.com/biomarkersParkinson/paradigma).
