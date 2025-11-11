@@ -8,8 +8,8 @@
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
-      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
 
   
   <!--[if lt IE 9]>
@@ -50,6 +50,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/data_preparation.html">Data preparation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
 </ul>
@@ -94,18 +95,48 @@
            <div itemprop="articleBody">
              
   <h1>Source code for paradigma.util</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">dateutil</span><span class="w"> </span><span class="kn">import</span> <span class="n">parser</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">gaussian_kde</span>
-
 <span class="kn">import</span><span class="w"> </span><span class="nn">tsdf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dateutil</span><span class="w"> </span><span class="kn">import</span> <span class="n">parser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">gaussian_kde</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tsdf</span><span class="w"> </span><span class="kn">import</span> <span class="n">TSDFMetadata</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span><span class="p">,</span> <span class="n">TimeUnit</span>
+
+
+<div class="viewcode-block" id="deprecated">
+<a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.deprecated">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">deprecated</span><span class="p">(</span><span class="n">reason</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decorator to mark functions as deprecated. It will show a warning when the function is used.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    reason : str, optional</span>
+<span class="sd">        Additional message to explain why it is deprecated and what to use instead.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Function </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is deprecated.&quot;</span>
+        <span class="k">if</span> <span class="n">reason</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">wrapper</span>
+
+    <span class="k">return</span> <span class="n">decorator</span></div>
+
 
 
 <div class="viewcode-block" id="parse_iso8601_to_datetime">
@@ -135,7 +166,7 @@
 <a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.write_np_data">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">write_np_data</span><span class="p">(</span>
     <span class="n">metadata_time</span><span class="p">:</span> <span class="n">TSDFMetadata</span><span class="p">,</span>
-    <span class="n">np_array_time</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
+    <span class="n">np_array_time</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">metadata_values</span><span class="p">:</span> <span class="n">TSDFMetadata</span><span class="p">,</span>
     <span class="n">np_array_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -160,7 +191,7 @@
 <span class="sd">        The filename for the metadata.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    
+
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_path</span><span class="p">):</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
 
@@ -169,9 +200,19 @@
     <span class="n">metadata_values</span><span class="o">.</span><span class="n">file_dir_path</span> <span class="o">=</span> <span class="n">output_path</span>
 
     <span class="c1"># store binaries and metadata</span>
-    <span class="n">time_tsdf</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">write_binary_file</span><span class="p">(</span><span class="n">file_dir</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">metadata_time</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">np_array_time</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata_time</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">())</span>
+    <span class="n">time_tsdf</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">write_binary_file</span><span class="p">(</span>
+        <span class="n">file_dir</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span>
+        <span class="n">file_name</span><span class="o">=</span><span class="n">metadata_time</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">np_array_time</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="n">metadata_time</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">(),</span>
+    <span class="p">)</span>
 
-    <span class="n">samples_tsdf</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">write_binary_file</span><span class="p">(</span><span class="n">file_dir</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">metadata_values</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">np_array_values</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata_values</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">())</span>
+    <span class="n">samples_tsdf</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">write_binary_file</span><span class="p">(</span>
+        <span class="n">file_dir</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span>
+        <span class="n">file_name</span><span class="o">=</span><span class="n">metadata_values</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">np_array_values</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="n">metadata_values</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">(),</span>
+    <span class="p">)</span>
 
     <span class="n">tsdf</span><span class="o">.</span><span class="n">write_metadata</span><span class="p">([</span><span class="n">time_tsdf</span><span class="p">,</span> <span class="n">samples_tsdf</span><span class="p">],</span> <span class="n">output_filename</span><span class="p">)</span></div>
 
@@ -243,13 +284,23 @@
 
 <div class="viewcode-block" id="load_tsdf_dataframe">
 <a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.load_tsdf_dataframe">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_data</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">meta_suffix</span><span class="o">=</span><span class="s1">&#39;meta.json&#39;</span><span class="p">,</span> <span class="n">time_suffix</span><span class="o">=</span><span class="s1">&#39;time.bin&#39;</span><span class="p">,</span> <span class="n">values_suffix</span><span class="o">=</span><span class="s1">&#39;values.bin&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_tsdf_dataframe</span><span class="p">(</span>
+    <span class="n">path_to_data</span><span class="p">,</span>
+    <span class="n">prefix</span><span class="p">,</span>
+    <span class="n">meta_suffix</span><span class="o">=</span><span class="s2">&quot;meta.json&quot;</span><span class="p">,</span>
+    <span class="n">time_suffix</span><span class="o">=</span><span class="s2">&quot;time.bin&quot;</span><span class="p">,</span>
+    <span class="n">values_suffix</span><span class="o">=</span><span class="s2">&quot;values.bin&quot;</span><span class="p">,</span>
+<span class="p">):</span>
     <span class="n">meta_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">meta_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="n">time_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">time_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="n">values_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">values_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
 
-    <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">path_to_data</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">,</span> <span class="n">time_filename</span><span class="p">,</span> <span class="n">values_filename</span><span class="p">)</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span>
+        <span class="n">path_to_data</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">,</span> <span class="n">time_filename</span><span class="p">,</span> <span class="n">values_filename</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span>
+    <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span></div>
 
@@ -271,11 +322,9 @@
 <span class="sd">        The filename of the metadata file.</span>
 <span class="sd">    filenames : List[str]</span>
 <span class="sd">        The list of binary files of which the metadata files need to be loaded</span>
-<span class="sd">    </span>
-<span class="sd">    &quot;&quot;&quot;</span>	
-    <span class="n">metadata_dict</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_metadata_from_path</span><span class="p">(</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">)</span>
-    <span class="p">)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">metadata_dict</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_metadata_from_path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">))</span>
     <span class="n">metadata_list</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
         <span class="n">metadata_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metadata_dict</span><span class="p">[</span><span class="n">filename</span><span class="p">])</span>
@@ -317,37 +366,54 @@
 <span class="sd">    - The transformation allows for scaling of the time array, converting between time unit types (e.g., relative, absolute, or difference).</span>
 <span class="sd">    - When converting to `TimeUnit.RELATIVE_MS`, the function calculates the relative time starting from the provided or default start time.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">input_units</span> <span class="o">=</span> <span class="n">input_unit_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-    <span class="n">output_units</span> <span class="o">=</span> <span class="n">output_unit_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">input_units</span> <span class="o">=</span> <span class="n">input_unit_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">output_units</span> <span class="o">=</span> <span class="n">output_unit_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">input_units</span> <span class="o">==</span> <span class="n">output_units</span><span class="p">:</span>
         <span class="n">scale_factor</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="k">elif</span> <span class="n">input_units</span> <span class="o">==</span> <span class="s1">&#39;s&#39;</span> <span class="ow">and</span> <span class="n">output_units</span> <span class="o">==</span> <span class="s1">&#39;ms&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">input_units</span> <span class="o">==</span> <span class="s2">&quot;s&quot;</span> <span class="ow">and</span> <span class="n">output_units</span> <span class="o">==</span> <span class="s2">&quot;ms&quot;</span><span class="p">:</span>
         <span class="n">scale_factor</span> <span class="o">=</span> <span class="mf">1e3</span>
-    <span class="k">elif</span> <span class="n">input_units</span> <span class="o">==</span> <span class="s1">&#39;ms&#39;</span> <span class="ow">and</span> <span class="n">output_units</span> <span class="o">==</span> <span class="s1">&#39;s&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">input_units</span> <span class="o">==</span> <span class="s2">&quot;ms&quot;</span> <span class="ow">and</span> <span class="n">output_units</span> <span class="o">==</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span>
         <span class="n">scale_factor</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mf">1e3</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported time units conversion: </span><span class="si">{</span><span class="n">input_units</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">output_units</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    
-    <span class="c1"># Transform to relative time (`TimeUnit.RELATIVE_MS`) </span>
-    <span class="k">if</span> <span class="n">input_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_MS</span> <span class="ow">or</span> <span class="n">input_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_S</span><span class="p">:</span>
-    <span class="c1"># Convert a series of differences into cumulative sum to reconstruct original time series.</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Unsupported time units conversion: </span><span class="si">{</span><span class="n">input_units</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">output_units</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Transform to relative time (`TimeUnit.RELATIVE_MS`)</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">input_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_MS</span>
+        <span class="ow">or</span> <span class="n">input_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_S</span>
+    <span class="p">):</span>
+        <span class="c1"># Convert a series of differences into cumulative sum to reconstruct original time series.</span>
         <span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">time_array</span><span class="p">))</span>
-    <span class="k">elif</span> <span class="n">input_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_MS</span> <span class="ow">or</span> <span class="n">input_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_S</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="p">(</span>
+        <span class="n">input_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_MS</span>
+        <span class="ow">or</span> <span class="n">input_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_S</span>
+    <span class="p">):</span>
         <span class="c1"># Set the start time if not provided.</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-09</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-09</span><span class="p">):</span>
             <span class="n">start_time</span> <span class="o">=</span> <span class="n">time_array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="c1"># Convert absolute time stamps into a time series relative to start_time.</span>
-        <span class="n">time_array</span> <span class="o">=</span> <span class="p">(</span><span class="n">time_array</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span> 
+        <span class="n">time_array</span> <span class="o">=</span> <span class="n">time_array</span> <span class="o">-</span> <span class="n">start_time</span>
 
     <span class="c1"># Transform the time array from `TimeUnit.RELATIVE_MS` to the specified time unit type</span>
-    <span class="k">if</span> <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_MS</span> <span class="ow">or</span> <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_S</span><span class="p">:</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_MS</span>
+        <span class="ow">or</span> <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_S</span>
+    <span class="p">):</span>
         <span class="c1"># Converts time array to absolute time by adding the start time to each element.</span>
         <span class="n">time_array</span> <span class="o">=</span> <span class="n">time_array</span> <span class="o">+</span> <span class="n">start_time</span>
-    <span class="k">elif</span> <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_MS</span> <span class="ow">or</span> <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_S</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="p">(</span>
+        <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_MS</span>
+        <span class="ow">or</span> <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_S</span>
+    <span class="p">):</span>
         <span class="c1"># Creates a new array starting with 0, followed by the differences between consecutive elements.</span>
         <span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">start_time</span><span class="p">))</span>
-    <span class="k">elif</span> <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_MS</span> <span class="ow">or</span> <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_S</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="p">(</span>
+        <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_MS</span>
+        <span class="ow">or</span> <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_S</span>
+    <span class="p">):</span>
         <span class="c1"># The array is already in relative format, do nothing.</span>
         <span class="k">pass</span>
 
@@ -382,27 +448,27 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported unit: </span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
-    
+
 
 <div class="viewcode-block" id="convert_units_gyroscope">
 <a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.convert_units_gyroscope">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">convert_units_gyroscope</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">units</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert gyroscope data to deg/s.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    data : np.ndarray</span>
 <span class="sd">        The gyroscope data.</span>
-<span class="sd">        </span>
+
 <span class="sd">    units : str</span>
 <span class="sd">        The unit of the data (currently supports deg/s and rad/s).</span>
-<span class="sd">        </span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    np.ndarray</span>
 <span class="sd">        The gyroscope data in deg/s.</span>
-<span class="sd">        </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;deg/s&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">data</span>
@@ -411,11 +477,11 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported unit: </span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
-    
+
 
 <div class="viewcode-block" id="invert_watch_side">
 <a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.invert_watch_side">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">invert_watch_side</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">side</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sensor</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">invert_watch_side</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">side</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sensor</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Invert the data based on the watch side.</span>
 
@@ -436,35 +502,40 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">side</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported side: </span><span class="si">{</span><span class="n">side</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">sensor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;accelerometer&#39;</span><span class="p">,</span> <span class="s1">&#39;gyroscope&#39;</span><span class="p">,</span> <span class="s1">&#39;both&#39;</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">sensor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;accelerometer&quot;</span><span class="p">,</span> <span class="s2">&quot;gyroscope&quot;</span><span class="p">,</span> <span class="s2">&quot;both&quot;</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported sensor: </span><span class="si">{</span><span class="n">sensor</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">elif</span> <span class="n">side</span> <span class="o">==</span> <span class="s2">&quot;right&quot;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">sensor</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;gyroscope&#39;</span><span class="p">,</span> <span class="s1">&#39;both&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">sensor</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;gyroscope&quot;</span><span class="p">,</span> <span class="s2">&quot;both&quot;</span><span class="p">]:</span>
             <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Y</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
             <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Z</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
-        <span class="k">if</span> <span class="n">sensor</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;accelerometer&#39;</span><span class="p">,</span> <span class="s1">&#39;both&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">sensor</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;accelerometer&quot;</span><span class="p">,</span> <span class="s2">&quot;both&quot;</span><span class="p">]:</span>
             <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
 
     <span class="k">return</span> <span class="n">df</span></div>
 
 
+
 <div class="viewcode-block" id="aggregate_parameter">
 <a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.aggregate_parameter">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">aggregate_parameter</span><span class="p">(</span><span class="n">parameter</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">aggregate</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">evaluation_points</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">int</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">aggregate_parameter</span><span class="p">(</span>
+    <span class="n">parameter</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">aggregate</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">evaluation_points</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Aggregate a parameter based on the specified method.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    parameter : np.ndarray</span>
 <span class="sd">        The parameter to aggregate.</span>
-<span class="sd">        </span>
+
 <span class="sd">    aggregate : str</span>
 <span class="sd">        The aggregation method to apply.</span>
 
 <span class="sd">    evaluation_points : np.ndarray, optional</span>
-<span class="sd">        Should be specified if the mode is derived for a continuous parameter. </span>
+<span class="sd">        Should be specified if the mode is derived for a continuous parameter.</span>
 <span class="sd">        Defines the evaluation points for the kernel density estimation function, from which the maximum is derived as the mode.</span>
 
 <span class="sd">    Returns</span>
@@ -472,45 +543,48 @@
 <span class="sd">    np.ndarray</span>
 <span class="sd">        The aggregated parameter.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s1">&#39;mean&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s2">&quot;mean&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s1">&#39;median&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s2">&quot;median&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s1">&#39;mode_binned&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s2">&quot;mode_binned&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">evaluation_points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;evaluation_points must be provided for &#39;mode_binned&#39; aggregation.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;evaluation_points must be provided for &#39;mode_binned&#39; aggregation.&quot;</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">kde</span> <span class="o">=</span> <span class="n">gaussian_kde</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
             <span class="n">kde_values</span> <span class="o">=</span> <span class="n">kde</span><span class="p">(</span><span class="n">evaluation_points</span><span class="p">)</span>
             <span class="n">max_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">kde_values</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">evaluation_points</span><span class="p">[</span><span class="n">max_index</span><span class="p">]</span>
-    <span class="k">elif</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s1">&#39;mode&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s2">&quot;mode&quot;</span><span class="p">:</span>
         <span class="n">unique_values</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">unique_values</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">counts</span><span class="p">)]</span>
-    <span class="k">elif</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s1">&#39;90p&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s2">&quot;90p&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s1">&#39;95p&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s2">&quot;95p&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="mi">95</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s1">&#39;99p&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s2">&quot;99p&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="mi">99</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s1">&#39;std&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s2">&quot;std&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s1">&#39;cov&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">aggregate</span> <span class="o">==</span> <span class="s2">&quot;cov&quot;</span><span class="p">:</span>
         <span class="n">mean_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span> <span class="o">/</span> <span class="n">mean_value</span> <span class="k">if</span> <span class="n">mean_value</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid aggregation method: </span><span class="si">{</span><span class="n">aggregate</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
+
 <div class="viewcode-block" id="merge_predictions_with_timestamps">
 <a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.merge_predictions_with_timestamps">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">merge_predictions_with_timestamps</span><span class="p">(</span>
-        <span class="n">df_ts</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
-        <span class="n">df_predictions</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
-        <span class="n">pred_proba_colname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">window_length_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> 
-        <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">df_ts</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">df_predictions</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">pred_proba_colname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">window_length_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Merges prediction probabilities with timestamps by expanding overlapping windows</span>
 <span class="sd">    into individual timestamps and averaging probabilities per unique timestamp.</span>
@@ -535,7 +609,7 @@
 
 <span class="sd">    fs : int</span>
 <span class="sd">        The sampling frequency of the data.</span>
-<span class="sd">        </span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">    -------</span>
 <span class="sd">    pd.DataFrame</span>
@@ -556,22 +630,18 @@
     <span class="c1"># Step 1: Generate all timestamps for prediction windows using NumPy broadcasting</span>
     <span class="n">window_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">window_length_s</span> <span class="o">*</span> <span class="n">fs</span><span class="p">)</span>
     <span class="n">timestamps</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">df_predictions</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">+</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">window_length</span><span class="p">)</span> <span class="o">/</span> <span class="n">fs</span>
-    <span class="p">)</span>
-    
-    <span class="c1"># Flatten timestamps and probabilities into a single array for efficient processing</span>
-    <span class="n">flat_timestamps</span> <span class="o">=</span> <span class="n">timestamps</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
-    <span class="n">flat_proba</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span>
-        <span class="n">df_predictions</span><span class="p">[</span><span class="n">pred_proba_colname</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-        <span class="n">window_length</span>
+        <span class="n">df_predictions</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">window_length</span><span class="p">)</span> <span class="o">/</span> <span class="n">fs</span>
     <span class="p">)</span>
 
+    <span class="c1"># Flatten timestamps and probabilities into a single array for efficient processing</span>
+    <span class="n">flat_timestamps</span> <span class="o">=</span> <span class="n">timestamps</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="n">flat_proba</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">df_predictions</span><span class="p">[</span><span class="n">pred_proba_colname</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">window_length</span><span class="p">)</span>
+
     <span class="c1"># Step 2: Create a DataFrame for expanded data</span>
-    <span class="n">expanded_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-        <span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">:</span> <span class="n">flat_timestamps</span><span class="p">,</span>
-        <span class="n">pred_proba_colname</span><span class="p">:</span> <span class="n">flat_proba</span>
-    <span class="p">})</span>
+    <span class="n">expanded_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="p">{</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">:</span> <span class="n">flat_timestamps</span><span class="p">,</span> <span class="n">pred_proba_colname</span><span class="p">:</span> <span class="n">flat_proba</span><span class="p">}</span>
+    <span class="p">)</span>
 
     <span class="c1"># Step 3: Round timestamps and aggregate probabilities</span>
     <span class="n">expanded_df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">=</span> <span class="n">expanded_df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
@@ -579,7 +649,7 @@
 
     <span class="c1"># Step 4: Round timestamps in `df_ts` and merge</span>
     <span class="n">df_ts</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_ts</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-    <span class="n">df_ts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_ts</span><span class="p">,</span> <span class="n">mean_proba</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">)</span>
+    <span class="n">df_ts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_ts</span><span class="p">,</span> <span class="n">mean_proba</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">)</span>
     <span class="n">df_ts</span> <span class="o">=</span> <span class="n">df_ts</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="n">pred_proba_colname</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">df_ts</span></div>
@@ -588,8 +658,9 @@
 
 <div class="viewcode-block" id="select_hours">
 <a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.select_hours">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">select_hours</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">select_hours_start</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">select_hours_end</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span>
+<span class="k">def</span><span class="w"> </span><span class="nf">select_hours</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">select_hours_start</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">select_hours_end</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Select hours of interest from the data to include in the aggregation step.</span>
 
@@ -600,7 +671,7 @@
 
 <span class="sd">    select_hours_start: str</span>
 <span class="sd">        The start time of the selected hours in &quot;HH:MM&quot; format.</span>
-<span class="sd">    </span>
+
 <span class="sd">    select_hours_end: str</span>
 <span class="sd">            The end time of the selected hours in &quot;HH:MM&quot; format.</span>
 
@@ -611,17 +682,21 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">select_hours_start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">select_hours_start</span><span class="p">,</span> <span class="s1">&#39;%H:%M&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="c1"># convert to time object</span>
-    <span class="n">select_hours_end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">select_hours_end</span><span class="p">,</span> <span class="s1">&#39;%H:%M&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> 
-    <span class="n">df_subset</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;time_dt&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="n">select_hours_start</span><span class="p">,</span> <span class="n">select_hours_end</span><span class="p">)]</span> <span class="c1"># select the hours of interest</span>
+    <span class="n">select_hours_start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span>
+        <span class="n">select_hours_start</span><span class="p">,</span> <span class="s2">&quot;%H:%M&quot;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>  <span class="c1"># convert to time object</span>
+    <span class="n">select_hours_end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">select_hours_end</span><span class="p">,</span> <span class="s2">&quot;%H:%M&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">df_subset</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;time_dt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="n">select_hours_start</span><span class="p">,</span> <span class="n">select_hours_end</span><span class="p">)</span>
+    <span class="p">]</span>  <span class="c1"># select the hours of interest</span>
 
     <span class="k">return</span> <span class="n">df_subset</span></div>
+
 
 
 <div class="viewcode-block" id="select_days">
 <a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.select_days">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">select_days</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">min_hours_per_day</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Select days of interest from the data to include in the aggregation step.</span>
 
@@ -642,9 +717,13 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">min_s_per_day</span> <span class="o">=</span> <span class="n">min_hours_per_day</span> <span class="o">*</span> <span class="mi">3600</span>
-    <span class="n">window_length_s</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;time_dt&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># determine the length of the first window in seconds</span>
+    <span class="n">window_length_s</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;time_dt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="p">)</span>  <span class="c1"># determine the length of the first window in seconds</span>
     <span class="n">min_windows_per_day</span> <span class="o">=</span> <span class="n">min_s_per_day</span> <span class="o">/</span> <span class="n">window_length_s</span>
-    <span class="n">df_subset</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;time_dt&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_windows_per_day</span><span class="p">)</span>
+    <span class="n">df_subset</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;time_dt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_windows_per_day</span>
+    <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">df_subset</span></div>
 

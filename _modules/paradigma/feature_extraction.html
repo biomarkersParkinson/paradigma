@@ -8,8 +8,8 @@
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
-      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
 
   
   <!--[if lt IE 9]>
@@ -50,6 +50,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/data_preparation.html">Data preparation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
 </ul>
@@ -94,10 +95,10 @@
            <div itemprop="articleBody">
              
   <h1>Source code for paradigma.feature_extraction</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.integrate</span><span class="w"> </span><span class="kn">import</span> <span class="n">cumulative_trapezoid</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_peaks</span><span class="p">,</span> <span class="n">windows</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">kurtosis</span><span class="p">,</span> <span class="n">skew</span>
@@ -108,7 +109,9 @@
 
 <div class="viewcode-block" id="compute_statistics">
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_statistics">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">compute_statistics</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">statistic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">abs_stats</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_statistics</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">statistic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">abs_stats</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute a specific statistical measure along the timestamps of a 2D or 3D array.</span>
 
@@ -127,7 +130,7 @@
 <span class="sd">        - &#39;kurtosis&#39;: Kurtosis.</span>
 <span class="sd">        - &#39;skewness&#39;: Skewness.</span>
 <span class="sd">    abs_stats : bool, optional</span>
-<span class="sd">        Whether to compute the statistics on the absolute values of the data for </span>
+<span class="sd">        Whether to compute the statistics on the absolute values of the data for</span>
 <span class="sd">        the mean and median (default: False).</span>
 
 <span class="sd">    Returns</span>
@@ -141,33 +144,42 @@
 <span class="sd">    ValueError</span>
 <span class="sd">        If the specified `statistic` is not supported or if the input data has an invalid shape.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">statistic</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;median&#39;</span><span class="p">,</span> <span class="s1">&#39;var&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="s1">&#39;min&#39;</span><span class="p">,</span> <span class="s1">&#39;kurtosis&#39;</span><span class="p">,</span> <span class="s1">&#39;skewness&#39;</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">statistic</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;median&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;var&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;std&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;max&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;min&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;kurtosis&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;skewness&quot;</span><span class="p">,</span>
+    <span class="p">]:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Statistic &#39;</span><span class="si">{</span><span class="n">statistic</span><span class="si">}</span><span class="s2">&#39; is not supported.&quot;</span><span class="p">)</span>
-    
+
     <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input data must be a 1D, 2D or 3D array.&quot;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">statistic</span> <span class="o">==</span> <span class="s1">&#39;mean&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">statistic</span> <span class="o">==</span> <span class="s2">&quot;mean&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">abs_stats</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">statistic</span> <span class="o">==</span> <span class="s1">&#39;median&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">statistic</span> <span class="o">==</span> <span class="s2">&quot;median&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">abs_stats</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">statistic</span> <span class="o">==</span> <span class="s1">&#39;var&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">statistic</span> <span class="o">==</span> <span class="s2">&quot;var&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">statistic</span> <span class="o">==</span> <span class="s1">&#39;std&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">statistic</span> <span class="o">==</span> <span class="s2">&quot;std&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">statistic</span> <span class="o">==</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">statistic</span> <span class="o">==</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">statistic</span> <span class="o">==</span> <span class="s1">&#39;min&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">statistic</span> <span class="o">==</span> <span class="s2">&quot;min&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">statistic</span> <span class="o">==</span> <span class="s1">&#39;kurtosis&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">statistic</span> <span class="o">==</span> <span class="s2">&quot;kurtosis&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">kurtosis</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">fisher</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">statistic</span> <span class="o">==</span> <span class="s1">&#39;skewness&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">statistic</span> <span class="o">==</span> <span class="s2">&quot;skewness&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">skew</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Statistic &#39;</span><span class="si">{</span><span class="n">statistic</span><span class="si">}</span><span class="s2">&#39; is not supported.&quot;</span><span class="p">)</span></div>
@@ -180,8 +192,8 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the standard deviation of the Euclidean norm for each window of sensor data.</span>
 
-<span class="sd">    The function calculates the Euclidean norm (L2 norm) across sensor axes for each </span>
-<span class="sd">    timestamp within a window, and then computes the standard deviation of these norms </span>
+<span class="sd">    The function calculates the Euclidean norm (L2 norm) across sensor axes for each</span>
+<span class="sd">    timestamp within a window, and then computes the standard deviation of these norms</span>
 <span class="sd">    for each window.</span>
 
 <span class="sd">    Parameters</span>
@@ -195,10 +207,12 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    np.ndarray</span>
-<span class="sd">        A 1D array of shape (n_windows,) containing the standard deviation of the </span>
+<span class="sd">        A 1D array of shape (n_windows,) containing the standard deviation of the</span>
 <span class="sd">        Euclidean norm for each window.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">norms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># Norm along the sensor axes (norm per timestamp, per window)</span>
+    <span class="n">norms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span>
+    <span class="p">)</span>  <span class="c1"># Norm along the sensor axes (norm per timestamp, per window)</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">norms</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Standard deviation per window</span></div>
 
 
@@ -206,24 +220,24 @@
 <div class="viewcode-block" id="compute_power_in_bandwidth">
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_power_in_bandwidth">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_power_in_bandwidth</span><span class="p">(</span>
-        <span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-        <span class="n">psd</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
-        <span class="n">fmin</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">fmax</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">include_max</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">spectral_resolution</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="n">cumulative_sum_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;trapz&#39;</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">psd</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">fmin</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">fmax</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">include_max</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">spectral_resolution</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">cumulative_sum_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;trapz&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the logarithmic power within specified frequency bands for each sensor axis.</span>
 
-<span class="sd">    This function integrates the power spectral density (PSD) over user-defined frequency </span>
+<span class="sd">    This function integrates the power spectral density (PSD) over user-defined frequency</span>
 <span class="sd">    bands and computes the logarithm of the resulting power for each axis of the sensor.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    freqs : np.ndarray</span>
-<span class="sd">        A 1D array of shape (n_frequencies,) containing the frequencies corresponding </span>
+<span class="sd">        A 1D array of shape (n_frequencies,) containing the frequencies corresponding</span>
 <span class="sd">        to the PSD values.</span>
 <span class="sd">    psd : np.ndarray</span>
 <span class="sd">        A 2D array of shape (n_windows, n_frequencies) or 3D array of shape (n_windows, n_frequencies, n_axes)</span>
@@ -237,7 +251,7 @@
 <span class="sd">    spectral_resolution : float, optional</span>
 <span class="sd">        The spectral resolution of the PSD in Hz (default: 1).</span>
 <span class="sd">    cumulative_sum_method : str, optional</span>
-<span class="sd">        The method used to integrate the PSD over the frequency band. Supported values are: </span>
+<span class="sd">        The method used to integrate the PSD over the frequency band. Supported values are:</span>
 <span class="sd">        - &#39;trapz&#39;: Trapezoidal rule.</span>
 <span class="sd">        - &#39;sum&#39;: Simple summation (default: &#39;trapz&#39;).</span>
 
@@ -252,16 +266,18 @@
         <span class="n">band_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">freqs</span> <span class="o">&gt;=</span> <span class="n">fmin</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">freqs</span> <span class="o">&lt;=</span> <span class="n">fmax</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">band_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">freqs</span> <span class="o">&gt;=</span> <span class="n">fmin</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">freqs</span> <span class="o">&lt;</span> <span class="n">fmax</span><span class="p">)</span>
-    
+
     <span class="c1"># Integrate PSD over the selected frequency band using the band mask</span>
     <span class="k">if</span> <span class="n">psd</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
         <span class="n">masked_psd</span> <span class="o">=</span> <span class="n">psd</span><span class="p">[:,</span> <span class="n">band_mask</span><span class="p">]</span>
     <span class="k">elif</span> <span class="n">psd</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
         <span class="n">masked_psd</span> <span class="o">=</span> <span class="n">psd</span><span class="p">[:,</span> <span class="n">band_mask</span><span class="p">,</span> <span class="p">:]</span>
 
-    <span class="k">if</span> <span class="n">cumulative_sum_method</span> <span class="o">==</span> <span class="s1">&#39;trapz&#39;</span><span class="p">:</span>
-        <span class="n">band_power</span> <span class="o">=</span> <span class="n">spectral_resolution</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">masked_psd</span><span class="p">,</span> <span class="n">freqs</span><span class="p">[</span><span class="n">band_mask</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">cumulative_sum_method</span> <span class="o">==</span> <span class="s1">&#39;sum&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">cumulative_sum_method</span> <span class="o">==</span> <span class="s2">&quot;trapz&quot;</span><span class="p">:</span>
+        <span class="n">band_power</span> <span class="o">=</span> <span class="n">spectral_resolution</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span>
+            <span class="n">masked_psd</span><span class="p">,</span> <span class="n">freqs</span><span class="p">[</span><span class="n">band_mask</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">cumulative_sum_method</span> <span class="o">==</span> <span class="s2">&quot;sum&quot;</span><span class="p">:</span>
         <span class="n">band_power</span> <span class="o">=</span> <span class="n">spectral_resolution</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">masked_psd</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;cumulative_sum_method must be &#39;trapz&#39; or &#39;sum&#39;.&quot;</span><span class="p">)</span>
@@ -276,19 +292,19 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the total power by summing the power spectral density (PSD) across frequency bins.</span>
 
-<span class="sd">    This function calculates the total power for each window and each sensor axis by </span>
+<span class="sd">    This function calculates the total power for each window and each sensor axis by</span>
 <span class="sd">    summing the PSD values across all frequency bins.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    psd : np.ndarray</span>
-<span class="sd">        A 3D array of shape (n_windows, n_frequencies, n_axes) representing the </span>
+<span class="sd">        A 3D array of shape (n_windows, n_frequencies, n_axes) representing the</span>
 <span class="sd">        power spectral density (PSD) of the sensor data.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    np.ndarray</span>
-<span class="sd">        A 2D array of shape (n_windows, n_axes) containing the total power for each </span>
+<span class="sd">        A 2D array of shape (n_windows, n_axes) containing the total power for each</span>
 <span class="sd">        window and each sensor axis.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">psd</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Sum across frequency bins</span></div>
@@ -298,15 +314,14 @@
 <div class="viewcode-block" id="extract_tremor_power">
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.extract_tremor_power">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">extract_tremor_power</span><span class="p">(</span>
-    <span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
+    <span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">total_psd</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">fmin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
     <span class="n">fmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span>
-    <span class="n">spectral_resolution</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.25</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-
+    <span class="n">spectral_resolution</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.25</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the tremor power (1.25 Hz around the peak within the tremor frequency band)</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    total_psd: np.ndarray</span>
@@ -319,16 +334,16 @@
 <span class="sd">        The upper bound of the tremor frequency band in Hz (default: 7)</span>
 <span class="sd">    spectral_resolution: float</span>
 <span class="sd">        The spectral resolution of the PSD in Hz (default: 0.25)</span>
-<span class="sd">        </span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    pd.Series</span>
 <span class="sd">        The tremor power across windows</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
+
     <span class="n">freq_idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">freqs</span> <span class="o">&gt;=</span> <span class="n">fmin</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">freqs</span> <span class="o">&lt;=</span> <span class="n">fmax</span><span class="p">)</span>
     <span class="n">peak_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">total_psd</span><span class="p">[:,</span> <span class="n">freq_idx</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">freq_idx</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="n">left_idx</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">((</span><span class="n">peak_idx</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">/</span> <span class="n">spectral_resolution</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">left_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">((</span><span class="n">peak_idx</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">/</span> <span class="n">spectral_resolution</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">right_idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">peak_idx</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">/</span> <span class="n">spectral_resolution</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 
     <span class="n">row_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">total_psd</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
@@ -347,24 +362,24 @@
 <div class="viewcode-block" id="compute_dominant_frequency">
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_dominant_frequency">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_dominant_frequency</span><span class="p">(</span>
-        <span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
-        <span class="n">psd</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
-        <span class="n">fmin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-        <span class="n">fmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">psd</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">fmin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the dominant frequency within a specified frequency range for each window and sensor axis.</span>
 
-<span class="sd">    The dominant frequency is defined as the frequency corresponding to the maximum power in the </span>
+<span class="sd">    The dominant frequency is defined as the frequency corresponding to the maximum power in the</span>
 <span class="sd">    power spectral density (PSD) within the specified range.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    freqs : np.ndarray</span>
-<span class="sd">        A 1D array of shape (n_frequencies,) containing the frequencies corresponding </span>
+<span class="sd">        A 1D array of shape (n_frequencies,) containing the frequencies corresponding</span>
 <span class="sd">        to the PSD values.</span>
 <span class="sd">    psd : np.ndarray</span>
-<span class="sd">        A 2D array of shape (n_windows, n_frequencies) or a 3D array of shape </span>
+<span class="sd">        A 2D array of shape (n_windows, n_frequencies) or a 3D array of shape</span>
 <span class="sd">        (n_windows, n_frequencies, n_axes) representing the power spectral density.</span>
 <span class="sd">    fmin : float</span>
 <span class="sd">        The lower bound of the frequency range (inclusive).</span>
@@ -374,9 +389,9 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    np.ndarray</span>
-<span class="sd">        - If `psd` is 2D: A 1D array of shape (n_windows,) containing the dominant frequency </span>
+<span class="sd">        - If `psd` is 2D: A 1D array of shape (n_windows,) containing the dominant frequency</span>
 <span class="sd">          for each window.</span>
-<span class="sd">        - If `psd` is 3D: A 2D array of shape (n_windows, n_axes) containing the dominant </span>
+<span class="sd">        - If `psd` is 3D: A 2D array of shape (n_windows, n_axes) containing the dominant</span>
 <span class="sd">          frequency for each window and each axis.</span>
 
 <span class="sd">    Raises</span>
@@ -393,30 +408,36 @@
 
     <span class="c1"># Validate the frequency range</span>
     <span class="k">if</span> <span class="n">fmin</span> <span class="o">&lt;</span> <span class="n">freqs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="n">fmax</span> <span class="o">&gt;</span> <span class="n">freqs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fmin </span><span class="si">{</span><span class="n">fmin</span><span class="si">}</span><span class="s2"> or fmax </span><span class="si">{</span><span class="n">fmax</span><span class="si">}</span><span class="s2"> are out of bounds of the frequency array.&quot;</span><span class="p">)</span>
-    
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;fmin </span><span class="si">{</span><span class="n">fmin</span><span class="si">}</span><span class="s2"> or fmax </span><span class="si">{</span><span class="n">fmax</span><span class="si">}</span><span class="s2"> are out of bounds of the frequency array.&quot;</span>
+        <span class="p">)</span>
+
     <span class="c1"># Find the indices corresponding to fmin and fmax</span>
     <span class="n">min_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">fmin</span><span class="p">)</span>
     <span class="n">max_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">fmax</span><span class="p">)</span>
 
     <span class="c1"># Slice the PSD and frequency array to the desired range</span>
-    <span class="n">psd_filtered</span> <span class="o">=</span> <span class="n">psd</span><span class="p">[:,</span> <span class="n">min_index</span><span class="p">:</span><span class="n">max_index</span><span class="p">]</span> <span class="k">if</span> <span class="n">psd</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">psd</span><span class="p">[:,</span> <span class="n">min_index</span><span class="p">:</span><span class="n">max_index</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">psd_filtered</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">psd</span><span class="p">[:,</span> <span class="n">min_index</span><span class="p">:</span><span class="n">max_index</span><span class="p">]</span> <span class="k">if</span> <span class="n">psd</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">psd</span><span class="p">[:,</span> <span class="n">min_index</span><span class="p">:</span><span class="n">max_index</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="p">)</span>
     <span class="n">freqs_filtered</span> <span class="o">=</span> <span class="n">freqs</span><span class="p">[</span><span class="n">min_index</span><span class="p">:</span><span class="n">max_index</span><span class="p">]</span>
 
     <span class="c1"># Compute dominant frequency</span>
     <span class="k">if</span> <span class="n">psd</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
         <span class="c1"># 3D: Compute for each axis</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
-            <span class="n">freqs_filtered</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">psd_filtered</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">psd</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-        <span class="p">])</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">freqs_filtered</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">psd_filtered</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">psd</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="p">]</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">T</span>
     <span class="k">elif</span> <span class="n">psd</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
         <span class="c1"># 2D: Compute for each window</span>
         <span class="k">return</span> <span class="n">freqs_filtered</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">psd_filtered</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;PSD array must be 2D or 3D.&quot;</span><span class="p">)</span></div>
 
-    
+
 
 <div class="viewcode-block" id="extract_frequency_peak">
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.extract_frequency_peak">[docs]</a>
@@ -425,11 +446,10 @@
     <span class="n">psd</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">fmin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">include_max</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
-
+    <span class="n">include_max</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract the frequency of the peak in the power spectral density within the specified frequency band.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    freqs: pd.Series</span>
@@ -442,12 +462,12 @@
 <span class="sd">        The upper bound of the frequency band in Hz (default: None). If not provided, the maximum frequency is used.</span>
 <span class="sd">    include_max: bool</span>
 <span class="sd">        Whether to include the maximum frequency in the search range (default: True)</span>
-<span class="sd">        </span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    pd.Series</span>
 <span class="sd">        The frequency of the peak across windows</span>
-<span class="sd">    &quot;&quot;&quot;</span>    
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Set fmin and fmax to maximum range if not provided</span>
     <span class="k">if</span> <span class="n">fmin</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">fmin</span> <span class="o">=</span> <span class="n">freqs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -456,9 +476,9 @@
 
     <span class="c1"># Find the indices corresponding to fmin and fmax</span>
     <span class="k">if</span> <span class="n">include_max</span><span class="p">:</span>
-        <span class="n">freq_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">freqs</span><span class="o">&gt;=</span><span class="n">fmin</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">freqs</span><span class="o">&lt;=</span><span class="n">fmax</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">freq_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">freqs</span> <span class="o">&gt;=</span> <span class="n">fmin</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">freqs</span> <span class="o">&lt;=</span> <span class="n">fmax</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">freq_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">freqs</span><span class="o">&gt;=</span><span class="n">fmin</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">freqs</span><span class="o">&lt;</span><span class="n">fmax</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">freq_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">freqs</span> <span class="o">&gt;=</span> <span class="n">fmin</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">freqs</span> <span class="o">&lt;</span> <span class="n">fmax</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="n">peak_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">psd</span><span class="p">[:,</span> <span class="n">freq_idx</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">frequency_peak</span> <span class="o">=</span> <span class="n">freqs</span><span class="p">[</span><span class="n">freq_idx</span><span class="p">][</span><span class="n">peak_idx</span><span class="p">]</span>
@@ -470,10 +490,8 @@
 <div class="viewcode-block" id="compute_relative_power">
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_relative_power">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_relative_power</span><span class="p">(</span>
-        <span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
-        <span class="n">psd</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
-        <span class="n">config</span><span class="p">:</span> <span class="n">PulseRateConfig</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">psd</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">PulseRateConfig</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate relative power within the dominant frequency band in the physiological range (0.75 - 3 Hz).</span>
 
@@ -494,33 +512,41 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    list</span>
-<span class="sd">        The relative power within the dominant frequency band in the physiological range (0.75 - 3 Hz). </span>
-<span class="sd">    </span>
+<span class="sd">        The relative power within the dominant frequency band in the physiological range (0.75 - 3 Hz).</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">hr_range_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">freqs</span> <span class="o">&gt;=</span> <span class="n">config</span><span class="o">.</span><span class="n">freq_band_physio</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">freqs</span> <span class="o">&lt;=</span> <span class="n">config</span><span class="o">.</span><span class="n">freq_band_physio</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">hr_range_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">freqs</span> <span class="o">&gt;=</span> <span class="n">config</span><span class="o">.</span><span class="n">freq_band_physio</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span>
+        <span class="n">freqs</span> <span class="o">&lt;=</span> <span class="n">config</span><span class="o">.</span><span class="n">freq_band_physio</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="p">)</span>
     <span class="n">hr_range_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">hr_range_mask</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">peak_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">psd</span><span class="p">[:,</span> <span class="n">hr_range_idx</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">peak_freqs</span> <span class="o">=</span> <span class="n">freqs</span><span class="p">[</span><span class="n">hr_range_idx</span><span class="p">[</span><span class="n">peak_idx</span><span class="p">]]</span>
 
-    <span class="n">dom_band_idx</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">freqs</span> <span class="o">&gt;=</span> <span class="n">peak_freq</span> <span class="o">-</span> <span class="n">config</span><span class="o">.</span><span class="n">bandwidth</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">freqs</span> <span class="o">&lt;=</span> <span class="n">peak_freq</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">bandwidth</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">peak_freq</span> <span class="ow">in</span> <span class="n">peak_freqs</span><span class="p">]</span>
-    <span class="n">rel_power</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">psd</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">idx</span><span class="p">],</span> <span class="n">freqs</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">psd</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:],</span> <span class="n">freqs</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dom_band_idx</span><span class="p">)]</span>
+    <span class="n">dom_band_idx</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">freqs</span> <span class="o">&gt;=</span> <span class="n">peak_freq</span> <span class="o">-</span> <span class="n">config</span><span class="o">.</span><span class="n">bandwidth</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">freqs</span> <span class="o">&lt;=</span> <span class="n">peak_freq</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">bandwidth</span><span class="p">)</span>
+        <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">peak_freq</span> <span class="ow">in</span> <span class="n">peak_freqs</span>
+    <span class="p">]</span>
+    <span class="n">rel_power</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">psd</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">idx</span><span class="p">],</span> <span class="n">freqs</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">psd</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:],</span> <span class="n">freqs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dom_band_idx</span><span class="p">)</span>
+    <span class="p">]</span>
     <span class="k">return</span> <span class="n">rel_power</span></div>
 
 
 
 <div class="viewcode-block" id="compute_spectral_entropy">
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_spectral_entropy">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">compute_spectral_entropy</span><span class="p">(</span>
-        <span class="n">psd</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
-        <span class="n">n_samples</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_spectral_entropy</span><span class="p">(</span><span class="n">psd</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the spectral entropy from the normalized power spectral density.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    psd: np.ndarray</span>
-<span class="sd">        The power spectral density of the signal.   </span>
+<span class="sd">        The power spectral density of the signal.</span>
 <span class="sd">    n_samples: int</span>
 <span class="sd">        The number of samples in the window.</span>
 
@@ -530,8 +556,10 @@
 <span class="sd">        The spectral entropy of the power spectral density.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">psd_norm</span> <span class="o">=</span> <span class="n">psd</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">psd</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">spectral_entropy</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">psd_norm</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">psd_norm</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">n_samples</span><span class="p">)</span>
-    
+    <span class="n">spectral_entropy</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">psd_norm</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">psd_norm</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span>
+        <span class="n">n_samples</span>
+    <span class="p">)</span>
+
     <span class="k">return</span> <span class="n">spectral_entropy</span></div>
 
 
@@ -539,27 +567,27 @@
 <div class="viewcode-block" id="compute_mfccs">
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_mfccs">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_mfccs</span><span class="p">(</span>
-        <span class="n">total_power_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
-        <span class="n">config</span><span class="p">,</span> 
-        <span class="n">total_power_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;psd&#39;</span><span class="p">,</span>
-        <span class="n">mel_scale</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">multiplication_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="n">rounding_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;floor&#39;</span>       
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="n">total_power_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">,</span>
+    <span class="n">total_power_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;psd&quot;</span><span class="p">,</span>
+    <span class="n">mel_scale</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">multiplication_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">rounding_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;floor&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate Mel Frequency Cepstral Coefficients (MFCCs) from the total power spectral density or spectrogram of the signal.</span>
 
-<span class="sd">    MFCCs are commonly used features in signal processing for tasks like audio and </span>
+<span class="sd">    MFCCs are commonly used features in signal processing for tasks like audio and</span>
 <span class="sd">    vibration analysis. In this version, we adjusted the MFFCs to the human activity</span>
 <span class="sd">    range according to: https://www.sciencedirect.com/science/article/abs/pii/S016516841500331X#f0050.</span>
-<span class="sd">    This function calculates MFCCs by applying a filterbank </span>
-<span class="sd">    (in either the mel scale or linear scale) to the total power of the signal, </span>
+<span class="sd">    This function calculates MFCCs by applying a filterbank</span>
+<span class="sd">    (in either the mel scale or linear scale) to the total power of the signal,</span>
 <span class="sd">    followed by a Discrete Cosine Transform (DCT) to obtain coefficients.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    total_power_array : np.ndarray</span>
-<span class="sd">        2D array of shape (n_windows, n_frequencies) containing the total power </span>
+<span class="sd">        2D array of shape (n_windows, n_frequencies) containing the total power</span>
 <span class="sd">        of the signal for each window.</span>
 <span class="sd">        OR</span>
 <span class="sd">        3D array of shape (n_windows, n_frequencies, n_segments) containing the total spectrogram</span>
@@ -600,61 +628,66 @@
 <span class="sd">    - The function includes filterbank normalization to ensure proper scaling.</span>
 <span class="sd">    - DCT filters are constructed to minimize spectral leakage.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
+
     <span class="c1"># Check if total_power_type is either &#39;psd&#39; or &#39;spectrogram&#39;</span>
-    <span class="k">if</span> <span class="n">total_power_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;psd&#39;</span><span class="p">,</span> <span class="s1">&#39;spectrogram&#39;</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;total_power_type should be set to either &#39;psd&#39; or &#39;spectrogram&#39;&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">total_power_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;psd&quot;</span><span class="p">,</span> <span class="s2">&quot;spectrogram&quot;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;total_power_type should be set to either &#39;psd&#39; or &#39;spectrogram&#39;&quot;</span>
+        <span class="p">)</span>
 
     <span class="c1"># Compute window length in samples</span>
     <span class="n">window_length</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span> <span class="o">*</span> <span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span>
-    
+
     <span class="c1"># Determine the length of subwindows used in the spectrogram computation</span>
-    <span class="k">if</span> <span class="n">total_power_type</span> <span class="o">==</span> <span class="s1">&#39;spectrogram&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">total_power_type</span> <span class="o">==</span> <span class="s2">&quot;spectrogram&quot;</span><span class="p">:</span>
         <span class="n">nr_subwindows</span> <span class="o">=</span> <span class="n">total_power_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-        <span class="n">window_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">window_length</span><span class="o">/</span><span class="p">(</span><span class="n">nr_subwindows</span> <span class="o">-</span> <span class="p">(</span><span class="n">nr_subwindows</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">config</span><span class="o">.</span><span class="n">overlap_fraction</span><span class="p">))</span>
+        <span class="n">window_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+            <span class="n">window_length</span>
+            <span class="o">/</span> <span class="p">(</span><span class="n">nr_subwindows</span> <span class="o">-</span> <span class="p">(</span><span class="n">nr_subwindows</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">config</span><span class="o">.</span><span class="n">overlap_fraction</span><span class="p">)</span>
+        <span class="p">)</span>
 
     <span class="c1"># Generate filter points</span>
     <span class="k">if</span> <span class="n">mel_scale</span><span class="p">:</span>
         <span class="n">freqs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
-            <span class="n">melscale</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">mfcc_low_frequency</span><span class="p">,</span> <span class="n">multiplication_factor</span><span class="p">),</span> 
-            <span class="n">melscale</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">mfcc_high_frequency</span><span class="p">,</span> <span class="n">multiplication_factor</span><span class="p">),</span> 
-            <span class="n">num</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">mfcc_n_dct_filters</span> <span class="o">+</span> <span class="mi">2</span>
+            <span class="n">melscale</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">mfcc_low_frequency</span><span class="p">,</span> <span class="n">multiplication_factor</span><span class="p">),</span>
+            <span class="n">melscale</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">mfcc_high_frequency</span><span class="p">,</span> <span class="n">multiplication_factor</span><span class="p">),</span>
+            <span class="n">num</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">mfcc_n_dct_filters</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">freqs</span> <span class="o">=</span> <span class="n">inverse_melscale</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">multiplication_factor</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">freqs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">mfcc_low_frequency</span><span class="p">,</span> 
-            <span class="n">config</span><span class="o">.</span><span class="n">mfcc_high_frequency</span><span class="p">,</span> 
-            <span class="n">num</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">mfcc_n_dct_filters</span> <span class="o">+</span> <span class="mi">2</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">mfcc_low_frequency</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">mfcc_high_frequency</span><span class="p">,</span>
+            <span class="n">num</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">mfcc_n_dct_filters</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span>
-    
-    <span class="k">if</span> <span class="n">rounding_method</span> <span class="o">==</span> <span class="s1">&#39;round&#39;</span><span class="p">:</span>
-        <span class="n">filter_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span>
-            <span class="n">window_length</span> <span class="o">/</span> <span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">*</span> <span class="n">freqs</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>  <span class="o">+</span> <span class="mi">1</span>
 
-    <span class="k">elif</span> <span class="n">rounding_method</span> <span class="o">==</span> <span class="s1">&#39;floor&#39;</span><span class="p">:</span>
-        <span class="n">filter_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span>
-            <span class="n">window_length</span> <span class="o">/</span> <span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">*</span> <span class="n">freqs</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">rounding_method</span> <span class="o">==</span> <span class="s2">&quot;round&quot;</span><span class="p">:</span>
+        <span class="n">filter_points</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">window_length</span> <span class="o">/</span> <span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">*</span> <span class="n">freqs</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">rounding_method</span> <span class="o">==</span> <span class="s2">&quot;floor&quot;</span><span class="p">:</span>
+        <span class="n">filter_points</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">window_length</span> <span class="o">/</span> <span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">*</span> <span class="n">freqs</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="p">)</span>
 
     <span class="c1"># Construct triangular filterbank</span>
     <span class="n">filters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">filter_points</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">window_length</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
     <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">filter_points</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">):</span>
         <span class="n">filters</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">filter_points</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="p">:</span> <span class="n">filter_points</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]]</span> <span class="o">=</span> <span class="n">windows</span><span class="o">.</span><span class="n">triang</span><span class="p">(</span>
             <span class="n">filter_points</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">filter_points</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
-        <span class="p">)</span> 
+        <span class="p">)</span>
         <span class="c1"># Normalize filter coefficients</span>
         <span class="n">filters</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">/=</span> <span class="p">(</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="o">/</span><span class="n">window_length</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">filters</span><span class="p">[</span><span class="n">j</span><span class="p">,:])</span>
-        <span class="p">)</span> 
+            <span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">/</span> <span class="n">window_length</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">filters</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:])</span>
+        <span class="p">)</span>
 
     <span class="c1"># Apply filterbank to total power</span>
-    <span class="k">if</span> <span class="n">total_power_type</span> <span class="o">==</span> <span class="s1">&#39;spectrogram&#39;</span><span class="p">:</span>
-        <span class="n">power_filtered</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">total_power_array</span><span class="p">,</span> <span class="n">filters</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
-    <span class="k">elif</span> <span class="n">total_power_type</span> <span class="o">==</span> <span class="s1">&#39;psd&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">total_power_type</span> <span class="o">==</span> <span class="s2">&quot;spectrogram&quot;</span><span class="p">:</span>
+        <span class="n">power_filtered</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">total_power_array</span><span class="p">,</span> <span class="n">filters</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">total_power_type</span> <span class="o">==</span> <span class="s2">&quot;psd&quot;</span><span class="p">:</span>
         <span class="n">power_filtered</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">total_power_array</span><span class="p">,</span> <span class="n">filters</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
-        
+
     <span class="c1"># Convert power to logarithmic scale</span>
     <span class="n">log_power_filtered</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">power_filtered</span> <span class="o">+</span> <span class="mf">1e-10</span><span class="p">)</span>
 
@@ -663,16 +696,20 @@
     <span class="n">dct_filters</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">mfcc_n_dct_filters</span><span class="p">)</span>
 
     <span class="n">samples</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">config</span><span class="o">.</span><span class="n">mfcc_n_dct_filters</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">config</span><span class="o">.</span><span class="n">mfcc_n_dct_filters</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">config</span><span class="o">.</span><span class="n">mfcc_n_dct_filters</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+        <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">config</span><span class="o">.</span><span class="n">mfcc_n_dct_filters</span><span class="p">)</span>
     <span class="p">)</span>
 
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">mfcc_n_coefficients</span><span class="p">):</span>
-        <span class="n">dct_filters</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="n">samples</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">/</span> <span class="n">config</span><span class="o">.</span><span class="n">mfcc_n_dct_filters</span><span class="p">)</span>
+        <span class="n">dct_filters</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="n">samples</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+            <span class="mf">2.0</span> <span class="o">/</span> <span class="n">config</span><span class="o">.</span><span class="n">mfcc_n_dct_filters</span>
+        <span class="p">)</span>
 
     <span class="c1"># Compute MFCCs</span>
-    <span class="n">mfccs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">log_power_filtered</span><span class="p">,</span> <span class="n">dct_filters</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> 
+    <span class="n">mfccs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">log_power_filtered</span><span class="p">,</span> <span class="n">dct_filters</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">total_power_type</span> <span class="o">==</span> <span class="s1">&#39;spectrogram&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">total_power_type</span> <span class="o">==</span> <span class="s2">&quot;spectrogram&quot;</span><span class="p">:</span>
         <span class="n">mfccs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">mfccs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">mfccs</span></div>
@@ -698,7 +735,9 @@
 <span class="sd">    np.ndarray</span>
 <span class="sd">        Frequency values mapped to the Mel scale.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">(</span><span class="mf">64.875</span> <span class="o">/</span> <span class="n">multiplication_factor</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">x</span> <span class="o">/</span> <span class="p">(</span><span class="mf">17.5</span> <span class="o">/</span> <span class="n">multiplication_factor</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="p">(</span><span class="mf">64.875</span> <span class="o">/</span> <span class="n">multiplication_factor</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span>
+        <span class="mi">1</span> <span class="o">+</span> <span class="n">x</span> <span class="o">/</span> <span class="p">(</span><span class="mf">17.5</span> <span class="o">/</span> <span class="n">multiplication_factor</span><span class="p">)</span>
+    <span class="p">)</span></div>
 
 
 
@@ -721,20 +760,22 @@
 <span class="sd">    np.ndarray</span>
 <span class="sd">        Linear frequency values corresponding to the given Mel scale values.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">(</span><span class="mf">17.5</span> <span class="o">/</span> <span class="n">multiplication_factor</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="p">(</span><span class="mf">64.875</span> <span class="o">/</span> <span class="n">multiplication_factor</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="p">(</span><span class="mf">17.5</span> <span class="o">/</span> <span class="n">multiplication_factor</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
+        <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="p">(</span><span class="mf">64.875</span> <span class="o">/</span> <span class="n">multiplication_factor</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="pca_transform_gyroscope">
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.pca_transform_gyroscope">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">pca_transform_gyroscope</span><span class="p">(</span>
-        <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-        <span class="n">y_gyro_colname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">z_gyro_colname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">y_gyro_colname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">z_gyro_colname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Perform principal component analysis (PCA) on gyroscope data to estimate velocity.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    df : pd.DataFrame</span>
@@ -743,7 +784,7 @@
 <span class="sd">        The column name for the y-axis gyroscope data.</span>
 <span class="sd">    z_gyro_colname : str</span>
 <span class="sd">        The column name for the z-axis gyroscope data.</span>
-<span class="sd">        </span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    np.ndarray</span>
@@ -757,7 +798,7 @@
     <span class="n">fit_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">y_gyro_array</span><span class="p">,</span> <span class="n">z_gyro_array</span><span class="p">))</span>
     <span class="n">full_data</span> <span class="o">=</span> <span class="n">fit_data</span>
 
-    <span class="n">pca</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">svd_solver</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">22</span><span class="p">)</span>
+    <span class="n">pca</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">svd_solver</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">22</span><span class="p">)</span>
     <span class="n">pca</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">fit_data</span><span class="p">)</span>
     <span class="n">velocity</span> <span class="o">=</span> <span class="n">pca</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">full_data</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">]</span>  <span class="c1"># First principal component</span>
 
@@ -770,25 +811,21 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_angle</span><span class="p">(</span><span class="n">time_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">velocity_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the angle from the angular velocity using cumulative trapezoidal integration.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    time_array : np.ndarray</span>
 <span class="sd">        The time array corresponding to the angular velocity data.</span>
 <span class="sd">    velocity_array : np.ndarray</span>
 <span class="sd">        The angular velocity data to integrate.</span>
-<span class="sd">        </span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    np.ndarray</span>
 <span class="sd">        The estimated angle based on the cumulative trapezoidal integration of the angular velocity.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Perform integration and apply absolute value</span>
-    <span class="n">angle_array</span> <span class="o">=</span> <span class="n">cumulative_trapezoid</span><span class="p">(</span>
-        <span class="n">y</span><span class="o">=</span><span class="n">velocity_array</span><span class="p">,</span> 
-        <span class="n">x</span><span class="o">=</span><span class="n">time_array</span><span class="p">,</span> 
-        <span class="n">initial</span><span class="o">=</span><span class="mi">0</span>
-    <span class="p">)</span>
+    <span class="n">angle_array</span> <span class="o">=</span> <span class="n">cumulative_trapezoid</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">velocity_array</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">time_array</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">angle_array</span><span class="p">)</span></div>
 
 
@@ -805,20 +842,19 @@
 <span class="sd">        The angle array to remove the moving average from.</span>
 <span class="sd">    fs : float</span>
 <span class="sd">        The sampling frequency of the data.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    pd.Series</span>
 <span class="sd">        The angle array with the moving average removed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">window_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">fs</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">angle_ma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">angle_array</span><span class="p">)</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span>
-        <span class="n">window</span><span class="o">=</span><span class="n">window_size</span><span class="p">,</span> 
-        <span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> 
-        <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
-        <span class="n">closed</span><span class="o">=</span><span class="s1">&#39;both&#39;</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
-    
+    <span class="n">angle_ma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">angle_array</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">window_size</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="p">)</span>
+
     <span class="k">return</span> <span class="n">angle_array</span> <span class="o">-</span> <span class="n">angle_ma</span></div>
 
 
@@ -826,13 +862,13 @@
 <div class="viewcode-block" id="extract_angle_extremes">
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.extract_angle_extremes">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">extract_angle_extremes</span><span class="p">(</span>
-        <span class="n">angle_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-        <span class="n">sampling_frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">max_frequency_activity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.75</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+    <span class="n">angle_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">sampling_frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">max_frequency_activity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.75</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extract extrema (minima and maxima) indices from the angle array.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    angle_array : np.ndarray</span>
@@ -841,25 +877,21 @@
 <span class="sd">        The sampling frequency of the data.</span>
 <span class="sd">    max_frequency_activity : float, optional</span>
 <span class="sd">        The maximum frequency of human activity in Hz (default: 1.75).</span>
-<span class="sd">    </span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    tuple</span>
 <span class="sd">        A tuple containing the indices of the angle extrema, minima, and maxima.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">distance</span> <span class="o">=</span> <span class="n">sampling_frequency</span> <span class="o">/</span> <span class="n">max_frequency_activity</span>
-    <span class="n">prominence</span> <span class="o">=</span> <span class="mi">2</span>  
+    <span class="n">prominence</span> <span class="o">=</span> <span class="mi">2</span>
 
     <span class="c1"># Find minima and maxima indices for each window</span>
     <span class="n">minima_indices</span> <span class="o">=</span> <span class="n">find_peaks</span><span class="p">(</span>
-        <span class="n">x</span><span class="o">=-</span><span class="n">angle_array</span><span class="p">,</span> 
-        <span class="n">distance</span><span class="o">=</span><span class="n">distance</span><span class="p">,</span> 
-        <span class="n">prominence</span><span class="o">=</span><span class="n">prominence</span>
+        <span class="n">x</span><span class="o">=-</span><span class="n">angle_array</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">distance</span><span class="p">,</span> <span class="n">prominence</span><span class="o">=</span><span class="n">prominence</span>
     <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">maxima_indices</span> <span class="o">=</span> <span class="n">find_peaks</span><span class="p">(</span>
-        <span class="n">x</span><span class="o">=</span><span class="n">angle_array</span><span class="p">,</span> 
-        <span class="n">distance</span><span class="o">=</span><span class="n">distance</span><span class="p">,</span> 
-        <span class="n">prominence</span><span class="o">=</span><span class="n">prominence</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">angle_array</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">distance</span><span class="p">,</span> <span class="n">prominence</span><span class="o">=</span><span class="n">prominence</span>
     <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="n">minima_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">minima_indices</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
@@ -871,14 +903,20 @@
             <span class="c1"># Start with a minimum</span>
             <span class="k">while</span> <span class="n">i_pks</span> <span class="o">&lt;</span> <span class="n">minima_indices</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">i_pks</span> <span class="o">&lt;</span> <span class="n">maxima_indices</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">minima_indices</span><span class="p">[</span><span class="n">i_pks</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">maxima_indices</span><span class="p">[</span><span class="n">i_pks</span><span class="p">]:</span>
-                    <span class="k">if</span> <span class="n">angle_array</span><span class="p">[</span><span class="n">minima_indices</span><span class="p">[</span><span class="n">i_pks</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">&lt;</span> <span class="n">angle_array</span><span class="p">[</span><span class="n">minima_indices</span><span class="p">[</span><span class="n">i_pks</span><span class="p">]]:</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="n">angle_array</span><span class="p">[</span><span class="n">minima_indices</span><span class="p">[</span><span class="n">i_pks</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]</span>
+                        <span class="o">&lt;</span> <span class="n">angle_array</span><span class="p">[</span><span class="n">minima_indices</span><span class="p">[</span><span class="n">i_pks</span><span class="p">]]</span>
+                    <span class="p">):</span>
                         <span class="n">minima_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">minima_indices</span><span class="p">,</span> <span class="n">i_pks</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">minima_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">minima_indices</span><span class="p">,</span> <span class="n">i_pks</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
                     <span class="n">i_pks</span> <span class="o">-=</span> <span class="mi">1</span>
 
                 <span class="k">if</span> <span class="n">i_pks</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">minima_indices</span><span class="p">[</span><span class="n">i_pks</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">maxima_indices</span><span class="p">[</span><span class="n">i_pks</span><span class="p">]:</span>
-                    <span class="k">if</span> <span class="n">angle_array</span><span class="p">[</span><span class="n">maxima_indices</span><span class="p">[</span><span class="n">i_pks</span><span class="p">]]</span> <span class="o">&lt;</span> <span class="n">angle_array</span><span class="p">[</span><span class="n">maxima_indices</span><span class="p">[</span><span class="n">i_pks</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]]:</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="n">angle_array</span><span class="p">[</span><span class="n">maxima_indices</span><span class="p">[</span><span class="n">i_pks</span><span class="p">]]</span>
+                        <span class="o">&lt;</span> <span class="n">angle_array</span><span class="p">[</span><span class="n">maxima_indices</span><span class="p">[</span><span class="n">i_pks</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]]</span>
+                    <span class="p">):</span>
                         <span class="n">maxima_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">maxima_indices</span><span class="p">,</span> <span class="n">i_pks</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">maxima_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">maxima_indices</span><span class="p">,</span> <span class="n">i_pks</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
@@ -889,14 +927,20 @@
             <span class="c1"># Start with a maximum</span>
             <span class="k">while</span> <span class="n">i_pks</span> <span class="o">&lt;</span> <span class="n">maxima_indices</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">i_pks</span> <span class="o">&lt;</span> <span class="n">minima_indices</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">maxima_indices</span><span class="p">[</span><span class="n">i_pks</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">minima_indices</span><span class="p">[</span><span class="n">i_pks</span><span class="p">]:</span>
-                    <span class="k">if</span> <span class="n">angle_array</span><span class="p">[</span><span class="n">maxima_indices</span><span class="p">[</span><span class="n">i_pks</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">&lt;</span> <span class="n">angle_array</span><span class="p">[</span><span class="n">maxima_indices</span><span class="p">[</span><span class="n">i_pks</span><span class="p">]]:</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="n">angle_array</span><span class="p">[</span><span class="n">maxima_indices</span><span class="p">[</span><span class="n">i_pks</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]</span>
+                        <span class="o">&lt;</span> <span class="n">angle_array</span><span class="p">[</span><span class="n">maxima_indices</span><span class="p">[</span><span class="n">i_pks</span><span class="p">]]</span>
+                    <span class="p">):</span>
                         <span class="n">maxima_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">maxima_indices</span><span class="p">,</span> <span class="n">i_pks</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">maxima_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">maxima_indices</span><span class="p">,</span> <span class="n">i_pks</span><span class="p">)</span>
                     <span class="n">i_pks</span> <span class="o">-=</span> <span class="mi">1</span>
 
                 <span class="k">if</span> <span class="n">i_pks</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">maxima_indices</span><span class="p">[</span><span class="n">i_pks</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">minima_indices</span><span class="p">[</span><span class="n">i_pks</span><span class="p">]:</span>
-                    <span class="k">if</span> <span class="n">angle_array</span><span class="p">[</span><span class="n">minima_indices</span><span class="p">[</span><span class="n">i_pks</span><span class="p">]]</span> <span class="o">&lt;</span> <span class="n">angle_array</span><span class="p">[</span><span class="n">minima_indices</span><span class="p">[</span><span class="n">i_pks</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]]:</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="n">angle_array</span><span class="p">[</span><span class="n">minima_indices</span><span class="p">[</span><span class="n">i_pks</span><span class="p">]]</span>
+                        <span class="o">&lt;</span> <span class="n">angle_array</span><span class="p">[</span><span class="n">minima_indices</span><span class="p">[</span><span class="n">i_pks</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]]</span>
+                    <span class="p">):</span>
                         <span class="n">minima_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">minima_indices</span><span class="p">,</span> <span class="n">i_pks</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">minima_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">minima_indices</span><span class="p">,</span> <span class="n">i_pks</span><span class="p">)</span>
@@ -912,17 +956,19 @@
 
 <div class="viewcode-block" id="compute_range_of_motion">
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_range_of_motion">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">compute_range_of_motion</span><span class="p">(</span><span class="n">angle_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">extrema_indices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_range_of_motion</span><span class="p">(</span>
+    <span class="n">angle_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">extrema_indices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the range of motion of a time series based on the angle extrema.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    angle_array : np.ndarray</span>
 <span class="sd">        The angle array to compute the range of motion from.</span>
 <span class="sd">    extrema_indices : List[int]</span>
 <span class="sd">        The indices of the angle extrema.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    np.ndarray</span>
@@ -933,9 +979,11 @@
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;extrema_indices must be a list of integers.&quot;</span><span class="p">)</span>
 
     <span class="c1"># Check bounds</span>
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">extrema_indices</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">extrema_indices</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">angle_array</span><span class="p">)):</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">extrema_indices</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">extrema_indices</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">angle_array</span><span class="p">)</span>
+    <span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;extrema_indices contains out-of-bounds indices.&quot;</span><span class="p">)</span>
-    
+
     <span class="c1"># Extract angle amplitudes (minima and maxima values)</span>
     <span class="n">angle_extremas</span> <span class="o">=</span> <span class="n">angle_array</span><span class="p">[</span><span class="n">extrema_indices</span><span class="p">]</span>
 
@@ -961,19 +1009,21 @@
 <span class="sd">        The angular velocity array to compute the peak angular velocity from.</span>
 <span class="sd">    angle_extrema_indices : List[int]</span>
 <span class="sd">        The indices of the angle extrema.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    np.ndarray</span>
 <span class="sd">        The peak angular velocities of the time series.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">angle_extrema_indices</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">angle_extrema_indices</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">velocity_array</span><span class="p">)):</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">angle_extrema_indices</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">angle_extrema_indices</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">velocity_array</span><span class="p">)</span>
+    <span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;angle_extrema_indices contains out-of-bounds indices.&quot;</span><span class="p">)</span>
-    
+
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">angle_extrema_indices</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;angle_extrema_indices must contain at least two indices.&quot;</span><span class="p">)</span>
-    
-    <span class="c1"># Initialize a list to store the peak velocities </span>
+
+    <span class="c1"># Initialize a list to store the peak velocities</span>
     <span class="n">pav</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="c1"># Compute peak angular velocities</span>
@@ -1010,21 +1060,23 @@
 <span class="sd">        The indices of the minima.</span>
 <span class="sd">    maxima_indices : List[int]</span>
 <span class="sd">        The indices of the maxima.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    Tuple[np.ndarray, np.ndarray]</span>
 <span class="sd">        A tuple containing the forward and backward peak angular velocities for minima and maxima.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">angle_extrema_indices</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">angle_extrema_indices</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">velocity_array</span><span class="p">)):</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">angle_extrema_indices</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">angle_extrema_indices</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">velocity_array</span><span class="p">)</span>
+    <span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;angle_extrema_indices contains out-of-bounds indices.&quot;</span><span class="p">)</span>
-    
+
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">angle_extrema_indices</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;angle_extrema_indices must contain at least two indices.&quot;</span><span class="p">)</span>
-    
+
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">minima_indices</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No minima indices found.&quot;</span><span class="p">)</span>
-    
+
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">maxima_indices</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No maxima indices found.&quot;</span><span class="p">)</span>
 
@@ -1055,12 +1107,10 @@
 
 <div class="viewcode-block" id="compute_signal_to_noise_ratio">
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_signal_to_noise_ratio">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">compute_signal_to_noise_ratio</span><span class="p">(</span>
-        <span class="n">ppg_windowed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_signal_to_noise_ratio</span><span class="p">(</span><span class="n">ppg_windowed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the signal to noise ratio of the PPG signal.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ppg_windowed: np.ndarray</span>
@@ -1071,24 +1121,22 @@
 <span class="sd">    np.ndarray</span>
 <span class="sd">        The signal to noise ratio of the PPG signal.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
+
     <span class="n">arr_signal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">ppg_windowed</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">arr_noise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ppg_windowed</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">signal_to_noise_ratio</span> <span class="o">=</span> <span class="n">arr_signal</span> <span class="o">/</span> <span class="n">arr_noise</span>
-    
+
     <span class="k">return</span> <span class="n">signal_to_noise_ratio</span></div>
+
 
 
 <div class="viewcode-block" id="compute_auto_correlation">
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_auto_correlation">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">compute_auto_correlation</span><span class="p">(</span>
-        <span class="n">ppg_windowed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
-        <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_auto_correlation</span><span class="p">(</span><span class="n">ppg_windowed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the biased autocorrelation of the PPG signal. The autocorrelation is computed up to 3 seconds. The highest peak value is selected as the autocorrelation value. If no peaks are found, the value is set to 0.</span>
 <span class="sd">    The biased autocorrelation is computed using the biased_autocorrelation function. It differs from the unbiased autocorrelation in that the normalization factor is the length of the original signal, and boundary effects are considered. This results in a smoother autocorrelation function.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ppg_windowed: np.ndarray</span>
@@ -1102,24 +1150,30 @@
 <span class="sd">        The autocorrelation of the PPG signal.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">auto_correlations</span> <span class="o">=</span> <span class="n">biased_autocorrelation</span><span class="p">(</span><span class="n">ppg_windowed</span><span class="p">,</span> <span class="n">fs</span><span class="o">*</span><span class="mi">3</span><span class="p">)</span> <span class="c1"># compute the biased autocorrelation of the PPG signal up to 3 seconds</span>
-    <span class="n">peaks</span> <span class="o">=</span> <span class="p">[</span><span class="n">find_peaks</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">auto_correlations</span><span class="p">]</span> <span class="c1"># find the peaks of the autocorrelation</span>
-    <span class="n">sorted_peak_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">auto_correlations</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">indices</span><span class="p">])[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">indices</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">peaks</span><span class="p">)]</span> <span class="c1"># sort the peak values in descending order</span>
-    <span class="n">auto_correlations</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sorted_peak_values</span><span class="p">]</span> <span class="c1"># get the highest peak value if there are any peaks, otherwise set to 0</span>
+    <span class="n">auto_correlations</span> <span class="o">=</span> <span class="n">biased_autocorrelation</span><span class="p">(</span>
+        <span class="n">ppg_windowed</span><span class="p">,</span> <span class="n">fs</span> <span class="o">*</span> <span class="mi">3</span>
+    <span class="p">)</span>  <span class="c1"># compute the biased autocorrelation of the PPG signal up to 3 seconds</span>
+    <span class="n">peaks</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">find_peaks</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">auto_correlations</span>
+    <span class="p">]</span>  <span class="c1"># find the peaks of the autocorrelation</span>
+    <span class="n">sorted_peak_values</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">auto_correlations</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">indices</span><span class="p">])[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">indices</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">peaks</span><span class="p">)</span>
+    <span class="p">]</span>  <span class="c1"># sort the peak values in descending order</span>
+    <span class="n">auto_correlations</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sorted_peak_values</span>
+    <span class="p">]</span>  <span class="c1"># get the highest peak value if there are any peaks, otherwise set to 0</span>
 
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">auto_correlations</span><span class="p">)</span></div>
 
 
+
 <div class="viewcode-block" id="biased_autocorrelation">
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.biased_autocorrelation">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">biased_autocorrelation</span><span class="p">(</span>
-        <span class="n">ppg_windowed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
-        <span class="n">max_lag</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">biased_autocorrelation</span><span class="p">(</span><span class="n">ppg_windowed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">max_lag</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compute the biased autocorrelation of a signal (similar to matlabs autocorr function), where the normalization factor </span>
+<span class="sd">    Compute the biased autocorrelation of a signal (similar to matlabs autocorr function), where the normalization factor</span>
 <span class="sd">    is the length of the original signal, and boundary effects are considered.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ppg_windowed: np.ndarray</span>
@@ -1133,16 +1187,22 @@
 <span class="sd">        The biased autocorrelation of the PPG signal.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">zero_mean_ppg</span> <span class="o">=</span> <span class="n">ppg_windowed</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">ppg_windowed</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># Remove the mean of the signal to make it zero-mean</span>
+    <span class="n">zero_mean_ppg</span> <span class="o">=</span> <span class="n">ppg_windowed</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+        <span class="n">ppg_windowed</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>  <span class="c1"># Remove the mean of the signal to make it zero-mean</span>
     <span class="n">N</span> <span class="o">=</span> <span class="n">zero_mean_ppg</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">autocorr_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">zero_mean_ppg</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">max_lag</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
-    
+
     <span class="k">for</span> <span class="n">lag</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_lag</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
         <span class="c1"># Compute autocorrelation for current lag</span>
-        <span class="n">overlapping_points</span> <span class="o">=</span> <span class="n">zero_mean_ppg</span><span class="p">[:,</span> <span class="p">:</span><span class="n">N</span><span class="o">-</span><span class="n">lag</span><span class="p">]</span> <span class="o">*</span> <span class="n">zero_mean_ppg</span><span class="p">[:,</span> <span class="n">lag</span><span class="p">:]</span>
-        <span class="n">autocorr_values</span><span class="p">[:,</span> <span class="n">lag</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">overlapping_points</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">N</span>  <span class="c1"># Divide by N (biased normalization)</span>
-    
-    <span class="k">return</span> <span class="n">autocorr_values</span><span class="o">/</span><span class="n">autocorr_values</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="c1"># Normalize the autocorrelation values</span></div>
+        <span class="n">overlapping_points</span> <span class="o">=</span> <span class="n">zero_mean_ppg</span><span class="p">[:,</span> <span class="p">:</span> <span class="n">N</span> <span class="o">-</span> <span class="n">lag</span><span class="p">]</span> <span class="o">*</span> <span class="n">zero_mean_ppg</span><span class="p">[:,</span> <span class="n">lag</span><span class="p">:]</span>
+        <span class="n">autocorr_values</span><span class="p">[:,</span> <span class="n">lag</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">overlapping_points</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">N</span>
+        <span class="p">)</span>  <span class="c1"># Divide by N (biased normalization)</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">autocorr_values</span> <span class="o">/</span> <span class="n">autocorr_values</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="p">)</span>  <span class="c1"># Normalize the autocorrelation values</span></div>
 
 </pre></div>
 

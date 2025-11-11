@@ -9,8 +9,8 @@
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=1228b8db" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=a31c8b26" />
 
   
   <!--[if lt IE 9]>
@@ -53,6 +53,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/data_preparation.html">Data preparation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
 </ul>
@@ -151,10 +152,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#paradigma.testing.extract_signal_quality_features_io" title="paradigma.testing.extract_signal_quality_features_io"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_signal_quality_features_io</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Extract signal quality features from the PPG signal and save them to a file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.testing.signal_quality_classification_io" title="paradigma.testing.signal_quality_classification_io"><code class="xref py py-obj docutils literal notranslate"><span class="pre">signal_quality_classification_io</span></code></a>(→ None)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.testing.aggregate_pulse_rate_io" title="paradigma.testing.aggregate_pulse_rate_io"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_pulse_rate_io</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.testing.aggregate_pulse_rate_io" title="paradigma.testing.aggregate_pulse_rate_io"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_pulse_rate_io</span></code></a>(→ None)</p></td>
 <td><p>Extract pulse rate from the PPG signal and save the aggregated pulse rate estimates to a file.</p></td>
 </tr>
 </tbody>
@@ -243,11 +241,6 @@
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="paradigma.testing.signal_quality_classification_io">
-<span class="sig-prename descclassname"><span class="pre">paradigma.testing.</span></span><span class="sig-name descname"><span class="pre">signal_quality_classification_io</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_classifier_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../config/index.html#paradigma.config.PulseRateConfig" title="paradigma.config.PulseRateConfig"><span class="pre">paradigma.config.PulseRateConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/paradigma/testing.html#signal_quality_classification_io"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.testing.signal_quality_classification_io" title="Link to this definition"></a></dt>
-<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.testing.aggregate_pulse_rate_io">

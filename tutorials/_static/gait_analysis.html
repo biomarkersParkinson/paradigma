@@ -9,8 +9,8 @@
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
-      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
 
   
   <!--[if lt IE 9]>
@@ -69,6 +69,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#step-7-aggregation">Step 7: Aggregation</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tremor_analysis.html">Tremor analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pulse_rate_analysis.html">Pulse rate analysis</a></li>
 </ul>
@@ -146,7 +147,7 @@
 <span class="n">path_to_data</span> <span class="o">=</span>  <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../example_data&#39;</span><span class="p">)</span>
 <span class="n">path_to_prepared_data</span> <span class="o">=</span> <span class="n">path_to_data</span> <span class="o">/</span> <span class="s1">&#39;imu&#39;</span>
 
-<span class="n">raw_data_segment_nr</span>  <span class="o">=</span> <span class="s1">&#39;0001&#39;</span> 
+<span class="n">raw_data_segment_nr</span>  <span class="o">=</span> <span class="s1">&#39;0001&#39;</span>
 
 <span class="c1"># Load the data from the file</span>
 <span class="n">df_imu</span><span class="p">,</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_prepared_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">raw_data_segment_nr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -300,29 +301,45 @@
 </section>
 <section id="step-1-preprocess-data">
 <h2>Step 1: Preprocess data<a class="headerlink" href="#step-1-preprocess-data" title="Link to this heading"></a></h2>
-<p>The single function <code class="docutils literal notranslate"><span class="pre">preprocess_imu_data</span></code> in the cell below runs all necessary preprocessing steps. It requires the loaded dataframe, a configuration object <code class="docutils literal notranslate"><span class="pre">config</span></code> specifying parameters used for preprocessing, and a selection of sensors. For the sensors, options include <code class="docutils literal notranslate"><span class="pre">'accelerometer'</span></code>, <code class="docutils literal notranslate"><span class="pre">'gyroscope'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'both'</span></code>.</p>
+<p>The single function <code class="docutils literal notranslate"><span class="pre">preprocess_imu_data</span></code> in the cell below runs all necessary preprocessing steps. It requires the loaded dataframe, a configuration object <code class="docutils literal notranslate"><span class="pre">config</span></code> specifying parameters used for preprocessing, and a selection of sensors. For the sensors, options include <code class="docutils literal notranslate"><span class="pre">'accelerometer'</span></code>, <code class="docutils literal notranslate"><span class="pre">'gyroscope'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'both'</span></code>.  If the difference between timestamps is larger than a specified tolerance (<code class="docutils literal notranslate"><span class="pre">config.tolerance</span></code>, in seconds), it will return an error that the timestamps are not contiguous. If you still want to process the data in this case, you can create segments from discontiguous samples using the function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/segmenting.py"><code class="docutils literal notranslate"><span class="pre">create_segments</span></code></a> and analyze these segments consecutively as shown in here.</p>
 <p>The function <code class="docutils literal notranslate"><span class="pre">preprocess_imu_data</span></code> processes the data as follows:</p>
 <ol class="arabic simple">
-<li><p>Resample the data to ensure uniformly distributed sampling rate</p></li>
-<li><p>Apply filtering to separate the gravity component from the accelerometer</p></li>
+<li><p>Resample the data to ensure uniformly distributed sampling rate.</p></li>
+<li><p>Apply filtering to separate the gravity component from the accelerometer.</p></li>
 </ol>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_imu_data</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span>
+<span class="c1"># Set column names: replace DataColumn.* with your actual column names.</span>
+<span class="c1"># It is only necessary to set the columns that are present in your data, and</span>
+<span class="c1"># only if they differ from the default names defined in DataColumns.</span>
+<span class="n">column_mapping</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;TIME&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span>
+    <span class="s1">&#39;ACCELEROMETER_X&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">,</span>
+    <span class="s1">&#39;ACCELEROMETER_Y&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Y</span><span class="p">,</span>
+    <span class="s1">&#39;ACCELEROMETER_Z&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Z</span><span class="p">,</span>
+    <span class="s1">&#39;GYROSCOPE_X&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_X</span><span class="p">,</span>
+    <span class="s1">&#39;GYROSCOPE_Y&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Y</span><span class="p">,</span>
+    <span class="s1">&#39;GYROSCOPE_Z&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Z</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">(</span><span class="n">column_mapping</span><span class="p">)</span>
 
 <span class="n">df_preprocessed</span> <span class="o">=</span> <span class="n">preprocess_imu_data</span><span class="p">(</span>
-    <span class="n">df</span><span class="o">=</span><span class="n">df_imu</span><span class="p">,</span> 
+    <span class="n">df</span><span class="o">=</span><span class="n">df_imu</span><span class="p">,</span>
     <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
     <span class="n">sensor</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span>
     <span class="n">watch_side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The dataset of </span><span class="si">{</span><span class="n">df_preprocessed</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="si">}</span><span class="s2"> seconds is automatically resampled to </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="si">}</span><span class="s2"> Hz.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The dataset of </span><span class="si">{</span><span class="n">df_preprocessed</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="si">}</span><span class="s2"> seconds is automatically resampled to </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">resampling_frequency</span><span class="si">}</span><span class="s2"> Hz.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The tolerance for checking contiguous timestamps is set to </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">tolerance</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> seconds.&#39;</span><span class="p">)</span>
 <span class="n">df_preprocessed</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>The dataset of 34339.61 seconds is automatically resampled to 100 Hz.
+The tolerance for checking contiguous timestamps is set to 0.030 seconds.
 </pre></div>
 </div>
 <div>
@@ -446,10 +463,10 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">GaitConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_gait_features</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;gait&#39;</span><span class="p">)</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;gait&#39;</span><span class="p">,</span> <span class="n">column_mapping</span><span class="o">=</span><span class="n">column_mapping</span><span class="p">)</span>
 
 <span class="n">df_gait</span> <span class="o">=</span> <span class="n">extract_gait_features</span><span class="p">(</span>
-    <span class="n">df</span><span class="o">=</span><span class="n">df_preprocessed</span><span class="p">,</span> 
+    <span class="n">df</span><span class="o">=</span><span class="n">df_preprocessed</span><span class="p">,</span>
     <span class="n">config</span><span class="o">=</span><span class="n">config</span>
 <span class="p">)</span>
 
@@ -645,22 +662,22 @@
 
 <span class="c1"># Detecting gait returns the probability of gait for each window, which is concatenated to</span>
 <span class="c1"># the original dataframe</span>
-<span class="n">df_gait</span><span class="p">[</span><span class="s1">&#39;pred_gait_proba&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">detect_gait</span><span class="p">(</span>
+<span class="n">df_gait</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">=</span> <span class="n">detect_gait</span><span class="p">(</span>
     <span class="n">df</span><span class="o">=</span><span class="n">df_gait</span><span class="p">,</span>
     <span class="n">clf_package</span><span class="o">=</span><span class="n">clf_package_detection</span>
 <span class="p">)</span>
 
 <span class="n">n_windows</span> <span class="o">=</span> <span class="n">df_gait</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">n_predictions_gait</span> <span class="o">=</span> <span class="n">df_gait</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_gait</span><span class="p">[</span><span class="s1">&#39;pred_gait_proba&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_detection</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">n_predictions_gait</span> <span class="o">=</span> <span class="n">df_gait</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_gait</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_detection</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">perc_predictions_gait</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">n_predictions_gait</span> <span class="o">/</span> <span class="n">n_windows</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">n_predictions_non_gait</span> <span class="o">=</span> <span class="n">df_gait</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_gait</span><span class="p">[</span><span class="s1">&#39;pred_gait_proba&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">clf_package_detection</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">n_predictions_non_gait</span> <span class="o">=</span> <span class="n">df_gait</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_gait</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">clf_package_detection</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">perc_predictions_non_gait</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">n_predictions_non_gait</span> <span class="o">/</span> <span class="n">n_windows</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Out of </span><span class="si">{</span><span class="n">n_windows</span><span class="si">}</span><span class="s2"> windows, </span><span class="si">{</span><span class="n">n_predictions_gait</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">perc_predictions_gait</span><span class="si">}</span><span class="s2">%) were predicted as gait, and </span><span class="si">{</span><span class="n">n_predictions_non_gait</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">perc_predictions_non_gait</span><span class="si">}</span><span class="s2">%) as non-gait.&quot;</span><span class="p">)</span>
 
 <span class="c1"># Only the time and the predicted gait probability are shown, but the dataframe also contains</span>
 <span class="c1"># the extracted features</span>
-<span class="n">df_gait</span><span class="p">[[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_gait_proba&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="n">df_gait</span><span class="p">[[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Out of 34334 windows, 2753 (8.0%) were predicted as gait, and 31581 (92.0%) as non-gait.
@@ -728,9 +745,9 @@
 <span class="n">metadata_time_store</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">TSDFMetadata</span><span class="p">(</span><span class="n">metadata_time</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">(),</span> <span class="n">path_to_data</span><span class="p">)</span>
 <span class="n">metadata_values_store</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">TSDFMetadata</span><span class="p">(</span><span class="n">metadata_values</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">(),</span> <span class="n">path_to_data</span><span class="p">)</span>
 
-<span class="c1"># Select the columns to be saved </span>
-<span class="n">metadata_time_store</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
-<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pred_gait_proba&#39;</span><span class="p">]</span>
+<span class="c1"># Select the columns to be saved</span>
+<span class="n">metadata_time_store</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">]</span>
+<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span>
 
 <span class="c1"># Set the units</span>
 <span class="n">metadata_time_store</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Relative seconds&#39;</span><span class="p">]</span>
@@ -828,8 +845,8 @@
 <span class="n">gait_preprocessing_config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;gait&#39;</span><span class="p">)</span>
 
 <span class="n">df</span> <span class="o">=</span> <span class="n">merge_predictions_with_timestamps</span><span class="p">(</span>
-    <span class="n">df_ts</span><span class="o">=</span><span class="n">df_preprocessed</span><span class="p">,</span> 
-    <span class="n">df_predictions</span><span class="o">=</span><span class="n">df_gait</span><span class="p">,</span> 
+    <span class="n">df_ts</span><span class="o">=</span><span class="n">df_preprocessed</span><span class="p">,</span>
+    <span class="n">df_predictions</span><span class="o">=</span><span class="n">df_gait</span><span class="p">,</span>
     <span class="n">pred_proba_colname</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">,</span>
     <span class="n">window_length_s</span><span class="o">=</span><span class="n">gait_preprocessing_config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">,</span>
     <span class="n">fs</span><span class="o">=</span><span class="n">gait_preprocessing_config</span><span class="o">.</span><span class="n">sampling_frequency</span>
@@ -847,7 +864,7 @@
 <span class="n">config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;arm_activity&#39;</span><span class="p">)</span>
 
 <span class="n">df_arm_activity</span> <span class="o">=</span> <span class="n">extract_arm_activity_features</span><span class="p">(</span>
-    <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> 
+    <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
     <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -858,6 +875,26 @@
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>A total of 61 features have been extracted from 2749 3-second windows with 2.25 seconds overlap.
 </pre></div>
 </div>
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
+<p>=======
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
+<p>=======</p>
+<blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><p>37f1c8fea7b90d0e387febafe838f2df6ab9dd47
+origin/main</p>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -1042,22 +1079,23 @@
 
 <span class="c1"># Detecting no_other_arm_activity returns the probability of no_other_arm_activity for each window, which is concatenated to</span>
 <span class="c1"># the original dataframe</span>
-<span class="n">df_arm_activity</span><span class="p">[</span><span class="s1">&#39;pred_no_other_arm_activity_proba&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filter_gait</span><span class="p">(</span>
+<span class="n">df_arm_activity</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">=</span> <span class="n">filter_gait</span><span class="p">(</span>
     <span class="n">df</span><span class="o">=</span><span class="n">df_arm_activity</span><span class="p">,</span>
     <span class="n">clf_package</span><span class="o">=</span><span class="n">clf_package_filtering</span>
 <span class="p">)</span>
 
+
 <span class="n">n_windows</span> <span class="o">=</span> <span class="n">df_arm_activity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">n_predictions_no_other_arm_activity</span> <span class="o">=</span> <span class="n">df_arm_activity</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_arm_activity</span><span class="p">[</span><span class="s1">&#39;pred_no_other_arm_activity_proba&#39;</span><span class="p">]</span><span class="o">&gt;=</span><span class="n">clf_package_filtering</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">n_predictions_no_other_arm_activity</span> <span class="o">=</span> <span class="n">df_arm_activity</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_arm_activity</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_filtering</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">perc_predictions_no_other_arm_activity</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">n_predictions_no_other_arm_activity</span> <span class="o">/</span> <span class="n">n_windows</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">n_predictions_other_arm_activity</span> <span class="o">=</span> <span class="n">df_arm_activity</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_arm_activity</span><span class="p">[</span><span class="s1">&#39;pred_no_other_arm_activity_proba&#39;</span><span class="p">]</span><span class="o">&lt;</span><span class="n">clf_package_filtering</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">n_predictions_other_arm_activity</span> <span class="o">=</span> <span class="n">df_arm_activity</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_arm_activity</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">clf_package_filtering</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">perc_predictions_other_arm_activity</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">n_predictions_other_arm_activity</span> <span class="o">/</span> <span class="n">n_windows</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Out of </span><span class="si">{</span><span class="n">n_windows</span><span class="si">}</span><span class="s2"> windows, </span><span class="si">{</span><span class="n">n_predictions_no_other_arm_activity</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">perc_predictions_no_other_arm_activity</span><span class="si">}</span><span class="s2">%) were predicted as no_other_arm_activity, and </span><span class="si">{</span><span class="n">n_predictions_other_arm_activity</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">perc_predictions_other_arm_activity</span><span class="si">}</span><span class="s2">%) as other_arm_activity.&quot;</span><span class="p">)</span>
 
 <span class="c1"># Only the time and predicted probabilities are shown, but the dataframe also contains</span>
 <span class="c1"># the extracted features</span>
-<span class="n">df_arm_activity</span><span class="p">[[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_no_other_arm_activity_proba&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="n">df_arm_activity</span><span class="p">[[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Out of 2749 windows, 916 (33.3%) were predicted as no_other_arm_activity, and 1833 (66.7%) as other_arm_activity.
@@ -1129,8 +1167,8 @@
 <span class="n">config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;arm_activity&#39;</span><span class="p">)</span>
 
 <span class="n">df</span> <span class="o">=</span> <span class="n">merge_predictions_with_timestamps</span><span class="p">(</span>
-    <span class="n">df_ts</span><span class="o">=</span><span class="n">df_preprocessed</span><span class="p">,</span> 
-    <span class="n">df_predictions</span><span class="o">=</span><span class="n">df_arm_activity</span><span class="p">,</span> 
+    <span class="n">df_ts</span><span class="o">=</span><span class="n">df_preprocessed</span><span class="p">,</span>
+    <span class="n">df_predictions</span><span class="o">=</span><span class="n">df_arm_activity</span><span class="p">,</span>
     <span class="n">pred_proba_colname</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">,</span>
     <span class="n">window_length_s</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">,</span>
     <span class="n">fs</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span>
@@ -1152,10 +1190,10 @@
 
 <span class="k">if</span> <span class="n">filtered</span><span class="p">:</span>
     <span class="n">dataset_used</span> <span class="o">=</span> <span class="s1">&#39;filtered&#39;</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The arm swing quantification is based on the filtered gait segments.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The arm swing quantification is based on the filtered gait segments.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="n">dataset_used</span> <span class="o">=</span> <span class="s1">&#39;unfiltered&#39;</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The arm swing quantification is based on all gait segments.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The arm swing quantification is based on all gait segments.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="n">quantified_arm_swing</span><span class="p">,</span> <span class="n">gait_segment_meta</span> <span class="o">=</span> <span class="n">quantify_arm_swing</span><span class="p">(</span>
     <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
@@ -1168,13 +1206,13 @@
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Gait segments are created of minimum </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">min_segment_length_s</span><span class="si">}</span><span class="s2"> seconds and maximum </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">max_segment_gap_s</span><span class="si">}</span><span class="s2"> seconds gap between segments.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A total of </span><span class="si">{</span><span class="n">quantified_arm_swing</span><span class="p">[</span><span class="s1">&#39;segment_nr&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">dataset_used</span><span class="si">}</span><span class="s2"> gait segments have been quantified.&quot;</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Metadata of the first gait segment:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Metadata of the first gait segment:&quot;</span><span class="p">)</span>
 <span class="n">pprint</span><span class="p">(</span><span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Of this example, the filtered gait segment of </span><span class="si">{</span><span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;duration_filtered_segment_s&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> seconds is part of an unfiltered segment of </span><span class="si">{</span><span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;duration_unfiltered_segment_s&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> seconds, which is at least as large as the filtered gait segment.&quot;</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Individual arm swings of the first gait segment of the </span><span class="si">{</span><span class="n">dataset_used</span><span class="si">}</span><span class="s2"> dataset:&quot;</span><span class="p">)</span>
-<span class="n">quantified_arm_swing</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">quantified_arm_swing</span><span class="p">[</span><span class="s1">&#39;segment_nr&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">quantified_arm_swing</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">quantified_arm_swing</span><span class="p">[</span><span class="s1">&#39;segment_nr&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
 </pre></div>
 </div>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>The arm swing quantification is based on the filtered gait segments.
@@ -1188,12 +1226,38 @@ Metadata of the first gait segment:
  &#39;duration_unfiltered_segment_s&#39;: 9.0,
  &#39;end_time_s&#39;: 2230.74,
  &#39;start_time_s&#39;: 2221.75}
-
-Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 9.0 seconds, which is at least as large as the filtered gait segment.
-
-Individual arm swings of the first gait segment of the filtered dataset:
 </pre></div>
 </div>
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 9.0 seconds, which is at least as large as the filtered gait segment.
+</pre></div>
+</div>
+<p>=======
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 9.0 seconds, which is at least as large as the filtered gait segment.
+</pre></div>
+</div>
+<p>=======</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 9.0 seconds, which is at least as large as the filtered gait segment.
+</pre></div>
+</div>
+<blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><p>37f1c8fea7b90d0e387febafe838f2df6ab9dd47
+origin/main
+Individual arm swings of the first gait segment of the filtered dataset:</p>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -1333,21 +1397,23 @@ Individual arm swings of the first gait segment of the filtered dataset:
 <span class="c1"># to quantify arm swing based on all gait segments</span>
 <span class="n">filtered</span> <span class="o">=</span> <span class="kc">True</span>
 
-<span class="c1"># Create a list to store all quantified arm swing segments </span>
+<span class="c1"># Create a list to store all quantified arm swing segments</span>
 <span class="n">list_quantified_arm_swing</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">max_gait_segment_nr</span> <span class="o">=</span> <span class="mi">0</span>
 
-<span class="n">raw_data_segments</span>  <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;0001&#39;</span><span class="p">,</span><span class="s1">&#39;0002&#39;</span><span class="p">]</span> <span class="c1"># list with all available raw data segments</span>
+<span class="n">raw_data_segments</span>  <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;0001&#39;</span><span class="p">,</span> <span class="s1">&#39;0002&#39;</span><span class="p">]</span> <span class="c1"># list with all available raw data segments</span>
 
 <span class="k">for</span> <span class="n">raw_data_segment_nr</span> <span class="ow">in</span> <span class="n">raw_data_segments</span><span class="p">:</span>
-    
+
     <span class="c1"># Load the data</span>
     <span class="n">df_imu</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_prepared_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">raw_data_segment_nr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
     <span class="c1"># 1: Preprocess the data</span>
+    <span class="c1"># Change column names if necessary by creating parameter column_mapping (see previous cells for an example)</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span>
 
     <span class="n">df_preprocessed</span> <span class="o">=</span> <span class="n">preprocess_imu_data</span><span class="p">(</span>
-        <span class="n">df</span><span class="o">=</span><span class="n">df_imu</span><span class="p">,</span> 
+        <span class="n">df</span><span class="o">=</span><span class="n">df_imu</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
         <span class="n">sensor</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span>
         <span class="n">watch_side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span>
@@ -1357,12 +1423,12 @@ Individual arm swings of the first gait segment of the filtered dataset:
     <span class="n">config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;gait&#39;</span><span class="p">)</span>
 
     <span class="n">df_gait</span> <span class="o">=</span> <span class="n">extract_gait_features</span><span class="p">(</span>
-        <span class="n">df</span><span class="o">=</span><span class="n">df_preprocessed</span><span class="p">,</span> 
+        <span class="n">df</span><span class="o">=</span><span class="n">df_preprocessed</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span>
     <span class="p">)</span>
 
     <span class="c1"># 3: Detect gait</span>
-    <span class="n">df_gait</span><span class="p">[</span><span class="s1">&#39;pred_gait_proba&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">detect_gait</span><span class="p">(</span>
+    <span class="n">df_gait</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">=</span> <span class="n">detect_gait</span><span class="p">(</span>
         <span class="n">df</span><span class="o">=</span><span class="n">df_gait</span><span class="p">,</span>
         <span class="n">clf_package</span><span class="o">=</span><span class="n">clf_package_detection</span>
     <span class="p">)</span>
@@ -1370,10 +1436,10 @@ Individual arm swings of the first gait segment of the filtered dataset:
     <span class="c1"># Merge gait predictions into timeseries data</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">df_gait</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_detection</span><span class="o">.</span><span class="n">threshold</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No gait detected in the input data.&quot;</span><span class="p">)</span>
-    
+
     <span class="n">df</span> <span class="o">=</span> <span class="n">merge_predictions_with_timestamps</span><span class="p">(</span>
-        <span class="n">df_ts</span><span class="o">=</span><span class="n">df_preprocessed</span><span class="p">,</span> 
-        <span class="n">df_predictions</span><span class="o">=</span><span class="n">df_gait</span><span class="p">,</span> 
+        <span class="n">df_ts</span><span class="o">=</span><span class="n">df_preprocessed</span><span class="p">,</span>
+        <span class="n">df_predictions</span><span class="o">=</span><span class="n">df_gait</span><span class="p">,</span>
         <span class="n">pred_proba_colname</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">,</span>
         <span class="n">window_length_s</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">,</span>
         <span class="n">fs</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span>
@@ -1386,12 +1452,12 @@ Individual arm swings of the first gait segment of the filtered dataset:
     <span class="n">config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;arm_activity&#39;</span><span class="p">)</span>
 
     <span class="n">df_arm_activity</span> <span class="o">=</span> <span class="n">extract_arm_activity_features</span><span class="p">(</span>
-        <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> 
+        <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># 5: Filter gait</span>
-    <span class="n">df_arm_activity</span><span class="p">[</span><span class="s1">&#39;pred_no_other_arm_activity_proba&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filter_gait</span><span class="p">(</span>
+    <span class="n">df_arm_activity</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">=</span> <span class="n">filter_gait</span><span class="p">(</span>
         <span class="n">df</span><span class="o">=</span><span class="n">df_arm_activity</span><span class="p">,</span>
         <span class="n">clf_package</span><span class="o">=</span><span class="n">clf_package_filtering</span>
     <span class="p">)</span>
@@ -1401,8 +1467,8 @@ Individual arm swings of the first gait segment of the filtered dataset:
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No gait without other arm activities detected in the input data.&quot;</span><span class="p">)</span>
 
     <span class="n">df</span> <span class="o">=</span> <span class="n">merge_predictions_with_timestamps</span><span class="p">(</span>
-        <span class="n">df_ts</span><span class="o">=</span><span class="n">df_preprocessed</span><span class="p">,</span> 
-        <span class="n">df_predictions</span><span class="o">=</span><span class="n">df_arm_activity</span><span class="p">,</span> 
+        <span class="n">df_ts</span><span class="o">=</span><span class="n">df_preprocessed</span><span class="p">,</span>
+        <span class="n">df_predictions</span><span class="o">=</span><span class="n">df_arm_activity</span><span class="p">,</span>
         <span class="n">pred_proba_colname</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">,</span>
         <span class="n">window_length_s</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">,</span>
         <span class="n">fs</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span>
@@ -1420,6 +1486,12 @@ Individual arm swings of the first gait segment of the filtered dataset:
         <span class="n">min_segment_length_s</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">min_segment_length_s</span><span class="p">,</span>
     <span class="p">)</span>
 
+    <span class="c1"># Since segments start at zero, and we are concatenating multiple segments, we need to</span>
+    <span class="c1"># update the segment numbers to avoid aggregating multiple segments with the same number.</span>
+    <span class="n">max_gait_segment_nr</span> <span class="o">=</span> <span class="n">quantified_arm_swing</span><span class="p">[</span><span class="s1">&#39;segment_nr&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_quantified_arm_swing</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="n">quantified_arm_swing</span><span class="p">[</span><span class="s1">&#39;segment_nr&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">max_gait_segment_nr</span>
+    <span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span> <span class="o">+</span> <span class="n">max_gait_segment_nr</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
     <span class="c1"># Add the predictions of the current raw data segment to the list</span>
     <span class="n">quantified_arm_swing</span><span class="p">[</span><span class="s1">&#39;raw_data_segment_nr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw_data_segment_nr</span>
     <span class="n">list_quantified_arm_swing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">quantified_arm_swing</span><span class="p">)</span>
@@ -1433,6 +1505,8 @@ Individual arm swings of the first gait segment of the filtered dataset:
 <h2>Step 7: Aggregation<a class="headerlink" href="#step-7-aggregation" title="Link to this heading"></a></h2>
 <p>Finally, the arm swing estimates can be aggregated across all gait segments.</p>
 <p>Optionally, gait segments can be categorized into bins of specific length. Bins are tuples <code class="docutils literal notranslate"><span class="pre">(a,</span> <span class="pre">b)</span></code> including $a$ and excluding $b$, i.e., gait segments $\geq a$ seconds and $&lt; b$ seconds. For example, to analyze gait segments of at least 20 seconds, the tuple <code class="docutils literal notranslate"><span class="pre">(20,</span> <span class="pre">np.inf)</span></code> can be used. In case you want to analyze all gait segments combined, use <code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">np.inf)</span></code>.</p>
+<p>Optionally, gait segments can be categorized into bins of specific length. Bins are tuples <code class="docutils literal notranslate"><span class="pre">(a,</span> <span class="pre">b)</span></code> including $a$ and excluding $b$, i.e., gait segments $\geq a$ seconds and $&lt; b$ seconds. For example, to analyze gait segments of at least 20 seconds, the tuple <code class="docutils literal notranslate"><span class="pre">(20,</span> <span class="pre">np.inf)</span></code> can be used. In case you want to analyze all gait segments combined, use <code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">np.inf)</span></code>.</p>
+<p>Optionally, gait segments can be categorized into bins of specific length. Bins are tuples <code class="docutils literal notranslate"><span class="pre">(a,</span> <span class="pre">b)</span></code> including <code class="docutils literal notranslate"><span class="pre">a</span></code> and excluding <code class="docutils literal notranslate"><span class="pre">b</span></code>, i.e., gait segments ≥ <code class="docutils literal notranslate"><span class="pre">a</span></code> seconds and &lt; <code class="docutils literal notranslate"><span class="pre">b</span></code> seconds. For example, to analyze gait segments of at least 20 seconds, the tuple <code class="docutils literal notranslate"><span class="pre">(20,</span> <span class="pre">np.inf)</span></code> can be used. In case you want to analyze all gait segments combined, use <code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">np.inf)</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_arm_swing_params</span>
 
@@ -1449,29 +1523,86 @@ Individual arm swings of the first gait segment of the filtered dataset:
 </pre></div>
 </div>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;0_10&#39;: {&#39;duration_s&#39;: 341.25,
-          &#39;median_range_of_motion&#39;: 15.10889561336818,
-          &#39;95p_range_of_motion&#39;: 52.27598270995837,
-          &#39;median_peak_velocity&#39;: 74.63996138215876,
-          &#39;95p_peak_velocity&#39;: 230.71389576502395},
- &#39;10_20&#39;: {&#39;duration_s&#39;: 60.75,
-           &#39;median_range_of_motion&#39;: 15.781087457927846,
-           &#39;95p_range_of_motion&#39;: 45.165400467519284,
-           &#39;median_peak_velocity&#39;: 86.83257977334742,
-           &#39;95p_peak_velocity&#39;: 219.97254034894718},
- &#39;20_inf&#39;: {&#39;duration_s&#39;: 1905.75,
-            &#39;median_range_of_motion&#39;: 25.289651009660467,
-            &#39;95p_range_of_motion&#39;: 43.74907398039543,
-            &#39;median_peak_velocity&#39;: 125.9443142903539,
-            &#39;95p_peak_velocity&#39;: 217.80854223601995},
- &#39;0_inf&#39;: {&#39;duration_s&#39;: 2307.75,
-           &#39;median_range_of_motion&#39;: 23.100608971051322,
-           &#39;95p_range_of_motion&#39;: 45.92600123148869,
-           &#39;median_peak_velocity&#39;: 116.50364930684765,
-           &#39;95p_peak_velocity&#39;: 219.2008357820751}}
 </pre></div>
 </div>
-<p>The output of the aggregation step contains the aggregated arm swing parameters per gait segment category. Additionally, the total time in seconds <code class="docutils literal notranslate"><span class="pre">time_s</span></code> is added to inform based on how much data the aggregations were created.</p>
 </section>
+</section>
+<section id="head">
+<h1>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD<a class="headerlink" href="#head" title="Link to this heading"></a></h1>
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
+<blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><p>origin/main
+‘median_range_of_motion’: 15.10889561336818,
+‘95p_range_of_motion’: 52.27598270995837,
+‘median_peak_velocity’: 74.63996138215876,
+‘95p_peak_velocity’: 230.71389576502395},
+‘10_20’: {‘duration_s’: 60.75,
+‘median_range_of_motion’: 15.781087457927846,
+‘95p_range_of_motion’: 45.165400467519284,
+‘median_peak_velocity’: 86.83257977334742,
+‘95p_peak_velocity’: 219.97254034894718},
+‘20_inf’: {‘duration_s’: 1905.75,
+‘median_range_of_motion’: 25.289651009660467,
+‘95p_range_of_motion’: 43.74907398039543,
+‘median_peak_velocity’: 125.9443142903539,
+‘95p_peak_velocity’: 217.80854223601995},
+‘0_inf’: {‘duration_s’: 2307.75,
+‘median_range_of_motion’: 23.100608971051322,
+‘95p_range_of_motion’: 45.92600123148869,
+‘median_peak_velocity’: 116.50364930684765,
+‘95p_peak_velocity’: 219.2008357820751}}
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+<p>=======</p>
+<p>=======
+‘median_range_of_motion’: 10.103916338101575,
+‘95p_range_of_motion’: 32.90613405134026,
+‘median_peak_velocity’: 51.71109278600136,
+‘95p_peak_velocity’: 163.04675036294768},
+‘10_20’: {‘duration_s’: 60.75,
+‘median_range_of_motion’: 21.05381778480308,
+‘95p_range_of_motion’: 45.617438049991144,
+‘median_peak_velocity’: 117.7375878000595,
+‘95p_peak_velocity’: 228.8853651528709},
+‘20_inf’: {‘duration_s’: 1905.75,
+‘median_range_of_motion’: 25.56899710571253,
+‘95p_range_of_motion’: 43.59181429894547,
+‘median_peak_velocity’: 127.40063801636731,
+‘95p_peak_velocity’: 217.64806342438817},
+‘0_inf’: {‘duration_s’: 2307.75,
+‘median_range_of_motion’: 23.88140114870256,
+‘95p_range_of_motion’: 43.047421805408675,
+‘median_peak_velocity’: 119.68741253971183,
+‘95p_peak_velocity’: 215.24611069202754}}</p>
+<blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><p>37f1c8fea7b90d0e387febafe838f2df6ab9dd47
+origin/main</p>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+<p>The output of the aggregation step contains the aggregated arm swing parameters per gait segment category. Additionally, the total time in seconds <code class="docutils literal notranslate"><span class="pre">time_s</span></code> is added to inform based on how much data the aggregations were created.</p>
 </section>
 
 

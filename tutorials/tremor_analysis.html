@@ -9,8 +9,8 @@
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1228b8db" />
-      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a31c8b26" />
 
   
   <!--[if lt IE 9]>
@@ -51,6 +51,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="_static/data_preparation.html">Data preparation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_static/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_static/tremor_analysis.html">Tremor analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
 </ul>
@@ -118,94 +119,19 @@
 </ul>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from pathlib import Path
+from paradigma.util import load_tsdf_dataframe
 
-<span class="c1"># Set the path to where the prepared data is saved and load the data.</span>
-<span class="c1"># Note: the test data is stored in TSDF, but you can load your data in your own way</span>
-<span class="n">path_to_data</span> <span class="o">=</span>  <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../example_data&#39;</span><span class="p">)</span>
-<span class="n">path_to_prepared_data</span> <span class="o">=</span> <span class="n">path_to_data</span> <span class="o">/</span> <span class="s1">&#39;imu&#39;</span>
+# Set the path to where the prepared data is saved and load the data.
+# Note: the test data is stored in TSDF, but you can load your data in your own way
+path_to_data =  Path(&#39;../../example_data&#39;)
+path_to_prepared_data = path_to_data / &#39;imu&#39;
 
-<span class="n">segment_nr</span>  <span class="o">=</span> <span class="s1">&#39;0001&#39;</span> 
+segment_nr  = &#39;0001&#39; 
 
-<span class="n">df_data</span><span class="p">,</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_prepared_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+df_data, metadata_time, metadata_values = load_tsdf_dataframe(path_to_prepared_data, prefix=f&#39;IMU_segment{segment_nr}&#39;)
 
-<span class="n">df_data</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">JSONDecodeError</span><span class="g g-Whitespace">                           </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">11</span>
-<span class="g g-Whitespace">      </span><span class="mi">7</span> <span class="n">path_to_prepared_data</span> <span class="o">=</span> <span class="n">path_to_data</span> <span class="o">/</span> <span class="s1">&#39;imu&#39;</span>
-<span class="g g-Whitespace">      </span><span class="mi">9</span> <span class="n">segment_nr</span>  <span class="o">=</span> <span class="s1">&#39;0001&#39;</span> 
-<span class="ne">---&gt; </span><span class="mi">11</span> <span class="n">df_data</span><span class="p">,</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_prepared_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-<span class="g g-Whitespace">     </span><span class="mi">13</span> <span class="n">df_data</span>
-
-<span class="nn">File ~/work/paradigma/paradigma/src/paradigma/util.py:135,</span> in <span class="ni">load_tsdf_dataframe</span><span class="nt">(path_to_data, prefix, meta_suffix, time_suffix, values_suffix)</span>
-<span class="g g-Whitespace">    </span><span class="mi">132</span> <span class="n">time_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">time_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
-<span class="g g-Whitespace">    </span><span class="mi">133</span> <span class="n">values_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">values_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
-<span class="ne">--&gt; </span><span class="mi">135</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">path_to_data</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">,</span> <span class="n">time_filename</span><span class="p">,</span> <span class="n">values_filename</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">136</span> <span class="n">df</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_dataframe_from_binaries</span><span class="p">([</span><span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span><span class="p">],</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">ConcatenationType</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">138</span> <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span>
-
-<span class="nn">File ~/work/paradigma/paradigma/src/paradigma/util.py:122,</span> in <span class="ni">read_metadata</span><span class="nt">(input_path, meta_filename, time_filename, values_filename)</span>
-<span class="g g-Whitespace">    </span><span class="mi">119</span> <span class="k">def</span><span class="w"> </span><span class="nf">read_metadata</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">120</span>     <span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">time_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values_filename</span><span class="p">:</span> <span class="nb">str</span>
-<span class="g g-Whitespace">    </span><span class="mi">121</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">TSDFMetadata</span><span class="p">,</span> <span class="n">TSDFMetadata</span><span class="p">]:</span>
-<span class="ne">--&gt; </span><span class="mi">122</span>     <span class="n">metadata_dict</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_metadata_from_path</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">123</span>         <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">124</span>     <span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">125</span>     <span class="n">metadata_time</span> <span class="o">=</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="n">time_filename</span><span class="p">]</span>
-<span class="g g-Whitespace">    </span><span class="mi">126</span>     <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="n">values_filename</span><span class="p">]</span>
-
-<span class="nn">File ~/.cache/pypoetry/virtualenvs/paradigma-1HID61PK-py3.12/lib/python3.12/site-packages/tsdf/read_tsdf.py:84,</span> in <span class="ni">load_metadata_from_path</span><span class="nt">(path)</span>
-<span class="g g-Whitespace">     </span><span class="mi">82</span> <span class="c1"># The data is isomorphic to a JSON</span>
-<span class="g g-Whitespace">     </span><span class="mi">83</span> <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
-<span class="ne">---&gt; </span><span class="mi">84</span>     <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
-<span class="g g-Whitespace">     </span><span class="mi">86</span> <span class="n">abs_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-<span class="g g-Whitespace">     </span><span class="mi">87</span> <span class="c1"># Parse the data and verify that it complies with TSDF requirements</span>
-
-<span class="nn">File /opt/hostedtoolcache/Python/3.12.11/x64/lib/python3.12/json/__init__.py:293,</span> in <span class="ni">load</span><span class="nt">(fp, cls, object_hook, parse_float, parse_int, parse_constant, object_pairs_hook, **kw)</span>
-<span class="g g-Whitespace">    </span><span class="mi">274</span> <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">object_hook</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parse_float</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">275</span>         <span class="n">parse_int</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parse_constant</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">object_pairs_hook</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
-<span class="g g-Whitespace">    </span><span class="mi">276</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;Deserialize ``fp`` (a ``.read()``-supporting file-like object containing</span>
-<span class="g g-Whitespace">    </span><span class="mi">277</span><span class="sd">     a JSON document) to a Python object.</span>
-<span class="g g-Whitespace">    </span><span class="mi">278</span><span class="sd"> </span>
-<span class="sd">   (...)    291     kwarg; otherwise ``JSONDecoder`` is used.</span>
-<span class="g g-Whitespace">    </span><span class="mi">292</span><span class="sd">     &quot;&quot;&quot;</span>
-<span class="ne">--&gt; </span><span class="mi">293</span>     <span class="k">return</span> <span class="n">loads</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span>
-<span class="g g-Whitespace">    </span><span class="mi">294</span>         <span class="bp">cls</span><span class="o">=</span><span class="bp">cls</span><span class="p">,</span> <span class="n">object_hook</span><span class="o">=</span><span class="n">object_hook</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">295</span>         <span class="n">parse_float</span><span class="o">=</span><span class="n">parse_float</span><span class="p">,</span> <span class="n">parse_int</span><span class="o">=</span><span class="n">parse_int</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">296</span>         <span class="n">parse_constant</span><span class="o">=</span><span class="n">parse_constant</span><span class="p">,</span> <span class="n">object_pairs_hook</span><span class="o">=</span><span class="n">object_pairs_hook</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
-
-<span class="nn">File /opt/hostedtoolcache/Python/3.12.11/x64/lib/python3.12/json/__init__.py:346,</span> in <span class="ni">loads</span><span class="nt">(s, cls, object_hook, parse_float, parse_int, parse_constant, object_pairs_hook, **kw)</span>
-<span class="g g-Whitespace">    </span><span class="mi">341</span>     <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">detect_encoding</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="s1">&#39;surrogatepass&#39;</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">343</span> <span class="k">if</span> <span class="p">(</span><span class="bp">cls</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">object_hook</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span>
-<span class="g g-Whitespace">    </span><span class="mi">344</span>         <span class="n">parse_int</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">parse_float</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span>
-<span class="g g-Whitespace">    </span><span class="mi">345</span>         <span class="n">parse_constant</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">object_pairs_hook</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">kw</span><span class="p">):</span>
-<span class="ne">--&gt; </span><span class="mi">346</span>     <span class="k">return</span> <span class="n">_default_decoder</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">347</span> <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">348</span>     <span class="bp">cls</span> <span class="o">=</span> <span class="n">JSONDecoder</span>
-
-<span class="nn">File /opt/hostedtoolcache/Python/3.12.11/x64/lib/python3.12/json/decoder.py:338,</span> in <span class="ni">JSONDecoder.decode</span><span class="nt">(self, s, _w)</span>
-<span class="g g-Whitespace">    </span><span class="mi">333</span> <span class="k">def</span><span class="w"> </span><span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">_w</span><span class="o">=</span><span class="n">WHITESPACE</span><span class="o">.</span><span class="n">match</span><span class="p">):</span>
-<span class="g g-Whitespace">    </span><span class="mi">334</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;Return the Python representation of ``s`` (a ``str`` instance</span>
-<span class="g g-Whitespace">    </span><span class="mi">335</span><span class="sd">     containing a JSON document).</span>
-<span class="g g-Whitespace">    </span><span class="mi">336</span><span class="sd"> </span>
-<span class="g g-Whitespace">    </span><span class="mi">337</span><span class="sd">     &quot;&quot;&quot;</span>
-<span class="ne">--&gt; </span><span class="mi">338</span>     <span class="n">obj</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_decode</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="n">_w</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">end</span><span class="p">())</span>
-<span class="g g-Whitespace">    </span><span class="mi">339</span>     <span class="n">end</span> <span class="o">=</span> <span class="n">_w</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
-<span class="g g-Whitespace">    </span><span class="mi">340</span>     <span class="k">if</span> <span class="n">end</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-
-<span class="nn">File /opt/hostedtoolcache/Python/3.12.11/x64/lib/python3.12/json/decoder.py:356,</span> in <span class="ni">JSONDecoder.raw_decode</span><span class="nt">(self, s, idx)</span>
-<span class="g g-Whitespace">    </span><span class="mi">354</span>     <span class="n">obj</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scan_once</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">355</span> <span class="k">except</span> <span class="ne">StopIteration</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-<span class="ne">--&gt; </span><span class="mi">356</span>     <span class="k">raise</span> <span class="n">JSONDecodeError</span><span class="p">(</span><span class="s2">&quot;Expecting value&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">err</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
-<span class="g g-Whitespace">    </span><span class="mi">357</span> <span class="k">return</span> <span class="n">obj</span><span class="p">,</span> <span class="n">end</span>
-
-<span class="ne">JSONDecodeError</span>: Expecting value: line 1 column 1 (char 0)
+df_data
 </pre></div>
 </div>
 </div>
@@ -213,131 +139,36 @@
 </section>
 <section id="step-1-preprocess-data">
 <h2>Step 1: Preprocess data<a class="headerlink" href="#step-1-preprocess-data" title="Link to this heading"></a></h2>
-<p>IMU sensors collect data at a fixed sampling frequency, but the sampling rate is not uniform, causing variation in time differences between timestamps. The <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_imu_data">preprocess_imu_data</a> function therefore resamples the timestamps to be uniformly distributed, and then interpolates IMU values at these new timestamps using the original timestamps and corresponding IMU values. By setting <code class="docutils literal notranslate"><span class="pre">sensor</span></code> to ‘gyroscope’, only gyroscope data is preprocessed and the accelerometer data is removed from the dataframe. Also a <code class="docutils literal notranslate"><span class="pre">watch_side</span></code> should be provided, although for the tremor analysis it does not matter whether this is the correct side since the tremor features are not influenced by the gyroscope axes orientation.</p>
+<p>IMU sensors collect data at a fixed sampling frequency, but the sampling rate is not uniform, causing variation in time differences between timestamps. The <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_imu_data">preprocess_imu_data</a> function therefore resamples the timestamps to be uniformly distributed, and then interpolates IMU values at these new timestamps using the original timestamps and corresponding IMU values. If the difference between timestamps is larger than a specified tolerance (<code class="docutils literal notranslate"><span class="pre">config.tolerance</span></code>, in seconds), it will return an error that the timestamps are not contiguous.  If you still want to process the data in this case, you can create segments from discontiguous samples using the function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/segmenting.py"><code class="docutils literal notranslate"><span class="pre">create_segments</span></code></a> and analyze these segments consecutively as shown in here. By setting <code class="docutils literal notranslate"><span class="pre">sensor</span></code> to ‘gyroscope’, only gyroscope data is preprocessed and the accelerometer data is removed from the dataframe. Also a <code class="docutils literal notranslate"><span class="pre">watch_side</span></code> should be provided, although for the tremor analysis it does not matter whether this is the correct side since the tremor features are not influenced by the gyroscope axes orientation.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_imu_data</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from paradigma.config import IMUConfig
+from paradigma.constants import DataColumns
+from paradigma.preprocessing import preprocess_imu_data
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The data is resampled to </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="si">}</span><span class="s1"> Hz.&#39;</span><span class="p">)</span>
+# Set column names: replace DataColumn.* with your actual column names. 
+# It is only necessary to set the columns that are present in your data, and
+# only if they differ from the default names defined in DataColumns.
+column_mapping = {
+    &#39;TIME&#39;: DataColumns.TIME,
+    &#39;ACCELEROMETER_X&#39;: DataColumns.ACCELEROMETER_X,
+    &#39;ACCELEROMETER_Y&#39;: DataColumns.ACCELEROMETER_Y,
+    &#39;ACCELEROMETER_Z&#39;: DataColumns.ACCELEROMETER_Z,
+    &#39;GYROSCOPE_X&#39;: DataColumns.GYROSCOPE_X,
+    &#39;GYROSCOPE_Y&#39;: DataColumns.GYROSCOPE_Y,
+    &#39;GYROSCOPE_Z&#39;: DataColumns.GYROSCOPE_Z,
+}
 
-<span class="n">df_preprocessed_data</span> <span class="o">=</span> <span class="n">preprocess_imu_data</span><span class="p">(</span><span class="n">df_data</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">sensor</span><span class="o">=</span><span class="s1">&#39;gyroscope&#39;</span><span class="p">,</span> <span class="n">watch_side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+config = IMUConfig(column_mapping)
+print(f&#39;The data is resampled to {config.resampling_frequency} Hz.&#39;)
+print(f&#39;The tolerance for checking contiguous timestamps is set to {config.tolerance:.3f} seconds.&#39;)
 
-<span class="n">df_preprocessed_data</span>
+df_preprocessed_data = preprocess_imu_data(df_data, config, sensor=&#39;gyroscope&#39;, watch_side=&#39;left&#39;)
+
+df_preprocessed_data
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The data is resampled to 100 Hz.
-</pre></div>
-</div>
-<div class="output text_html"><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>time</th>
-      <th>gyroscope_x</th>
-      <th>gyroscope_y</th>
-      <th>gyroscope_z</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.00</td>
-      <td>0.000000</td>
-      <td>1.402439</td>
-      <td>0.243902</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.01</td>
-      <td>0.432231</td>
-      <td>0.665526</td>
-      <td>-0.123434</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>0.02</td>
-      <td>1.164277</td>
-      <td>-0.069584</td>
-      <td>-0.307536</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0.03</td>
-      <td>1.151432</td>
-      <td>-0.554928</td>
-      <td>-0.554223</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>0.04</td>
-      <td>0.657189</td>
-      <td>-0.603207</td>
-      <td>-0.731570</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>3433956</th>
-      <td>34339.56</td>
-      <td>130.392434</td>
-      <td>29.491627</td>
-      <td>-26.868202</td>
-    </tr>
-    <tr>
-      <th>3433957</th>
-      <td>34339.57</td>
-      <td>135.771133</td>
-      <td>-184.515525</td>
-      <td>-21.544211</td>
-    </tr>
-    <tr>
-      <th>3433958</th>
-      <td>34339.58</td>
-      <td>146.364103</td>
-      <td>-324.248909</td>
-      <td>-5.248641</td>
-    </tr>
-    <tr>
-      <th>3433959</th>
-      <td>34339.59</td>
-      <td>273.675024</td>
-      <td>-293.011330</td>
-      <td>14.618256</td>
-    </tr>
-    <tr>
-      <th>3433960</th>
-      <td>34339.60</td>
-      <td>372.878731</td>
-      <td>-158.516265</td>
-      <td>35.330770</td>
-    </tr>
-  </tbody>
-</table>
-<p>3433961 rows × 4 columns</p>
-</div></div></div>
 </div>
 </section>
 <section id="step-2-extract-tremor-features">
@@ -345,272 +176,18 @@
 <p>The function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/tremor_pipeline.py#:~:text=extract_tremor_features"><code class="docutils literal notranslate"><span class="pre">extract_tremor_features</span></code></a> extracts windows from the preprocessed gyroscope data using non-overlapping windows of length <code class="docutils literal notranslate"><span class="pre">config.window_length_s</span></code>. Next, from these windows the tremor features are extracted: 12 mel-frequency cepstral coefficients (MFCCs), frequency of the peak in the power spectral density, power below tremor (0.5 - 3 Hz), and power around the tremor peak. The latter is not used for tremor detection, but stored for tremor quantification in Step 4.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">TremorConfig</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.tremor_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_tremor_features</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from paradigma.config import TremorConfig
+from paradigma.pipelines.tremor_pipeline import extract_tremor_features
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">TremorConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;features&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The window length is </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="si">}</span><span class="s1"> seconds&#39;</span><span class="p">)</span>
+config = TremorConfig(step=&#39;features&#39;)
+print(f&#39;The window length is {config.window_length_s} seconds&#39;)
 
-<span class="n">df_features</span> <span class="o">=</span> <span class="n">extract_tremor_features</span><span class="p">(</span><span class="n">df_preprocessed_data</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+df_features = extract_tremor_features(df_preprocessed_data, config)
 
-<span class="n">df_features</span>
+df_features
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The window length is 4 seconds
-</pre></div>
-</div>
-<div class="output text_html"><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>time</th>
-      <th>mfcc_1</th>
-      <th>mfcc_2</th>
-      <th>mfcc_3</th>
-      <th>mfcc_4</th>
-      <th>mfcc_5</th>
-      <th>mfcc_6</th>
-      <th>mfcc_7</th>
-      <th>mfcc_8</th>
-      <th>mfcc_9</th>
-      <th>mfcc_10</th>
-      <th>mfcc_11</th>
-      <th>mfcc_12</th>
-      <th>freq_peak</th>
-      <th>below_tremor_power</th>
-      <th>tremor_power</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.0</td>
-      <td>5.323582</td>
-      <td>1.179579</td>
-      <td>-0.498552</td>
-      <td>-0.149152</td>
-      <td>-0.063535</td>
-      <td>-0.132090</td>
-      <td>-0.112380</td>
-      <td>-0.044326</td>
-      <td>-0.025917</td>
-      <td>0.116045</td>
-      <td>0.169869</td>
-      <td>0.213884</td>
-      <td>3.75</td>
-      <td>0.082219</td>
-      <td>0.471588</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>4.0</td>
-      <td>5.333162</td>
-      <td>1.205712</td>
-      <td>-0.607844</td>
-      <td>-0.138371</td>
-      <td>-0.039518</td>
-      <td>-0.137703</td>
-      <td>-0.069552</td>
-      <td>-0.008029</td>
-      <td>-0.087711</td>
-      <td>0.089844</td>
-      <td>0.152380</td>
-      <td>0.195165</td>
-      <td>3.75</td>
-      <td>0.071260</td>
-      <td>0.327252</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>8.0</td>
-      <td>5.180974</td>
-      <td>1.039548</td>
-      <td>-0.627100</td>
-      <td>-0.054816</td>
-      <td>-0.016767</td>
-      <td>-0.044817</td>
-      <td>0.079859</td>
-      <td>-0.023155</td>
-      <td>0.024729</td>
-      <td>0.104989</td>
-      <td>0.126502</td>
-      <td>0.192319</td>
-      <td>7.75</td>
-      <td>0.097961</td>
-      <td>0.114138</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>12.0</td>
-      <td>5.290298</td>
-      <td>1.183957</td>
-      <td>-0.627651</td>
-      <td>-0.027235</td>
-      <td>0.095184</td>
-      <td>-0.050455</td>
-      <td>-0.024654</td>
-      <td>0.029754</td>
-      <td>-0.007459</td>
-      <td>0.125700</td>
-      <td>0.146895</td>
-      <td>0.220589</td>
-      <td>7.75</td>
-      <td>0.193237</td>
-      <td>0.180988</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>16.0</td>
-      <td>5.128074</td>
-      <td>1.066869</td>
-      <td>-0.622282</td>
-      <td>0.038557</td>
-      <td>-0.034719</td>
-      <td>0.045109</td>
-      <td>0.076679</td>
-      <td>0.057267</td>
-      <td>-0.024619</td>
-      <td>0.131755</td>
-      <td>0.177849</td>
-      <td>0.149686</td>
-      <td>7.75</td>
-      <td>0.156469</td>
-      <td>0.090009</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>8579</th>
-      <td>34316.0</td>
-      <td>7.071408</td>
-      <td>-0.376556</td>
-      <td>0.272322</td>
-      <td>0.068750</td>
-      <td>0.051588</td>
-      <td>0.102012</td>
-      <td>0.055017</td>
-      <td>0.115942</td>
-      <td>0.012746</td>
-      <td>0.117970</td>
-      <td>0.073279</td>
-      <td>0.057367</td>
-      <td>13.50</td>
-      <td>48.930380</td>
-      <td>91.971686</td>
-    </tr>
-    <tr>
-      <th>8580</th>
-      <td>34320.0</td>
-      <td>1.917642</td>
-      <td>0.307927</td>
-      <td>0.142330</td>
-      <td>0.265357</td>
-      <td>0.285635</td>
-      <td>0.143886</td>
-      <td>0.259636</td>
-      <td>0.195724</td>
-      <td>0.176947</td>
-      <td>0.162205</td>
-      <td>0.147897</td>
-      <td>0.170488</td>
-      <td>11.00</td>
-      <td>0.012123</td>
-      <td>0.000316</td>
-    </tr>
-    <tr>
-      <th>8581</th>
-      <td>34324.0</td>
-      <td>2.383806</td>
-      <td>0.268580</td>
-      <td>0.151254</td>
-      <td>0.414430</td>
-      <td>0.241540</td>
-      <td>0.244071</td>
-      <td>0.201109</td>
-      <td>0.209611</td>
-      <td>0.097146</td>
-      <td>0.048798</td>
-      <td>0.013239</td>
-      <td>0.035379</td>
-      <td>2.00</td>
-      <td>0.013077</td>
-      <td>0.000615</td>
-    </tr>
-    <tr>
-      <th>8582</th>
-      <td>34328.0</td>
-      <td>1.883626</td>
-      <td>0.089983</td>
-      <td>0.196880</td>
-      <td>0.300523</td>
-      <td>0.239185</td>
-      <td>0.259342</td>
-      <td>0.277586</td>
-      <td>0.206517</td>
-      <td>0.178499</td>
-      <td>0.215561</td>
-      <td>0.067234</td>
-      <td>0.123958</td>
-      <td>13.75</td>
-      <td>0.011466</td>
-      <td>0.000211</td>
-    </tr>
-    <tr>
-      <th>8583</th>
-      <td>34332.0</td>
-      <td>2.599103</td>
-      <td>0.286252</td>
-      <td>-0.014529</td>
-      <td>0.475488</td>
-      <td>0.229446</td>
-      <td>0.188200</td>
-      <td>0.173689</td>
-      <td>0.033262</td>
-      <td>0.138957</td>
-      <td>0.106176</td>
-      <td>0.036859</td>
-      <td>0.082178</td>
-      <td>12.50</td>
-      <td>0.015068</td>
-      <td>0.000891</td>
-    </tr>
-  </tbody>
-</table>
-<p>8584 rows × 16 columns</p>
-</div></div></div>
 </div>
 </section>
 <section id="step-3-detect-tremor">
@@ -618,185 +195,63 @@
 <p>The function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/tremor_pipeline.py#:~:text=detect_tremor"><code class="docutils literal notranslate"><span class="pre">detect_tremor</span></code></a> uses a pretrained logistic regression classifier to predict the tremor probability (<code class="docutils literal notranslate"><span class="pre">pred_tremor_proba</span></code>) for each window, based on the MFCCs. Using the prespecified threshold, a tremor label of 0 (no tremor) or 1 (tremor) is assigned (<code class="docutils literal notranslate"><span class="pre">pred_tremor_logreg</span></code>). Furthermore, the detected tremor windows are checked for rest tremor in two ways. First, the frequency of the peak should be between 3-7 Hz. Second, we want to exclude windows with significant arm movements. We consider a window to have significant arm movement if <code class="docutils literal notranslate"><span class="pre">below_tremor_power</span></code> exceeds <code class="docutils literal notranslate"><span class="pre">config.movement_threshold</span></code>. The final tremor label is saved in <code class="docutils literal notranslate"><span class="pre">pred_tremor_checked</span></code>. A label for predicted arm at rest (<code class="docutils literal notranslate"><span class="pre">pred_arm_at_rest</span></code>, which is 1 when at rest and 0 when not at rest) was also saved, to control for the amount of arm movement during the observed time period when aggregating the amount of tremor time in Step 4 (if a person is moving their arm, they cannot have rest tremor).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.tremor_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">detect_tremor</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from importlib.resources import files
+from paradigma.pipelines.tremor_pipeline import detect_tremor
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;A threshold of </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">movement_threshold</span><span class="si">}</span><span class="s1"> deg</span><span class="se">\u00b2</span><span class="s1">/s</span><span class="se">\u00b2</span><span class="s1"> </span><span class="se">\</span>
-<span class="s1">is used to determine whether the arm is at rest or in stable posture.&#39;</span><span class="p">)</span>
+print(f&#39;A threshold of {config.movement_threshold} deg\u00b2/s\u00b2 \
+is used to determine whether the arm is at rest or in stable posture.&#39;)
 
-<span class="c1"># Load the pre-trained logistic regression classifier</span>
-<span class="n">tremor_detection_classifier_package_filename</span> <span class="o">=</span> <span class="s1">&#39;tremor_detection_clf_package.pkl&#39;</span>
-<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;assets&#39;</span> <span class="o">/</span> <span class="n">tremor_detection_classifier_package_filename</span>
+# Load the pre-trained logistic regression classifier
+tremor_detection_classifier_package_filename = &#39;tremor_detection_clf_package.pkl&#39;
+full_path_to_classifier_package = files(&#39;paradigma&#39;) / &#39;assets&#39; / tremor_detection_classifier_package_filename
 
-<span class="c1"># Use the logistic regression classifier to detect tremor and check for rest tremor</span>
-<span class="n">df_predictions</span> <span class="o">=</span> <span class="n">detect_tremor</span><span class="p">(</span><span class="n">df_features</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">full_path_to_classifier_package</span><span class="p">)</span>
+# Use the logistic regression classifier to detect tremor and check for rest tremor
+df_predictions = detect_tremor(df_features, config, full_path_to_classifier_package)
 
-<span class="n">df_predictions</span><span class="p">[[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_proba&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_logreg&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">]]</span>
+df_predictions[[config.time_colname, &#39;pred_tremor_proba&#39;, &#39;pred_tremor_logreg&#39;, &#39;pred_arm_at_rest&#39;, &#39;pred_tremor_checked&#39;]]
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>A threshold of 50 deg²/s² is used to determine whether the arm is at rest or in stable posture.
-</pre></div>
-</div>
-<div class="output text_html"><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>time</th>
-      <th>pred_tremor_proba</th>
-      <th>pred_tremor_logreg</th>
-      <th>pred_arm_at_rest</th>
-      <th>pred_tremor_checked</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.0</td>
-      <td>0.038968</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>4.0</td>
-      <td>0.035365</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>8.0</td>
-      <td>0.031255</td>
-      <td>1</td>
-      <td>1</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>12.0</td>
-      <td>0.021106</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>16.0</td>
-      <td>0.021078</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>8579</th>
-      <td>34316.0</td>
-      <td>0.000296</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>8580</th>
-      <td>34320.0</td>
-      <td>0.000089</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>8581</th>
-      <td>34324.0</td>
-      <td>0.000023</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>8582</th>
-      <td>34328.0</td>
-      <td>0.000053</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>8583</th>
-      <td>34332.0</td>
-      <td>0.000049</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-    </tr>
-  </tbody>
-</table>
-<p>8584 rows × 5 columns</p>
-</div></div></div>
 </div>
 <section id="store-as-tsdf">
 <h3>Store as TSDF<a class="headerlink" href="#store-as-tsdf" title="Link to this heading"></a></h3>
 <p>The predicted probabilities (and optionally other features) can be stored and loaded in TSDF as demonstrated below.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tsdf</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_df_data</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>import tsdf
+from paradigma.util import write_df_data
 
-<span class="c1"># Set &#39;path_to_data&#39; to the directory where you want to save the data</span>
-<span class="n">metadata_time_store</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">TSDFMetadata</span><span class="p">(</span><span class="n">metadata_time</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">(),</span> <span class="n">path_to_data</span><span class="p">)</span>
-<span class="n">metadata_values_store</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">TSDFMetadata</span><span class="p">(</span><span class="n">metadata_values</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">(),</span> <span class="n">path_to_data</span><span class="p">)</span>
+# Set &#39;path_to_data&#39; to the directory where you want to save the data
+metadata_time_store = tsdf.TSDFMetadata(metadata_time.get_plain_tsdf_dict_copy(), path_to_data)
+metadata_values_store = tsdf.TSDFMetadata(metadata_values.get_plain_tsdf_dict_copy(), path_to_data)
 
-<span class="c1"># Select the columns to be saved </span>
-<span class="n">metadata_time_store</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
-<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;tremor_power&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_proba&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_logreg&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">]</span>
+# Select the columns to be saved 
+metadata_time_store.channels = [config.time_colname]
+metadata_values_store.channels = [&#39;tremor_power&#39;, &#39;pred_tremor_proba&#39;, &#39;pred_tremor_logreg&#39;, &#39;pred_arm_at_rest&#39;, &#39;pred_tremor_checked&#39;]
 
-<span class="c1"># Set the units</span>
-<span class="n">metadata_time_store</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Relative seconds&#39;</span><span class="p">]</span>
-<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">]</span>  
-<span class="n">metadata_time_store</span><span class="o">.</span><span class="n">data_type</span> <span class="o">=</span> <span class="nb">float</span>
-<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">data_type</span> <span class="o">=</span> <span class="nb">float</span>
+# Set the units
+metadata_time_store.units = [&#39;Relative seconds&#39;]
+metadata_values_store.units = [&#39;Unitless&#39;, &#39;Unitless&#39;, &#39;Unitless&#39;, &#39;Unitless&#39;, &#39;Unitless&#39;]  
+metadata_time_store.data_type = float
+metadata_values_store.data_type = float
 
-<span class="c1"># Set the filenames</span>
-<span class="n">meta_store_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">_meta.json&#39;</span>
-<span class="n">values_store_filename</span> <span class="o">=</span> <span class="n">meta_store_filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_meta.json&#39;</span><span class="p">,</span> <span class="s1">&#39;_values.bin&#39;</span><span class="p">)</span>
-<span class="n">time_store_filename</span> <span class="o">=</span> <span class="n">meta_store_filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_meta.json&#39;</span><span class="p">,</span> <span class="s1">&#39;_time.bin&#39;</span><span class="p">)</span>
+# Set the filenames
+meta_store_filename = f&#39;segment{segment_nr}_meta.json&#39;
+values_store_filename = meta_store_filename.replace(&#39;_meta.json&#39;, &#39;_values.bin&#39;)
+time_store_filename = meta_store_filename.replace(&#39;_meta.json&#39;, &#39;_time.bin&#39;)
 
-<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="n">values_store_filename</span>
-<span class="n">metadata_time_store</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="n">time_store_filename</span>
+metadata_values_store.file_name = values_store_filename
+metadata_time_store.file_name = time_store_filename
 
-<span class="n">write_df_data</span><span class="p">(</span><span class="n">metadata_time_store</span><span class="p">,</span> <span class="n">metadata_values_store</span><span class="p">,</span> <span class="n">path_to_data</span><span class="p">,</span> <span class="n">meta_store_filename</span><span class="p">,</span> <span class="n">df_predictions</span><span class="p">)</span>
+write_df_data(metadata_time_store, metadata_values_store, path_to_data, meta_store_filename, df_predictions)
 </pre></div>
 </div>
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df_predictions</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-<span class="n">df_predictions</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>df_predictions, _, _ = load_tsdf_dataframe(path_to_data, prefix=f&#39;segment{segment_nr}&#39;)
+df_predictions.head()
 </pre></div>
 </div>
 </div>
@@ -808,203 +263,85 @@
 <p>The tremor power of all predicted tremor windows (where <code class="docutils literal notranslate"><span class="pre">pred_tremor_checked</span></code> is 1) is used for tremor quantification. A datetime column is also added, providing necessary information before aggregating over specified hours in Step 5.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pytz</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>import pandas as pd
+import datetime
+import pytz
 
-<span class="n">df_quantification</span> <span class="o">=</span> <span class="n">df_predictions</span><span class="p">[[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">,</span><span class="s1">&#39;tremor_power&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-<span class="n">df_quantification</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_predictions</span><span class="p">[</span><span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;tremor_power&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># tremor power of non-tremor windows is set to None</span>
+df_quantification = df_predictions[[config.time_colname, &#39;pred_arm_at_rest&#39;, &#39;pred_tremor_checked&#39;,&#39;tremor_power&#39;]].copy()
+df_quantification.loc[df_predictions[&#39;pred_tremor_checked&#39;] == 0, &#39;tremor_power&#39;] = None # tremor power of non-tremor windows is set to None
 
-<span class="c1"># Create datetime column based on the start time of the segment</span>
-<span class="n">start_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">metadata_time</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">,</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">T%H:%M:%SZ&#39;</span><span class="p">)</span>
-<span class="n">start_time</span> <span class="o">=</span> <span class="n">start_time</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="s1">&#39;UTC&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="s1">&#39;CET&#39;</span><span class="p">))</span> <span class="c1"># convert to correct timezone if necessary</span>
-<span class="n">df_quantification</span><span class="p">[</span><span class="s1">&#39;time_dt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">start_time</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">df_quantification</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">)</span> 
-<span class="n">df_quantification</span> <span class="o">=</span> <span class="n">df_quantification</span><span class="p">[[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;time_dt&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">,</span> <span class="s1">&#39;tremor_power&#39;</span><span class="p">]]</span>
+# Create datetime column based on the start time of the segment
+start_time = datetime.datetime.strptime(metadata_time.start_iso8601, &#39;%Y-%m-%dT%H:%M:%SZ&#39;)
+start_time = start_time.replace(tzinfo=pytz.timezone(&#39;UTC&#39;)).astimezone(pytz.timezone(&#39;CET&#39;)) # convert to correct timezone if necessary
+df_quantification[f&#39;{config.time_colname}_dt&#39;] = start_time + pd.to_timedelta(df_quantification[config.time_colname], unit=&quot;s&quot;) 
+df_quantification = df_quantification[[config.time_colname, f&#39;{config.time_colname}_dt&#39;, &#39;pred_arm_at_rest&#39;, &#39;pred_tremor_checked&#39;, &#39;tremor_power&#39;]]
 
-<span class="n">df_quantification</span>
+df_quantification
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output text_html"><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>time</th>
-      <th>time_dt</th>
-      <th>pred_arm_at_rest</th>
-      <th>pred_tremor_checked</th>
-      <th>tremor_power</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.0</td>
-      <td>2019-08-20 12:39:16+02:00</td>
-      <td>1</td>
-      <td>1</td>
-      <td>0.471588</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>4.0</td>
-      <td>2019-08-20 12:39:20+02:00</td>
-      <td>1</td>
-      <td>1</td>
-      <td>0.327252</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>8.0</td>
-      <td>2019-08-20 12:39:24+02:00</td>
-      <td>1</td>
-      <td>0</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>12.0</td>
-      <td>2019-08-20 12:39:28+02:00</td>
-      <td>1</td>
-      <td>0</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>16.0</td>
-      <td>2019-08-20 12:39:32+02:00</td>
-      <td>1</td>
-      <td>0</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>8579</th>
-      <td>34316.0</td>
-      <td>2019-08-20 22:11:12+02:00</td>
-      <td>1</td>
-      <td>0</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>8580</th>
-      <td>34320.0</td>
-      <td>2019-08-20 22:11:16+02:00</td>
-      <td>1</td>
-      <td>0</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>8581</th>
-      <td>34324.0</td>
-      <td>2019-08-20 22:11:20+02:00</td>
-      <td>1</td>
-      <td>0</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>8582</th>
-      <td>34328.0</td>
-      <td>2019-08-20 22:11:24+02:00</td>
-      <td>1</td>
-      <td>0</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>8583</th>
-      <td>34332.0</td>
-      <td>2019-08-20 22:11:28+02:00</td>
-      <td>1</td>
-      <td>0</td>
-      <td>NaN</td>
-    </tr>
-  </tbody>
-</table>
-<p>8584 rows × 5 columns</p>
-</div></div></div>
 </div>
 <section id="run-steps-1-4-for-all-segments">
 <h3>Run steps 1 - 4 for all segments <a id='multiple_segments_cell'></a><a class="headerlink" href="#run-steps-1-4-for-all-segments" title="Link to this heading"></a></h3>
 <p>If your data is also stored in multiple segments, you can modify <code class="docutils literal notranslate"><span class="pre">segments</span></code> in the cell below to a list of the filenames of your respective segmented data.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pytz</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from pathlib import Path
+from importlib.resources import files
+import datetime
+import pytz
+import pandas as pd
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span><span class="p">,</span> <span class="n">TremorConfig</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_imu_data</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.tremor_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_tremor_features</span><span class="p">,</span> <span class="n">detect_tremor</span>
+from paradigma.util import load_tsdf_dataframe
+from paradigma.config import IMUConfig, TremorConfig
+from paradigma.preprocessing import preprocess_imu_data
+from paradigma.pipelines.tremor_pipeline import extract_tremor_features, detect_tremor
 
-<span class="c1"># Set the path to where the prepared data is saved</span>
-<span class="n">path_to_data</span> <span class="o">=</span>  <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../example_data&#39;</span><span class="p">)</span>
-<span class="n">path_to_prepared_data</span> <span class="o">=</span> <span class="n">path_to_data</span> <span class="o">/</span> <span class="s1">&#39;imu&#39;</span>
+# Set the path to where the prepared data is saved
+path_to_data =  Path(&#39;../../example_data&#39;)
+path_to_prepared_data = path_to_data / &#39;imu&#39;
 
-<span class="c1"># Load the pre-trained logistic regression classifier</span>
-<span class="n">tremor_detection_classifier_package_filename</span> <span class="o">=</span> <span class="s1">&#39;tremor_detection_clf_package.pkl&#39;</span>
-<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;assets&#39;</span> <span class="o">/</span> <span class="n">tremor_detection_classifier_package_filename</span>
+# Load the pre-trained logistic regression classifier
+tremor_detection_classifier_package_filename = &#39;tremor_detection_clf_package.pkl&#39;
+full_path_to_classifier_package = files(&#39;paradigma&#39;) / &#39;assets&#39; / tremor_detection_classifier_package_filename
 
-<span class="c1"># Create a list of dataframes to store the quantifications of all segments</span>
-<span class="n">list_df_quantifications</span> <span class="o">=</span> <span class="p">[]</span>
+# Create a list of dataframes to store the quantifications of all segments
+list_df_quantifications = []
 
-<span class="n">segments</span>  <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;0001&#39;</span><span class="p">,</span><span class="s1">&#39;0002&#39;</span><span class="p">]</span> <span class="c1"># list with all  available segments</span>
+segments  = [&#39;0001&#39;,&#39;0002&#39;] # list with all  available segments
 
-<span class="k">for</span> <span class="n">segment_nr</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">:</span>
+for segment_nr in segments:
     
-    <span class="c1"># Load the data</span>
-    <span class="n">df_data</span><span class="p">,</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_prepared_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;IMU_segment&#39;</span><span class="o">+</span><span class="n">segment_nr</span><span class="p">)</span>
+    # Load the data
+    df_data, metadata_time, _ = load_tsdf_dataframe(path_to_prepared_data, prefix=&#39;IMU_segment&#39;+segment_nr)
 
-    <span class="c1"># 1: Preprocess the data</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span>
-    <span class="n">df_preprocessed_data</span> <span class="o">=</span> <span class="n">preprocess_imu_data</span><span class="p">(</span><span class="n">df_data</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">sensor</span><span class="o">=</span><span class="s1">&#39;gyroscope&#39;</span><span class="p">,</span> <span class="n">watch_side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+    # 1: Preprocess the data
+    # Change column names if necessary by creating parameter column_mapping (see previous cells for an example)
+    config = IMUConfig()
+    df_preprocessed_data = preprocess_imu_data(df_data, config, sensor=&#39;gyroscope&#39;, watch_side=&#39;left&#39;)
 
-    <span class="c1"># 2: Extract features</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="n">TremorConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;features&#39;</span><span class="p">)</span>
-    <span class="n">df_features</span> <span class="o">=</span> <span class="n">extract_tremor_features</span><span class="p">(</span><span class="n">df_preprocessed_data</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+    # 2: Extract features
+    config = TremorConfig(step=&#39;features&#39;)
+    df_features = extract_tremor_features(df_preprocessed_data, config)
 
-    <span class="c1"># 3: Detect tremor</span>
-    <span class="n">df_predictions</span> <span class="o">=</span> <span class="n">detect_tremor</span><span class="p">(</span><span class="n">df_features</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">full_path_to_classifier_package</span><span class="p">)</span>
+    # 3: Detect tremor
+    df_predictions = detect_tremor(df_features, config, full_path_to_classifier_package)
 
-    <span class="c1"># 4: Quantify tremor</span>
-    <span class="n">df_quantification</span> <span class="o">=</span> <span class="n">df_predictions</span><span class="p">[[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">,</span><span class="s1">&#39;tremor_power&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">df_quantification</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_predictions</span><span class="p">[</span><span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;tremor_power&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    # 4: Quantify tremor
+    df_quantification = df_predictions[[config.time_colname, &#39;pred_arm_at_rest&#39;, &#39;pred_tremor_checked&#39;,&#39;tremor_power&#39;]].copy()
+    df_quantification.loc[df_predictions[&#39;pred_tremor_checked&#39;] == 0, &#39;tremor_power&#39;] = None
 
-    <span class="c1"># Create datetime column based on the start time of the segment</span>
-    <span class="n">start_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">metadata_time</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">,</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">T%H:%M:%SZ&#39;</span><span class="p">)</span>
-    <span class="n">start_time</span> <span class="o">=</span> <span class="n">start_time</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="s1">&#39;UTC&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="s1">&#39;CET&#39;</span><span class="p">))</span> <span class="c1"># convert to correct timezone if necessary</span>
-    <span class="n">df_quantification</span><span class="p">[</span><span class="s1">&#39;time_dt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">start_time</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">df_quantification</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">)</span> 
-    <span class="n">df_quantification</span> <span class="o">=</span> <span class="n">df_quantification</span><span class="p">[[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;time_dt&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">,</span> <span class="s1">&#39;tremor_power&#39;</span><span class="p">]]</span>
+    # Create datetime column based on the start time of the segment
+    start_time = datetime.datetime.strptime(metadata_time.start_iso8601, &#39;%Y-%m-%dT%H:%M:%SZ&#39;)
+    start_time = start_time.replace(tzinfo=pytz.timezone(&#39;UTC&#39;)).astimezone(pytz.timezone(&#39;CET&#39;)) # convert to correct timezone if necessary
+    df_quantification[f&#39;{config.time_colname}_dt&#39;] = start_time + pd.to_timedelta(df_quantification[config.time_colname], unit=&quot;s&quot;) 
+    df_quantification = df_quantification[[config.time_colname, f&#39;{config.time_colname}_dt&#39;, &#39;pred_arm_at_rest&#39;, &#39;pred_tremor_checked&#39;, &#39;tremor_power&#39;]]
 
-    <span class="c1"># Add the quantifications of the current segment to the list</span>
-    <span class="n">df_quantification</span><span class="p">[</span><span class="s1">&#39;segment_nr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">segment_nr</span>
-    <span class="n">list_df_quantifications</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df_quantification</span><span class="p">)</span>
+    # Add the quantifications of the current segment to the list
+    df_quantification[&#39;segment_nr&#39;] = segment_nr
+    list_df_quantifications.append(df_quantification)
 
-<span class="n">df_quantification</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">list_df_quantifications</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+df_quantification = pd.concat(list_df_quantifications, ignore_index=True)
 </pre></div>
 </div>
 </div>
@@ -1020,42 +357,29 @@
 </ul>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pprint</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">select_hours</span><span class="p">,</span> <span class="n">select_days</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.tremor_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_tremor</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>import pprint
+from paradigma.util import select_hours, select_days
+from paradigma.pipelines.tremor_pipeline import aggregate_tremor
 
-<span class="n">select_hours_start</span> <span class="o">=</span> <span class="s1">&#39;08:00&#39;</span> <span class="c1"># you can specifiy the hours and minutes here</span>
-<span class="n">select_hours_end</span> <span class="o">=</span> <span class="s1">&#39;22:00&#39;</span>
-<span class="n">min_hours_per_day</span> <span class="o">=</span> <span class="mi">10</span>
+select_hours_start = &#39;08:00&#39; # you can specifiy the hours and minutes here
+select_hours_end = &#39;22:00&#39;
+min_hours_per_day = 10
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Before aggregation we select data collected between </span><span class="si">{</span><span class="n">select_hours_start</span><span class="si">}</span><span class="s1"> </span><span class="se">\</span>
-<span class="s1">and </span><span class="si">{</span><span class="n">select_hours_end</span><span class="si">}</span><span class="s1">. We also select days with at least </span><span class="si">{</span><span class="n">min_hours_per_day</span><span class="si">}</span><span class="s1"> hours of data.&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The following tremor power aggregates are derived: </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">aggregates_tremor_power</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+print(f&#39;Before aggregation we select data collected between {select_hours_start} \
+and {select_hours_end}. We also select days with at least {min_hours_per_day} hours of data.&#39;)
+print(f&#39;The following tremor power aggregates are derived: {config.aggregates_tremor_power}.&#39;)
 
-<span class="c1"># Select the hours that should be included in the analysis</span>
-<span class="n">df_quantification</span> <span class="o">=</span> <span class="n">select_hours</span><span class="p">(</span><span class="n">df_quantification</span><span class="p">,</span> <span class="n">select_hours_start</span><span class="p">,</span> <span class="n">select_hours_end</span><span class="p">)</span>
+# Select the hours that should be included in the analysis
+df_quantification = select_hours(df_quantification, select_hours_start, select_hours_end)
 
-<span class="c1"># Remove days with less than the specified minimum amount of hours</span>
-<span class="n">df_quantification</span> <span class="o">=</span> <span class="n">select_days</span><span class="p">(</span><span class="n">df_quantification</span><span class="p">,</span> <span class="n">min_hours_per_day</span><span class="p">)</span>
+# Remove days with less than the specified minimum amount of hours
+df_quantification = select_days(df_quantification, min_hours_per_day)
 
-<span class="c1"># Compute the aggregated measures</span>
-<span class="n">config</span> <span class="o">=</span> <span class="n">TremorConfig</span><span class="p">()</span>
-<span class="n">d_tremor_aggregates</span> <span class="o">=</span> <span class="n">aggregate_tremor</span><span class="p">(</span><span class="n">df</span> <span class="o">=</span> <span class="n">df_quantification</span><span class="p">,</span> <span class="n">config</span> <span class="o">=</span> <span class="n">config</span><span class="p">)</span>
+# Compute the aggregated measures
+config = TremorConfig()
+d_tremor_aggregates = aggregate_tremor(df = df_quantification, config = config)
 
-<span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">d_tremor_aggregates</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Before aggregation we select data collected between 08:00 and 22:00. We also select days with at least 10 hours of data.
-The following tremor power aggregates are derived: [&#39;mode_binned&#39;, &#39;median&#39;, &#39;90p&#39;].
-{&#39;aggregated_tremor_measures&#39;: {&#39;90p_tremor_power&#39;: 1.3259483071516063,
-                                &#39;median_tremor_power&#39;: 0.5143985314908104,
-                                &#39;modal_tremor_power&#39;: 0.3,
-                                &#39;perc_windows_tremor&#39;: 19.386769676484793},
- &#39;metadata&#39;: {&#39;nr_valid_days&#39;: 1,
-              &#39;nr_windows_rest&#39;: 8284,
-              &#39;nr_windows_total&#39;: 12600}}
+pprint.pprint(d_tremor_aggregates)
 </pre></div>
 </div>
 </div>

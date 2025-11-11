@@ -9,6 +9,7 @@ Functions
 
 .. autoapisummary::
 
+   paradigma.util.deprecated
    paradigma.util.parse_iso8601_to_datetime
    paradigma.util.format_datetime_to_iso8601
    paradigma.util.get_end_iso8601
@@ -29,6 +30,14 @@ Functions
 
 Module Contents
 ---------------
+
+.. py:function:: deprecated(reason: str = '')
+
+   Decorator to mark functions as deprecated. It will show a warning when the function is used.
+
+   :param reason: Additional message to explain why it is deprecated and what to use instead.
+   :type reason: str, optional
+
 
 .. py:function:: parse_iso8601_to_datetime(date_str)
 

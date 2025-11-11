@@ -8,8 +8,8 @@
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
-      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
 
   
   <!--[if lt IE 9]>
@@ -50,6 +50,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/data_preparation.html">Data preparation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
 </ul>
@@ -94,17 +95,22 @@
            <div itemprop="articleBody">
              
   <h1>Source code for paradigma.config</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span><span class="p">,</span> <span class="n">DataUnits</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">asdict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span><span class="p">,</span> <span class="n">DataUnits</span>
+
 
 <div class="viewcode-block" id="BaseConfig">
 <a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.BaseConfig">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BaseConfig</span><span class="p">:</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">meta_filename</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">values_filename</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_filename</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta_filename</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">values_filename</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_filename</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
 <div class="viewcode-block" id="BaseConfig.set_sensor">
 <a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.BaseConfig.set_sensor">[docs]</a>
@@ -118,7 +124,7 @@
 <a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.BaseConfig.set_filenames">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_filenames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the filenames based on the prefix. This method is duplicated from `gaits_analysis_config.py`.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        prefix : str</span>
@@ -130,50 +136,69 @@
 </div>
 
 
+
 <div class="viewcode-block" id="IMUConfig">
 <a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.IMUConfig">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">IMUConfig</span><span class="p">(</span><span class="n">BaseConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    IMU configuration that uses DataColumns() to dynamically map available channels.</span>
+<span class="sd">    Works even if only accelerometer or only gyroscope data is present.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_mapping</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_filenames</span><span class="p">(</span><span class="s1">&#39;IMU&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_filenames</span><span class="p">(</span><span class="s2">&quot;IMU&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">acceleration_units</span> <span class="o">=</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">ACCELERATION</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rotation_units</span> <span class="o">=</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">ROTATION</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">accelerometer_cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">,</span>
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Y</span><span class="p">,</span>
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Z</span><span class="p">,</span>
-        <span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gyroscope_cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_X</span><span class="p">,</span>
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Y</span><span class="p">,</span>
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Z</span><span class="p">,</span>
-        <span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gravity_cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GRAV_ACCELEROMETER_X</span><span class="p">,</span>
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GRAV_ACCELEROMETER_Y</span><span class="p">,</span>
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GRAV_ACCELEROMETER_Z</span><span class="p">,</span>
-        <span class="p">]</span>
+        <span class="c1"># Generate a default mapping or override with user-provided mapping</span>
+        <span class="n">default_mapping</span> <span class="o">=</span> <span class="n">asdict</span><span class="p">(</span><span class="n">DataColumns</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">column_mapping</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">default_mapping</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">column_mapping</span> <span class="ow">or</span> <span class="p">{})}</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_accelerometer</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">acceleration_units</span><span class="p">,</span>
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Y</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">acceleration_units</span><span class="p">,</span>
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Z</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">acceleration_units</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_colname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_mapping</span><span class="p">[</span><span class="s2">&quot;TIME&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">accelerometer_colnames</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gyroscope_colnames</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gravity_colnames</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_accelerometer</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_gyroscope</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">accel_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ACCELEROMETER_X&quot;</span><span class="p">,</span> <span class="s2">&quot;ACCELEROMETER_Y&quot;</span><span class="p">,</span> <span class="s2">&quot;ACCELEROMETER_Z&quot;</span><span class="p">]</span>
+        <span class="n">grav_keys</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;GRAV_ACCELEROMETER_X&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;GRAV_ACCELEROMETER_Y&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;GRAV_ACCELEROMETER_Z&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">gyro_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;GYROSCOPE_X&quot;</span><span class="p">,</span> <span class="s2">&quot;GYROSCOPE_Y&quot;</span><span class="p">,</span> <span class="s2">&quot;GYROSCOPE_Z&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_mapping</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">accel_keys</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">accelerometer_colnames</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">column_mapping</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">accel_keys</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_mapping</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">grav_keys</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">gravity_colnames</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">column_mapping</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">grav_keys</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_accelerometer</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">c</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">acceleration_units</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">accelerometer_colnames</span>
+            <span class="p">}</span>
+
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_mapping</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">gyro_keys</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gyroscope_colnames</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">column_mapping</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">gyro_keys</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_gyroscope</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">c</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotation_units</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gyroscope_colnames</span>
+            <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_imu</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">d_channels_accelerometer</span><span class="p">,</span>
+            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">d_channels_gyroscope</span><span class="p">,</span>
         <span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_gyroscope</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_X</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotation_units</span><span class="p">,</span>
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Y</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotation_units</span><span class="p">,</span>
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Z</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotation_units</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_imu</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">d_channels_accelerometer</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">d_channels_gyroscope</span><span class="p">}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="mi">100</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">resampling_frequency</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lower_cutoff_frequency</span> <span class="o">=</span> <span class="mf">0.2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">upper_cutoff_frequency</span> <span class="o">=</span> <span class="mf">3.5</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filter_order</span> <span class="o">=</span> <span class="mi">4</span></div>
@@ -184,21 +209,26 @@
 <a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.PPGConfig">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PPGConfig</span><span class="p">(</span><span class="n">BaseConfig</span><span class="p">):</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_mapping</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_filenames</span><span class="p">(</span><span class="s1">&#39;PPG&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_filenames</span><span class="p">(</span><span class="s2">&quot;PPG&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">ppg_colname</span> <span class="o">=</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">PPG</span>
+        <span class="c1"># Generate a default mapping or override with user-provided mapping</span>
+        <span class="n">default_mapping</span> <span class="o">=</span> <span class="n">asdict</span><span class="p">(</span><span class="n">DataColumns</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">column_mapping</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">default_mapping</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">column_mapping</span> <span class="ow">or</span> <span class="p">{})}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_colname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_mapping</span><span class="p">[</span><span class="s2">&quot;TIME&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ppg_colname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_mapping</span><span class="p">[</span><span class="s2">&quot;PPG&quot;</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="mi">30</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resampling_frequency</span> <span class="o">=</span> <span class="mi">30</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lower_cutoff_frequency</span> <span class="o">=</span> <span class="mf">0.4</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">upper_cutoff_frequency</span> <span class="o">=</span> <span class="mf">3.5</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filter_order</span> <span class="o">=</span> <span class="mi">4</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_ppg</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">DataColumns</span><span class="o">.</span><span class="n">PPG</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">NONE</span>
-        <span class="p">}</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_ppg</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ppg_colname</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">NONE</span><span class="p">}</span></div>
 
 
 
@@ -207,10 +237,11 @@
 <a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.GaitConfig">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">GaitConfig</span><span class="p">(</span><span class="n">IMUConfig</span><span class="p">):</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">column_mapping</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Pass column_mapping through to IMUConfig</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">column_mapping</span><span class="o">=</span><span class="n">column_mapping</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_sensor</span><span class="p">(</span><span class="s1">&#39;accelerometer&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_sensor</span><span class="p">(</span><span class="s2">&quot;accelerometer&quot;</span><span class="p">)</span>
 
         <span class="c1"># ----------</span>
         <span class="c1"># Segmenting</span>
@@ -218,7 +249,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">max_segment_gap_s</span> <span class="o">=</span> <span class="mf">1.5</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_segment_length_s</span> <span class="o">=</span> <span class="mf">1.5</span>
 
-        <span class="k">if</span> <span class="n">step</span> <span class="o">==</span> <span class="s1">&#39;gait&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">step</span> <span class="o">==</span> <span class="s2">&quot;gait&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">6</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>
@@ -279,11 +310,15 @@
         <span class="p">}</span>
 
         <span class="k">for</span> <span class="n">mfcc_coef</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mfcc_n_coefficients</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;accelerometer_mfcc_</span><span class="si">{</span><span class="n">mfcc_coef</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;accelerometer_mfcc_</span><span class="si">{</span><span class="n">mfcc_coef</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span>
+            <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">step</span> <span class="o">==</span> <span class="s1">&#39;arm_activity&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">step</span> <span class="o">==</span> <span class="s2">&quot;arm_activity&quot;</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">mfcc_coef</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mfcc_n_coefficients</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;gyroscope_mfcc_</span><span class="si">{</span><span class="n">mfcc_coef</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;gyroscope_mfcc_</span><span class="si">{</span><span class="n">mfcc_coef</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span>
+                <span class="p">)</span></div>
 
 
 
@@ -300,7 +335,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_sensor</span><span class="p">(</span><span class="s1">&#39;gyroscope&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_sensor</span><span class="p">(</span><span class="s2">&quot;gyroscope&quot;</span><span class="p">)</span>
 
         <span class="c1"># ----------</span>
         <span class="c1"># Segmenting</span>
@@ -311,12 +346,12 @@
         <span class="c1"># -----------------</span>
         <span class="c1"># Feature extraction</span>
         <span class="c1"># -----------------</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">window_type</span> <span class="o">=</span> <span class="s1">&#39;hann&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window_type</span> <span class="o">=</span> <span class="s2">&quot;hann&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">overlap_fraction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.8</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">segment_length_psd_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">3</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">segment_length_spectrogram_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">spectral_resolution</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.25</span>
-        
+
         <span class="c1"># PSD based features</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fmin_peak_search</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fmax_peak_search</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">25</span>
@@ -339,13 +374,13 @@
         <span class="c1"># -----------</span>
         <span class="c1"># Aggregation</span>
         <span class="c1"># -----------</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">aggregates_tremor_power</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mode_binned&#39;</span><span class="p">,</span> <span class="s1">&#39;median&#39;</span><span class="p">,</span> <span class="s1">&#39;90p&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">evaluation_points_tremor_power</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">301</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">aggregates_tremor_power</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;mode_binned&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">,</span> <span class="s2">&quot;90p&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evaluation_points_tremor_power</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">301</span><span class="p">)</span>
 
         <span class="c1"># -----------------</span>
         <span class="c1"># TSDF data storage</span>
         <span class="c1"># -----------------</span>
-        <span class="k">if</span> <span class="n">step</span> <span class="o">==</span> <span class="s1">&#39;features&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">step</span> <span class="o">==</span> <span class="s2">&quot;features&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">mfcc_coef</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_coefficients_mfcc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mfcc_</span><span class="si">{</span><span class="n">mfcc_coef</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;unitless&quot;</span>
@@ -353,92 +388,113 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span><span class="p">[</span><span class="s2">&quot;freq_peak&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Hz&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span><span class="p">[</span><span class="s2">&quot;below_tremor_power&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;(deg/s)^2&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span><span class="p">[</span><span class="s2">&quot;tremor_power&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;(deg/s)^2&quot;</span>
-        <span class="k">elif</span> <span class="n">step</span> <span class="o">==</span> <span class="s1">&#39;classification&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">step</span> <span class="o">==</span> <span class="s2">&quot;classification&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_TREMOR_PROBA</span><span class="p">:</span> <span class="s2">&quot;probability&quot;</span><span class="p">,</span>
                 <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_TREMOR_LOGREG</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
                 <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_TREMOR_CHECKED</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
-                <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_ARM_AT_REST</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span>
+                <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_ARM_AT_REST</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
             <span class="p">}</span></div>
 
 
-        
+
 <div class="viewcode-block" id="PulseRateConfig">
 <a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.PulseRateConfig">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PulseRateConfig</span><span class="p">(</span><span class="n">PPGConfig</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sensor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;ppg&#39;</span><span class="p">,</span> <span class="n">min_window_length_s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">sensor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ppg&quot;</span><span class="p">,</span>
+        <span class="n">ppg_sampling_frequency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+        <span class="n">imu_sampling_frequency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_window_length_s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+        <span class="n">accelerometer_colnames</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-        <span class="c1"># ----------</span>
-        <span class="c1"># Segmenting</span>
-        <span class="c1"># ----------</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ppg_sampling_frequency</span> <span class="o">=</span> <span class="n">ppg_sampling_frequency</span>
+
+        <span class="k">if</span> <span class="n">sensor</span> <span class="o">==</span> <span class="s2">&quot;imu&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">imu_sampling_frequency</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">imu_sampling_frequency</span> <span class="o">=</span> <span class="n">imu_sampling_frequency</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">imu_sampling_frequency</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span><span class="o">.</span><span class="n">sampling_frequency</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;imu_sampling_frequency not provided, using default of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">imu_sampling_frequency</span><span class="si">}</span><span class="s2"> Hz&quot;</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Windowing parameters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window_overlap_s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_length_s</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_step_length_s</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">accelerometer_cols</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span><span class="o">.</span><span class="n">accelerometer_cols</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">accelerometer_colnames</span> <span class="o">=</span> <span class="n">accelerometer_colnames</span>
 
-        <span class="c1"># -----------------------</span>
-        <span class="c1"># Signal quality analysis</span>
-        <span class="c1"># -----------------------</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">freq_band_physio</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.75</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="c1"># Hz</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bandwidth</span> <span class="o">=</span> <span class="mf">0.2</span>   <span class="c1"># Hz      </span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">freq_bin_resolution</span> <span class="o">=</span> <span class="mf">0.05</span> <span class="c1"># Hz</span>
+        <span class="c1"># Signal quality analysis parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">freq_band_physio</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.75</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>  <span class="c1"># Hz</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bandwidth</span> <span class="o">=</span> <span class="mf">0.2</span>  <span class="c1"># Hz</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">freq_bin_resolution</span> <span class="o">=</span> <span class="mf">0.05</span>  <span class="c1"># Hz</span>
 
-        <span class="c1"># ---------------------</span>
-        <span class="c1"># Pulse rate estimation</span>
-        <span class="c1"># ---------------------</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_tfd_length</span><span class="p">(</span><span class="n">min_window_length_s</span><span class="p">)</span>  <span class="c1"># Set tfd length to default of 30 seconds</span>
+        <span class="c1"># Pulse rate estimation parameters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">threshold_sqa</span> <span class="o">=</span> <span class="mf">0.5</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">threshold_sqa_accelerometer</span> <span class="o">=</span> <span class="mf">0.10</span>
 
-        <span class="n">pr_est_length</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># pulse rate estimation length in seconds</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pr_est_samples</span> <span class="o">=</span> <span class="n">pr_est_length</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span>
-
-        <span class="c1"># Time-frequency distribution parameters</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">kern_type</span> <span class="o">=</span> <span class="s1">&#39;sep&#39;</span>
-        <span class="n">win_type_doppler</span> <span class="o">=</span> <span class="s1">&#39;hamm&#39;</span>
-        <span class="n">win_type_lag</span> <span class="o">=</span> <span class="s1">&#39;hamm&#39;</span>
-        <span class="n">win_length_doppler</span> <span class="o">=</span> <span class="mi">8</span>
-        <span class="n">win_length_lag</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="n">doppler_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">*</span> <span class="n">win_length_doppler</span>
-        <span class="n">lag_samples</span> <span class="o">=</span> <span class="n">win_length_lag</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">kern_params</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;doppler&#39;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;win_length&#39;</span><span class="p">:</span> <span class="n">doppler_samples</span><span class="p">,</span>
-                <span class="s1">&#39;win_type&#39;</span><span class="p">:</span> <span class="n">win_type_doppler</span><span class="p">,</span>
-            <span class="p">},</span>
-            <span class="s1">&#39;lag&#39;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;win_length&#39;</span><span class="p">:</span> <span class="n">lag_samples</span><span class="p">,</span>
-                <span class="s1">&#39;win_type&#39;</span><span class="p">:</span> <span class="n">win_type_lag</span><span class="p">,</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_sensor</span><span class="p">(</span><span class="n">sensor</span><span class="p">)</span>
-
-<div class="viewcode-block" id="PulseRateConfig.set_tfd_length">
-<a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.PulseRateConfig.set_tfd_length">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">set_tfd_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tfd_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tfd_length</span> <span class="o">=</span> <span class="n">tfd_length</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">min_pr_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tfd_length</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">))</span></div>
-
+        <span class="c1"># Set initial sensor and update sampling-dependent params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_sensor</span><span class="p">(</span><span class="n">sensor</span><span class="p">,</span> <span class="n">min_window_length_s</span><span class="p">)</span>
 
 <div class="viewcode-block" id="PulseRateConfig.set_sensor">
 <a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.PulseRateConfig.set_sensor">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">set_sensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sensor</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sensor</span> <span class="o">=</span> <span class="n">sensor</span> 
-
-        <span class="k">if</span> <span class="n">sensor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ppg&#39;</span><span class="p">,</span> <span class="s1">&#39;imu&#39;</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_sensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sensor</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">min_window_length_s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the active sensor and recomputes sampling-dependent parameters.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">sensor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ppg&quot;</span><span class="p">,</span> <span class="s2">&quot;imu&quot;</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid sensor type: </span><span class="si">{</span><span class="n">sensor</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        
-        <span class="k">if</span> <span class="n">sensor</span> <span class="o">==</span> <span class="s1">&#39;imu&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span><span class="o">.</span><span class="n">sampling_frequency</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">PPGConfig</span><span class="p">()</span><span class="o">.</span><span class="n">sampling_frequency</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sensor</span> <span class="o">=</span> <span class="n">sensor</span>
 
+        <span class="c1"># Decide which frequency to use</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">imu_sampling_frequency</span>
+            <span class="k">if</span> <span class="n">sensor</span> <span class="o">==</span> <span class="s2">&quot;imu&quot;</span>
+            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppg_sampling_frequency</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Update all frequency-dependent parameters</span>
+        <span class="k">if</span> <span class="n">min_window_length_s</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_sampling_dependent_params</span><span class="p">(</span><span class="n">min_window_length_s</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Reuse previous tfd_length if it exists, else fallback to 30</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_sampling_dependent_params</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;tfd_length&quot;</span><span class="p">,</span> <span class="mi">30</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="PulseRateConfig._update_sampling_dependent_params">
+<a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.PulseRateConfig._update_sampling_dependent_params">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_update_sampling_dependent_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tfd_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute attributes that depend on sampling frequency.&quot;&quot;&quot;</span>
+
+        <span class="c1"># --- PPG-dependent parameters ---</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tfd_length</span> <span class="o">=</span> <span class="n">tfd_length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_pr_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tfd_length</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppg_sampling_frequency</span><span class="p">))</span>
+
+        <span class="n">pr_est_length</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># pulse rate estimation length in seconds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pr_est_samples</span> <span class="o">=</span> <span class="n">pr_est_length</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppg_sampling_frequency</span>
+
+        <span class="c1"># Time-frequency distribution parameters</span>
+        <span class="n">win_type_doppler</span> <span class="o">=</span> <span class="s2">&quot;hamm&quot;</span>
+        <span class="n">win_type_lag</span> <span class="o">=</span> <span class="s2">&quot;hamm&quot;</span>
+        <span class="n">win_length_doppler</span> <span class="o">=</span> <span class="mi">8</span>
+        <span class="n">win_length_lag</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">doppler_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppg_sampling_frequency</span> <span class="o">*</span> <span class="n">win_length_doppler</span>
+        <span class="n">lag_samples</span> <span class="o">=</span> <span class="n">win_length_lag</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppg_sampling_frequency</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kern_type</span> <span class="o">=</span> <span class="s2">&quot;sep&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kern_params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;doppler&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;win_length&quot;</span><span class="p">:</span> <span class="n">doppler_samples</span><span class="p">,</span> <span class="s2">&quot;win_type&quot;</span><span class="p">:</span> <span class="n">win_type_doppler</span><span class="p">},</span>
+            <span class="s2">&quot;lag&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;win_length&quot;</span><span class="p">:</span> <span class="n">lag_samples</span><span class="p">,</span> <span class="s2">&quot;win_type&quot;</span><span class="p">:</span> <span class="n">win_type_lag</span><span class="p">},</span>
+        <span class="p">}</span>
+
+        <span class="c1"># --- Welch / FFT parameters based on current sensor frequency ---</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window_length_welch</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">overlap_welch_window</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_length_welch</span> <span class="o">//</span> <span class="mi">2</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">nfft</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">freq_bin_resolution</span><span class="p">))</span><span class="o">*</span><span class="mi">2</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nfft</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">freq_bin_resolution</span><span class="p">))</span> <span class="o">*</span> <span class="mi">2</span>
+        <span class="p">)</span></div>
 </div>
 
 </pre></div>

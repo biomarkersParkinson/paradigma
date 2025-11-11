@@ -9,8 +9,8 @@
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=1228b8db" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=a31c8b26" />
 
   
   <!--[if lt IE 9]>
@@ -52,6 +52,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/data_preparation.html">Data preparation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
 </ul>
@@ -120,52 +121,55 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.parse_iso8601_to_datetime" title="paradigma.util.parse_iso8601_to_datetime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_iso8601_to_datetime</span></code></a>(date_str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.deprecated" title="paradigma.util.deprecated"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deprecated</span></code></a>([reason])</p></td>
+<td><p>Decorator to mark functions as deprecated. It will show a warning when the function is used.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.parse_iso8601_to_datetime" title="paradigma.util.parse_iso8601_to_datetime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_iso8601_to_datetime</span></code></a>(date_str)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.format_datetime_to_iso8601" title="paradigma.util.format_datetime_to_iso8601"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format_datetime_to_iso8601</span></code></a>(datetime)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.format_datetime_to_iso8601" title="paradigma.util.format_datetime_to_iso8601"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format_datetime_to_iso8601</span></code></a>(datetime)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.get_end_iso8601" title="paradigma.util.get_end_iso8601"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_end_iso8601</span></code></a>(start_iso8601, window_length_seconds)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.get_end_iso8601" title="paradigma.util.get_end_iso8601"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_end_iso8601</span></code></a>(start_iso8601, window_length_seconds)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.write_np_data" title="paradigma.util.write_np_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_np_data</span></code></a>(metadata_time, np_array_time, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.write_np_data" title="paradigma.util.write_np_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_np_data</span></code></a>(metadata_time, np_array_time, ...)</p></td>
 <td><p>Write the numpy arrays to binary files and store the metadata.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.write_df_data" title="paradigma.util.write_df_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_df_data</span></code></a>(metadata_time, metadata_values, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.write_df_data" title="paradigma.util.write_df_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_df_data</span></code></a>(metadata_time, metadata_values, ...)</p></td>
 <td><p>Write the Pandas DataFrame to binary files and store the metadata.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.read_metadata" title="paradigma.util.read_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_metadata</span></code></a>(→ Tuple[tsdf.TSDFMetadata, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.read_metadata" title="paradigma.util.read_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_metadata</span></code></a>(→ Tuple[tsdf.TSDFMetadata, ...)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.load_tsdf_dataframe" title="paradigma.util.load_tsdf_dataframe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_tsdf_dataframe</span></code></a>(path_to_data, prefix[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.load_tsdf_dataframe" title="paradigma.util.load_tsdf_dataframe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_tsdf_dataframe</span></code></a>(path_to_data, prefix[, ...])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.load_metadata_list" title="paradigma.util.load_metadata_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_metadata_list</span></code></a>(→ List[tsdf.TSDFMetadata])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.load_metadata_list" title="paradigma.util.load_metadata_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_metadata_list</span></code></a>(→ List[tsdf.TSDFMetadata])</p></td>
 <td><p>Load the metadata objects from a metadata file according to the specified binaries.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.transform_time_array" title="paradigma.util.transform_time_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_time_array</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.transform_time_array" title="paradigma.util.transform_time_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_time_array</span></code></a>(→ numpy.ndarray)</p></td>
 <td><p>Transforms the time array to relative time (when defined in delta time) and scales the values.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.convert_units_accelerometer" title="paradigma.util.convert_units_accelerometer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_units_accelerometer</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.convert_units_accelerometer" title="paradigma.util.convert_units_accelerometer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_units_accelerometer</span></code></a>(→ numpy.ndarray)</p></td>
 <td><p>Convert acceleration data to g.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.convert_units_gyroscope" title="paradigma.util.convert_units_gyroscope"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_units_gyroscope</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.convert_units_gyroscope" title="paradigma.util.convert_units_gyroscope"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_units_gyroscope</span></code></a>(→ numpy.ndarray)</p></td>
 <td><p>Convert gyroscope data to deg/s.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.invert_watch_side" title="paradigma.util.invert_watch_side"><code class="xref py py-obj docutils literal notranslate"><span class="pre">invert_watch_side</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.invert_watch_side" title="paradigma.util.invert_watch_side"><code class="xref py py-obj docutils literal notranslate"><span class="pre">invert_watch_side</span></code></a>(→ numpy.ndarray)</p></td>
 <td><p>Invert the data based on the watch side.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.aggregate_parameter" title="paradigma.util.aggregate_parameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_parameter</span></code></a>(→ numpy.ndarray | int)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.aggregate_parameter" title="paradigma.util.aggregate_parameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_parameter</span></code></a>(→ numpy.ndarray | int)</p></td>
 <td><p>Aggregate a parameter based on the specified method.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.merge_predictions_with_timestamps" title="paradigma.util.merge_predictions_with_timestamps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_predictions_with_timestamps</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.merge_predictions_with_timestamps" title="paradigma.util.merge_predictions_with_timestamps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_predictions_with_timestamps</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Merges prediction probabilities with timestamps by expanding overlapping windows</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.select_hours" title="paradigma.util.select_hours"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_hours</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.select_hours" title="paradigma.util.select_hours"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_hours</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Select hours of interest from the data to include in the aggregation step.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.select_days" title="paradigma.util.select_days"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_days</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.select_days" title="paradigma.util.select_days"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_days</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Select days of interest from the data to include in the aggregation step.</p></td>
 </tr>
 </tbody>
@@ -173,6 +177,17 @@
 </section>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.util.deprecated">
+<span class="sig-prename descclassname"><span class="pre">paradigma.util.</span></span><span class="sig-name descname"><span class="pre">deprecated</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reason</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/util.html#deprecated"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.util.deprecated" title="Link to this definition"></a></dt>
+<dd><p>Decorator to mark functions as deprecated. It will show a warning when the function is used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>reason</strong> (<em>str</em><em>, </em><em>optional</em>) – Additional message to explain why it is deprecated and what to use instead.</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.util.parse_iso8601_to_datetime">
 <span class="sig-prename descclassname"><span class="pre">paradigma.util.</span></span><span class="sig-name descname"><span class="pre">parse_iso8601_to_datetime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date_str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/util.html#parse_iso8601_to_datetime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.util.parse_iso8601_to_datetime" title="Link to this definition"></a></dt>

@@ -26,7 +26,7 @@ Functions
 Module Contents
 ---------------
 
-.. py:function:: assign_sqa_label(ppg_prob: numpy.ndarray, config: paradigma.config.PulseRateConfig, acc_label=None) -> numpy.ndarray
+.. py:function:: assign_sqa_label(ppg_prob: numpy.ndarray, config: paradigma.config.PulseRateConfig, acc_label: numpy.ndarray | None = None) -> numpy.ndarray
 
    Assigns a signal quality label to every individual data point.
 

@@ -8,8 +8,8 @@
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=1228b8db" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=a31c8b26" />
 
   
   <!--[if lt IE 9]>
@@ -50,6 +50,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/data_preparation.html">Data preparation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
 </ul>
@@ -94,29 +95,42 @@
            <div itemprop="articleBody">
              
   <h1>Source code for paradigma.pipelines.pulse_rate_pipeline</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">welch</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal.windows</span><span class="w"> </span><span class="kn">import</span> <span class="n">hamming</span><span class="p">,</span> <span class="n">hann</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">tsdf</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassifierPackage</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PulseRateConfig</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.feature_extraction</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_statistics</span><span class="p">,</span> <span class="n">compute_signal_to_noise_ratio</span><span class="p">,</span> <span class="n">compute_auto_correlation</span><span class="p">,</span> \
-    <span class="n">compute_dominant_frequency</span><span class="p">,</span> <span class="n">compute_relative_power</span><span class="p">,</span> <span class="n">compute_spectral_entropy</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.pulse_rate_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">assign_sqa_label</span><span class="p">,</span> <span class="n">extract_pr_segments</span><span class="p">,</span> <span class="n">extract_pr_from_segment</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.segmenting</span><span class="w"> </span><span class="kn">import</span> <span class="n">tabulate_windows</span><span class="p">,</span> <span class="n">WindowedDataExtractor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.feature_extraction</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">compute_auto_correlation</span><span class="p">,</span>
+    <span class="n">compute_dominant_frequency</span><span class="p">,</span>
+    <span class="n">compute_relative_power</span><span class="p">,</span>
+    <span class="n">compute_signal_to_noise_ratio</span><span class="p">,</span>
+    <span class="n">compute_spectral_entropy</span><span class="p">,</span>
+    <span class="n">compute_statistics</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.pulse_rate_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">assign_sqa_label</span><span class="p">,</span>
+    <span class="n">extract_pr_from_segment</span><span class="p">,</span>
+    <span class="n">extract_pr_segments</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.segmenting</span><span class="w"> </span><span class="kn">import</span> <span class="n">WindowedDataExtractor</span><span class="p">,</span> <span class="n">tabulate_windows</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_parameter</span>
+
 
 <div class="viewcode-block" id="extract_signal_quality_features">
 <a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.extract_signal_quality_features">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">extract_signal_quality_features</span><span class="p">(</span><span class="n">df_ppg</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">df_acc</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ppg_config</span><span class="p">:</span> <span class="n">PulseRateConfig</span><span class="p">,</span> <span class="n">acc_config</span><span class="p">:</span> <span class="n">PulseRateConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;	</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_signal_quality_features</span><span class="p">(</span>
+    <span class="n">df_ppg</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">ppg_config</span><span class="p">:</span> <span class="n">PulseRateConfig</span><span class="p">,</span>
+    <span class="n">df_acc</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">acc_config</span><span class="p">:</span> <span class="n">PulseRateConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extract signal quality features from the PPG signal.</span>
 <span class="sd">    The features are extracted from the temporal and spectral domain of the PPG signal.</span>
 <span class="sd">    The temporal domain features include variance, mean, median, kurtosis, skewness, signal-to-noise ratio, and autocorrelation.</span>
@@ -137,57 +151,71 @@
 <span class="sd">    -------</span>
 <span class="sd">    df_features : pd.DataFrame</span>
 <span class="sd">        The DataFrame containing the extracted signal quality features.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Group sequences of timestamps into windows</span>
-    <span class="n">ppg_windowed_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span> <span class="n">ppg_config</span><span class="o">.</span><span class="n">ppg_colname</span><span class="p">]</span>
+    <span class="n">ppg_windowed_colnames</span> <span class="o">=</span> <span class="p">[</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">,</span> <span class="n">ppg_config</span><span class="o">.</span><span class="n">ppg_colname</span><span class="p">]</span>
     <span class="n">ppg_windowed</span> <span class="o">=</span> <span class="n">tabulate_windows</span><span class="p">(</span>
-        <span class="n">df</span><span class="o">=</span><span class="n">df_ppg</span><span class="p">,</span> 
-        <span class="n">columns</span><span class="o">=</span><span class="n">ppg_windowed_cols</span><span class="p">,</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">df_ppg</span><span class="p">,</span>
+        <span class="n">columns</span><span class="o">=</span><span class="n">ppg_windowed_colnames</span><span class="p">,</span>
         <span class="n">window_length_s</span><span class="o">=</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">,</span>
         <span class="n">window_step_length_s</span><span class="o">=</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="p">,</span>
-        <span class="n">fs</span><span class="o">=</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">sampling_frequency</span>
+        <span class="n">fs</span><span class="o">=</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># Extract data from the windowed PPG signal</span>
-    <span class="n">extractor</span> <span class="o">=</span> <span class="n">WindowedDataExtractor</span><span class="p">(</span><span class="n">ppg_windowed_cols</span><span class="p">)</span>
-    <span class="n">idx_time</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">get_index</span><span class="p">(</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">)</span>
+    <span class="n">extractor</span> <span class="o">=</span> <span class="n">WindowedDataExtractor</span><span class="p">(</span><span class="n">ppg_windowed_colnames</span><span class="p">)</span>
+    <span class="n">idx_time</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">get_index</span><span class="p">(</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">)</span>
     <span class="n">idx_ppg</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">get_index</span><span class="p">(</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">ppg_colname</span><span class="p">)</span>
-    <span class="n">start_time_ppg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">ppg_windowed</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">idx_time</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># Start time of the window is relative to the first datapoint in the PPG data</span>
+    <span class="n">start_time_ppg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span>
+        <span class="n">ppg_windowed</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">idx_time</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>  <span class="c1"># Start time of the window is relative to the first datapoint in the PPG data</span>
     <span class="n">ppg_values_windowed</span> <span class="o">=</span> <span class="n">ppg_windowed</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">idx_ppg</span><span class="p">]</span>
 
-    <span class="n">acc_windowed_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">+</span> <span class="n">acc_config</span><span class="o">.</span><span class="n">accelerometer_cols</span>
-    <span class="n">acc_windowed</span> <span class="o">=</span> <span class="n">tabulate_windows</span><span class="p">(</span>
-        <span class="n">df</span><span class="o">=</span><span class="n">df_acc</span><span class="p">,</span>
-        <span class="n">columns</span><span class="o">=</span><span class="n">acc_windowed_cols</span><span class="p">,</span>
-        <span class="n">window_length_s</span><span class="o">=</span><span class="n">acc_config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">,</span>
-        <span class="n">window_step_length_s</span><span class="o">=</span><span class="n">acc_config</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="p">,</span>
-        <span class="n">fs</span><span class="o">=</span><span class="n">acc_config</span><span class="o">.</span><span class="n">sampling_frequency</span>
+    <span class="n">df_features</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">start_time_ppg</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">df_acc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">acc_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+        <span class="n">acc_windowed_colnames</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">acc_config</span><span class="o">.</span><span class="n">time_colname</span>
+        <span class="p">]</span> <span class="o">+</span> <span class="n">acc_config</span><span class="o">.</span><span class="n">accelerometer_colnames</span>
+        <span class="n">acc_windowed</span> <span class="o">=</span> <span class="n">tabulate_windows</span><span class="p">(</span>
+            <span class="n">df</span><span class="o">=</span><span class="n">df_acc</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="n">acc_windowed_colnames</span><span class="p">,</span>
+            <span class="n">window_length_s</span><span class="o">=</span><span class="n">acc_config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">,</span>
+            <span class="n">window_step_length_s</span><span class="o">=</span><span class="n">acc_config</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="p">,</span>
+            <span class="n">fs</span><span class="o">=</span><span class="n">acc_config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Extract data from the windowed accelerometer signal</span>
+        <span class="n">extractor</span> <span class="o">=</span> <span class="n">WindowedDataExtractor</span><span class="p">(</span><span class="n">acc_windowed_colnames</span><span class="p">)</span>
+        <span class="n">idx_acc</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">get_slice</span><span class="p">(</span><span class="n">acc_config</span><span class="o">.</span><span class="n">accelerometer_colnames</span><span class="p">)</span>
+        <span class="n">acc_values_windowed</span> <span class="o">=</span> <span class="n">acc_windowed</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">idx_acc</span><span class="p">]</span>
+
+        <span class="c1"># Compute periodicity feature of the accelerometer signal</span>
+        <span class="n">df_accelerometer_feature</span> <span class="o">=</span> <span class="n">extract_accelerometer_feature</span><span class="p">(</span>
+            <span class="n">acc_values_windowed</span><span class="p">,</span> <span class="n">ppg_values_windowed</span><span class="p">,</span> <span class="n">acc_config</span>
+        <span class="p">)</span>
+        <span class="c1"># Combine the accelerometer feature with the previously computed features</span>
+        <span class="n">df_features</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_features</span><span class="p">,</span> <span class="n">df_accelerometer_feature</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Compute features of the temporal domain of the PPG signal</span>
+    <span class="n">df_temporal_features</span> <span class="o">=</span> <span class="n">extract_temporal_domain_features</span><span class="p">(</span>
+        <span class="n">ppg_values_windowed</span><span class="p">,</span>
+        <span class="n">ppg_config</span><span class="p">,</span>
+        <span class="n">quality_stats</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;var&quot;</span><span class="p">,</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">,</span> <span class="s2">&quot;kurtosis&quot;</span><span class="p">,</span> <span class="s2">&quot;skewness&quot;</span><span class="p">],</span>
     <span class="p">)</span>
 
-    <span class="c1"># Extract data from the windowed accelerometer signal</span>
-    <span class="n">extractor</span> <span class="o">=</span> <span class="n">WindowedDataExtractor</span><span class="p">(</span><span class="n">acc_windowed_cols</span><span class="p">)</span>
-    <span class="n">idx_acc</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">get_slice</span><span class="p">(</span><span class="n">acc_config</span><span class="o">.</span><span class="n">accelerometer_cols</span><span class="p">)</span>
-    <span class="n">acc_values_windowed</span> <span class="o">=</span> <span class="n">acc_windowed</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">idx_acc</span><span class="p">]</span>
-
-    <span class="n">df_features</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">start_time_ppg</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">])</span>
-    <span class="c1"># Compute features of the temporal domain of the PPG signal</span>
-    <span class="n">df_temporal_features</span> <span class="o">=</span> <span class="n">extract_temporal_domain_features</span><span class="p">(</span><span class="n">ppg_values_windowed</span><span class="p">,</span> <span class="n">ppg_config</span><span class="p">,</span> <span class="n">quality_stats</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;var&#39;</span><span class="p">,</span> <span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;median&#39;</span><span class="p">,</span> <span class="s1">&#39;kurtosis&#39;</span><span class="p">,</span> <span class="s1">&#39;skewness&#39;</span><span class="p">])</span>
-    
     <span class="c1"># Combine temporal features with the start time</span>
     <span class="n">df_features</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_features</span><span class="p">,</span> <span class="n">df_temporal_features</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="c1"># Compute features of the spectral domain of the PPG signal</span>
-    <span class="n">df_spectral_features</span> <span class="o">=</span> <span class="n">extract_spectral_domain_features</span><span class="p">(</span><span class="n">ppg_values_windowed</span><span class="p">,</span> <span class="n">ppg_config</span><span class="p">)</span>
+    <span class="n">df_spectral_features</span> <span class="o">=</span> <span class="n">extract_spectral_domain_features</span><span class="p">(</span>
+        <span class="n">ppg_values_windowed</span><span class="p">,</span> <span class="n">ppg_config</span>
+    <span class="p">)</span>
 
     <span class="c1"># Combine the spectral features with the previously computed temporal features</span>
     <span class="n">df_features</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_features</span><span class="p">,</span> <span class="n">df_spectral_features</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    
-    <span class="c1"># Compute periodicity feature of the accelerometer signal</span>
-    <span class="n">df_accelerometer_feature</span> <span class="o">=</span> <span class="n">extract_accelerometer_feature</span><span class="p">(</span><span class="n">acc_values_windowed</span><span class="p">,</span> <span class="n">ppg_values_windowed</span><span class="p">,</span> <span class="n">acc_config</span><span class="p">)</span>
-
-    <span class="c1"># Combine the accelerometer feature with the previously computed features</span>
-    <span class="n">df_features</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_features</span><span class="p">,</span> <span class="n">df_accelerometer_feature</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">df_features</span></div>
 
@@ -195,7 +223,9 @@
 
 <div class="viewcode-block" id="signal_quality_classification">
 <a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.signal_quality_classification">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">signal_quality_classification</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">PulseRateConfig</span><span class="p">,</span> <span class="n">full_path_to_classifier_package</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">signal_quality_classification</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">PulseRateConfig</span><span class="p">,</span> <span class="n">clf_package</span><span class="p">:</span> <span class="n">ClassifierPackage</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Classify the signal quality of the PPG signal using a logistic regression classifier. A probability close to 1 indicates a high-quality signal, while a probability close to 0 indicates a low-quality signal.</span>
 <span class="sd">    The classifier is trained on features extracted from the PPG signal. The features are extracted using the extract_signal_quality_features function.</span>
@@ -208,31 +238,43 @@
 <span class="sd">        The DataFrame containing the PPG features and the accelerometer feature for signal quality classification.</span>
 <span class="sd">    config : PulseRateConfig</span>
 <span class="sd">        The configuration for the signal quality classification.</span>
-<span class="sd">    full_path_to_classifier_package : str | Path</span>
-<span class="sd">        The path to the directory containing the classifier.</span>
+<span class="sd">    clf_package : ClassifierPackage</span>
+<span class="sd">        The classifier package containing the classifier and scaler.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    df_sqa pd.DataFrame</span>
 <span class="sd">        The DataFrame containing the PPG signal quality predictions (both probabilities of the PPG signal quality classification and the accelerometer label based on the threshold).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">clf_package</span> <span class="o">=</span> <span class="n">ClassifierPackage</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">full_path_to_classifier_package</span><span class="p">)</span>  <span class="c1"># Load the classifier package</span>
+    <span class="c1"># Set classifier</span>
     <span class="n">clf</span> <span class="o">=</span> <span class="n">clf_package</span><span class="o">.</span><span class="n">classifier</span>  <span class="c1"># Load the logistic regression classifier</span>
 
     <span class="c1"># Apply scaling to relevant columns</span>
-    <span class="n">scaled_features</span> <span class="o">=</span> <span class="n">clf_package</span><span class="o">.</span><span class="n">transform_features</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">clf</span><span class="o">.</span><span class="n">feature_names_in</span><span class="p">])</span> <span class="c1"># Apply scaling to the features </span>
+    <span class="n">scaled_features</span> <span class="o">=</span> <span class="n">clf_package</span><span class="o">.</span><span class="n">transform_features</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">clf</span><span class="o">.</span><span class="n">feature_names_in</span><span class="p">]</span>
+    <span class="p">)</span>  <span class="c1"># Apply scaling to the features</span>
 
     <span class="c1"># Make predictions for PPG signal quality assessment, and assign the probabilities to the DataFrame and drop the features</span>
     <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_SQA_PROBA</span><span class="p">]</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">scaled_features</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">]</span>
-    <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_SQA_ACC_LABEL</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">ACC_POWER_RATIO</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">config</span><span class="o">.</span><span class="n">threshold_sqa_accelerometer</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>  <span class="c1"># Assign accelerometer label to the DataFrame based on the threshold</span>
-    
-    <span class="k">return</span> <span class="n">df</span><span class="p">[[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_SQA_PROBA</span><span class="p">,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_SQA_ACC_LABEL</span><span class="p">]]</span>  <span class="c1"># Return only the relevant columns, namely the predicted probabilities for the PPG signal quality and the accelerometer label</span></div>
+    <span class="n">keep_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_SQA_PROBA</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACC_POWER_RATIO</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_SQA_ACC_LABEL</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">ACC_POWER_RATIO</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">config</span><span class="o">.</span><span class="n">threshold_sqa_accelerometer</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+            <span class="nb">int</span>
+        <span class="p">)</span>  <span class="c1"># Assign accelerometer label to the DataFrame based on the threshold</span>
+        <span class="n">keep_cols</span> <span class="o">+=</span> <span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_SQA_ACC_LABEL</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="n">keep_cols</span><span class="p">]</span></div>
 
 
 
 <div class="viewcode-block" id="estimate_pulse_rate">
 <a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.estimate_pulse_rate">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">estimate_pulse_rate</span><span class="p">(</span><span class="n">df_sqa</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">df_ppg_preprocessed</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">PulseRateConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>  
+<span class="k">def</span><span class="w"> </span><span class="nf">estimate_pulse_rate</span><span class="p">(</span>
+    <span class="n">df_sqa</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">df_ppg_preprocessed</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">PulseRateConfig</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Estimate the pulse rate from the PPG signal using the time-frequency domain method.</span>
 
@@ -253,37 +295,58 @@
 
     <span class="c1"># Extract NumPy arrays for faster operations</span>
     <span class="n">ppg_post_prob</span> <span class="o">=</span> <span class="n">df_sqa</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_SQA_PROBA</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-    <span class="n">acc_label</span> <span class="o">=</span> <span class="n">df_sqa</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_SQA_ACC_LABEL</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> <span class="c1"># Adjust later in data columns to get the correct label, should be first intergrated in feature extraction and classification</span>
-    <span class="n">ppg_preprocessed</span> <span class="o">=</span> <span class="n">df_ppg_preprocessed</span><span class="o">.</span><span class="n">values</span> 
-    <span class="n">time_idx</span> <span class="o">=</span> <span class="n">df_ppg_preprocessed</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">)</span> <span class="c1"># Get the index of the time column</span>
-    <span class="n">ppg_idx</span> <span class="o">=</span> <span class="n">df_ppg_preprocessed</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PPG</span><span class="p">)</span> <span class="c1"># Get the index of the PPG column</span>
-    
+
+    <span class="k">if</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_SQA_ACC_LABEL</span> <span class="ow">in</span> <span class="n">df_sqa</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">acc_label</span> <span class="o">=</span> <span class="n">df_sqa</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_SQA_ACC_LABEL</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">acc_label</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">ppg_preprocessed</span> <span class="o">=</span> <span class="n">df_ppg_preprocessed</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">time_idx</span> <span class="o">=</span> <span class="n">df_ppg_preprocessed</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">time_colname</span>
+    <span class="p">)</span>  <span class="c1"># Get the index of the time column</span>
+    <span class="n">ppg_idx</span> <span class="o">=</span> <span class="n">df_ppg_preprocessed</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">ppg_colname</span>
+    <span class="p">)</span>  <span class="c1"># Get the index of the PPG column</span>
+
     <span class="c1"># Assign window-level probabilities to individual samples</span>
-    <span class="n">sqa_label</span> <span class="o">=</span> <span class="n">assign_sqa_label</span><span class="p">(</span><span class="n">ppg_post_prob</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">acc_label</span><span class="p">)</span> <span class="c1"># assigns a signal quality label to every individual data point</span>
-    <span class="n">v_start_idx</span><span class="p">,</span> <span class="n">v_end_idx</span> <span class="o">=</span> <span class="n">extract_pr_segments</span><span class="p">(</span><span class="n">sqa_label</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">min_pr_samples</span><span class="p">)</span> <span class="c1"># extracts pulse rate segments based on the SQA label</span>
-    
+    <span class="n">sqa_label</span> <span class="o">=</span> <span class="n">assign_sqa_label</span><span class="p">(</span>
+        <span class="n">ppg_post_prob</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">acc_label</span>
+    <span class="p">)</span>  <span class="c1"># assigns a signal quality label to every individual data point</span>
+    <span class="n">v_start_idx</span><span class="p">,</span> <span class="n">v_end_idx</span> <span class="o">=</span> <span class="n">extract_pr_segments</span><span class="p">(</span>
+        <span class="n">sqa_label</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">min_pr_samples</span>
+    <span class="p">)</span>  <span class="c1"># extracts pulse rate segments based on the SQA label</span>
+
     <span class="n">v_pr_rel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
     <span class="n">t_pr_rel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
 
-    <span class="n">edge_add</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span>  <span class="c1"># Add 2s on both sides of the segment for PR estimation</span>
+    <span class="n">edge_add</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="mi">2</span> <span class="o">*</span> <span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span>
+    <span class="p">)</span>  <span class="c1"># Add 2s on both sides of the segment for PR estimation</span>
     <span class="n">step_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">pr_est_samples</span>  <span class="c1"># Step size for PR estimation</span>
 
     <span class="c1"># Estimate the maximum size for preallocation</span>
-    <span class="n">valid_segments</span> <span class="o">=</span> <span class="p">(</span><span class="n">v_start_idx</span> <span class="o">&gt;=</span> <span class="n">edge_add</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">v_end_idx</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ppg_preprocessed</span><span class="p">)</span> <span class="o">-</span> <span class="n">edge_add</span><span class="p">)</span> <span class="c1"># check if the segments are valid, e.g. not too close to the edges (2s)</span>
-    <span class="n">valid_start_idx</span> <span class="o">=</span> <span class="n">v_start_idx</span><span class="p">[</span><span class="n">valid_segments</span><span class="p">]</span>   <span class="c1"># get the valid start indices</span>
-    <span class="n">valid_end_idx</span> <span class="o">=</span> <span class="n">v_end_idx</span><span class="p">[</span><span class="n">valid_segments</span><span class="p">]</span>    <span class="c1"># get the valid end indices</span>
-    <span class="n">max_size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">valid_end_idx</span> <span class="o">-</span> <span class="n">valid_start_idx</span><span class="p">)</span> <span class="o">//</span> <span class="n">step_size</span><span class="p">)</span> <span class="c1"># maximum size for preallocation</span>
-  
+    <span class="n">valid_segments</span> <span class="o">=</span> <span class="p">(</span><span class="n">v_start_idx</span> <span class="o">&gt;=</span> <span class="n">edge_add</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span>
+        <span class="n">v_end_idx</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ppg_preprocessed</span><span class="p">)</span> <span class="o">-</span> <span class="n">edge_add</span>
+    <span class="p">)</span>  <span class="c1"># check if the segments are valid, e.g. not too close to the edges (2s)</span>
+    <span class="n">valid_start_idx</span> <span class="o">=</span> <span class="n">v_start_idx</span><span class="p">[</span><span class="n">valid_segments</span><span class="p">]</span>  <span class="c1"># get the valid start indices</span>
+    <span class="n">valid_end_idx</span> <span class="o">=</span> <span class="n">v_end_idx</span><span class="p">[</span><span class="n">valid_segments</span><span class="p">]</span>  <span class="c1"># get the valid end indices</span>
+    <span class="n">max_size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">valid_end_idx</span> <span class="o">-</span> <span class="n">valid_start_idx</span><span class="p">)</span> <span class="o">//</span> <span class="n">step_size</span>
+    <span class="p">)</span>  <span class="c1"># maximum size for preallocation</span>
+
     <span class="c1"># Preallocate arrays</span>
-    <span class="n">v_pr_rel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">max_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> 
-    <span class="n">t_pr_rel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">max_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>  
+    <span class="n">v_pr_rel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">max_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">t_pr_rel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">max_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 
     <span class="c1"># Track current position</span>
     <span class="n">pr_pos</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="k">for</span> <span class="n">start_idx</span><span class="p">,</span> <span class="n">end_idx</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">valid_start_idx</span><span class="p">,</span> <span class="n">valid_end_idx</span><span class="p">):</span>
         <span class="c1"># Extract extended PPG segment</span>
-        <span class="n">extended_ppg_segment</span> <span class="o">=</span> <span class="n">ppg_preprocessed</span><span class="p">[</span><span class="n">start_idx</span> <span class="o">-</span> <span class="n">edge_add</span> <span class="p">:</span> <span class="n">end_idx</span> <span class="o">+</span> <span class="n">edge_add</span><span class="p">,</span> <span class="n">ppg_idx</span><span class="p">]</span>
+        <span class="n">extended_ppg_segment</span> <span class="o">=</span> <span class="n">ppg_preprocessed</span><span class="p">[</span>
+            <span class="n">start_idx</span> <span class="o">-</span> <span class="n">edge_add</span> <span class="p">:</span> <span class="n">end_idx</span> <span class="o">+</span> <span class="n">edge_add</span><span class="p">,</span> <span class="n">ppg_idx</span>
+        <span class="p">]</span>
 
         <span class="c1"># Estimate pulse rate</span>
         <span class="n">pr_est</span> <span class="o">=</span> <span class="n">extract_pr_from_segment</span><span class="p">(</span>
@@ -294,14 +357,16 @@
             <span class="n">config</span><span class="o">.</span><span class="n">kern_params</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">n_pr</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pr_est</span><span class="p">)</span>  <span class="c1"># Number of pulse rate estimates</span>
-        <span class="n">end_idx_time</span> <span class="o">=</span> <span class="n">n_pr</span> <span class="o">*</span> <span class="n">step_size</span> <span class="o">+</span> <span class="n">start_idx</span>  <span class="c1"># Calculate end index for time, different from end_idx since it is always a multiple of step_size, while end_idx is not</span>
+        <span class="n">end_idx_time</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">n_pr</span> <span class="o">*</span> <span class="n">step_size</span> <span class="o">+</span> <span class="n">start_idx</span>
+        <span class="p">)</span>  <span class="c1"># Calculate end index for time, different from end_idx since it is always a multiple of step_size, while end_idx is not</span>
 
         <span class="c1"># Extract relative time for PR estimates</span>
-        <span class="n">pr_time</span> <span class="o">=</span> <span class="n">ppg_preprocessed</span><span class="p">[</span><span class="n">start_idx</span> <span class="p">:</span> <span class="n">end_idx_time</span> <span class="p">:</span> <span class="n">step_size</span><span class="p">,</span> <span class="n">time_idx</span><span class="p">]</span>
+        <span class="n">pr_time</span> <span class="o">=</span> <span class="n">ppg_preprocessed</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx_time</span><span class="p">:</span><span class="n">step_size</span><span class="p">,</span> <span class="n">time_idx</span><span class="p">]</span>
 
         <span class="c1"># Insert into preallocated arrays</span>
-        <span class="n">v_pr_rel</span><span class="p">[</span><span class="n">pr_pos</span><span class="p">:</span><span class="n">pr_pos</span> <span class="o">+</span> <span class="n">n_pr</span><span class="p">]</span> <span class="o">=</span> <span class="n">pr_est</span>
-        <span class="n">t_pr_rel</span><span class="p">[</span><span class="n">pr_pos</span><span class="p">:</span><span class="n">pr_pos</span> <span class="o">+</span> <span class="n">n_pr</span><span class="p">]</span> <span class="o">=</span> <span class="n">pr_time</span>
+        <span class="n">v_pr_rel</span><span class="p">[</span><span class="n">pr_pos</span> <span class="p">:</span> <span class="n">pr_pos</span> <span class="o">+</span> <span class="n">n_pr</span><span class="p">]</span> <span class="o">=</span> <span class="n">pr_est</span>
+        <span class="n">t_pr_rel</span><span class="p">[</span><span class="n">pr_pos</span> <span class="p">:</span> <span class="n">pr_pos</span> <span class="o">+</span> <span class="n">n_pr</span><span class="p">]</span> <span class="o">=</span> <span class="n">pr_time</span>
         <span class="n">pr_pos</span> <span class="o">+=</span> <span class="n">n_pr</span>
 
     <span class="n">df_pr</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">t_pr_rel</span><span class="p">,</span> <span class="s2">&quot;pulse_rate&quot;</span><span class="p">:</span> <span class="n">v_pr_rel</span><span class="p">})</span>
@@ -312,7 +377,9 @@
 
 <div class="viewcode-block" id="aggregate_pulse_rate">
 <a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.aggregate_pulse_rate">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">aggregate_pulse_rate</span><span class="p">(</span><span class="n">pr_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">aggregates</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">,</span> <span class="s1">&#39;99p&#39;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">aggregate_pulse_rate</span><span class="p">(</span>
+    <span class="n">pr_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">aggregates</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">,</span> <span class="s2">&quot;99p&quot;</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Aggregate the pulse rate estimates using the specified aggregation methods.</span>
 
@@ -333,13 +400,13 @@
 
     <span class="c1"># Initialize the dictionary for the aggregated results with the metadata</span>
     <span class="n">aggregated_results</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s1">&#39;nr_pr_est&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">pr_values</span><span class="p">)</span>
-    <span class="p">},</span>
-    <span class="s1">&#39;pr_aggregates&#39;</span><span class="p">:</span> <span class="p">{}</span>
-<span class="p">}</span>
+        <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;nr_pr_est&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">pr_values</span><span class="p">)},</span>
+        <span class="s2">&quot;pr_aggregates&quot;</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="p">}</span>
     <span class="k">for</span> <span class="n">aggregate</span> <span class="ow">in</span> <span class="n">aggregates</span><span class="p">:</span>
-        <span class="n">aggregated_results</span><span class="p">[</span><span class="s1">&#39;pr_aggregates&#39;</span><span class="p">][</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">aggregate</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PULSE_RATE</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregate_parameter</span><span class="p">(</span><span class="n">pr_values</span><span class="p">,</span> <span class="n">aggregate</span><span class="p">)</span>
+        <span class="n">aggregated_results</span><span class="p">[</span><span class="s2">&quot;pr_aggregates&quot;</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">aggregate</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PULSE_RATE</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">aggregate_parameter</span><span class="p">(</span><span class="n">pr_values</span><span class="p">,</span> <span class="n">aggregate</span><span class="p">)</span>
+        <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">aggregated_results</span></div>
 
@@ -348,10 +415,10 @@
 <div class="viewcode-block" id="extract_temporal_domain_features">
 <a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.extract_temporal_domain_features">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">extract_temporal_domain_features</span><span class="p">(</span>
-        <span class="n">ppg_windowed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
-        <span class="n">config</span><span class="p">:</span> <span class="n">PulseRateConfig</span><span class="p">,</span> 
-        <span class="n">quality_stats</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">ppg_windowed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">PulseRateConfig</span><span class="p">,</span>
+    <span class="n">quality_stats</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="s2">&quot;std&quot;</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute temporal domain features for the ppg signal. The features are added to the dataframe. Therefore the original dataframe is modified, and the modified dataframe is returned.</span>
 
@@ -365,19 +432,21 @@
 
 <span class="sd">    quality_stats: list, optional</span>
 <span class="sd">        The statistics to be computed for the gravity component of the accelerometer signal (default: [&#39;mean&#39;, &#39;std&#39;])</span>
-<span class="sd">    </span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    pd.DataFrame</span>
 <span class="sd">        The dataframe with the added temporal domain features.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
+
     <span class="n">feature_dict</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">stat</span> <span class="ow">in</span> <span class="n">quality_stats</span><span class="p">:</span>
         <span class="n">feature_dict</span><span class="p">[</span><span class="n">stat</span><span class="p">]</span> <span class="o">=</span> <span class="n">compute_statistics</span><span class="p">(</span><span class="n">ppg_windowed</span><span class="p">,</span> <span class="n">stat</span><span class="p">,</span> <span class="n">abs_stats</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    
-    <span class="n">feature_dict</span><span class="p">[</span><span class="s1">&#39;signal_to_noise&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">compute_signal_to_noise_ratio</span><span class="p">(</span><span class="n">ppg_windowed</span><span class="p">)</span>  
-    <span class="n">feature_dict</span><span class="p">[</span><span class="s1">&#39;auto_corr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">compute_auto_correlation</span><span class="p">(</span><span class="n">ppg_windowed</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">)</span>
+
+    <span class="n">feature_dict</span><span class="p">[</span><span class="s2">&quot;signal_to_noise&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">compute_signal_to_noise_ratio</span><span class="p">(</span><span class="n">ppg_windowed</span><span class="p">)</span>
+    <span class="n">feature_dict</span><span class="p">[</span><span class="s2">&quot;auto_corr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">compute_auto_correlation</span><span class="p">(</span>
+        <span class="n">ppg_windowed</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">feature_dict</span><span class="p">)</span></div>
 
 
@@ -385,12 +454,12 @@
 <div class="viewcode-block" id="extract_spectral_domain_features">
 <a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.extract_spectral_domain_features">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">extract_spectral_domain_features</span><span class="p">(</span>
-        <span class="n">ppg_windowed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-        <span class="n">config</span><span class="p">:</span> <span class="n">PulseRateConfig</span><span class="p">,</span> 
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">ppg_windowed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">PulseRateConfig</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the spectral features (dominant frequency, relative power, and spectral entropy)</span>
-<span class="sd">    for each segment of a PPG signal using a single Welch&#39;s method computation. The features are added to the dataframe. </span>
+<span class="sd">    for each segment of a PPG signal using a single Welch&#39;s method computation. The features are added to the dataframe.</span>
 <span class="sd">    Therefore the original dataframe is modified, and the modified dataframe is returned.</span>
 
 <span class="sd">    Parameters</span>
@@ -408,7 +477,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">d_features</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="n">window</span> <span class="o">=</span> <span class="n">hamming</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_welch</span><span class="p">,</span> <span class="n">sym</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="n">hamming</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_welch</span><span class="p">,</span> <span class="n">sym</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">n_samples_window</span> <span class="o">=</span> <span class="n">ppg_windowed</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
@@ -419,13 +488,13 @@
         <span class="n">noverlap</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">overlap_welch_window</span><span class="p">,</span>
         <span class="n">nfft</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">2</span> <span class="o">**</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">n_samples_window</span><span class="p">))),</span>
         <span class="n">detrend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># Calculate each feature using the computed PSD and frequency array</span>
-    <span class="n">d_features</span><span class="p">[</span><span class="s1">&#39;f_dom&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">compute_dominant_frequency</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">psd</span><span class="p">)</span>
-    <span class="n">d_features</span><span class="p">[</span><span class="s1">&#39;rel_power&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">compute_relative_power</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">psd</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
-    <span class="n">d_features</span><span class="p">[</span><span class="s1">&#39;spectral_entropy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">compute_spectral_entropy</span><span class="p">(</span><span class="n">psd</span><span class="p">,</span> <span class="n">n_samples_window</span><span class="p">)</span> 
+    <span class="n">d_features</span><span class="p">[</span><span class="s2">&quot;f_dom&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">compute_dominant_frequency</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">psd</span><span class="p">)</span>
+    <span class="n">d_features</span><span class="p">[</span><span class="s2">&quot;rel_power&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">compute_relative_power</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">psd</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+    <span class="n">d_features</span><span class="p">[</span><span class="s2">&quot;spectral_entropy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">compute_spectral_entropy</span><span class="p">(</span><span class="n">psd</span><span class="p">,</span> <span class="n">n_samples_window</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">d_features</span><span class="p">)</span></div>
 
@@ -434,11 +503,8 @@
 <div class="viewcode-block" id="extract_acc_power_feature">
 <a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.extract_acc_power_feature">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">extract_acc_power_feature</span><span class="p">(</span>
-        <span class="n">f1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
-        <span class="n">PSD_acc</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
-        <span class="n">f2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
-        <span class="n">PSD_ppg</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="n">f1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">PSD_acc</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">f2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">PSD_ppg</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extract the accelerometer power feature in the PPG frequency range.</span>
 
@@ -458,51 +524,55 @@
 <span class="sd">    np.ndarray</span>
 <span class="sd">        The accelerometer power feature in the PPG frequency range</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
+
     <span class="c1"># Find the index of the maximum PSD value in the PPG signal</span>
     <span class="n">max_PPG_psd_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">PSD_ppg</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">max_PPG_freq_psd</span> <span class="o">=</span> <span class="n">f2</span><span class="p">[</span><span class="n">max_PPG_psd_idx</span><span class="p">]</span>
-    
+
     <span class="c1"># Find the neighboring indices of the maximum PSD value in the PPG signal</span>
-    <span class="n">df_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">max_PPG_psd_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">max_PPG_psd_idx</span><span class="p">,</span> <span class="n">max_PPG_psd_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>    
-    
+    <span class="n">df_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">max_PPG_psd_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">max_PPG_psd_idx</span><span class="p">,</span> <span class="n">max_PPG_psd_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span>
+
     <span class="c1"># Find the index of the closest frequency in the accelerometer signal to the first harmonic of the PPG frequency</span>
-    <span class="n">corr_acc_psd_fh_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">f1</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">-</span> <span class="n">max_PPG_freq_psd</span><span class="o">*</span><span class="mi">2</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">fh_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">corr_acc_psd_fh_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">corr_acc_psd_fh_idx</span><span class="p">,</span> <span class="n">corr_acc_psd_fh_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>   
-    
+    <span class="n">corr_acc_psd_fh_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">f1</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">-</span> <span class="n">max_PPG_freq_psd</span> <span class="o">*</span> <span class="mi">2</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">fh_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">corr_acc_psd_fh_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">corr_acc_psd_fh_idx</span><span class="p">,</span> <span class="n">corr_acc_psd_fh_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span>
+
     <span class="c1"># Compute the power in the ranges corresponding to the PPG frequency</span>
-    <span class="n">acc_power_PPG_range</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">PSD_acc</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">PSD_acc</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">df_idx</span><span class="p">],</span> <span class="n">f1</span><span class="p">[</span><span class="n">df_idx</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">PSD_acc</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">PSD_acc</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">fh_idx</span><span class="p">],</span> <span class="n">f1</span><span class="p">[</span><span class="n">fh_idx</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">acc_power_PPG_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span>
+        <span class="n">PSD_acc</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">PSD_acc</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">df_idx</span><span class="p">],</span> <span class="n">f1</span><span class="p">[</span><span class="n">df_idx</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span>
+        <span class="n">PSD_acc</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">PSD_acc</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">fh_idx</span><span class="p">],</span> <span class="n">f1</span><span class="p">[</span><span class="n">fh_idx</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
     <span class="p">)</span>
 
     <span class="c1"># Compute the total power across the entire frequency range</span>
     <span class="n">acc_power_total</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">PSD_acc</span><span class="p">,</span> <span class="n">f1</span><span class="p">)</span>
-    
+
     <span class="c1"># Compute the power ratio of the accelerometer signal in the PPG frequency range</span>
     <span class="n">acc_power_ratio</span> <span class="o">=</span> <span class="n">acc_power_PPG_range</span> <span class="o">/</span> <span class="n">acc_power_total</span>
-    
+
     <span class="k">return</span> <span class="n">acc_power_ratio</span></div>
+
 
 
 <div class="viewcode-block" id="extract_accelerometer_feature">
 <a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.extract_accelerometer_feature">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">extract_accelerometer_feature</span><span class="p">(</span>
-        <span class="n">acc_windowed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
-        <span class="n">ppg_windowed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-        <span class="n">config</span><span class="p">:</span> <span class="n">PulseRateConfig</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">acc_windowed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ppg_windowed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">PulseRateConfig</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extract accelerometer features from the accelerometer signal in the PPG frequency range.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
-<span class="sd">    ----------    </span>
+<span class="sd">    ----------</span>
 <span class="sd">    acc_windowed: np.ndarray</span>
 <span class="sd">        The dataframe containing the windowed accelerometer signal</span>
 
 <span class="sd">    ppg_windowed: np.ndarray</span>
 <span class="sd">        The dataframe containing the corresponding windowed ppg signal</span>
-<span class="sd">    </span>
+
 <span class="sd">    config: PulseRateConfig</span>
 <span class="sd">        The configuration object containing the parameters for the feature extraction</span>
 
@@ -511,21 +581,21 @@
 <span class="sd">    pd.DataFrame</span>
 <span class="sd">        The dataframe with the relative power accelerometer feature.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">sensor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;imu&#39;</span><span class="p">,</span> <span class="s1">&#39;ppg&#39;</span><span class="p">]:</span>
+
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">sensor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;imu&quot;</span><span class="p">,</span> <span class="s2">&quot;ppg&quot;</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Sensor not recognized.&quot;</span><span class="p">)</span>
-    
+
     <span class="n">d_freq</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">d_psd</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">sensor</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;imu&#39;</span><span class="p">,</span> <span class="s1">&#39;ppg&#39;</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">sensor</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;imu&quot;</span><span class="p">,</span> <span class="s2">&quot;ppg&quot;</span><span class="p">]:</span>
         <span class="n">config</span><span class="o">.</span><span class="n">set_sensor</span><span class="p">(</span><span class="n">sensor</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">sensor</span> <span class="o">==</span> <span class="s1">&#39;imu&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">sensor</span> <span class="o">==</span> <span class="s2">&quot;imu&quot;</span><span class="p">:</span>
             <span class="n">windows</span> <span class="o">=</span> <span class="n">acc_windowed</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">windows</span> <span class="o">=</span> <span class="n">ppg_windowed</span>
 
-        <span class="n">window_type</span> <span class="o">=</span> <span class="n">hann</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_welch</span><span class="p">,</span> <span class="n">sym</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">window_type</span> <span class="o">=</span> <span class="n">hann</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_welch</span><span class="p">,</span> <span class="n">sym</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">d_freq</span><span class="p">[</span><span class="n">sensor</span><span class="p">],</span> <span class="n">d_psd</span><span class="p">[</span><span class="n">sensor</span><span class="p">]</span> <span class="o">=</span> <span class="n">welch</span><span class="p">(</span>
             <span class="n">windows</span><span class="p">,</span>
             <span class="n">fs</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
@@ -533,16 +603,16 @@
             <span class="n">noverlap</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">overlap_welch_window</span><span class="p">,</span>
             <span class="n">nfft</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">nfft</span><span class="p">,</span>
             <span class="n">detrend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+            <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="n">d_psd</span><span class="p">[</span><span class="s1">&#39;imu&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">d_psd</span><span class="p">[</span><span class="s1">&#39;imu&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># Sum the PSDs of the three axes</span>
+    <span class="n">d_psd</span><span class="p">[</span><span class="s2">&quot;imu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">d_psd</span><span class="p">[</span><span class="s2">&quot;imu&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># Sum the PSDs of the three axes</span>
 
-    <span class="n">acc_power_ratio</span> <span class="o">=</span> <span class="n">extract_acc_power_feature</span><span class="p">(</span><span class="n">d_freq</span><span class="p">[</span><span class="s1">&#39;imu&#39;</span><span class="p">],</span> <span class="n">d_psd</span><span class="p">[</span><span class="s1">&#39;imu&#39;</span><span class="p">],</span> <span class="n">d_freq</span><span class="p">[</span><span class="s1">&#39;ppg&#39;</span><span class="p">],</span> <span class="n">d_psd</span><span class="p">[</span><span class="s1">&#39;ppg&#39;</span><span class="p">])</span>
+    <span class="n">acc_power_ratio</span> <span class="o">=</span> <span class="n">extract_acc_power_feature</span><span class="p">(</span>
+        <span class="n">d_freq</span><span class="p">[</span><span class="s2">&quot;imu&quot;</span><span class="p">],</span> <span class="n">d_psd</span><span class="p">[</span><span class="s2">&quot;imu&quot;</span><span class="p">],</span> <span class="n">d_freq</span><span class="p">[</span><span class="s2">&quot;ppg&quot;</span><span class="p">],</span> <span class="n">d_psd</span><span class="p">[</span><span class="s2">&quot;ppg&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">acc_power_ratio</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;acc_power_ratio&#39;</span><span class="p">])</span></div>
-
-
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">acc_power_ratio</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;acc_power_ratio&quot;</span><span class="p">])</span></div>
 
 </pre></div>
 

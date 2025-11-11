@@ -74,14 +74,24 @@ Module Contents
 
    Efficiently creates a windowed dataframe from the input dataframe using vectorized operations.
 
-   :param df: The input dataframe, where each row represents a timestamp (0.01 sec).
-   :param window_length_s: The number of seconds per window.
-   :param window_step_length_s: The number of seconds to shift between windows.
-   :param single_value_cols: List of columns where a single value (e.g., mean) is needed.
-   :param list_value_cols: List of columns where all 600 values should be stored in a list.
-   :param agg_func: Aggregation function for single-value columns (e.g., 'mean', 'first').
+   :param config: A configuration object containing:
+                  - `window_length_s`: The number of seconds per window.
+                  - `window_step_length_s`: The number of seconds to shift between windows.
+                  - `sampling_frequency`: The sampling frequency in Hz.
+                  - `single_value_colnames`: List of column names where a single value (e.g., mean) is needed.
+                  - `list_value_colnames`: List of column names where all 600 values should be stored in a list.
+   :type config: object
+   :param agg_func: Aggregation function for single-value columns. Can be 'mean', 'first', or a custom callable.
+                    Default is 'first'.
+   :type agg_func: str or callable, optional
 
-   :returns: The windowed dataframe.
+   :returns: A new DataFrame where each row corresponds to a window, containing:
+             - `window_nr`: The window number (starting from 1).
+             - `window_start`: The start time of the window.
+             - `window_end`: The end time of the window.
+             - Aggregated values for `single_value_colnames`.
+             - Lists of values for `list_value_colnames`.
+   :rtype: pd.DataFrame
 
 
 .. py:function:: create_segments(time_array: numpy.ndarray, max_segment_gap_s: float)
@@ -153,7 +163,7 @@ Module Contents
    :rtype: pd.Series
 
 
-.. py:class:: WindowedDataExtractor(windowed_cols)
+.. py:class:: WindowedDataExtractor(windowed_colnames: List[str])
 
    A utility class for extracting specific column indices and slices
    from a list of windowed column names.
@@ -164,20 +174,20 @@ Module Contents
 
       :type: dict
 
-   .. method:: get_index(col)
+   .. method:: get_index(colname)
 
-      Returns the index of a specific column.
+      Returns the index of a specific column name.
 
-   .. method:: get_slice(cols)
+   .. method:: get_slice(colnames)
 
-      Returns a slice object for a range of consecutive columns.
+      Returns a slice object for a range of consecutive column names.
 
 
 
    .. py:attribute:: column_indices
 
 
-   .. py:method:: get_index(col)
+   .. py:method:: get_index(colname: str) -> int
 
       Get the index of a specific column.
 
@@ -187,21 +197,21 @@ Module Contents
       :returns: The index of the specified column.
       :rtype: int
 
-      :raises ValueError: If the column is not found in the `windowed_cols` list.
+      :raises ValueError: If the column is not found in the `windowed_colnames` list.
 
 
 
-   .. py:method:: get_slice(cols)
+   .. py:method:: get_slice(colnames: List[str]) -> slice
 
       Get a slice object for a range of consecutive columns.
 
-      :param cols: A list of consecutive column names to define the slice.
-      :type cols: list of str
+      :param colnames: A list of consecutive column names to define the slice.
+      :type colnames: list of str
 
       :returns: A slice object spanning the indices of the given columns.
       :rtype: slice
 
-      :raises ValueError: If one or more columns in `cols` are not found in the `windowed_cols` list.
+      :raises ValueError: If one or more columns in `colnames` are not found in the `windowed_colnames` list.
 
 
 

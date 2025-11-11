@@ -8,8 +8,8 @@
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
-      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
 
   
   <!--[if lt IE 9]>
@@ -50,6 +50,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/data_preparation.html">Data preparation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
 </ul>
@@ -94,30 +95,27 @@
            <div itemprop="articleBody">
              
   <h1>Source code for paradigma.preprocessing</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">tsdf</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">signal</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp1d</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeUnit</span><span class="p">,</span> <span class="n">DataColumns</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PPGConfig</span><span class="p">,</span> <span class="n">IMUConfig</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_df_data</span><span class="p">,</span> <span class="n">read_metadata</span><span class="p">,</span> <span class="n">invert_watch_side</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span><span class="p">,</span> <span class="n">PPGConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">invert_watch_side</span>
 
 
 <div class="viewcode-block" id="resample_data">
 <a class="viewcode-back" href="../../autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.resample_data">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">resample_data</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-    <span class="n">time_column</span> <span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">time_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">values_column_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">sampling_frequency</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">resampling_frequency</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Resamples sensor data to a specified frequency using cubic interpolation.</span>
@@ -135,9 +133,8 @@
 <span class="sd">    resampling_frequency : int</span>
 <span class="sd">        The frequency to which the data should be resampled (in Hz).</span>
 <span class="sd">    tolerance : float, optional</span>
-<span class="sd">        The tolerance added to the expected difference when checking </span>
-<span class="sd">        for contiguous timestamps. If not provided, it defaults to</span>
-<span class="sd">        three times the expected interval.</span>
+<span class="sd">        The tolerance added to the expected difference when checking</span>
+<span class="sd">        for contiguous timestamps. If not provided, it defaults to the tolerance specified in IMUConfig.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -155,9 +152,10 @@
 <span class="sd">    - Uses cubic interpolation for smooth resampling if there are enough points.</span>
 <span class="sd">    - If only two timestamps are available, it falls back to linear interpolation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Set default tolerance if not provided to three times the expected interval</span>
+
+    <span class="c1"># Set default tolerance if not provided to tolerance specified in IMUConfig</span>
     <span class="k">if</span> <span class="n">tolerance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">tolerance</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">sampling_frequency</span>
+        <span class="n">tolerance</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span><span class="o">.</span><span class="n">tolerance</span>
 
     <span class="c1"># Extract time and values</span>
     <span class="n">time_abs_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">time_column</span><span class="p">])</span>
@@ -166,7 +164,7 @@
     <span class="c1"># Ensure the time array is strictly increasing</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">time_abs_array</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Time array is not strictly increasing&quot;</span><span class="p">)</span>
-    
+
     <span class="c1"># Ensure the time array is contiguous</span>
     <span class="n">expected_interval</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">sampling_frequency</span>
     <span class="n">timestamp_diffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">time_abs_array</span><span class="p">)</span>
@@ -174,12 +172,20 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Time array is not contiguous&quot;</span><span class="p">)</span>
 
     <span class="c1"># Resample the time data using the specified frequency</span>
-    <span class="n">t_resampled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">time_abs_array</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">time_abs_array</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">resampling_frequency</span><span class="p">)</span>
-    
+    <span class="n">t_resampled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
+        <span class="n">time_abs_array</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">time_abs_array</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">resampling_frequency</span>
+    <span class="p">)</span>
+
     <span class="c1"># Choose interpolation method</span>
     <span class="n">interpolation_kind</span> <span class="o">=</span> <span class="s2">&quot;cubic&quot;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_abs_array</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span> <span class="k">else</span> <span class="s2">&quot;linear&quot;</span>
-    <span class="n">interpolator</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">time_abs_array</span><span class="p">,</span> <span class="n">values_array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="n">interpolation_kind</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s2">&quot;extrapolate&quot;</span><span class="p">)</span>
-    
+    <span class="n">interpolator</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span>
+        <span class="n">time_abs_array</span><span class="p">,</span>
+        <span class="n">values_array</span><span class="p">,</span>
+        <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">kind</span><span class="o">=</span><span class="n">interpolation_kind</span><span class="p">,</span>
+        <span class="n">fill_value</span><span class="o">=</span><span class="s2">&quot;extrapolate&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
     <span class="c1"># Interpolate</span>
     <span class="n">resampled_values</span> <span class="o">=</span> <span class="n">interpolator</span><span class="p">(</span><span class="n">t_resampled</span><span class="p">)</span>
 
@@ -204,20 +210,20 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Applies a Butterworth filter to 1D or 2D sensor data.</span>
 
-<span class="sd">    This function applies a low-pass, high-pass, or band-pass Butterworth filter to the </span>
-<span class="sd">    input data. The filter is designed using the specified order, cutoff frequency, </span>
+<span class="sd">    This function applies a low-pass, high-pass, or band-pass Butterworth filter to the</span>
+<span class="sd">    input data. The filter is designed using the specified order, cutoff frequency,</span>
 <span class="sd">    and passband type. The function can handle both 1D and 2D data arrays.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    data : np.ndarray</span>
-<span class="sd">        The sensor data to be filtered. Can be 1D (e.g., a single signal) or 2D </span>
+<span class="sd">        The sensor data to be filtered. Can be 1D (e.g., a single signal) or 2D</span>
 <span class="sd">        (e.g., multi-axis sensor data).</span>
 <span class="sd">    order : int</span>
 <span class="sd">        The order of the Butterworth filter. Higher values result in a steeper roll-off.</span>
 <span class="sd">    cutoff_frequency : float or List[float]</span>
-<span class="sd">        The cutoff frequency (or frequencies) for the filter. For a low-pass or high-pass filter, </span>
-<span class="sd">        this is a single float. For a band-pass filter, this should be a list of two floats, </span>
+<span class="sd">        The cutoff frequency (or frequencies) for the filter. For a low-pass or high-pass filter,</span>
+<span class="sd">        this is a single float. For a band-pass filter, this should be a list of two floats,</span>
 <span class="sd">        specifying the lower and upper cutoff frequencies.</span>
 <span class="sd">    passband : str</span>
 <span class="sd">        The type of passband to apply. Options are:</span>
@@ -261,9 +267,12 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Data must be either 1D or 2D.&quot;</span><span class="p">)</span></div>
 
 
+
 <div class="viewcode-block" id="preprocess_imu_data">
 <a class="viewcode-back" href="../../autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.preprocess_imu_data">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">preprocess_imu_data</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">IMUConfig</span><span class="p">,</span> <span class="n">sensor</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">watch_side</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">preprocess_imu_data</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">IMUConfig</span><span class="p">,</span> <span class="n">sensor</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">watch_side</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Preprocesses IMU data by resampling and applying filters.</span>
 
@@ -290,61 +299,70 @@
 <span class="sd">        The preprocessed accelerometer and or gyroscope data with the following transformations:</span>
 <span class="sd">        - Resampled data at the specified frequency.</span>
 <span class="sd">        - Filtered accelerometer data with high-pass and low-pass filtering applied.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    - The function applies Butterworth filters to accelerometer data, both high-pass and low-pass.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Extract sensor column</span>
-    <span class="k">if</span> <span class="n">sensor</span> <span class="o">==</span> <span class="s1">&#39;accelerometer&#39;</span><span class="p">:</span>
-        <span class="n">values_colnames</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">accelerometer_cols</span>
-    <span class="k">elif</span> <span class="n">sensor</span> <span class="o">==</span> <span class="s1">&#39;gyroscope&#39;</span><span class="p">:</span>
-        <span class="n">values_colnames</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gyroscope_cols</span>
-    <span class="k">elif</span> <span class="n">sensor</span> <span class="o">==</span> <span class="s1">&#39;both&#39;</span><span class="p">:</span>
-        <span class="n">values_colnames</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">accelerometer_cols</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">gyroscope_cols</span>
+    <span class="k">if</span> <span class="n">sensor</span> <span class="o">==</span> <span class="s2">&quot;accelerometer&quot;</span><span class="p">:</span>
+        <span class="n">values_colnames</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">accelerometer_colnames</span>
+    <span class="k">elif</span> <span class="n">sensor</span> <span class="o">==</span> <span class="s2">&quot;gyroscope&quot;</span><span class="p">:</span>
+        <span class="n">values_colnames</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gyroscope_colnames</span>
+    <span class="k">elif</span> <span class="n">sensor</span> <span class="o">==</span> <span class="s2">&quot;both&quot;</span><span class="p">:</span>
+        <span class="n">values_colnames</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">accelerometer_colnames</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">gyroscope_colnames</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span><span class="p">(</span><span class="s1">&#39;Sensor should be either accelerometer, gyroscope, or both&#39;</span><span class="p">)</span>
-        
+        <span class="k">raise</span> <span class="p">(</span><span class="s2">&quot;Sensor should be either accelerometer, gyroscope, or both&quot;</span><span class="p">)</span>
+
     <span class="c1"># Resample the data to the specified frequency</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">resample_data</span><span class="p">(</span>
         <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
-        <span class="n">time_column</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span>
+        <span class="n">time_column</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">,</span>
         <span class="n">values_column_names</span><span class="o">=</span><span class="n">values_colnames</span><span class="p">,</span>
         <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
-        <span class="n">resampling_frequency</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">resampling_frequency</span>
+        <span class="n">resampling_frequency</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">resampling_frequency</span><span class="p">,</span>
+        <span class="n">tolerance</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">tolerance</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># Invert the IMU data if the watch was worn on the right wrist</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">invert_watch_side</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">watch_side</span><span class="p">,</span> <span class="n">sensor</span><span class="p">)</span>
-    
-    <span class="k">if</span> <span class="n">sensor</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;accelerometer&#39;</span><span class="p">,</span> <span class="s1">&#39;both&#39;</span><span class="p">]:</span>
-      
+
+    <span class="k">if</span> <span class="n">sensor</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;accelerometer&quot;</span><span class="p">,</span> <span class="s2">&quot;both&quot;</span><span class="p">]:</span>
+
         <span class="c1"># Extract accelerometer data for filtering</span>
-        <span class="n">accel_data</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">accelerometer_cols</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">accel_data</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">accelerometer_colnames</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
         <span class="c1"># Define filter configurations for high-pass and low-pass</span>
         <span class="n">filter_renaming_configs</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;hp&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;result_columns&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">accelerometer_cols</span><span class="p">,</span> <span class="s2">&quot;replace_original&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
-        <span class="s2">&quot;lp&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;result_columns&quot;</span><span class="p">:</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s1">_grav&#39;</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">accelerometer_cols</span><span class="p">],</span> <span class="s2">&quot;replace_original&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+            <span class="s2">&quot;hp&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;result_columns&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">accelerometer_colnames</span><span class="p">,</span>
+                <span class="s2">&quot;replace_original&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;lp&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;result_columns&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_grav&quot;</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">accelerometer_colnames</span>
+                <span class="p">],</span>
+                <span class="s2">&quot;replace_original&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="p">},</span>
         <span class="p">}</span>
 
         <span class="c1"># Apply filters in a loop</span>
         <span class="k">for</span> <span class="n">passband</span><span class="p">,</span> <span class="n">filter_config</span> <span class="ow">in</span> <span class="n">filter_renaming_configs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">filtered_data</span> <span class="o">=</span> <span class="n">butterworth_filter</span><span class="p">(</span>
-            <span class="n">data</span><span class="o">=</span><span class="n">accel_data</span><span class="p">,</span>
-            <span class="n">order</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">filter_order</span><span class="p">,</span>
-            <span class="n">cutoff_frequency</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">lower_cutoff_frequency</span><span class="p">,</span>
-            <span class="n">passband</span><span class="o">=</span><span class="n">passband</span><span class="p">,</span>
-            <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
+                <span class="n">data</span><span class="o">=</span><span class="n">accel_data</span><span class="p">,</span>
+                <span class="n">order</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">filter_order</span><span class="p">,</span>
+                <span class="n">cutoff_frequency</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">lower_cutoff_frequency</span><span class="p">,</span>
+                <span class="n">passband</span><span class="o">=</span><span class="n">passband</span><span class="p">,</span>
+                <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
             <span class="p">)</span>
 
             <span class="c1"># Replace or add new columns based on configuration</span>
             <span class="n">df</span><span class="p">[</span><span class="n">filter_config</span><span class="p">[</span><span class="s2">&quot;result_columns&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">filtered_data</span>
 
-        <span class="n">values_colnames</span> <span class="o">+=</span> <span class="n">config</span><span class="o">.</span><span class="n">gravity_cols</span>
+        <span class="n">values_colnames</span> <span class="o">+=</span> <span class="n">config</span><span class="o">.</span><span class="n">gravity_colnames</span>
 
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span> <span class="o">*</span><span class="n">values_colnames</span><span class="p">]]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">,</span> <span class="o">*</span><span class="n">values_colnames</span><span class="p">]]</span>
 
     <span class="k">return</span> <span class="n">df</span></div>
 
@@ -352,10 +370,20 @@
 
 <div class="viewcode-block" id="preprocess_ppg_data">
 <a class="viewcode-back" href="../../autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.preprocess_ppg_data">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">preprocess_ppg_data</span><span class="p">(</span><span class="n">df_ppg</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">df_acc</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ppg_config</span><span class="p">:</span> <span class="n">PPGConfig</span><span class="p">,</span> 
-                        <span class="n">imu_config</span><span class="p">:</span> <span class="n">IMUConfig</span><span class="p">,</span> <span class="n">start_time_ppg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">start_time_imu</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">preprocess_ppg_data</span><span class="p">(</span>
+    <span class="n">df_ppg</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">ppg_config</span><span class="p">:</span> <span class="n">PPGConfig</span><span class="p">,</span>
+    <span class="n">start_time_ppg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">df_acc</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">imu_config</span><span class="p">:</span> <span class="n">IMUConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">start_time_imu</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Preprocess PPG and IMU (accelerometer only) data by resampling, filtering, and aligning the data segments.</span>
+<span class="sd">    This function preprocesses PPG and accelerometer data by resampling, filtering and aligning the data segments of both sensors (if applicable).</span>
+<span class="sd">    Aligning is done using the extract_overlapping_segments function which is based on the provided start times of the PPG and IMU data and returns</span>
+<span class="sd">    only the data points where both signals overlap in time. The remaining data points are discarded.</span>
+<span class="sd">    After alignment, the function resamples the data to the specified frequency and applies Butterworth filters to both PPG and accelerometer data (if applicable).</span>
+<span class="sd">    The output is two DataFrames: one for the preprocessed PPG data and another for the preprocessed accelerometer data (if provided, otherwise return is None).</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -374,82 +402,120 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    Tuple[pd.DataFrame, pd.DataFrame]</span>
-<span class="sd">        Preprocessed PPG and IMU data as DataFrames.</span>
-<span class="sd">    </span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    Tuple[pd.DataFrame, pd.DataFrame | None]</span>
+<span class="sd">        A tuple containing two DataFrames:</span>
+<span class="sd">        - Preprocessed PPG data with the following transformations:</span>
+<span class="sd">            - Resampled data at the specified frequency.</span>
+<span class="sd">            - Filtered PPG data with bandpass filtering applied.</span>
+<span class="sd">        - Preprocessed accelerometer data (if provided, otherwise return is None) with the following transformations:</span>
+<span class="sd">            - Resampled data at the specified frequency.</span>
+<span class="sd">            - Filtered accelerometer data with high-pass and low-pass filtering applied.</span>
 
-    <span class="c1"># Extract overlapping segments</span>
-    <span class="n">df_ppg_overlapping</span><span class="p">,</span> <span class="n">df_acc_overlapping</span> <span class="o">=</span> <span class="n">extract_overlapping_segments</span><span class="p">(</span><span class="n">df_ppg</span><span class="p">,</span> <span class="n">df_acc</span><span class="p">,</span> <span class="n">start_time_ppg</span><span class="p">,</span> <span class="n">start_time_imu</span><span class="p">)</span>
-    
-    <span class="c1"># Resample accelerometer data</span>
-    <span class="n">df_acc_proc</span> <span class="o">=</span> <span class="n">resample_data</span><span class="p">(</span>
-        <span class="n">df</span><span class="o">=</span><span class="n">df_acc_overlapping</span><span class="p">,</span>
-        <span class="n">time_column</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span>
-        <span class="n">values_column_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">imu_config</span><span class="o">.</span><span class="n">d_channels_accelerometer</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
-        <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
-        <span class="n">resampling_frequency</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">sampling_frequency</span>
-    <span class="p">)</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - If accelerometer data or IMU configuration is not provided, the function only preprocesses PPG data.</span>
+<span class="sd">    - The function applies Butterworth filters to PPG and accelerometer (if applicable) data, both high-pass and low-pass.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">df_acc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">imu_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Extract overlapping segments</span>
+        <span class="n">df_ppg_overlapping</span><span class="p">,</span> <span class="n">df_acc_overlapping</span> <span class="o">=</span> <span class="n">extract_overlapping_segments</span><span class="p">(</span>
+            <span class="n">df_ppg</span><span class="o">=</span><span class="n">df_ppg</span><span class="p">,</span>
+            <span class="n">df_acc</span><span class="o">=</span><span class="n">df_acc</span><span class="p">,</span>
+            <span class="n">time_colname_ppg</span><span class="o">=</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">,</span>
+            <span class="n">time_colname_imu</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">,</span>
+            <span class="n">start_time_ppg</span><span class="o">=</span><span class="n">start_time_ppg</span><span class="p">,</span>
+            <span class="n">start_time_acc</span><span class="o">=</span><span class="n">start_time_imu</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Resample accelerometer data</span>
+        <span class="n">df_acc_proc</span> <span class="o">=</span> <span class="n">resample_data</span><span class="p">(</span>
+            <span class="n">df</span><span class="o">=</span><span class="n">df_acc_overlapping</span><span class="p">,</span>
+            <span class="n">time_column</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">,</span>
+            <span class="n">values_column_names</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">imu_config</span><span class="o">.</span><span class="n">d_channels_accelerometer</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+            <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
+            <span class="n">resampling_frequency</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">resampling_frequency</span><span class="p">,</span>
+            <span class="n">tolerance</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">tolerance</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Extract accelerometer data for filtering</span>
+        <span class="n">accel_data</span> <span class="o">=</span> <span class="n">df_acc_proc</span><span class="p">[</span><span class="n">imu_config</span><span class="o">.</span><span class="n">accelerometer_colnames</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="c1"># Define filter configurations for high-pass and low-pass</span>
+        <span class="n">filter_renaming_configs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;hp&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;result_columns&quot;</span><span class="p">:</span> <span class="n">imu_config</span><span class="o">.</span><span class="n">accelerometer_colnames</span><span class="p">,</span>
+                <span class="s2">&quot;replace_original&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Apply filters in a loop</span>
+        <span class="k">for</span> <span class="n">passband</span><span class="p">,</span> <span class="n">filter_config</span> <span class="ow">in</span> <span class="n">filter_renaming_configs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">filtered_data</span> <span class="o">=</span> <span class="n">butterworth_filter</span><span class="p">(</span>
+                <span class="n">data</span><span class="o">=</span><span class="n">accel_data</span><span class="p">,</span>
+                <span class="n">order</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">filter_order</span><span class="p">,</span>
+                <span class="n">cutoff_frequency</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">lower_cutoff_frequency</span><span class="p">,</span>
+                <span class="n">passband</span><span class="o">=</span><span class="n">passband</span><span class="p">,</span>
+                <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Replace or add new columns based on configuration</span>
+            <span class="n">df_acc_proc</span><span class="p">[</span><span class="n">filter_config</span><span class="p">[</span><span class="s2">&quot;result_columns&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">filtered_data</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">df_ppg_overlapping</span> <span class="o">=</span> <span class="n">df_ppg</span>
 
     <span class="c1"># Resample PPG data</span>
     <span class="n">df_ppg_proc</span> <span class="o">=</span> <span class="n">resample_data</span><span class="p">(</span>
         <span class="n">df</span><span class="o">=</span><span class="n">df_ppg_overlapping</span><span class="p">,</span>
-        <span class="n">time_column</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span>
-        <span class="n">values_column_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">d_channels_ppg</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+        <span class="n">time_column</span><span class="o">=</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">,</span>
+        <span class="n">values_column_names</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">d_channels_ppg</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
         <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
-        <span class="n">resampling_frequency</span><span class="o">=</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">sampling_frequency</span>
+        <span class="n">resampling_frequency</span><span class="o">=</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">resampling_frequency</span><span class="p">,</span>
+        <span class="n">tolerance</span><span class="o">=</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">tolerance</span><span class="p">,</span>
     <span class="p">)</span>
 
-
-    <span class="c1"># Extract accelerometer data for filtering</span>
-    <span class="n">accel_data</span> <span class="o">=</span> <span class="n">df_acc_proc</span><span class="p">[</span><span class="n">imu_config</span><span class="o">.</span><span class="n">accelerometer_cols</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-
-    <span class="c1"># Define filter configurations for high-pass and low-pass</span>
-    <span class="n">filter_renaming_configs</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;hp&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;result_columns&quot;</span><span class="p">:</span> <span class="n">imu_config</span><span class="o">.</span><span class="n">accelerometer_cols</span><span class="p">,</span> <span class="s2">&quot;replace_original&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}}</span>
-
-    <span class="c1"># Apply filters in a loop</span>
-    <span class="k">for</span> <span class="n">passband</span><span class="p">,</span> <span class="n">filter_config</span> <span class="ow">in</span> <span class="n">filter_renaming_configs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">filtered_data</span> <span class="o">=</span> <span class="n">butterworth_filter</span><span class="p">(</span>
-        <span class="n">data</span><span class="o">=</span><span class="n">accel_data</span><span class="p">,</span>
-        <span class="n">order</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">filter_order</span><span class="p">,</span>
-        <span class="n">cutoff_frequency</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">lower_cutoff_frequency</span><span class="p">,</span>
-        <span class="n">passband</span><span class="o">=</span><span class="n">passband</span><span class="p">,</span>
-        <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
-        <span class="p">)</span>
-
-        <span class="c1"># Replace or add new columns based on configuration</span>
-        <span class="n">df_acc_proc</span><span class="p">[</span><span class="n">filter_config</span><span class="p">[</span><span class="s2">&quot;result_columns&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">filtered_data</span>
-    
     <span class="c1"># Extract accelerometer data for filtering</span>
     <span class="n">ppg_data</span> <span class="o">=</span> <span class="n">df_ppg_proc</span><span class="p">[</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">ppg_colname</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
     <span class="c1"># Define filter configurations for high-pass and low-pass</span>
     <span class="n">filter_renaming_configs</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;bandpass&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;result_columns&quot;</span><span class="p">:</span> <span class="n">ppg_config</span><span class="o">.</span><span class="n">ppg_colname</span><span class="p">,</span> <span class="s2">&quot;replace_original&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}}</span>
+        <span class="s2">&quot;bandpass&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;result_columns&quot;</span><span class="p">:</span> <span class="n">ppg_config</span><span class="o">.</span><span class="n">ppg_colname</span><span class="p">,</span> <span class="s2">&quot;replace_original&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+    <span class="p">}</span>
 
     <span class="c1"># Apply filters in a loop</span>
     <span class="k">for</span> <span class="n">passband</span><span class="p">,</span> <span class="n">filter_config</span> <span class="ow">in</span> <span class="n">filter_renaming_configs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">filtered_data</span> <span class="o">=</span> <span class="n">butterworth_filter</span><span class="p">(</span>
-        <span class="n">data</span><span class="o">=</span><span class="n">ppg_data</span><span class="p">,</span>
-        <span class="n">order</span><span class="o">=</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">filter_order</span><span class="p">,</span>
-        <span class="n">cutoff_frequency</span><span class="o">=</span><span class="p">[</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">lower_cutoff_frequency</span><span class="p">,</span> <span class="n">ppg_config</span><span class="o">.</span><span class="n">upper_cutoff_frequency</span><span class="p">],</span>
-        <span class="n">passband</span><span class="o">=</span><span class="n">passband</span><span class="p">,</span>
-        <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">ppg_data</span><span class="p">,</span>
+            <span class="n">order</span><span class="o">=</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">filter_order</span><span class="p">,</span>
+            <span class="n">cutoff_frequency</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">ppg_config</span><span class="o">.</span><span class="n">lower_cutoff_frequency</span><span class="p">,</span>
+                <span class="n">ppg_config</span><span class="o">.</span><span class="n">upper_cutoff_frequency</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="n">passband</span><span class="o">=</span><span class="n">passband</span><span class="p">,</span>
+            <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># Replace or add new columns based on configuration</span>
         <span class="n">df_ppg_proc</span><span class="p">[</span><span class="n">filter_config</span><span class="p">[</span><span class="s2">&quot;result_columns&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">filtered_data</span>
-    
-    <span class="k">return</span> <span class="n">df_ppg_proc</span><span class="p">,</span> <span class="n">df_acc_proc</span></div>
 
-
+    <span class="k">if</span> <span class="n">df_acc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">imu_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df_ppg_proc</span><span class="p">,</span> <span class="n">df_acc_proc</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df_ppg_proc</span><span class="p">,</span> <span class="kc">None</span></div>
 
 
 
 <div class="viewcode-block" id="extract_overlapping_segments">
 <a class="viewcode-back" href="../../autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.extract_overlapping_segments">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">extract_overlapping_segments</span><span class="p">(</span><span class="n">df_ppg</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">df_acc</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">start_time_ppg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">start_time_acc</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_overlapping_segments</span><span class="p">(</span>
+    <span class="n">df_ppg</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">df_acc</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">time_colname_ppg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">time_colname_imu</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">start_time_ppg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">start_time_acc</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extract DataFrames with overlapping data segments between accelerometer (from the IMU) and PPG datasets based on their timestamps.</span>
 
@@ -459,6 +525,10 @@
 <span class="sd">        DataFrame containing PPG data.</span>
 <span class="sd">    df_acc : pd.DataFrame</span>
 <span class="sd">        DataFrame containing accelerometer data from the IMU.</span>
+<span class="sd">    time_colname_ppg : str</span>
+<span class="sd">        The name of the column containing the time data in the PPG dataframe.</span>
+<span class="sd">    time_colname_imu : str</span>
+<span class="sd">        The name of the column containing the time data in the IMU dataframe.</span>
 <span class="sd">    start_time_ppg : str</span>
 <span class="sd">        iso8601 formatted start time of the PPG data.</span>
 <span class="sd">    start_time_acc : str</span>
@@ -476,22 +546,22 @@
     <span class="n">start_acc_ppg</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">datetime_acc_start</span><span class="o">.</span><span class="n">timestamp</span><span class="p">())</span>
 
     <span class="c1"># Calculate the time in Unix timestamps for each dataset because the timestamps are relative to the start time</span>
-    <span class="n">ppg_time</span> <span class="o">=</span> <span class="n">df_ppg</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">+</span> <span class="n">start_unix_ppg</span>
-    <span class="n">acc_time</span> <span class="o">=</span> <span class="n">df_acc</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">+</span> <span class="n">start_acc_ppg</span>
+    <span class="n">ppg_time</span> <span class="o">=</span> <span class="n">df_ppg</span><span class="p">[</span><span class="n">time_colname_ppg</span><span class="p">]</span> <span class="o">+</span> <span class="n">start_unix_ppg</span>
+    <span class="n">acc_time</span> <span class="o">=</span> <span class="n">df_acc</span><span class="p">[</span><span class="n">time_colname_imu</span><span class="p">]</span> <span class="o">+</span> <span class="n">start_acc_ppg</span>
 
     <span class="c1"># Determine the overlapping time interval</span>
     <span class="n">start_time</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">ppg_time</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">acc_time</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="n">end_time</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">ppg_time</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">acc_time</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
     <span class="c1"># Extract indices for overlapping segments</span>
-    <span class="n">ppg_start_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">ppg_time</span><span class="p">,</span> <span class="n">start_time</span><span class="p">,</span> <span class="s1">&#39;left&#39;</span><span class="p">)</span>
-    <span class="n">ppg_end_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">ppg_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="s1">&#39;right&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
-    <span class="n">acc_start_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">acc_time</span><span class="p">,</span> <span class="n">start_time</span><span class="p">,</span> <span class="s1">&#39;left&#39;</span><span class="p">)</span>
-    <span class="n">acc_end_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">acc_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="s1">&#39;right&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">ppg_start_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">ppg_time</span><span class="p">,</span> <span class="n">start_time</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">)</span>
+    <span class="n">ppg_end_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">ppg_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">acc_start_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">acc_time</span><span class="p">,</span> <span class="n">start_time</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">)</span>
+    <span class="n">acc_end_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">acc_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
 
     <span class="c1"># Extract overlapping segments from DataFrames</span>
-    <span class="n">df_ppg_overlapping</span> <span class="o">=</span> <span class="n">df_ppg</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ppg_start_index</span><span class="p">:</span><span class="n">ppg_end_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
-    <span class="n">df_acc_overlapping</span> <span class="o">=</span> <span class="n">df_acc</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">acc_start_index</span><span class="p">:</span><span class="n">acc_end_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">df_ppg_overlapping</span> <span class="o">=</span> <span class="n">df_ppg</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ppg_start_index</span> <span class="p">:</span> <span class="n">ppg_end_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">df_acc_overlapping</span> <span class="o">=</span> <span class="n">df_acc</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">acc_start_index</span> <span class="p">:</span> <span class="n">acc_end_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="n">df_ppg_overlapping</span><span class="p">,</span> <span class="n">df_acc_overlapping</span></div>
 

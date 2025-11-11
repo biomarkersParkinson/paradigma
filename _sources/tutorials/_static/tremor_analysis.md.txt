@@ -1,6 +1,6 @@
 # Tremor analysis
 
-This tutorial shows how to run the tremor pipeline to obtain aggregated tremor measures from gyroscope sensor data. Before following along, make sure all data preparation steps have been followed in the data preparation tutorial. 
+This tutorial shows how to run the tremor pipeline to obtain aggregated tremor measures from gyroscope sensor data. Before following along, make sure all data preparation steps have been followed in the data preparation tutorial.
 
 In this tutorial, we use two days of data from a participant of the Personalized Parkinson Project to demonstrate the functionalities. Since `ParaDigMa` expects contiguous time series, the collected data was stored in two segments each with contiguous timestamps. Per segment, we load the data and perform the following steps:
 1. Preprocess the time series data
@@ -30,7 +30,7 @@ from paradigma.util import load_tsdf_dataframe
 path_to_data =  Path('../../example_data')
 path_to_prepared_data = path_to_data / 'imu'
 
-segment_nr  = '0001' 
+segment_nr  = '0001'
 
 df_data, metadata_time, metadata_values = load_tsdf_dataframe(path_to_prepared_data, prefix=f'IMU_segment{segment_nr}')
 
@@ -187,15 +187,30 @@ df_data
 
 ## Step 1: Preprocess data
 
-IMU sensors collect data at a fixed sampling frequency, but the sampling rate is not uniform, causing variation in time differences between timestamps. The [preprocess_imu_data](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_imu_data) function therefore resamples the timestamps to be uniformly distributed, and then interpolates IMU values at these new timestamps using the original timestamps and corresponding IMU values. By setting `sensor` to 'gyroscope', only gyroscope data is preprocessed and the accelerometer data is removed from the dataframe. Also a `watch_side` should be provided, although for the tremor analysis it does not matter whether this is the correct side since the tremor features are not influenced by the gyroscope axes orientation.
+IMU sensors collect data at a fixed sampling frequency, but the sampling rate is not uniform, causing variation in time differences between timestamps. The [preprocess_imu_data](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_imu_data) function therefore resamples the timestamps to be uniformly distributed, and then interpolates IMU values at these new timestamps using the original timestamps and corresponding IMU values. If the difference between timestamps is larger than a specified tolerance (`config.tolerance`, in seconds), it will return an error that the timestamps are not contiguous.  If you still want to process the data in this case, you can create segments from discontiguous samples using the function [`create_segments`](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/segmenting.py) and analyze these segments consecutively as shown in [here](#multiple_segments_cell). By setting `sensor` to 'gyroscope', only gyroscope data is preprocessed and the accelerometer data is removed from the dataframe. Also a `watch_side` should be provided, although for the tremor analysis it does not matter whether this is the correct side since the tremor features are not influenced by the gyroscope axes orientation.
 
 
 ```python
 from paradigma.config import IMUConfig
+from paradigma.constants import DataColumns
 from paradigma.preprocessing import preprocess_imu_data
 
-config = IMUConfig()
-print(f'The data is resampled to {config.sampling_frequency} Hz.')
+# Set column names: replace DataColumn.* with your actual column names.
+# It is only necessary to set the columns that are present in your data, and
+# only if they differ from the default names defined in DataColumns.
+column_mapping = {
+    'TIME': DataColumns.TIME,
+    'ACCELEROMETER_X': DataColumns.ACCELEROMETER_X,
+    'ACCELEROMETER_Y': DataColumns.ACCELEROMETER_Y,
+    'ACCELEROMETER_Z': DataColumns.ACCELEROMETER_Z,
+    'GYROSCOPE_X': DataColumns.GYROSCOPE_X,
+    'GYROSCOPE_Y': DataColumns.GYROSCOPE_Y,
+    'GYROSCOPE_Z': DataColumns.GYROSCOPE_Z,
+}
+
+config = IMUConfig(column_mapping)
+print(f'The data is resampled to {config.resampling_frequency} Hz.')
+print(f'The tolerance for checking contiguous timestamps is set to {config.tolerance:.3f} seconds.')
 
 df_preprocessed_data = preprocess_imu_data(df_data, config, sensor='gyroscope', watch_side='left')
 
@@ -203,7 +218,8 @@ df_preprocessed_data
 ```
 
     The data is resampled to 100 Hz.
-    
+    The tolerance for checking contiguous timestamps is set to 0.030 seconds.
+
 
 
 
@@ -335,7 +351,7 @@ df_features
 ```
 
     The window length is 4 seconds
-    
+
 
 
 
@@ -612,11 +628,11 @@ full_path_to_classifier_package = files('paradigma') / 'assets' / tremor_detecti
 # Use the logistic regression classifier to detect tremor and check for rest tremor
 df_predictions = detect_tremor(df_features, config, full_path_to_classifier_package)
 
-df_predictions[['time', 'pred_tremor_proba', 'pred_tremor_logreg', 'pred_arm_at_rest', 'pred_tremor_checked']]
+df_predictions[[config.time_colname, 'pred_tremor_proba', 'pred_tremor_logreg', 'pred_arm_at_rest', 'pred_tremor_checked']]
 ```
 
     A threshold of 50 deg²/s² is used to determine whether the arm is at rest or in stable posture.
-    
+
 
 
 
@@ -743,7 +759,7 @@ df_predictions[['time', 'pred_tremor_proba', 'pred_tremor_logreg', 'pred_arm_at_
 
 
 #### Store as TSDF
-The predicted probabilities (and optionally other features) can be stored and loaded in TSDF as demonstrated below. 
+The predicted probabilities (and optionally other features) can be stored and loaded in TSDF as demonstrated below.
 
 
 ```python
@@ -754,13 +770,29 @@ from paradigma.util import write_df_data
 metadata_time_store = tsdf.TSDFMetadata(metadata_time.get_plain_tsdf_dict_copy(), path_to_data)
 metadata_values_store = tsdf.TSDFMetadata(metadata_values.get_plain_tsdf_dict_copy(), path_to_data)
 
-# Select the columns to be saved 
+<<<<<<< HEAD
+# Select the columns to be saved
 metadata_time_store.channels = ['time']
+<<<<<<< HEAD
+=======
+=======
+# Select the columns to be saved
+metadata_time_store.channels = [config.time_colname]
+>>>>>>> 37f1c8fea7b90d0e387febafe838f2df6ab9dd47
+>>>>>>> origin/main
 metadata_values_store.channels = ['tremor_power', 'pred_tremor_proba', 'pred_tremor_logreg', 'pred_arm_at_rest', 'pred_tremor_checked']
 
 # Set the units
 metadata_time_store.units = ['Relative seconds']
-metadata_values_store.units = ['Unitless', 'Unitless', 'Unitless', 'Unitless', 'Unitless']  
+<<<<<<< HEAD
+metadata_values_store.units = ['Unitless', 'Unitless', 'Unitless', 'Unitless', 'Unitless']
+=======
+<<<<<<< HEAD
+metadata_values_store.units = ['Unitless', 'Unitless', 'Unitless', 'Unitless', 'Unitless']
+=======
+metadata_values_store.units = ['Unitless', 'Unitless', 'Unitless', 'Unitless', 'Unitless']
+>>>>>>> 37f1c8fea7b90d0e387febafe838f2df6ab9dd47
+>>>>>>> origin/main
 metadata_time_store.data_type = float
 metadata_values_store.data_type = float
 
@@ -781,6 +813,87 @@ df_predictions, _, _ = load_tsdf_dataframe(path_to_data, prefix=f'segment{segmen
 df_predictions.head()
 ```
 
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>tremor_power</th>
+      <th>pred_tremor_proba</th>
+      <th>pred_tremor_logreg</th>
+      <th>pred_arm_at_rest</th>
+      <th>pred_tremor_checked</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>0.471588</td>
+      <td>0.038968</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>4.0</td>
+      <td>0.327252</td>
+      <td>0.035365</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>8.0</td>
+      <td>0.114138</td>
+      <td>0.031255</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>12.0</td>
+      <td>0.180988</td>
+      <td>0.021106</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>16.0</td>
+      <td>0.090009</td>
+      <td>0.021078</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
 ## Step 4: Quantify tremor
 
 The tremor power of all predicted tremor windows (where `pred_tremor_checked` is 1) is used for tremor quantification. A datetime column is also added, providing necessary information before aggregating over specified hours in Step 5.
@@ -791,14 +904,14 @@ import pandas as pd
 import datetime
 import pytz
 
-df_quantification = df_predictions[['time', 'pred_arm_at_rest', 'pred_tremor_checked','tremor_power']].copy()
+df_quantification = df_predictions[[config.time_colname, 'pred_arm_at_rest', 'pred_tremor_checked','tremor_power']].copy()
 df_quantification.loc[df_predictions['pred_tremor_checked'] == 0, 'tremor_power'] = None # tremor power of non-tremor windows is set to None
 
 # Create datetime column based on the start time of the segment
 start_time = datetime.datetime.strptime(metadata_time.start_iso8601, '%Y-%m-%dT%H:%M:%SZ')
 start_time = start_time.replace(tzinfo=pytz.timezone('UTC')).astimezone(pytz.timezone('CET')) # convert to correct timezone if necessary
-df_quantification['time_dt'] = start_time + pd.to_timedelta(df_quantification['time'], unit="s") 
-df_quantification = df_quantification[['time', 'time_dt', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power']]
+df_quantification[f'{config.time_colname}_dt'] = start_time + pd.to_timedelta(df_quantification[config.time_colname], unit="s")
+df_quantification = df_quantification[[config.time_colname, f'{config.time_colname}_dt', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power']]
 
 df_quantification
 ```
@@ -836,40 +949,40 @@ df_quantification
       <th>0</th>
       <td>0.0</td>
       <td>2019-08-20 12:39:16+02:00</td>
-      <td>1</td>
-      <td>1</td>
+      <td>1.0</td>
+      <td>1.0</td>
       <td>0.471588</td>
     </tr>
     <tr>
       <th>1</th>
       <td>4.0</td>
       <td>2019-08-20 12:39:20+02:00</td>
-      <td>1</td>
-      <td>1</td>
+      <td>1.0</td>
+      <td>1.0</td>
       <td>0.327252</td>
     </tr>
     <tr>
       <th>2</th>
       <td>8.0</td>
       <td>2019-08-20 12:39:24+02:00</td>
-      <td>1</td>
-      <td>0</td>
+      <td>1.0</td>
+      <td>0.0</td>
       <td>NaN</td>
     </tr>
     <tr>
       <th>3</th>
       <td>12.0</td>
       <td>2019-08-20 12:39:28+02:00</td>
-      <td>1</td>
-      <td>0</td>
+      <td>1.0</td>
+      <td>0.0</td>
       <td>NaN</td>
     </tr>
     <tr>
       <th>4</th>
       <td>16.0</td>
       <td>2019-08-20 12:39:32+02:00</td>
-      <td>1</td>
-      <td>0</td>
+      <td>1.0</td>
+      <td>0.0</td>
       <td>NaN</td>
     </tr>
     <tr>
@@ -884,40 +997,40 @@ df_quantification
       <th>8579</th>
       <td>34316.0</td>
       <td>2019-08-20 22:11:12+02:00</td>
-      <td>1</td>
-      <td>0</td>
+      <td>1.0</td>
+      <td>0.0</td>
       <td>NaN</td>
     </tr>
     <tr>
       <th>8580</th>
       <td>34320.0</td>
       <td>2019-08-20 22:11:16+02:00</td>
-      <td>1</td>
-      <td>0</td>
+      <td>1.0</td>
+      <td>0.0</td>
       <td>NaN</td>
     </tr>
     <tr>
       <th>8581</th>
       <td>34324.0</td>
       <td>2019-08-20 22:11:20+02:00</td>
-      <td>1</td>
-      <td>0</td>
+      <td>1.0</td>
+      <td>0.0</td>
       <td>NaN</td>
     </tr>
     <tr>
       <th>8582</th>
       <td>34328.0</td>
       <td>2019-08-20 22:11:24+02:00</td>
-      <td>1</td>
-      <td>0</td>
+      <td>1.0</td>
+      <td>0.0</td>
       <td>NaN</td>
     </tr>
     <tr>
       <th>8583</th>
       <td>34332.0</td>
       <td>2019-08-20 22:11:28+02:00</td>
-      <td>1</td>
-      <td>0</td>
+      <td>1.0</td>
+      <td>0.0</td>
       <td>NaN</td>
     </tr>
   </tbody>
@@ -958,11 +1071,12 @@ list_df_quantifications = []
 segments  = ['0001','0002'] # list with all  available segments
 
 for segment_nr in segments:
-    
+
     # Load the data
     df_data, metadata_time, _ = load_tsdf_dataframe(path_to_prepared_data, prefix='IMU_segment'+segment_nr)
 
     # 1: Preprocess the data
+    # Change column names if necessary by creating parameter column_mapping (see previous cells for an example)
     config = IMUConfig()
     df_preprocessed_data = preprocess_imu_data(df_data, config, sensor='gyroscope', watch_side='left')
 
@@ -974,14 +1088,14 @@ for segment_nr in segments:
     df_predictions = detect_tremor(df_features, config, full_path_to_classifier_package)
 
     # 4: Quantify tremor
-    df_quantification = df_predictions[['time', 'pred_arm_at_rest', 'pred_tremor_checked','tremor_power']].copy()
+    df_quantification = df_predictions[[config.time_colname, 'pred_arm_at_rest', 'pred_tremor_checked','tremor_power']].copy()
     df_quantification.loc[df_predictions['pred_tremor_checked'] == 0, 'tremor_power'] = None
 
     # Create datetime column based on the start time of the segment
     start_time = datetime.datetime.strptime(metadata_time.start_iso8601, '%Y-%m-%dT%H:%M:%SZ')
     start_time = start_time.replace(tzinfo=pytz.timezone('UTC')).astimezone(pytz.timezone('CET')) # convert to correct timezone if necessary
-    df_quantification['time_dt'] = start_time + pd.to_timedelta(df_quantification['time'], unit="s") 
-    df_quantification = df_quantification[['time', 'time_dt', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power']]
+    df_quantification[f'{config.time_colname}_dt'] = start_time + pd.to_timedelta(df_quantification[config.time_colname], unit="s")
+    df_quantification = df_quantification[[config.time_colname, f'{config.time_colname}_dt', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power']]
 
     # Add the quantifications of the current segment to the list
     df_quantification['segment_nr'] = segment_nr
@@ -1032,4 +1146,3 @@ pprint.pprint(d_tremor_aggregates)
      'metadata': {'nr_valid_days': 1,
                   'nr_windows_rest': 8284,
                   'nr_windows_total': 12600}}
-    

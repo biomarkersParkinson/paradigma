@@ -52,9 +52,13 @@ Module Contents
 
 
 
-.. py:class:: IMUConfig
+.. py:class:: IMUConfig(column_mapping: dict[str, str] | None = None)
 
    Bases: :py:obj:`BaseConfig`
+
+
+   IMU configuration that uses DataColumns() to dynamically map available channels.
+   Works even if only accelerometer or only gyroscope data is present.
 
 
    .. py:attribute:: acceleration_units
@@ -72,25 +76,40 @@ Module Contents
 
 
 
-   .. py:attribute:: accelerometer_cols
+   .. py:attribute:: column_mapping
+
+
+   .. py:attribute:: time_colname
+
+
+   .. py:attribute:: accelerometer_colnames
       :type:  List[str]
+      :value: []
 
 
-   .. py:attribute:: gyroscope_cols
+
+   .. py:attribute:: gyroscope_colnames
       :type:  List[str]
+      :value: []
 
 
-   .. py:attribute:: gravity_cols
+
+   .. py:attribute:: gravity_colnames
       :type:  List[str]
+      :value: []
+
 
 
    .. py:attribute:: d_channels_accelerometer
+      :type:  Dict[str, str]
 
 
    .. py:attribute:: d_channels_gyroscope
+      :type:  Dict[str, str]
 
 
    .. py:attribute:: d_channels_imu
+      :type:  Dict[str, str]
 
 
    .. py:attribute:: sampling_frequency
@@ -100,6 +119,11 @@ Module Contents
 
    .. py:attribute:: resampling_frequency
       :value: 100
+
+
+
+   .. py:attribute:: tolerance
+      :value: 0.03
 
 
 
@@ -118,18 +142,32 @@ Module Contents
 
 
 
-.. py:class:: PPGConfig
+.. py:class:: PPGConfig(column_mapping: dict[str, str] | None = None)
 
    Bases: :py:obj:`BaseConfig`
 
 
-   .. py:attribute:: ppg_colname
-      :value: 'green'
+   .. py:attribute:: column_mapping
 
+
+   .. py:attribute:: time_colname
+
+
+   .. py:attribute:: ppg_colname
 
 
    .. py:attribute:: sampling_frequency
       :value: 30
+
+
+
+   .. py:attribute:: resampling_frequency
+      :value: 30
+
+
+
+   .. py:attribute:: tolerance
+      :value: 0.1
 
 
 
@@ -151,9 +189,13 @@ Module Contents
    .. py:attribute:: d_channels_ppg
 
 
-.. py:class:: GaitConfig(step)
+.. py:class:: GaitConfig(step, column_mapping: dict[str, str] | None = None)
 
    Bases: :py:obj:`IMUConfig`
+
+
+   IMU configuration that uses DataColumns() to dynamically map available channels.
+   Works even if only accelerometer or only gyroscope data is present.
 
 
    .. py:attribute:: max_segment_gap_s
@@ -231,6 +273,10 @@ Module Contents
 .. py:class:: TremorConfig(step: str | None = None)
 
    Bases: :py:obj:`IMUConfig`
+
+
+   IMU configuration that uses DataColumns() to dynamically map available channels.
+   Works even if only accelerometer or only gyroscope data is present.
 
 
    .. py:attribute:: window_length_s
@@ -350,9 +396,14 @@ Module Contents
       :type:  numpy.ndarray
 
 
-.. py:class:: PulseRateConfig(sensor: str = 'ppg', min_window_length_s: int = 30)
+.. py:class:: PulseRateConfig(sensor: str = 'ppg', ppg_sampling_frequency: int = 30, imu_sampling_frequency: int | None = None, min_window_length_s: int = 30, accelerometer_colnames: list[str] | None = None)
 
    Bases: :py:obj:`PPGConfig`
+
+
+   .. py:attribute:: ppg_sampling_frequency
+      :value: 30
+
 
 
    .. py:attribute:: window_length_s
@@ -372,7 +423,9 @@ Module Contents
 
 
 
-   .. py:attribute:: accelerometer_cols
+   .. py:attribute:: accelerometer_colnames
+      :value: None
+
 
 
    .. py:attribute:: freq_band_physio
@@ -400,25 +453,15 @@ Module Contents
 
 
 
-   .. py:attribute:: pr_est_samples
-      :value: 200
+   .. py:method:: set_sensor(sensor: str, min_window_length_s: int | None = None) -> None
+
+      Sets the active sensor and recomputes sampling-dependent parameters.
 
 
 
-   .. py:attribute:: kern_type
-      :value: 'sep'
+   .. py:method:: _update_sampling_dependent_params(tfd_length: int)
 
-
-
-   .. py:attribute:: kern_params
-
-
-   .. py:method:: set_tfd_length(tfd_length: int)
-
-
-   .. py:method:: set_sensor(sensor)
-
-      Sets the sensor and derived filenames
+      Compute attributes that depend on sampling frequency.
 
 
 

@@ -22,7 +22,7 @@ Functions
 Module Contents
 ---------------
 
-.. py:function:: extract_signal_quality_features(df_ppg: pandas.DataFrame, df_acc: pandas.DataFrame, ppg_config: paradigma.config.PulseRateConfig, acc_config: paradigma.config.PulseRateConfig) -> pandas.DataFrame
+.. py:function:: extract_signal_quality_features(df_ppg: pandas.DataFrame, ppg_config: paradigma.config.PulseRateConfig, df_acc: pandas.DataFrame | None = None, acc_config: paradigma.config.PulseRateConfig | None = None) -> pandas.DataFrame
 
    Extract signal quality features from the PPG signal.
    The features are extracted from the temporal and spectral domain of the PPG signal.
@@ -42,7 +42,7 @@ Module Contents
    :rtype: pd.DataFrame
 
 
-.. py:function:: signal_quality_classification(df: pandas.DataFrame, config: paradigma.config.PulseRateConfig, full_path_to_classifier_package: str | pathlib.Path) -> pandas.DataFrame
+.. py:function:: signal_quality_classification(df: pandas.DataFrame, config: paradigma.config.PulseRateConfig, clf_package: paradigma.classification.ClassifierPackage) -> pandas.DataFrame
 
    Classify the signal quality of the PPG signal using a logistic regression classifier. A probability close to 1 indicates a high-quality signal, while a probability close to 0 indicates a low-quality signal.
    The classifier is trained on features extracted from the PPG signal. The features are extracted using the extract_signal_quality_features function.
@@ -53,8 +53,8 @@ Module Contents
    :type df: pd.DataFrame
    :param config: The configuration for the signal quality classification.
    :type config: PulseRateConfig
-   :param full_path_to_classifier_package: The path to the directory containing the classifier.
-   :type full_path_to_classifier_package: str | Path
+   :param clf_package: The classifier package containing the classifier and scaler.
+   :type clf_package: ClassifierPackage
 
    :returns: The DataFrame containing the PPG signal quality predictions (both probabilities of the PPG signal quality classification and the accelerometer label based on the threshold).
    :rtype: df_sqa pd.DataFrame

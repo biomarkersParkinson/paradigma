@@ -9,8 +9,8 @@
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
-      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
 
   
   <!--[if lt IE 9]>
@@ -53,6 +53,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="data_preparation.html">Data preparation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tremor_analysis.html">Tremor analysis</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Pulse rate analysis</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#load-data">Load data</a></li>
@@ -112,7 +113,7 @@
              
   <section id="pulse-rate-analysis">
 <h1>Pulse rate analysis<a class="headerlink" href="#pulse-rate-analysis" title="Link to this heading"></a></h1>
-<p>This tutorial shows how to extract pulse rate estimates using photoplethysmography (PPG) data and accelerometer data. The pipeline consists of a stepwise approach to determine signal quality, assessing both PPG morphology and accounting for periodic artifacts using the accelerometer. Based on the signal quality, we extract high-quality segments and estimate the pulse rate for every 2 s using the smoothed pseudo Wigner-Ville Distribution.</p>
+<p>This tutorial shows how to extract pulse rate estimates using photoplethysmography (PPG) data and accelerometer data. The pipeline consists of a stepwise approach to determine signal quality, assessing both PPG morphology and accounting for periodic artifacts using the accelerometer. The usage of accelerometer is optional but is recommended to specifically account for periodic motion artifacts. Based on the signal quality, we extract high-quality segments and estimate the pulse rate for every 2 s using the smoothed pseudo Wigner-Ville Distribution.</p>
 <p>In this tutorial, we use two days of data from a participant of the Personalized Parkinson Project to demonstrate the functionalities. Since <code class="docutils literal notranslate"><span class="pre">ParaDigMa</span></code> expects contiguous time series, the collected data was stored in two segments each with contiguous timestamps. Per segment, we load the data and perform the following steps:</p>
 <ol class="arabic simple">
 <li><p>Preprocess the time series data</p></li>
@@ -126,7 +127,7 @@
 </ol>
 <section id="load-data">
 <h2>Load data<a class="headerlink" href="#load-data" title="Link to this heading"></a></h2>
-<p>This pipeline requires accelerometer and PPG data to run. Here, we start by loading a single contiguous time series (segment), for which we continue running steps 1-4. Below we show how to run these steps for multiple segments. The channel <code class="docutils literal notranslate"><span class="pre">green</span></code> represents the values obtained with PPG using green light.</p>
+<p>This pipeline requires PPG data and can be enhanced with accelerometer data (optional). Here, we start by loading a single contiguous time series (segment), for which we continue running steps 1-4. Below we show how to run these steps for multiple segments. The channel <code class="docutils literal notranslate"><span class="pre">green</span></code> represents the values obtained with PPG using green light.</p>
 <p>In this example we use the interally developed <code class="docutils literal notranslate"><span class="pre">TSDF</span></code> (<a class="reference external" href="https://biomarkersparkinson.github.io/tsdf/">documentation</a>) to load and store data [<a class="reference external" href="https://arxiv.org/abs/2211.11294">1</a>]. However, we are aware that there are other common data formats. For example, the following functions can be used depending on the file extension of the data:</p>
 <ul class="simple">
 <li><p><em>.csv</em>: <code class="docutils literal notranslate"><span class="pre">pandas.read_csv()</span></code> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html">documentation</a>)</p></li>
@@ -142,20 +143,22 @@
 <span class="n">ppg_prefix</span> <span class="o">=</span> <span class="s1">&#39;ppg&#39;</span>
 <span class="n">imu_prefix</span> <span class="o">=</span> <span class="s1">&#39;imu&#39;</span>
 
-<span class="n">segment_nr</span> <span class="o">=</span> <span class="s1">&#39;0001&#39;</span> 
+<span class="n">segment_nr</span> <span class="o">=</span> <span class="s1">&#39;0001&#39;</span>
 
 <span class="n">df_ppg</span><span class="p">,</span> <span class="n">metadata_time_ppg</span><span class="p">,</span> <span class="n">metadata_values_ppg</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
-    <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_prepared_data</span> <span class="o">/</span> <span class="n">ppg_prefix</span><span class="p">,</span> 
+    <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_prepared_data</span> <span class="o">/</span> <span class="n">ppg_prefix</span><span class="p">,</span>
     <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;PPG_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
 <span class="p">)</span>
+
+<span class="c1"># Only relevant if you have IMU data available</span>
 <span class="n">df_imu</span><span class="p">,</span> <span class="n">metadata_time_imu</span><span class="p">,</span> <span class="n">metadata_values_imu</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
-    <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_prepared_data</span> <span class="o">/</span> <span class="n">imu_prefix</span><span class="p">,</span> 
+    <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_prepared_data</span> <span class="o">/</span> <span class="n">imu_prefix</span><span class="p">,</span>
     <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
 <span class="p">)</span>
 
-<span class="c1"># Drop the gyroscope columns from the IMU data</span>
-<span class="n">cols_to_drop</span> <span class="o">=</span> <span class="n">df_imu</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s1">&#39;^gyroscope_&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
-<span class="n">df_acc</span> <span class="o">=</span> <span class="n">df_imu</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">cols_to_drop</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">time_col</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="c1"># define time column to keep</span>
+<span class="n">acc_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;accelerometer_x&#39;</span><span class="p">,</span> <span class="s1">&#39;accelerometer_y&#39;</span><span class="p">,</span> <span class="s1">&#39;accelerometer_z&#39;</span><span class="p">]</span> <span class="c1"># define accelerometer columns to keep</span>
+<span class="n">df_acc</span> <span class="o">=</span> <span class="n">df_imu</span><span class="p">[</span><span class="n">time_col</span> <span class="o">+</span> <span class="n">acc_cols</span><span class="p">]</span>
 
 <span class="n">display</span><span class="p">(</span><span class="n">df_ppg</span><span class="p">,</span> <span class="n">df_acc</span><span class="p">)</span>
 </pre></div>
@@ -356,28 +359,48 @@
 <p>The first step after loading the data is preprocessing using the <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_ppg_data">preprocess_ppg_data</a>. This begins by isolating segments containing both PPG and IMU data, discarding portions where one modality (e.g., PPG) extends beyond the other, such as when the PPG recording is longer than the accelerometer data. This functionality requires the starting times (<code class="docutils literal notranslate"><span class="pre">metadata_time_ppg.start_iso8601</span></code> and <code class="docutils literal notranslate"><span class="pre">metadata_time_imu.start_iso8601</span></code>) in iso8601 format as inputs. After this step, the preprocess_ppg_data function resamples the PPG and accelerometer data to uniformly distributed timestamps, addressing the fixed but non-uniform sampling rates of the sensors. After this, a bandpass Butterworth filter (4th-order, bandpass frequencies: 0.4–3.5 Hz) is applied to the PPG signal, while a high-pass Butterworth filter (4th-order, cut-off frequency: 0.2 Hz) is applied to the accelerometer data.</p>
 <p>Note: the printed shapes are (rows, columns) with each row corresponding to a single data point and each column representing a data column (e.g.time). The number of rows of the overlapping segments of PPG and accelerometer are not the same due to sampling differences (other sensors and possibly other sampling frequencies).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PPGConfig</span><span class="p">,</span> <span class="n">IMUConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_ppg_data</span>
 
-<span class="n">ppg_config</span> <span class="o">=</span> <span class="n">PPGConfig</span><span class="p">()</span>
-<span class="n">imu_config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span>
+<span class="c1"># Set column names: replace DataColumn.* with your actual column names.</span>
+<span class="c1"># It is only necessary to set the columns that are present in your data, and</span>
+<span class="c1"># only if they differ from the default names defined in DataColumns.</span>
+<span class="n">imu_column_mapping</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;TIME&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span>
+    <span class="s1">&#39;ACCELEROMETER_X&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">,</span>
+    <span class="s1">&#39;ACCELEROMETER_Y&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Y</span><span class="p">,</span>
+    <span class="s1">&#39;ACCELEROMETER_Z&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Z</span><span class="p">,</span>
+<span class="p">}</span>
 
+<span class="n">ppg_column_mapping</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;TIME&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span>
+    <span class="s1">&#39;PPG&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">PPG</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">ppg_config</span> <span class="o">=</span> <span class="n">PPGConfig</span><span class="p">(</span><span class="n">column_mapping</span><span class="o">=</span><span class="n">ppg_column_mapping</span><span class="p">)</span>
+<span class="n">imu_config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">(</span><span class="n">column_mapping</span><span class="o">=</span><span class="n">imu_column_mapping</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The tolerance for checking contiguous timestamps is set to </span><span class="si">{</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">tolerance</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> seconds for PPG data and </span><span class="si">{</span><span class="n">imu_config</span><span class="o">.</span><span class="n">tolerance</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> seconds for accelerometer data.&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Original data shapes:</span><span class="se">\n</span><span class="s2">- PPG data: </span><span class="si">{</span><span class="n">df_ppg</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="se">\n</span><span class="s2">- Accelerometer data: </span><span class="si">{</span><span class="n">df_imu</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">df_ppg_proc</span><span class="p">,</span> <span class="n">df_acc_proc</span> <span class="o">=</span> <span class="n">preprocess_ppg_data</span><span class="p">(</span>
-    <span class="n">df_ppg</span><span class="o">=</span><span class="n">df_ppg</span><span class="p">,</span> 
-    <span class="n">df_acc</span><span class="o">=</span><span class="n">df_acc</span><span class="p">,</span> 
-    <span class="n">ppg_config</span><span class="o">=</span><span class="n">ppg_config</span><span class="p">,</span> 
-    <span class="n">imu_config</span><span class="o">=</span><span class="n">imu_config</span><span class="p">,</span> 
-    <span class="n">start_time_ppg</span><span class="o">=</span><span class="n">metadata_time_ppg</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">,</span>
-    <span class="n">start_time_imu</span><span class="o">=</span><span class="n">metadata_time_imu</span><span class="o">.</span><span class="n">start_iso8601</span>
+    <span class="n">df_ppg</span><span class="o">=</span><span class="n">df_ppg</span><span class="p">,</span>
+    <span class="n">ppg_config</span><span class="o">=</span><span class="n">ppg_config</span><span class="p">,</span>
+    <span class="n">start_time_ppg</span><span class="o">=</span><span class="n">metadata_time_ppg</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">,</span>  <span class="c1"># Optional</span>
+    <span class="n">df_acc</span><span class="o">=</span><span class="n">df_acc</span><span class="p">,</span>  <span class="c1"># Optional</span>
+    <span class="n">imu_config</span><span class="o">=</span><span class="n">imu_config</span><span class="p">,</span>  <span class="c1"># Optional</span>
+    <span class="n">start_time_imu</span><span class="o">=</span><span class="n">metadata_time_imu</span><span class="o">.</span><span class="n">start_iso8601</span>  <span class="c1"># Optional</span>
 <span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Overlapping preprocessed data shapes:</span><span class="se">\n</span><span class="s2">- PPG data: </span><span class="si">{</span><span class="n">df_ppg_proc</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="se">\n</span><span class="s2">- Accelerometer data: </span><span class="si">{</span><span class="n">df_acc_proc</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">display</span><span class="p">(</span><span class="n">df_ppg_proc</span><span class="p">,</span> <span class="n">df_acc_proc</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Original data shapes:
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>The tolerance for checking contiguous timestamps is set to 0.100 seconds for PPG data and 0.030 seconds for accelerometer data.
+Original data shapes:
 - PPG data: (1029375, 2)
 - Accelerometer data: (3455331, 7)
+
+
 Overlapping preprocessed data shapes:
 - PPG data: (1030188, 2)
 - Accelerometer data: (3433961, 4)
@@ -576,25 +599,34 @@ Overlapping preprocessed data shapes:
 </section>
 <section id="step-2-extract-signal-quality-features">
 <h2>Step 2: Extract signal quality features<a class="headerlink" href="#step-2-extract-signal-quality-features" title="Link to this heading"></a></h2>
-<p>The preprocessed data (PPG &amp; accelerometer) is windowed into overlapping windows of length <code class="docutils literal notranslate"><span class="pre">ppg_config.window_length_s</span></code> with a window step of <code class="docutils literal notranslate"><span class="pre">ppg_config.window_step_length_s</span></code>. From the PPG windows 10 time- and frequency domain features are extracted to assess PPG morphology and from the accelerometer windows one relative power feature is calculated to assess periodic motion artifacts.</p>
+<p>The preprocessed data is windowed into overlapping windows of length <code class="docutils literal notranslate"><span class="pre">ppg_config.window_length_s</span></code> with a window step of <code class="docutils literal notranslate"><span class="pre">ppg_config.window_step_length_s</span></code>. From the PPG windows, 10 time- and frequency domain features are extracted to assess PPG morphology. In case of using the accelerometer data (optional),  one relative power feature is calculated per window to assess periodic motion artifacts.</p>
 <p>The detailed steps are encapsulated in <code class="docutils literal notranslate"><span class="pre">extract_signal_quality_features</span></code> (documentation can be found <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=extract_signal_quality_features">here</a>).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PulseRateConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.pulse_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_signal_quality_features</span>
 
-<span class="n">ppg_config</span> <span class="o">=</span> <span class="n">PulseRateConfig</span><span class="p">(</span><span class="s1">&#39;ppg&#39;</span><span class="p">)</span>
-<span class="n">acc_config</span> <span class="o">=</span> <span class="n">PulseRateConfig</span><span class="p">(</span><span class="s1">&#39;imu&#39;</span><span class="p">)</span>
+<span class="n">pulse_rate_ppg_config</span> <span class="o">=</span> <span class="n">PulseRateConfig</span><span class="p">(</span>
+    <span class="n">sensor</span><span class="o">=</span><span class="s1">&#39;ppg&#39;</span><span class="p">,</span>
+    <span class="n">ppg_sampling_frequency</span><span class="o">=</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
+<span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The default window length for the signal quality feature extraction is set to&quot;</span><span class="p">,</span> <span class="n">ppg_config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">,</span> <span class="s2">&quot;seconds.&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The default step size for the signal quality feature extraction is set to&quot;</span><span class="p">,</span> <span class="n">ppg_config</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="p">,</span> <span class="s2">&quot;seconds.&quot;</span><span class="p">)</span>
+<span class="n">pulse_rate_acc_config</span> <span class="o">=</span> <span class="n">PulseRateConfig</span><span class="p">(</span>
+    <span class="n">sensor</span><span class="o">=</span><span class="s1">&#39;imu&#39;</span><span class="p">,</span>
+    <span class="n">imu_sampling_frequency</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
+    <span class="n">accelerometer_colnames</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">accelerometer_colnames</span><span class="p">,</span>
+<span class="p">)</span>
 
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The default window length for the signal quality feature extraction is set to&quot;</span><span class="p">,</span> <span class="n">pulse_rate_ppg_config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">,</span> <span class="s2">&quot;seconds.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The default step size for the signal quality feature extraction is set to&quot;</span><span class="p">,</span> <span class="n">pulse_rate_ppg_config</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="p">,</span> <span class="s2">&quot;seconds.&quot;</span><span class="p">)</span>
+
+<span class="c1"># Remove optional arguments if you don&#39;t have accelerometer data (set to None or remove arguments)</span>
 <span class="n">df_features</span> <span class="o">=</span> <span class="n">extract_signal_quality_features</span><span class="p">(</span>
     <span class="n">df_ppg</span><span class="o">=</span><span class="n">df_ppg_proc</span><span class="p">,</span>
     <span class="n">df_acc</span><span class="o">=</span><span class="n">df_acc_proc</span><span class="p">,</span>
-    <span class="n">ppg_config</span><span class="o">=</span><span class="n">ppg_config</span><span class="p">,</span> 
-    <span class="n">acc_config</span><span class="o">=</span><span class="n">acc_config</span><span class="p">,</span> 
+    <span class="n">ppg_config</span><span class="o">=</span><span class="n">pulse_rate_ppg_config</span><span class="p">,</span>
+    <span class="n">acc_config</span><span class="o">=</span><span class="n">pulse_rate_acc_config</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">df_features</span>
+<span class="n">display</span><span class="p">(</span><span class="n">df_features</span><span class="p">)</span>
 
 </pre></div>
 </div>
@@ -622,6 +654,7 @@ The default step size for the signal quality feature extraction is set to 1 seco
     <tr style="text-align: right;">
       <th></th>
       <th>time</th>
+      <th>acc_power_ratio</th>
       <th>var</th>
       <th>mean</th>
       <th>median</th>
@@ -632,13 +665,13 @@ The default step size for the signal quality feature extraction is set to 1 seco
       <th>f_dom</th>
       <th>rel_power</th>
       <th>spectral_entropy</th>
-      <th>acc_power_ratio</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
       <td>0.0</td>
+      <td>0.026409</td>
       <td>1.145652e+05</td>
       <td>282.401234</td>
       <td>238.829637</td>
@@ -649,11 +682,11 @@ The default step size for the signal quality feature extraction is set to 1 seco
       <td>0.585938</td>
       <td>0.138454</td>
       <td>0.516336</td>
-      <td>0.026409</td>
     </tr>
     <tr>
       <th>1</th>
       <td>1.0</td>
+      <td>0.023402</td>
       <td>1.102401e+05</td>
       <td>271.582177</td>
       <td>236.891936</td>
@@ -664,11 +697,11 @@ The default step size for the signal quality feature extraction is set to 1 seco
       <td>0.585938</td>
       <td>0.160433</td>
       <td>0.511626</td>
-      <td>0.023402</td>
     </tr>
     <tr>
       <th>2</th>
       <td>2.0</td>
+      <td>0.028592</td>
       <td>1.061479e+05</td>
       <td>262.348604</td>
       <td>225.915756</td>
@@ -679,11 +712,11 @@ The default step size for the signal quality feature extraction is set to 1 seco
       <td>0.585938</td>
       <td>0.167007</td>
       <td>0.525025</td>
-      <td>0.028592</td>
     </tr>
     <tr>
       <th>3</th>
       <td>3.0</td>
+      <td>0.019296</td>
       <td>9.514719e+04</td>
       <td>245.089445</td>
       <td>203.417715</td>
@@ -694,11 +727,11 @@ The default step size for the signal quality feature extraction is set to 1 seco
       <td>0.585938</td>
       <td>0.170626</td>
       <td>0.550495</td>
-      <td>0.019296</td>
     </tr>
     <tr>
       <th>4</th>
       <td>4.0</td>
+      <td>0.020083</td>
       <td>7.393010e+04</td>
       <td>218.379138</td>
       <td>187.583266</td>
@@ -709,7 +742,6 @@ The default step size for the signal quality feature extraction is set to 1 seco
       <td>0.585938</td>
       <td>0.121113</td>
       <td>0.595214</td>
-      <td>0.020083</td>
     </tr>
     <tr>
       <th>...</th>
@@ -729,6 +761,7 @@ The default step size for the signal quality feature extraction is set to 1 seco
     <tr>
       <th>34329</th>
       <td>34329.0</td>
+      <td>0.110219</td>
       <td>8.176078e+06</td>
       <td>1613.021494</td>
       <td>438.201240</td>
@@ -739,11 +772,11 @@ The default step size for the signal quality feature extraction is set to 1 seco
       <td>0.351562</td>
       <td>0.046616</td>
       <td>0.356027</td>
-      <td>0.110219</td>
     </tr>
     <tr>
       <th>34330</th>
       <td>34330.0</td>
+      <td>0.178742</td>
       <td>3.512188e+07</td>
       <td>3307.888927</td>
       <td>1069.775894</td>
@@ -754,11 +787,11 @@ The default step size for the signal quality feature extraction is set to 1 seco
       <td>0.351562</td>
       <td>0.049424</td>
       <td>0.371163</td>
-      <td>0.178742</td>
     </tr>
     <tr>
       <th>34331</th>
       <td>34331.0</td>
+      <td>0.153351</td>
       <td>1.181350e+08</td>
       <td>6648.535487</td>
       <td>2743.478312</td>
@@ -769,11 +802,11 @@ The default step size for the signal quality feature extraction is set to 1 seco
       <td>0.351562</td>
       <td>0.048211</td>
       <td>0.366386</td>
-      <td>0.153351</td>
     </tr>
     <tr>
       <th>34332</th>
       <td>34332.0</td>
+      <td>0.154910</td>
       <td>1.252829e+09</td>
       <td>20165.525309</td>
       <td>6452.244225</td>
@@ -784,11 +817,11 @@ The default step size for the signal quality feature extraction is set to 1 seco
       <td>0.351562</td>
       <td>0.037812</td>
       <td>0.359105</td>
-      <td>0.154910</td>
     </tr>
     <tr>
       <th>34333</th>
       <td>34333.0</td>
+      <td>0.093221</td>
       <td>1.008217e+10</td>
       <td>42271.328020</td>
       <td>12552.656437</td>
@@ -799,7 +832,6 @@ The default step size for the signal quality feature extraction is set to 1 seco
       <td>0.585938</td>
       <td>0.113283</td>
       <td>0.632749</td>
-      <td>0.093221</td>
     </tr>
   </tbody>
 </table>
@@ -808,20 +840,34 @@ The default step size for the signal quality feature extraction is set to 1 seco
 </section>
 <section id="step-3-signal-quality-classification">
 <h2>Step 3: Signal quality classification<a class="headerlink" href="#step-3-signal-quality-classification" title="Link to this heading"></a></h2>
-<p>A trained logistic classifier is used to predict PPG signal quality and returns the <code class="docutils literal notranslate"><span class="pre">pred_sqa_proba</span></code>, which is the posterior probability of a PPG window to look like the typical PPG morphology (higher probability indicates toward the typical PPG morphology). The relative power feature from the accelerometer is compared to a threshold for periodic artifacts and therefore <code class="docutils literal notranslate"><span class="pre">pred_sqa_acc_label</span></code> is used to return a label indicating predicted periodic motion artifacts (label 0) or no periodic motion artifacts (label 1).</p>
+<p>A trained logistic classifier is used to predict PPG signal quality and returns the <code class="docutils literal notranslate"><span class="pre">pred_sqa_proba</span></code>, which is the posterior probability of a PPG window to look like the typical PPG morphology (higher probability indicates toward the typical PPG morphology).
+If accelerometer is used, the relative power feature from the accelerometer is compared to a threshold for periodic artifacts and therefore <code class="docutils literal notranslate"><span class="pre">pred_sqa_acc_label</span></code> is used to return a label indicating predicted periodic motion artifacts (label 0) or no periodic motion artifacts (label 1).</p>
 <p>The classification step is implemented in <code class="docutils literal notranslate"><span class="pre">signal_quality_classification</span></code> (documentation can be found <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=signal_quality_classification">here</a>).</p>
+<p><u><strong><em>Note on scale sensitivity</em></strong></u>
+The PPG sensor used for developing this pipeline records in arbitrary units. Some features are scale sensitive and require rescaling when applying the pipeline to other datasets or PPG sensors.
+In this pipeline, the logistic classifier for PPG morphology was trained on z-scored features, using the means (μ) and standard deviations (σ) from the Personalized Parkinson Project training set (documentation of the training set can be found in the Signal Quality Assessment section <a class="reference external" href="https://www.medrxiv.org/content/10.1101/2025.08.15.25333751v1.full-text">here</a>). These μ and σ values are stored in the <code class="docutils literal notranslate"><span class="pre">ppg_quality_classifier_package</span></code>. When applying the code to another dataset, users are advised to recalculate <strong><em>μ</em></strong> and <strong><em>σ</em></strong> for each feature on their (training) data and update the classifier package accordingly. Example code to recalculate the <strong><em>μ</em></strong> and <strong><em>σ</em></strong> can be found in the code cell below and in section 7.3.1. <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#standardization-or-mean-removal-and-variance-scaling">here</a>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassifierPackage</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.pulse_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">signal_quality_classification</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">PulseRateConfig</span><span class="p">()</span>
 
 <span class="n">ppg_quality_classifier_package_filename</span> <span class="o">=</span> <span class="s1">&#39;ppg_quality_clf_package.pkl&#39;</span>
 <span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;assets&#39;</span> <span class="o">/</span> <span class="n">ppg_quality_classifier_package_filename</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">PulseRateConfig</span><span class="p">()</span>
+<span class="c1"># Load the classifier package</span>
+<span class="n">clf_package</span> <span class="o">=</span> <span class="n">ClassifierPackage</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">full_path_to_classifier_package</span><span class="p">)</span>
+
+<span class="c1"># If you use a different sensor or dataset, you have to update the classifier package with the mu and sigma calculated on your training data.</span>
+<span class="c1"># Example code to recalculate the mean and std to update the clf_package:</span>
+<span class="c1"># import numpy as np</span>
+<span class="c1"># x_train = np.random.rand(100, 10) # create random x_train for demonstration purposes, 100 samples and 10 features</span>
+<span class="c1"># clf_package.update_scaler(x_train)</span>
 
 <span class="n">df_sqa</span> <span class="o">=</span> <span class="n">signal_quality_classification</span><span class="p">(</span>
-    <span class="n">df</span><span class="o">=</span><span class="n">df_features</span><span class="p">,</span> 
-    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> 
-    <span class="n">full_path_to_classifier_package</span><span class="o">=</span><span class="n">full_path_to_classifier_package</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df_features</span><span class="p">,</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+    <span class="n">clf_package</span><span class="o">=</span><span class="n">clf_package</span>
 <span class="p">)</span>
 
 <span class="n">df_sqa</span>
@@ -932,7 +978,7 @@ The default step size for the signal quality feature extraction is set to 1 seco
 <span class="n">metadata_time_store</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">TSDFMetadata</span><span class="p">(</span><span class="n">metadata_time_ppg</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">(),</span> <span class="n">path_to_prepared_data</span><span class="p">)</span>
 <span class="n">metadata_values_store</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">TSDFMetadata</span><span class="p">(</span><span class="n">metadata_values_ppg</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">(),</span> <span class="n">path_to_prepared_data</span><span class="p">)</span>
 
-<span class="c1"># Select the columns to be saved </span>
+<span class="c1"># Select the columns to be saved</span>
 <span class="n">metadata_time_store</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
 <span class="n">metadata_values_store</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pred_sqa_proba&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_sqa_acc_label&#39;</span><span class="p">]</span>
 
@@ -1023,12 +1069,12 @@ The default step size for the signal quality feature extraction is set to 1 seco
 <p>Note: for the test data we set the tfd_length to 10 s instead of the default of 30 s, because the small PPP test data doesn’t have 30 s of consecutive high-quality PPG data.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.pulse_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">estimate_pulse_rate</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The standard default minimal window length for the pulse rate extraction is set to&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">tfd_length</span><span class="p">,</span> <span class="s2">&quot;seconds.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The standard default minimal window length for the pulse rate extraction is set to&quot;</span><span class="p">,</span> <span class="n">pulse_rate_ppg_config</span><span class="o">.</span><span class="n">tfd_length</span><span class="p">,</span> <span class="s2">&quot;seconds.&quot;</span><span class="p">)</span>
 
 <span class="n">df_pr</span> <span class="o">=</span> <span class="n">estimate_pulse_rate</span><span class="p">(</span>
-    <span class="n">df_sqa</span><span class="o">=</span><span class="n">df_sqa</span><span class="p">,</span> 
-    <span class="n">df_ppg_preprocessed</span><span class="o">=</span><span class="n">df_ppg_proc</span><span class="p">,</span> 
-    <span class="n">config</span><span class="o">=</span><span class="n">config</span>
+    <span class="n">df_sqa</span><span class="o">=</span><span class="n">df_sqa</span><span class="p">,</span>
+    <span class="n">df_ppg_preprocessed</span><span class="o">=</span><span class="n">df_ppg_proc</span><span class="p">,</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">pulse_rate_ppg_config</span>
 <span class="p">)</span>
 
 <span class="n">df_pr</span>
@@ -1148,15 +1194,15 @@ The default step size for the signal quality feature extraction is set to 1 seco
 <span class="n">segments</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;0001&#39;</span><span class="p">,</span> <span class="s1">&#39;0002&#39;</span><span class="p">]</span> <span class="c1"># list with all available segments</span>
 
 <span class="k">for</span> <span class="n">segment_nr</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">:</span>
-    
+
     <span class="c1"># Load the data</span>
     <span class="n">df_ppg</span><span class="p">,</span> <span class="n">metadata_time_ppg</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
-        <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_prepared_data</span> <span class="o">/</span> <span class="n">ppg_prefix</span><span class="p">,</span> 
+        <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_prepared_data</span> <span class="o">/</span> <span class="n">ppg_prefix</span><span class="p">,</span>
         <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;PPG_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
     <span class="p">)</span>
     <span class="n">df_imu</span><span class="p">,</span> <span class="n">metadata_time_imu</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
-        <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_prepared_data</span> <span class="o">/</span> <span class="n">imu_prefix</span><span class="p">,</span> 
-        <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>   
+        <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_prepared_data</span> <span class="o">/</span> <span class="n">imu_prefix</span><span class="p">,</span>
+        <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
     <span class="p">)</span>
 
     <span class="c1"># Drop the gyroscope columns from the IMU data</span>
@@ -1169,39 +1215,44 @@ The default step size for the signal quality feature extraction is set to 1 seco
     <span class="n">imu_config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span>
 
     <span class="n">df_ppg_proc</span><span class="p">,</span> <span class="n">df_acc_proc</span> <span class="o">=</span> <span class="n">preprocess_ppg_data</span><span class="p">(</span>
-        <span class="n">df_ppg</span><span class="o">=</span><span class="n">df_ppg</span><span class="p">,</span> 
-        <span class="n">df_acc</span><span class="o">=</span><span class="n">df_acc</span><span class="p">,</span> 
-        <span class="n">ppg_config</span><span class="o">=</span><span class="n">ppg_config</span><span class="p">,</span> 
-        <span class="n">imu_config</span><span class="o">=</span><span class="n">imu_config</span><span class="p">,</span> 
+        <span class="n">df_ppg</span><span class="o">=</span><span class="n">df_ppg</span><span class="p">,</span>
+        <span class="n">df_acc</span><span class="o">=</span><span class="n">df_acc</span><span class="p">,</span>
+        <span class="n">ppg_config</span><span class="o">=</span><span class="n">ppg_config</span><span class="p">,</span>
+        <span class="n">imu_config</span><span class="o">=</span><span class="n">imu_config</span><span class="p">,</span>
         <span class="n">start_time_ppg</span><span class="o">=</span><span class="n">metadata_time_ppg</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">,</span>
         <span class="n">start_time_imu</span><span class="o">=</span><span class="n">metadata_time_imu</span><span class="o">.</span><span class="n">start_iso8601</span>
     <span class="p">)</span>
 
     <span class="c1"># 2: Extract signal quality features</span>
-    <span class="n">ppg_config</span> <span class="o">=</span> <span class="n">PulseRateConfig</span><span class="p">(</span><span class="s1">&#39;ppg&#39;</span><span class="p">)</span>
-    <span class="n">acc_config</span> <span class="o">=</span> <span class="n">PulseRateConfig</span><span class="p">(</span><span class="s1">&#39;imu&#39;</span><span class="p">)</span>
+    <span class="n">ppg_config</span> <span class="o">=</span> <span class="n">PulseRateConfig</span><span class="p">(</span>
+        <span class="n">sensor</span><span class="o">=</span><span class="s1">&#39;ppg&#39;</span><span class="p">,</span>
+        <span class="n">ppg_sampling_frequency</span><span class="o">=</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">sampling_frequency</span>
+    <span class="p">)</span>
+    <span class="n">acc_config</span> <span class="o">=</span> <span class="n">PulseRateConfig</span><span class="p">(</span>
+        <span class="n">sensor</span><span class="o">=</span><span class="s1">&#39;imu&#39;</span><span class="p">,</span>
+        <span class="n">imu_sampling_frequency</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
+        <span class="n">accelerometer_colnames</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">accelerometer_colnames</span><span class="p">,</span>
+    <span class="p">)</span>
 
     <span class="n">df_features</span> <span class="o">=</span> <span class="n">extract_signal_quality_features</span><span class="p">(</span>
         <span class="n">df_ppg</span><span class="o">=</span><span class="n">df_ppg_proc</span><span class="p">,</span>
         <span class="n">df_acc</span><span class="o">=</span><span class="n">df_acc_proc</span><span class="p">,</span>
-        <span class="n">ppg_config</span><span class="o">=</span><span class="n">ppg_config</span><span class="p">,</span> 
-        <span class="n">acc_config</span><span class="o">=</span><span class="n">acc_config</span><span class="p">,</span> 
+        <span class="n">ppg_config</span><span class="o">=</span><span class="n">ppg_config</span><span class="p">,</span>
+        <span class="n">acc_config</span><span class="o">=</span><span class="n">acc_config</span><span class="p">,</span>
     <span class="p">)</span>
-    
-    <span class="c1"># 3: Signal quality classification</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="n">PulseRateConfig</span><span class="p">()</span>
 
+    <span class="c1"># 3: Signal quality classification</span>
     <span class="n">df_sqa</span> <span class="o">=</span> <span class="n">signal_quality_classification</span><span class="p">(</span>
-        <span class="n">df</span><span class="o">=</span><span class="n">df_features</span><span class="p">,</span> 
-        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> 
-        <span class="n">full_path_to_classifier_package</span><span class="o">=</span><span class="n">full_path_to_classifier_package</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">df_features</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">ppg_config</span><span class="p">,</span>
+        <span class="n">clf_package</span><span class="o">=</span><span class="n">clf_package</span>
     <span class="p">)</span>
 
     <span class="c1"># 4: Estimate pulse rate</span>
     <span class="n">df_pr</span> <span class="o">=</span> <span class="n">estimate_pulse_rate</span><span class="p">(</span>
-        <span class="n">df_sqa</span><span class="o">=</span><span class="n">df_sqa</span><span class="p">,</span> 
-        <span class="n">df_ppg_preprocessed</span><span class="o">=</span><span class="n">df_ppg_proc</span><span class="p">,</span> 
-        <span class="n">config</span><span class="o">=</span><span class="n">config</span>
+        <span class="n">df_sqa</span><span class="o">=</span><span class="n">df_sqa</span><span class="p">,</span>
+        <span class="n">df_ppg_preprocessed</span><span class="o">=</span><span class="n">df_ppg_proc</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">ppg_config</span>
     <span class="p">)</span>
 
     <span class="c1"># Add the hr estimations of the current segment to the list</span>
@@ -1221,16 +1272,16 @@ The default step size for the signal quality feature extraction is set to 1 seco
 
 <span class="n">pr_values</span> <span class="o">=</span> <span class="n">df_pr</span><span class="p">[</span><span class="s1">&#39;pulse_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 <span class="n">df_pr_agg</span> <span class="o">=</span> <span class="n">aggregate_pulse_rate</span><span class="p">(</span>
-    <span class="n">pr_values</span><span class="o">=</span><span class="n">pr_values</span><span class="p">,</span> 
+    <span class="n">pr_values</span><span class="o">=</span><span class="n">pr_values</span><span class="p">,</span>
     <span class="n">aggregates</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">,</span> <span class="s1">&#39;99p&#39;</span><span class="p">]</span>
 <span class="p">)</span>
 
 <span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">df_pr_agg</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;metadata&#39;: {&#39;nr_pr_est&#39;: 806},
- &#39;pr_aggregates&#39;: {&#39;99p_pulse_rate&#39;: 87.65865011636926,
-                   &#39;mode_pulse_rate&#39;: 81.25613346418058}}
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;metadata&#39;: {&#39;nr_pr_est&#39;: 8660},
+ &#39;pr_aggregates&#39;: {&#39;99p_pulse_rate&#39;: 85.77263444520081,
+                   &#39;mode_pulse_rate&#39;: 63.59175662414131}}
 </pre></div>
 </div>
 </section>

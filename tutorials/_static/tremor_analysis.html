@@ -9,8 +9,8 @@
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
-      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
 
   
   <!--[if lt IE 9]>
@@ -53,6 +53,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="data_preparation.html">Data preparation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tremor analysis</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#load-example-data">Load example data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#step-1-preprocess-data">Step 1: Preprocess data</a></li>
@@ -140,7 +141,7 @@
 <span class="n">path_to_data</span> <span class="o">=</span>  <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../example_data&#39;</span><span class="p">)</span>
 <span class="n">path_to_prepared_data</span> <span class="o">=</span> <span class="n">path_to_data</span> <span class="o">/</span> <span class="s1">&#39;imu&#39;</span>
 
-<span class="n">segment_nr</span>  <span class="o">=</span> <span class="s1">&#39;0001&#39;</span> 
+<span class="n">segment_nr</span>  <span class="o">=</span> <span class="s1">&#39;0001&#39;</span>
 
 <span class="n">df_data</span><span class="p">,</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_prepared_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
@@ -293,12 +294,27 @@
 </section>
 <section id="step-1-preprocess-data">
 <h2>Step 1: Preprocess data<a class="headerlink" href="#step-1-preprocess-data" title="Link to this heading"></a></h2>
-<p>IMU sensors collect data at a fixed sampling frequency, but the sampling rate is not uniform, causing variation in time differences between timestamps. The <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_imu_data">preprocess_imu_data</a> function therefore resamples the timestamps to be uniformly distributed, and then interpolates IMU values at these new timestamps using the original timestamps and corresponding IMU values. By setting <code class="docutils literal notranslate"><span class="pre">sensor</span></code> to ‘gyroscope’, only gyroscope data is preprocessed and the accelerometer data is removed from the dataframe. Also a <code class="docutils literal notranslate"><span class="pre">watch_side</span></code> should be provided, although for the tremor analysis it does not matter whether this is the correct side since the tremor features are not influenced by the gyroscope axes orientation.</p>
+<p>IMU sensors collect data at a fixed sampling frequency, but the sampling rate is not uniform, causing variation in time differences between timestamps. The <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_imu_data">preprocess_imu_data</a> function therefore resamples the timestamps to be uniformly distributed, and then interpolates IMU values at these new timestamps using the original timestamps and corresponding IMU values. If the difference between timestamps is larger than a specified tolerance (<code class="docutils literal notranslate"><span class="pre">config.tolerance</span></code>, in seconds), it will return an error that the timestamps are not contiguous.  If you still want to process the data in this case, you can create segments from discontiguous samples using the function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/segmenting.py"><code class="docutils literal notranslate"><span class="pre">create_segments</span></code></a> and analyze these segments consecutively as shown in here. By setting <code class="docutils literal notranslate"><span class="pre">sensor</span></code> to ‘gyroscope’, only gyroscope data is preprocessed and the accelerometer data is removed from the dataframe. Also a <code class="docutils literal notranslate"><span class="pre">watch_side</span></code> should be provided, although for the tremor analysis it does not matter whether this is the correct side since the tremor features are not influenced by the gyroscope axes orientation.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_imu_data</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The data is resampled to </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="si">}</span><span class="s1"> Hz.&#39;</span><span class="p">)</span>
+<span class="c1"># Set column names: replace DataColumn.* with your actual column names.</span>
+<span class="c1"># It is only necessary to set the columns that are present in your data, and</span>
+<span class="c1"># only if they differ from the default names defined in DataColumns.</span>
+<span class="n">column_mapping</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;TIME&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span>
+    <span class="s1">&#39;ACCELEROMETER_X&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">,</span>
+    <span class="s1">&#39;ACCELEROMETER_Y&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Y</span><span class="p">,</span>
+    <span class="s1">&#39;ACCELEROMETER_Z&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Z</span><span class="p">,</span>
+    <span class="s1">&#39;GYROSCOPE_X&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_X</span><span class="p">,</span>
+    <span class="s1">&#39;GYROSCOPE_Y&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Y</span><span class="p">,</span>
+    <span class="s1">&#39;GYROSCOPE_Z&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Z</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">(</span><span class="n">column_mapping</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The data is resampled to </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">resampling_frequency</span><span class="si">}</span><span class="s1"> Hz.&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The tolerance for checking contiguous timestamps is set to </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">tolerance</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> seconds.&#39;</span><span class="p">)</span>
 
 <span class="n">df_preprocessed_data</span> <span class="o">=</span> <span class="n">preprocess_imu_data</span><span class="p">(</span><span class="n">df_data</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">sensor</span><span class="o">=</span><span class="s1">&#39;gyroscope&#39;</span><span class="p">,</span> <span class="n">watch_side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
 
@@ -306,6 +322,7 @@
 </pre></div>
 </div>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>The data is resampled to 100 Hz.
+The tolerance for checking contiguous timestamps is set to 0.030 seconds.
 </pre></div>
 </div>
 <div>
@@ -701,7 +718,7 @@
 <span class="c1"># Use the logistic regression classifier to detect tremor and check for rest tremor</span>
 <span class="n">df_predictions</span> <span class="o">=</span> <span class="n">detect_tremor</span><span class="p">(</span><span class="n">df_features</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">full_path_to_classifier_package</span><span class="p">)</span>
 
-<span class="n">df_predictions</span><span class="p">[[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_proba&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_logreg&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">]]</span>
+<span class="n">df_predictions</span><span class="p">[[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_proba&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_logreg&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">]]</span>
 </pre></div>
 </div>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>A threshold of 50 deg²/s² is used to determine whether the arm is at rest or in stable posture.
@@ -836,13 +853,29 @@
 <span class="n">metadata_time_store</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">TSDFMetadata</span><span class="p">(</span><span class="n">metadata_time</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">(),</span> <span class="n">path_to_data</span><span class="p">)</span>
 <span class="n">metadata_values_store</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">TSDFMetadata</span><span class="p">(</span><span class="n">metadata_values</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">(),</span> <span class="n">path_to_data</span><span class="p">)</span>
 
-<span class="c1"># Select the columns to be saved </span>
+<span class="o">&lt;&lt;&lt;&lt;&lt;&lt;&lt;</span> <span class="n">HEAD</span>
+<span class="c1"># Select the columns to be saved</span>
 <span class="n">metadata_time_store</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
+<span class="o">&lt;&lt;&lt;&lt;&lt;&lt;&lt;</span> <span class="n">HEAD</span>
+<span class="o">=======</span>
+<span class="o">=======</span>
+<span class="c1"># Select the columns to be saved</span>
+<span class="n">metadata_time_store</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;&gt;&gt;&gt;&gt;</span> <span class="mi">37</span><span class="n">f1c8fea7b90d0e387febafe838f2df6ab9dd47</span>
+<span class="o">&gt;&gt;&gt;&gt;&gt;&gt;&gt;</span> <span class="n">origin</span><span class="o">/</span><span class="n">main</span>
 <span class="n">metadata_values_store</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;tremor_power&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_proba&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_logreg&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">]</span>
 
 <span class="c1"># Set the units</span>
 <span class="n">metadata_time_store</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Relative seconds&#39;</span><span class="p">]</span>
-<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">]</span>  
+<span class="o">&lt;&lt;&lt;&lt;&lt;&lt;&lt;</span> <span class="n">HEAD</span>
+<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">]</span>
+<span class="o">=======</span>
+<span class="o">&lt;&lt;&lt;&lt;&lt;&lt;&lt;</span> <span class="n">HEAD</span>
+<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">]</span>
+<span class="o">=======</span>
+<span class="n">metadata_values_store</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;Unitless&#39;</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;&gt;&gt;&gt;&gt;</span> <span class="mi">37</span><span class="n">f1c8fea7b90d0e387febafe838f2df6ab9dd47</span>
+<span class="o">&gt;&gt;&gt;&gt;&gt;&gt;&gt;</span> <span class="n">origin</span><span class="o">/</span><span class="n">main</span>
 <span class="n">metadata_time_store</span><span class="o">.</span><span class="n">data_type</span> <span class="o">=</span> <span class="nb">float</span>
 <span class="n">metadata_values_store</span><span class="o">.</span><span class="n">data_type</span> <span class="o">=</span> <span class="nb">float</span>
 
@@ -861,6 +894,82 @@
 <span class="n">df_predictions</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</pre></div>
+</div>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>tremor_power</th>
+      <th>pred_tremor_proba</th>
+      <th>pred_tremor_logreg</th>
+      <th>pred_arm_at_rest</th>
+      <th>pred_tremor_checked</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>0.471588</td>
+      <td>0.038968</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>4.0</td>
+      <td>0.327252</td>
+      <td>0.035365</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>8.0</td>
+      <td>0.114138</td>
+      <td>0.031255</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>12.0</td>
+      <td>0.180988</td>
+      <td>0.021106</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>16.0</td>
+      <td>0.090009</td>
+      <td>0.021078</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
 </section>
 </section>
 <section id="step-4-quantify-tremor">
@@ -870,14 +979,14 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pytz</span>
 
-<span class="n">df_quantification</span> <span class="o">=</span> <span class="n">df_predictions</span><span class="p">[[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">,</span><span class="s1">&#39;tremor_power&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">df_quantification</span> <span class="o">=</span> <span class="n">df_predictions</span><span class="p">[[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">,</span> <span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">,</span><span class="s1">&#39;tremor_power&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 <span class="n">df_quantification</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_predictions</span><span class="p">[</span><span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;tremor_power&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># tremor power of non-tremor windows is set to None</span>
 
 <span class="c1"># Create datetime column based on the start time of the segment</span>
 <span class="n">start_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">metadata_time</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">,</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">T%H:%M:%SZ&#39;</span><span class="p">)</span>
 <span class="n">start_time</span> <span class="o">=</span> <span class="n">start_time</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="s1">&#39;UTC&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="s1">&#39;CET&#39;</span><span class="p">))</span> <span class="c1"># convert to correct timezone if necessary</span>
-<span class="n">df_quantification</span><span class="p">[</span><span class="s1">&#39;time_dt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">start_time</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">df_quantification</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">)</span> 
-<span class="n">df_quantification</span> <span class="o">=</span> <span class="n">df_quantification</span><span class="p">[[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;time_dt&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">,</span> <span class="s1">&#39;tremor_power&#39;</span><span class="p">]]</span>
+<span class="n">df_quantification</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="si">}</span><span class="s1">_dt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">start_time</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">df_quantification</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
+<span class="n">df_quantification</span> <span class="o">=</span> <span class="n">df_quantification</span><span class="p">[[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="si">}</span><span class="s1">_dt&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">,</span> <span class="s1">&#39;tremor_power&#39;</span><span class="p">]]</span>
 
 <span class="n">df_quantification</span>
 </pre></div>
@@ -913,40 +1022,40 @@
       <th>0</th>
       <td>0.0</td>
       <td>2019-08-20 12:39:16+02:00</td>
-      <td>1</td>
-      <td>1</td>
+      <td>1.0</td>
+      <td>1.0</td>
       <td>0.471588</td>
     </tr>
     <tr>
       <th>1</th>
       <td>4.0</td>
       <td>2019-08-20 12:39:20+02:00</td>
-      <td>1</td>
-      <td>1</td>
+      <td>1.0</td>
+      <td>1.0</td>
       <td>0.327252</td>
     </tr>
     <tr>
       <th>2</th>
       <td>8.0</td>
       <td>2019-08-20 12:39:24+02:00</td>
-      <td>1</td>
-      <td>0</td>
+      <td>1.0</td>
+      <td>0.0</td>
       <td>NaN</td>
     </tr>
     <tr>
       <th>3</th>
       <td>12.0</td>
       <td>2019-08-20 12:39:28+02:00</td>
-      <td>1</td>
-      <td>0</td>
+      <td>1.0</td>
+      <td>0.0</td>
       <td>NaN</td>
     </tr>
     <tr>
       <th>4</th>
       <td>16.0</td>
       <td>2019-08-20 12:39:32+02:00</td>
-      <td>1</td>
-      <td>0</td>
+      <td>1.0</td>
+      <td>0.0</td>
       <td>NaN</td>
     </tr>
     <tr>
@@ -961,40 +1070,40 @@
       <th>8579</th>
       <td>34316.0</td>
       <td>2019-08-20 22:11:12+02:00</td>
-      <td>1</td>
-      <td>0</td>
+      <td>1.0</td>
+      <td>0.0</td>
       <td>NaN</td>
     </tr>
     <tr>
       <th>8580</th>
       <td>34320.0</td>
       <td>2019-08-20 22:11:16+02:00</td>
-      <td>1</td>
-      <td>0</td>
+      <td>1.0</td>
+      <td>0.0</td>
       <td>NaN</td>
     </tr>
     <tr>
       <th>8581</th>
       <td>34324.0</td>
       <td>2019-08-20 22:11:20+02:00</td>
-      <td>1</td>
-      <td>0</td>
+      <td>1.0</td>
+      <td>0.0</td>
       <td>NaN</td>
     </tr>
     <tr>
       <th>8582</th>
       <td>34328.0</td>
       <td>2019-08-20 22:11:24+02:00</td>
-      <td>1</td>
-      <td>0</td>
+      <td>1.0</td>
+      <td>0.0</td>
       <td>NaN</td>
     </tr>
     <tr>
       <th>8583</th>
       <td>34332.0</td>
       <td>2019-08-20 22:11:28+02:00</td>
-      <td>1</td>
-      <td>0</td>
+      <td>1.0</td>
+      <td>0.0</td>
       <td>NaN</td>
     </tr>
   </tbody>
@@ -1029,11 +1138,12 @@
 <span class="n">segments</span>  <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;0001&#39;</span><span class="p">,</span><span class="s1">&#39;0002&#39;</span><span class="p">]</span> <span class="c1"># list with all  available segments</span>
 
 <span class="k">for</span> <span class="n">segment_nr</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">:</span>
-    
+
     <span class="c1"># Load the data</span>
     <span class="n">df_data</span><span class="p">,</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_prepared_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;IMU_segment&#39;</span><span class="o">+</span><span class="n">segment_nr</span><span class="p">)</span>
 
     <span class="c1"># 1: Preprocess the data</span>
+    <span class="c1"># Change column names if necessary by creating parameter column_mapping (see previous cells for an example)</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span>
     <span class="n">df_preprocessed_data</span> <span class="o">=</span> <span class="n">preprocess_imu_data</span><span class="p">(</span><span class="n">df_data</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">sensor</span><span class="o">=</span><span class="s1">&#39;gyroscope&#39;</span><span class="p">,</span> <span class="n">watch_side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
 
@@ -1045,14 +1155,14 @@
     <span class="n">df_predictions</span> <span class="o">=</span> <span class="n">detect_tremor</span><span class="p">(</span><span class="n">df_features</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">full_path_to_classifier_package</span><span class="p">)</span>
 
     <span class="c1"># 4: Quantify tremor</span>
-    <span class="n">df_quantification</span> <span class="o">=</span> <span class="n">df_predictions</span><span class="p">[[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">,</span><span class="s1">&#39;tremor_power&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">df_quantification</span> <span class="o">=</span> <span class="n">df_predictions</span><span class="p">[[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">,</span> <span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">,</span><span class="s1">&#39;tremor_power&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">df_quantification</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_predictions</span><span class="p">[</span><span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;tremor_power&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1"># Create datetime column based on the start time of the segment</span>
     <span class="n">start_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">metadata_time</span><span class="o">.</span><span class="n">start_iso8601</span><span class="p">,</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">T%H:%M:%SZ&#39;</span><span class="p">)</span>
     <span class="n">start_time</span> <span class="o">=</span> <span class="n">start_time</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="s1">&#39;UTC&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="s1">&#39;CET&#39;</span><span class="p">))</span> <span class="c1"># convert to correct timezone if necessary</span>
-    <span class="n">df_quantification</span><span class="p">[</span><span class="s1">&#39;time_dt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">start_time</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">df_quantification</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">)</span> 
-    <span class="n">df_quantification</span> <span class="o">=</span> <span class="n">df_quantification</span><span class="p">[[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;time_dt&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">,</span> <span class="s1">&#39;tremor_power&#39;</span><span class="p">]]</span>
+    <span class="n">df_quantification</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="si">}</span><span class="s1">_dt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">start_time</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">df_quantification</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
+    <span class="n">df_quantification</span> <span class="o">=</span> <span class="n">df_quantification</span><span class="p">[[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="si">}</span><span class="s1">_dt&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_arm_at_rest&#39;</span><span class="p">,</span> <span class="s1">&#39;pred_tremor_checked&#39;</span><span class="p">,</span> <span class="s1">&#39;tremor_power&#39;</span><span class="p">]]</span>
 
     <span class="c1"># Add the quantifications of the current segment to the list</span>
     <span class="n">df_quantification</span><span class="p">[</span><span class="s1">&#39;segment_nr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">segment_nr</span>

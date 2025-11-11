@@ -9,8 +9,8 @@
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1228b8db" />
-      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a31c8b26" />
 
   
   <!--[if lt IE 9]>
@@ -51,6 +51,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="_static/data_preparation.html">Data preparation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_static/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_static/tremor_analysis.html">Tremor analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
 </ul>
@@ -98,374 +99,76 @@
 <h1>Data preparation<a class="headerlink" href="#data-preparation" title="Link to this heading"></a></h1>
 <p>ParaDigMa requires the sensor data to be of a specific format. This tutorial provides examples of how to prepare your input data for subsequent analysis. In the end, the input for ParaDigMa is a dataframe consisting of:</p>
 <ul class="simple">
-<li><p>A column <code class="docutils literal notranslate"><span class="pre">time</span></code>, representing the seconds relative to the first row of the dataframe;</p></li>
+<li><p>A time column representing the seconds relative to the first row of the dataframe;</p></li>
 <li><p>One or multiple of the following sensor column categories:</p>
 <ul>
-<li><p>Accelerometer: <code class="docutils literal notranslate"><span class="pre">accelerometer_x</span></code>, <code class="docutils literal notranslate"><span class="pre">accelerometer_y</span></code> and <code class="docutils literal notranslate"><span class="pre">accelerometer_z</span></code> in <em>g</em></p></li>
-<li><p>Gyroscope: <code class="docutils literal notranslate"><span class="pre">gyroscope_x</span></code>, <code class="docutils literal notranslate"><span class="pre">gyroscope_y</span></code> and <code class="docutils literal notranslate"><span class="pre">gyroscope_z</span></code> in <em>deg/s</em></p></li>
-<li><p>PPG: <code class="docutils literal notranslate"><span class="pre">green</span></code></p></li>
+<li><p>Triaxial accelerometer (x, y, z) in <em>g</em></p></li>
+<li><p>Triaxial gyroscope (x, y, z) in <em>deg/s</em></p></li>
+<li><p>Photoplethysmography (PPG)</p></li>
 </ul>
 </li>
 </ul>
-<p>The final dataframe should be resampled to 100 Hz, have the correct units for the sensor columns, and the correct format for the <code class="docutils literal notranslate"><span class="pre">time</span></code> column. Also note that the <em>gait</em> pipeline expects a specific orientation of sensor axes, as explained in <a class="reference internal" href="../guides/coordinate_system.html"><span class="std std-doc">Coordinate system</span></a>.</p>
+<p>The final dataframe should be resampled to 100 Hz, have the correct units for the sensor columns, and the correct format for the time column. Also note that the <em>gait</em> pipeline expects a specific orientation of sensor axes, as explained in <a class="reference internal" href="../guides/coordinate_system.html"><span class="std std-doc">Coordinate system</span></a>.</p>
 <section id="load-data">
 <h2>Load data<a class="headerlink" href="#load-data" title="Link to this heading"></a></h2>
 <p>This example uses data of the <a class="reference external" href="https://pubmed.ncbi.nlm.nih.gov/31315608/">Personalized Parkinson Project</a>, which is stored in Time Series Data Format (TSDF). Inertial Measurements Units (IMU) and photoplethysmography (PPG) data are sampled at a different sampling frequency and therefore stored separately. Note that ParaDigMa works independent of data storage format; it only requires a <code class="docutils literal notranslate"><span class="pre">pandas</span></code> dataframe as input.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from pathlib import Path
+from paradigma.util import load_tsdf_dataframe
 
-<span class="n">path_to_raw_data</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../tests/data/data_preparation_tutorial&#39;</span><span class="p">)</span>
-<span class="n">path_to_imu_data</span> <span class="o">=</span> <span class="n">path_to_raw_data</span> <span class="o">/</span> <span class="s1">&#39;imu&#39;</span>
+path_to_raw_data = Path(&#39;../../tests/data/data_preparation_tutorial&#39;)
+path_to_imu_data = path_to_raw_data / &#39;imu&#39;
 
-<span class="n">df_imu</span><span class="p">,</span> <span class="n">imu_time</span><span class="p">,</span> <span class="n">imu_values</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
-    <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_imu_data</span><span class="p">,</span> 
-    <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;IMU&#39;</span>
-<span class="p">)</span>
+df_imu, imu_time, imu_values = load_tsdf_dataframe(
+    path_to_data=path_to_imu_data, 
+    prefix=&#39;IMU&#39;
+)
 
-<span class="n">df_imu</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+df_imu.head()
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output text_html"><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>time</th>
-      <th>acceleration_x</th>
-      <th>acceleration_y</th>
-      <th>acceleration_z</th>
-      <th>rotation_x</th>
-      <th>rotation_y</th>
-      <th>rotation_z</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.000000</td>
-      <td>-5.402541</td>
-      <td>5.632536</td>
-      <td>-2.684842</td>
-      <td>-115.670732</td>
-      <td>-32.012195</td>
-      <td>26.097561</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>10.040039</td>
-      <td>-5.257034</td>
-      <td>6.115995</td>
-      <td>-2.497091</td>
-      <td>-110.609757</td>
-      <td>-34.634146</td>
-      <td>24.695122</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>10.040039</td>
-      <td>-4.947244</td>
-      <td>6.392928</td>
-      <td>-2.468928</td>
-      <td>-103.231708</td>
-      <td>-36.768293</td>
-      <td>22.926829</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>10.040039</td>
-      <td>-4.792349</td>
-      <td>6.735574</td>
-      <td>-2.605048</td>
-      <td>-96.280488</td>
-      <td>-38.719512</td>
-      <td>21.158537</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>10.039795</td>
-      <td>-4.848675</td>
-      <td>7.115770</td>
-      <td>-2.731780</td>
-      <td>-92.560976</td>
-      <td>-41.280488</td>
-      <td>20.304878</td>
-    </tr>
-  </tbody>
-</table>
-</div></div></div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>import os
+from paradigma.util import load_tsdf_dataframe
 
-<span class="n">path_to_ppg_data</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_to_raw_data</span><span class="p">,</span> <span class="s1">&#39;ppg&#39;</span><span class="p">)</span>
+path_to_ppg_data = os.path.join(path_to_raw_data, &#39;ppg&#39;)
 
-<span class="n">df_ppg</span><span class="p">,</span> <span class="n">ppg_time</span><span class="p">,</span> <span class="n">ppg_values</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
-    <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_ppg_data</span><span class="p">,</span> 
-    <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;PPG&#39;</span>
-<span class="p">)</span>
+df_ppg, ppg_time, ppg_values = load_tsdf_dataframe(
+    path_to_data=path_to_ppg_data, 
+    prefix=&#39;PPG&#39;
+)
 
-<span class="n">df_ppg</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+df_ppg.head()
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output text_html"><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>time</th>
-      <th>green</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.000000</td>
-      <td>649511</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>9.959961</td>
-      <td>648214</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>9.959961</td>
-      <td>646786</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>9.959961</td>
-      <td>645334</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>9.960205</td>
-      <td>644317</td>
-    </tr>
-  </tbody>
-</table>
-</div></div></div>
 </div>
 <p>The timestamps in this dataset correspond to delta milliseconds, and the data is not uniformly distributed as can be observed.</p>
 </section>
 <section id="prepare-dataframe">
 <h2>Prepare dataframe<a class="headerlink" href="#prepare-dataframe" title="Link to this heading"></a></h2>
-<section id="change-column-names">
-<h3>Change column names<a class="headerlink" href="#change-column-names" title="Link to this heading"></a></h3>
-<p>To safeguard robustness of the pipeline, ParaDigMa fixes column names to a predefined standard.</p>
+<section id="set-column-names">
+<h3>Set column names<a class="headerlink" href="#set-column-names" title="Link to this heading"></a></h3>
+<p>You are free to choose column names, although we recommend using the column names set in ParaDigMa for convenience in subsequent data processing steps. These are accessible through the class <code class="docutils literal notranslate"><span class="pre">DataColumns</span></code>, which can be imported from <code class="docutils literal notranslate"><span class="pre">paradigma.constants</span></code>. For example, we recommend setting <code class="docutils literal notranslate"><span class="pre">acc_x_colname</span></code> to <code class="docutils literal notranslate"><span class="pre">DataColumns.ACCELEROMETER_X</span></code>. Again, this is not strictly necessary for future steps.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>time_colname = &#39;time&#39;  # DataColumns.TIME
 
-<span class="n">accelerometer_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Y</span><span class="p">,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Z</span><span class="p">]</span>
-<span class="n">gyroscope_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_X</span><span class="p">,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Y</span><span class="p">,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Z</span><span class="p">]</span>
+acc_x_colname = &#39;accelerometer_x&#39;  # DataColumns.ACCELEROMETER_X
+acc_y_colname = &#39;accelerometer_y&#39;  # DataColumns.ACCELEROMETER_Y
+acc_z_colname = &#39;accelerometer_z&#39;  # DataColumns.ACCELEROMETER_Z
+gyr_x_colname = &#39;gyroscope_x&#39;  # DataColumns.GYROSCOPE_X
+gyr_y_colname = &#39;gyroscope_y&#39;  # DataColumns.GYROSCOPE_Y
+gyr_z_colname = &#39;gyroscope_z&#39;  # DataColumns.GYROSCOPE_Z
 
-<span class="c1"># Rename dataframe columns</span>
-<span class="n">df_imu</span> <span class="o">=</span> <span class="n">df_imu</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span>
-    <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span>
-    <span class="s1">&#39;acceleration_x&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">,</span>
-    <span class="s1">&#39;acceleration_y&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Y</span><span class="p">,</span>
-    <span class="s1">&#39;acceleration_z&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Z</span><span class="p">,</span>
-    <span class="s1">&#39;rotation_x&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_X</span><span class="p">,</span>
-    <span class="s1">&#39;rotation_y&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Y</span><span class="p">,</span>
-    <span class="s1">&#39;rotation_z&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Z</span><span class="p">,</span>
-<span class="p">})</span>
-
-<span class="c1"># Set columns to a fixed order</span>
-<span class="n">df_imu</span> <span class="o">=</span> <span class="n">df_imu</span><span class="p">[[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">+</span> <span class="n">accelerometer_columns</span> <span class="o">+</span> <span class="n">gyroscope_columns</span><span class="p">]</span>
-
-<span class="n">df_imu</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+ppg_colname = &#39;green&#39;  # DataColumns.PPG
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output text_html"><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>time</th>
-      <th>accelerometer_x</th>
-      <th>accelerometer_y</th>
-      <th>accelerometer_z</th>
-      <th>gyroscope_x</th>
-      <th>gyroscope_y</th>
-      <th>gyroscope_z</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.000000</td>
-      <td>-5.402541</td>
-      <td>5.632536</td>
-      <td>-2.684842</td>
-      <td>-115.670732</td>
-      <td>-32.012195</td>
-      <td>26.097561</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>10.040039</td>
-      <td>-5.257034</td>
-      <td>6.115995</td>
-      <td>-2.497091</td>
-      <td>-110.609757</td>
-      <td>-34.634146</td>
-      <td>24.695122</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>10.040039</td>
-      <td>-4.947244</td>
-      <td>6.392928</td>
-      <td>-2.468928</td>
-      <td>-103.231708</td>
-      <td>-36.768293</td>
-      <td>22.926829</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>10.040039</td>
-      <td>-4.792349</td>
-      <td>6.735574</td>
-      <td>-2.605048</td>
-      <td>-96.280488</td>
-      <td>-38.719512</td>
-      <td>21.158537</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>10.039795</td>
-      <td>-4.848675</td>
-      <td>7.115770</td>
-      <td>-2.731780</td>
-      <td>-92.560976</td>
-      <td>-41.280488</td>
-      <td>20.304878</td>
-    </tr>
-  </tbody>
-</table>
-</div></div></div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span>
-
-<span class="n">ppg_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PPG</span><span class="p">]</span>
-
-<span class="c1"># Rename dataframe columns</span>
-<span class="n">df_ppg</span> <span class="o">=</span> <span class="n">df_ppg</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span>
-    <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span>
-    <span class="s1">&#39;ppg&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">PPG</span><span class="p">,</span>
-<span class="p">})</span>
-
-<span class="c1"># Set columns to a fixed order</span>
-<span class="n">df_ppg</span> <span class="o">=</span> <span class="n">df_ppg</span><span class="p">[[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">+</span> <span class="n">ppg_columns</span><span class="p">]</span>
-
-<span class="n">df_ppg</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_html"><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>time</th>
-      <th>green</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.000000</td>
-      <td>649511</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>9.959961</td>
-      <td>648214</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>9.959961</td>
-      <td>646786</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>9.959961</td>
-      <td>645334</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>9.960205</td>
-      <td>644317</td>
-    </tr>
-  </tbody>
-</table>
-</div></div></div>
 </div>
 </section>
 <section id="change-units">
@@ -473,104 +176,27 @@
 <p>ParaDigMa expects acceleration to be measured in g, and rotation in deg/s. Units can be converted conveniently using ParaDigMa functionalities.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_units_accelerometer</span><span class="p">,</span> <span class="n">convert_units_gyroscope</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from paradigma.util import convert_units_accelerometer, convert_units_gyroscope
 
-<span class="n">accelerometer_units</span> <span class="o">=</span> <span class="s1">&#39;m/s^2&#39;</span>
-<span class="n">gyroscope_units</span> <span class="o">=</span> <span class="s1">&#39;deg/s&#39;</span>
+# Set to units of the sampled data
+accelerometer_units = &#39;m/s^2&#39;
+gyroscope_units = &#39;deg/s&#39;
 
-<span class="n">accelerometer_data</span> <span class="o">=</span> <span class="n">df_imu</span><span class="p">[</span><span class="n">accelerometer_columns</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-<span class="n">gyroscope_data</span> <span class="o">=</span> <span class="n">df_imu</span><span class="p">[</span><span class="n">gyroscope_columns</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+# State the column names
+accelerometer_columns = [acc_x_colname, acc_y_colname, acc_z_colname]
+gyroscope_columns = [gyr_x_colname, gyr_y_colname, gyr_z_colname]
 
-<span class="c1"># Convert units to expected format</span>
-<span class="n">df_imu</span><span class="p">[</span><span class="n">accelerometer_columns</span><span class="p">]</span> <span class="o">=</span> <span class="n">convert_units_accelerometer</span><span class="p">(</span><span class="n">accelerometer_data</span><span class="p">,</span> <span class="n">accelerometer_units</span><span class="p">)</span>
-<span class="n">df_imu</span><span class="p">[</span><span class="n">gyroscope_columns</span><span class="p">]</span> <span class="o">=</span> <span class="n">convert_units_gyroscope</span><span class="p">(</span><span class="n">gyroscope_data</span><span class="p">,</span> <span class="n">gyroscope_units</span><span class="p">)</span>
+accelerometer_data = df_imu[accelerometer_columns].values
+gyroscope_data = df_imu[gyroscope_columns].values
 
-<span class="n">df_imu</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+# Convert units to expected format
+df_imu[accelerometer_columns] = convert_units_accelerometer(accelerometer_data, accelerometer_units)
+df_imu[gyroscope_columns] = convert_units_gyroscope(gyroscope_data, gyroscope_units)
+
+df_imu.head()
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output text_html"><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>time</th>
-      <th>accelerometer_x</th>
-      <th>accelerometer_y</th>
-      <th>accelerometer_z</th>
-      <th>gyroscope_x</th>
-      <th>gyroscope_y</th>
-      <th>gyroscope_z</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.000000</td>
-      <td>-0.550718</td>
-      <td>0.574163</td>
-      <td>-0.273684</td>
-      <td>-115.670732</td>
-      <td>-32.012195</td>
-      <td>26.097561</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>10.040039</td>
-      <td>-0.535885</td>
-      <td>0.623445</td>
-      <td>-0.254545</td>
-      <td>-110.609757</td>
-      <td>-34.634146</td>
-      <td>24.695122</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>10.040039</td>
-      <td>-0.504306</td>
-      <td>0.651675</td>
-      <td>-0.251675</td>
-      <td>-103.231708</td>
-      <td>-36.768293</td>
-      <td>22.926829</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>10.040039</td>
-      <td>-0.488517</td>
-      <td>0.686603</td>
-      <td>-0.265550</td>
-      <td>-96.280488</td>
-      <td>-38.719512</td>
-      <td>21.158537</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>10.039795</td>
-      <td>-0.494258</td>
-      <td>0.725359</td>
-      <td>-0.278469</td>
-      <td>-92.560976</td>
-      <td>-41.280488</td>
-      <td>20.304878</td>
-    </tr>
-  </tbody>
-</table>
-</div></div></div>
 </div>
 </section>
 <section id="account-for-watch-side">
@@ -578,98 +204,17 @@
 <p>For the Gait &amp; Arm Swing pipeline, it is essential to ensure correct sensor axes orientation. For more information please read <a class="reference internal" href="../guides/coordinate_system.html"><span class="std std-doc">Coordinate System</span></a> and set the axes of the data accordingly.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Change the orientation of the sensor according to the documented coordinate system</span>
-<span class="n">df_imu</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Y</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
-<span class="n">df_imu</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Z</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
-<span class="n">df_imu</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Y</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
-<span class="n">df_imu</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Z</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Change the orientation of the sensor according to the documented coordinate system. The following
+# changes are specific to the used sensor and its orientation relative to predefined coordinate system.
+df_imu[acc_y_colname] *= -1
+df_imu[acc_z_colname] *= -1
+df_imu[gyr_y_colname] *= -1
+df_imu[gyr_z_colname] *= -1
 
-<span class="n">df_imu</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+df_imu.head()
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output text_html"><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>time</th>
-      <th>accelerometer_x</th>
-      <th>accelerometer_y</th>
-      <th>accelerometer_z</th>
-      <th>gyroscope_x</th>
-      <th>gyroscope_y</th>
-      <th>gyroscope_z</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.000000</td>
-      <td>-0.550718</td>
-      <td>-0.574163</td>
-      <td>0.273684</td>
-      <td>-115.670732</td>
-      <td>32.012195</td>
-      <td>-26.097561</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>10.040039</td>
-      <td>-0.535885</td>
-      <td>-0.623445</td>
-      <td>0.254545</td>
-      <td>-110.609757</td>
-      <td>34.634146</td>
-      <td>-24.695122</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>10.040039</td>
-      <td>-0.504306</td>
-      <td>-0.651675</td>
-      <td>0.251675</td>
-      <td>-103.231708</td>
-      <td>36.768293</td>
-      <td>-22.926829</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>10.040039</td>
-      <td>-0.488517</td>
-      <td>-0.686603</td>
-      <td>0.265550</td>
-      <td>-96.280488</td>
-      <td>38.719512</td>
-      <td>-21.158537</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>10.039795</td>
-      <td>-0.494258</td>
-      <td>-0.725359</td>
-      <td>0.278469</td>
-      <td>-92.560976</td>
-      <td>41.280488</td>
-      <td>-20.304878</td>
-    </tr>
-  </tbody>
-</table>
-</div></div></div>
 </div>
 </section>
 <section id="change-time-column">
@@ -677,169 +222,35 @@
 <p>ParaDigMa expects the data to be in seconds relative to the first row, which should be equal to 0. The toolbox has the built-in function <code class="docutils literal notranslate"><span class="pre">transform_time_array</span></code> to help users transform their time column to the correct format if the timestamps have been sampled in delta time between timestamps. In the near future, the functionalities for transforming other types (e.g., datetime format) shall be provided.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeUnit</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">transform_time_array</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from paradigma.constants import TimeUnit
+from paradigma.util import transform_time_array
 
-<span class="n">df_imu</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">=</span> <span class="n">transform_time_array</span><span class="p">(</span>
-    <span class="n">time_array</span><span class="o">=</span><span class="n">df_imu</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">],</span> 
-    <span class="n">input_unit_type</span><span class="o">=</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_MS</span><span class="p">,</span> 
-    <span class="n">output_unit_type</span><span class="o">=</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_S</span><span class="p">,</span>
-<span class="p">)</span>
+df_imu[time_colname] = transform_time_array(
+    time_array=df_imu[time_colname], 
+    input_unit_type=TimeUnit.DIFFERENCE_MS, 
+    output_unit_type=TimeUnit.RELATIVE_S,
+)
 
-<span class="n">df_imu</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+df_imu.head()
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output text_html"><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>time</th>
-      <th>accelerometer_x</th>
-      <th>accelerometer_y</th>
-      <th>accelerometer_z</th>
-      <th>gyroscope_x</th>
-      <th>gyroscope_y</th>
-      <th>gyroscope_z</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.00000</td>
-      <td>-0.550718</td>
-      <td>-0.574163</td>
-      <td>0.273684</td>
-      <td>-115.670732</td>
-      <td>32.012195</td>
-      <td>-26.097561</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.01004</td>
-      <td>-0.535885</td>
-      <td>-0.623445</td>
-      <td>0.254545</td>
-      <td>-110.609757</td>
-      <td>34.634146</td>
-      <td>-24.695122</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>0.02008</td>
-      <td>-0.504306</td>
-      <td>-0.651675</td>
-      <td>0.251675</td>
-      <td>-103.231708</td>
-      <td>36.768293</td>
-      <td>-22.926829</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0.03012</td>
-      <td>-0.488517</td>
-      <td>-0.686603</td>
-      <td>0.265550</td>
-      <td>-96.280488</td>
-      <td>38.719512</td>
-      <td>-21.158537</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>0.04016</td>
-      <td>-0.494258</td>
-      <td>-0.725359</td>
-      <td>0.278469</td>
-      <td>-92.560976</td>
-      <td>41.280488</td>
-      <td>-20.304878</td>
-    </tr>
-  </tbody>
-</table>
-</div></div></div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeUnit</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">transform_time_array</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from paradigma.constants import TimeUnit
+from paradigma.util import transform_time_array
 
-<span class="n">df_ppg</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span> <span class="o">=</span> <span class="n">transform_time_array</span><span class="p">(</span>
-    <span class="n">time_array</span><span class="o">=</span><span class="n">df_ppg</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">],</span> 
-    <span class="n">input_unit_type</span><span class="o">=</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_MS</span><span class="p">,</span> 
-    <span class="n">output_unit_type</span><span class="o">=</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_S</span><span class="p">,</span>
-<span class="p">)</span>
+df_ppg[time_colname] = transform_time_array(
+    time_array=df_ppg[time_colname], 
+    input_unit_type=TimeUnit.DIFFERENCE_MS, 
+    output_unit_type=TimeUnit.RELATIVE_S,
+)
 
-<span class="n">df_ppg</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+df_ppg.head()
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output text_html"><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>time</th>
-      <th>green</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.00000</td>
-      <td>649511</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.00996</td>
-      <td>648214</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>0.01992</td>
-      <td>646786</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0.02988</td>
-      <td>645334</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>0.03984</td>
-      <td>644317</td>
-    </tr>
-  </tbody>
-</table>
-</div></div></div>
 </div>
 <p>These dataframes are ready to be processed by ParaDigMa.</p>
 </section>

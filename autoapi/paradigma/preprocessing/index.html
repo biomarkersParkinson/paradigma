@@ -9,8 +9,8 @@
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=1228b8db" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=a31c8b26" />
 
   
   <!--[if lt IE 9]>
@@ -53,6 +53,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/data_preparation.html">Data preparation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
 </ul>
@@ -131,7 +132,7 @@
 <td><p>Preprocesses IMU data by resampling and applying filters.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#paradigma.preprocessing.preprocess_ppg_data" title="paradigma.preprocessing.preprocess_ppg_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocess_ppg_data</span></code></a>(→ Tuple[pandas.DataFrame, ...)</p></td>
-<td><p>Preprocess PPG and IMU (accelerometer only) data by resampling, filtering, and aligning the data segments.</p></td>
+<td><p>This function preprocesses PPG and accelerometer data by resampling, filtering and aligning the data segments of both sensors (if applicable).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.preprocessing.extract_overlapping_segments" title="paradigma.preprocessing.extract_overlapping_segments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_overlapping_segments</span></code></a>(→ Tuple[pandas.DataFrame, ...)</p></td>
 <td><p>Extract DataFrames with overlapping data segments between accelerometer (from the IMU) and PPG datasets based on their timestamps.</p></td>
@@ -154,8 +155,7 @@
 <li><p><strong>sampling_frequency</strong> (<em>int</em>) – The original sampling frequency of the data (in Hz).</p></li>
 <li><p><strong>resampling_frequency</strong> (<em>int</em>) – The frequency to which the data should be resampled (in Hz).</p></li>
 <li><p><strong>tolerance</strong> (<em>float</em><em>, </em><em>optional</em>) – The tolerance added to the expected difference when checking
-for contiguous timestamps. If not provided, it defaults to
-three times the expected interval.</p></li>
+for contiguous timestamps. If not provided, it defaults to the tolerance specified in IMUConfig.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -250,8 +250,12 @@ filter settings, and sampling frequency.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.preprocessing.preprocess_ppg_data">
-<span class="sig-prename descclassname"><span class="pre">paradigma.preprocessing.</span></span><span class="sig-name descname"><span class="pre">preprocess_ppg_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_ppg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_acc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ppg_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../config/index.html#paradigma.config.PPGConfig" title="paradigma.config.PPGConfig"><span class="pre">paradigma.config.PPGConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">imu_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../config/index.html#paradigma.config.IMUConfig" title="paradigma.config.IMUConfig"><span class="pre">paradigma.config.IMUConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time_ppg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time_imu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/paradigma/preprocessing.html#preprocess_ppg_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.preprocessing.preprocess_ppg_data" title="Link to this definition"></a></dt>
-<dd><p>Preprocess PPG and IMU (accelerometer only) data by resampling, filtering, and aligning the data segments.</p>
+<span class="sig-prename descclassname"><span class="pre">paradigma.preprocessing.</span></span><span class="sig-name descname"><span class="pre">preprocess_ppg_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_ppg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ppg_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../config/index.html#paradigma.config.PPGConfig" title="paradigma.config.PPGConfig"><span class="pre">paradigma.config.PPGConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time_ppg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_acc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imu_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../config/index.html#paradigma.config.IMUConfig" title="paradigma.config.IMUConfig"><span class="pre">paradigma.config.IMUConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time_imu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/paradigma/preprocessing.html#preprocess_ppg_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.preprocessing.preprocess_ppg_data" title="Link to this definition"></a></dt>
+<dd><p>This function preprocesses PPG and accelerometer data by resampling, filtering and aligning the data segments of both sensors (if applicable).
+Aligning is done using the extract_overlapping_segments function which is based on the provided start times of the PPG and IMU data and returns
+only the data points where both signals overlap in time. The remaining data points are discarded.
+After alignment, the function resamples the data to the specified frequency and applies Butterworth filters to both PPG and accelerometer data (if applicable).
+The output is two DataFrames: one for the preprocessed PPG data and another for the preprocessed accelerometer data (if provided, otherwise return is None).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -264,23 +268,48 @@ filter settings, and sampling frequency.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Preprocessed PPG and IMU data as DataFrames.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Tuple[pd.DataFrame, pd.DataFrame]</p>
+<dd class="field-even"><p><p>A tuple containing two DataFrames:
+- Preprocessed PPG data with the following transformations:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Resampled data at the specified frequency.</p></li>
+<li><p>Filtered PPG data with bandpass filtering applied.</p></li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Preprocessed accelerometer data (if provided, otherwise return is None) with the following transformations:</dt><dd><ul>
+<li><p>Resampled data at the specified frequency.</p></li>
+<li><p>Filtered accelerometer data with high-pass and low-pass filtering applied.</p></li>
+</ul>
 </dd>
 </dl>
+</li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[pd.DataFrame, pd.DataFrame | None]</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>If accelerometer data or IMU configuration is not provided, the function only preprocesses PPG data.</p></li>
+<li><p>The function applies Butterworth filters to PPG and accelerometer (if applicable) data, both high-pass and low-pass.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.preprocessing.extract_overlapping_segments">
-<span class="sig-prename descclassname"><span class="pre">paradigma.preprocessing.</span></span><span class="sig-name descname"><span class="pre">extract_overlapping_segments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_ppg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_acc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time_ppg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time_acc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/paradigma/preprocessing.html#extract_overlapping_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.preprocessing.extract_overlapping_segments" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">paradigma.preprocessing.</span></span><span class="sig-name descname"><span class="pre">extract_overlapping_segments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_ppg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_acc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_colname_ppg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_colname_imu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time_ppg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time_acc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/paradigma/preprocessing.html#extract_overlapping_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.preprocessing.extract_overlapping_segments" title="Link to this definition"></a></dt>
 <dd><p>Extract DataFrames with overlapping data segments between accelerometer (from the IMU) and PPG datasets based on their timestamps.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df_ppg</strong> (<em>pd.DataFrame</em>) – DataFrame containing PPG data.</p></li>
 <li><p><strong>df_acc</strong> (<em>pd.DataFrame</em>) – DataFrame containing accelerometer data from the IMU.</p></li>
+<li><p><strong>time_colname_ppg</strong> (<em>str</em>) – The name of the column containing the time data in the PPG dataframe.</p></li>
+<li><p><strong>time_colname_imu</strong> (<em>str</em>) – The name of the column containing the time data in the IMU dataframe.</p></li>
 <li><p><strong>start_time_ppg</strong> (<em>str</em>) – iso8601 formatted start time of the PPG data.</p></li>
 <li><p><strong>start_time_acc</strong> (<em>str</em>) – iso8601 formatted start time of the accelerometer data.</p></li>
 </ul>

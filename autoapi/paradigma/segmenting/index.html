@@ -9,8 +9,8 @@
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=1228b8db" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=a31c8b26" />
 
   
   <!--[if lt IE 9]>
@@ -53,6 +53,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/data_preparation.html">Data preparation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
 </ul>
@@ -200,16 +201,26 @@ windows = tabulate_windows(config, df, columns)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> – The input dataframe, where each row represents a timestamp (0.01 sec).</p></li>
-<li><p><strong>window_length_s</strong> – The number of seconds per window.</p></li>
-<li><p><strong>window_step_length_s</strong> – The number of seconds to shift between windows.</p></li>
-<li><p><strong>single_value_cols</strong> – List of columns where a single value (e.g., mean) is needed.</p></li>
-<li><p><strong>list_value_cols</strong> – List of columns where all 600 values should be stored in a list.</p></li>
-<li><p><strong>agg_func</strong> – Aggregation function for single-value columns (e.g., ‘mean’, ‘first’).</p></li>
+<li><p><strong>config</strong> (<em>object</em>) – A configuration object containing:
+- <cite>window_length_s</cite>: The number of seconds per window.
+- <cite>window_step_length_s</cite>: The number of seconds to shift between windows.
+- <cite>sampling_frequency</cite>: The sampling frequency in Hz.
+- <cite>single_value_colnames</cite>: List of column names where a single value (e.g., mean) is needed.
+- <cite>list_value_colnames</cite>: List of column names where all 600 values should be stored in a list.</p></li>
+<li><p><strong>agg_func</strong> (<em>str</em><em> or </em><em>callable</em><em>, </em><em>optional</em>) – Aggregation function for single-value columns. Can be ‘mean’, ‘first’, or a custom callable.
+Default is ‘first’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The windowed dataframe.</p>
+<dd class="field-even"><p>A new DataFrame where each row corresponds to a window, containing:
+- <cite>window_nr</cite>: The window number (starting from 1).
+- <cite>window_start</cite>: The start time of the window.
+- <cite>window_end</cite>: The end time of the window.
+- Aggregated values for <cite>single_value_colnames</cite>.
+- Lists of values for <cite>list_value_colnames</cite>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
 </dd>
 </dl>
 </dd></dl>
@@ -297,7 +308,7 @@ the number of rows (data points) in the segment.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="paradigma.segmenting.WindowedDataExtractor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.segmenting.</span></span><span class="sig-name descname"><span class="pre">WindowedDataExtractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">windowed_cols</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/segmenting.html#WindowedDataExtractor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.segmenting.WindowedDataExtractor" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paradigma.segmenting.</span></span><span class="sig-name descname"><span class="pre">WindowedDataExtractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">windowed_colnames</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/segmenting.html#WindowedDataExtractor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.segmenting.WindowedDataExtractor" title="Link to this definition"></a></dt>
 <dd><p>A utility class for extracting specific column indices and slices
 from a list of windowed column names.</p>
 <dl class="py attribute">
@@ -313,14 +324,14 @@ from a list of windowed column names.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="paradigma.segmenting.WindowedDataExtractor.get_index">
-<span class="sig-name descname"><span class="pre">get_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">col</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/segmenting.html#WindowedDataExtractor.get_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.segmenting.WindowedDataExtractor.get_index" title="Link to this definition"></a></dt>
-<dd><p>Returns the index of a specific column.</p>
+<span class="sig-name descname"><span class="pre">get_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">colname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/segmenting.html#WindowedDataExtractor.get_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.segmenting.WindowedDataExtractor.get_index" title="Link to this definition"></a></dt>
+<dd><p>Returns the index of a specific column name.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="paradigma.segmenting.WindowedDataExtractor.get_slice">
-<span class="sig-name descname"><span class="pre">get_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cols</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/segmenting.html#WindowedDataExtractor.get_slice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.segmenting.WindowedDataExtractor.get_slice" title="Link to this definition"></a></dt>
-<dd><p>Returns a slice object for a range of consecutive columns.</p>
+<span class="sig-name descname"><span class="pre">get_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">colnames</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/segmenting.html#WindowedDataExtractor.get_slice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.segmenting.WindowedDataExtractor.get_slice" title="Link to this definition"></a></dt>
+<dd><p>Returns a slice object for a range of consecutive column names.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -330,7 +341,7 @@ from a list of windowed column names.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="id1">
-<span class="sig-name descname"><span class="pre">get_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">col</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/segmenting.html#WindowedDataExtractor.get_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/paradigma/segmenting.html#WindowedDataExtractor.get_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
 <dd><p>Get the index of a specific column.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -343,18 +354,18 @@ from a list of windowed column names.</p>
 <dd class="field-odd"><p>int</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If the column is not found in the <cite>windowed_cols</cite> list.</p>
+<dd class="field-even"><p><strong>ValueError</strong> – If the column is not found in the <cite>windowed_colnames</cite> list.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="id2">
-<span class="sig-name descname"><span class="pre">get_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cols</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/segmenting.html#WindowedDataExtractor.get_slice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id2" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">colnames</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">slice</span></span></span><a class="reference internal" href="../../../_modules/paradigma/segmenting.html#WindowedDataExtractor.get_slice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id2" title="Link to this definition"></a></dt>
 <dd><p>Get a slice object for a range of consecutive columns.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>cols</strong> (<em>list</em><em> of </em><em>str</em>) – A list of consecutive column names to define the slice.</p>
+<dd class="field-odd"><p><strong>colnames</strong> (<em>list</em><em> of </em><em>str</em>) – A list of consecutive column names to define the slice.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A slice object spanning the indices of the given columns.</p>
@@ -363,7 +374,7 @@ from a list of windowed column names.</p>
 <dd class="field-odd"><p>slice</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If one or more columns in <cite>cols</cite> are not found in the <cite>windowed_cols</cite> list.</p>
+<dd class="field-even"><p><strong>ValueError</strong> – If one or more columns in <cite>colnames</cite> are not found in the <cite>windowed_colnames</cite> list.</p>
 </dd>
 </dl>
 </dd></dl>

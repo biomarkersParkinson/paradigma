@@ -8,8 +8,8 @@
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
-      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1228b8db" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
 
   
   <!--[if lt IE 9]>
@@ -50,6 +50,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/data_preparation.html">Data preparation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
 </ul>
@@ -100,39 +101,40 @@
 <div class="viewcode-block" id="DataColumns">
 <a class="viewcode-back" href="../../autoapi/paradigma/constants/index.html#paradigma.constants.DataColumns">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">DataColumns</span><span class="p">():</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DataColumns</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class containing the data channels in `tsdf`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">ACCELEROMETER_X</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;accelerometer_x&quot;</span>
-    <span class="n">ACCELEROMETER_Y</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;accelerometer_y&quot;</span>
-    <span class="n">ACCELEROMETER_Z</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;accelerometer_z&quot;</span>
-    <span class="n">GYROSCOPE_X</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gyroscope_x&quot;</span>
-    <span class="n">GYROSCOPE_Y</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gyroscope_y&quot;</span>
-    <span class="n">GYROSCOPE_Z</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gyroscope_z&quot;</span>
-    <span class="n">PPG</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;green&quot;</span>
-    <span class="n">TIME</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;time&quot;</span>
-    <span class="n">SEGMENT_NR</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;segment_nr&quot;</span>
+
+    <span class="n">ACCELEROMETER_X</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;accelerometer_x&quot;</span>
+    <span class="n">ACCELEROMETER_Y</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;accelerometer_y&quot;</span>
+    <span class="n">ACCELEROMETER_Z</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;accelerometer_z&quot;</span>
+    <span class="n">GYROSCOPE_X</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gyroscope_x&quot;</span>
+    <span class="n">GYROSCOPE_Y</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gyroscope_y&quot;</span>
+    <span class="n">GYROSCOPE_Z</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gyroscope_z&quot;</span>
+    <span class="n">PPG</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;green&quot;</span>
+    <span class="n">TIME</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;time&quot;</span>
+    <span class="n">SEGMENT_NR</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;segment_nr&quot;</span>
     <span class="n">SEGMENT_CAT</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;segment_category&quot;</span>
 
-    <span class="c1"># Gait </span>
-    <span class="n">GRAV_ACCELEROMETER_X</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;accelerometer_x_grav&quot;</span>
-    <span class="n">GRAV_ACCELEROMETER_Y</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;accelerometer_y_grav&quot;</span>
-    <span class="n">GRAV_ACCELEROMETER_Z</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;accelerometer_z_grav&quot;</span>
+    <span class="c1"># Gait</span>
+    <span class="n">GRAV_ACCELEROMETER_X</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;accelerometer_x_grav&quot;</span>
+    <span class="n">GRAV_ACCELEROMETER_Y</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;accelerometer_y_grav&quot;</span>
+    <span class="n">GRAV_ACCELEROMETER_Z</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;accelerometer_z_grav&quot;</span>
     <span class="n">PRED_GAIT_PROBA</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pred_gait_proba&quot;</span>
-    <span class="n">PRED_GAIT</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pred_gait&quot;</span>
+    <span class="n">PRED_GAIT</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pred_gait&quot;</span>
     <span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pred_no_other_arm_activity_proba&quot;</span>
-    <span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pred_no_other_arm_activity&quot;</span>
-    <span class="n">ANGLE</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;angle&quot;</span>
-    <span class="n">VELOCITY</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;velocity&quot;</span>
+    <span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pred_no_other_arm_activity&quot;</span>
+    <span class="n">ANGLE</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;angle&quot;</span>
+    <span class="n">VELOCITY</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;velocity&quot;</span>
     <span class="n">DOMINANT_FREQUENCY</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;dominant_frequency&quot;</span>
     <span class="n">RANGE_OF_MOTION</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;range_of_motion&quot;</span>
     <span class="n">PEAK_VELOCITY</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;peak_velocity&quot;</span>
 
     <span class="c1"># The following are used in tremor analysis</span>
     <span class="n">PRED_TREMOR_PROBA</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pred_tremor_proba&quot;</span>
-    <span class="n">PRED_TREMOR_LOGREG</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pred_tremor_logreg&quot;</span>
-    <span class="n">PRED_TREMOR_CHECKED</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pred_tremor_checked&quot;</span>
+    <span class="n">PRED_TREMOR_LOGREG</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pred_tremor_logreg&quot;</span>
+    <span class="n">PRED_TREMOR_CHECKED</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pred_tremor_checked&quot;</span>
     <span class="n">PRED_ARM_AT_REST</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pred_arm_at_rest&quot;</span>
 
     <span class="c1"># Constants for PPG features</span>
@@ -159,53 +161,57 @@
     <span class="c1"># Constants for pulse rate</span>
     <span class="n">PULSE_RATE</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pulse_rate&quot;</span></div>
 
-    
+
+
 <div class="viewcode-block" id="DataUnits">
 <a class="viewcode-back" href="../../autoapi/paradigma/constants/index.html#paradigma.constants.DataUnits">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">DataUnits</span><span class="p">():</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DataUnits</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class containing the data channel unit types in `tsdf`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">ACCELERATION</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;m/s^2&quot;</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; The acceleration is in m/s^2. &quot;&quot;&quot;</span>
-    
+
     <span class="n">ROTATION</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;deg/s&quot;</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; The rotation is in degrees per second. &quot;&quot;&quot;</span>
-    
+
     <span class="n">GRAVITY</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;g&quot;</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; The acceleration due to gravity is in g. &quot;&quot;&quot;</span>
-    
+
     <span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;g^2/Hz&quot;</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; The power spectral density is in g^2/Hz. &quot;&quot;&quot;</span>
-    
+
     <span class="n">FREQUENCY</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Hz&quot;</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; The frequency is in Hz. &quot;&quot;&quot;</span>
 
     <span class="n">NONE</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; The data channel has no unit. &quot;&quot;&quot;</span></div>
 
-    
+
 
 <div class="viewcode-block" id="TimeUnit">
 <a class="viewcode-back" href="../../autoapi/paradigma/constants/index.html#paradigma.constants.TimeUnit">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">TimeUnit</span><span class="p">():</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TimeUnit</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class containing the `time` channel unit types in `tsdf`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">RELATIVE_MS</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;relative_ms&quot;</span>
+
+    <span class="n">RELATIVE_MS</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;relative_ms&quot;</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; The time is relative to the start time in milliseconds. &quot;&quot;&quot;</span>
-    <span class="n">RELATIVE_S</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;relative_s&quot;</span>
+    <span class="n">RELATIVE_S</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;relative_s&quot;</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; The time is relative to the start time in seconds. &quot;&quot;&quot;</span>
-    <span class="n">ABSOLUTE_MS</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;absolute_ms&quot;</span>
+    <span class="n">ABSOLUTE_MS</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;absolute_ms&quot;</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; The time is absolute in milliseconds. &quot;&quot;&quot;</span>
-    <span class="n">ABSOLUTE_S</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;absolute_s&quot;</span>
+    <span class="n">ABSOLUTE_S</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;absolute_s&quot;</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; The time is absolute in seconds. &quot;&quot;&quot;</span>
-    <span class="n">DIFFERENCE_MS</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;difference_ms&quot;</span>
+    <span class="n">DIFFERENCE_MS</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;difference_ms&quot;</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; The time is the difference between consecutive samples in milliseconds. &quot;&quot;&quot;</span>
-    <span class="n">DIFFERENCE_S</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;difference_s&quot;</span>
+    <span class="n">DIFFERENCE_S</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;difference_s&quot;</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; The time is the difference between consecutive samples in seconds. &quot;&quot;&quot;</span></div>
+
 
 
 <span class="n">UNIX_TICKS_MS</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span>

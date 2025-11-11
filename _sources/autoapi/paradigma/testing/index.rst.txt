@@ -19,7 +19,6 @@ Functions
    paradigma.testing.detect_tremor_io
    paradigma.testing.aggregate_tremor_io
    paradigma.testing.extract_signal_quality_features_io
-   paradigma.testing.signal_quality_classification_io
    paradigma.testing.aggregate_pulse_rate_io
 
 
@@ -76,8 +75,6 @@ Module Contents
    :returns: **df_windowed** -- The DataFrame containing the extracted signal quality features.
    :rtype: pd.DataFrame
 
-
-.. py:function:: signal_quality_classification_io(input_path: str | pathlib.Path, output_path: str | pathlib.Path, path_to_classifier_input: str | pathlib.Path, config: paradigma.config.PulseRateConfig) -> None
 
 .. py:function:: aggregate_pulse_rate_io(full_path_to_input: str | pathlib.Path, full_path_to_output: str | pathlib.Path, aggregates: List[str] = ['mode', '99p']) -> None
 

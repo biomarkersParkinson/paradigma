@@ -44,6 +44,15 @@ Module Contents
 
 
 
+   .. py:method:: update_scaler(x_train: numpy.ndarray) -> None
+
+      Update the scaler used for feature transformation.
+
+      :param x_train: The training data to fit the scaler.
+      :type x_train: np.ndarray
+
+
+
    .. py:method:: predict_proba(X) -> float
 
       Make predictions using the classifier and apply the threshold.
