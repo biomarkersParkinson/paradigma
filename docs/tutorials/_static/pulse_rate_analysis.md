@@ -28,7 +28,7 @@ from paradigma.util import load_tsdf_dataframe
 
 # Set the path to where the prepared data is saved and load the data.
 # Note: the test data is stored in TSDF, but you can load your data in your own way
-path_to_prepared_data =  Path('../../example_data')
+path_to_prepared_data =  Path('../../example_data/verily')
 
 ppg_prefix = 'ppg'
 imu_prefix = 'imu'
@@ -783,6 +783,14 @@ df_sqa = signal_quality_classification(
 df_sqa
 ```
 
+    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator LogisticRegression from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+      warnings.warn(
+    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator StandardScaler from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+      warnings.warn(
+
+
 
 
 
@@ -1113,7 +1121,7 @@ from paradigma.preprocessing import preprocess_ppg_data
 from paradigma.pipelines.pulse_rate_pipeline import extract_signal_quality_features, signal_quality_classification, estimate_pulse_rate
 
 # Set the path to where the prepared data is saved
-path_to_prepared_data =  Path('../../example_data')
+path_to_prepared_data =  Path('../../example_data/verily')
 
 ppg_prefix = 'ppg'
 imu_prefix = 'imu'

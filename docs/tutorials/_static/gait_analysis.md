@@ -31,7 +31,7 @@ from paradigma.util import load_tsdf_dataframe
 
 # Set the path to where the prepared data is saved and load the data.
 # Note: the test data is stored in TSDF, but you can load your data in your own way
-path_to_data =  Path('../../example_data')
+path_to_data =  Path('../../example_data/verily')
 path_to_prepared_data = path_to_data / 'imu'
 
 raw_data_segment_nr  = '0001'
@@ -587,6 +587,17 @@ df_gait[[config.time_colname, DataColumns.PRED_GAIT_PROBA]].head()
     Out of 34334 windows, 2753 (8.0%) were predicted as gait, and 31581 (92.0%) as non-gait.
 
 
+    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator DecisionTreeClassifier from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+      warnings.warn(
+    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator RandomForestClassifier from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+      warnings.warn(
+    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator StandardScaler from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+      warnings.warn(
+
+
 
 
 
@@ -793,15 +804,7 @@ df_arm_activity.head()
 ```
 
     A total of 61 features have been extracted from 2749 3-second windows with 2.25 seconds overlap.
-<<<<<<< HEAD
 
-=======
-<<<<<<< HEAD
-
-=======
-
->>>>>>> 37f1c8fea7b90d0e387febafe838f2df6ab9dd47
->>>>>>> origin/main
 
 
 
@@ -1016,6 +1019,14 @@ df_arm_activity[[config.time_colname, DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PRO
     Out of 2749 windows, 916 (33.3%) were predicted as no_other_arm_activity, and 1833 (66.7%) as other_arm_activity.
 
 
+    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator LogisticRegression from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+      warnings.warn(
+    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator StandardScaler from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+      warnings.warn(
+
+
 
 
 
@@ -1151,21 +1162,9 @@ quantified_arm_swing.loc[quantified_arm_swing['segment_nr'] == 1]
      'duration_unfiltered_segment_s': 9.0,
      'end_time_s': 2230.74,
      'start_time_s': 2221.75}
-<<<<<<< HEAD
 
     Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 9.0 seconds, which is at least as large as the filtered gait segment.
 
-=======
-<<<<<<< HEAD
-
-    Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 9.0 seconds, which is at least as large as the filtered gait segment.
-
-=======
-
-    Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 9.0 seconds, which is at least as large as the filtered gait segment.
-
->>>>>>> 37f1c8fea7b90d0e387febafe838f2df6ab9dd47
->>>>>>> origin/main
     Individual arm swings of the first gait segment of the filtered dataset:
 
 
@@ -1299,7 +1298,7 @@ from paradigma.constants import DataColumns
 from paradigma.classification import ClassifierPackage
 
 # Set the path to where the prepared data is saved
-path_to_data =  Path('../../example_data')
+path_to_data =  Path('../../example_data/verily')
 path_to_prepared_data = path_to_data / 'imu'
 
 # Load the gait detection classifier package
@@ -1418,12 +1417,22 @@ for raw_data_segment_nr in raw_data_segments:
 quantified_arm_swing = pd.concat(list_quantified_arm_swing, ignore_index=True)
 ```
 
+    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator DecisionTreeClassifier from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+      warnings.warn(
+    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator RandomForestClassifier from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+      warnings.warn(
+    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator StandardScaler from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+      warnings.warn(
+    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator LogisticRegression from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+      warnings.warn(
+
+
 ## Step 7: Aggregation
 Finally, the arm swing estimates can be aggregated across all gait segments.
-
-Optionally, gait segments can be categorized into bins of specific length. Bins are tuples `(a, b)` including $a$ and excluding $b$, i.e., gait segments $\geq a$ seconds and $< b$ seconds. For example, to analyze gait segments of at least 20 seconds, the tuple `(20, np.inf)` can be used. In case you want to analyze all gait segments combined, use `(0, np.inf)`.
-
-Optionally, gait segments can be categorized into bins of specific length. Bins are tuples `(a, b)` including $a$ and excluding $b$, i.e., gait segments $\geq a$ seconds and $< b$ seconds. For example, to analyze gait segments of at least 20 seconds, the tuple `(20, np.inf)` can be used. In case you want to analyze all gait segments combined, use `(0, np.inf)`.
 
 Optionally, gait segments can be categorized into bins of specific length. Bins are tuples `(a, b)` including `a` and excluding `b`, i.e., gait segments ≥ `a` seconds and < `b` seconds. For example, to analyze gait segments of at least 20 seconds, the tuple `(20, np.inf)` can be used. In case you want to analyze all gait segments combined, use `(0, np.inf)`.
 
@@ -1445,55 +1454,25 @@ pprint(arm_swing_aggregations, sort_dicts=False)
 ```
 
     {'0_10': {'duration_s': 341.25,
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> origin/main
-              'median_range_of_motion': 15.10889561336818,
-              '95p_range_of_motion': 52.27598270995837,
-              'median_peak_velocity': 74.63996138215876,
-              '95p_peak_velocity': 230.71389576502395},
+              'median_range_of_motion': 10.103916338101538,
+              '95p_range_of_motion': 32.906134051340224,
+              'median_peak_velocity': 51.7110927860014,
+              '95p_peak_velocity': 163.04675036294753},
      '10_20': {'duration_s': 60.75,
-               'median_range_of_motion': 15.781087457927846,
-               '95p_range_of_motion': 45.165400467519284,
-               'median_peak_velocity': 86.83257977334742,
-               '95p_peak_velocity': 219.97254034894718},
+               'median_range_of_motion': 21.05381778480318,
+               '95p_range_of_motion': 45.61743804999113,
+               'median_peak_velocity': 117.73758780005977,
+               '95p_peak_velocity': 228.88536515287097},
      '20_inf': {'duration_s': 1905.75,
-                'median_range_of_motion': 25.289651009660467,
-                '95p_range_of_motion': 43.74907398039543,
-                'median_peak_velocity': 125.9443142903539,
-                '95p_peak_velocity': 217.80854223601995},
-     '0_inf': {'duration_s': 2307.75,
-               'median_range_of_motion': 23.100608971051322,
-               '95p_range_of_motion': 45.92600123148869,
-               'median_peak_velocity': 116.50364930684765,
-               '95p_peak_velocity': 219.2008357820751}}
-<<<<<<< HEAD
-
-=======
-
-=======
-              'median_range_of_motion': 10.103916338101575,
-              '95p_range_of_motion': 32.90613405134026,
-              'median_peak_velocity': 51.71109278600136,
-              '95p_peak_velocity': 163.04675036294768},
-     '10_20': {'duration_s': 60.75,
-               'median_range_of_motion': 21.05381778480308,
-               '95p_range_of_motion': 45.617438049991144,
-               'median_peak_velocity': 117.7375878000595,
-               '95p_peak_velocity': 228.8853651528709},
-     '20_inf': {'duration_s': 1905.75,
-                'median_range_of_motion': 25.56899710571253,
-                '95p_range_of_motion': 43.59181429894547,
+                'median_range_of_motion': 25.56899710571252,
+                '95p_range_of_motion': 43.59181429894559,
                 'median_peak_velocity': 127.40063801636731,
-                '95p_peak_velocity': 217.64806342438817},
+                '95p_peak_velocity': 217.6480634243883},
      '0_inf': {'duration_s': 2307.75,
-               'median_range_of_motion': 23.88140114870256,
-               '95p_range_of_motion': 43.047421805408675,
-               'median_peak_velocity': 119.68741253971183,
-               '95p_peak_velocity': 215.24611069202754}}
+               'median_range_of_motion': 23.881401148702604,
+               '95p_range_of_motion': 43.04742180540818,
+               'median_peak_velocity': 119.68741253971157,
+               '95p_peak_velocity': 215.24611069202766}}
 
->>>>>>> 37f1c8fea7b90d0e387febafe838f2df6ab9dd47
->>>>>>> origin/main
 
 The output of the aggregation step contains the aggregated arm swing parameters per gait segment category. Additionally, the total time in seconds `time_s` is added to inform based on how much data the aggregations were created.

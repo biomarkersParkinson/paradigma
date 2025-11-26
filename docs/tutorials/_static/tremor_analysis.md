@@ -27,7 +27,7 @@ from paradigma.util import load_tsdf_dataframe
 
 # Set the path to where the prepared data is saved and load the data.
 # Note: the test data is stored in TSDF, but you can load your data in your own way
-path_to_data =  Path('../../example_data')
+path_to_data =  Path('../../example_data/verily')
 path_to_prepared_data = path_to_data / 'imu'
 
 segment_nr  = '0001'
@@ -634,6 +634,14 @@ df_predictions[[config.time_colname, 'pred_tremor_proba', 'pred_tremor_logreg', 
     A threshold of 50 deg²/s² is used to determine whether the arm is at rest or in stable posture.
 
 
+    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator LogisticRegression from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+      warnings.warn(
+    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator StandardScaler from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+      warnings.warn(
+
+
 
 
 
@@ -770,29 +778,13 @@ from paradigma.util import write_df_data
 metadata_time_store = tsdf.TSDFMetadata(metadata_time.get_plain_tsdf_dict_copy(), path_to_data)
 metadata_values_store = tsdf.TSDFMetadata(metadata_values.get_plain_tsdf_dict_copy(), path_to_data)
 
-<<<<<<< HEAD
-# Select the columns to be saved
-metadata_time_store.channels = ['time']
-<<<<<<< HEAD
-=======
-=======
 # Select the columns to be saved
 metadata_time_store.channels = [config.time_colname]
->>>>>>> 37f1c8fea7b90d0e387febafe838f2df6ab9dd47
->>>>>>> origin/main
 metadata_values_store.channels = ['tremor_power', 'pred_tremor_proba', 'pred_tremor_logreg', 'pred_arm_at_rest', 'pred_tremor_checked']
 
 # Set the units
 metadata_time_store.units = ['Relative seconds']
-<<<<<<< HEAD
 metadata_values_store.units = ['Unitless', 'Unitless', 'Unitless', 'Unitless', 'Unitless']
-=======
-<<<<<<< HEAD
-metadata_values_store.units = ['Unitless', 'Unitless', 'Unitless', 'Unitless', 'Unitless']
-=======
-metadata_values_store.units = ['Unitless', 'Unitless', 'Unitless', 'Unitless', 'Unitless']
->>>>>>> 37f1c8fea7b90d0e387febafe838f2df6ab9dd47
->>>>>>> origin/main
 metadata_time_store.data_type = float
 metadata_values_store.data_type = float
 
@@ -1058,7 +1050,7 @@ from paradigma.preprocessing import preprocess_imu_data
 from paradigma.pipelines.tremor_pipeline import extract_tremor_features, detect_tremor
 
 # Set the path to where the prepared data is saved
-path_to_data =  Path('../../example_data')
+path_to_data =  Path('../../example_data/verily')
 path_to_prepared_data = path_to_data / 'imu'
 
 # Load the pre-trained logistic regression classifier
@@ -1103,6 +1095,22 @@ for segment_nr in segments:
 
 df_quantification = pd.concat(list_df_quantifications, ignore_index=True)
 ```
+
+    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator LogisticRegression from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+      warnings.warn(
+    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator StandardScaler from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+      warnings.warn(
+
+
+    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator LogisticRegression from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+      warnings.warn(
+    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator StandardScaler from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+      warnings.warn(
+
 
 ## Step 5: Compute aggregated tremor measures
 
