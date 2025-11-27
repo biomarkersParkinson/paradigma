@@ -4683,19 +4683,23 @@ test = ["argcomplete (>=3.0.3)", "mypy (>=1.7.0)", "pre-commit", "pytest (>=7.0,
 
 [[package]]
 name = "tsdf"
-version = "0.5.2"
+version = "0.6.1"
 description = "A Python library that provides methods for encoding and decoding TSDF (Time Series Data Format) data, which allows you to easily create, manipulate and serialize TSDF files in your Python code."
 optional = false
-python-versions = ">=3.9,<4.0"
+python-versions = "^3.11"
 groups = ["main"]
-files = [
-    {file = "tsdf-0.5.2-py3-none-any.whl", hash = "sha256:7bf39836a0bf971a0253532c5af43a2ed34e1cf6b23d7aa05b392bb69b07e0e7"},
-    {file = "tsdf-0.5.2.tar.gz", hash = "sha256:39cfa8b2228dece926c544541882f2d410669936f6b3cb4d5472248c9715cf86"},
-]
+files = []
+develop = false
 
 [package.dependencies]
-numpy = ">=1.24.1,<2.0.0"
-pandas = ">=2.1.3,<3.0.0"
+numpy = "^1.24.1"
+pandas = "^2.1.3"
+
+[package.source]
+type = "git"
+url = "https://github.com/biomarkersParkinson/tsdf.git"
+reference = "main"
+resolved_reference = "aec1c84037a0ad01e063d48e324dbfa3c5959aaf"
 
 [[package]]
 name = "typing-extensions"
@@ -5010,4 +5014,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "48ac8e54dc5dd87c2e78e5fcd44b250e641457d939b933722aa111b35b0f83ae"
+content-hash = "ec90419e9e3df90eecf2335b83da938c76db3d810f7980dd1d86938e6a0efd8c"
