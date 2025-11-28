@@ -191,7 +191,7 @@ def create_segments(
     gap_exceeds = time_diff > max_segment_gap_s
 
     # Create the segment number based on the cumulative sum of the gap_exceeds mask
-    segments = gap_exceeds.cumsum()
+    segments = gap_exceeds.cumsum() + 1
 
     return segments
 
