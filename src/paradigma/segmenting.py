@@ -254,7 +254,7 @@ def discard_segments(
     segment_counts = df[segment_nr_colname].value_counts()
 
     # Select valid segments
-    valid_segments = segment_counts.index(segment_counts >= min_samples)
+    valid_segments = segment_counts.loc[segment_counts >= min_samples].index.tolist()
 
     # Filter rows
     df = df[df[segment_nr_colname].isin(valid_segments)]
