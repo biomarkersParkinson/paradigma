@@ -251,20 +251,19 @@ def discard_segments(
     else:
         raise ValueError("Invalid format. Must be 'timestamps' or 'windows'.")
 
-    # Group by segment and filter out small segments in one step
-    valid_segment_mask = (
-        df.groupby(segment_nr_colname)[segment_nr_colname].transform("size")
-        >= min_samples
-    )
+    segment_counts = df[segment_nr_colname].value_counts()
 
-    df = df[valid_segment_mask].copy()
+    # Select valid segments
+    valid_segments = segment_counts.index(segment_counts >= min_samples)
+
+    # Filter rows
+    df = df[df[segment_nr_colname].isin(valid_segments)]
 
     if df.empty:
         raise ValueError("All segments were removed.")
 
-    # Reset segment numbers in a single step
-    unique_segments = pd.factorize(df[segment_nr_colname])[0] + 1
-    df[segment_nr_colname] = unique_segments
+    # Reset segment numbers
+    df[segment_nr_colname] = pd.factorize(df[segment_nr_colname])[0] + 1
 
     return df
 
