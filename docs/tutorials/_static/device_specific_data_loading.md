@@ -23,8 +23,13 @@ path_to_input_data = Path('../../example_data/axivity/')
 test_data_filename = 'test_data.CWA'
 prepared_data_filename = 'test_data.parquet'
 
-# Note: Set include_gyro to False when using AX3 devices without gyroscope, or when gyroscope data is not needed
-with CwaData(path_to_input_data / test_data_filename, include_gyro=True, include_temperature=False) as cwa_data:
+# Note: Set include_gyro to False when using AX3 devices without gyroscope,
+# or when gyroscope data is not needed
+with CwaData(
+    filename=path_to_input_data / test_data_filename,
+    include_gyro=True,
+    include_temperature=False
+    ) as cwa_data:
     print("Data format info:")
     pprint(cwa_data.data_format)
 
@@ -173,12 +178,12 @@ from pathlib import Path
 from avro.datafile import DataFileReader
 from avro.io import DatumReader
 
-path_to_empatica_data = Path(r'C:\Users\z665206\Documents\PhD\data\senss\Empatica Data\110003-3YK32133RG\raw_data\v6')
-empatica_data_filename = '1-1-110003_1734825850.avro'
+path_to_input_data = Path('../../example_data/empatica/')
+empatica_data_filename = 'test_data.avro'
 
 ## Read Avro file
 # reader = DataFileReader(open(path_to_empatica_data / empatica_data_filename, "rb"), DatumReader())
-with open(path_to_empatica_data / empatica_data_filename, "rb") as f:
+with open(path_to_input_data / empatica_data_filename, "rb") as f:
     reader = DataFileReader(f, DatumReader())
 
     schema = json.loads(reader.meta.get("avro.schema").decode("utf-8"))
@@ -189,9 +194,10 @@ accel_data = empatica_data['rawData']['accelerometer']
 # The example data does not contain gyroscope data, but if it did, you could access it like this:
 # gyro_data = empatica_data['rawData']['gyroscope']
 
-# To convert accelerometer and gyroscope data into the correct format, we need to check the Avro schema version.
-# This converts accelerometer into g (9.81 m/s²) units, and gyroscope into degrees per second (rad/s). More info
-# on units and conversion can be found in the schema object using: print(schema).
+# To convert accelerometer and gyroscope data into the correct format, we need to
+# check the Avro schema version. This converts accelerometer into g (9.81 m/s²) units,
+# and gyroscope into degrees per second (rad/s). More info on units and conversion
+# can be found in the schema object using: print(schema).
 
 avro_version = (
     (empatica_data["schemaVersion"]["major"]),
@@ -226,14 +232,14 @@ df = pd.DataFrame({
     'accel_z': accel_z,
 })
 
-print(f"Data loaded from Avro file with {nrows} rows and sampling frequency {sampling_frequency} Hz.")
+print(f"Data loaded from Avro file with {nrows} rows sampled at {sampling_frequency} Hz.")
 print(f"Start time: {pd.to_datetime(t_start, unit='us')}")
 
 df.head()
 ```
 
-    Data loaded from Avro file with 116352 rows and sampling frequency 64.00003051757812 Hz.
-    Start time: 2024-12-22 00:04:09.889554
+    Data loaded from Avro file with 115904 rows sampled at 63.99989700317383 Hz.
+    Start time: 2025-11-26 10:41:54.256034
 
 
 
@@ -268,42 +274,42 @@ df.head()
     <tr>
       <th>0</th>
       <td>0.000000</td>
-      <td>2024-12-22 00:04:09.889554</td>
-      <td>0.638184</td>
-      <td>-0.227051</td>
-      <td>0.742188</td>
+      <td>2025-11-26 10:41:54.256034</td>
+      <td>-0.999424</td>
+      <td>-0.067832</td>
+      <td>0.197152</td>
     </tr>
     <tr>
       <th>1</th>
       <td>0.015625</td>
-      <td>2024-12-22 00:04:09.905179</td>
-      <td>0.643555</td>
-      <td>-0.232910</td>
-      <td>0.747559</td>
+      <td>2025-11-26 10:41:54.271659</td>
+      <td>-1.003328</td>
+      <td>-0.063440</td>
+      <td>0.187392</td>
     </tr>
     <tr>
       <th>2</th>
       <td>0.031250</td>
-      <td>2024-12-22 00:04:09.920804</td>
-      <td>0.643555</td>
-      <td>-0.222656</td>
-      <td>0.749512</td>
+      <td>2025-11-26 10:41:54.287284</td>
+      <td>-0.989664</td>
+      <td>-0.072712</td>
+      <td>0.184952</td>
     </tr>
     <tr>
       <th>3</th>
       <td>0.046875</td>
-      <td>2024-12-22 00:04:09.936429</td>
-      <td>0.647461</td>
-      <td>-0.231445</td>
-      <td>0.747070</td>
+      <td>2025-11-26 10:41:54.302909</td>
+      <td>-0.996008</td>
+      <td>-0.069784</td>
+      <td>0.176656</td>
     </tr>
     <tr>
       <th>4</th>
       <td>0.062500</td>
-      <td>2024-12-22 00:04:09.952054</td>
-      <td>0.647461</td>
-      <td>-0.219727</td>
-      <td>0.751465</td>
+      <td>2025-11-26 10:41:54.318534</td>
+      <td>-0.998936</td>
+      <td>-0.057584</td>
+      <td>0.183000</td>
     </tr>
   </tbody>
 </table>

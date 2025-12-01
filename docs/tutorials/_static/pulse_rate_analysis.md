@@ -46,8 +46,8 @@ df_imu, metadata_time_imu, metadata_values_imu = load_tsdf_dataframe(
     prefix=f'IMU_segment{segment_nr}'
 )
 
-time_col = ['time'] # define time column to keep
-acc_cols = ['accelerometer_x', 'accelerometer_y', 'accelerometer_z'] # define accelerometer columns to keep
+time_col = ['time']
+acc_cols = ['accelerometer_x', 'accelerometer_y', 'accelerometer_z']
 df_acc = df_imu[time_col + acc_cols]
 
 display(df_ppg, df_acc)
@@ -277,8 +277,15 @@ ppg_column_mapping = {
 ppg_config = PPGConfig(column_mapping=ppg_column_mapping)
 imu_config = IMUConfig(column_mapping=imu_column_mapping)
 
-print(f'The tolerance for checking contiguous timestamps is set to {ppg_config.tolerance:.3f} seconds for PPG data and {imu_config.tolerance:.3f} seconds for accelerometer data.')
-print(f"Original data shapes:\n- PPG data: {df_ppg.shape}\n- Accelerometer data: {df_imu.shape}")
+print(
+    f"The tolerance for checking contiguous timestamps is set to "
+    f"{ppg_config.tolerance:.3f} seconds for PPG data and "
+    f"{imu_config.tolerance:.3f} seconds for accelerometer data."
+)
+print(
+    f"Original data shapes:\n- PPG data: {df_ppg.shape}\n"
+    f"- Accelerometer data: {df_imu.shape}"
+)
 df_ppg_proc, df_acc_proc = preprocess_ppg_data(
     df_ppg=df_ppg,
     ppg_config=ppg_config,
@@ -288,7 +295,8 @@ df_ppg_proc, df_acc_proc = preprocess_ppg_data(
     start_time_imu=metadata_time_imu.start_iso8601  # Optional
 )
 
-print(f"Overlapping preprocessed data shapes:\n- PPG data: {df_ppg_proc.shape}\n- Accelerometer data: {df_acc_proc.shape}")
+print(f"Overlapping preprocessed data shapes:\n- PPG data: {df_ppg_proc.shape}\n"
+      f"- Accelerometer data: {df_acc_proc.shape}")
 display(df_ppg_proc, df_acc_proc)
 ```
 
@@ -519,10 +527,13 @@ pulse_rate_acc_config = PulseRateConfig(
     accelerometer_colnames=imu_config.accelerometer_colnames,
 )
 
-print("The default window length for the signal quality feature extraction is set to", pulse_rate_ppg_config.window_length_s, "seconds.")
-print("The default step size for the signal quality feature extraction is set to", pulse_rate_ppg_config.window_step_length_s, "seconds.")
+print("The default window length for the signal quality feature extraction is "
+      f"set to {pulse_rate_ppg_config.window_length_s} seconds.")
+print("The default step size for the signal quality feature extraction is "
+      f"set to {pulse_rate_ppg_config.window_step_length_s} seconds.")
 
-# Remove optional arguments if you don't have accelerometer data (set to None or remove arguments)
+# Remove optional arguments if you don't have accelerometer data
+# (set to None or remove arguments)
 df_features = extract_signal_quality_features(
     df_ppg=df_ppg_proc,
     df_acc=df_acc_proc,
@@ -763,15 +774,22 @@ from paradigma.pipelines.pulse_rate_pipeline import signal_quality_classificatio
 config = PulseRateConfig()
 
 ppg_quality_classifier_package_filename = 'ppg_quality_clf_package.pkl'
-full_path_to_classifier_package = files('paradigma') / 'assets' / ppg_quality_classifier_package_filename
+full_path_to_classifier_package = (
+    files('paradigma')
+    / 'assets'
+    / ppg_quality_classifier_package_filename
+)
 
 # Load the classifier package
 clf_package = ClassifierPackage.load(full_path_to_classifier_package)
 
-# If you use a different sensor or dataset, you have to update the classifier package with the mu and sigma calculated on your training data.
+# If you use a different sensor or dataset, you have to update the classifier
+# package with the mu and sigma calculated on your training data.
 # Example code to recalculate the mean and std to update the clf_package:
 # import numpy as np
-# x_train = np.random.rand(100, 10) # create random x_train for demonstration purposes, 100 samples and 10 features
+
+# # create random x_train for demonstration purposes, 100 samples and 10 features
+# x_train = np.random.rand(100, 10)
 # clf_package.update_scaler(x_train)
 
 df_sqa = signal_quality_classification(
@@ -782,14 +800,6 @@ df_sqa = signal_quality_classification(
 
 df_sqa
 ```
-
-    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator LogisticRegression from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
-    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
-      warnings.warn(
-    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator StandardScaler from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
-    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
-      warnings.warn(
-
 
 
 
@@ -900,8 +910,14 @@ import tsdf
 from paradigma.util import write_df_data
 
 # Set 'path_to_data' to the directory where you want to save the data
-metadata_time_store = tsdf.TSDFMetadata(metadata_time_ppg.get_plain_tsdf_dict_copy(), path_to_prepared_data)
-metadata_values_store = tsdf.TSDFMetadata(metadata_values_ppg.get_plain_tsdf_dict_copy(), path_to_prepared_data)
+metadata_time_store = tsdf.TSDFMetadata(
+    metadata_time_ppg.get_plain_tsdf_dict_copy(),
+    path_to_prepared_data
+)
+metadata_values_store = tsdf.TSDFMetadata(
+    metadata_values_ppg.get_plain_tsdf_dict_copy(),
+    path_to_prepared_data
+)
 
 # Select the columns to be saved
 metadata_time_store.channels = ['time']
@@ -921,12 +937,21 @@ time_store_filename = meta_store_filename.replace('_meta.json', '_time.bin')
 metadata_values_store.file_name = values_store_filename
 metadata_time_store.file_name = time_store_filename
 
-write_df_data(metadata_time_store, metadata_values_store, path_to_prepared_data, meta_store_filename, df_sqa)
+write_df_data(
+    metadata_time_store,
+    metadata_values_store,
+    path_to_prepared_data,
+    meta_store_filename,
+    df_sqa
+)
 ```
 
 
 ```python
-df_sqa, _, _ = load_tsdf_dataframe(path_to_prepared_data, prefix=f'segment{segment_nr}')
+df_sqa, _, _ = load_tsdf_dataframe(
+    path_to_prepared_data,
+    prefix=f'segment{segment_nr}'
+)
 df_sqa.head()
 ```
 
@@ -1003,7 +1028,10 @@ Note: for the test data we set the tfd_length to 10 s instead of the default of 
 ```python
 from paradigma.pipelines.pulse_rate_pipeline import estimate_pulse_rate
 
-print("The standard default minimal window length for the pulse rate extraction is set to", pulse_rate_ppg_config.tfd_length, "seconds.")
+print(
+    "The standard default minimal window length for the pulse rate "
+    "extraction is set to", pulse_rate_ppg_config.tfd_length, "seconds."
+)
 
 df_pr = estimate_pulse_rate(
     df_sqa=df_sqa,
@@ -1118,7 +1146,8 @@ from importlib.resources import files
 from paradigma.util import load_tsdf_dataframe
 from paradigma.config import PPGConfig, IMUConfig, PulseRateConfig
 from paradigma.preprocessing import preprocess_ppg_data
-from paradigma.pipelines.pulse_rate_pipeline import extract_signal_quality_features, signal_quality_classification, estimate_pulse_rate
+from paradigma.pipelines.pulse_rate_pipeline import extract_signal_quality_features, \
+    signal_quality_classification, estimate_pulse_rate
 
 # Set the path to where the prepared data is saved
 path_to_prepared_data =  Path('../../example_data/verily')
@@ -1128,7 +1157,11 @@ imu_prefix = 'imu'
 
 # Set the path to the classifier package
 ppg_quality_classifier_package_filename = 'ppg_quality_clf_package.pkl'
-full_path_to_classifier_package = files('paradigma') / 'assets' / ppg_quality_classifier_package_filename
+full_path_to_classifier_package = (
+    files('paradigma')
+    / 'assets'
+    / ppg_quality_classifier_package_filename
+)
 
 # Create a list of dataframes to store the estimated pulse rates of all segments
 list_df_pr = []

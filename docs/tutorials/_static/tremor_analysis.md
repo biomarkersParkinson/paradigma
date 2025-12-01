@@ -32,7 +32,10 @@ path_to_prepared_data = path_to_data / 'imu'
 
 segment_nr  = '0001'
 
-df_data, metadata_time, metadata_values = load_tsdf_dataframe(path_to_prepared_data, prefix=f'IMU_segment{segment_nr}')
+df_data, metadata_time, metadata_values = load_tsdf_dataframe(
+    path_to_prepared_data,
+    prefix=f'IMU_segment{segment_nr}'
+)
 
 df_data
 ```
@@ -209,10 +212,13 @@ column_mapping = {
 }
 
 config = IMUConfig(column_mapping)
-print(f'The data is resampled to {config.resampling_frequency} Hz.')
-print(f'The tolerance for checking contiguous timestamps is set to {config.tolerance:.3f} seconds.')
+print(f"The data is resampled to {config.resampling_frequency} Hz.")
+print(f"The tolerance for checking contiguous timestamps is "
+      f"set to {config.tolerance:.3f} seconds.")
 
-df_preprocessed_data = preprocess_imu_data(df_data, config, sensor='gyroscope', watch_side='left')
+df_preprocessed_data = preprocess_imu_data(
+    df_data, config, sensor='gyroscope', watch_side='left'
+)
 
 df_preprocessed_data
 ```
@@ -623,23 +629,22 @@ is used to determine whether the arm is at rest or in stable posture.')
 
 # Load the pre-trained logistic regression classifier
 tremor_detection_classifier_package_filename = 'tremor_detection_clf_package.pkl'
-full_path_to_classifier_package = files('paradigma') / 'assets' / tremor_detection_classifier_package_filename
+full_path_to_classifier_package = (
+    files('paradigma')
+    / 'assets'
+    / tremor_detection_classifier_package_filename
+)
 
 # Use the logistic regression classifier to detect tremor and check for rest tremor
 df_predictions = detect_tremor(df_features, config, full_path_to_classifier_package)
 
-df_predictions[[config.time_colname, 'pred_tremor_proba', 'pred_tremor_logreg', 'pred_arm_at_rest', 'pred_tremor_checked']]
+df_predictions[[
+    config.time_colname, 'pred_tremor_proba', 'pred_tremor_logreg',
+    'pred_arm_at_rest', 'pred_tremor_checked'
+]]
 ```
 
     A threshold of 50 deg²/s² is used to determine whether the arm is at rest or in stable posture.
-
-
-    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator LogisticRegression from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
-    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
-      warnings.warn(
-    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator StandardScaler from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
-    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
-      warnings.warn(
 
 
 
@@ -775,16 +780,27 @@ import tsdf
 from paradigma.util import write_df_data
 
 # Set 'path_to_data' to the directory where you want to save the data
-metadata_time_store = tsdf.TSDFMetadata(metadata_time.get_plain_tsdf_dict_copy(), path_to_data)
-metadata_values_store = tsdf.TSDFMetadata(metadata_values.get_plain_tsdf_dict_copy(), path_to_data)
+metadata_time_store = tsdf.TSDFMetadata(
+    metadata_time.get_plain_tsdf_dict_copy(),
+    path_to_data
+)
+metadata_values_store = tsdf.TSDFMetadata(
+    metadata_values.get_plain_tsdf_dict_copy(),
+    path_to_data
+)
 
 # Select the columns to be saved
 metadata_time_store.channels = [config.time_colname]
-metadata_values_store.channels = ['tremor_power', 'pred_tremor_proba', 'pred_tremor_logreg', 'pred_arm_at_rest', 'pred_tremor_checked']
+metadata_values_store.channels = [
+    'tremor_power', 'pred_tremor_proba', 'pred_tremor_logreg',
+    'pred_arm_at_rest', 'pred_tremor_checked'
+]
 
 # Set the units
 metadata_time_store.units = ['Relative seconds']
-metadata_values_store.units = ['Unitless', 'Unitless', 'Unitless', 'Unitless', 'Unitless']
+metadata_values_store.units = [
+    'Unitless', 'Unitless', 'Unitless', 'Unitless', 'Unitless'
+]
 metadata_time_store.data_type = float
 metadata_values_store.data_type = float
 
@@ -796,12 +812,16 @@ time_store_filename = meta_store_filename.replace('_meta.json', '_time.bin')
 metadata_values_store.file_name = values_store_filename
 metadata_time_store.file_name = time_store_filename
 
-write_df_data(metadata_time_store, metadata_values_store, path_to_data, meta_store_filename, df_predictions)
+write_df_data(metadata_time_store, metadata_values_store,
+              path_to_data, meta_store_filename, df_predictions)
 ```
 
 
 ```python
-df_predictions, _, _ = load_tsdf_dataframe(path_to_data, prefix=f'segment{segment_nr}')
+df_predictions, _, _ = load_tsdf_dataframe(
+    path_to_data,
+    prefix=f'segment{segment_nr}'
+)
 df_predictions.head()
 ```
 
@@ -896,14 +916,29 @@ import pandas as pd
 import datetime
 import pytz
 
-df_quantification = df_predictions[[config.time_colname, 'pred_arm_at_rest', 'pred_tremor_checked','tremor_power']].copy()
-df_quantification.loc[df_predictions['pred_tremor_checked'] == 0, 'tremor_power'] = None # tremor power of non-tremor windows is set to None
+df_quantification = df_predictions[[
+    config.time_colname, 'pred_arm_at_rest',
+    'pred_tremor_checked','tremor_power'
+]].copy()
+df_quantification.loc[
+    df_predictions['pred_tremor_checked'] == 0, 'tremor_power'
+] = None # tremor power of non-tremor windows is set to None
 
 # Create datetime column based on the start time of the segment
-start_time = datetime.datetime.strptime(metadata_time.start_iso8601, '%Y-%m-%dT%H:%M:%SZ')
-start_time = start_time.replace(tzinfo=pytz.timezone('UTC')).astimezone(pytz.timezone('CET')) # convert to correct timezone if necessary
-df_quantification[f'{config.time_colname}_dt'] = start_time + pd.to_timedelta(df_quantification[config.time_colname], unit="s")
-df_quantification = df_quantification[[config.time_colname, f'{config.time_colname}_dt', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power']]
+start_time = datetime.datetime.strptime(
+    metadata_time.start_iso8601, '%Y-%m-%dT%H:%M:%SZ'
+)
+start_time = (
+    start_time
+    .replace(tzinfo=pytz.timezone('UTC'))
+    .astimezone(pytz.timezone('CET')) # convert to correct timezone if necessary
+)
+df_quantification[f'{config.time_colname}_dt'] = start_time + \
+    pd.to_timedelta(df_quantification[config.time_colname], unit="s")
+df_quantification = df_quantification[[
+    config.time_colname, f'{config.time_colname}_dt',
+    'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power'
+]]
 
 df_quantification
 ```
@@ -1055,7 +1090,11 @@ path_to_prepared_data = path_to_data / 'imu'
 
 # Load the pre-trained logistic regression classifier
 tremor_detection_classifier_package_filename = 'tremor_detection_clf_package.pkl'
-full_path_to_classifier_package = files('paradigma') / 'assets' / tremor_detection_classifier_package_filename
+full_path_to_classifier_package = (
+    files('paradigma')
+    / 'assets'
+    / tremor_detection_classifier_package_filename
+)
 
 # Create a list of dataframes to store the quantifications of all segments
 list_df_quantifications = []
@@ -1065,12 +1104,17 @@ segments  = ['0001','0002'] # list with all  available segments
 for segment_nr in segments:
 
     # Load the data
-    df_data, metadata_time, _ = load_tsdf_dataframe(path_to_prepared_data, prefix='IMU_segment'+segment_nr)
+    df_data, metadata_time, _ = load_tsdf_dataframe(
+        path_to_prepared_data,
+        prefix='IMU_segment'+segment_nr
+    )
 
     # 1: Preprocess the data
     # Change column names if necessary by creating parameter column_mapping (see previous cells for an example)
     config = IMUConfig()
-    df_preprocessed_data = preprocess_imu_data(df_data, config, sensor='gyroscope', watch_side='left')
+    df_preprocessed_data = preprocess_imu_data(
+        df_data, config, sensor='gyroscope', watch_side='left'
+    )
 
     # 2: Extract features
     config = TremorConfig(step='features')
@@ -1080,14 +1124,29 @@ for segment_nr in segments:
     df_predictions = detect_tremor(df_features, config, full_path_to_classifier_package)
 
     # 4: Quantify tremor
-    df_quantification = df_predictions[[config.time_colname, 'pred_arm_at_rest', 'pred_tremor_checked','tremor_power']].copy()
-    df_quantification.loc[df_predictions['pred_tremor_checked'] == 0, 'tremor_power'] = None
+    df_quantification = df_predictions[[
+        config.time_colname, 'pred_arm_at_rest',
+        'pred_tremor_checked','tremor_power'
+    ]].copy()
+    df_quantification.loc[
+        df_predictions['pred_tremor_checked'] == 0, 'tremor_power'
+    ] = None
 
     # Create datetime column based on the start time of the segment
-    start_time = datetime.datetime.strptime(metadata_time.start_iso8601, '%Y-%m-%dT%H:%M:%SZ')
-    start_time = start_time.replace(tzinfo=pytz.timezone('UTC')).astimezone(pytz.timezone('CET')) # convert to correct timezone if necessary
-    df_quantification[f'{config.time_colname}_dt'] = start_time + pd.to_timedelta(df_quantification[config.time_colname], unit="s")
-    df_quantification = df_quantification[[config.time_colname, f'{config.time_colname}_dt', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power']]
+    start_time = datetime.datetime.strptime(
+        metadata_time.start_iso8601, '%Y-%m-%dT%H:%M:%SZ'
+    )
+    start_time = (
+        start_time
+        .replace(tzinfo=pytz.timezone('UTC'))
+        .astimezone(pytz.timezone('CET')) # convert to correct timezone if necessary
+    )
+    df_quantification[f'{config.time_colname}_dt'] = start_time + \
+        pd.to_timedelta(df_quantification[config.time_colname], unit="s")
+    df_quantification = df_quantification[[
+        config.time_colname, f'{config.time_colname}_dt',
+        'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power'
+    ]]
 
     # Add the quantifications of the current segment to the list
     df_quantification['segment_nr'] = segment_nr
@@ -1095,22 +1154,6 @@ for segment_nr in segments:
 
 df_quantification = pd.concat(list_df_quantifications, ignore_index=True)
 ```
-
-    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator LogisticRegression from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
-    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
-      warnings.warn(
-    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator StandardScaler from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
-    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
-      warnings.warn(
-
-
-    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator LogisticRegression from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
-    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
-      warnings.warn(
-    C:\Users\z665206\AppData\Local\pypoetry\Cache\virtualenvs\paradigma-T2huIQ_r-py3.13\Lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator StandardScaler from version 1.6.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
-    https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
-      warnings.warn(
-
 
 ## Step 5: Compute aggregated tremor measures
 
@@ -1128,12 +1171,17 @@ select_hours_start = '08:00' # you can specifiy the hours and minutes here
 select_hours_end = '22:00'
 min_hours_per_day = 10
 
-print(f'Before aggregation we select data collected between {select_hours_start} \
-and {select_hours_end}. We also select days with at least {min_hours_per_day} hours of data.')
-print(f'The following tremor power aggregates are derived: {config.aggregates_tremor_power}.')
+print(
+    f"Before aggregation we select data collected between {select_hours_start} "
+    f"and {select_hours_end}. We also select days with at "
+    f"least {min_hours_per_day} hours of data. \nThe following tremor power "
+    f"aggregates are derived: {config.aggregates_tremor_power}."
+)
 
 # Select the hours that should be included in the analysis
-df_quantification = select_hours(df_quantification, select_hours_start, select_hours_end)
+df_quantification = select_hours(
+    df_quantification, select_hours_start, select_hours_end
+)
 
 # Remove days with less than the specified minimum amount of hours
 df_quantification = select_days(df_quantification, min_hours_per_day)

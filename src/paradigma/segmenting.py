@@ -245,22 +245,23 @@ def discard_segments(
     """
     # Minimum segment size in number of samples
     if format == "timestamps":
-        min_samples = min_segment_length_s * fs
+        min_samples = int(min_segment_length_s * fs)
     elif format == "windows":
-        min_samples = min_segment_length_s
+        min_samples = int(min_segment_length_s)
     else:
         raise ValueError("Invalid format. Must be 'timestamps' or 'windows'.")
 
-    segment_counts = df[segment_nr_colname].value_counts()
+    # Count samples per segment
+    segment_counts = df.groupby(segment_nr_colname).size()
 
-    # Select valid segments
-    valid_segments = segment_counts.loc[segment_counts >= min_samples].index.tolist()
-
-    # Filter rows
-    df = df[df[segment_nr_colname].isin(valid_segments)]
+    # Filter rows for valid segments (>= min samples)
+    counts_map = segment_counts.to_dict()
+    df = df[df[segment_nr_colname].map(counts_map) >= min_samples].copy()
 
     if df.empty:
-        raise ValueError("All segments were removed.")
+        raise ValueError(
+            f"All segments were removed: no segment ≥ {min_samples} samples."
+        )
 
     # Reset segment numbers
     df[segment_nr_colname] = pd.factorize(df[segment_nr_colname])[0] + 1
