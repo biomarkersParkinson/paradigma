@@ -4,6 +4,7 @@
 ```{toctree}
 :maxdepth: 1
 :caption: Tutorials
+tutorials/_static/device_specific_data_loading.md
 tutorials/_static/data_preparation.md
 tutorials/_static/gait_analysis.md
 tutorials/_static/tremor_analysis.md

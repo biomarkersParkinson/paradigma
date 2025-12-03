@@ -226,8 +226,14 @@ accelerometer_data = df_imu[accelerometer_columns].values
 gyroscope_data = df_imu[gyroscope_columns].values
 
 # Convert units to expected format
-df_imu[accelerometer_columns] = convert_units_accelerometer(accelerometer_data, accelerometer_units)
-df_imu[gyroscope_columns] = convert_units_gyroscope(gyroscope_data, gyroscope_units)
+df_imu[accelerometer_columns] = convert_units_accelerometer(
+    data=accelerometer_data,
+    units=accelerometer_units
+)
+df_imu[gyroscope_columns] = convert_units_gyroscope(
+    data=gyroscope_data,
+    units=gyroscope_units
+)
 
 df_imu.head()
 ```
@@ -324,8 +330,9 @@ For the Gait & Arm Swing pipeline, it is essential to ensure correct sensor axes
 
 
 ```python
-# Change the orientation of the sensor according to the documented coordinate system. The following
-# changes are specific to the used sensor and its orientation relative to predefined coordinate system.
+# Change the orientation of the sensor according to the documented coordinate system.
+# The following changes are specific to the used sensor and its orientation
+# relative to predefined coordinate system.
 df_imu[acc_y_colname] *= -1
 df_imu[acc_z_colname] *= -1
 df_imu[gyr_y_colname] *= -1

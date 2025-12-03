@@ -191,7 +191,7 @@ def create_segments(
     gap_exceeds = time_diff > max_segment_gap_s
 
     # Create the segment number based on the cumulative sum of the gap_exceeds mask
-    segments = gap_exceeds.cumsum()
+    segments = gap_exceeds.cumsum() + 1
 
     return segments
 
@@ -245,26 +245,26 @@ def discard_segments(
     """
     # Minimum segment size in number of samples
     if format == "timestamps":
-        min_samples = min_segment_length_s * fs
+        min_samples = int(min_segment_length_s * fs)
     elif format == "windows":
-        min_samples = min_segment_length_s
+        min_samples = int(min_segment_length_s)
     else:
         raise ValueError("Invalid format. Must be 'timestamps' or 'windows'.")
 
-    # Group by segment and filter out small segments in one step
-    valid_segment_mask = (
-        df.groupby(segment_nr_colname)[segment_nr_colname].transform("size")
-        >= min_samples
-    )
+    # Count samples per segment
+    segment_counts = df.groupby(segment_nr_colname).size()
 
-    df = df[valid_segment_mask].copy()
+    # Filter rows for valid segments (>= min samples)
+    counts_map = segment_counts.to_dict()
+    df = df[df[segment_nr_colname].map(counts_map) >= min_samples].copy()
 
     if df.empty:
-        raise ValueError("All segments were removed.")
+        raise ValueError(
+            f"All segments were removed: no segment ≥ {min_samples} samples."
+        )
 
-    # Reset segment numbers in a single step
-    unique_segments = pd.factorize(df[segment_nr_colname])[0] + 1
-    df[segment_nr_colname] = unique_segments
+    # Reset segment numbers
+    df[segment_nr_colname] = pd.factorize(df[segment_nr_colname])[0] + 1
 
     return df
 

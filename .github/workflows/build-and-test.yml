@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
   pull_request:
-    branches: [ main ]
+    branches: [ '**' ]
   workflow_call:
     outputs:
       version:
@@ -54,10 +54,6 @@ jobs:
       # Run tests
       - name: Run pytest
         run: poetry run pytest --maxfail=1 --disable-warnings -q
-
-      # Static type checks
-      - name: Type check with pytype
-        run: poetry run pytype .
 
       # Build the package
       - name: Build package

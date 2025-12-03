@@ -421,9 +421,7 @@ def quantify_arm_swing(
 
     arm_swing_quantified = []
     segment_meta = {
-        "aggregated": {
-            "all": {"duration_s": len(df[DataColumns.TIME]) / fs},
-        },
+        "all": {"duration_s": len(df[DataColumns.TIME]) / fs},
         "per_segment": {},
     }
 

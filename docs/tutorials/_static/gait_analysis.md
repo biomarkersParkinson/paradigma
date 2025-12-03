@@ -31,13 +31,16 @@ from paradigma.util import load_tsdf_dataframe
 
 # Set the path to where the prepared data is saved and load the data.
 # Note: the test data is stored in TSDF, but you can load your data in your own way
-path_to_data =  Path('../../example_data')
+path_to_data =  Path('../../example_data/verily')
 path_to_prepared_data = path_to_data / 'imu'
 
 raw_data_segment_nr  = '0001'
 
 # Load the data from the file
-df_imu, metadata_time, metadata_values = load_tsdf_dataframe(path_to_prepared_data, prefix=f'IMU_segment{raw_data_segment_nr}')
+df_imu, metadata_time, metadata_values = load_tsdf_dataframe(
+    path_to_data=path_to_prepared_data,
+    prefix=f'IMU_segment{raw_data_segment_nr}'
+)
 
 df_imu
 ```
@@ -225,8 +228,14 @@ df_preprocessed = preprocess_imu_data(
     watch_side='left',
 )
 
-print(f"The dataset of {df_preprocessed.shape[0] / config.sampling_frequency} seconds is automatically resampled to {config.resampling_frequency} Hz.")
-print(f'The tolerance for checking contiguous timestamps is set to {config.tolerance:.3f} seconds.')
+print(
+    f"The dataset of {df_preprocessed.shape[0] / config.sampling_frequency} seconds "
+    f"is automatically resampled to {config.resampling_frequency} Hz."
+)
+print(
+    f"The tolerance for checking contiguous timestamps is set "
+    f"to {config.tolerance:.3f} seconds."
+)
 df_preprocessed.head()
 ```
 
@@ -367,7 +376,11 @@ df_gait = extract_gait_features(
     config=config
 )
 
-print(f"A total of {df_gait.shape[1]-1} features have been extracted from {df_gait.shape[0]} {config.window_length_s}-second windows with {config.window_length_s-config.window_step_length_s} seconds overlap.")
+print(
+    f"A total of {df_gait.shape[1]-1} features have been extracted from "
+    f"{df_gait.shape[0]} {config.window_length_s}-second windows with "
+    f"{config.window_length_s-config.window_step_length_s} seconds overlap."
+)
 df_gait.head()
 ```
 
@@ -559,32 +572,47 @@ from paradigma.pipelines.gait_pipeline import detect_gait
 
 # Set the path to the classifier package
 classifier_package_filename = 'gait_detection_clf_package.pkl'
-full_path_to_classifier_package = files('paradigma') / 'assets' / classifier_package_filename
+full_path_to_classifier_package = (
+    files('paradigma')
+    / 'assets'
+    / classifier_package_filename
+)
 
 # Load the classifier package
 clf_package_detection = ClassifierPackage.load(full_path_to_classifier_package)
+gait_threshold = clf_package_detection.threshold
 
-# Detecting gait returns the probability of gait for each window, which is concatenated to
-# the original dataframe
+# Detecting gait returns the probability of gait for each window, which is
+# concatenated to the original dataframe
 df_gait[DataColumns.PRED_GAIT_PROBA] = detect_gait(
     df=df_gait,
     clf_package=clf_package_detection
 )
 
 n_windows = df_gait.shape[0]
-n_predictions_gait = df_gait.loc[df_gait[DataColumns.PRED_GAIT_PROBA] >= clf_package_detection.threshold].shape[0]
+n_predictions_gait = df_gait.loc[
+    df_gait[DataColumns.PRED_GAIT_PROBA] >= gait_threshold
+].shape[0]
 perc_predictions_gait = round(100 * n_predictions_gait / n_windows, 1)
-n_predictions_non_gait = df_gait.loc[df_gait[DataColumns.PRED_GAIT_PROBA] < clf_package_detection.threshold].shape[0]
+n_predictions_non_gait = df_gait.loc[
+    df_gait[DataColumns.PRED_GAIT_PROBA] < gait_threshold
+].shape[0]
 perc_predictions_non_gait = round(100 * n_predictions_non_gait / n_windows, 1)
 
-print(f"Out of {n_windows} windows, {n_predictions_gait} ({perc_predictions_gait}%) were predicted as gait, and {n_predictions_non_gait} ({perc_predictions_non_gait}%) as non-gait.")
+print(
+    f"Out of {n_windows} windows, {n_predictions_gait} ({perc_predictions_gait}%) \n"
+    f"were predicted as gait, and {n_predictions_non_gait} ({perc_predictions_non_gait}%) \n"
+    f"as non-gait."
+)
 
-# Only the time and the predicted gait probability are shown, but the dataframe also contains
-# the extracted features
+# Only the time and the predicted gait probability are shown, but the
+# dataframe also contains the extracted features
 df_gait[[config.time_colname, DataColumns.PRED_GAIT_PROBA]].head()
 ```
 
-    Out of 34334 windows, 2753 (8.0%) were predicted as gait, and 31581 (92.0%) as non-gait.
+    Out of 34334 windows, 2753 (8.0%)
+    were predicted as gait, and 31581 (92.0%)
+    as non-gait.
 
 
 
@@ -653,8 +681,14 @@ import tsdf
 from paradigma.util import write_df_data
 
 # Set 'path_to_data' to the directory where you want to save the data
-metadata_time_store = tsdf.TSDFMetadata(metadata_time.get_plain_tsdf_dict_copy(), path_to_data)
-metadata_values_store = tsdf.TSDFMetadata(metadata_values.get_plain_tsdf_dict_copy(), path_to_data)
+metadata_time_store = tsdf.TSDFMetadata(
+    metadata_time.get_plain_tsdf_dict_copy(),
+    path_to_data
+)
+metadata_values_store = tsdf.TSDFMetadata(
+    metadata_values.get_plain_tsdf_dict_copy(),
+    path_to_data
+)
 
 # Select the columns to be saved
 metadata_time_store.channels = [config.time_colname]
@@ -674,12 +708,16 @@ time_store_filename = meta_store_filename.replace('_meta.json', '_time.bin')
 metadata_values_store.file_name = values_store_filename
 metadata_time_store.file_name = time_store_filename
 
-write_df_data(metadata_time_store, metadata_values_store, path_to_data, meta_store_filename, df_gait)
+write_df_data(metadata_time_store, metadata_values_store, path_to_data,
+              meta_store_filename, df_gait)
 ```
 
 
 ```python
-df_gait, _, _ = load_tsdf_dataframe(path_to_data, prefix=f'segment{raw_data_segment_nr}')
+df_gait, _, _ = load_tsdf_dataframe(
+    path_to_data,
+    prefix=f'segment{raw_data_segment_nr}'
+)
 df_gait.head()
 ```
 
@@ -771,7 +809,9 @@ df = merge_predictions_with_timestamps(
 )
 
 # Add a column for predicted gait based on a fitted threshold
-df[DataColumns.PRED_GAIT] = (df[DataColumns.PRED_GAIT_PROBA] >= clf_package_detection.threshold).astype(int)
+df[DataColumns.PRED_GAIT] = (
+    df[DataColumns.PRED_GAIT_PROBA] >= clf_package_detection.threshold
+).astype(int)
 
 # Filter the DataFrame to only include predicted gait (1)
 df = df.loc[df[DataColumns.PRED_GAIT]==1].reset_index(drop=True)
@@ -783,21 +823,21 @@ from paradigma.pipelines.gait_pipeline import extract_arm_activity_features
 
 config = GaitConfig(step='arm_activity')
 
-df_arm_activity = extract_arm_activity_features(
+df_arm = extract_arm_activity_features(
     df=df,
     config=config,
 )
 
-print(f"A total of {df_arm_activity.shape[1] - 1} features have been extracted from {df_arm_activity.shape[0]} {config.window_length_s}-second windows with {config.window_length_s - config.window_step_length_s} seconds overlap.")
-df_arm_activity.head()
+print(
+    f"A total of {df_arm.shape[1] - 1} features have been extracted "
+    f"from {df_arm.shape[0]} {config.window_length_s}-second windows "
+    f"with {config.window_length_s - config.window_step_length_s} seconds overlap."
+)
+df_arm.head()
 ```
 
     A total of 61 features have been extracted from 2749 3-second windows with 2.25 seconds overlap.
-<<<<<<< HEAD
 
-=======
-
->>>>>>> 37f1c8fea7b90d0e387febafe838f2df6ab9dd47
 
 
 
@@ -983,30 +1023,50 @@ from paradigma.pipelines.gait_pipeline import filter_gait
 
 # Set the path to the classifier package
 classifier_package_filename = 'gait_filtering_clf_package.pkl'
-full_path_to_classifier_package = files('paradigma') / 'assets' / classifier_package_filename
+full_path_to_classifier_package = (
+    files('paradigma')
+    / 'assets'
+    / classifier_package_filename
+)
 
 # Load the classifier package
 clf_package_filtering = ClassifierPackage.load(full_path_to_classifier_package)
+filt_threshold = clf_package_filtering.threshold
 
-# Detecting no_other_arm_activity returns the probability of no_other_arm_activity for each window, which is concatenated to
+# Detecting no_other_arm_activity returns the probability of
+# no_other_arm_activity for each window, which is concatenated to
 # the original dataframe
-df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] = filter_gait(
-    df=df_arm_activity,
+df_arm[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] = filter_gait(
+    df=df_arm,
     clf_package=clf_package_filtering
 )
 
 
-n_windows = df_arm_activity.shape[0]
-n_predictions_no_other_arm_activity = df_arm_activity.loc[df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= clf_package_filtering.threshold].shape[0]
-perc_predictions_no_other_arm_activity = round(100 * n_predictions_no_other_arm_activity / n_windows, 1)
-n_predictions_other_arm_activity = df_arm_activity.loc[df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] < clf_package_filtering.threshold].shape[0]
-perc_predictions_other_arm_activity = round(100 * n_predictions_other_arm_activity / n_windows, 1)
+n_windows = df_arm.shape[0]
+n_pred_no_other_arm_act = df_arm.loc[
+    df_arm[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= filt_threshold
+].shape[0]
+perc_no_other_arm_activity = round(
+    100 * n_pred_no_other_arm_act / n_windows,
+    1
+)
+n_pred_other_arm_act = df_arm.loc[
+    df_arm[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] < filt_threshold
+].shape[0]
+perc_other_arm_activity = round(
+    100 * n_pred_other_arm_act / n_windows,
+    1
+)
 
-print(f"Out of {n_windows} windows, {n_predictions_no_other_arm_activity} ({perc_predictions_no_other_arm_activity}%) were predicted as no_other_arm_activity, and {n_predictions_other_arm_activity} ({perc_predictions_other_arm_activity}%) as other_arm_activity.")
+print(
+    f"Out of {n_windows} windows, {n_pred_no_other_arm_act} "
+    f"({perc_no_other_arm_activity}%) were predicted as no_other_arm_activity, "
+    f"and {n_pred_other_arm_act} ({perc_other_arm_activity}%) as other_arm_activity."
+)
 
-# Only the time and predicted probabilities are shown, but the dataframe also contains
-# the extracted features
-df_arm_activity[[config.time_colname, DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]].head()
+# Only the time and predicted probabilities are shown,
+# but the dataframe also contains the extracted features
+df_arm[[config.time_colname, DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]].head()
 ```
 
     Out of 2749 windows, 916 (33.3%) were predicted as no_other_arm_activity, and 1833 (66.7%) as other_arm_activity.
@@ -1080,21 +1140,27 @@ But, first, similar to the step of extracting arm activity features, the predict
 ```python
 # Merge arm activity predictions into timeseries data
 
-if not any(df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= clf_package_filtering.threshold):
-    raise ValueError("No gait without other arm activities detected in the input data.")
+if not any(
+    df_arm[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= filt_threshold
+):
+    raise ValueError(
+        "No gait without other arm activities detected in the input data."
+    )
 
 config = GaitConfig(step='arm_activity')
 
 df = merge_predictions_with_timestamps(
     df_ts=df_preprocessed,
-    df_predictions=df_arm_activity,
+    df_predictions=df_arm,
     pred_proba_colname=DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA,
     window_length_s=config.window_length_s,
     fs=config.sampling_frequency
 )
 
 # Add a column for predicted gait based on a fitted threshold
-df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= clf_package_filtering.threshold).astype(int)
+df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
+    df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= filt_threshold
+).astype(int)
 
 # Filter the DataFrame to only include predicted gait (1)
 df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True)
@@ -1105,8 +1171,8 @@ df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True
 from paradigma.pipelines.gait_pipeline import quantify_arm_swing
 from pprint import pprint
 
-# Set to True to quantify arm swing based on the filtered gait segments, and False
-# to quantify arm swing based on all gait segments
+# Set to True to quantify arm swing based on the filtered gait segments, and
+# False to quantify arm swing based on all gait segments
 filtered = True
 
 if filtered:
@@ -1124,15 +1190,30 @@ quantified_arm_swing, gait_segment_meta = quantify_arm_swing(
     min_segment_length_s=config.min_segment_length_s,
 )
 
-print(f"Gait segments are created of minimum {config.min_segment_length_s} seconds and maximum {config.max_segment_gap_s} seconds gap between segments.\n")
-print(f"A total of {quantified_arm_swing['segment_nr'].nunique()} {dataset_used} gait segments have been quantified.")
+print(
+    f"Gait segments are created of minimum {config.min_segment_length_s} seconds "
+    f"and maximum {config.max_segment_gap_s} seconds gap between segments.\n"
+)
+print(
+    f"A total of {quantified_arm_swing['segment_nr'].nunique()} {dataset_used} "
+    f"gait segments have been quantified."
+)
 
 print("\nMetadata of the first gait segment:")
 pprint(gait_segment_meta['per_segment'][1])
 
-print(f"\nOf this example, the filtered gait segment of {gait_segment_meta['per_segment'][1]['duration_filtered_segment_s']} seconds is part of an unfiltered segment of {gait_segment_meta['per_segment'][1]['duration_unfiltered_segment_s']} seconds, which is at least as large as the filtered gait segment.")
+filt_example_s = gait_segment_meta['per_segment'][1]['duration_filtered_segment_s']
+unfilt_example_s = gait_segment_meta['per_segment'][1]['duration_unfiltered_segment_s']
+print(
+    f"\nOf this example, the filtered gait segment of {filt_example_s} seconds "
+    f"is part of an unfiltered segment of {unfilt_example_s} seconds, which is "
+    f"at least as large as the filtered gait segment."
+)
 
-print(f"\nIndividual arm swings of the first gait segment of the {dataset_used} dataset:")
+print(
+    f"\nIndividual arm swings of the first gait segment of the "
+    f" {dataset_used} dataset:"
+)
 quantified_arm_swing.loc[quantified_arm_swing['segment_nr'] == 1]
 ```
 
@@ -1147,16 +1228,10 @@ quantified_arm_swing.loc[quantified_arm_swing['segment_nr'] == 1]
      'duration_unfiltered_segment_s': 9.0,
      'end_time_s': 2230.74,
      'start_time_s': 2221.75}
-<<<<<<< HEAD
 
     Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 9.0 seconds, which is at least as large as the filtered gait segment.
 
-=======
-
-    Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 9.0 seconds, which is at least as large as the filtered gait segment.
-
->>>>>>> 37f1c8fea7b90d0e387febafe838f2df6ab9dd47
-    Individual arm swings of the first gait segment of the filtered dataset:
+    Individual arm swings of the first gait segment of the  filtered dataset:
 
 
 
@@ -1284,41 +1359,54 @@ from pprint import pprint
 from paradigma.util import load_tsdf_dataframe, merge_predictions_with_timestamps
 from paradigma.config import IMUConfig, GaitConfig
 from paradigma.preprocessing import preprocess_imu_data
-from paradigma.pipelines.gait_pipeline import extract_gait_features, detect_gait,extract_arm_activity_features, filter_gait, quantify_arm_swing
+from paradigma.pipelines.gait_pipeline import extract_gait_features, \
+    detect_gait,extract_arm_activity_features, filter_gait, quantify_arm_swing
 from paradigma.constants import DataColumns
 from paradigma.classification import ClassifierPackage
 
 # Set the path to where the prepared data is saved
-path_to_data =  Path('../../example_data')
+path_to_data =  Path('../../example_data/verily')
 path_to_prepared_data = path_to_data / 'imu'
 
 # Load the gait detection classifier package
 classifier_package_filename = 'gait_detection_clf_package.pkl'
-full_path_to_classifier_package = files('paradigma') / 'assets' / classifier_package_filename
+full_path_to_classifier_package = (
+    files('paradigma')
+    / 'assets'
+    / classifier_package_filename
+)
 clf_package_detection = ClassifierPackage.load(full_path_to_classifier_package)
 
 # Load the gait filtering classifier package
 classifier_package_filename = 'gait_filtering_clf_package.pkl'
-full_path_to_classifier_package = files('paradigma') / 'assets' / classifier_package_filename
+full_path_to_classifier_package = (
+    files('paradigma')
+    / 'assets'
+    / classifier_package_filename
+)
 clf_package_filtering = ClassifierPackage.load(full_path_to_classifier_package)
 
-# Set to True to quantify arm swing based on the filtered gait segments, and False
-# to quantify arm swing based on all gait segments
+# Set to True to quantify arm swing based on the filtered gait segments, and
+# False to quantify arm swing based on all gait segments
 filtered = True
 
 # Create a list to store all quantified arm swing segments
 list_quantified_arm_swing = []
 max_gait_segment_nr = 0
 
-raw_data_segments  = ['0001', '0002'] # list with all available raw data segments
+raw_data_segments  = ['0001', '0002']  # list with all available raw data segments
 
 for raw_data_segment_nr in raw_data_segments:
 
     # Load the data
-    df_imu, _, _ = load_tsdf_dataframe(path_to_prepared_data, prefix=f'IMU_segment{raw_data_segment_nr}')
+    df_imu, _, _ = load_tsdf_dataframe(
+        path_to_prepared_data,
+        prefix=f'IMU_segment{raw_data_segment_nr}'
+    )
 
     # 1: Preprocess the data
-    # Change column names if necessary by creating parameter column_mapping (see previous cells for an example)
+    # Change column names if necessary by creating parameter column_mapping
+    # (see previous cells for an example)
     config = IMUConfig()
 
     df_preprocessed = preprocess_imu_data(
@@ -1343,7 +1431,9 @@ for raw_data_segment_nr in raw_data_segments:
     )
 
     # Merge gait predictions into timeseries data
-    if not any(df_gait[DataColumns.PRED_GAIT_PROBA] >= clf_package_detection.threshold):
+    if not any(
+        df_gait[DataColumns.PRED_GAIT_PROBA] >= clf_package_detection.threshold
+    ):
         raise ValueError("No gait detected in the input data.")
 
     df = merge_predictions_with_timestamps(
@@ -1354,7 +1444,9 @@ for raw_data_segment_nr in raw_data_segments:
         fs=config.sampling_frequency
     )
 
-    df[DataColumns.PRED_GAIT] = (df[DataColumns.PRED_GAIT_PROBA] >= clf_package_detection.threshold).astype(int)
+    df[DataColumns.PRED_GAIT] = (
+        df[DataColumns.PRED_GAIT_PROBA] >= clf_package_detection.threshold
+    ).astype(int)
     df = df.loc[df[DataColumns.PRED_GAIT]==1].reset_index(drop=True)
 
     # 4: Extract arm activity features
@@ -1372,8 +1464,12 @@ for raw_data_segment_nr in raw_data_segments:
     )
 
     # Merge arm activity predictions into timeseries data
-    if not any(df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= clf_package_filtering.threshold):
-        raise ValueError("No gait without other arm activities detected in the input data.")
+    if not any(
+        df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= filt_threshold
+    ):
+        raise ValueError(
+            "No gait without other arm activities detected in the input data."
+        )
 
     df = merge_predictions_with_timestamps(
         df_ts=df_preprocessed,
@@ -1383,7 +1479,9 @@ for raw_data_segment_nr in raw_data_segments:
         fs=config.sampling_frequency
     )
 
-    df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= clf_package_filtering.threshold).astype(int)
+    df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
+        df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= filt_threshold
+    ).astype(int)
     df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True)
 
     # 6: Quantify arm swing
@@ -1395,11 +1493,18 @@ for raw_data_segment_nr in raw_data_segments:
         min_segment_length_s=config.min_segment_length_s,
     )
 
-    # Since segments start at zero, and we are concatenating multiple segments, we need to
-    # update the segment numbers to avoid aggregating multiple segments with the same number.
-    max_gait_segment_nr = quantified_arm_swing['segment_nr'].max() if len(list_quantified_arm_swing) == 0 else 0
+    # Since segments start at zero, and we are concatenating multiple segments,
+    # we need to update the segment numbers to avoid aggregating multiple
+    # segments with the same number
+    if len(list_quantified_arm_swing) == 0:
+        max_gait_segment_nr = 0
+    else:
+        max_gait_segment_nr = quantified_arm_swing['segment_nr'].max()
+
     quantified_arm_swing['segment_nr'] += max_gait_segment_nr
-    gait_segment_meta['per_segment'] = {k + max_gait_segment_nr: v for k, v in gait_segment_meta['per_segment'].items()}
+    gait_segment_meta['per_segment'] = {
+        k + max_gait_segment_nr: v for k, v in gait_segment_meta['per_segment'].items()
+    }
 
     # Add the predictions of the current raw data segment to the list
     quantified_arm_swing['raw_data_segment_nr'] = raw_data_segment_nr
@@ -1410,8 +1515,6 @@ quantified_arm_swing = pd.concat(list_quantified_arm_swing, ignore_index=True)
 
 ## Step 7: Aggregation
 Finally, the arm swing estimates can be aggregated across all gait segments.
-
-Optionally, gait segments can be categorized into bins of specific length. Bins are tuples `(a, b)` including $a$ and excluding $b$, i.e., gait segments $\geq a$ seconds and $< b$ seconds. For example, to analyze gait segments of at least 20 seconds, the tuple `(20, np.inf)` can be used. In case you want to analyze all gait segments combined, use `(0, np.inf)`.
 
 Optionally, gait segments can be categorized into bins of specific length. Bins are tuples `(a, b)` including `a` and excluding `b`, i.e., gait segments ≥ `a` seconds and < `b` seconds. For example, to analyze gait segments of at least 20 seconds, the tuple `(20, np.inf)` can be used. In case you want to analyze all gait segments combined, use `(0, np.inf)`.
 
@@ -1433,48 +1536,25 @@ pprint(arm_swing_aggregations, sort_dicts=False)
 ```
 
     {'0_10': {'duration_s': 341.25,
-<<<<<<< HEAD
-              'median_range_of_motion': 15.10889561336818,
-              '95p_range_of_motion': 52.27598270995837,
-              'median_peak_velocity': 74.63996138215876,
-              '95p_peak_velocity': 230.71389576502395},
+              'median_range_of_motion': 10.265043828684332,
+              '95p_range_of_motion': 33.23162448765658,
+              'median_peak_velocity': 52.98458323096123,
+              '95p_peak_velocity': 168.6525880243985},
      '10_20': {'duration_s': 60.75,
-               'median_range_of_motion': 15.781087457927846,
-               '95p_range_of_motion': 45.165400467519284,
-               'median_peak_velocity': 86.83257977334742,
-               '95p_peak_velocity': 219.97254034894718},
+               'median_range_of_motion': 21.05381778480318,
+               '95p_range_of_motion': 45.61743804999113,
+               'median_peak_velocity': 117.73758780005977,
+               '95p_peak_velocity': 228.88536515287097},
      '20_inf': {'duration_s': 1905.75,
-                'median_range_of_motion': 25.289651009660467,
-                '95p_range_of_motion': 43.74907398039543,
-                'median_peak_velocity': 125.9443142903539,
-                '95p_peak_velocity': 217.80854223601995},
-     '0_inf': {'duration_s': 2307.75,
-               'median_range_of_motion': 23.100608971051322,
-               '95p_range_of_motion': 45.92600123148869,
-               'median_peak_velocity': 116.50364930684765,
-               '95p_peak_velocity': 219.2008357820751}}
-
-=======
-              'median_range_of_motion': 10.103916338101575,
-              '95p_range_of_motion': 32.90613405134026,
-              'median_peak_velocity': 51.71109278600136,
-              '95p_peak_velocity': 163.04675036294768},
-     '10_20': {'duration_s': 60.75,
-               'median_range_of_motion': 21.05381778480308,
-               '95p_range_of_motion': 45.617438049991144,
-               'median_peak_velocity': 117.7375878000595,
-               '95p_peak_velocity': 228.8853651528709},
-     '20_inf': {'duration_s': 1905.75,
-                'median_range_of_motion': 25.56899710571253,
-                '95p_range_of_motion': 43.59181429894547,
+                'median_range_of_motion': 25.56899710571252,
+                '95p_range_of_motion': 43.59181429894559,
                 'median_peak_velocity': 127.40063801636731,
-                '95p_peak_velocity': 217.64806342438817},
+                '95p_peak_velocity': 217.6480634243883},
      '0_inf': {'duration_s': 2307.75,
-               'median_range_of_motion': 23.88140114870256,
-               '95p_range_of_motion': 43.047421805408675,
-               'median_peak_velocity': 119.68741253971183,
-               '95p_peak_velocity': 215.24611069202754}}
+               'median_range_of_motion': 24.071313521090392,
+               '95p_range_of_motion': 43.06891252479754,
+               'median_peak_velocity': 120.43812492382041,
+               '95p_peak_velocity': 215.7685538864721}}
 
->>>>>>> 37f1c8fea7b90d0e387febafe838f2df6ab9dd47
 
 The output of the aggregation step contains the aggregated arm swing parameters per gait segment category. Additionally, the total time in seconds `time_s` is added to inform based on how much data the aggregations were created.
