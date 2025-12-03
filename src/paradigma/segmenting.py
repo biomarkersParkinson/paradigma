@@ -188,7 +188,7 @@ def create_segments(
     time_diff = np.diff(time_array, prepend=0.0)
 
     # Create a boolean mask for where the gap exceeds the threshold
-    gap_exceeds = np.abs(time_diff) > max_segment_gap_s
+    gap_exceeds = time_diff > max_segment_gap_s
 
     # Create the segment number based on the cumulative sum of the gap_exceeds mask
     segments = gap_exceeds.cumsum() + 1
