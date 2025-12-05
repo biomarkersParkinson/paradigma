@@ -1,13 +1,10 @@
-# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
-
 name: Build and test
 
 on:
   push:
     branches: [ main ]
   pull_request:
-    branches: [ main ]
+    branches: [ '**' ]
   workflow_call:
     outputs:
       version:
@@ -16,65 +13,66 @@ on:
 
 jobs:
   build-and-test:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.10']
+        python-version: ['3.12']
     outputs:
       version: ${{ steps.get_version.outputs.version }}
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        lfs: false  # Enable Git LFS support
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    # Get the version from pyproject.toml
-    # This will be used to tag the release in the publishing workflow
-    - name: Install toml package
-      run: pip install toml
-    - name: Get version from pyproject.toml
-      id: get_version
-      run: |
-        VERSION=$(python -c "import toml; print(toml.load('pyproject.toml')['tool']['poetry']['version'])")
-        echo Version: $VERSION
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
+      # Get the version from pyproject.toml
+      # This will be used to tag the release in the publishing workflow
+      - name: Install toml package
+        run: pip install toml
+      - name: Get version from pyproject.toml
+        id: get_version
+        run: |
+          VERSION=$(python -c "import toml; print(toml.load('pyproject.toml')['tool']['poetry']['version'])")
+          echo Version: $VERSION
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-    # Install project dependencies
-    - name: Install dependencies
-      run: |
-        python -m pip install poetry
-        poetry install
+      # Install project dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install poetry
+          poetry install
 
-    # Testing and checking
-    - name: Test with pytest
-      run: poetry run pytest
-    - name: Type check
-      run: poetry run pytype .
+      # Run pre-commit hooks (formatting, linting, YAML checks, etc.)
+      - name: Run pre-commit hooks
+        run: poetry run pre-commit run --all-files --show-diff-on-failure
 
-    # Build the package
-    - name: Build the package
-      run: poetry build
-    - name: Archive build artifacts
-      uses: actions/upload-artifact@v4
-      if: github.ref == 'refs/heads/release'
-      with:
-        name: build-artifacts
-        path: dist/
+      # Run tests
+      - name: Run pytest
+        run: poetry run pytest --maxfail=1 --disable-warnings -q
 
-    # Build the docs
-    - name: Build the docs
-      run: poetry run make html --directory docs
-      
-    - name: Archive documentation
-      uses: actions/upload-artifact@v4
-      if: github.ref == 'refs/heads/release'
-      with:
-        name: docs-html
-        path: docs/build/html/
+      # Build the package
+      - name: Build package
+        run: poetry build
+
+      - name: Archive build artifacts
+        uses: actions/upload-artifact@v4
+        if: github.ref == 'refs/heads/release'
+        with:
+          name: build-artifacts
+          path: dist/
+
+      # Build and archive documentation
+      - name: Build documentation
+        run: poetry run make html --directory docs
+
+      - name: Archive documentation
+        uses: actions/upload-artifact@v4
+        if: github.ref == 'refs/heads/release'
+        with:
+          name: docs-html
+          path: docs/build/html/
