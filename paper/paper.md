@@ -1,5 +1,5 @@
 ---
-title: 'ParaDigMa: a Python toolbox for extracting Parkinson disease digital biomarkers from daily life wrist sensor data'
+title: "ParaDigMa: a Python toolbox for extracting Parkinson's disease digital biomarkers from daily life wrist sensor data"
 tags:
     - Python
 authors:
@@ -72,7 +72,7 @@ bibliography: paper.bib
 
 # Summary
 
-PARkinson disease DIGital MArkers (ParaDigMa) is an open-source Python package designed to extract digital biomarkers of Parkinson disease (PD) from wrist-worn sensor data collected during passive monitoring in daily life [@postParaDigMaToolboxDeriving2025a]. It processes raw accelerometer, gyroscope, and photoplethysmography (PPG) signals using modular pipelines which address common challenges in real-world wearable sensor data analysis. The package currently targets three clinically relevant symptom domains: (1) tremor, (2) arm swing during gait, and (3) pulse rate (to derive digital biomarkers related to autonomic dysfunction). ParaDigMa enables researchers to derive interpretable and clinically meaningful digital biomarkers to monitor PD in daily life.
+PARkinson's disease DIGital bioMArkers (ParaDigMa) is an open-source Python package designed to extract digital biomarkers of Parkinson's disease (PD) from wrist-worn sensor data collected during passive monitoring in daily life [@postParaDigMaToolboxDeriving2025a]. It processes raw accelerometer, gyroscope, and photoplethysmography (PPG) signals using modular pipelines which address common challenges in real-world wearable sensor data analysis. The package currently targets three clinically relevant symptom domains: (1) tremor, (2) arm swing during gait, and (3) pulse rate (to derive digital biomarkers related to autonomic dysfunction). ParaDigMa enables researchers to derive interpretable and clinically meaningful digital biomarkers to monitor PD in daily life.
 
 # Statement of need
 
