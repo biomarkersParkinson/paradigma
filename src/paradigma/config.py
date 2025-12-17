@@ -269,9 +269,13 @@ class TremorConfig(IMUConfig):
                 self.d_channels_values[f"mfcc_{mfcc_coef}"] = DataUnits.NONE
 
             self.d_channels_values[DataColumns.FREQ_PEAK] = DataUnits.FREQUENCY
-            self.d_channels_values[DataColumns.BELOW_TREMOR_POWER] = DataUnits.POWER_SPECTRAL_DENSITY_ROT
-            self.d_channels_values[DataColumns.TREMOR_POWER] = DataUnits.POWER_SPECTRAL_DENSITY_ROT
-            
+            self.d_channels_values[DataColumns.BELOW_TREMOR_POWER] = (
+                DataUnits.POWER_SPECTRAL_DENSITY_ROT
+            )
+            self.d_channels_values[DataColumns.TREMOR_POWER] = (
+                DataUnits.POWER_SPECTRAL_DENSITY_ROT
+            )
+
         elif step == "classification":
             self.d_channels_values = {
                 DataColumns.PRED_TREMOR_PROBA: "probability",
