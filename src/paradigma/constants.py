@@ -37,6 +37,9 @@ class DataColumns:
     PRED_TREMOR_LOGREG: str = "pred_tremor_logreg"
     PRED_TREMOR_CHECKED: str = "pred_tremor_checked"
     PRED_ARM_AT_REST: str = "pred_arm_at_rest"
+    TREMOR_POWER: str = "tremor_power"
+    BELOW_TREMOR_POWER: str = "below_tremor_power"
+    FREQ_PEAK: str = "freq_peak"
 
     # Constants for PPG features
     VARIANCE: str = "variance"
@@ -78,8 +81,11 @@ class DataUnits:
     GRAVITY: str = "g"
     """ The acceleration due to gravity is in g. """
 
-    POWER_SPECTRAL_DENSITY: str = "g^2/Hz"
+    POWER_SPECTRAL_DENSITY_ACC: str = "g^2/Hz"
     """ The power spectral density is in g^2/Hz. """
+
+    POWER_SPECTRAL_DENSITY_ROT: str = "(deg/s)^2"
+    """ The power spectral density is in "(deg/s)^2 """
 
     FREQUENCY: str = "Hz"
     """ The frequency is in Hz. """
