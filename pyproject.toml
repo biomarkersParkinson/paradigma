@@ -48,6 +48,7 @@ jupyter-client = "^8.6.3"
 nbstripout = "^0.8.1"
 nb-clean = "^4.0.1"
 jupyter = "^1.1.1"
+jupyterlab-widgets = "3.0.15"
 
 [tool.poetry.scripts]
 build-docs = "scripts.build_docs:main"
