@@ -6,9 +6,18 @@ This tutorial demonstrates how to load sensor data of the following devices into
 Note that Paradigma requires further data preparation as outlined in [the data preparation tutorial](../data_preparation.ipynb).
 
 ### Axivity
-Axivity sensor data (AX3 & AX6) are stored in .CWA format, which requires some preparation to be processable. In this tutorial, we showcase how to transform .CWA files into a workable format in Python using `openmovement`. More information on the `openmovement` package can be found on the [Open Movement GitHub page](https://github.com/openmovementproject/openmovement-python).
+Axivity sensor data (AX3 & AX6) are stored in `.CWA` format, which requires some preparation to be processable. In this tutorial, we showcase how to transform `.CWA` files into a workable format in Python using `openmovement`. More information on the `openmovement` package can be found on the [Open Movement GitHub page](https://github.com/openmovementproject/openmovement-python).
 
-For the `openmovement` package, make sure to install the *master* branch, as this branch contains the valid code for preparing .CWA data. This can for example be done using `pip` by running `pip install git+https://github.com/digitalinteraction/openmovement-python.git@master`. Or, when using Poetry, add the following line to the list of dependencies in `pyproject.toml`: `openmovement = { git = "https://github.com/digitalinteraction/openmovement-python.git", branch = "master" }`.
+For the `openmovement` package, make sure to install the `master` branch, as this branch contains the valid code for preparing `.CWA` data. This can for example be done using `pip` by running:
+
+```bash
+pip install git+https://github.com/digitalinteraction/openmovement-python.git@master
+```
+Or, when using Poetry, add the following line to the list of dependencies in `pyproject.toml`:
+
+```toml
+openmovement = { git = "https://github.com/digitalinteraction/openmovement-python.git", branch = "master" }
+```
 
 
 ```python
@@ -29,7 +38,7 @@ with CwaData(
     filename=path_to_input_data / test_data_filename,
     include_gyro=True,
     include_temperature=False
-    ) as cwa_data:
+) as cwa_data:
     print("Data format info:")
     pprint(cwa_data.data_format)
 
@@ -165,9 +174,9 @@ df.head()
 
 
 ### Empatica
-Empatica sensor data is stored in Aoache Avro (.avro) format. In short, Empatica automatically writes sensor data every 30 minutes to a cloud storage (AWS) with the naming convention [participant_id]_[timestamp].avro. In this tutorial we will show how to read and prepare a single .avro file.
+Empatica sensor data is stored in Apache Avro (`.avro`) format. In short, Empatica automatically writes sensor data every 30 minutes to a cloud storage with the naming convention [participant_id]_[timestamp].avro. In this tutorial we will show how to read and prepare a single `.avro` file.
 
-For more detailed documentation on using this data format in Python, consider reading [the official Apache Avro documentation](https://avro.apache.org/docs/). Extensive documentation is available on how to read and write .avro files in Python [here](https://avro.apache.org/docs/++version++/getting-started-python/).
+For more detailed documentation on using this data format in Python, consider reading [the official Apache Avro documentation](https://avro.apache.org/docs/). Extensive documentation is available on how to read and write `.avro` files in Python [here](https://avro.apache.org/docs/++version++/getting-started-python/).
 
 
 ```python
@@ -205,6 +214,7 @@ avro_version = (
     (empatica_data["schemaVersion"]["patch"]),
 )
 
+# Due to changes in the Avro schema, conversion differs for versions before and after 6.5.0
 if avro_version < (6, 5, 0):
     physical_range = accel_data["imuParams"]["physicalMax"] - accel_data["imuParams"]["physicalMin"]
     digital_range = accel_data["imuParams"]["digitalMax"] - accel_data["imuParams"]["digitalMin"]

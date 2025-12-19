@@ -16,7 +16,7 @@ We then combine the output of the different segments for the final step:
 
 This pipeline requires PPG data and can be enhanced with accelerometer data (optional). Here, we start by loading a single contiguous time series (segment), for which we continue running steps 1-4. [Below](#multiple_segments_cell) we show how to run these steps for multiple segments. The channel `green` represents the values obtained with PPG using green light.
 
-In this example we use the interally developed `TSDF` ([documentation](https://biomarkersparkinson.github.io/tsdf/)) to load and store data [[1](https://arxiv.org/abs/2211.11294)]. However, we are aware that there are other common data formats. For example, the following functions can be used depending on the file extension of the data:
+In this example we use the internally developed `TSDF` ([documentation](https://biomarkersparkinson.github.io/tsdf/)) to load and store data [[1](https://arxiv.org/abs/2211.11294)]. However, we are aware that there are other common data formats. For example, the following functions can be used depending on the file extension of the data:
 - _.csv_: `pandas.read_csv()` ([documentation](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html))
 - _.json_: `json.load()` ([documentation](https://docs.python.org/3/library/json.html#json.load))
 
@@ -249,7 +249,7 @@ display(df_ppg, df_acc)
 
 ## Step 1: Preprocess data
 
-The first step after loading the data is preprocessing using the [preprocess_ppg_data](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_ppg_data). This begins by isolating segments containing both PPG and IMU data, discarding portions where one modality (e.g., PPG) extends beyond the other, such as when the PPG recording is longer than the accelerometer data. This functionality requires the starting times (`metadata_time_ppg.start_iso8601` and `metadata_time_imu.start_iso8601`) in iso8601 format as inputs. After this step, the preprocess_ppg_data function resamples the PPG and accelerometer data to uniformly distributed timestamps, addressing the fixed but non-uniform sampling rates of the sensors. After this, a bandpass Butterworth filter (4th-order, bandpass frequencies: 0.4--3.5 Hz) is applied to the PPG signal, while a high-pass Butterworth filter (4th-order, cut-off frequency: 0.2 Hz) is applied to the accelerometer data.
+The first step after loading the data is preprocessing using the [preprocess_ppg_data](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_ppg_data). This begins by isolating segments containing both PPG and IMU data, discarding portions where one modality (e.g., PPG) extends beyond the other, such as when the PPG recording is longer than the accelerometer data. This functionality requires the starting times (`metadata_time_ppg.start_iso8601` and `metadata_time_imu.start_iso8601`) in iso8601 format as inputs. After this step, the preprocess_ppg_data function resamples the PPG and accelerometer data to uniformly distributed timestamps, addressing the fixed but non-uniform sampling rates of the sensors. If the difference between timestamps is larger than a specified tolerance (`config.tolerance`, in seconds), it will return an error that the timestamps are not contiguous.  If you still want to process the data in this case, you can create segments from discontiguous samples using the function [`create_segments`](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/segmenting.py) and analyze these segments consecutively as shown in [here](#multiple_segments_cell). After resampling, a bandpass Butterworth filter (4th-order, bandpass frequencies: 0.4--3.5 Hz) is applied to the PPG signal, while a high-pass Butterworth filter (4th-order, cut-off frequency: 0.2 Hz) is applied to the accelerometer data.
 
 Note: the printed shapes are (rows, columns) with each row corresponding to a single data point and each column representing a data column (e.g.time). The number of rows of the overlapping segments of PPG and accelerometer are not the same due to sampling differences (other sensors and possibly other sampling frequencies).
 
@@ -1256,5 +1256,5 @@ pprint.pprint(df_pr_agg)
 ```
 
     {'metadata': {'nr_pr_est': 8660},
-     'pr_aggregates': {'99p_pulse_rate': 85.77263444520081,
-                       'mode_pulse_rate': 63.59175662414131}}
+     'pr_aggregates': {'99p_pulse_rate': np.float64(85.77263444520081),
+                       'mode_pulse_rate': np.float64(63.59175662414131)}}

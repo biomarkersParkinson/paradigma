@@ -20,7 +20,7 @@ To run the complete gait pipeline, a prerequisite is to have both accelerometer 
 ## Load data
 Here, we start by loading a single contiguous time series (segment), for which we continue running steps 1-6. [Below](#multiple_segments_cell) we show how to run these steps for multiple raw data segments.
 
-We use the interally developed `TSDF` ([documentation](https://biomarkersparkinson.github.io/tsdf/)) to load and store data [[1](https://arxiv.org/abs/2211.11294)]. Depending on the file extension of your time series data, examples of other Python functions for loading the data into memory include:
+We use the internally developed `TSDF` ([documentation](https://biomarkersparkinson.github.io/tsdf/)) to load and store data [[1](https://arxiv.org/abs/2211.11294)]. Depending on the file extension of your time series data, examples of other Python functions for loading the data into memory include:
 - _.csv_: `pandas.read_csv()` ([documentation](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html))
 - _.json_: `json.load()` ([documentation](https://docs.python.org/3/library/json.html#json.load))
 
@@ -1226,8 +1226,8 @@ quantified_arm_swing.loc[quantified_arm_swing['segment_nr'] == 1]
     Metadata of the first gait segment:
     {'duration_filtered_segment_s': 9.0,
      'duration_unfiltered_segment_s': 9.0,
-     'end_time_s': 2230.74,
-     'start_time_s': 2221.75}
+     'end_time_s': np.float64(2230.74),
+     'start_time_s': np.float64(2221.75)}
 
     Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 9.0 seconds, which is at least as large as the filtered gait segment.
 
@@ -1516,7 +1516,7 @@ quantified_arm_swing = pd.concat(list_quantified_arm_swing, ignore_index=True)
 ## Step 7: Aggregation
 Finally, the arm swing estimates can be aggregated across all gait segments.
 
-Optionally, gait segments can be categorized into bins of specific length. Bins are tuples `(a, b)` including `a` and excluding `b`, i.e., gait segments ≥ `a` seconds and < `b` seconds. For example, to analyze gait segments of at least 20 seconds, the tuple `(20, np.inf)` can be used. In case you want to analyze all gait segments combined, use `(0, np.inf)`.
+Optionally, gait segments can be categorized into bins of specific length. Bins are tuples *(a, b)* including *a* and excluding *b*, i.e., gait segments `≥ a` seconds and `< b` seconds. For example, to analyze gait segments of at least 20 seconds, the tuple `(20, np.inf)` can be used. In case you want to analyze all gait segments combined, use `(0, np.inf)`.
 
 
 ```python
@@ -1536,25 +1536,25 @@ pprint(arm_swing_aggregations, sort_dicts=False)
 ```
 
     {'0_10': {'duration_s': 341.25,
-              'median_range_of_motion': 10.265043828684332,
-              '95p_range_of_motion': 33.23162448765658,
-              'median_peak_velocity': 52.98458323096123,
-              '95p_peak_velocity': 168.6525880243985},
+              'median_range_of_motion': np.float64(10.265043828684437),
+              '95p_range_of_motion': np.float64(33.23162448765661),
+              'median_peak_velocity': np.float64(52.98458323096141),
+              '95p_peak_velocity': np.float64(168.65258802439874)},
      '10_20': {'duration_s': 60.75,
-               'median_range_of_motion': 21.05381778480318,
-               '95p_range_of_motion': 45.61743804999113,
-               'median_peak_velocity': 117.73758780005977,
-               '95p_peak_velocity': 228.88536515287097},
+               'median_range_of_motion': np.float64(21.05381778480308),
+               '95p_range_of_motion': np.float64(45.617438049991144),
+               'median_peak_velocity': np.float64(117.7375878000595),
+               '95p_peak_velocity': np.float64(228.8853651528709)},
      '20_inf': {'duration_s': 1905.75,
-                'median_range_of_motion': 25.56899710571252,
-                '95p_range_of_motion': 43.59181429894559,
-                'median_peak_velocity': 127.40063801636731,
-                '95p_peak_velocity': 217.6480634243883},
+                'median_range_of_motion': np.float64(25.56899710571253),
+                '95p_range_of_motion': np.float64(43.59181429894547),
+                'median_peak_velocity': np.float64(127.40063801636731),
+                '95p_peak_velocity': np.float64(217.64806342438817)},
      '0_inf': {'duration_s': 2307.75,
-               'median_range_of_motion': 24.071313521090392,
-               '95p_range_of_motion': 43.06891252479754,
-               'median_peak_velocity': 120.43812492382041,
-               '95p_peak_velocity': 215.7685538864721}}
+               'median_range_of_motion': np.float64(24.07131352109043),
+               '95p_range_of_motion': np.float64(43.06891252479739),
+               'median_peak_velocity': np.float64(120.43812492382015),
+               '95p_peak_velocity': np.float64(215.76855388647215)}}
 
 
 The output of the aggregation step contains the aggregated arm swing parameters per gait segment category. Additionally, the total time in seconds `time_s` is added to inform based on how much data the aggregations were created.

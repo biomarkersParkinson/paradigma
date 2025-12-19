@@ -16,7 +16,7 @@ We then combine the output of the different segments for the final step:
 
 Here, we start by loading a single contiguous time series (segment), for which we continue running steps 1-3. [Below](#multiple_segments_cell) we show how to run these steps for multiple segments.
 
-We use the interally developed `TSDF` ([documentation](https://biomarkersparkinson.github.io/tsdf/)) to load and store data [[1](https://arxiv.org/abs/2211.11294)]. Depending on the file extension of your time series data, examples of other Python functions for loading the data into memory include:
+We use the internally developed `TSDF` ([documentation](https://biomarkersparkinson.github.io/tsdf/)) to load and store data [[1](https://arxiv.org/abs/2211.11294)]. Depending on the file extension of your time series data, examples of other Python functions for loading the data into memory include:
 - _.csv_: `pandas.read_csv()` ([documentation](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html))
 - _.json_: `json.load()` ([documentation](https://docs.python.org/3/library/json.html#json.load))
 
@@ -348,7 +348,7 @@ The function [`extract_tremor_features`](https://github.com/biomarkersParkinson/
 from paradigma.config import TremorConfig
 from paradigma.pipelines.tremor_pipeline import extract_tremor_features
 
-config = TremorConfig(step='features')
+config = TremorConfig()
 print(f'The window length is {config.window_length_s} seconds')
 
 df_features = extract_tremor_features(df_preprocessed_data, config)
@@ -639,8 +639,8 @@ full_path_to_classifier_package = (
 df_predictions = detect_tremor(df_features, config, full_path_to_classifier_package)
 
 df_predictions[[
-    config.time_colname, 'pred_tremor_proba', 'pred_tremor_logreg',
-    'pred_arm_at_rest', 'pred_tremor_checked'
+    config.time_colname, DataColumns.PRED_TREMOR_PROBA, DataColumns.PRED_TREMOR_LOGREG,
+    DataColumns.PRED_ARM_AT_REST, DataColumns.PRED_TREMOR_CHECKED
 ]]
 ```
 
@@ -778,6 +778,7 @@ The predicted probabilities (and optionally other features) can be stored and lo
 ```python
 import tsdf
 from paradigma.util import write_df_data
+from paradigma.constants import DataUnits
 
 # Set 'path_to_data' to the directory where you want to save the data
 metadata_time_store = tsdf.TSDFMetadata(
@@ -792,14 +793,14 @@ metadata_values_store = tsdf.TSDFMetadata(
 # Select the columns to be saved
 metadata_time_store.channels = [config.time_colname]
 metadata_values_store.channels = [
-    'tremor_power', 'pred_tremor_proba', 'pred_tremor_logreg',
-    'pred_arm_at_rest', 'pred_tremor_checked'
+    DataColumns.TREMOR_POWER, DataColumns.PRED_TREMOR_PROBA, DataColumns.PRED_TREMOR_LOGREG,
+    DataColumns.PRED_ARM_AT_REST, DataColumns.PRED_TREMOR_CHECKED
 ]
 
 # Set the units
 metadata_time_store.units = ['Relative seconds']
 metadata_values_store.units = [
-    'Unitless', 'Unitless', 'Unitless', 'Unitless', 'Unitless'
+    DataUnits.NONE, DataUnits.NONE, DataUnits.NONE, DataUnits.NONE, DataUnits.NONE
 ]
 metadata_time_store.data_type = float
 metadata_values_store.data_type = float
@@ -917,11 +918,11 @@ import datetime
 import pytz
 
 df_quantification = df_predictions[[
-    config.time_colname, 'pred_arm_at_rest',
-    'pred_tremor_checked','tremor_power'
+    config.time_colname, DataColumns.PRED_ARM_AT_REST,
+    DataColumns.PRED_TREMOR_CHECKED, DataColumns.TREMOR_POWER
 ]].copy()
 df_quantification.loc[
-    df_predictions['pred_tremor_checked'] == 0, 'tremor_power'
+    df_predictions[DataColumns.PRED_TREMOR_CHECKED] == 0, DataColumns.TREMOR_POWER
 ] = None # tremor power of non-tremor windows is set to None
 
 # Create datetime column based on the start time of the segment
@@ -937,7 +938,7 @@ df_quantification[f'{config.time_colname}_dt'] = start_time + \
     pd.to_timedelta(df_quantification[config.time_colname], unit="s")
 df_quantification = df_quantification[[
     config.time_colname, f'{config.time_colname}_dt',
-    'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power'
+    DataColumns.PRED_ARM_AT_REST, DataColumns.PRED_TREMOR_CHECKED, DataColumns.TREMOR_POWER
 ]]
 
 df_quantification
@@ -1117,7 +1118,7 @@ for segment_nr in segments:
     )
 
     # 2: Extract features
-    config = TremorConfig(step='features')
+    config = TremorConfig()
     df_features = extract_tremor_features(df_preprocessed_data, config)
 
     # 3: Detect tremor
@@ -1125,11 +1126,11 @@ for segment_nr in segments:
 
     # 4: Quantify tremor
     df_quantification = df_predictions[[
-        config.time_colname, 'pred_arm_at_rest',
-        'pred_tremor_checked','tremor_power'
+        config.time_colname, DataColumns.PRED_ARM_AT_REST,
+    DataColumns.PRED_TREMOR_CHECKED, DataColumns.TREMOR_POWER
     ]].copy()
     df_quantification.loc[
-        df_predictions['pred_tremor_checked'] == 0, 'tremor_power'
+        df_predictions[DataColumns.PRED_TREMOR_CHECKED] == 0, DataColumns.TREMOR_POWER
     ] = None
 
     # Create datetime column based on the start time of the segment
@@ -1145,7 +1146,7 @@ for segment_nr in segments:
         pd.to_timedelta(df_quantification[config.time_colname], unit="s")
     df_quantification = df_quantification[[
         config.time_colname, f'{config.time_colname}_dt',
-        'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power'
+        DataColumns.PRED_ARM_AT_REST, DataColumns.PRED_TREMOR_CHECKED, DataColumns.TREMOR_POWER
     ]]
 
     # Add the quantifications of the current segment to the list
@@ -1195,10 +1196,10 @@ pprint.pprint(d_tremor_aggregates)
 
     Before aggregation we select data collected between 08:00 and 22:00. We also select days with at least 10 hours of data.
     The following tremor power aggregates are derived: ['mode_binned', 'median', '90p'].
-    {'aggregated_tremor_measures': {'90p_tremor_power': 1.3259483071516063,
-                                    'median_tremor_power': 0.5143985314908104,
-                                    'modal_tremor_power': 0.3,
-                                    'perc_windows_tremor': 19.386769676484793},
+    {'aggregated_tremor_measures': {'90p_tremor_power': np.float64(1.3259483071516063),
+                                    'median_tremor_power': np.float64(0.5143985314908104),
+                                    'modal_tremor_power': np.float64(0.3),
+                                    'perc_windows_tremor': np.float64(19.386769676484793)},
      'metadata': {'nr_valid_days': 1,
                   'nr_windows_rest': 8284,
                   'nr_windows_total': 12600}}
