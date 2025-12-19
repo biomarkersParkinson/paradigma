@@ -270,11 +270,9 @@ class TremorConfig(IMUConfig):
 
             self.d_channels_values[DataColumns.FREQ_PEAK] = DataUnits.FREQUENCY
             self.d_channels_values[DataColumns.BELOW_TREMOR_POWER] = (
-                DataUnits.POWER_SPECTRAL_DENSITY_ROT
+                DataUnits.POWER_ROTATION
             )
-            self.d_channels_values[DataColumns.TREMOR_POWER] = (
-                DataUnits.POWER_SPECTRAL_DENSITY_ROT
-            )
+            self.d_channels_values[DataColumns.TREMOR_POWER] = DataUnits.POWER_ROTATION
 
         elif step == "classification":
             self.d_channels_values = {

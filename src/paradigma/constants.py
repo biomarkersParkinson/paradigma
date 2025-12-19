@@ -84,8 +84,8 @@ class DataUnits:
     POWER_SPECTRAL_DENSITY_ACC: str = "g^2/Hz"
     """ The power spectral density is in g^2/Hz. """
 
-    POWER_SPECTRAL_DENSITY_ROT: str = "(deg/s)^2"
-    """ The power spectral density is in "(deg/s)^2 """
+    POWER_ROTATION: str = "(deg/s)^2"
+    """ The power is in "(deg/s)^2. """
 
     FREQUENCY: str = "Hz"
     """ The frequency is in Hz. """
