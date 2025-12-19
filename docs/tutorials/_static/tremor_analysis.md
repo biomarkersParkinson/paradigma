@@ -800,7 +800,7 @@ metadata_values_store.channels = [
 # Set the units
 metadata_time_store.units = ['Relative seconds']
 metadata_values_store.units = [
-    DataUnits.NONE, DataUnits.NONE, DataUnits.NONE, DataUnits.NONE, DataUnits.NONE
+    DataUnits.POWER_ROTATION, DataUnits.NONE, DataUnits.NONE, DataUnits.NONE, DataUnits.NONE
 ]
 metadata_time_store.data_type = float
 metadata_values_store.data_type = float
