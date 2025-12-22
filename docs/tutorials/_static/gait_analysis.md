@@ -1169,7 +1169,7 @@ df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True
 
 ```python
 from paradigma.pipelines.gait_pipeline import quantify_arm_swing
-from pprint import pprint
+import json
 
 # Set to True to quantify arm swing based on the filtered gait segments, and
 # False to quantify arm swing based on all gait segments
@@ -1200,7 +1200,7 @@ print(
 )
 
 print("\nMetadata of the first gait segment:")
-pprint(gait_segment_meta['per_segment'][1])
+print(json.dumps(gait_segment_meta['per_segment'][1], indent = 1))
 
 filt_example_s = gait_segment_meta['per_segment'][1]['duration_filtered_segment_s']
 unfilt_example_s = gait_segment_meta['per_segment'][1]['duration_unfiltered_segment_s']
@@ -1224,10 +1224,12 @@ quantified_arm_swing.loc[quantified_arm_swing['segment_nr'] == 1]
     A total of 84 filtered gait segments have been quantified.
 
     Metadata of the first gait segment:
-    {'duration_filtered_segment_s': 9.0,
-     'duration_unfiltered_segment_s': 9.0,
-     'end_time_s': np.float64(2230.74),
-     'start_time_s': np.float64(2221.75)}
+    {
+     "start_time_s": 2221.75,
+     "end_time_s": 2230.74,
+     "duration_unfiltered_segment_s": 9.0,
+     "duration_filtered_segment_s": 9.0
+    }
 
     Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 9.0 seconds, which is at least as large as the filtered gait segment.
 
@@ -1354,7 +1356,6 @@ If your data is also stored in multiple raw data segments, you can modify `raw_d
 import pandas as pd
 from pathlib import Path
 from importlib.resources import files
-from pprint import pprint
 
 from paradigma.util import load_tsdf_dataframe, merge_predictions_with_timestamps
 from paradigma.config import IMUConfig, GaitConfig
@@ -1532,29 +1533,39 @@ arm_swing_aggregations = aggregate_arm_swing_params(
     aggregates=['median', '95p']
 )
 
-pprint(arm_swing_aggregations, sort_dicts=False)
+print(json.dumps(arm_swing_aggregations, indent=2))
 ```
 
-    {'0_10': {'duration_s': 341.25,
-              'median_range_of_motion': np.float64(10.265043828684437),
-              '95p_range_of_motion': np.float64(33.23162448765661),
-              'median_peak_velocity': np.float64(52.98458323096141),
-              '95p_peak_velocity': np.float64(168.65258802439874)},
-     '10_20': {'duration_s': 60.75,
-               'median_range_of_motion': np.float64(21.05381778480308),
-               '95p_range_of_motion': np.float64(45.617438049991144),
-               'median_peak_velocity': np.float64(117.7375878000595),
-               '95p_peak_velocity': np.float64(228.8853651528709)},
-     '20_inf': {'duration_s': 1905.75,
-                'median_range_of_motion': np.float64(25.56899710571253),
-                '95p_range_of_motion': np.float64(43.59181429894547),
-                'median_peak_velocity': np.float64(127.40063801636731),
-                '95p_peak_velocity': np.float64(217.64806342438817)},
-     '0_inf': {'duration_s': 2307.75,
-               'median_range_of_motion': np.float64(24.07131352109043),
-               '95p_range_of_motion': np.float64(43.06891252479739),
-               'median_peak_velocity': np.float64(120.43812492382015),
-               '95p_peak_velocity': np.float64(215.76855388647215)}}
+    {
+      "0_10": {
+        "duration_s": 341.25,
+        "median_range_of_motion": 10.265043828684437,
+        "95p_range_of_motion": 33.23162448765661,
+        "median_peak_velocity": 52.98458323096141,
+        "95p_peak_velocity": 168.65258802439874
+      },
+      "10_20": {
+        "duration_s": 60.75,
+        "median_range_of_motion": 21.05381778480308,
+        "95p_range_of_motion": 45.617438049991144,
+        "median_peak_velocity": 117.7375878000595,
+        "95p_peak_velocity": 228.8853651528709
+      },
+      "20_inf": {
+        "duration_s": 1905.75,
+        "median_range_of_motion": 25.56899710571253,
+        "95p_range_of_motion": 43.59181429894547,
+        "median_peak_velocity": 127.40063801636731,
+        "95p_peak_velocity": 217.64806342438817
+      },
+      "0_inf": {
+        "duration_s": 2307.75,
+        "median_range_of_motion": 24.07131352109043,
+        "95p_range_of_motion": 43.06891252479739,
+        "median_peak_velocity": 120.43812492382015,
+        "95p_peak_velocity": 215.76855388647215
+      }
+    }
 
 
 The output of the aggregation step contains the aggregated arm swing parameters per gait segment category. Additionally, the total time in seconds `time_s` is added to inform based on how much data the aggregations were created.

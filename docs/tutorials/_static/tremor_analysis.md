@@ -1164,7 +1164,7 @@ The final step is to compute the amount of tremor time and tremor power with the
 
 
 ```python
-import pprint
+import json
 from paradigma.util import select_hours, select_days
 from paradigma.pipelines.tremor_pipeline import aggregate_tremor
 
@@ -1191,15 +1191,21 @@ df_quantification = select_days(df_quantification, min_hours_per_day)
 config = TremorConfig()
 d_tremor_aggregates = aggregate_tremor(df = df_quantification, config = config)
 
-pprint.pprint(d_tremor_aggregates)
+print(json.dumps(d_tremor_aggregates, indent=2))
 ```
 
     Before aggregation we select data collected between 08:00 and 22:00. We also select days with at least 10 hours of data.
     The following tremor power aggregates are derived: ['mode_binned', 'median', '90p'].
-    {'aggregated_tremor_measures': {'90p_tremor_power': np.float64(1.3259483071516063),
-                                    'median_tremor_power': np.float64(0.5143985314908104),
-                                    'modal_tremor_power': np.float64(0.3),
-                                    'perc_windows_tremor': np.float64(19.386769676484793)},
-     'metadata': {'nr_valid_days': 1,
-                  'nr_windows_rest': 8284,
-                  'nr_windows_total': 12600}}
+    {
+      "metadata": {
+        "nr_valid_days": 1,
+        "nr_windows_total": 12600,
+        "nr_windows_rest": 8284
+      },
+      "aggregated_tremor_measures": {
+        "perc_windows_tremor": 19.386769676484793,
+        "median_tremor_power": 0.5143985314908104,
+        "modal_tremor_power": 0.3,
+        "90p_tremor_power": 1.3259483071516063
+      }
+    }

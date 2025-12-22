@@ -1243,7 +1243,7 @@ The final step is to aggregate all 2 s pulse rate estimates using [aggregate_pul
 
 
 ```python
-import pprint
+import json
 from paradigma.pipelines.pulse_rate_pipeline import aggregate_pulse_rate
 
 pr_values = df_pr['pulse_rate'].values
@@ -1252,9 +1252,15 @@ df_pr_agg = aggregate_pulse_rate(
     aggregates = ['mode', '99p']
 )
 
-pprint.pprint(df_pr_agg)
+print(json.dumps(df_pr_agg, indent=2))
 ```
 
-    {'metadata': {'nr_pr_est': 8660},
-     'pr_aggregates': {'99p_pulse_rate': np.float64(85.77263444520081),
-                       'mode_pulse_rate': np.float64(63.59175662414131)}}
+    {
+      "metadata": {
+        "nr_pr_est": 8660
+      },
+      "pr_aggregates": {
+        "mode_pulse_rate": 63.59175662414131,
+        "99p_pulse_rate": 85.77263444520081
+      }
+    }
