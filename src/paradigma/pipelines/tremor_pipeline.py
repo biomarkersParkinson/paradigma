@@ -152,11 +152,11 @@ def detect_tremor(
     ).astype(int)
 
     # Perform extra checks for rest tremor
-    peak_check = (df["freq_peak"] >= config.fmin_rest_tremor) & (
-        df["freq_peak"] <= config.fmax_rest_tremor
+    peak_check = (df[DataColumns.FREQ_PEAK] >= config.fmin_rest_tremor) & (
+        df[DataColumns.FREQ_PEAK] <= config.fmax_rest_tremor
     )  # peak within 3-7 Hz
     df[DataColumns.PRED_ARM_AT_REST] = (
-        df["below_tremor_power"] <= config.movement_threshold
+        df[DataColumns.BELOW_TREMOR_POWER] <= config.movement_threshold
     ).astype(
         int
     )  # arm at rest or in stable posture
@@ -215,7 +215,7 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
         raise Warning("No windows without non-tremor arm movement are detected.")
 
     # calculate tremor time
-    n_windows_tremor = np.sum(df_filtered["pred_tremor_checked"])
+    n_windows_tremor = np.sum(df_filtered[DataColumns.PRED_TREMOR_CHECKED])
     perc_windows_tremor = (
         n_windows_tremor / nr_windows_rest * 100
     )  # as percentage of total measured time without non-tremor arm movement
@@ -227,7 +227,6 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     if (
         n_windows_tremor == 0
     ):  # if no tremor is detected, the tremor power measures are set to NaN
-
         aggregated_tremor_power["median_tremor_power"] = np.nan
         aggregated_tremor_power["mode_binned_tremor_power"] = np.nan
         aggregated_tremor_power["90p_tremor_power"] = np.nan
@@ -236,7 +235,7 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
 
         # calculate aggregated tremor power measures
         tremor_power = df_filtered.loc[
-            df_filtered["pred_tremor_checked"] == 1, "tremor_power"
+            df_filtered[DataColumns.PRED_TREMOR_CHECKED] == 1, DataColumns.TREMOR_POWER
         ]
         tremor_power = np.log10(tremor_power + 1)  # convert to log scale
 
@@ -355,10 +354,10 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
         feature_dict[colname] = mfccs[:, i]
 
     # Compute the frequency of the peak, non-tremor power and tremor power
-    feature_dict["freq_peak"] = extract_frequency_peak(
+    feature_dict[DataColumns.FREQ_PEAK] = extract_frequency_peak(
         freqs, total_psd, config.fmin_peak_search, config.fmax_peak_search
     )
-    feature_dict["below_tremor_power"] = compute_power_in_bandwidth(
+    feature_dict[DataColumns.BELOW_TREMOR_POWER] = compute_power_in_bandwidth(
         freqs,
         total_psd,
         config.fmin_below_rest_tremor,
@@ -367,7 +366,7 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
         spectral_resolution=config.spectral_resolution,
         cumulative_sum_method="sum",
     )
-    feature_dict["tremor_power"] = extract_tremor_power(
+    feature_dict[DataColumns.TREMOR_POWER] = extract_tremor_power(
         freqs, total_psd, config.fmin_rest_tremor, config.fmax_rest_tremor
     )
 
