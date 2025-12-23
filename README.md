@@ -56,7 +56,10 @@ ParaDigMa contains the following validated processing pipelines (each using the 
 
 ## Installation
 
-The package is available in PyPI and requires [Python 3.11](https://www.python.org/downloads/) or higher. It can be installed using:
+The package is available in PyPI and requires [Python 3.11](https://www.python.org/downloads/) or higher.
+ParaDigMa has been officially tested on Python 3.11 and 3.12. While it may work on newer versions (e.g., 3.13), compatibility has not been verified.
+
+It can be installed using:
 
 ```bash
 pip install paradigma
