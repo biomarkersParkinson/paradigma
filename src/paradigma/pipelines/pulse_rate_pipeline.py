@@ -33,25 +33,29 @@ def extract_signal_quality_features(
 ) -> pd.DataFrame:
     """
     Extract signal quality features from the PPG signal.
-    The features are extracted from the temporal and spectral domain of the PPG signal.
-    The temporal domain features include variance, mean, median, kurtosis, skewness, signal-to-noise ratio, and autocorrelation.
-    The spectral domain features include the dominant frequency, relative power, spectral entropy.
+
+    Features are computed from both temporal and spectral domains:
+      - Temporal: variance, mean, median, kurtosis, skewness, signal-to-noise ratio, autocorrelation
+      - Spectral: dominant frequency, relative power, spectral entropy
+
+    Optionally, features from a simultaneously recorded accelerometer signal
+    can be included to assess motion artifacts.
 
     Parameters
     ----------
     df_ppg : pd.DataFrame
-        The DataFrame containing the PPG signal.
-    df_acc : pd.DataFrame
-        The DataFrame containing the accelerometer signal.
+        DataFrame containing the PPG signal.
     ppg_config: PulseRateConfig
-        The configuration for the signal quality feature extraction of the PPG signal.
-    acc_config: PulseRateConfig
-        The configuration for the signal quality feature extraction of the accelerometer signal.
+        Configuration for the signal quality feature extraction of the PPG signal.
+    df_acc : pd.DataFrame, optional, default=None
+        DataFrame containing accelerometer signals.
+    acc_config: PulseRateConfig, optional, default=None
+        Configuration for the signal quality feature extraction of the accelerometer signals.
 
     Returns
     -------
     df_features : pd.DataFrame
-        The DataFrame containing the extracted signal quality features.
+        DataFrame containing extracted signal quality features for each window.
 
     """
     # Group sequences of timestamps into windows
@@ -125,24 +129,31 @@ def signal_quality_classification(
     df: pd.DataFrame, config: PulseRateConfig, clf_package: ClassifierPackage
 ) -> pd.DataFrame:
     """
-    Classify the signal quality of the PPG signal using a logistic regression classifier. A probability close to 1 indicates a high-quality signal, while a probability close to 0 indicates a low-quality signal.
-    The classifier is trained on features extracted from the PPG signal. The features are extracted using the extract_signal_quality_features function.
-    The accelerometer signal is used to determine the signal quality based on the power ratio of the accelerometer signal and returns a binary label based on a threshold.
-    A value of 1 on the indicates no/minor periodic motion influence of the accelerometer on the PPG signal, 0 indicates major periodic motion influence.
+    Classify PPG signal quality using a pre-trained logistic regression classifier.
+
+    - A probability close to 1 indicates a high-quality signal, while a probability close to 0
+    indicates a low-quality signal.
+    - The classifier is trained on features extracted from the PPG signal.
+    - The features are extracted using the extract_signal_quality_features function.
+    - The accelerometer signal is used to determine the signal quality based on the power
+    ratio of the accelerometer signal and returns a binary label based on a threshold.
+    - A value of 1 on the indicates no/minor periodic motion influence of the accelerometer
+    on the PPG signal, 0 indicates major periodic motion influence.
 
     Parameters
     ----------
     df : pd.DataFrame
-        The DataFrame containing the PPG features and the accelerometer feature for signal quality classification.
+        DataFrame containing the PPG and accelerometer features.
     config : PulseRateConfig
-        The configuration for the signal quality classification.
+        Configuration containing column names and thresholds for classification.
     clf_package : ClassifierPackage
-        The classifier package containing the classifier and scaler.
+        Pre-trained classifier and feature scaler.
 
     Returns
     -------
-    df_sqa pd.DataFrame
-        The DataFrame containing the PPG signal quality predictions (both probabilities of the PPG signal quality classification and the accelerometer label based on the threshold).
+    pd.DataFrame
+        DataFrame including predicted PPG signal quality probabilities and
+        optional accelerometer labels.
     """
     # Set classifier
     clf = clf_package.classifier  # Load the logistic regression classifier
@@ -171,21 +182,26 @@ def estimate_pulse_rate(
     df_sqa: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame, config: PulseRateConfig
 ) -> pd.DataFrame:
     """
-    Estimate the pulse rate from the PPG signal using the time-frequency domain method.
+    Estimate pulse rate from the PPG signal using a time-frequency domain approach.
+
+    Pulse rate estimates are computed only for segments marked as high-quality
+    by the signal quality assessment. Segment boundaries are extended by 2 seconds
+    on each side to improve estimation accuracy.
 
     Parameters
     ----------
     df_sqa : pd.DataFrame
-        The DataFrame containing the signal quality assessment predictions.
+        DataFrame containing window-level signal quality predictions.
     df_ppg_preprocessed : pd.DataFrame
-        The DataFrame containing the preprocessed PPG signal.
+        Preprocessed PPG signal data.
     config : PulseRateConfig
-        The configuration for the pulse rate estimation.
+        Configuration including sampling frequency, time column, PPG column,
+        TFD parameters, and kernel settings.
 
     Returns
     -------
-    df_pr : pd.DataFrame
-        The DataFrame containing the pulse rate estimations.
+    pd.DataFrame
+        DataFrame containing pulse rate estimations.
     """
 
     # Extract NumPy arrays for faster operations
@@ -273,19 +289,21 @@ def aggregate_pulse_rate(
     pr_values: np.ndarray, aggregates: List[str] = ["mode", "99p"]
 ) -> dict:
     """
-    Aggregate the pulse rate estimates using the specified aggregation methods.
+    Aggregate pulse rate estimates using specified aggregation methods.
 
     Parameters
     ----------
     pr_values : np.ndarray
-        The array containing the pulse rate estimates
-    aggregates : List[str]
-        The list of aggregation methods to be used for the pulse rate estimates. The default is ['mode', '99p'].
+        Array containing pulse rate estimates
+    aggregates : List[str], default=['mode', '99p']
+        List of aggregation methods to apply.
 
     Returns
     -------
-    aggregated_results : dict
-        The dictionary containing the aggregated results of the pulse rate estimates.
+    dict
+        Dictionary with:
+        - "metadata": number of pulse rate estimates
+        - "pr_aggregates": aggregated results per method
     """
     # Initialize the dictionary for the aggregated results
     aggregated_results = {}
@@ -309,23 +327,26 @@ def extract_temporal_domain_features(
     quality_stats: List[str] = ["mean", "std"],
 ) -> pd.DataFrame:
     """
-    Compute temporal domain features for the ppg signal. The features are added to the dataframe. Therefore the original dataframe is modified, and the modified dataframe is returned.
+    Compute temporal domain features for windowed PPG data.
 
     Parameters
     ----------
     ppg_windowed: np.ndarray
-        The dataframe containing the windowed accelerometer signal
-
+        Windowed PPG signal.
     config: PulseRateConfig
-        The configuration object containing the parameters for the feature extraction
-
-    quality_stats: list, optional
-        The statistics to be computed for the gravity component of the accelerometer signal (default: ['mean', 'std'])
+        Configuration containing sampling frequency and other parameters.
+    quality_stats: List[str], optional, default=['mean', 'std']
+        Statistics to compute for the gravity component of the accelerometer signal.
 
     Returns
     -------
     pd.DataFrame
-        The dataframe with the added temporal domain features.
+        DataFrame with temporal domain features for each window.
+
+    Notes
+    -----
+    - The features are added to the dataframe. Therefore the original dataframe is modified,
+    and the modified dataframe is returned.
     """
 
     feature_dict = {}
@@ -344,22 +365,22 @@ def extract_spectral_domain_features(
     config: PulseRateConfig,
 ) -> pd.DataFrame:
     """
-    Calculate the spectral features (dominant frequency, relative power, and spectral entropy)
-    for each segment of a PPG signal using a single Welch's method computation. The features are added to the dataframe.
-    Therefore the original dataframe is modified, and the modified dataframe is returned.
+    Compute spectral domain features for windowed PPG data.
+
+    Features include dominant frequency, relative power, and spectral entropy
+    computed using Welch's method.
 
     Parameters
     ----------
     ppg_windowed: np.ndarray
-        The dataframe containing the windowed ppg signal
-
+        Windowed PPG signal.
     config: PulseRateConfig
-        The configuration object containing the parameters for the feature extraction
+        Configuration including sampling frequency, window settings, and FFT parameters.
 
     Returns
     -------
     pd.DataFrame
-        The dataframe with the added spectral domain features.
+        DataFrame with spectral domain features for each window.
     """
     d_features = {}
 
@@ -389,23 +410,23 @@ def extract_acc_power_feature(
     f1: np.ndarray, PSD_acc: np.ndarray, f2: np.ndarray, PSD_ppg: np.ndarray
 ) -> np.ndarray:
     """
-    Extract the accelerometer power feature in the PPG frequency range.
+    Compute accelerometer power in the PPG frequency range.
 
     Parameters
     ----------
     f1: np.ndarray
-        The frequency bins of the accelerometer signal.
+        Frequency bins of the accelerometer signal.
     PSD_acc: np.ndarray
-        The power spectral density of the accelerometer signal.
+        Power spectral density of the accelerometer signal.
     f2: np.ndarray
-        The frequency bins of the PPG signal.
+        Frequency bins of the PPG signal.
     PSD_ppg: np.ndarray
-        The power spectral density of the PPG signal.
+        Power spectral density of the PPG signal.
 
     Returns
     -------
     np.ndarray
-        The accelerometer power feature in the PPG frequency range
+        Accelerometer power feature in the PPG frequency range.
     """
 
     # Find the index of the maximum PSD value in the PPG signal
@@ -448,18 +469,16 @@ def extract_accelerometer_feature(
     Parameters
     ----------
     acc_windowed: np.ndarray
-        The dataframe containing the windowed accelerometer signal
-
+        Windowed accelerometer signal.
     ppg_windowed: np.ndarray
-        The dataframe containing the corresponding windowed ppg signal
-
+        Windowed PPG signal corresponding to the accelerometer windows.
     config: PulseRateConfig
-        The configuration object containing the parameters for the feature extraction
+        Configuration containing sampling frequency, sensor type, and Welch parameters.
 
     Returns
     -------
     pd.DataFrame
-        The dataframe with the relative power accelerometer feature.
+        DataFrame with the relative power accelerometer feature.
     """
 
     if config.sensor not in ["imu", "ppg"]:

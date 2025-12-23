@@ -17,7 +17,7 @@ def tabulate_windows(
     """
     Split the given DataFrame into overlapping windows of specified length and step size.
 
-    This function extracts windows of data from the specified columns of the DataFrame, based on
+    Extracts windows of data from the specified columns of the DataFrame, based on
     the window length and step size provided in the configuration. The windows are returned in
     a 3D NumPy array, where the first dimension represents the window index, the second dimension
     represents the time steps within the window, and the third dimension represents the columns
@@ -26,15 +26,15 @@ def tabulate_windows(
     Parameters
     ----------
     df : pd.DataFrame
-        The input DataFrame containing the data to be windowed.
+        Input DataFrame containing the data to be windowed.
     columns : list of str
-        A list of column names from the DataFrame that will be used for windowing.
+        List of column names from the DataFrame that will be used for windowing.
     window_length_s : float
-        The length of each window in seconds.
+        Length of each window in seconds.
     window_step_length_s : float
-        The step size between consecutive windows in seconds.
+        Step size between consecutive windows in seconds.
     fs : int
-        The sampling frequency of the data in Hz.
+        Sampling frequency of the data in Hz.
 
     Returns
     -------
@@ -44,20 +44,8 @@ def tabulate_windows(
         - `window_size` is the length of each window in terms of the number of time steps.
         - `n_columns` is the number of columns in the input DataFrame specified by `columns`.
 
-        If the length of the data is shorter than the specified window size, an empty array is returned.
-
-    Notes
-    -----
-    This function uses `np.lib.stride_tricks.sliding_window_view` to generate sliding windows of data.
-    The step size is applied to extract windows at intervals.
-    If the data is insufficient for at least one window, an empty array will be returned.
-
-    Example
-    -------
-    config = Config(window_length_s=5, window_step_length_s=1, sampling_frequency=100)
-    df = pd.DataFrame({'col1': np.random.randn(100), 'col2': np.random.randn(100)})
-    columns = ['col1', 'col2']
-    windows = tabulate_windows(config, df, columns)
+        If the length of the data is shorter than the specified window size,
+        an empty array is returned.
     """
     window_size = int(window_length_s * fs)
     window_step_size = int(window_step_length_s * fs)
@@ -82,9 +70,12 @@ def tabulate_windows(
     return windows
 
 
-def tabulate_windows_legacy(config, df, agg_func="first"):
+@deprecated("This will be removed in v1.1.")
+def tabulate_windows_legacy(
+    config, df: pd.DataFrame, agg_func: str = "first"
+) -> pd.DataFrame:
     """
-    Efficiently creates a windowed dataframe from the input dataframe using vectorized operations.
+    Creates a windowed dataframe from the input dataframes.
 
     Parameters
     ----------
@@ -93,11 +84,13 @@ def tabulate_windows_legacy(config, df, agg_func="first"):
         - `window_length_s`: The number of seconds per window.
         - `window_step_length_s`: The number of seconds to shift between windows.
         - `sampling_frequency`: The sampling frequency in Hz.
-        - `single_value_colnames`: List of column names where a single value (e.g., mean) is needed.
-        - `list_value_colnames`: List of column names where all 600 values should be stored in a list.
+        - `single_value_colnames`: List of column names where a single value (e.g., mean)
+        is needed.
+        - `list_value_colnames`: List of column names where all 600 values should
+        be stored in a list.
     agg_func : str or callable, optional
-        Aggregation function for single-value columns. Can be 'mean', 'first', or a custom callable.
-        Default is 'first'.
+        Aggregation function for single-value columns. Can be 'mean', 'first',
+        or a custom callable. Default is 'first'.
 
     Returns
     -------
@@ -108,7 +101,6 @@ def tabulate_windows_legacy(config, df, agg_func="first"):
         - `window_end`: The end time of the window.
         - Aggregated values for `single_value_colnames`.
         - Lists of values for `list_value_colnames`.
-
     """
     # If single_value_colnames or list_value_colnames is None, default to an empty list
     if config.single_value_colnames is None:
@@ -183,7 +175,23 @@ def tabulate_windows_legacy(config, df, agg_func="first"):
 def create_segments(
     time_array: np.ndarray,
     max_segment_gap_s: float,
-):
+) -> np.ndarray:
+    """
+    Create segment numbers based on time gaps exceeding a specified threshold.
+
+    Parameters
+    ----------
+    time_array : np.ndarray
+        A 1D NumPy array of time values (in seconds).
+    max_segment_gap_s : float
+        The maximum allowed gap (in seconds) between consecutive time values
+        before a new segment is created.
+
+    Returns
+    -------
+    np.ndarray
+        A 1D NumPy array of segment numbers corresponding to each time value.
+    """
     # Calculate the difference between consecutive time values
     time_diff = np.diff(time_array, prepend=0.0)
 
@@ -206,42 +214,26 @@ def discard_segments(
     """
     Remove segments smaller than a specified size and reset segment enumeration.
 
-    This function filters out segments from the DataFrame that are smaller than a
+    Filters out segments from the DataFrame that are smaller than a
     given minimum size, based on the configuration. After removing small segments,
     the segment numbers are reset to start from 1.
 
     Parameters
     ----------
     config : object
-        A configuration object containing:
-        - `min_segment_length_s`: The minimum segment length in seconds.
-        - `sampling_frequency`: The sampling frequency in Hz.
+        Configuration object containing:
+        - `min_segment_length_s`: Minimum segment length in seconds.
+        - `sampling_frequency`: Sampling frequency in Hz.
     df : pd.DataFrame
-        The input DataFrame containing a segment column and time series data.
+        Input DataFrame containing a segment column and time series data.
     format : str, optional
-        The format of the input data, either 'timestamps' or 'windows'.
+        Format of the input data, either 'timestamps' or 'windows'.
 
     Returns
     -------
     pd.DataFrame
-        A filtered DataFrame where small segments have been removed and segment
+        Filtered DataFrame where small segments have been removed and segment
         numbers have been reset to start from 1.
-
-    Example
-    -------
-    config = Config(min_segment_length_s=2, sampling_frequency=100, segment_nr_colname='segment')
-    df = pd.DataFrame({
-        'segment': [1, 1, 2, 2, 2],
-        'time': [0, 1, 2, 3, 4]
-    })
-    df_filtered = discard_segments(config, df)
-    # Result:
-    #   segment  time
-    # 0       1     0
-    # 1       1     1
-    # 2       2     2
-    # 3       2     3
-    # 4       2     4
     """
     # Minimum segment size in number of samples
     if format == "timestamps":
@@ -360,13 +352,8 @@ class WindowedDataExtractor:
 
         Parameters
         ----------
-        windowed_colnames : list of str
+        windowed_colnames : List[str]
             A list of column names in the windowed data.
-
-        Raises
-         ------
-        ValueError
-            If the list of `windowed_colnames` is empty.
         """
         if not windowed_colnames:
             raise ValueError("The list of windowed columns cannot be empty.")
@@ -378,18 +365,13 @@ class WindowedDataExtractor:
 
         Parameters
         ----------
-        col : str
-            The name of the column to retrieve the index for.
+        colname : str
+            Name of the column to retrieve the index for.
 
         Returns
         -------
         int
-            The index of the specified column.
-
-        Raises
-        ------
-        ValueError
-            If the column is not found in the `windowed_colnames` list.
+            Index of the specified column.
         """
         if colname not in self.column_indices:
             raise ValueError(f"Column name '{colname}' not found in windowed_colnames.")
@@ -408,11 +390,6 @@ class WindowedDataExtractor:
         -------
         slice
             A slice object spanning the indices of the given columns.
-
-        Raises
-        ------
-        ValueError
-            If one or more columns in `colnames` are not found in the `windowed_colnames` list.
         """
         if not all(col in self.column_indices for col in colnames):
             missing = [col for col in colnames if col not in self.column_indices]

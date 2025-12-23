@@ -15,16 +15,16 @@ def assign_sqa_label(
     Parameters
     ----------
     ppg_prob : np.ndarray
-        The probabilities for PPG.
+        Probabilities for PPG.
     config : PulseRateConfig
-        The configuration parameters.
-    acc_label : np.ndarray, optional
-        The labels for the accelerometer.
+        Configuration parameters.
+    acc_label : np.ndarray, optional, default=None
+        Labels for the accelerometer.
 
     Returns
     -------
     np.ndarray
-        The signal quality assessment labels.
+        Signal quality assessment labels.
     """
     # Default _label to ones if not provided
     if acc_label is None:
@@ -71,14 +71,14 @@ def extract_pr_segments(
     Parameters
     ----------
     sqa_label : np.ndarray
-        The signal quality assessment label.
+        Signal quality assessment label.
     min_pr_samples : int
-        The minimum number of samples required for a pulse rate segment.
+        Minimum number of samples required for a pulse rate segment.
 
     Returns
     -------
     Tuple[v_start_idx_long, v_end_idx_long]
-        The start and end indices of the pulse rate segments.
+        Start and end indices of the pulse rate segments.
     """
     # Find the start and end indices of the pulse rate segments
     v_start_idx = np.where(np.diff(sqa_label.astype(int)) == 1)[0] + 1
@@ -106,11 +106,11 @@ def extract_pr_from_segment(
     Parameters
     ----------
     ppg : np.ndarray
-        The preprocessed PPG segment with 2 seconds of padding on both sides to reduce boundary effects.
+        Preprocessed PPG segment with 2 seconds of padding on both sides to reduce boundary effects.
     tfd_length : int
         Length of each segment (in seconds) to calculate the time-frequency distribution.
     fs : int
-        The sampling frequency of the PPG signal.
+        Sampling frequency of the PPG signal.
     kern_type : str
         Type of TFD kernel to use (e.g., 'wvd' for Wigner-Ville distribution).
     kern_params : dict
@@ -120,9 +120,8 @@ def extract_pr_from_segment(
     Returns
     -------
     np.ndarray
-        The estimated pulse rate.
+        Estimated pulse rate.
     """
-
     # Constants to handle boundary effects
     edge_padding = 4 * fs  # Additional 4 seconds (2 seconds on both sides)
     tfd_length = tfd_length * fs  # Convert tfd_length to samples
@@ -202,26 +201,26 @@ def extract_pr_with_tfd(
 
 
 class TimeFreqDistr:
-    def __init__(self):
-        """
-        This module contains the implementation of the Generalized Time-Frequency Distribution (TFD) computation using non-separable kernels.
-        This is a Python implementation of the MATLAB code provided by John O Toole in the following repository: https://github.com/otoolej/memeff_TFDs
+    """
+    Implements the Generalized Time-Frequency Distribution (TFD) computation using non-separable kernels.
 
-        The following functions are implemented for the computation of the TFD:
-            - nonsep_gdtfd: Computes the generalized time-frequency distribution using a non-separable kernel.
-            - get_analytic_signal: Generates the analytic signal of the input signal.
-            - gen_analytic: Generates the analytic signal by zero-padding and performing FFT.
-            - gen_time_lag: Generates the time-lag distribution of the analytic signal.
-            - multiply_kernel_signal: Multiplies the TFD by the Doppler-lag kernel.
-            - gen_doppler_lag_kern: Generates the Doppler-lag kernel based on kernel type and parameters.
-            - get_kern: Gets the kernel based on the provided kernel type.
-            - get_window: General function to calculate a window function.
-            - get_win: Helper function to create the specified window type.
-            - shift_window: Shifts the window so that positive indices appear first.
-            - pad_window: Zero-pads the window to a specified length.
-            - compute_tfd: Finalizes the time-frequency distribution computation.
-        """
-        pass
+    This Python implementation is based on the MATLAB code by John O Toole:
+    https://github.com/otoolej/memeff_TFDs
+
+    Methods include:
+        - nonsep_gdtfd: Computes the generalized TFD using a non-separable kernel.
+        - get_analytic_signal: Generates the analytic signal of the input signal.
+        - gen_analytic: Generates the analytic signal by zero-padding and performing FFT.
+        - gen_time_lag: Generates the time-lag distribution of the analytic signal.
+        - multiply_kernel_signal: Multiplies the TFD by the Doppler-lag kernel.
+        - gen_doppler_lag_kern: Generates the Doppler-lag kernel based on kernel type and parameters.
+        - get_kern: Gets the kernel based on the provided kernel type.
+        - get_window: General function to calculate a window function.
+        - get_win: Helper function to create the specified window type.
+        - shift_window: Shifts the window so that positive indices appear first.
+        - pad_window: Zero-pads the window to a specified length.
+        - compute_tfd: Finalizes the time-frequency distribution computation.
+    """
 
     def nonsep_gdtfd(
         self,
@@ -235,7 +234,7 @@ class TimeFreqDistr:
         Parameters:
         -----------
         x : ndarray
-            Input signal to be analyzed.
+            Input signal.
         kern_type : str, optional
             Type of kernel to be used for TFD computation. Default is None.
             Currently supported kernels are:
@@ -311,7 +310,7 @@ class TimeFreqDistr:
 
         Returns:
         --------
-        tfd : ndarray
+        np.ndarray
             The computed time-frequency distribution.
         """
         z = self.get_analytic_signal(x)
@@ -340,7 +339,7 @@ class TimeFreqDistr:
 
         Returns:
         --------
-        z : ndarray
+        np.ndarray
             Analytic signal with zero-padded imaginary part.
         """
         N = len(x)
@@ -366,7 +365,7 @@ class TimeFreqDistr:
 
         Returns:
         --------
-        z : ndarray
+        np.ndarray
             Analytic signal in the time domain with zeroed second half.
         """
         N = len(x)
@@ -399,9 +398,8 @@ class TimeFreqDistr:
 
         Returns:
         --------
-        tfd : ndarray
+        np.ndarray
             Time-lag distribution of the analytic signal z.
-
         """
         N = len(z) // 2  # Assuming z is a signal of length 2N
         Nh = int(np.ceil(N / 2))
@@ -446,7 +444,7 @@ class TimeFreqDistr:
 
         Returns:
         --------
-        tfd : ndarray
+        np.ndarray
             Modified TFD after kernel multiplication.
         """
         # Loop over lag indices
@@ -485,7 +483,7 @@ class TimeFreqDistr:
 
         Returns:
         --------
-        g : ndarray
+        np.ndarray
             Doppler-lag kernel for the given lag.
         """
         g = np.zeros(N, dtype=complex)  # Initialize the kernel
@@ -516,7 +514,7 @@ class TimeFreqDistr:
 
         Returns:
         --------
-        g : ndarray
+        np.ndarray
             Kernel function at the current lag.
         """
         # Validate kern_type
@@ -601,7 +599,7 @@ class TimeFreqDistr:
 
         Returns:
         --------
-        win : ndarray
+        np.ndarray
             The calculated window (or its DFT if dft_window is True).
         """
 
@@ -640,8 +638,8 @@ class TimeFreqDistr:
 
         Returns:
         --------
-        win : ndarray
-            The created window (or its DFT if dft_window is True).
+        np.ndarray
+            Created window (or its DFT if dft_window is True).
         """
         if win_type == "delta":
             win = np.zeros(win_length)
@@ -685,7 +683,7 @@ class TimeFreqDistr:
 
         Returns:
         --------
-        w_shifted : ndarray
+        np.ndarray
             Shifted window with positive indices first.
         """
         N = len(w)
@@ -704,13 +702,8 @@ class TimeFreqDistr:
 
         Returns:
         --------
-        w_pad : ndarray
+        np.ndarray
             Zero-padded window of length Npad.
-
-        Raises:
-        -------
-        ValueError:
-            If Npad is less than the original window length.
         """
         N = len(w)
         w_pad = np.zeros(Npad)
@@ -748,7 +741,7 @@ class TimeFreqDistr:
 
         Returns:
         --------
-        tfd : np.ndarray
+        np.ndarray
             Final computed TFD (N,N).
         """
         m = np.arange(0, Nh)  # m = 0:(Nh-1)

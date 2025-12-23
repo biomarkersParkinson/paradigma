@@ -19,9 +19,9 @@ def compute_statistics(
     Parameters
     ----------
     data : np.ndarray
-        A 2D or 3D NumPy array where statistics are computed.
+        2D or 3D NumPy array where statistics are computed.
     statistic : str
-        The statistic to compute. Supported values are:
+        Statistic to compute. Supported values are:
         - 'mean': Mean.
         - 'median': Median.
         - 'var': Variance.
@@ -37,13 +37,8 @@ def compute_statistics(
     Returns
     -------
     np.ndarray
-        A 1D or 2D array containing the computed statistic for each row (2D)
+        1D or 2D array containing the computed statistic for each row (2D)
         or the entire array (1D).
-
-    Raises
-    ------
-    ValueError
-        If the specified `statistic` is not supported or if the input data has an invalid shape.
     """
     if statistic not in [
         "mean",
@@ -90,14 +85,14 @@ def compute_std_euclidean_norm(data: np.ndarray) -> np.ndarray:
     """
     Compute the standard deviation of the Euclidean norm for each window of sensor data.
 
-    The function calculates the Euclidean norm (L2 norm) across sensor axes for each
+    Calculates the Euclidean norm (L2 norm) across sensor axes for each
     timestamp within a window, and then computes the standard deviation of these norms
     for each window.
 
     Parameters
     ----------
     data : np.ndarray
-        A 3D NumPy array of shape (n_windows, n_timestamps, n_axes), where:
+        3D NumPy array of shape (n_windows, n_timestamps, n_axes), where:
         - `n_windows` is the number of windows.
         - `n_timestamps` is the number of time steps per window.
         - `n_axes` is the number of sensor axes (e.g., 3 for x, y, z).
@@ -105,7 +100,7 @@ def compute_std_euclidean_norm(data: np.ndarray) -> np.ndarray:
     Returns
     -------
     np.ndarray
-        A 1D array of shape (n_windows,) containing the standard deviation of the
+        1D array of shape (n_windows,) containing the standard deviation of the
         Euclidean norm for each window.
     """
     norms = np.linalg.norm(
@@ -126,34 +121,34 @@ def compute_power_in_bandwidth(
     """
     Compute the logarithmic power within specified frequency bands for each sensor axis.
 
-    This function integrates the power spectral density (PSD) over user-defined frequency
+    Integrates the power spectral density (PSD) over user-defined frequency
     bands and computes the logarithm of the resulting power for each axis of the sensor.
 
     Parameters
     ----------
     freqs : np.ndarray
-        A 1D array of shape (n_frequencies,) containing the frequencies corresponding
+        1D array of shape (n_frequencies,) containing the frequencies corresponding
         to the PSD values.
     psd : np.ndarray
-        A 2D array of shape (n_windows, n_frequencies) or 3D array of shape (n_windows, n_frequencies, n_axes)
+        2D array of shape (n_windows, n_frequencies) or 3D array of shape (n_windows, n_frequencies, n_axes)
         representing the power spectral density (PSD) of the sensor data.
     fmin : float
-        The lower bound of the frequency band in Hz.
+        Lower bound of the frequency band in Hz.
     fmax : float
-        The upper bound of the frequency band in Hz.
+        Upper bound of the frequency band in Hz.
     include_max : bool, optional
         Whether to include the maximum frequency in the search range (default: True).
     spectral_resolution : float, optional
-        The spectral resolution of the PSD in Hz (default: 1).
+        Spectral resolution of the PSD in Hz (default: 1).
     cumulative_sum_method : str, optional
-        The method used to integrate the PSD over the frequency band. Supported values are:
+        Method used to integrate the PSD over the frequency band. Supported values are:
         - 'trapz': Trapezoidal rule.
         - 'sum': Simple summation (default: 'trapz').
 
     Returns
     -------
     np.ndarray
-        A 2D array of shape (n_windows, n_axes) containing the power within
+        2D array of shape (n_windows, n_axes) containing the power within
         the specified frequency band for each window and each sensor axis.
     """
     # Create a mask for frequencies within the current band range (low, high)
@@ -184,19 +179,19 @@ def compute_total_power(psd: np.ndarray) -> np.ndarray:
     """
     Compute the total power by summing the power spectral density (PSD) across frequency bins.
 
-    This function calculates the total power for each window and each sensor axis by
+    Calculates the total power for each window and each sensor axis by
     summing the PSD values across all frequency bins.
 
     Parameters
     ----------
     psd : np.ndarray
-        A 3D array of shape (n_windows, n_frequencies, n_axes) representing the
+        3D array of shape (n_windows, n_frequencies, n_axes) representing the
         power spectral density (PSD) of the sensor data.
 
     Returns
     -------
     np.ndarray
-        A 2D array of shape (n_windows, n_axes) containing the total power for each
+        2D array of shape (n_windows, n_axes) containing the total power for each
         window and each sensor axis.
     """
     return np.sum(psd, axis=-1)  # Sum across frequency bins
@@ -214,20 +209,20 @@ def extract_tremor_power(
     Parameters
     ----------
     total_psd: np.ndarray
-        The power spectral density of the gyroscope signal summed over the three axes
+        Power spectral density of the gyroscope signal summed over the three axes
     freqs: np.ndarray
         Frequency vector corresponding to the power spectral density
     fmin: float
-        The lower bound of the tremor frequency band in Hz (default: 3)
+        Lower bound of the tremor frequency band in Hz (default: 3)
     fmax: float
-        The upper bound of the tremor frequency band in Hz (default: 7)
+        Upper bound of the tremor frequency band in Hz (default: 7)
     spectral_resolution: float
-        The spectral resolution of the PSD in Hz (default: 0.25)
+        Spectral resolution of the PSD in Hz (default: 0.25)
 
     Returns
     -------
     pd.Series
-        The tremor power across windows
+        Tremor power across windows
     """
 
     freq_idx = (freqs >= fmin) & (freqs <= fmax)
@@ -256,21 +251,21 @@ def compute_dominant_frequency(
     """
     Compute the dominant frequency within a specified frequency range for each window and sensor axis.
 
-    The dominant frequency is defined as the frequency corresponding to the maximum power in the
+    Dominant frequency is defined as the frequency corresponding to the maximum power in the
     power spectral density (PSD) within the specified range.
 
     Parameters
     ----------
     freqs : np.ndarray
-        A 1D array of shape (n_frequencies,) containing the frequencies corresponding
+        1D array of shape (n_frequencies,) containing the frequencies corresponding
         to the PSD values.
     psd : np.ndarray
-        A 2D array of shape (n_windows, n_frequencies) or a 3D array of shape
+        2D array of shape (n_windows, n_frequencies) or a 3D array of shape
         (n_windows, n_frequencies, n_axes) representing the power spectral density.
     fmin : float
-        The lower bound of the frequency range (inclusive).
+        Lower bound of the frequency range (inclusive).
     fmax : float
-        The upper bound of the frequency range (exclusive).
+        Upper bound of the frequency range (exclusive).
 
     Returns
     -------
@@ -279,12 +274,6 @@ def compute_dominant_frequency(
           for each window.
         - If `psd` is 3D: A 2D array of shape (n_windows, n_axes) containing the dominant
           frequency for each window and each axis.
-
-    Raises
-    ------
-    ValueError
-        If `fmin` or `fmax` is outside the bounds of the `freqs` array.
-        If `psd` is not a 2D or 3D array.
     """
     # Set default values for fmin and fmax to the minimum and maximum frequencies if not provided
     if fmin is None:
@@ -338,18 +327,18 @@ def extract_frequency_peak(
     freqs: pd.Series
         Frequency vector corresponding to the power spectral density
     psd: pd.Series
-        The total power spectral density of the gyroscope signal
+        Total power spectral density of the gyroscope signal
     fmin: float
-        The lower bound of the frequency band in Hz (default: None). If not provided, the minimum frequency is used.
+        Lower bound of the frequency band in Hz (default: None). If not provided, the minimum frequency is used.
     fmax: float
-        The upper bound of the frequency band in Hz (default: None). If not provided, the maximum frequency is used.
+        Upper bound of the frequency band in Hz (default: None). If not provided, the maximum frequency is used.
     include_max: bool
         Whether to include the maximum frequency in the search range (default: True)
 
     Returns
     -------
     pd.Series
-        The frequency of the peak across windows
+        Frequency of the peak across windows
     """
     # Set fmin and fmax to maximum range if not provided
     if fmin is None:
@@ -378,21 +367,21 @@ def compute_relative_power(
     Parameters
     ----------
     freqs: np.ndarray
-        The frequency bins of the power spectral density.
+        Frequency bins of the power spectral density.
     psd: np.ndarray
-        The power spectral density of the signal.
+        Power spectral density of the signal.
     config: PulseRateConfig
-        The configuration object containing the parameters for the feature extraction. The following
+        Configuration object containing the parameters for the feature extraction. The following
         attributes are used:
         - freq_band_physio: tuple
-            The frequency band for physiological pulse rate (default: (0.75, 3)).
+            Frequency band for physiological pulse rate (default: (0.75, 3)).
         - bandwidth: float
-            The bandwidth around the peak frequency to consider for relative power calculation (default: 0.5).
+            Bandwidth around the peak frequency to consider for relative power calculation (default: 0.5).
 
     Returns
     -------
     list
-        The relative power within the dominant frequency band in the physiological range (0.75 - 3 Hz).
+        Relative power within the dominant frequency band in the physiological range (0.75 - 3 Hz).
 
     """
     hr_range_mask = (freqs >= config.freq_band_physio[0]) & (
@@ -423,14 +412,14 @@ def compute_spectral_entropy(psd: np.ndarray, n_samples: int) -> np.ndarray:
     Parameters
     ----------
     psd: np.ndarray
-        The power spectral density of the signal.
+        Power spectral density of the signal.
     n_samples: int
-        The number of samples in the window.
+        Number of samples in the window.
 
     Returns
     -------
     np.ndarray
-        The spectral entropy of the power spectral density.
+        Spectral entropy of the power spectral density.
     """
     psd_norm = psd / np.sum(psd, axis=1, keepdims=True)
     spectral_entropy = -np.sum(psd_norm * np.log2(psd_norm), axis=1) / np.log2(
@@ -449,7 +438,8 @@ def compute_mfccs(
     rounding_method: str = "floor",
 ) -> np.ndarray:
     """
-    Generate Mel Frequency Cepstral Coefficients (MFCCs) from the total power spectral density or spectrogram of the signal.
+    Generate Mel Frequency Cepstral Coefficients (MFCCs) from the total power spectral
+    density or spectrogram of the signal.
 
     MFCCs are commonly used features in signal processing for tasks like audio and
     vibration analysis. In this version, we adjusted the MFFCs to the human activity
@@ -481,14 +471,16 @@ def compute_mfccs(
         - mfcc_n_coefficients : int
             Number of coefficients to extract (default: 12).
     total_power_type : str, optional
-        The type of the total power array. Supported values are 'psd' and 'spectrogram' (default: 'psd').
+        Type of the total power array. Supported values are 'psd' and
+        'spectrogram' (default: 'psd').
     mel_scale : bool, optional
         Whether to use the mel scale for the filterbank (default: True).
     multiplication_factor : float, optional
-        Multiplication factor for the Mel scale conversion (default: 1). For tremor, the recommended
-        value is 1. For gait, this is 4.
+        Multiplication factor for the Mel scale conversion (default: 1).
+        For tremor, the recommended value is 1. For gait, this is 4.
     rounding_method : str, optional
-        The method used to round the filter points. Supported values are 'round' and 'floor' (default: 'floor').
+        Method used to round the filter points. Supported values
+        are 'round' and 'floor' (default: 'floor').
 
     Returns
     -------
@@ -615,7 +607,7 @@ def inverse_melscale(x: np.ndarray, multiplication_factor: float = 1) -> np.ndar
     """
     Maps values from the Mel scale back to linear frequencies.
 
-    This function performs the inverse transformation of the Mel scale,
+    Performs the inverse transformation of the Mel scale,
     converting perceptual frequency values to their corresponding linear frequency values.
 
     Parameters
@@ -644,16 +636,15 @@ def pca_transform_gyroscope(
     Parameters
     ----------
     df : pd.DataFrame
-        The DataFrame containing the gyroscope data.
+        DataFrame containing the gyroscope data.
     y_gyro_colname : str
-        The column name for the y-axis gyroscope data.
+        Column name for the y-axis gyroscope data.
     z_gyro_colname : str
-        The column name for the z-axis gyroscope data.
-
+        Column name for the z-axis gyroscope data.
     Returns
     -------
     np.ndarray
-        The estimated velocity based on the principal component of the gyroscope data.
+        Estimated velocity based on the principal component of the gyroscope data.
     """
     # Convert gyroscope columns to NumPy arrays
     y_gyro_array = df[y_gyro_colname].to_numpy()
@@ -677,14 +668,14 @@ def compute_angle(time_array: np.ndarray, velocity_array: np.ndarray) -> np.ndar
     Parameters
     ----------
     time_array : np.ndarray
-        The time array corresponding to the angular velocity data.
+        Time array corresponding to the angular velocity data.
     velocity_array : np.ndarray
-        The angular velocity data to integrate.
+        Angular velocity data to integrate.
 
     Returns
     -------
     np.ndarray
-        The estimated angle based on the cumulative trapezoidal integration of the angular velocity.
+        Estimated angle based on the cumulative trapezoidal integration of the angular velocity.
     """
     # Perform integration and apply absolute value
     angle_array = cumulative_trapezoid(y=velocity_array, x=time_array, initial=0)
@@ -698,14 +689,14 @@ def remove_moving_average_angle(angle_array: np.ndarray, fs: float) -> pd.Series
     Parameters
     ----------
     angle_array : np.ndarray
-        The angle array to remove the moving average from.
+        Angle array to remove the moving average from.
     fs : float
-        The sampling frequency of the data.
+        Sampling frequency of the data.
 
     Returns
     -------
     pd.Series
-        The angle array with the moving average removed.
+        Angle array with the moving average removed.
     """
     window_size = int(2 * (fs * 0.5) + 1)
     angle_ma = np.array(
@@ -728,16 +719,16 @@ def extract_angle_extremes(
     Parameters
     ----------
     angle_array : np.ndarray
-        The angle array to extract extrema from.
+        Angle array to extract extrema from.
     sampling_frequency : float
-        The sampling frequency of the data.
+        Sampling frequency of the data.
     max_frequency_activity : float, optional
-        The maximum frequency of human activity in Hz (default: 1.75).
+        Maximum frequency of human activity in Hz (default: 1.75).
 
     Returns
     -------
     tuple
-        A tuple containing the indices of the angle extrema, minima, and maxima.
+        Indices of the angle extrema, minima, and maxima.
     """
     distance = sampling_frequency / max_frequency_activity
     prominence = 2
@@ -818,14 +809,14 @@ def compute_range_of_motion(
     Parameters
     ----------
     angle_array : np.ndarray
-        The angle array to compute the range of motion from.
+        Angle array to compute the range of motion from.
     extrema_indices : List[int]
-        The indices of the angle extrema.
+        Indices of the angle extrema.
 
     Returns
     -------
     np.ndarray
-        The range of motion of the time series.
+        Range of motion of the time series.
     """
     # Ensure extrema_indices is a NumPy array of integers
     if not isinstance(extrema_indices, list):
@@ -856,14 +847,14 @@ def compute_peak_angular_velocity(
     Parameters
     ----------
     velocity_array : np.ndarray
-        The angular velocity array to compute the peak angular velocity from.
+        Angular velocity array to compute the peak angular velocity from.
     angle_extrema_indices : List[int]
-        The indices of the angle extrema.
+        Indices of the angle extrema.
 
     Returns
     -------
     np.ndarray
-        The peak angular velocities of the time series.
+        Peak angular velocities of the time series.
     """
     if np.any(np.array(angle_extrema_indices) < 0) or np.any(
         np.array(angle_extrema_indices) >= len(velocity_array)
@@ -900,18 +891,18 @@ def compute_forward_backward_peak_angular_velocity(
     Parameters
     ----------
     velocity_array : np.ndarray
-        The angular velocity array to compute the peak angular velocity from.
+        Angular velocity array to compute the peak angular velocity from.
     angle_extrema_indices : List[int]
-        The indices of the angle extrema.
+        Indices of the angle extrema.
     minima_indices : List[int]
-        The indices of the minima.
+        Indices of the minima.
     maxima_indices : List[int]
-        The indices of the maxima.
+        Indices of the maxima.
 
     Returns
     -------
     Tuple[np.ndarray, np.ndarray]
-        A tuple containing the forward and backward peak angular velocities for minima and maxima.
+        Forward and backward peak angular velocities for minima and maxima.
     """
     if np.any(np.array(angle_extrema_indices) < 0) or np.any(
         np.array(angle_extrema_indices) >= len(velocity_array)
@@ -958,12 +949,12 @@ def compute_signal_to_noise_ratio(ppg_windowed: np.ndarray) -> np.ndarray:
     Parameters
     ----------
     ppg_windowed: np.ndarray
-        The windowed PPG signal.
+        Windowed PPG signal.
 
     Returns
     -------
     np.ndarray
-        The signal to noise ratio of the PPG signal.
+        Signal to noise ratio of the PPG signal.
     """
 
     arr_signal = np.var(ppg_windowed, axis=1)
@@ -975,20 +966,25 @@ def compute_signal_to_noise_ratio(ppg_windowed: np.ndarray) -> np.ndarray:
 
 def compute_auto_correlation(ppg_windowed: np.ndarray, fs: int) -> np.ndarray:
     """
-    Compute the biased autocorrelation of the PPG signal. The autocorrelation is computed up to 3 seconds. The highest peak value is selected as the autocorrelation value. If no peaks are found, the value is set to 0.
-    The biased autocorrelation is computed using the biased_autocorrelation function. It differs from the unbiased autocorrelation in that the normalization factor is the length of the original signal, and boundary effects are considered. This results in a smoother autocorrelation function.
+    Compute the biased autocorrelation of the PPG signal. The autocorrelation is
+    computed up to 3 seconds. The highest peak value is selected as the
+    autocorrelation value. If no peaks are found, the value is set to 0.
+    The biased autocorrelation is computed using the biased_autocorrelation
+    function. It differs from the unbiased autocorrelation in that the
+    normalization factor is the length of the original signal, and boundary
+    effects are considered. This results in a smoother autocorrelation function.
 
     Parameters
     ----------
     ppg_windowed: np.ndarray
-        The windowed PPG signal.
+        Windowed PPG signal.
     fs: int
-        The sampling frequency of the PPG signal.
+        Sampling frequency of the PPG signal.
 
     Returns
     -------
     np.ndarray
-        The autocorrelation of the PPG signal.
+        Autocorrelation of the PPG signal.
     """
 
     auto_correlations = biased_autocorrelation(
@@ -1009,21 +1005,21 @@ def compute_auto_correlation(ppg_windowed: np.ndarray, fs: int) -> np.ndarray:
 
 def biased_autocorrelation(ppg_windowed: np.ndarray, max_lag: int) -> np.ndarray:
     """
-    Compute the biased autocorrelation of a signal (similar to matlabs autocorr function), where the normalization factor
-    is the length of the original signal, and boundary effects are considered.
+    Compute the biased autocorrelation of a signal (similar to matlabs autocorr
+    function), where the normalization factor is the length of the original
+    signal, and boundary effects are considered.
 
     Parameters
     ----------
     ppg_windowed: np.ndarray
-        The windowed PPG signal.
+        Windowed PPG signal.
     max_lag: int
-        The maximum lag for the autocorrelation.
+        Maximum lag for the autocorrelation.
 
     Returns
     -------
     np.ndarray
-        The biased autocorrelation of the PPG signal.
-
+        Biased autocorrelation of the PPG signal.
     """
     zero_mean_ppg = ppg_windowed - np.mean(
         ppg_windowed, axis=1, keepdims=True

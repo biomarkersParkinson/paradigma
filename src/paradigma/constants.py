@@ -3,9 +3,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class DataColumns:
-    """
-    Class containing the data channels in `tsdf`.
-    """
+    """Class containing the data channels in `tsdf`."""
 
     ACCELEROMETER_X: str = "accelerometer_x"
     ACCELEROMETER_Y: str = "accelerometer_y"
@@ -65,9 +63,7 @@ class DataColumns:
 
 @dataclass(frozen=True)
 class DataUnits:
-    """
-    Class containing the data channel unit types in `tsdf`.
-    """
+    """Class containing the data channel unit types in `tsdf`."""
 
     ACCELERATION: str = "m/s^2"
     """ The acceleration is in m/s^2. """
@@ -90,9 +86,7 @@ class DataUnits:
 
 @dataclass(frozen=True)
 class TimeUnit:
-    """
-    Class containing the `time` channel unit types in `tsdf`.
-    """
+    """Class containing the `time` channel unit types in `tsdf`."""
 
     RELATIVE_MS: str = "relative_ms"
     """ The time is relative to the start time in milliseconds. """

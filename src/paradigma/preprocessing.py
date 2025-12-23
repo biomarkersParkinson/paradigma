@@ -24,36 +24,30 @@ def resample_data(
     Parameters
     ----------
     df : pd.DataFrame
-        The input DataFrame containing the sensor data.
+        Input DataFrame containing the sensor data.
     time_column : str
-        The name of the column containing the time data.
+        Name of column containing the time data.
     values_column_names : List[str]
-        A list of column names that should be resampled.
+        Names of columns to be resampled.
     sampling_frequency : int
-        The original sampling frequency of the data (in Hz).
+        Original sampling frequency of the data (in Hz).
     resampling_frequency : int
-        The frequency to which the data should be resampled (in Hz).
+        Frequency to which the data should be resampled (in Hz).
     tolerance : float, optional
-        The tolerance added to the expected difference when checking
-        for contiguous timestamps. If not provided, it defaults to the tolerance specified in IMUConfig.
+        Tolerance added to the expected difference when checking for contiguous
+        timestamps. If not provided, it defaults to the tolerance specified in IMUConfig.
 
     Returns
     -------
     pd.DataFrame
-        A DataFrame with the resampled data, where each column contains resampled values.
+        Resampled data, where each column contains resampled values.
         The time column will reflect the new resampling frequency.
-
-    Raises
-    ------
-    ValueError
-        If the time array is not strictly increasing.
 
     Notes
     -----
     - Uses cubic interpolation for smooth resampling if there are enough points.
     - If only two timestamps are available, it falls back to linear interpolation.
     """
-
     # Set default tolerance if not provided to tolerance specified in IMUConfig
     if tolerance is None:
         tolerance = IMUConfig().tolerance
@@ -108,38 +102,33 @@ def butterworth_filter(
     """
     Applies a Butterworth filter to 1D or 2D sensor data.
 
-    This function applies a low-pass, high-pass, or band-pass Butterworth filter to the
+    Applies a low-pass, high-pass, or band-pass Butterworth filter to the
     input data. The filter is designed using the specified order, cutoff frequency,
     and passband type. The function can handle both 1D and 2D data arrays.
 
     Parameters
     ----------
     data : np.ndarray
-        The sensor data to be filtered. Can be 1D (e.g., a single signal) or 2D
+        Sensor data to be filtered. Can be 1D (e.g., a single signal) or 2D
         (e.g., multi-axis sensor data).
     order : int
-        The order of the Butterworth filter. Higher values result in a steeper roll-off.
+        Order of the Butterworth filter. Higher values result in a steeper roll-off.
     cutoff_frequency : float or List[float]
-        The cutoff frequency (or frequencies) for the filter. For a low-pass or high-pass filter,
+        Cutoff frequency (or frequencies) for the filter. For a low-pass or high-pass filter,
         this is a single float. For a band-pass filter, this should be a list of two floats,
         specifying the lower and upper cutoff frequencies.
     passband : str
-        The type of passband to apply. Options are:
+        Type of passband to apply. Options are:
         - 'hp' : high-pass filter
         - 'lp' : low-pass filter
         - 'band' : band-pass filter
     sampling_frequency : int
-        The sampling frequency of the data in Hz. This is used to normalize the cutoff frequency.
+        Sampling frequency of the data in Hz. This is used to normalize the cutoff frequency.
 
     Returns
     -------
     np.ndarray
         The filtered sensor data. The shape of the output is the same as the input data.
-
-    Raises
-    ------
-    ValueError
-        If the input data has more than two dimensions, or if an invalid passband is specified.
 
     Notes
     -----
@@ -174,32 +163,31 @@ def preprocess_imu_data(
     Parameters
     ----------
     df : pd.DataFrame
-        The DataFrame containing raw accelerometer and/or gyroscope data.
+        DataFrame containing raw accelerometer and/or gyroscope data.
     config : IMUConfig
-        Configuration object containing various settings, such as time column name, accelerometer and/or gyroscope columns,
-        filter settings, and sampling frequency.
+        Configuration object containing various settings, such as time column
+        name, accelerometer and/or gyroscope columns, filter settings, and sampling frequency.
     sensor: str
         Name of the sensor data to be preprocessed. Must be one of:
         - "accelerometer": Preprocess accelerometer data only.
         - "gyroscope": Preprocess gyroscope data only.
         - "both": Preprocess both accelerometer and gyroscope data.
     watch_side: str
-        The side of the watch where the data was collected. Must be one of:
+        Side of the watch where the data was collected. Must be one of:
         - "left": Data was collected from the left wrist.
         - "right": Data was collected from the right wrist.
 
     Returns
     -------
     pd.DataFrame
-        The preprocessed accelerometer and or gyroscope data with the following transformations:
+        Preprocessed accelerometer and/or gyroscope data with the following transformations:
         - Resampled data at the specified frequency.
         - Filtered accelerometer data with high-pass and low-pass filtering applied.
 
     Notes
     -----
-    - The function applies Butterworth filters to accelerometer data, both high-pass and low-pass.
+    - Applies Butterworth filters to accelerometer data, both high-pass and low-pass.
     """
-
     # Extract sensor column
     if sensor == "accelerometer":
         values_colnames = config.accelerometer_colnames
@@ -271,43 +259,50 @@ def preprocess_ppg_data(
     start_time_imu: str | None = None,
 ) -> Tuple[pd.DataFrame, pd.DataFrame | None]:
     """
-    This function preprocesses PPG and accelerometer data by resampling, filtering and aligning the data segments of both sensors (if applicable).
-    Aligning is done using the extract_overlapping_segments function which is based on the provided start times of the PPG and IMU data and returns
-    only the data points where both signals overlap in time. The remaining data points are discarded.
-    After alignment, the function resamples the data to the specified frequency and applies Butterworth filters to both PPG and accelerometer data (if applicable).
-    The output is two DataFrames: one for the preprocessed PPG data and another for the preprocessed accelerometer data (if provided, otherwise return is None).
+    Preprocesses PPG and accelerometer data by resampling, filtering and aligning
+    the data segments of both sensors (if applicable). Aligning is done using the
+    `extract_overlapping_segments` function which is based on the provided start
+    times of the PPG and IMU data and returns only the data points where both signals
+    overlap in time. The remaining data points are discarded. After alignment, the
+    function resamples the data to the specified frequency and applies Butterworth
+    filters to both PPG and accelerometer data (if applicable).
+
+    The output is two DataFrames: one for the preprocessed PPG data and another
+    for the preprocessed accelerometer data (if provided, otherwise return is None).
 
     Parameters
     ----------
     df_ppg : pd.DataFrame
         DataFrame containing PPG data.
-    df_acc : pd.DataFrame
-        DataFrame containing accelerometer from IMU data.
     ppg_config : PPGPreprocessingConfig
         Configuration object for PPG preprocessing.
-    imu_config : IMUPreprocessingConfig
-        Configuration object for IMU preprocessing.
-    start_time_ppg : str
+    start_time_ppg : str, optional, default=None
         iso8601 formatted start time of the PPG data.
-    start_time_imu : str
+    df_acc : pd.DataFrame, optional, default=None
+        DataFrame containing accelerometer from IMU data.
+    imu_config : IMUPreprocessingConfig, optional, default=None
+        Configuration object for IMU preprocessing.
+    start_time_imu : str, optional, default=None
         iso8601 formatted start time of the IMU data.
 
     Returns
     -------
     Tuple[pd.DataFrame, pd.DataFrame | None]
-        A tuple containing two DataFrames:
+        Two DataFrames:
         - Preprocessed PPG data with the following transformations:
             - Resampled data at the specified frequency.
             - Filtered PPG data with bandpass filtering applied.
-        - Preprocessed accelerometer data (if provided, otherwise return is None) with the following transformations:
+        - Preprocessed accelerometer data (if provided, otherwise return is None)
+        with the following transformations:
             - Resampled data at the specified frequency.
             - Filtered accelerometer data with high-pass and low-pass filtering applied.
 
     Notes
     -----
-    - If accelerometer data or IMU configuration is not provided, the function only preprocesses PPG data.
-    - The function applies Butterworth filters to PPG and accelerometer (if applicable) data, both high-pass and low-pass.
-
+    - If accelerometer data or IMU configuration is not provided, the function
+    only preprocesses PPG data.
+    - The function applies Butterworth filters to PPG and accelerometer
+    (if applicable) data, both high-pass and low-pass.
     """
     if df_acc is not None and imu_config is not None:
         # Extract overlapping segments
@@ -406,7 +401,8 @@ def extract_overlapping_segments(
     start_time_acc: str,
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Extract DataFrames with overlapping data segments between accelerometer (from the IMU) and PPG datasets based on their timestamps.
+    Extract DataFrames with overlapping data segments between accelerometer
+    (from the IMU) and PPG datasets based on their timestamps.
 
     Parameters
     ----------
@@ -415,9 +411,9 @@ def extract_overlapping_segments(
     df_acc : pd.DataFrame
         DataFrame containing accelerometer data from the IMU.
     time_colname_ppg : str
-        The name of the column containing the time data in the PPG dataframe.
+        Name of column containing the time data in the PPG dataframe.
     time_colname_imu : str
-        The name of the column containing the time data in the IMU dataframe.
+        Name of column containing the time data in the IMU dataframe.
     start_time_ppg : str
         iso8601 formatted start time of the PPG data.
     start_time_acc : str
@@ -426,7 +422,8 @@ def extract_overlapping_segments(
     Returns
     -------
     Tuple[pd.DataFrame, pd.DataFrame]
-        DataFrames containing the overlapping segments (time and values) of PPG and accelerometer data.
+        DataFrames containing the overlapping segments (time and values) of
+        PPG and accelerometer data.
     """
     # Convert start times to Unix timestamps
     datetime_ppg_start = datetime.fromisoformat(start_time_ppg.replace("Z", "+00:00"))
