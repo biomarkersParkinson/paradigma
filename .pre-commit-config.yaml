@@ -30,7 +30,7 @@ repos:
     rev: v0.14.0
     hooks:
       - id: ruff
-        args: ["--fix"]  # auto-fix simple issues
+        args: ["--fix"]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0

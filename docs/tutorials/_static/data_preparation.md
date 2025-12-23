@@ -9,7 +9,7 @@ ParaDigMa requires the sensor data to be of a specific format. This tutorial pro
 The final dataframe should be resampled to 100 Hz, have the correct units for the sensor columns, and the correct format for the time column. Also note that the _gait_ pipeline expects a specific orientation of sensor axes, as explained in [Coordinate system](../guides/coordinate_system.md).
 
 ## Load data
-This example uses data of the [Personalized Parkinson Project](https://pubmed.ncbi.nlm.nih.gov/31315608/), which is stored in Time Series Data Format (TSDF). Inertial Measurements Units (IMU) and photoplethysmography (PPG) data are sampled at a different sampling frequency and therefore stored separately. Note that ParaDigMa works independent of data storage format; it only requires a `pandas` dataframe as input.
+This example uses data of the [Personalized Parkinson Project](https://pubmed.ncbi.nlm.nih.gov/31315608/), which is stored in Time Series Data Format (`TSDF`). Inertial Measurements Units (IMU) and photoplethysmography (PPG) data are sampled at a different sampling frequency and therefore stored separately. Note that ParaDigMa works independent of data storage format; it only requires a `pandas.DataFrame` as input.
 
 
 ```python
@@ -226,8 +226,14 @@ accelerometer_data = df_imu[accelerometer_columns].values
 gyroscope_data = df_imu[gyroscope_columns].values
 
 # Convert units to expected format
-df_imu[accelerometer_columns] = convert_units_accelerometer(accelerometer_data, accelerometer_units)
-df_imu[gyroscope_columns] = convert_units_gyroscope(gyroscope_data, gyroscope_units)
+df_imu[accelerometer_columns] = convert_units_accelerometer(
+    data=accelerometer_data,
+    units=accelerometer_units
+)
+df_imu[gyroscope_columns] = convert_units_gyroscope(
+    data=gyroscope_data,
+    units=gyroscope_units
+)
 
 df_imu.head()
 ```
@@ -324,8 +330,9 @@ For the Gait & Arm Swing pipeline, it is essential to ensure correct sensor axes
 
 
 ```python
-# Change the orientation of the sensor according to the documented coordinate system. The following
-# changes are specific to the used sensor and its orientation relative to predefined coordinate system.
+# Change the orientation of the sensor according to the documented coordinate system.
+# The following changes are specific to the used sensor and its orientation
+# relative to predefined coordinate system.
 df_imu[acc_y_colname] *= -1
 df_imu[acc_z_colname] *= -1
 df_imu[gyr_y_colname] *= -1

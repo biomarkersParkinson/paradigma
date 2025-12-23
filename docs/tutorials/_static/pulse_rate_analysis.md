@@ -16,7 +16,7 @@ We then combine the output of the different segments for the final step:
 
 This pipeline requires PPG data and can be enhanced with accelerometer data (optional). Here, we start by loading a single contiguous time series (segment), for which we continue running steps 1-4. [Below](#multiple_segments_cell) we show how to run these steps for multiple segments. The channel `green` represents the values obtained with PPG using green light.
 
-In this example we use the interally developed `TSDF` ([documentation](https://biomarkersparkinson.github.io/tsdf/)) to load and store data [[1](https://arxiv.org/abs/2211.11294)]. However, we are aware that there are other common data formats. For example, the following functions can be used depending on the file extension of the data:
+In this example we use the internally developed `TSDF` ([documentation](https://biomarkersparkinson.github.io/tsdf/)) to load and store data [[1](https://arxiv.org/abs/2211.11294)]. However, we are aware that there are other common data formats. For example, the following functions can be used depending on the file extension of the data:
 - _.csv_: `pandas.read_csv()` ([documentation](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html))
 - _.json_: `json.load()` ([documentation](https://docs.python.org/3/library/json.html#json.load))
 
@@ -28,7 +28,7 @@ from paradigma.util import load_tsdf_dataframe
 
 # Set the path to where the prepared data is saved and load the data.
 # Note: the test data is stored in TSDF, but you can load your data in your own way
-path_to_prepared_data =  Path('../../example_data')
+path_to_prepared_data =  Path('../../example_data/verily')
 
 ppg_prefix = 'ppg'
 imu_prefix = 'imu'
@@ -46,8 +46,8 @@ df_imu, metadata_time_imu, metadata_values_imu = load_tsdf_dataframe(
     prefix=f'IMU_segment{segment_nr}'
 )
 
-time_col = ['time'] # define time column to keep
-acc_cols = ['accelerometer_x', 'accelerometer_y', 'accelerometer_z'] # define accelerometer columns to keep
+time_col = ['time']
+acc_cols = ['accelerometer_x', 'accelerometer_y', 'accelerometer_z']
 df_acc = df_imu[time_col + acc_cols]
 
 display(df_ppg, df_acc)
@@ -249,7 +249,7 @@ display(df_ppg, df_acc)
 
 ## Step 1: Preprocess data
 
-The first step after loading the data is preprocessing using the [preprocess_ppg_data](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_ppg_data). This begins by isolating segments containing both PPG and IMU data, discarding portions where one modality (e.g., PPG) extends beyond the other, such as when the PPG recording is longer than the accelerometer data. This functionality requires the starting times (`metadata_time_ppg.start_iso8601` and `metadata_time_imu.start_iso8601`) in iso8601 format as inputs. After this step, the preprocess_ppg_data function resamples the PPG and accelerometer data to uniformly distributed timestamps, addressing the fixed but non-uniform sampling rates of the sensors. After this, a bandpass Butterworth filter (4th-order, bandpass frequencies: 0.4--3.5 Hz) is applied to the PPG signal, while a high-pass Butterworth filter (4th-order, cut-off frequency: 0.2 Hz) is applied to the accelerometer data.
+The first step after loading the data is preprocessing using the [preprocess_ppg_data](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_ppg_data). This begins by isolating segments containing both PPG and IMU data, discarding portions where one modality (e.g., PPG) extends beyond the other, such as when the PPG recording is longer than the accelerometer data. This functionality requires the starting times (`metadata_time_ppg.start_iso8601` and `metadata_time_imu.start_iso8601`) in iso8601 format as inputs. After this step, the preprocess_ppg_data function resamples the PPG and accelerometer data to uniformly distributed timestamps, addressing the fixed but non-uniform sampling rates of the sensors. If the difference between timestamps is larger than a specified tolerance (`config.tolerance`, in seconds), it will return an error that the timestamps are not contiguous.  If you still want to process the data in this case, you can create segments from discontiguous samples using the function [`create_segments`](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/segmenting.py) and analyze these segments consecutively as shown in [here](#multiple_segments_cell). After resampling, a bandpass Butterworth filter (4th-order, bandpass frequencies: 0.4--3.5 Hz) is applied to the PPG signal, while a high-pass Butterworth filter (4th-order, cut-off frequency: 0.2 Hz) is applied to the accelerometer data.
 
 Note: the printed shapes are (rows, columns) with each row corresponding to a single data point and each column representing a data column (e.g.time). The number of rows of the overlapping segments of PPG and accelerometer are not the same due to sampling differences (other sensors and possibly other sampling frequencies).
 
@@ -277,8 +277,15 @@ ppg_column_mapping = {
 ppg_config = PPGConfig(column_mapping=ppg_column_mapping)
 imu_config = IMUConfig(column_mapping=imu_column_mapping)
 
-print(f'The tolerance for checking contiguous timestamps is set to {ppg_config.tolerance:.3f} seconds for PPG data and {imu_config.tolerance:.3f} seconds for accelerometer data.')
-print(f"Original data shapes:\n- PPG data: {df_ppg.shape}\n- Accelerometer data: {df_imu.shape}")
+print(
+    f"The tolerance for checking contiguous timestamps is set to "
+    f"{ppg_config.tolerance:.3f} seconds for PPG data and "
+    f"{imu_config.tolerance:.3f} seconds for accelerometer data."
+)
+print(
+    f"Original data shapes:\n- PPG data: {df_ppg.shape}\n"
+    f"- Accelerometer data: {df_imu.shape}"
+)
 df_ppg_proc, df_acc_proc = preprocess_ppg_data(
     df_ppg=df_ppg,
     ppg_config=ppg_config,
@@ -288,7 +295,8 @@ df_ppg_proc, df_acc_proc = preprocess_ppg_data(
     start_time_imu=metadata_time_imu.start_iso8601  # Optional
 )
 
-print(f"Overlapping preprocessed data shapes:\n- PPG data: {df_ppg_proc.shape}\n- Accelerometer data: {df_acc_proc.shape}")
+print(f"Overlapping preprocessed data shapes:\n- PPG data: {df_ppg_proc.shape}\n"
+      f"- Accelerometer data: {df_acc_proc.shape}")
 display(df_ppg_proc, df_acc_proc)
 ```
 
@@ -519,10 +527,13 @@ pulse_rate_acc_config = PulseRateConfig(
     accelerometer_colnames=imu_config.accelerometer_colnames,
 )
 
-print("The default window length for the signal quality feature extraction is set to", pulse_rate_ppg_config.window_length_s, "seconds.")
-print("The default step size for the signal quality feature extraction is set to", pulse_rate_ppg_config.window_step_length_s, "seconds.")
+print("The default window length for the signal quality feature extraction is "
+      f"set to {pulse_rate_ppg_config.window_length_s} seconds.")
+print("The default step size for the signal quality feature extraction is "
+      f"set to {pulse_rate_ppg_config.window_step_length_s} seconds.")
 
-# Remove optional arguments if you don't have accelerometer data (set to None or remove arguments)
+# Remove optional arguments if you don't have accelerometer data
+# (set to None or remove arguments)
 df_features = extract_signal_quality_features(
     df_ppg=df_ppg_proc,
     df_acc=df_acc_proc,
@@ -763,15 +774,22 @@ from paradigma.pipelines.pulse_rate_pipeline import signal_quality_classificatio
 config = PulseRateConfig()
 
 ppg_quality_classifier_package_filename = 'ppg_quality_clf_package.pkl'
-full_path_to_classifier_package = files('paradigma') / 'assets' / ppg_quality_classifier_package_filename
+full_path_to_classifier_package = (
+    files('paradigma')
+    / 'assets'
+    / ppg_quality_classifier_package_filename
+)
 
 # Load the classifier package
 clf_package = ClassifierPackage.load(full_path_to_classifier_package)
 
-# If you use a different sensor or dataset, you have to update the classifier package with the mu and sigma calculated on your training data.
+# If you use a different sensor or dataset, you have to update the classifier
+# package with the mu and sigma calculated on your training data.
 # Example code to recalculate the mean and std to update the clf_package:
 # import numpy as np
-# x_train = np.random.rand(100, 10) # create random x_train for demonstration purposes, 100 samples and 10 features
+
+# # create random x_train for demonstration purposes, 100 samples and 10 features
+# x_train = np.random.rand(100, 10)
 # clf_package.update_scaler(x_train)
 
 df_sqa = signal_quality_classification(
@@ -892,8 +910,14 @@ import tsdf
 from paradigma.util import write_df_data
 
 # Set 'path_to_data' to the directory where you want to save the data
-metadata_time_store = tsdf.TSDFMetadata(metadata_time_ppg.get_plain_tsdf_dict_copy(), path_to_prepared_data)
-metadata_values_store = tsdf.TSDFMetadata(metadata_values_ppg.get_plain_tsdf_dict_copy(), path_to_prepared_data)
+metadata_time_store = tsdf.TSDFMetadata(
+    metadata_time_ppg.get_plain_tsdf_dict_copy(),
+    path_to_prepared_data
+)
+metadata_values_store = tsdf.TSDFMetadata(
+    metadata_values_ppg.get_plain_tsdf_dict_copy(),
+    path_to_prepared_data
+)
 
 # Select the columns to be saved
 metadata_time_store.channels = ['time']
@@ -913,12 +937,21 @@ time_store_filename = meta_store_filename.replace('_meta.json', '_time.bin')
 metadata_values_store.file_name = values_store_filename
 metadata_time_store.file_name = time_store_filename
 
-write_df_data(metadata_time_store, metadata_values_store, path_to_prepared_data, meta_store_filename, df_sqa)
+write_df_data(
+    metadata_time_store,
+    metadata_values_store,
+    path_to_prepared_data,
+    meta_store_filename,
+    df_sqa
+)
 ```
 
 
 ```python
-df_sqa, _, _ = load_tsdf_dataframe(path_to_prepared_data, prefix=f'segment{segment_nr}')
+df_sqa, _, _ = load_tsdf_dataframe(
+    path_to_prepared_data,
+    prefix=f'segment{segment_nr}'
+)
 df_sqa.head()
 ```
 
@@ -995,7 +1028,10 @@ Note: for the test data we set the tfd_length to 10 s instead of the default of 
 ```python
 from paradigma.pipelines.pulse_rate_pipeline import estimate_pulse_rate
 
-print("The standard default minimal window length for the pulse rate extraction is set to", pulse_rate_ppg_config.tfd_length, "seconds.")
+print(
+    "The standard default minimal window length for the pulse rate "
+    "extraction is set to", pulse_rate_ppg_config.tfd_length, "seconds."
+)
 
 df_pr = estimate_pulse_rate(
     df_sqa=df_sqa,
@@ -1110,17 +1146,22 @@ from importlib.resources import files
 from paradigma.util import load_tsdf_dataframe
 from paradigma.config import PPGConfig, IMUConfig, PulseRateConfig
 from paradigma.preprocessing import preprocess_ppg_data
-from paradigma.pipelines.pulse_rate_pipeline import extract_signal_quality_features, signal_quality_classification, estimate_pulse_rate
+from paradigma.pipelines.pulse_rate_pipeline import extract_signal_quality_features, \
+    signal_quality_classification, estimate_pulse_rate
 
 # Set the path to where the prepared data is saved
-path_to_prepared_data =  Path('../../example_data')
+path_to_prepared_data =  Path('../../example_data/verily')
 
 ppg_prefix = 'ppg'
 imu_prefix = 'imu'
 
 # Set the path to the classifier package
 ppg_quality_classifier_package_filename = 'ppg_quality_clf_package.pkl'
-full_path_to_classifier_package = files('paradigma') / 'assets' / ppg_quality_classifier_package_filename
+full_path_to_classifier_package = (
+    files('paradigma')
+    / 'assets'
+    / ppg_quality_classifier_package_filename
+)
 
 # Create a list of dataframes to store the estimated pulse rates of all segments
 list_df_pr = []
@@ -1202,7 +1243,7 @@ The final step is to aggregate all 2 s pulse rate estimates using [aggregate_pul
 
 
 ```python
-import pprint
+import json
 from paradigma.pipelines.pulse_rate_pipeline import aggregate_pulse_rate
 
 pr_values = df_pr['pulse_rate'].values
@@ -1211,9 +1252,15 @@ df_pr_agg = aggregate_pulse_rate(
     aggregates = ['mode', '99p']
 )
 
-pprint.pprint(df_pr_agg)
+print(json.dumps(df_pr_agg, indent=2))
 ```
 
-    {'metadata': {'nr_pr_est': 8660},
-     'pr_aggregates': {'99p_pulse_rate': 85.77263444520081,
-                       'mode_pulse_rate': 63.59175662414131}}
+    {
+      "metadata": {
+        "nr_pr_est": 8660
+      },
+      "pr_aggregates": {
+        "mode_pulse_rate": 63.59175662414131,
+        "99p_pulse_rate": 85.77263444520081
+      }
+    }
