@@ -82,7 +82,6 @@ def write_np_data(
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 
-    # TODO: improve the way the metadata is stored at a different location
     metadata_time.file_dir_path = output_path
     metadata_values.file_dir_path = output_path
 
@@ -131,7 +130,6 @@ def write_df_data(
         os.makedirs(output_path)
 
     # Make sure the iso8601 format is correctly set
-    # TODO: this should be properly validated in the tsdf library instead
     start_date = parser.parse(metadata_time.start_iso8601)
     metadata_time.start_iso8601 = format_datetime_to_iso8601(start_date)
     end_date = parser.parse(metadata_time.end_iso8601)
@@ -141,7 +139,6 @@ def write_df_data(
     end_date = parser.parse(metadata_values.end_iso8601)
     metadata_values.end_iso8601 = format_datetime_to_iso8601(end_date)
 
-    # TODO: improve the way the metadata is stored at a different location
     metadata_time.file_dir_path = output_path
     metadata_values.file_dir_path = output_path
 

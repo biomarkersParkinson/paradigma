@@ -31,6 +31,7 @@ repos:
     hooks:
       - id: ruff
         args: ["--fix"]
+        typs: [python]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0

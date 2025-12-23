@@ -87,7 +87,7 @@ Specific requirements include:
 we have currently verified its performance on data from the Gait-up Physilog 4 (arm swing during gait & tremor) and the Verily Study Watch (all pipelines). Furthermore, the specifications above are the minimally validated requirements. For example, while ParaDigMa works with accelerometer and gyroscope data sampled at 50 Hz, its effect on subsequent processes has not been empirically validated.
 <br/>
 
-We have included support for [TSDF](https://biomarkersparkinson.github.io/tsdf/) as format for loading and storing sensor data. TSDF enables efficient data storage with added metadata. However, ParaDigMa does not require a particular method of data storage and retrieval. Please see our tutorial [Data preparation](https://biomarkersparkinson.github.io/paradigma/tutorials/data_preparation.html) for examples of loading TSDF and other data formats into memory, and for preparing raw sensor data as input for the processing pipelines.
+We have included support for [TSDF](https://biomarkersparkinson.github.io/tsdf/) as format for loading and storing sensor data. TSDF enables efficient data storage with added metadata. However, ParaDigMa does not require a particular method of data storage and retrieval. Please see our tutorial [Data preparation](https://biomarkersparkinson.github.io/paradigma/tutorials/_static/data_preparation.html) for examples of loading TSDF and other data formats into memory, and for preparing raw sensor data as input for the processing pipelines.
 
 ## Scientific validation
 
