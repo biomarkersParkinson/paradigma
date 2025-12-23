@@ -164,7 +164,7 @@ def compute_power_in_bandwidth(
         masked_psd = psd[:, band_mask, :]
 
     if cumulative_sum_method == "trapz":
-        band_power = spectral_resolution * np.trapz(
+        band_power = spectral_resolution * np.trapezoid(
             masked_psd, freqs[band_mask], axis=1
         )
     elif cumulative_sum_method == "sum":
@@ -399,7 +399,7 @@ def compute_relative_power(
         for peak_freq in peak_freqs
     ]
     rel_power = [
-        np.trapz(psd[j, idx], freqs[idx]) / np.trapz(psd[j, :], freqs)
+        np.trapezoid(psd[j, idx], freqs[idx]) / np.trapezoid(psd[j, :], freqs)
         for j, idx in enumerate(dom_band_idx)
     ]
     return rel_power
