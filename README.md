@@ -23,8 +23,8 @@ use in persons with PD. Furthermore, the toolbox contains general functionalitie
 signal processing and feature extraction, such as filtering, peak detection, and
 spectral analysis.
 
-The toolbox is accompanied by a set of example scripts and notebooks for
-each processing pipeline that demonstrate how to use the toolbox for extracting
+The toolbox is accompanied by a set of [example scripts and notebooks](https://biomarkersparkinson.github.io/paradigma/tutorials/index.html)
+for each processing pipeline that demonstrate how to use the toolbox for extracting
 digital measures. In addition, the toolbox is designed to be modular, enabling
 researchers to easily extend the toolbox with new algorithms and functionalities.
 
@@ -87,13 +87,25 @@ Specific requirements include:
 we have currently verified its performance on data from the Gait-up Physilog 4 (arm swing during gait & tremor) and the Verily Study Watch (all pipelines). Furthermore, the specifications above are the minimally validated requirements. For example, while ParaDigMa works with accelerometer and gyroscope data sampled at 50 Hz, its effect on subsequent processes has not been empirically validated.
 <br/>
 
+**Data formats**
 We have included support for [TSDF](https://biomarkersparkinson.github.io/tsdf/) as format for loading and storing sensor data. TSDF enables efficient data storage with added metadata. However, ParaDigMa does not require a particular method of data storage and retrieval. Please see our tutorial [Data preparation](https://biomarkersparkinson.github.io/paradigma/tutorials/data_preparation.html) for examples of loading TSDF and other data formats into memory, and for preparing raw sensor data as input for the processing pipelines.
+<br/>
+
+In [Device specific data loading](https://biomarkersparkinson.github.io/paradigma/tutorials/device_specific_data_loading.html) we demonstrate how to load data from two commonly used devices: [Empatica](http://localhost:8000/tutorials/_static/device_specific_data_loading.html#empatica) and [Axivity](http://localhost:8000/tutorials/_static/device_specific_data_loading.html#axivity).
 
 ## Scientific validation
 
 The pipelines were developed and validated using data from the Parkinson@Home Validation study [[Evers et al. (2020)]](https://pmc.ncbi.nlm.nih.gov/articles/PMC7584982/) and the Personalized Parkinson Project [[Bloem et al. (2019)]](https://pubmed.ncbi.nlm.nih.gov/31315608/). The following publications contain details and validation of the pipelines:
+
+**Arm swing during gait**
 * [Post, E. et al. (2025) - Quantifying arm swing in Parkinson's disease: a method account for arm activities during free-living gait](https://doi.org/10.1186/s12984-025-01578-z)
+* [Post, E. et al. (2026) - Longitudinal progression of digital arm swing measures during free-living gait in early Parkinson's disease](https://doi.org/10.64898/2026.01.06.26343500)
+
+**Tremor**
 * [Timmermans, N.A. et al. (2025) - A generalizable and open-source algorithm for real-life monitoring of tremor in Parkinson's disease](https://doi.org/10.1038/s41531-025-01056-2)
+* [Timmermans, N.A. et al. (2025) - Progression of daily-life tremor measures in early Parkinson disease: a longitudinal continuous monitoring study](https://www.medrxiv.org/content/10.64898/2025.12.23.25342892v1)
+
+**Pulse rate**
 * [Veldkamp, K.I. et al. (2025) - Heart rate monitoring using wrist photoplethysmography in Parkinson disease: feasibility and relation with autonomic dysfunction](https://doi.org/10.1101/2025.08.15.25333751)
 
 ## Contributing

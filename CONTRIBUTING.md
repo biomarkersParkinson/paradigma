@@ -117,3 +117,5 @@ Before you submit a pull request, check that it meets these guidelines:
 Please note that the `paradigma` project is released with a
 [Code of Conduct](https://biomarkersparkinson.github.io/paradigma/conduct.html).
 By contributing to this project you agree to abide by its terms.
+
+Test
