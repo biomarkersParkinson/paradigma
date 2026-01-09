@@ -753,7 +753,6 @@ display(df_features)
 <p>34334 rows × 12 columns</p>
 </div>
 
-
 ## Step 3: Signal quality classification
 
 A trained logistic classifier is used to predict PPG signal quality and returns the `pred_sqa_proba`, which is the posterior probability of a PPG window to look like the typical PPG morphology (higher probability indicates toward the typical PPG morphology).

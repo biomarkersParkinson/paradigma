@@ -23,7 +23,7 @@ use in persons with PD. Furthermore, the toolbox contains general functionalitie
 signal processing and feature extraction, such as filtering, peak detection, and
 spectral analysis.
 
-The toolbox is accompanied by a set of [example scripts and notebooks](https://biomarkersparkinson.github.io/paradigma/tutorials/index.html)
+The toolbox is accompanied by a set of [example scripts and notebooks](tutorials/index)
 for each processing pipeline that demonstrate how to use the toolbox for extracting
 digital measures. In addition, the toolbox is designed to be modular, enabling
 researchers to easily extend the toolbox with new algorithms and functionalities.
@@ -75,12 +75,12 @@ The ParaDigMa toolbox is designed for the analysis of passive monitoring data co
 Specific requirements include:
 | Pipeline               | Sensor Configuration                                                                                                       | Context of Use                                                                                             |
 |------------------------|--------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
-| **All**               | - Sensor position: wrist-band on most or least affected side (validated for both, but different sensitivity for measuring disease progression for tremor and arm swing during gait).  <br> - Sensor orientation: orientation as described in [Coordinate System](https://biomarkersparkinson.github.io/paradigma/guides/coordinate_system.html). <br> - Timeframe: contiguous, strictly increasing timestamps. | - Population: persons with PD. <br> - Data collection protocol: passive monitoring in daily life. |
+| **All**               | - Sensor position: wrist-band on most or least affected side (validated for both, but different sensitivity for measuring disease progression for tremor and arm swing during gait).  <br> - Sensor orientation: orientation as described in [Coordinate System](guides/coordinate_system). <br> - Timeframe: contiguous, strictly increasing timestamps. | - Population: persons with PD. <br> - Data collection protocol: passive monitoring in daily life. |
 | **Arm swing during gait** | - Accelerometer: minimum sampling rate of 100 Hz, minimum range of ± 4 g. <br> - Gyroscope: minimum sampling rate of 100 Hz, minimum range of ± 1000 degrees/sec. | - Population: no walking aid, no severe dyskinesia in the watch-sided arm. <br> - Compliance: for weekly measures: at least three compliant days (with ≥10 hours of data between 8 am and 10 pm), and at least 2 minutes of arm swing. |
 | **Tremor**            | - Gyroscope: minimum sampling rate of 100 Hz, minimum range of ± 1000 degrees/sec. | - Compliance: for weekly measures: at least three compliant days (with ≥10 hours of data between 8 am and 10 pm). |
 | **Pulse rate**        | - PPG*: minimum sampling rate of 30 Hz, green LED. <br> - Accelerometer: minimum sampling rate of 100 Hz, minimum range of ± 4 g. | - Population: no rhythm disorders (e.g. atrial fibrillation, atrial flutter). <br> - Compliance: for weekly measures: minimum average of 12 hours of data per day. |
 
-\* The processing of PPG signals is currently based on the blood volume pulse (arbitrary units) obtained from the Verily Study Watch. [This](https://biomarkersparkinson.github.io/paradigma/tutorials/pulse_rate_analysis.html#step-3-signal-quality-classification) part of the PPG tutorial provides code and documentation on how to use the pipeline with other PPG devices.
+\* The processing of PPG signals is currently based on the blood volume pulse (arbitrary units) obtained from the Verily Study Watch. [This](https://biomarkersparkinson.github.io/paradigma/tutorials/_static/pulse_rate_analysis.html#step-3-signal-quality-classification) part of the PPG tutorial provides code and documentation on how to use the pipeline with other PPG devices.
 
 > [!WARNING]
 > While the toolbox is designed to work on any wrist sensor device which fulfills the requirements,
@@ -88,7 +88,8 @@ we have currently verified its performance on data from the Gait-up Physilog 4 (
 <br/>
 
 **Data formats**
-ParaDigMa does not require a particular method of data storage and retrieval. However, we use [TSDF](https://biomarkersparkinson.github.io/tsdf/) as format for loading and storing sensor data throughout the tutorials, for which we have added [additional support](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/util/index.html). TSDF enables efficient time series data storage with added metadata. Please see our tutorial [Data preparation](https://biomarkersparkinson.github.io/paradigma/tutorials/data_preparation.html) for examples of loading TSDF into memory. We are developing support for other data formats, and we currently have tutorials for loading data from Empatica and Axivity in [Device specific data loading](https://biomarkersparkinson.github.io/paradigma/tutorials/device_specific_data_loading.html).
+
+ParaDigMa does not require a particular method of data storage and retrieval. However, we use [TSDF](https://biomarkersparkinson.github.io/tsdf/) as format for loading and storing sensor data throughout the tutorials, for which we have added [additional support](autoapi/paradigma/util/index). TSDF enables efficient time series data storage with added metadata. Please see our tutorial [Data preparation](tutorials/data_preparation) for examples of loading TSDF into memory. We are developing support for other data formats, and we currently have tutorials for loading data from Empatica and Axivity in [Device specific data loading](tutorials/device_specific_data_loading).
 <br/>
 
 ## Scientific validation
@@ -108,12 +109,12 @@ The pipelines were developed and validated using data from the Parkinson@Home Va
 
 ## Contributing
 
-We welcome contributions! Please check out our [contributing guidelines](https://biomarkersparkinson.github.io/paradigma/contributing.html).
-Please note that this project is released with a [Code of Conduct](https://biomarkersparkinson.github.io/paradigma/conduct.html). By contributing to this project, you agree to abide by its terms.
+We welcome contributions! Please check out our [contributing guidelines](contributing).
+Please note that this project is released with a [Code of Conduct](conduct). By contributing to this project, you agree to abide by its terms.
 
 ## License
 
-It is licensed under the terms of the Apache License 2.0 license. See [License](https://biomarkersparkinson.github.io/paradigma/license.html) for more details.
+It is licensed under the terms of the Apache License 2.0 license. See [License](license) for more details.
 
 ## Acknowledgements
 

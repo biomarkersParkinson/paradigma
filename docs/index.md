@@ -28,3 +28,9 @@ license.md
 
 autoapi/index
 ```
+
+```{toctree}
+:maxdepth: 1
+:hidden:
+autoapi/paradigma/util/index
+```
