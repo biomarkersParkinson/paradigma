@@ -98,11 +98,11 @@ The pipelines were developed and validated using data from the Parkinson@Home Va
 
 **Arm swing during gait**
 * [Post, E. et al. (2025) - Quantifying arm swing in Parkinson's disease: a method account for arm activities during free-living gait](https://doi.org/10.1186/s12984-025-01578-z)
-* [Post, E. et al. (2026) - Longitudinal progression of digital arm swing measures during free-living gait in early Parkinson's disease](https://doi.org/10.64898/2026.01.06.26343500)
+* [Post, E. et al. (2026) - (Pre-print) Longitudinal progression of digital arm swing measures during free-living gait in early Parkinson's disease](https://doi.org/10.64898/2026.01.06.26343500)
 
 **Tremor**
 * [Timmermans, N.A. et al. (2025) - A generalizable and open-source algorithm for real-life monitoring of tremor in Parkinson's disease](https://doi.org/10.1038/s41531-025-01056-2)
-* [Timmermans, N.A. et al. (2025) - Progression of daily-life tremor measures in early Parkinson disease: a longitudinal continuous monitoring study](https://www.medrxiv.org/content/10.64898/2025.12.23.25342892v1)
+* [Timmermans, N.A. et al. (2025) - (Pre-print) Progression of daily-life tremor measures in early Parkinson disease: a longitudinal continuous monitoring study](https://www.medrxiv.org/content/10.64898/2025.12.23.25342892v1)
 
 **Pulse rate**
 * [Veldkamp, K.I. et al. (2025) - Heart rate monitoring using wrist photoplethysmography in Parkinson disease: feasibility and relation with autonomic dysfunction](https://doi.org/10.1101/2025.08.15.25333751)

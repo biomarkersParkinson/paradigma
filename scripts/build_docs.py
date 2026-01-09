@@ -80,7 +80,7 @@ def main():
             print(f"Stripping outputs from {nb_path}...")
             run([sys.executable, "-m", "nbstripout", str(nb_path)])
 
-        print("Building Sphinx docs...")
+    print("Building Sphinx docs...")
     run(
         [
             sys.executable,

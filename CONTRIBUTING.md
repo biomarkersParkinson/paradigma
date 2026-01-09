@@ -103,7 +103,7 @@ poetry run serve-docs
 ```
 
 `build-docs` accepts arguments `--dev` to skip execution of notebooks and `--no-nbconvert` to skip
-conversion of notebooks to markdown. To speeds up development significantly if no changes are
+conversion of notebooks to markdown. This speeds up development significantly if no changes are
 made to notebooks.
 
 6. Commit your changes and open a pull request.
