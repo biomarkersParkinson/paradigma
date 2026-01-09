@@ -65,9 +65,12 @@ pip install paradigma
 ## Usage
 
 ### Tutorials & documentation
-See our tutorials for example scripts on how to use the toolbox to extract digital measures from wrist sensor signals.
+The tutorials include Jupyter notebooks demonstrating each processing pipeline. Before running the
+notebooks, please see the [Getting started with the ParaDigMa tutorials](https://biomarkersparkinson.github.io/paradigma/tutorials/getting_started.html)
+guide for instructions on configuring the correct Python environment and Jupyter kernel.
 The API reference contains detailed documentation of all toolbox modules and functions.
-The user guides provide additional information about specific topics (e.g. the required orientation of the wrist sensor).
+The user guides provide additional information about specific topics (e.g. the required orientation
+of the wrist sensor).
 
 ### Sensor data requirements
 The ParaDigMa toolbox is designed for the analysis of passive monitoring data collected using a wrist sensor in persons with PD.
