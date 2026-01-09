@@ -424,14 +424,14 @@ def extract_acc_power_feature(
     )
 
     # Compute the power in the ranges corresponding to the PPG frequency
-    acc_power_PPG_range = np.trapz(
+    acc_power_PPG_range = np.trapezoid(
         PSD_acc[np.arange(PSD_acc.shape[0])[:, None], df_idx], f1[df_idx], axis=1
-    ) + np.trapz(
+    ) + np.trapezoid(
         PSD_acc[np.arange(PSD_acc.shape[0])[:, None], fh_idx], f1[fh_idx], axis=1
     )
 
     # Compute the total power across the entire frequency range
-    acc_power_total = np.trapz(PSD_acc, f1)
+    acc_power_total = np.trapezoid(PSD_acc, f1)
 
     # Compute the power ratio of the accelerometer signal in the PPG frequency range
     acc_power_ratio = acc_power_PPG_range / acc_power_total

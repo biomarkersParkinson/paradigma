@@ -2,25 +2,20 @@
 ```
 
 ```{toctree}
-:maxdepth: 1
-:caption: Tutorials
-tutorials/_static/device_specific_data_loading.md
-tutorials/_static/data_preparation.md
-tutorials/_static/gait_analysis.md
-tutorials/_static/tremor_analysis.md
-tutorials/_static/pulse_rate_analysis.md
-```
-
-```{toctree}
-:maxdepth: 1
+:maxdepth: 2
+:titlesonly:
 :caption: User guides
+
+tutorials/index
 guides/config.md
 guides/coordinate_system.md
 ```
 
 ```{toctree}
 :maxdepth: 1
+:titlesonly:
 :caption: Developer docs
+
 contributing.md
 conduct.md
 license.md
@@ -28,6 +23,8 @@ license.md
 
 ```{toctree}
 :maxdepth: 1
+:titlesonly:
 :caption: API
+
 autoapi/index
 ```

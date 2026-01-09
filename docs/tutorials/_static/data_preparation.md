@@ -6,7 +6,7 @@ ParaDigMa requires the sensor data to be of a specific format. This tutorial pro
   * Triaxial gyroscope (x, y, z) in _deg/s_
   * Photoplethysmography (PPG)
 
-The final dataframe should be resampled to 100 Hz, have the correct units for the sensor columns, and the correct format for the time column. Also note that the _gait_ pipeline expects a specific orientation of sensor axes, as explained in [Coordinate system](../guides/coordinate_system.md).
+The final dataframe should be resampled to 100 Hz, have the correct units for the sensor columns, and the correct format for the time column. Also note that the _gait_ pipeline expects a specific orientation of sensor axes, as explained in [Coordinate system](../guides/coordinate_system).
 
 ## Load data
 This example uses data of the [Personalized Parkinson Project](https://pubmed.ncbi.nlm.nih.gov/31315608/), which is stored in Time Series Data Format (`TSDF`). Inertial Measurements Units (IMU) and photoplethysmography (PPG) data are sampled at a different sampling frequency and therefore stored separately. Note that ParaDigMa works independent of data storage format; it only requires a `pandas.DataFrame` as input.
@@ -191,7 +191,7 @@ The timestamps in this dataset correspond to delta milliseconds, and the data is
 ## Prepare dataframe
 
 #### Set column names
-You are free to choose column names, although we recommend using the column names set in ParaDigMa for convenience in subsequent data processing steps. These are accessible through the class `DataColumns`, which can be imported from `paradigma.constants`. For example, we recommend setting `acc_x_colname` to `DataColumns.ACCELEROMETER_X`. Again, this is not strictly necessary for future steps.
+You are free to choose column names, although we recommend using the column names set in ParaDigMa for convenience in subsequent data processing steps. These are accessible through the class [`DataColumns`](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/constants/index.html#paradigma.constants.DataColumns), which can be imported from [`paradigma.constants`](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/constants/index.html). For example, we recommend setting `acc_x_colname` to `DataColumns.ACCELEROMETER_X`. Again, this is not strictly necessary for future steps.
 
 
 ```python
@@ -326,7 +326,7 @@ df_imu.head()
 
 
 #### Account for watch side
-For the Gait & Arm Swing pipeline, it is essential to ensure correct sensor axes orientation. For more information please read [Coordinate System](../guides/coordinate_system.md) and set the axes of the data accordingly.
+For the Gait & Arm Swing pipeline, it is essential to ensure correct sensor axes orientation. For more information please read [Coordinate System](../guides/coordinate_system) and set the axes of the data accordingly.
 
 
 ```python
@@ -429,7 +429,7 @@ df_imu.head()
 
 
 #### Change time column
-ParaDigMa expects the data to be in seconds relative to the first row, which should be equal to 0. The toolbox has the built-in function `transform_time_array` to help users transform their time column to the correct format if the timestamps have been sampled in delta time between timestamps. In the near future, the functionalities for transforming other types (e.g., datetime format) shall be provided.
+ParaDigMa expects the data to be in seconds relative to the first row, which should be equal to 0. The toolbox has the built-in function [`transform_time_array`](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/util/index.html#paradigma.util.transform_time_array) to help users transform their time column to the correct format if the timestamps have been sampled in delta time between timestamps. In the near future, the functionalities for transforming other types (e.g., datetime format) shall be provided.
 
 
 ```python
