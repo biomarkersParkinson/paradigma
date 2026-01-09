@@ -80,7 +80,7 @@ Specific requirements include:
 | **Tremor**            | - Gyroscope: minimum sampling rate of 100 Hz, minimum range of ± 1000 degrees/sec. | - Compliance: for weekly measures: at least three compliant days (with ≥10 hours of data between 8 am and 10 pm). |
 | **Pulse rate**        | - PPG*: minimum sampling rate of 30 Hz, green LED. <br> - Accelerometer: minimum sampling rate of 100 Hz, minimum range of ± 4 g. | - Population: no rhythm disorders (e.g. atrial fibrillation, atrial flutter). <br> - Compliance: for weekly measures: minimum average of 12 hours of data per day. |
 
-\* The processing of PPG signals is currently based on the blood volume pulse (arbitrary units) obtained from the Verily Study Watch. [This](https://biomarkersparkinson.github.io/paradigma/tutorials/_static/pulse_rate_analysis.html#step-3-signal-quality-classification) part of the PPG tutorial provides code and documentation on how to use the pipeline with other PPG devices.
+\* The processing of PPG signals is currently based on the blood volume pulse (arbitrary units) obtained from the Verily Study Watch. [This](https://biomarkersparkinson.github.io/paradigma/tutorials/pulse_rate_analysis.html#step-3-signal-quality-classification) part of the PPG tutorial provides code and documentation on how to use the pipeline with other PPG devices.
 
 > [!WARNING]
 > While the toolbox is designed to work on any wrist sensor device which fulfills the requirements,
@@ -88,10 +88,8 @@ we have currently verified its performance on data from the Gait-up Physilog 4 (
 <br/>
 
 **Data formats**
-We have included support for [TSDF](https://biomarkersparkinson.github.io/tsdf/) as format for loading and storing sensor data. TSDF enables efficient data storage with added metadata. However, ParaDigMa does not require a particular method of data storage and retrieval. Please see our tutorial [Data preparation](https://biomarkersparkinson.github.io/paradigma/tutorials/data_preparation.html) for examples of loading TSDF and other data formats into memory, and for preparing raw sensor data as input for the processing pipelines.
+ParaDigMa does not require a particular method of data storage and retrieval. However, we use [TSDF](https://biomarkersparkinson.github.io/tsdf/) as format for loading and storing sensor data throughout the tutorials, for which we have added [additional support](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/util/index.html). TSDF enables efficient time series data storage with added metadata. Please see our tutorial [Data preparation](https://biomarkersparkinson.github.io/paradigma/tutorials/data_preparation.html) for examples of loading TSDF into memory. We are developing support for other data formats, and we currently have tutorials for loading data from Empatica and Axivity in [Device specific data loading](https://biomarkersparkinson.github.io/paradigma/tutorials/device_specific_data_loading.html).
 <br/>
-
-In [Device specific data loading](https://biomarkersparkinson.github.io/paradigma/tutorials/device_specific_data_loading.html) we demonstrate how to load data from two commonly used devices: [Empatica](http://localhost:8000/tutorials/_static/device_specific_data_loading.html#empatica) and [Axivity](http://localhost:8000/tutorials/_static/device_specific_data_loading.html#axivity).
 
 ## Scientific validation
 
