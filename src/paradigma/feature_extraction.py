@@ -121,7 +121,7 @@ def compute_power_in_bandwidth(
     fmax: float,
     include_max: bool = True,
     spectral_resolution: float = 1,
-    cumulative_sum_method: str = "trapz",
+    cumulative_sum_method: str = "trapezoid",
 ) -> np.ndarray:
     """
     Compute the logarithmic power within specified frequency bands for each sensor axis.
@@ -146,9 +146,9 @@ def compute_power_in_bandwidth(
     spectral_resolution : float, optional
         The spectral resolution of the PSD in Hz (default: 1).
     cumulative_sum_method : str, optional
-        The method used to integrate the PSD over the frequency band (default: 'trapz').
+        The method used to integrate the PSD over the frequency band (default: 'trapezoid').
         Supported values are:
-        - 'trapz': Trapezoidal rule.
+        - 'trapezoid': Trapezoidal rule.
         - 'sum': Simple summation.
 
     Returns
@@ -169,14 +169,14 @@ def compute_power_in_bandwidth(
     elif psd.ndim == 3:
         masked_psd = psd[:, band_mask, :]
 
-    if cumulative_sum_method == "trapz":
+    if cumulative_sum_method == "trapezoid":
         band_power = spectral_resolution * np.trapezoid(
             masked_psd, freqs[band_mask], axis=1
         )
     elif cumulative_sum_method == "sum":
         band_power = spectral_resolution * np.sum(masked_psd, axis=1)
     else:
-        raise ValueError("cumulative_sum_method must be 'trapz' or 'sum'.")
+        raise ValueError("cumulative_sum_method must be 'trapezoid' or 'sum'.")
 
     return band_power
 
