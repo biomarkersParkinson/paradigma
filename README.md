@@ -2,13 +2,12 @@
   <img src="https://raw.githubusercontent.com/biomarkersParkinson/paradigma/main/docs/source/_static/img/paradigma-logo-banner.png" alt="ParaDigMa logo"/>
 </p>
 
-| Badges | |
+| Quick Links | [![Documentation](https://img.shields.io/badge/Docs-Paradigma-blue)](https://biomarkersparkinson.github.io/paradigma/) [![Tutorials](https://img.shields.io/badge/Tutorials-ParaDigMa-blue)](https://biomarkersparkinson.github.io/paradigma/tutorials/getting_started.html) |
 |:----:|----|
 | **Packages and Releases** | [![Latest release](https://img.shields.io/github/release/biomarkersparkinson/paradigma.svg)](https://github.com/biomarkersparkinson/paradigma/releases/latest) [![PyPI](https://img.shields.io/pypi/v/paradigma.svg)](https://pypi.python.org/pypi/paradigma/)  [![Static Badge](https://img.shields.io/badge/RSD-paradigma-lib)](https://research-software-directory.org/software/paradigma) |
 | **DOI** | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13838392.svg)](https://doi.org/10.5281/zenodo.13838392) |
 | **Build Status** | [![](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/) [![Build and test](https://github.com/biomarkersParkinson/paradigma/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/biomarkersParkinson/paradigma/actions/workflows/build-and-test.yml) [![pages-build-deployment](https://github.com/biomarkersParkinson/paradigma/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/biomarkersParkinson/paradigma/actions/workflows/pages/pages-build-deployment) |
 | **License** |  [![GitHub license](https://img.shields.io/github/license/biomarkersParkinson/paradigma)](https://github.com/biomarkersparkinson/paradigma/blob/main/LICENSE) |
-<!-- | **Fairness** |  [![fair-software.eu](https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F-green)](https://fair-software.eu) [![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/8083/badge)](https://www.bestpractices.dev/projects/8083) | -->
 
 ## Overview
 The Parkinson's disease Digital Markers (ParaDigMa) toolbox is a Python
@@ -62,12 +61,28 @@ The package is available in PyPI and requires [Python 3.11](https://www.python.o
 pip install paradigma
 ```
 
+> **Note:** ParaDigMa uses Git Large File Storage (git-lfs) for storing some tutorial data.
+Ensure git-lfs is installed before cloning the repository:
+
+```bash
+# Install git-lfs (example for Linux/macOS)
+brew install git-lfs   # macOS
+sudo apt install git-lfs  # Ubuntu/Debian
+
+# Initialize git-lfs after cloning
+git lfs install
+git lfs pull
+```
+
 ## Usage
 
 ### Tutorials & documentation
-See our tutorials for example scripts on how to use the toolbox to extract digital measures from wrist sensor signals.
+The tutorials include Jupyter notebooks demonstrating each processing pipeline. Before running the
+notebooks, see the [Getting started with the ParaDigMa tutorials](https://biomarkersparkinson.github.io/paradigma/tutorials/getting_started.html)
+guide for instructions on configuring the correct Python environment and Jupyter kernel.
 The API reference contains detailed documentation of all toolbox modules and functions.
-The user guides provide additional information about specific topics (e.g. the required orientation of the wrist sensor).
+The user guides provide additional information about specific topics (e.g. the required orientation
+of the wrist sensor).
 
 ### Sensor data requirements
 The ParaDigMa toolbox is designed for the analysis of passive monitoring data collected using a wrist sensor in persons with PD.
@@ -82,8 +97,7 @@ Specific requirements include:
 
 \* The processing of PPG signals is currently based on the blood volume pulse (arbitrary units) obtained from the Verily Study Watch. [This](https://biomarkersparkinson.github.io/paradigma/tutorials/_static/pulse_rate_analysis.html#step-3-signal-quality-classification) part of the PPG tutorial provides code and documentation on how to use the pipeline with other PPG devices.
 
-> [!WARNING]
-> While the toolbox is designed to work on any wrist sensor device which fulfills the requirements,
+> **Warning:** While the toolbox is designed to work on any wrist sensor device which fulfills the requirements,
 we have currently verified its performance on data from the Gait-up Physilog 4 (arm swing during gait & tremor) and the Verily Study Watch (all pipelines). Furthermore, the specifications above are the minimally validated requirements. For example, while ParaDigMa works with accelerometer and gyroscope data sampled at 50 Hz, its effect on subsequent processes has not been empirically validated.
 <br/>
 
@@ -111,6 +125,19 @@ The pipelines were developed and validated using data from the Parkinson@Home Va
 
 We welcome contributions! Please check out our [contributing guidelines](contributing).
 Please note that this project is released with a [Code of Conduct](conduct). By contributing to this project, you agree to abide by its terms.
+
+### Running tests
+ParaDigMa uses `pytest` for unit tests. To run all tests:
+
+```bash
+# If using Poetry
+poetry run pytest
+
+# Or using your Python environment
+pytest
+```
+
+Tests are located in the `tests/` folder.
 
 ## License
 
