@@ -53,6 +53,7 @@ jupyterlab-widgets = "<=3.0.15"
 [tool.poetry.scripts]
 build-docs = "scripts.build_docs:main"
 serve-docs = "scripts.serve_docs:main"
+paradigma = "paradigma.cli:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
