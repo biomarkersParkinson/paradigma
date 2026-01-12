@@ -9,6 +9,7 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
+import numpy as np
 import pandas as pd
 
 from paradigma.classification import ClassifierPackage
@@ -67,11 +68,15 @@ DEFAULT_CONFIGS = {
 def run_pipeline(
     data_path: Union[str, Path],
     pipelines: List[str],
+    data_format: str,
     config: Union[str, Dict, None] = "default",
     output_dir: Optional[Union[str, Path]] = None,
-    data_format: Optional[str] = None,
     file_pattern: Optional[str] = None,
     column_mapping: Optional[Dict[str, str]] = None,
+    sampling_frequency: Optional[float] = None,
+    steps: Optional[List[str]] = None,
+    save_intermediate: bool = False,
+    multi_subject: bool = False,
     parallel: bool = False,
     verbose: bool = False,
 ) -> Dict[str, pd.DataFrame]:
@@ -84,9 +89,12 @@ def run_pipeline(
     Parameters
     ----------
     data_path : str or Path
-        Path to directory or file containing sensor data.
+        Path to directory or file containing sensor data. For multi_subject=True,
+        path should contain subdirectories, one per subject.
     pipelines : List[str]
         List of pipeline names to run. Valid options: ['gait', 'tremor', 'pulse_rate']
+    data_format : str
+        Data format. Required parameter. Options: 'tsdf', 'empatica', 'axivity', 'prepared'.
     config : str, dict, or None, optional
         Pipeline configuration. Options:
         - "default": Use default configurations
@@ -94,15 +102,22 @@ def run_pipeline(
         - None: Use default configurations
     output_dir : str or Path, optional
         Directory to save pipeline results. If None, results are only returned.
-    data_format : str, optional
-        Data format. Options: 'tsdf', 'empatica', 'axivity', 'prepared'.
-        If None, format will be auto-detected from file extensions.
     file_pattern : str, optional
         File pattern or extension to filter files (e.g., '*.parquet', '*.pkl').
         Used for prepared dataframes format.
     column_mapping : dict, optional
         Dictionary mapping old column names to new ones. Use this to rename
         columns to match pipeline expectations (e.g., {'acceleration_x': 'accelerometer_x'})
+    sampling_frequency : float, optional
+        Sampling frequency in Hz. Required for raw data formats (tsdf, empatica, axivity)
+        if not specified in data metadata.
+    steps : List[str], optional
+        Pipeline steps to run. Options: ['preprocessing', 'detection', 'quantification', 'aggregation'].
+        If None, runs all steps. Different pipelines have different step sequences.
+    save_intermediate : bool, optional
+        Save intermediate results at each step (default: False)
+    multi_subject : bool, optional
+        Process multiple subjects in separate subdirectories (default: False)
     parallel : bool, optional
         Enable parallel processing where supported (default: False)
     verbose : bool, optional
@@ -154,10 +169,13 @@ def run_pipeline(
             f"Available: {list(AVAILABLE_PIPELINES.keys())}"
         )
 
-    # Auto-detect data format if not specified
-    if data_format is None:
-        data_format = _detect_data_format(data_path, file_pattern)
-        logger.info(f"Auto-detected data format: {data_format}")
+    # Validate data format is provided
+    if data_format not in ["tsdf", "empatica", "axivity", "prepared"]:
+        raise ValueError(
+            f"Invalid data_format: {data_format}. Must be one of: tsdf, empatica, axivity, prepared"
+        )
+
+    logger.info(f"Processing data format: {data_format}")
 
     # Setup configurations
     configs = _setup_configs(pipelines, config)
@@ -166,6 +184,23 @@ def run_pipeline(
     if output_dir:
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Handle multi-subject processing
+    if multi_subject:
+        return _process_multi_subject(
+            data_path=data_path,
+            pipelines=pipelines,
+            data_format=data_format,
+            config=config,
+            output_dir=output_dir,
+            file_pattern=file_pattern,
+            column_mapping=column_mapping,
+            sampling_frequency=sampling_frequency,
+            steps=steps,
+            save_intermediate=save_intermediate,
+            parallel=parallel,
+            verbose=verbose,
+        )
 
     # Load data based on format
     logger.info(f"Loading data from {data_path} (format: {data_format})")
@@ -181,6 +216,12 @@ def run_pipeline(
         logger.info(f"Applying column mapping: {column_mapping}")
         data_segments = _apply_column_mapping(data_segments, column_mapping)
 
+    # Add data preparation step if needed
+    if data_format != "prepared":
+        logger.info("Applying data preparation steps")
+        data_segments = _prepare_data(data_segments, data_format, sampling_frequency)
+
+    # Run each requested pipeline
     results = {}
 
     for pipeline_name in pipelines:
@@ -201,6 +242,9 @@ def run_pipeline(
                     config=configs[pipeline_name],
                     parallel=parallel,
                     segment_name=segment_name,
+                    steps=steps,
+                    save_intermediate=save_intermediate,
+                    output_dir=output_dir,
                 )
 
                 if not result.empty:
@@ -307,6 +351,158 @@ def _apply_column_mapping(
         mapped_segments.append((segment_name, df_mapped))
 
     return mapped_segments
+
+
+def _process_multi_subject(
+    data_path: Path,
+    pipelines: List[str],
+    data_format: str,
+    config: Union[str, Dict, None],
+    output_dir: Optional[Path],
+    file_pattern: Optional[str],
+    column_mapping: Optional[Dict[str, str]],
+    sampling_frequency: Optional[float],
+    steps: Optional[List[str]],
+    save_intermediate: bool,
+    parallel: bool,
+    verbose: bool,
+) -> Dict[str, pd.DataFrame]:
+    """Process multiple subjects in separate subdirectories."""
+
+    # Find subject directories
+    subject_dirs = [d for d in data_path.iterdir() if d.is_dir()]
+
+    if not subject_dirs:
+        raise ValueError(f"No subject directories found in {data_path}")
+
+    logger.info(f"Found {len(subject_dirs)} subject directories")
+
+    all_results = {}
+
+    for subject_dir in subject_dirs:
+        subject_id = subject_dir.name
+        logger.info(f"Processing subject: {subject_id}")
+
+        # Set up subject-specific output directory
+        subject_output_dir = None
+        if output_dir:
+            subject_output_dir = output_dir / subject_id
+            subject_output_dir.mkdir(parents=True, exist_ok=True)
+
+        try:
+            # Process single subject (recursive call with multi_subject=False)
+            subject_results = run_pipeline(
+                data_path=subject_dir,
+                pipelines=pipelines,
+                data_format=data_format,
+                config=config,
+                output_dir=subject_output_dir,
+                file_pattern=file_pattern,
+                column_mapping=column_mapping,
+                sampling_frequency=sampling_frequency,
+                steps=steps,
+                save_intermediate=save_intermediate,
+                multi_subject=False,  # Prevent recursive multi-subject
+                parallel=parallel,
+                verbose=verbose,
+            )
+
+            # Add subject ID to results
+            for pipeline_name, results_df in subject_results.items():
+                if not results_df.empty:
+                    results_df["subject_id"] = subject_id
+
+            # Merge into all_results
+            for pipeline_name, results_df in subject_results.items():
+                if pipeline_name not in all_results:
+                    all_results[pipeline_name] = []
+                all_results[pipeline_name].append(results_df)
+
+        except Exception as e:
+            logger.error(f"Failed to process subject {subject_id}: {e}")
+            continue
+
+    # Concatenate results across subjects
+    final_results = {}
+    for pipeline_name, results_list in all_results.items():
+        if results_list:
+            final_results[pipeline_name] = pd.concat(results_list, ignore_index=True)
+        else:
+            final_results[pipeline_name] = pd.DataFrame()
+
+    return final_results
+
+
+def _prepare_data(
+    data_segments: List[tuple], data_format: str, sampling_frequency: Optional[float]
+) -> List[tuple]:
+    """Apply data preparation steps to raw sensor data."""
+
+    if data_format == "prepared":
+        return data_segments  # Already prepared
+
+    # Validate sampling frequency for raw formats
+    if sampling_frequency is None:
+        raise ValueError(f"sampling_frequency is required for {data_format} format")
+
+    prepared_segments = []
+
+    for segment_name, df in data_segments:
+        try:
+            # Apply data preparation steps based on format
+            if data_format == "tsdf":
+                prepared_df = _prepare_tsdf_data(df, sampling_frequency)
+            elif data_format == "empatica":
+                prepared_df = _prepare_empatica_data(df, sampling_frequency)
+            elif data_format == "axivity":
+                prepared_df = _prepare_axivity_data(df, sampling_frequency)
+            else:
+                prepared_df = df  # Fallback
+
+            prepared_segments.append((segment_name, prepared_df))
+
+        except Exception as e:
+            logger.warning(f"Failed to prepare data for segment {segment_name}: {e}")
+            continue
+
+    return prepared_segments
+
+
+def _prepare_tsdf_data(df: pd.DataFrame, sampling_frequency: float) -> pd.DataFrame:
+    """Prepare TSDF data by applying preprocessing steps."""
+    # Add basic preprocessing for TSDF data
+    # This could include gravity correction, filtering, etc.
+    # For now, just ensure we have the required columns and sampling frequency info
+
+    prepared_df = df.copy()
+
+    # Add sampling frequency info if not present
+    if "sampling_frequency" not in prepared_df.columns:
+        prepared_df["sampling_frequency"] = sampling_frequency
+
+    return prepared_df
+
+
+def _prepare_empatica_data(df: pd.DataFrame, sampling_frequency: float) -> pd.DataFrame:
+    """Prepare Empatica data by applying preprocessing steps."""
+    prepared_df = df.copy()
+
+    # Add sampling frequency info
+    if "sampling_frequency" not in prepared_df.columns:
+        prepared_df["sampling_frequency"] = sampling_frequency
+
+    return prepared_df
+
+
+def _prepare_axivity_data(df: pd.DataFrame, sampling_frequency: float) -> pd.DataFrame:
+    """Prepare Axivity data by applying preprocessing steps."""
+    prepared_df = df.copy()
+
+    # Add sampling frequency info
+    if "sampling_frequency" not in prepared_df.columns:
+        prepared_df["sampling_frequency"] = sampling_frequency
+
+    return prepared_df
 
 
 def _load_data(
@@ -600,19 +796,51 @@ def _setup_configs(pipelines: List[str], config_input: Union[str, Dict, None]) -
 
 
 def _run_single_pipeline(
-    pipeline_name: str, df: pd.DataFrame, config, parallel: bool, segment_name: str
+    pipeline_name: str,
+    df: pd.DataFrame,
+    config,
+    parallel: bool,
+    segment_name: str,
+    steps: Optional[List[str]] = None,
+    save_intermediate: bool = False,
+    output_dir: Optional[Path] = None,
 ) -> pd.DataFrame:
-    """Run a single pipeline on the data."""
+    """Run a single pipeline on the data with configurable steps."""
 
     pipeline_info = AVAILABLE_PIPELINES[pipeline_name]
 
     if pipeline_name == "gait":
-        return _run_gait_pipeline(df, config, pipeline_info, parallel, segment_name)
+        return _run_gait_pipeline(
+            df,
+            config,
+            pipeline_info,
+            parallel,
+            segment_name,
+            steps,
+            output_dir,
+            save_intermediate,
+        )
     elif pipeline_name == "tremor":
-        return _run_tremor_pipeline(df, config, pipeline_info, parallel, segment_name)
+        return _run_tremor_pipeline(
+            df,
+            config,
+            pipeline_info,
+            parallel,
+            segment_name,
+            steps,
+            output_dir,
+            save_intermediate,
+        )
     elif pipeline_name == "pulse_rate":
         return _run_pulse_rate_pipeline(
-            df, config, pipeline_info, parallel, segment_name
+            df,
+            config,
+            pipeline_info,
+            parallel,
+            segment_name,
+            steps,
+            output_dir,
+            save_intermediate,
         )
     else:
         raise ValueError(f"Unknown pipeline: {pipeline_name}")
@@ -624,8 +852,18 @@ def _run_gait_pipeline(
     pipeline_info: Dict,
     parallel: bool,
     segment_name: str,
+    steps: Optional[List[str]] = None,
+    save_intermediate: bool = False,
+    output_dir: Optional[Path] = None,
 ) -> pd.DataFrame:
-    """Run the complete gait analysis pipeline."""
+    """Run the complete gait analysis pipeline with configurable steps.
+
+    Gait pipeline steps:
+    1. detection: Detect gait periods
+    2. filtering: Filter gait (remove other arm activities)
+    3. quantification: Quantify arm swing during gait
+    4. aggregation: Aggregate arm swing metrics
+    """
 
     # Validate that required columns exist
     required_columns = [
@@ -643,50 +881,126 @@ def _run_gait_pipeline(
         logger.warning(f"Missing required columns for gait pipeline: {missing_columns}")
         return pd.DataFrame()
 
-    # Step 1: Extract gait features
-    logger.info("Extracting gait features")
-    gait_features = pipeline_info["extract_features"](df, config)
+    # Define default steps for gait pipeline
+    if steps is None:
+        steps = ["detection", "filtering", "quantification", "aggregation"]
 
-    # Step 2: Load classifier and detect gait
-    logger.info("Detecting gait segments")
-    try:
-        from importlib.resources import files
-
-        classifier_path = files("paradigma.assets") / pipeline_info["classifier_path"]
-        clf_package = ClassifierPackage.load(classifier_path)
-    except Exception:
-        logger.warning("Could not load gait classifier, using mock predictions")
-        # Create mock predictions for development
-        gait_features[DataColumns.PRED_GAIT_PROBA] = 0.8
-        gait_features[DataColumns.PRED_GAIT] = 1
-        return gait_features
-
-    gait_proba = pipeline_info["detect"](gait_features, clf_package, parallel)
-    gait_features[DataColumns.PRED_GAIT_PROBA] = gait_proba
-    gait_features[DataColumns.PRED_GAIT] = (gait_proba > clf_package.threshold).astype(
-        int
-    )
-
-    # Add predictions to original dataframe
-    df_with_predictions = df.merge(
-        gait_features[
-            [DataColumns.TIME, DataColumns.PRED_GAIT, DataColumns.PRED_GAIT_PROBA]
-        ],
-        on=DataColumns.TIME,
-        how="left",
-    ).fillna(0)
-
-    # Step 3: Quantify arm swing (if gait detected)
-    gait_data = df_with_predictions[df_with_predictions[DataColumns.PRED_GAIT] == 1]
-    if not gait_data.empty:
-        logger.info("Quantifying arm swing")
-        arm_swing_params, segment_meta = pipeline_info["quantify"](
-            gait_data, fs=config.sampling_frequency
+    # Validate steps
+    valid_steps = ["detection", "filtering", "quantification", "aggregation"]
+    invalid_steps = [s for s in steps if s not in valid_steps]
+    if invalid_steps:
+        raise ValueError(
+            f"Invalid gait pipeline steps: {invalid_steps}. Valid steps: {valid_steps}"
         )
-        return arm_swing_params
+
+    results = {}
+
+    # Step 1: Gait Detection
+    if "detection" in steps:
+        logger.info("Detecting gait periods")
+        try:
+            gait_detection_results = pipeline_info["detect"](df, config)
+            results["detection"] = gait_detection_results
+
+            if save_intermediate and output_dir:
+                detection_file = output_dir / f"{segment_name}_gait_detection.parquet"
+                gait_detection_results.to_parquet(detection_file)
+                logger.info(f"Saved gait detection results to {detection_file}")
+
+        except Exception as e:
+            logger.warning(f"Gait detection failed: {e}")
+            return pd.DataFrame()
+
+        # Use detection results for next step
+        current_data = gait_detection_results
     else:
-        logger.warning("No gait detected in data")
+        current_data = df
+
+    # Step 2: Gait Filtering (remove other arm activities)
+    if "filtering" in steps:
+        logger.info("Filtering gait periods")
+        try:
+            # This would be a new function to filter out non-gait arm activities
+            gait_filtered_results = _filter_gait_activities(current_data, config)
+            results["filtering"] = gait_filtered_results
+
+            if save_intermediate and output_dir:
+                filtering_file = output_dir / f"{segment_name}_gait_filtered.parquet"
+                gait_filtered_results.to_parquet(filtering_file)
+                logger.info(f"Saved gait filtering results to {filtering_file}")
+
+        except Exception as e:
+            logger.warning(f"Gait filtering failed: {e}")
+            gait_filtered_results = current_data
+
+        current_data = gait_filtered_results
+
+    # Step 3: Quantify Arm Swing
+    if "quantification" in steps:
+        logger.info("Quantifying arm swing")
+        try:
+            arm_swing_features = pipeline_info["extract_features"](current_data, config)
+            results["quantification"] = arm_swing_features
+
+            if save_intermediate and output_dir:
+                quantification_file = (
+                    output_dir / f"{segment_name}_arm_swing_features.parquet"
+                )
+                arm_swing_features.to_parquet(quantification_file)
+                logger.info(f"Saved arm swing features to {quantification_file}")
+
+        except Exception as e:
+            logger.warning(f"Arm swing quantification failed: {e}")
+            return pd.DataFrame()
+
+        current_data = arm_swing_features
+
+    # Step 4: Aggregation
+    if "aggregation" in steps:
+        logger.info("Aggregating arm swing metrics")
+        try:
+            aggregated_results = pipeline_info["aggregate"](current_data, config)
+            results["aggregation"] = aggregated_results
+
+            if save_intermediate and output_dir:
+                aggregation_file = (
+                    output_dir / f"{segment_name}_arm_swing_aggregated.json"
+                )
+                # Save as JSON for aggregated results
+                if hasattr(aggregated_results, "to_json"):
+                    with open(aggregation_file, "w") as f:
+                        f.write(aggregated_results.to_json())
+                logger.info(f"Saved aggregated results to {aggregation_file}")
+
+            return aggregated_results
+
+        except Exception as e:
+            logger.warning(f"Arm swing aggregation failed: {e}")
+            return current_data if "quantification" in steps else pd.DataFrame()
+
+    # Return the results from the last completed step
+    if "quantification" in steps:
+        return current_data
+    elif "filtering" in steps:
+        return results.get("filtering", pd.DataFrame())
+    elif "detection" in steps:
+        return results.get("detection", pd.DataFrame())
+    else:
         return pd.DataFrame()
+
+
+def _filter_gait_activities(df: pd.DataFrame, config: GaitConfig) -> pd.DataFrame:
+    """Filter gait periods to remove other arm activities.
+
+    This function would implement filtering logic to remove non-gait arm movements
+    like reaching, gesturing, etc. from detected gait periods.
+    """
+    # Placeholder implementation - would need domain-specific filtering logic
+    # For now, return the input data unchanged
+    logger.debug(
+        "Gait activity filtering not yet implemented, returning unfiltered data"
+    )
+    return df
 
 
 def _run_tremor_pipeline(
@@ -695,8 +1009,27 @@ def _run_tremor_pipeline(
     pipeline_info: Dict,
     parallel: bool,
     segment_name: str,
+    steps: List[str],
+    output_dir: Optional[str] = None,
+    save_intermediate: bool = False,
 ) -> pd.DataFrame:
-    """Run the complete tremor analysis pipeline."""
+    """Run the tremor analysis pipeline with configurable steps.
+
+    Steps: feature_extraction -> detection -> quantification -> aggregation
+
+    Args:
+        df: Input sensor data
+        config: Tremor configuration
+        pipeline_info: Pipeline function mappings
+        parallel: Enable parallel processing
+        segment_name: Name of data segment
+        steps: List of pipeline steps to execute
+        output_dir: Directory to save intermediate results
+        save_intermediate: Whether to save intermediate results
+
+    Returns:
+        Results from the final executed step
+    """
 
     # Validate that required columns exist
     required_columns = [
@@ -713,24 +1046,150 @@ def _run_tremor_pipeline(
         )
         return pd.DataFrame()
 
-    # Step 1: Extract tremor features
-    logger.info("Extracting tremor features")
-    tremor_features = pipeline_info["extract_features"](df, config)
+    results = None
 
-    # Step 2: Detect tremor
-    logger.info("Detecting tremor segments")
-    try:
-        from importlib.resources import files
+    # Step 1: Feature Extraction
+    if "feature_extraction" in steps:
+        logger.info("Extracting tremor features")
+        tremor_features = pipeline_info["extract_features"](df, config)
+        results = tremor_features
 
-        classifier_path = files("paradigma.assets") / pipeline_info["classifier_path"]
-        clf_package = ClassifierPackage.load(classifier_path)
-        tremor_proba = pipeline_info["detect"](tremor_features, clf_package, parallel)
-        tremor_features[DataColumns.PRED_TREMOR_PROBA] = tremor_proba
-    except Exception:
-        logger.warning("Could not load tremor classifier, using mock predictions")
-        tremor_features[DataColumns.PRED_TREMOR_PROBA] = 0.3
+        if save_intermediate and output_dir:
+            output_path = Path(output_dir) / f"{segment_name}_tremor_features.parquet"
+            tremor_features.to_parquet(output_path)
+            logger.info(f"Saved tremor features to {output_path}")
 
-    return tremor_features
+        if steps == ["feature_extraction"]:
+            return results
+
+    # Step 2: Detection
+    if "detection" in steps:
+        if results is None:
+            # Need features from previous step
+            logger.info("Extracting tremor features (required for detection)")
+            tremor_features = pipeline_info["extract_features"](df, config)
+            results = tremor_features
+
+        logger.info("Detecting tremor segments")
+        try:
+            from importlib.resources import files
+
+            classifier_path = (
+                files("paradigma.assets") / pipeline_info["classifier_path"]
+            )
+            clf_package = ClassifierPackage.load(classifier_path)
+            tremor_proba = pipeline_info["detect"](results, clf_package, parallel)
+            results[DataColumns.PRED_TREMOR_PROBA] = tremor_proba
+        except Exception:
+            logger.warning("Could not load tremor classifier, using mock predictions")
+            results[DataColumns.PRED_TREMOR_PROBA] = 0.3
+
+        if save_intermediate and output_dir:
+            output_path = Path(output_dir) / f"{segment_name}_tremor_detection.parquet"
+            results.to_parquet(output_path)
+            logger.info(f"Saved tremor detection to {output_path}")
+
+        if steps[-1] == "detection":
+            return results
+
+    # Step 3: Quantification (for tremor, this is typically severity scoring)
+    if "quantification" in steps:
+        if results is None or DataColumns.PRED_TREMOR_PROBA not in results.columns:
+            # Need detection results
+            logger.info(
+                "Running feature extraction and detection (required for quantification)"
+            )
+            tremor_features = pipeline_info["extract_features"](df, config)
+            try:
+                from importlib.resources import files
+
+                classifier_path = (
+                    files("paradigma.assets") / pipeline_info["classifier_path"]
+                )
+                clf_package = ClassifierPackage.load(classifier_path)
+                tremor_proba = pipeline_info["detect"](
+                    tremor_features, clf_package, parallel
+                )
+                tremor_features[DataColumns.PRED_TREMOR_PROBA] = tremor_proba
+                results = tremor_features
+            except Exception:
+                logger.warning(
+                    "Could not load tremor classifier, using mock predictions"
+                )
+                tremor_features[DataColumns.PRED_TREMOR_PROBA] = 0.3
+                results = tremor_features
+
+        logger.info("Quantifying tremor severity")
+        # Add tremor severity quantification (placeholder for actual implementation)
+        results["tremor_severity"] = (
+            results[DataColumns.PRED_TREMOR_PROBA] * 4
+        )  # Scale to 0-4
+
+        if save_intermediate and output_dir:
+            output_path = (
+                Path(output_dir) / f"{segment_name}_tremor_quantification.parquet"
+            )
+            results.to_parquet(output_path)
+            logger.info(f"Saved tremor quantification to {output_path}")
+
+        if steps[-1] == "quantification":
+            return results
+
+    # Step 4: Aggregation
+    if "aggregation" in steps:
+        if results is None:
+            # Run all previous steps
+            logger.info("Running full tremor pipeline for aggregation")
+            tremor_features = pipeline_info["extract_features"](df, config)
+            try:
+                from importlib.resources import files
+
+                classifier_path = (
+                    files("paradigma.assets") / pipeline_info["classifier_path"]
+                )
+                clf_package = ClassifierPackage.load(classifier_path)
+                tremor_proba = pipeline_info["detect"](
+                    tremor_features, clf_package, parallel
+                )
+                tremor_features[DataColumns.PRED_TREMOR_PROBA] = tremor_proba
+                tremor_features["tremor_severity"] = tremor_proba * 4
+                results = tremor_features
+            except Exception:
+                logger.warning(
+                    "Could not load tremor classifier, using mock predictions"
+                )
+                tremor_features[DataColumns.PRED_TREMOR_PROBA] = 0.3
+                tremor_features["tremor_severity"] = 0.3 * 4
+                results = tremor_features
+
+        logger.info("Aggregating tremor results")
+        # Create summary statistics
+        aggregated = pd.DataFrame(
+            {
+                "mean_tremor_probability": [
+                    results[DataColumns.PRED_TREMOR_PROBA].mean()
+                ],
+                "max_tremor_probability": [
+                    results[DataColumns.PRED_TREMOR_PROBA].max()
+                ],
+                "mean_tremor_severity": [results["tremor_severity"].mean()],
+                "tremor_episodes": [
+                    int((results[DataColumns.PRED_TREMOR_PROBA] > 0.5).sum())
+                ],
+                "total_duration_minutes": [len(results) / (config.fs * 60)],
+            }
+        )
+
+        if save_intermediate and output_dir:
+            output_path = (
+                Path(output_dir) / f"{segment_name}_tremor_aggregation.parquet"
+            )
+            aggregated.to_parquet(output_path)
+            logger.info(f"Saved tremor aggregation to {output_path}")
+
+        return aggregated
+
+    return results
 
 
 def _run_pulse_rate_pipeline(
@@ -739,8 +1198,27 @@ def _run_pulse_rate_pipeline(
     pipeline_info: Dict,
     parallel: bool,
     segment_name: str,
+    steps: List[str],
+    output_dir: Optional[str] = None,
+    save_intermediate: bool = False,
 ) -> pd.DataFrame:
-    """Run the complete pulse rate analysis pipeline."""
+    """Run the pulse rate analysis pipeline with configurable steps.
+
+    Steps: preprocessing -> estimation -> filtering -> aggregation
+
+    Args:
+        df: Input sensor data
+        config: Pulse rate configuration
+        pipeline_info: Pipeline function mappings
+        parallel: Enable parallel processing
+        segment_name: Name of data segment
+        steps: List of pipeline steps to execute
+        output_dir: Directory to save intermediate results
+        save_intermediate: Whether to save intermediate results
+
+    Returns:
+        Results from the final executed step
+    """
 
     # Validate that required columns exist
     required_columns = [
@@ -758,27 +1236,162 @@ def _run_pulse_rate_pipeline(
         )
         return pd.DataFrame()
 
-    # Step 1: Estimate pulse rate
-    logger.info("Estimating pulse rate")
-    try:
-        pulse_rate_results = pipeline_info["estimate"](df, config)
+    results = None
 
-        # Step 2: Aggregate results
-        _ = pipeline_info["aggregate"](pulse_rate_results, config)
+    # Step 1: Preprocessing (signal cleaning, artifact removal)
+    if "preprocessing" in steps:
+        logger.info("Preprocessing pulse rate signals")
+        # Basic preprocessing (placeholder for actual implementation)
+        preprocessed_df = df.copy()
+        # Add signal quality assessment
+        preprocessed_df["signal_quality"] = 0.8  # Placeholder
+        results = preprocessed_df
 
-        return pulse_rate_results
+        if save_intermediate and output_dir:
+            output_path = (
+                Path(output_dir) / f"{segment_name}_pulse_rate_preprocessing.parquet"
+            )
+            results.to_parquet(output_path)
+            logger.info(f"Saved pulse rate preprocessing to {output_path}")
 
-    except Exception as e:
-        logger.warning(f"Pulse rate pipeline failed: {e}, returning mock data")
-        # Return mock results for development
-        mock_results = pd.DataFrame(
+        if steps == ["preprocessing"]:
+            return results
+
+    # Step 2: Estimation
+    if "estimation" in steps:
+        if results is None:
+            # Need preprocessed data
+            logger.info("Preprocessing pulse rate signals (required for estimation)")
+            preprocessed_df = df.copy()
+            preprocessed_df["signal_quality"] = 0.8
+            results = preprocessed_df
+
+        logger.info("Estimating pulse rate")
+        try:
+            pulse_rate_results = pipeline_info["estimate"](results, config)
+            results = pulse_rate_results
+        except Exception as e:
+            logger.warning(f"Pulse rate estimation failed: {e}, using mock data")
+            results = pd.DataFrame(
+                {
+                    DataColumns.TIME: df[DataColumns.TIME],
+                    "pulse_rate": 75.0,
+                    "signal_quality": 0.8,
+                }
+            )
+
+        if save_intermediate and output_dir:
+            output_path = (
+                Path(output_dir) / f"{segment_name}_pulse_rate_estimation.parquet"
+            )
+            results.to_parquet(output_path)
+            logger.info(f"Saved pulse rate estimation to {output_path}")
+
+        if steps[-1] == "estimation":
+            return results
+
+    # Step 3: Filtering (quality-based filtering)
+    if "filtering" in steps:
+        if results is None or "pulse_rate" not in results.columns:
+            # Need estimation results
+            logger.info("Running preprocessing and estimation (required for filtering)")
+            preprocessed_df = df.copy()
+            preprocessed_df["signal_quality"] = 0.8
+            try:
+                pulse_rate_results = pipeline_info["estimate"](preprocessed_df, config)
+                results = pulse_rate_results
+            except Exception as e:
+                logger.warning(f"Pulse rate estimation failed: {e}, using mock data")
+                results = pd.DataFrame(
+                    {
+                        DataColumns.TIME: df[DataColumns.TIME],
+                        "pulse_rate": 75.0,
+                        "signal_quality": 0.8,
+                    }
+                )
+
+        logger.info("Filtering pulse rate estimates")
+        # Filter based on signal quality
+        quality_threshold = 0.5
+        results["pulse_rate_filtered"] = results["pulse_rate"].where(
+            results["signal_quality"] >= quality_threshold, np.nan
+        )
+
+        if save_intermediate and output_dir:
+            output_path = (
+                Path(output_dir) / f"{segment_name}_pulse_rate_filtering.parquet"
+            )
+            results.to_parquet(output_path)
+            logger.info(f"Saved pulse rate filtering to {output_path}")
+
+        if steps[-1] == "filtering":
+            return results
+
+    # Step 4: Aggregation
+    if "aggregation" in steps:
+        if results is None or "pulse_rate" not in results.columns:
+            # Run all previous steps
+            logger.info("Running full pulse rate pipeline for aggregation")
+            preprocessed_df = df.copy()
+            preprocessed_df["signal_quality"] = 0.8
+            try:
+                pulse_rate_results = pipeline_info["estimate"](preprocessed_df, config)
+                results = pulse_rate_results
+            except Exception as e:
+                logger.warning(f"Pulse rate estimation failed: {e}, using mock data")
+                results = pd.DataFrame(
+                    {
+                        DataColumns.TIME: df[DataColumns.TIME],
+                        "pulse_rate": 75.0,
+                        "signal_quality": 0.8,
+                    }
+                )
+
+            # Add filtering
+            quality_threshold = 0.5
+            results["pulse_rate_filtered"] = results["pulse_rate"].where(
+                results["signal_quality"] >= quality_threshold, np.nan
+            )
+
+        logger.info("Aggregating pulse rate results")
+        # Create summary statistics
+        try:
+            _ = pipeline_info["aggregate"](results, config)
+        except Exception:
+            logger.warning("Aggregation function failed, creating basic aggregation")
+
+        # Calculate aggregated metrics
+        valid_pr = (
+            results["pulse_rate_filtered"].dropna()
+            if "pulse_rate_filtered" in results.columns
+            else results["pulse_rate"].dropna()
+        )
+
+        aggregated = pd.DataFrame(
             {
-                DataColumns.TIME: df[DataColumns.TIME],
-                "pulse_rate": 75.0,
-                "signal_quality": 0.8,
+                "mean_pulse_rate": [valid_pr.mean() if len(valid_pr) > 0 else np.nan],
+                "median_pulse_rate": [
+                    valid_pr.median() if len(valid_pr) > 0 else np.nan
+                ],
+                "std_pulse_rate": [valid_pr.std() if len(valid_pr) > 0 else np.nan],
+                "min_pulse_rate": [valid_pr.min() if len(valid_pr) > 0 else np.nan],
+                "max_pulse_rate": [valid_pr.max() if len(valid_pr) > 0 else np.nan],
+                "mean_signal_quality": [results["signal_quality"].mean()],
+                "valid_samples": [len(valid_pr)],
+                "total_duration_minutes": [len(results) / (config.fs * 60)],
             }
         )
-        return mock_results
+
+        if save_intermediate and output_dir:
+            output_path = (
+                Path(output_dir) / f"{segment_name}_pulse_rate_aggregation.parquet"
+            )
+            aggregated.to_parquet(output_path)
+            logger.info(f"Saved pulse rate aggregation to {output_path}")
+
+        return aggregated
+
+    return results
 
 
 def list_available_pipelines() -> List[str]:

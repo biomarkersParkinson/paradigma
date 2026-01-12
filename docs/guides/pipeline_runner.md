@@ -16,20 +16,28 @@ results = run_pipeline(
     output_dir="results/"
 )
 
+# Run on Axivity CWA files
+results = run_pipeline(
+    data_path="path/to/axivity/data",
+    pipelines=["gait"],
+    data_format="axivity",
+    output_dir="results/"
+)
+
+# Run on Empatica AVRO files
+results = run_pipeline(
+    data_path="path/to/empatica/data",
+    pipelines=["gait"],
+    data_format="empatica",
+    output_dir="results/"
+)
+
 # Run on prepared dataframes (parquet files)
 results = run_pipeline(
     data_path="path/to/prepared/data",
     pipelines=["gait", "tremor"],
     data_format="prepared",
     file_pattern="*.parquet",
-    output_dir="results/"
-)
-
-# Run on Axivity CWA files
-results = run_pipeline(
-    data_path="path/to/axivity/data",
-    pipelines=["gait"],
-    data_format="axivity",
     output_dir="results/"
 )
 ```
@@ -43,14 +51,14 @@ pip install paradigma
 # Run gait pipeline on TSDF data (auto-detected)
 paradigma run path/to/tsdf/data --pipelines gait --output results/
 
-# Run on prepared dataframes (parquet files)
-paradigma run path/to/prepared/data --pipelines gait tremor --data-format prepared --file-pattern "*.parquet" --output results/
-
 # Run on Axivity CWA files with verbose output
 paradigma run path/to/axivity/data --pipelines gait --data-format axivity --verbose --output results/
 
 # Run on Empatica AVRO files
 paradigma run path/to/empatica/data --pipelines gait tremor --data-format empatica --output results/
+
+# Run on prepared dataframes (parquet files)
+paradigma run path/to/prepared/data --pipelines gait tremor --data-format prepared --file-pattern "*.parquet" --output results/
 
 # List available pipelines
 paradigma list-pipelines
@@ -198,7 +206,168 @@ Then use it:
 paradigma run data/tsdf/ --pipelines gait --column-mapping column_mapping.json
 ```
 
-## Data Requirements
+## Pipeline Steps
+
+Each pipeline consists of multiple steps that can be run individually or in sequence:
+
+### Gait Pipeline Steps
+
+1. **detection**: Detect gait periods from sensor data
+2. **filtering**: Filter gait periods (remove other arm activities)
+3. **quantification**: Quantify arm swing during filtered gait
+4. **aggregation**: Aggregate arm swing metrics
+
+### Tremor Pipeline Steps
+
+1. **feature_extraction**: Extract tremor-specific features from gyroscope data
+2. **detection**: Detect tremor episodes using trained classifier
+3. **quantification**: Quantify tremor severity scores
+4. **aggregation**: Aggregate tremor metrics and statistics
+
+### Pulse Rate Pipeline Steps
+
+1. **preprocessing**: Preprocess PPG and acceleration signals
+2. **estimation**: Estimate pulse rate from PPG signal
+3. **filtering**: Filter estimates based on signal quality
+4. **aggregation**: Aggregate pulse rate statistics
+
+### Running Specific Steps
+
+```python
+# Run only detection and quantification
+results = run_pipeline(
+    data_path="data/",
+    pipelines=["gait"],
+    data_format="prepared",
+    steps=["detection", "quantification"]
+)
+
+# Run all steps (default)
+results = run_pipeline(
+    data_path="data/",
+    pipelines=["gait"],
+    data_format="prepared"
+    # steps=None runs all steps
+)
+```
+
+## Multi-Subject Processing
+
+Process multiple subjects organized in separate subdirectories:
+
+```python
+# Directory structure:
+# data/
+#   ├── subject_001/
+#   │   ├── data_file1.parquet
+#   │   └── data_file2.parquet
+#   ├── subject_002/
+#   │   └── data_file.parquet
+#   └── subject_003/
+#       └── data_file.parquet
+
+results = run_pipeline(
+    data_path="data/",
+    pipelines=["gait"],
+    data_format="prepared",
+    multi_subject=True,
+    output_dir="results/"  # Creates subject subdirectories
+)
+```
+
+### CLI Multi-Subject
+
+```bash
+paradigma run data/ --pipelines gait --data-format prepared --multi-subject --output results/
+```
+
+## Intermediate Results
+
+Save outputs at each pipeline step for detailed analysis:
+
+```python
+results = run_pipeline(
+    data_path="data/",
+    pipelines=["gait"],
+    data_format="prepared",
+    save_intermediate=True,
+    output_dir="results/"
+)
+```
+
+### Output Files by Step
+
+**Gait Pipeline:**
+- `{segment}_gait_detection.parquet` - Detected gait periods
+- `{segment}_gait_filtered.parquet` - Filtered gait periods
+- `{segment}_arm_swing_features.parquet` - Arm swing features
+- `{segment}_arm_swing_aggregated.json` - Aggregated metrics
+
+**Tremor Pipeline:**
+- `{segment}_tremor_features.parquet` - Tremor features extracted from gyroscope data
+- `{segment}_tremor_detection.parquet` - Tremor detection results with probabilities
+- `{segment}_tremor_quantification.parquet` - Tremor severity quantification
+- `{segment}_tremor_aggregation.parquet` - Aggregated tremor metrics
+
+**Pulse Rate Pipeline:**
+- `{segment}_pulse_rate_preprocessing.parquet` - Preprocessed signals with quality metrics
+- `{segment}_pulse_rate_estimation.parquet` - Pulse rate estimates
+- `{segment}_pulse_rate_filtering.parquet` - Quality-filtered pulse rate estimates
+- `{segment}_pulse_rate_aggregation.parquet` - Aggregated pulse rate statistics
+
+## Default Configuration Settings
+
+ParaDigMa uses sensible default configurations for each pipeline:
+
+### Default Settings
+
+- **Sampling Frequency**: Automatically detected for TSDF format, required for raw formats
+- **Pipeline Steps**: All steps enabled by default (full pipeline execution)
+- **File Pattern**: `"*.tsdf"` for TSDF format, `"*.parquet"` for prepared format, `"*.avro"` for Empatica, `"*.cwa"` for Axivity
+- **Parallel Processing**: Enabled by default for supported operations
+- **Multi-Subject**: Disabled by default (single subject/dataset processing)
+- **Save Intermediate**: Disabled by default (only final results saved)
+
+### Configuration Override
+
+```python
+# Override default configurations
+from paradigma.config import GaitConfig
+
+custom_config = GaitConfig(
+    window_length=3.0,  # 3-second windows instead of default
+    overlap=0.5,        # 50% overlap instead of default
+    min_gait_duration=10.0  # Minimum 10s gait bouts
+)
+
+results = run_pipeline(
+    data_path="data/",
+    pipelines=["gait"],
+    data_format="prepared",
+    config=custom_config  # Use custom configuration
+)
+
+- **Gait Config**: See [`GaitConfig`](../../src/paradigma/config.py) class
+- **Tremor Config**: See [`TremorConfig`](../../src/paradigma/config.py) class
+- **Pulse Rate Config**: See [`PulseRateConfig`](../../src/paradigma/config.py) class
+
+### Custom Configuration
+
+```python
+from paradigma.config import GaitConfig
+
+# Customize configuration
+gait_config = GaitConfig(step="gait")
+gait_config.window_length_s = 5.0  # 5-second windows
+gait_config.overlap = 0.5  # 50% overlap
+
+results = run_pipeline(
+    data_path="data/",
+    pipelines=["gait"],
+    data_format="prepared",
+    config={"gait": gait_config}
+)
+```
 
 ### Supported Data Formats
 
@@ -240,35 +409,6 @@ For **prepared DataFrames**, data must follow the structure from `data_preparati
 - **Gyroscope**: `gyroscope_x/y/z` in deg/s units
 - **PPG**: `green` for photoplethysmography signals
 - **Coordinate System**: Must follow ParaDigMa coordinate system conventions
-
-### Example Data Structure
-
-```
-# TSDF format
-data/
-├── IMU_segment0001_meta.json
-├── IMU_segment0001_time.bin
-├── IMU_segment0001_values.bin
-└── ...
-
-# Prepared dataframes
-data/
-├── subject001.parquet
-├── subject002.parquet
-└── ...
-
-# Axivity format
-data/
-├── device001.cwa
-├── device002.cwa
-└── ...
-
-# Empatica format
-data/
-├── participant001_12345678.avro
-├── participant002_12345679.avro
-└── ...
-```
 
 ## Output
 

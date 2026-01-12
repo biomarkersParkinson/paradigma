@@ -19,19 +19,23 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Run gait pipeline on TSDF data
-  paradigma run data/tsdf/ --pipelines gait --output results/
+  # Run gait pipeline on TSDF data (data format required)
+  paradigma run data/tsdf/ --pipelines gait --data-format tsdf --sampling-frequency 100 --output results/
 
   # Run on prepared dataframes (parquet files)
   paradigma run data/prepared/ --pipelines gait tremor --data-format prepared --file-pattern "*.parquet" --output results/
 
   # Run on Axivity CWA files with verbose output
-  paradigma run data/axivity/ --pipelines gait --data-format axivity --verbose --output results/
+  paradigma run data/axivity/ --pipelines gait --data-format axivity --sampling-frequency 100 --verbose --output results/
 
   # Use column mapping for different naming conventions
-  paradigma run data/tsdf/ --pipelines gait --column-mapping '{"acceleration_x": "accelerometer_x", "rotation_x": "gyroscope_x"}'
+  paradigma run data/tsdf/ --pipelines gait --data-format tsdf --sampling-frequency 100 --column-mapping '{"acceleration_x": "accelerometer_x", "rotation_x": "gyroscope_x"}'
 
-  # Auto-detect data format
+  # Multi-subject processing
+  paradigma run subjects_data/ --pipelines gait --data-format prepared --multi-subject --output results/
+
+  # Save intermediate results
+  paradigma run data/prepared/ --pipelines gait --data-format prepared --save-intermediate --output results/
   paradigma run data/mixed/ --pipelines gait tremor --output results/
 
   # List available pipelines
@@ -62,7 +66,8 @@ Examples:
         "--data-format",
         type=str,
         choices=["tsdf", "empatica", "axivity", "prepared"],
-        help="Data format (auto-detected if not specified). Options: tsdf, empatica, axivity, prepared",
+        required=True,
+        help="Data format. Required parameter. Options: tsdf, empatica, axivity, prepared",
     )
     run_parser.add_argument(
         "--file-pattern",
@@ -76,6 +81,26 @@ Examples:
         "--column-mapping",
         type=str,
         help='Column mapping as JSON string or path to JSON file (e.g., \'{"acceleration_x": "accelerometer_x"}\')',
+    )
+    run_parser.add_argument(
+        "--sampling-frequency",
+        type=float,
+        help="Sampling frequency in Hz (required for raw data formats)",
+    )
+    run_parser.add_argument(
+        "--steps",
+        nargs="+",
+        help="Pipeline steps to run (e.g., detection quantification aggregation)",
+    )
+    run_parser.add_argument(
+        "--save-intermediate",
+        action="store_true",
+        help="Save intermediate results at each step",
+    )
+    run_parser.add_argument(
+        "--multi-subject",
+        action="store_true",
+        help="Process multiple subjects in separate subdirectories",
     )
     run_parser.add_argument(
         "--parallel",
@@ -144,11 +169,15 @@ def run_command(args):
         results = run_pipeline(
             data_path=args.data_path,
             pipelines=args.pipelines,
+            data_format=args.data_format,
             config=config,
             output_dir=args.output,
-            data_format=args.data_format,
             file_pattern=args.file_pattern,
             column_mapping=column_mapping,
+            sampling_frequency=args.sampling_frequency,
+            steps=args.steps,
+            save_intermediate=args.save_intermediate,
+            multi_subject=args.multi_subject,
             parallel=args.parallel,
             verbose=args.verbose,
         )
