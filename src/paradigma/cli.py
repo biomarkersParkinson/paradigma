@@ -66,8 +66,7 @@ Examples:
         "--data-format",
         type=str,
         choices=["tsdf", "empatica", "axivity", "prepared"],
-        required=True,
-        help="Data format. Required parameter. Options: tsdf, empatica, axivity, prepared",
+        help="Data format. If not provided, will be auto-detected from file extensions. Options: tsdf, empatica, axivity, prepared",
     )
     run_parser.add_argument(
         "--file-pattern",
@@ -85,7 +84,7 @@ Examples:
     run_parser.add_argument(
         "--sampling-frequency",
         type=float,
-        help="Sampling frequency in Hz (required for raw data formats)",
+        help="Sampling frequency in Hz. If not provided, will be auto-detected from time series data.",
     )
     run_parser.add_argument(
         "--steps",

@@ -219,10 +219,11 @@ Each pipeline consists of multiple steps that can be run individually or in sequ
 
 ### Tremor Pipeline Steps
 
-1. **feature_extraction**: Extract tremor-specific features from gyroscope data
-2. **detection**: Detect tremor episodes using trained classifier
-3. **quantification**: Quantify tremor severity scores
-4. **aggregation**: Aggregate tremor metrics and statistics
+1. **preprocessing**: Preprocess gyroscope signals and filter noise
+2. **feature_extraction**: Extract tremor-specific features from gyroscope data
+3. **detection**: Detect tremor episodes using trained classifier
+4. **quantification**: Quantify tremor severity scores
+5. **aggregation**: Aggregate tremor metrics and statistics
 
 ### Pulse Rate Pipeline Steps
 

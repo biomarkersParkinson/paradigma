@@ -65,10 +65,56 @@ DEFAULT_CONFIGS = {
 }
 
 
+def _detect_sampling_frequency(df: pd.DataFrame, time_column: str = "time") -> float:
+    """Detect sampling frequency from time series data.
+
+    Args:
+        df: DataFrame with time series data
+        time_column: Name of time column
+
+    Returns:
+        Detected sampling frequency in Hz
+
+    Raises:
+        ValueError: If sampling frequency cannot be determined
+    """
+    try:
+        time_data = df[time_column].values
+        if len(time_data) < 2:
+            raise ValueError("Need at least 2 time points to detect sampling frequency")
+
+        # Calculate time differences
+        time_diffs = np.diff(time_data)
+
+        # Remove any outliers that might be due to data gaps
+        median_diff = np.median(time_diffs)
+        filtered_diffs = time_diffs[
+            np.abs(time_diffs - median_diff) < median_diff * 0.5
+        ]
+
+        if len(filtered_diffs) == 0:
+            filtered_diffs = time_diffs
+
+        # Calculate mean interval
+        mean_interval = np.mean(filtered_diffs)
+
+        if mean_interval <= 0:
+            raise ValueError("Invalid time intervals detected")
+
+        # Convert to frequency
+        frequency = 1.0 / mean_interval
+
+        logger.info(f"Auto-detected sampling frequency: {frequency:.2f} Hz")
+        return frequency
+
+    except Exception as e:
+        raise ValueError(f"Could not detect sampling frequency: {e}")
+
+
 def run_pipeline(
     data_path: Union[str, Path],
     pipelines: List[str],
-    data_format: str,
+    data_format: Optional[str] = None,
     config: Union[str, Dict, None] = "default",
     output_dir: Optional[Union[str, Path]] = None,
     file_pattern: Optional[str] = None,
@@ -93,8 +139,9 @@ def run_pipeline(
         path should contain subdirectories, one per subject.
     pipelines : List[str]
         List of pipeline names to run. Valid options: ['gait', 'tremor', 'pulse_rate']
-    data_format : str
-        Data format. Required parameter. Options: 'tsdf', 'empatica', 'axivity', 'prepared'.
+    data_format : str, optional
+        Data format. If not provided, will be auto-detected from file extensions.
+        Options: 'tsdf', 'empatica', 'axivity', 'prepared'.
     config : str, dict, or None, optional
         Pipeline configuration. Options:
         - "default": Use default configurations
@@ -109,8 +156,8 @@ def run_pipeline(
         Dictionary mapping old column names to new ones. Use this to rename
         columns to match pipeline expectations (e.g., {'acceleration_x': 'accelerometer_x'})
     sampling_frequency : float, optional
-        Sampling frequency in Hz. Required for raw data formats (tsdf, empatica, axivity)
-        if not specified in data metadata.
+        Sampling frequency in Hz. If not provided, will be auto-detected from time series data.
+        Only needed if auto-detection fails for raw data formats.
     steps : List[str], optional
         Pipeline steps to run. Options: ['preprocessing', 'detection', 'quantification', 'aggregation'].
         If None, runs all steps. Different pipelines have different step sequences.
@@ -130,7 +177,7 @@ def run_pipeline(
 
     Examples
     --------
-    >>> # Run gait pipeline on TSDF data
+    >>> # Run gait pipeline (data format auto-detected)
     >>> results = run_pipeline(
     ...     data_path="data/tsdf/",
     ...     pipelines=["gait"],
@@ -145,7 +192,7 @@ def run_pipeline(
     ...     file_pattern="*.parquet"
     ... )
 
-    >>> # Run on Axivity CWA files
+    >>> # Run on Axivity CWA files with explicit parameters
     >>> results = run_pipeline(
     ...     data_path="data/axivity/",
     ...     pipelines=["gait"],
@@ -169,7 +216,12 @@ def run_pipeline(
             f"Available: {list(AVAILABLE_PIPELINES.keys())}"
         )
 
-    # Validate data format is provided
+    # Auto-detect data format if not provided
+    if data_format is None:
+        data_format = _detect_data_format(data_path, file_pattern)
+        logger.info(f"Auto-detected data format: {data_format}")
+
+    # Validate data format
     if data_format not in ["tsdf", "empatica", "axivity", "prepared"]:
         raise ValueError(
             f"Invalid data_format: {data_format}. Must be one of: tsdf, empatica, axivity, prepared"
@@ -179,6 +231,12 @@ def run_pipeline(
 
     # Setup configurations
     configs = _setup_configs(pipelines, config)
+
+    # Auto-detect data format if not provided
+    data_path = Path(data_path)
+    if data_format is None:
+        data_format = _detect_data_format(data_path, file_pattern)
+        logger.info(f"Auto-detected data format: {data_format}")
 
     # Setup output directory
     if output_dir:
@@ -219,6 +277,20 @@ def run_pipeline(
     # Add data preparation step if needed
     if data_format != "prepared":
         logger.info("Applying data preparation steps")
+
+        # Auto-detect sampling frequency if not provided
+        if sampling_frequency is None and data_segments:
+            try:
+                # Try to detect from first segment
+                _, sample_df = data_segments[0]
+                sampling_frequency = _detect_sampling_frequency(sample_df)
+            except Exception as e:
+                logger.warning(f"Could not auto-detect sampling frequency: {e}")
+                raise ValueError(
+                    f"sampling_frequency is required for {data_format} format when auto-detection fails. "
+                    "Please provide the sampling frequency manually."
+                )
+
         data_segments = _prepare_data(data_segments, data_format, sampling_frequency)
 
     # Run each requested pipeline
@@ -441,7 +513,8 @@ def _prepare_data(
     if data_format == "prepared":
         return data_segments  # Already prepared
 
-    # Validate sampling frequency for raw formats
+    # sampling_frequency should be available by this point (auto-detected or provided)
+    # but we keep this check for safety
     if sampling_frequency is None:
         raise ValueError(f"sampling_frequency is required for {data_format} format")
 
@@ -644,6 +717,11 @@ def _load_dataframe_file(file_path: Path) -> pd.DataFrame:
     if extension == ".parquet":
         return pd.read_parquet(file_path)
     elif extension in [".pkl", ".pickle"]:
+        logger.warning(
+            f"Loading pickle file {file_path}. Pickle files can be unsafe with untrusted data. "
+            "Consider using parquet format for better security and performance."
+        )
+        # Use pandas read_pickle which is safer than direct pickle.load
         return pd.read_pickle(file_path)
     elif extension == ".csv":
         return pd.read_csv(file_path)
@@ -1015,7 +1093,7 @@ def _run_tremor_pipeline(
 ) -> pd.DataFrame:
     """Run the tremor analysis pipeline with configurable steps.
 
-    Steps: feature_extraction -> detection -> quantification -> aggregation
+    Steps: preprocessing -> feature_extraction -> detection -> quantification -> aggregation
 
     Args:
         df: Input sensor data
