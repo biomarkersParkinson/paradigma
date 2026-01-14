@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -101,7 +101,7 @@ def resample_data(
 def butterworth_filter(
     data: np.ndarray,
     order: int,
-    cutoff_frequency: Union[float, List[float]],
+    cutoff_frequency: float | List[float],
     passband: str,
     sampling_frequency: int,
 ):
@@ -119,7 +119,7 @@ def butterworth_filter(
         (e.g., multi-axis sensor data).
     order : int
         The order of the Butterworth filter. Higher values result in a steeper roll-off.
-    cutoff_frequency : float or List[float]
+    cutoff_frequency : float or list of float
         The cutoff frequency (or frequencies) for the filter. For a low-pass or high-pass filter,
         this is a single float. For a band-pass filter, this should be a list of two floats,
         specifying the lower and upper cutoff frequencies.

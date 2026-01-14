@@ -1,5 +1,15 @@
 # Tremor analysis
 
+## Prerequisites
+
+This tutorial requires example data files. If you installed ParaDigMa via pip, you need to:
+
+1. **Install git-lfs**: https://git-lfs.com/ (see platform-specific instructions in the [installation guide](https://biomarkersparkinson.github.io/paradigma/guides/installation.html))
+2. **Clone the repository**: `git clone https://github.com/biomarkersParkinson/paradigma.git`
+3. **Pull data files**: `git lfs pull`
+
+**Troubleshooting:** If you encounter a `JSONDecodeError` when loading data, the example data files weren't downloaded correctly. Run `git lfs install` followed by `git lfs pull` in your cloned repository.
+
 This tutorial shows how to run the tremor pipeline to obtain aggregated tremor measures from gyroscope sensor data. Before following along, make sure all data preparation steps have been followed in the data preparation tutorial.
 
 In this tutorial, we use two days of data from a participant of the Personalized Parkinson Project to demonstrate the functionalities. Since `ParaDigMa` expects contiguous time series, the collected data was stored in two segments each with contiguous timestamps. Per segment, we load the data and perform the following steps:

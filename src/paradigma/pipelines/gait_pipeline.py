@@ -1,12 +1,15 @@
+import json
 import logging
-from typing import List, Tuple
+from importlib.resources import files
+from pathlib import Path
+from typing import Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
 from scipy.signal import periodogram
 
 from paradigma.classification import ClassifierPackage
-from paradigma.config import GaitConfig
+from paradigma.config import GaitConfig, IMUConfig
 from paradigma.constants import DataColumns
 from paradigma.feature_extraction import (
     compute_angle,
@@ -22,13 +25,14 @@ from paradigma.feature_extraction import (
     pca_transform_gyroscope,
     remove_moving_average_angle,
 )
+from paradigma.preprocessing import preprocess_imu_data
 from paradigma.segmenting import (
     WindowedDataExtractor,
     create_segments,
     discard_segments,
     tabulate_windows,
 )
-from paradigma.util import aggregate_parameter
+from paradigma.util import aggregate_parameter, merge_predictions_with_timestamps
 
 logger = logging.getLogger(__name__)
 
@@ -471,8 +475,8 @@ def quantify_arm_swing(
         )
 
         segment_meta["per_segment"][segment_nr] = {
-            "start_time_s": time_array.min(),
-            "end_time_s": time_array.max(),
+            "start_time_s": float(time_array.min()),
+            "end_time_s": float(time_array.max()),
             "duration_unfiltered_segment_s": gait_segment_duration_s,
         }
 
@@ -758,3 +762,292 @@ def extract_spectral_domain_features(
         feature_dict[colname] = mfccs[:, i]
 
     return pd.DataFrame(feature_dict)
+
+
+def run_gait_pipeline(
+    df_prepared: pd.DataFrame,
+    watch_side: str,
+    output_dir: str | Path,
+    imu_config: IMUConfig | None = None,
+    gait_config: GaitConfig | None = None,
+    arm_activity_config: GaitConfig | None = None,
+    store_intermediate: List[str] = [],
+    segment_number_offset: int = 0,
+    verbosity: int = 1,
+) -> Tuple[pd.DataFrame, Dict]:
+    """
+    Run the complete gait analysis pipeline on prepared data (steps 1-6).
+
+    This function implements the gait analysis workflow as described in the tutorials:
+    1. Preprocessing
+    2. Gait feature extraction
+    3. Gait detection
+    4. Arm activity feature extraction
+    5. Filtering gait
+    6. Arm swing quantification
+
+    Step 7 (aggregation) should be done after processing all segments.
+
+    Parameters
+    ----------
+    df_prepared : pd.DataFrame
+        Prepared IMU data with time, accelerometer, and gyroscope columns.
+        Should contain columns: time, accelerometer_x/y/z, gyroscope_x/y/z.
+        Will be preprocessed as step 1 of the pipeline.
+    watch_side : str
+        Side of the watch ('left' or 'right') to configure preprocessing accordingly.
+    imu_config : IMUConfig, optional
+        Configuration for IMU data preprocessing.
+        If None, uses default IMUConfig.
+    gait_config : GaitConfig, optional
+        Configuration for gait feature extraction and detection.
+        If None, uses default GaitConfig(step="gait").
+    arm_activity_config : GaitConfig, optional
+        Configuration for arm activity feature extraction and filtering.
+        If None, uses default GaitConfig(step="arm_activity").
+    store_intermediate : List[str]
+        Steps of which intermediate results should be stored:
+        - 'preprocessing': Store preprocessed data after step 1
+        - 'gait': Store gait features and predictions after step 3
+        - 'arm_activity': Store arm activity features and predictions after step 5
+        - 'quantification': Store arm swing quantification results after step 6
+        If empty, only returns the final quantified results.
+    output_dir : str or Path
+        Directory to save intermediate results (required)
+    segment_number_offset : int, optional, default=0
+        Offset to add to all segment numbers to avoid conflicts when concatenating
+        multiple data segments. Used for proper segment numbering across multiple files.
+
+    Returns
+    -------
+    pd.DataFrame
+        Quantified arm swing parameters with the following columns:
+        - segment_nr: Gait segment number within this data segment
+        - Various arm swing metrics (range of motion, peak angular velocity, etc.)
+        - Additional metadata columns
+
+    Notes
+    -----
+    This function processes a single contiguous data segment. For multiple segments,
+    call this function for each segment, then use aggregate_arm_swing_params()
+    on the concatenated results.
+
+    The function follows the exact workflow from the gait analysis tutorial:
+    https://github.com/biomarkersParkinson/paradigma/blob/main/docs/tutorials/gait_analysis.ipynb
+    """
+    # Set default configurations
+    if imu_config is None:
+        imu_config = IMUConfig()
+    if gait_config is None:
+        gait_config = GaitConfig(step="gait")
+    if arm_activity_config is None:
+        arm_activity_config = GaitConfig(step="arm_activity")
+
+    output_dir = Path(output_dir)
+
+    # Validate input data has required columns
+    required_columns = [
+        DataColumns.TIME,
+        DataColumns.ACCELEROMETER_X,
+        DataColumns.ACCELEROMETER_Y,
+        DataColumns.ACCELEROMETER_Z,
+        DataColumns.GYROSCOPE_X,
+        DataColumns.GYROSCOPE_Y,
+        DataColumns.GYROSCOPE_Z,
+    ]
+    missing_columns = [
+        col for col in required_columns if col not in df_prepared.columns
+    ]
+    if missing_columns:
+        raise ValueError(f"Missing required columns: {missing_columns}")
+
+    # Step 1: Preprocess data
+    if verbosity >= 1:
+        logger.info("Step 1: Preprocessing IMU data")
+
+    df_preprocessed = preprocess_imu_data(
+        df=df_prepared, config=imu_config, sensor="both", watch_side=watch_side
+    )
+
+    if "preprocessing" in store_intermediate:
+        preprocessing_dir = output_dir / "preprocessing"
+        preprocessing_dir.mkdir(parents=True, exist_ok=True)
+        df_preprocessed.to_parquet(
+            preprocessing_dir / "preprocessed_data.parquet", index=False
+        )
+        if verbosity >= 2:
+            logger.info(
+                f"Saved preprocessed data to {preprocessing_dir / 'preprocessed_data.parquet'}"
+            )
+
+    # Step 2: Extract gait features
+    if verbosity >= 1:
+        logger.info("Step 2: Extracting gait features")
+    df_gait = extract_gait_features(df_preprocessed, gait_config)
+
+    if "gait" in store_intermediate:
+        gait_dir = output_dir / "gait"
+        gait_dir.mkdir(parents=True, exist_ok=True)
+        df_gait.to_parquet(gait_dir / "gait_features.parquet", index=False)
+        if verbosity >= 2:
+            logger.info(f"Saved gait features to {gait_dir / 'gait_features.parquet'}")
+
+    # Step 3: Detect gait
+    if verbosity >= 1:
+        logger.info("Step 3: Detecting gait")
+    try:
+        classifier_path = files("paradigma.assets") / "gait_detection_clf_package.pkl"
+        classifier_package_gait = ClassifierPackage.load(classifier_path)
+    except Exception as e:
+        logger.error(f"Could not load gait detection classifier: {e}")
+        raise RuntimeError("Gait detection classifier not available")
+
+    gait_proba = detect_gait(df_gait, classifier_package_gait, parallel=False)
+    df_gait[DataColumns.PRED_GAIT_PROBA] = gait_proba
+
+    # Merge predictions back with timestamps
+    df_gait_with_time = merge_predictions_with_timestamps(
+        df_ts=df_preprocessed,
+        df_predictions=df_gait,
+        pred_proba_colname=DataColumns.PRED_GAIT_PROBA,
+        window_length_s=gait_config.window_length_s,
+        fs=gait_config.sampling_frequency,
+    )
+
+    # Add binary prediction column
+    df_gait_with_time[DataColumns.PRED_GAIT] = (
+        df_gait_with_time[DataColumns.PRED_GAIT_PROBA]
+        >= classifier_package_gait.threshold
+    ).astype(int)
+
+    if "gait" in store_intermediate:
+        gait_dir = output_dir / "gait"
+        gait_dir.mkdir(parents=True, exist_ok=True)
+        df_gait_with_time.to_parquet(gait_dir / "gait_predictions.parquet", index=False)
+        logger.info(
+            f"Saved gait predictions to {gait_dir / 'gait_predictions.parquet'}"
+        )
+
+    # Filter to only gait periods
+    df_gait_only = df_gait_with_time.loc[
+        df_gait_with_time[DataColumns.PRED_GAIT] == 1
+    ].reset_index(drop=True)
+
+    if len(df_gait_only) == 0:
+        logger.warning("No gait detected in this segment")
+        return pd.DataFrame()
+
+    # Step 4: Extract arm activity features
+    if verbosity >= 1:
+        logger.info("Step 4: Extracting arm activity features")
+    df_arm_activity = extract_arm_activity_features(df_gait_only, arm_activity_config)
+
+    if "arm_activity" in store_intermediate:
+        arm_activity_dir = output_dir / "arm_activity"
+        arm_activity_dir.mkdir(parents=True, exist_ok=True)
+        df_arm_activity.to_parquet(
+            arm_activity_dir / "arm_activity_features.parquet", index=False
+        )
+        if verbosity >= 2:
+            logger.info(
+                f"Saved arm activity features to {arm_activity_dir / 'arm_activity_features.parquet'}"
+            )
+
+    # Step 5: Filter gait (remove other arm activities)
+    logger.info("Step 5: Filtering gait")
+    try:
+        classifier_path = files("paradigma.assets") / "gait_filtering_clf_package.pkl"
+        classifier_package_arm_activity = ClassifierPackage.load(classifier_path)
+    except Exception as e:
+        logger.error(f"Could not load arm activity classifier: {e}")
+        raise RuntimeError("Arm activity classifier not available")
+
+    # Filter gait returns probabilities which we add to the arm activity features
+    arm_activity_probabilities = filter_gait(
+        df_arm_activity, classifier_package_arm_activity, parallel=False
+    )
+
+    df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] = (
+        arm_activity_probabilities
+    )
+
+    # Merge predictions back with timestamps
+    df_filtered = merge_predictions_with_timestamps(
+        df_ts=df_gait_only,
+        df_predictions=df_arm_activity,
+        pred_proba_colname=DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA,
+        window_length_s=arm_activity_config.window_length_s,
+        fs=arm_activity_config.sampling_frequency,
+    )
+
+    # Add binary prediction column
+    filt_threshold = classifier_package_arm_activity.threshold
+    df_filtered[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
+        df_filtered[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= filt_threshold
+    ).astype(int)
+
+    if "arm_activity" in store_intermediate:
+        arm_activity_dir = output_dir / "arm_activity"
+        arm_activity_dir.mkdir(parents=True, exist_ok=True)
+        df_filtered.to_parquet(arm_activity_dir / "filtered_gait.parquet", index=False)
+        if verbosity >= 2:
+            logger.info(
+                f"Saved filtered gait to {arm_activity_dir / 'filtered_gait.parquet'}"
+            )
+
+    if (
+        len(df_filtered.loc[df_filtered[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] == 1])
+        == 0
+    ):
+        logger.warning("No clean gait data remaining after filtering")
+        return pd.DataFrame()
+
+    # Step 6: Quantify arm swing
+    if verbosity >= 1:
+        logger.info("Step 6: Quantifying arm swing")
+    quantified_arm_swing, gait_segment_meta = quantify_arm_swing(
+        df=df_filtered,
+        fs=arm_activity_config.sampling_frequency,
+        filtered=True,
+        max_segment_gap_s=arm_activity_config.max_segment_gap_s,
+        min_segment_length_s=arm_activity_config.min_segment_length_s,
+    )
+
+    if "quantification" in store_intermediate:
+        quantification_dir = output_dir / "quantification"
+        quantification_dir.mkdir(parents=True, exist_ok=True)
+        quantified_arm_swing.to_parquet(
+            quantification_dir / "arm_swing_quantified.parquet", index=False
+        )
+
+        # Save gait segment metadata as JSON
+        with open(quantification_dir / "gait_segment_meta.json", "w") as f:
+            json.dump(gait_segment_meta, f, indent=2)
+
+        if verbosity >= 2:
+            logger.info(
+                f"Saved arm swing quantification to {quantification_dir / 'arm_swing_quantified.parquet'}"
+            )
+            logger.info(
+                f"Saved gait segment metadata to {quantification_dir / 'gait_segment_meta.json'}"
+            )
+
+    if verbosity >= 1:
+        logger.info(
+            f"Gait analysis pipeline completed. Found {len(quantified_arm_swing)} windows of gait "
+            f"without other arm activities."
+        )
+
+    # Apply segment number offset if specified (for multi-segment concatenation)
+    if segment_number_offset > 0 and len(quantified_arm_swing) > 0:
+        quantified_arm_swing = quantified_arm_swing.copy()
+        quantified_arm_swing["segment_nr"] += segment_number_offset
+
+        # Also update the metadata with the new segment numbers
+        if gait_segment_meta and "per_segment" in gait_segment_meta:
+            updated_per_segment_meta = {}
+            for seg_id, meta in gait_segment_meta["per_segment"].items():
+                updated_per_segment_meta[seg_id + segment_number_offset] = meta
+            gait_segment_meta["per_segment"] = updated_per_segment_meta
+
+    return quantified_arm_swing, gait_segment_meta

@@ -1,7 +1,7 @@
 # Gait analysis
-This tutorial showcases the high-level functions composing the gait pipeline. Before following along, make sure all data preparation steps have been followed in the data preparation tutorial.
+This tutorial showcases the high-level functions composing the gait pipeline. Before following along, make sure all data preparation steps have been followed in the [Data preparation tutorial](https://biomarkersparkinson.github.io/paradigma/tutorials/_static/data_preparation.html).
 
-In this tutorial, we use two days of data from a participant of the Personalized Parkinson Project to demonstrate the functionalities. Since `ParaDigMa` expects contiguous time series, the collected data was stored in two segments each with contiguous timestamps. Per segment, we load the data and perform the following steps:
+In this tutorial, we use two days of data from a participant of the Personalized Parkinson Project to demonstrate the functionalities. Since ParaDigMa expects contiguous time series, the collected data was stored in two segments each with contiguous timestamps. Per segment, we load the data and perform the following steps:
 1. Data preprocessing
 2. Gait feature extraction
 3. Gait detection
@@ -14,6 +14,16 @@ We then combine the output of the different raw data segments for the final step
 7. Aggregation
 
 To run the complete gait pipeline, a prerequisite is to have both accelerometer and gyroscope data, although the first three steps can be completed using only accelerometer data.
+
+## Prerequisites
+
+This tutorial requires example data files. If you installed ParaDigMa via pip, you need to:
+
+1. **Install git-lfs**: https://git-lfs.com/ (see platform-specific instructions in the [installation guide](https://biomarkersparkinson.github.io/paradigma/guides/installation.html))
+2. **Clone the repository**: `git clone https://github.com/biomarkersParkinson/paradigma.git`
+3. **Pull data files**: `git lfs pull`
+
+**Troubleshooting:** If you encounter a `JSONDecodeError` when loading data, the example data files weren't downloaded correctly. Run `git lfs install` followed by `git lfs pull` in your cloned repository.
 
 [!WARNING] The gait pipeline has been developed on data of the Gait Up Physilog 4, and is currently being validated on the Verily Study Watch. Different sensors and positions on the wrist may affect outcomes.
 
@@ -206,20 +216,7 @@ from paradigma.config import IMUConfig
 from paradigma.constants import DataColumns
 from paradigma.preprocessing import preprocess_imu_data
 
-# Set column names: replace DataColumn.* with your actual column names.
-# It is only necessary to set the columns that are present in your data, and
-# only if they differ from the default names defined in DataColumns.
-column_mapping = {
-    'TIME': DataColumns.TIME,
-    'ACCELEROMETER_X': DataColumns.ACCELEROMETER_X,
-    'ACCELEROMETER_Y': DataColumns.ACCELEROMETER_Y,
-    'ACCELEROMETER_Z': DataColumns.ACCELEROMETER_Z,
-    'GYROSCOPE_X': DataColumns.GYROSCOPE_X,
-    'GYROSCOPE_Y': DataColumns.GYROSCOPE_Y,
-    'GYROSCOPE_Z': DataColumns.GYROSCOPE_Z,
-}
-
-config = IMUConfig(column_mapping)
+config = IMUConfig()
 
 df_preprocessed = preprocess_imu_data(
     df=df_imu,
@@ -368,6 +365,19 @@ These steps are encapsulated in [`extract_gait_features`](https://biomarkerspark
 ```python
 from paradigma.config import GaitConfig
 from paradigma.pipelines.gait_pipeline import extract_gait_features
+
+# Set column names: replace DataColumn.* with your actual column names.
+# It is only necessary to set the columns that are present in your data, and
+# only if they differ from the default names defined in DataColumns.
+column_mapping = {
+    'TIME': DataColumns.TIME,
+    'ACCELEROMETER_X': DataColumns.ACCELEROMETER_X,
+    'ACCELEROMETER_Y': DataColumns.ACCELEROMETER_Y,
+    'ACCELEROMETER_Z': DataColumns.ACCELEROMETER_Z,
+    'GYROSCOPE_X': DataColumns.GYROSCOPE_X,
+    'GYROSCOPE_Y': DataColumns.GYROSCOPE_Y,
+    'GYROSCOPE_Z': DataColumns.GYROSCOPE_Z,
+}
 
 config = GaitConfig(step='gait', column_mapping=column_mapping)
 
@@ -1161,9 +1171,6 @@ df = merge_predictions_with_timestamps(
 df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
     df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= filt_threshold
 ).astype(int)
-
-# Filter the DataFrame to only include predicted gait (1)
-df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True)
 ```
 
 
@@ -1227,11 +1234,11 @@ quantified_arm_swing.loc[quantified_arm_swing['segment_nr'] == 1]
     {
      "start_time_s": 2221.75,
      "end_time_s": 2230.74,
-     "duration_unfiltered_segment_s": 9.0,
+     "duration_unfiltered_segment_s": 12.75,
      "duration_filtered_segment_s": 9.0
     }
 
-    Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 9.0 seconds, which is at least as large as the filtered gait segment.
+    Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 12.75 seconds, which is at least as large as the filtered gait segment.
 
     Individual arm swings of the first gait segment of the  filtered dataset:
 

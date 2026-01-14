@@ -1,5 +1,15 @@
 # Pulse rate analysis
 
+## Prerequisites
+
+This tutorial requires example data files. If you installed ParaDigMa via pip, you need to:
+
+1. **Install git-lfs**: https://git-lfs.com/ (see platform-specific instructions in the [installation guide](https://biomarkersparkinson.github.io/paradigma/guides/installation.html))
+2. **Clone the repository**: `git clone https://github.com/biomarkersParkinson/paradigma.git`
+3. **Pull data files**: `git lfs pull`
+
+**Troubleshooting:** If you encounter a `JSONDecodeError` when loading data, the example data files weren't downloaded correctly. Run `git lfs install` followed by `git lfs pull` in your cloned repository.
+
 This tutorial shows how to extract pulse rate estimates using photoplethysmography (PPG) data and accelerometer data. The pipeline consists of a stepwise approach to determine signal quality, assessing both PPG morphology and accounting for periodic artifacts using the accelerometer. The usage of accelerometer is optional but is recommended to specifically account for periodic motion artifacts. Based on the signal quality, we extract high-quality segments and estimate the pulse rate for every 2 s using the smoothed pseudo Wigner-Ville Distribution.
 
 In this tutorial, we use two days of data from a participant of the Personalized Parkinson Project to demonstrate the functionalities. Since `ParaDigMa` expects contiguous time series, the collected data was stored in two segments each with contiguous timestamps. Per segment, we load the data and perform the following steps:

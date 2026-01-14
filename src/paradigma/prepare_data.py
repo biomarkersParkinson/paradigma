@@ -1,0 +1,526 @@
+"""
+Data preparation module for ParaDigMa toolbox.
+
+This module provides functions to prepare raw sensor data for analysis:
+- Unit conversion (m/s² to g, rad/s to deg/s)
+- Time column formatting
+- Column name standardization
+- Watch side orientation correction
+- Resampling to 100 Hz
+
+Based on data_preparation tutorial.
+"""
+
+import logging
+from typing import Dict, List
+
+import numpy as np
+import pandas as pd
+from scipy.interpolate import interp1d
+
+from paradigma.constants import DataColumns, TimeUnit
+from paradigma.util import (
+    convert_units_accelerometer,
+    convert_units_gyroscope,
+    invert_watch_side,
+    transform_time_array,
+)
+
+logger = logging.getLogger(__name__)
+
+
+def standardize_column_names(
+    df: pd.DataFrame,
+    column_mapping: Dict[str, str] | None = None,
+    verbosity: int = 1,
+) -> pd.DataFrame:
+    """
+    Standardize column names to ParaDigMa conventions.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input DataFrame.
+    column_mapping : dict, optional
+        Custom column mapping.
+    verbosity : int, default 1
+        Logging verbosity level.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with standardized column names.
+    """
+    df = df.copy()
+
+    # Apply mapping for existing columns only
+    existing_mapping = {k: v for k, v in column_mapping.items() if k in df.columns}
+    df = df.rename(columns=existing_mapping)
+
+    if verbosity >= 2 and existing_mapping:
+        logger.info(f"Standardized columns: {existing_mapping}")
+    return df
+
+
+def convert_sensor_units(
+    df: pd.DataFrame,
+    accelerometer_units: str = "m/s^2",
+    gyroscope_units: str = "deg/s",
+    verbosity: int = 1,
+) -> pd.DataFrame:
+    """
+    Convert sensor units to ParaDigMa expected format (g for acceleration, deg/s for gyroscope).
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input DataFrame with sensor data.
+    accelerometer_units : str, default 'm/s^2'
+        Current units of accelerometer data.
+    gyroscope_units : str, default 'deg/s'
+        Current units of gyroscope data.
+    verbosity : int, default 1
+        Logging verbosity level.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with converted units.
+    """
+    df = df.copy()
+
+    # Convert accelerometer units
+    accelerometer_columns = [
+        col
+        for col in [
+            DataColumns.ACCELEROMETER_X,
+            DataColumns.ACCELEROMETER_Y,
+            DataColumns.ACCELEROMETER_Z,
+        ]
+        if col in df.columns
+    ]
+
+    if accelerometer_columns and accelerometer_units != "g":
+        if verbosity >= 2:
+            logger.info(
+                f"Converting accelerometer units from {accelerometer_units} to g"
+            )
+        accelerometer_data = df[accelerometer_columns].values
+        df[accelerometer_columns] = convert_units_accelerometer(
+            data=accelerometer_data, units=accelerometer_units
+        )
+
+    # Convert gyroscope units
+    gyroscope_columns = [
+        col
+        for col in [
+            DataColumns.GYROSCOPE_X,
+            DataColumns.GYROSCOPE_Y,
+            DataColumns.GYROSCOPE_Z,
+        ]
+        if col in df.columns
+    ]
+
+    if gyroscope_columns and gyroscope_units != "deg/s":
+        if verbosity >= 2:
+            logger.info(f"Converting gyroscope units from {gyroscope_units} to deg/s")
+        gyroscope_data = df[gyroscope_columns].values
+        df[gyroscope_columns] = convert_units_gyroscope(
+            data=gyroscope_data, units=gyroscope_units
+        )
+
+    return df
+
+
+def prepare_time_column(
+    df: pd.DataFrame,
+    time_column: str = DataColumns.TIME,
+    input_unit_type: TimeUnit = TimeUnit.RELATIVE_S,
+    output_unit_type: TimeUnit = TimeUnit.RELATIVE_S,
+    verbosity: int = 1,
+) -> pd.DataFrame:
+    """
+    Prepare time column to start from 0 seconds.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input DataFrame.
+    time_column : str, default DataColumns.TIME
+        Name of time column.
+    input_unit_type : TimeUnit, default TimeUnit.RELATIVE_S
+        Input time unit type.
+    output_unit_type : TimeUnit, default TimeUnit.RELATIVE_S
+        Output time unit type.
+    verbosity : int, default 1
+        Logging verbosity level.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with prepared time column.
+    """
+    df = df.copy()
+
+    if time_column not in df.columns:
+        raise ValueError(f"Time column '{time_column}' not found in DataFrame")
+
+    if verbosity >= 2:
+        logger.info(f"Preparing time column: {input_unit_type} -> {output_unit_type}")
+
+    df[time_column] = transform_time_array(
+        time_array=df[time_column],
+        input_unit_type=input_unit_type,
+        output_unit_type=output_unit_type,
+    )
+
+    return df
+
+
+def correct_watch_orientation(
+    df: pd.DataFrame,
+    watch_side: str,
+    device_orientation: List[str] | None = None,
+    sensor: str = "both",
+    verbosity: int = 1,
+) -> pd.DataFrame:
+    """
+    Correct sensor orientation based on watch side using ParaDigMa's invert_watch_side function.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input DataFrame with sensor data
+    watch_side : str
+        Watch side: 'left' or 'right'
+    device_orientation : list of str, optional
+        Custom orientation correction multipliers for each axis.
+        If provided, will override the default invert_watch_side logic.
+    sensor: str, optional
+        Sensor to correct ('accelerometer', 'gyroscope', or 'both').
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with corrected orientation
+    """
+    out = df.copy()
+
+    target_orientation = ["x", "y", "z"]
+    valid_axes = ["x", "-x", "y", "-y", "z", "-z"]
+
+    if sensor == "both":
+        sensors_to_correct = ["accelerometer", "gyroscope"]
+    elif sensor in ["accelerometer", "gyroscope"]:
+        sensors_to_correct = [sensor]
+    else:
+        raise ValueError("Sensor must be 'accelerometer', 'gyroscope', or 'both'")
+
+    if device_orientation is not None:
+        if any([axis not in valid_axes for axis in device_orientation]):
+            raise ValueError(
+                f"Invalid device_orientation values. Must be one of {valid_axes}"
+            )
+        if len(device_orientation) != 3:
+            raise ValueError("device_orientation must have exactly 3 elements")
+
+        if all([device_orientation[x] == target_orientation[x] for x in range(3)]):
+            if verbosity >= 2:
+                logger.info(
+                    "Device orientation matches target orientation, no correction applied"
+                )
+        else:
+            for sensor_type in sensors_to_correct:
+                for target_axis, mapping in zip(["x", "y", "z"], device_orientation):
+                    sign = -1 if mapping.startswith("-") else 1
+                    source_axis = mapping[-1]
+
+                    out[f"{sensor_type}_{target_axis}"] = (
+                        sign * df[f"{sensor_type}_{source_axis}"]
+                    )
+
+                    if verbosity >= 2:
+                        logger.info(
+                            f"Applied custom orientation: {sensor_type} {target_axis} mapped from {mapping}"
+                        )
+
+    # Use ParaDigMa's invert_watch_side function for proper orientation correction
+    out = invert_watch_side(out, watch_side, sensor="both")
+    if verbosity >= 2:
+        logger.info(f"Applied invert_watch_side correction for {watch_side} wrist")
+
+    return out
+
+
+def resample_data(
+    df: pd.DataFrame,
+    target_frequency: float = 100.0,
+    time_column: str = DataColumns.TIME,
+    verbosity: int = 1,
+) -> pd.DataFrame:
+    """
+    Resample data to target frequency using cubic interpolation.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input DataFrame
+    target_frequency : float, default 100.0
+        Target sampling frequency in Hz
+    time_column : str, default DataColumns.TIME
+        Name of time column
+
+    Returns
+    -------
+    pd.DataFrame
+        Resampled DataFrame
+    """
+    df = df.copy()
+
+    if time_column not in df.columns:
+        raise ValueError(f"Time column '{time_column}' not found in DataFrame")
+
+    # Check current sampling frequency
+    time_diff = df[time_column].diff().dropna()
+    current_dt = time_diff.median()
+    current_frequency = 1.0 / current_dt
+
+    if verbosity >= 2:
+        logger.info(f"Current sampling frequency: {current_frequency:.2f} Hz")
+
+    if abs(current_frequency - target_frequency) < 0.1:
+        if verbosity >= 2:
+            logger.info("Data already at target frequency")
+        return df
+
+    # Extract time and values
+    time_abs_array = np.array(df[time_column])
+
+    # Get all numeric columns except time
+    numeric_columns = df.select_dtypes(include=[np.number]).columns
+    values_column_names = [col for col in numeric_columns if col != time_column]
+
+    if not values_column_names:
+        logger.warning("No numeric columns found for resampling")
+        return df
+
+    values_array = np.array(df[values_column_names])
+
+    # Ensure the time array is strictly increasing
+    if not np.all(np.diff(time_abs_array) > 0):
+        raise ValueError("Time array is not strictly increasing")
+
+    # Resample the time data using the specified frequency
+    t_resampled = np.arange(time_abs_array[0], time_abs_array[-1], 1 / target_frequency)
+
+    # Choose interpolation method
+    interpolation_kind = "cubic" if len(time_abs_array) > 3 else "linear"
+    interpolator = interp1d(
+        time_abs_array,
+        values_array,
+        axis=0,
+        kind=interpolation_kind,
+        fill_value="extrapolate",
+    )
+
+    # Interpolate
+    resampled_values = interpolator(t_resampled)
+
+    # Create a DataFrame with the resampled data
+    df_resampled = pd.DataFrame(resampled_values, columns=values_column_names)
+    df_resampled[time_column] = t_resampled
+
+    # Copy non-numeric columns (if any) - take first value
+    for column in df.columns:
+        if column not in df_resampled.columns:
+            df_resampled[column] = df[column].iloc[0]
+
+    # Return the DataFrame with columns in the correct order
+    resampled_columns = (
+        [time_column]
+        + values_column_names
+        + [
+            col
+            for col in df_resampled.columns
+            if col not in [time_column] + values_column_names
+        ]
+    )
+    df_resampled = df_resampled[resampled_columns]
+
+    if verbosity >= 1:
+        logger.info(
+            f"Resampled data: {len(df)} -> {len(df_resampled)} rows at {target_frequency} Hz"
+        )
+    return df_resampled
+
+
+def validate_prepared_data(df: pd.DataFrame) -> Dict[str, bool | str]:
+    """
+    Validate that data is properly prepared for ParaDigMa analysis.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Prepared DataFrame
+
+    Returns
+    -------
+    dict
+        Validation results with checks and error messages
+    """
+    validation = {"valid": True, "errors": [], "warnings": []}
+
+    # Check required columns
+    if DataColumns.TIME not in df.columns:
+        validation["errors"].append(f"Missing required time column: {DataColumns.TIME}")
+
+    # Check for at least accelerometer or gyroscope data
+    accel_cols = [
+        DataColumns.ACCELEROMETER_X,
+        DataColumns.ACCELEROMETER_Y,
+        DataColumns.ACCELEROMETER_Z,
+    ]
+    gyro_cols = [
+        DataColumns.GYROSCOPE_X,
+        DataColumns.GYROSCOPE_Y,
+        DataColumns.GYROSCOPE_Z,
+    ]
+
+    has_accel = all(col in df.columns for col in accel_cols)
+    has_gyro = all(col in df.columns for col in gyro_cols)
+
+    if not has_accel and not has_gyro:
+        validation["errors"].append("Missing accelerometer and gyroscope data")
+    elif not has_accel:
+        validation["warnings"].append("Missing accelerometer data")
+    elif not has_gyro:
+        validation["warnings"].append("Missing gyroscope data")
+
+    # Check time column format
+    if DataColumns.TIME in df.columns:
+        if df[DataColumns.TIME].iloc[0] != 0:
+            validation["warnings"].append("Time column does not start at 0")
+
+        time_diff = df[DataColumns.TIME].diff().dropna()
+        if time_diff.std() / time_diff.mean() > 0.1:
+            validation["warnings"].append("Time column has irregular sampling")
+
+    # Check for NaN values
+    nan_columns = df.columns[df.isnull().any()].tolist()
+    if nan_columns:
+        validation["warnings"].append(f"Columns with NaN values: {nan_columns}")
+
+    # Check sampling frequency
+    if DataColumns.TIME in df.columns and len(df) > 1:
+        time_diff = df[DataColumns.TIME].diff().dropna()
+        current_dt = time_diff.median()
+        current_frequency = 1.0 / current_dt
+
+        if abs(current_frequency - 100.0) > 5.0:
+            validation["warnings"].append(
+                f"Sampling frequency {current_frequency:.2f} Hz differs from expected 100 Hz"
+            )
+
+    # Set overall validity
+    validation["valid"] = len(validation["errors"]) == 0
+
+    return validation
+
+
+def prepare_raw_data(
+    df: pd.DataFrame,
+    watch_side: str,
+    accelerometer_units: str = "m/s^2",
+    gyroscope_units: str = "deg/s",
+    time_input_unit: TimeUnit = TimeUnit.RELATIVE_S,
+    target_frequency: float = 100.0,
+    column_mapping: Dict[str, str] | None = None,
+    device_orientation: Dict[str, int] | None = None,
+    validate: bool = True,
+    verbosity: int = 1,
+) -> pd.DataFrame:
+    """
+    Complete data preparation pipeline for raw sensor data.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Raw sensor data
+    watch_side : str
+        Watch side: 'left' or 'right'
+    accelerometer_units : str, default 'm/s^2'
+        Current units of accelerometer data
+    gyroscope_units : str, default 'deg/s'
+        Current units of gyroscope data
+    time_input_unit : TimeUnit, default TimeUnit.RELATIVE_S
+        Input time unit type
+    target_frequency : float, default 100.0
+        Target sampling frequency in Hz
+    column_mapping : Dict[str, str], optional
+        Custom column name mapping
+    device_orientation : Dict[str, int], optional
+        Custom orientation correction
+    validate : bool, default True
+        Whether to validate the prepared data
+
+    Returns
+    -------
+    pd.DataFrame
+        Prepared data ready for ParaDigMa analysis
+    """
+    if verbosity >= 1:
+        logger.info("Starting data preparation pipeline")
+
+    # Step 1: Standardize column names
+    if verbosity >= 1:
+        logger.info("Step 1: Standardizing column names")
+    if column_mapping is None:
+        if verbosity >= 2:
+            logger.info("No column mapping provided, using default mapping")
+    else:
+        df = standardize_column_names(df, column_mapping, verbosity=verbosity)
+
+    # Step 2: Convert units
+    if verbosity >= 1:
+        logger.info("Step 2: Converting sensor units")
+    df = convert_sensor_units(
+        df, accelerometer_units, gyroscope_units, verbosity=verbosity
+    )
+
+    # Step 3: Prepare time column
+    if verbosity >= 1:
+        logger.info("Step 3: Preparing time column")
+    df = prepare_time_column(df, input_unit_type=time_input_unit, verbosity=verbosity)
+
+    # Step 4: Correct orientation for watch side
+    if verbosity >= 1:
+        logger.info(f"Step 4: Correcting orientation for {watch_side} wrist")
+    df = correct_watch_orientation(
+        df, watch_side, device_orientation, verbosity=verbosity
+    )
+
+    # Step 5: Resample to target frequency
+    if verbosity >= 1:
+        logger.info(f"Step 5: Resampling to {target_frequency} Hz")
+    df = resample_data(df, target_frequency, verbosity=verbosity)
+
+    # Step 6: Validate prepared data
+    if validate:
+        if verbosity >= 1:
+            logger.info("Step 6: Validating prepared data")
+        validation = validate_prepared_data(df)
+
+        if validation["warnings"]:
+            for warning in validation["warnings"]:
+                logger.warning(warning)
+
+        if not validation["valid"]:
+            for error in validation["errors"]:
+                logger.error(error)
+            raise ValueError("Data preparation validation failed")
+
+    if verbosity >= 1:
+        logger.info(
+            f"Data preparation completed: {df.shape[0]} rows, {df.shape[1]} columns"
+        )
+    return df

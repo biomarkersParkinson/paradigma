@@ -1,8 +1,0 @@
-{
-    "acceleration_x": "accelerometer_x",
-    "acceleration_y": "accelerometer_y",
-    "acceleration_z": "accelerometer_z",
-    "rotation_x": "gyroscope_x",
-    "rotation_y": "gyroscope_y",
-    "rotation_z": "gyroscope_z"
-}

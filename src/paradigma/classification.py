@@ -1,6 +1,6 @@
 import pickle
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 from sklearn.base import BaseEstimator
@@ -10,9 +10,9 @@ from sklearn.preprocessing import StandardScaler
 class ClassifierPackage:
     def __init__(
         self,
-        classifier: Optional[BaseEstimator] = None,
-        threshold: Optional[float] = None,
-        scaler: Optional[Any] = None,
+        classifier: BaseEstimator | None = None,
+        threshold: float | None = None,
+        scaler: Any | None = None,
     ):
         """
         Initialize the ClassifierPackage with a classifier, threshold, and scaler.

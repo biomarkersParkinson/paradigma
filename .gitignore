@@ -118,3 +118,9 @@ celerybeat.pid
 *.asv
 pip-log.txt
 pip-delete-this-directory.txt
+
+# =========================
+# Logs and databases
+# =========================
+*.log
+output*/
