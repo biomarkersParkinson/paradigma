@@ -23,8 +23,8 @@ use in persons with PD. Furthermore, the toolbox contains general functionalitie
 signal processing and feature extraction, such as filtering, peak detection, and
 spectral analysis.
 
-The toolbox is accompanied by a set of example scripts and notebooks for
-each processing pipeline that demonstrate how to use the toolbox for extracting
+The toolbox is accompanied by a set of [example scripts and notebooks](tutorials/index)
+for each processing pipeline that demonstrate how to use the toolbox for extracting
 digital measures. In addition, the toolbox is designed to be modular, enabling
 researchers to easily extend the toolbox with new algorithms and functionalities.
 
@@ -75,7 +75,7 @@ The ParaDigMa toolbox is designed for the analysis of passive monitoring data co
 Specific requirements include:
 | Pipeline               | Sensor Configuration                                                                                                       | Context of Use                                                                                             |
 |------------------------|--------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
-| **All**               | - Sensor position: wrist-band on most or least affected side (validated for both, but different sensitivity for measuring disease progression for tremor and arm swing during gait).  <br> - Sensor orientation: orientation as described in [Coordinate System](https://biomarkersparkinson.github.io/paradigma/guides/coordinate_system.html). <br> - Timeframe: contiguous, strictly increasing timestamps. | - Population: persons with PD. <br> - Data collection protocol: passive monitoring in daily life. |
+| **All**               | - Sensor position: wrist-band on most or least affected side (validated for both, but different sensitivity for measuring disease progression for tremor and arm swing during gait).  <br> - Sensor orientation: orientation as described in [Coordinate System](guides/coordinate_system). <br> - Timeframe: contiguous, strictly increasing timestamps. | - Population: persons with PD. <br> - Data collection protocol: passive monitoring in daily life. |
 | **Arm swing during gait** | - Accelerometer: minimum sampling rate of 100 Hz, minimum range of ± 4 g. <br> - Gyroscope: minimum sampling rate of 100 Hz, minimum range of ± 1000 degrees/sec. | - Population: no walking aid, no severe dyskinesia in the watch-sided arm. <br> - Compliance: for weekly measures: at least three compliant days (with ≥10 hours of data between 8 am and 10 pm), and at least 2 minutes of arm swing. |
 | **Tremor**            | - Gyroscope: minimum sampling rate of 100 Hz, minimum range of ± 1000 degrees/sec. | - Compliance: for weekly measures: at least three compliant days (with ≥10 hours of data between 8 am and 10 pm). |
 | **Pulse rate**        | - PPG*: minimum sampling rate of 30 Hz, green LED. <br> - Accelerometer: minimum sampling rate of 100 Hz, minimum range of ± 4 g. | - Population: no rhythm disorders (e.g. atrial fibrillation, atrial flutter). <br> - Compliance: for weekly measures: minimum average of 12 hours of data per day. |
@@ -87,23 +87,34 @@ Specific requirements include:
 we have currently verified its performance on data from the Gait-up Physilog 4 (arm swing during gait & tremor) and the Verily Study Watch (all pipelines). Furthermore, the specifications above are the minimally validated requirements. For example, while ParaDigMa works with accelerometer and gyroscope data sampled at 50 Hz, its effect on subsequent processes has not been empirically validated.
 <br/>
 
-We have included support for [TSDF](https://biomarkersparkinson.github.io/tsdf/) as format for loading and storing sensor data. TSDF enables efficient data storage with added metadata. However, ParaDigMa does not require a particular method of data storage and retrieval. Please see our tutorial [Data preparation](https://biomarkersparkinson.github.io/paradigma/tutorials/data_preparation.html) for examples of loading TSDF and other data formats into memory, and for preparing raw sensor data as input for the processing pipelines.
+**Data formats**
+
+ParaDigMa does not require a particular method of data storage and retrieval. However, we use [TSDF](https://biomarkersparkinson.github.io/tsdf/) as format for loading and storing sensor data throughout the tutorials, for which we have added [additional support](autoapi/paradigma/util/index). TSDF enables efficient time series data storage with added metadata. Please see our tutorial [Data preparation](tutorials/data_preparation) for examples of loading TSDF into memory. We are developing support for other data formats, and we currently have tutorials for loading data from Empatica and Axivity in [Device specific data loading](tutorials/device_specific_data_loading).
+<br/>
 
 ## Scientific validation
 
 The pipelines were developed and validated using data from the Parkinson@Home Validation study [[Evers et al. (2020)]](https://pmc.ncbi.nlm.nih.gov/articles/PMC7584982/) and the Personalized Parkinson Project [[Bloem et al. (2019)]](https://pubmed.ncbi.nlm.nih.gov/31315608/). The following publications contain details and validation of the pipelines:
+
+**Arm swing during gait**
 * [Post, E. et al. (2025) - Quantifying arm swing in Parkinson's disease: a method account for arm activities during free-living gait](https://doi.org/10.1186/s12984-025-01578-z)
+* [Post, E. et al. (2026) - (Pre-print) Longitudinal progression of digital arm swing measures during free-living gait in early Parkinson's disease](https://doi.org/10.64898/2026.01.06.26343500)
+
+**Tremor**
 * [Timmermans, N.A. et al. (2025) - A generalizable and open-source algorithm for real-life monitoring of tremor in Parkinson's disease](https://doi.org/10.1038/s41531-025-01056-2)
+* [Timmermans, N.A. et al. (2025) - (Pre-print) Progression of daily-life tremor measures in early Parkinson disease: a longitudinal continuous monitoring study](https://www.medrxiv.org/content/10.64898/2025.12.23.25342892v1)
+
+**Pulse rate**
 * [Veldkamp, K.I. et al. (2025) - Heart rate monitoring using wrist photoplethysmography in Parkinson disease: feasibility and relation with autonomic dysfunction](https://doi.org/10.1101/2025.08.15.25333751)
 
 ## Contributing
 
-We welcome contributions! Please check out our [contributing guidelines](https://biomarkersparkinson.github.io/paradigma/contributing.html).
-Please note that this project is released with a [Code of Conduct](https://biomarkersparkinson.github.io/paradigma/conduct.html). By contributing to this project, you agree to abide by its terms.
+We welcome contributions! Please check out our [contributing guidelines](contributing).
+Please note that this project is released with a [Code of Conduct](conduct). By contributing to this project, you agree to abide by its terms.
 
 ## License
 
-It is licensed under the terms of the Apache License 2.0 license. See [License](https://biomarkersparkinson.github.io/paradigma/license.html) for more details.
+It is licensed under the terms of the Apache License 2.0 license. See [License](license) for more details.
 
 ## Acknowledgements
 

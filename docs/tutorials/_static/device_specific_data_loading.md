@@ -3,7 +3,7 @@ This tutorial demonstrates how to load sensor data of the following devices into
 - Axivity
 - Empatica
 
-Note that Paradigma requires further data preparation as outlined in [the data preparation tutorial](../data_preparation.ipynb).
+Note that Paradigma requires further data preparation as outlined in [the data preparation tutorial](data_preparation).
 
 ### Axivity
 Axivity sensor data (AX3 & AX6) are stored in `.CWA` format, which requires some preparation to be processable. In this tutorial, we showcase how to transform `.CWA` files into a workable format in Python using `openmovement`. More information on the `openmovement` package can be found on the [Open Movement GitHub page](https://github.com/openmovementproject/openmovement-python).

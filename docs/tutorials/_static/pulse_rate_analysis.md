@@ -249,7 +249,7 @@ display(df_ppg, df_acc)
 
 ## Step 1: Preprocess data
 
-The first step after loading the data is preprocessing using the [preprocess_ppg_data](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_ppg_data). This begins by isolating segments containing both PPG and IMU data, discarding portions where one modality (e.g., PPG) extends beyond the other, such as when the PPG recording is longer than the accelerometer data. This functionality requires the starting times (`metadata_time_ppg.start_iso8601` and `metadata_time_imu.start_iso8601`) in iso8601 format as inputs. After this step, the preprocess_ppg_data function resamples the PPG and accelerometer data to uniformly distributed timestamps, addressing the fixed but non-uniform sampling rates of the sensors. If the difference between timestamps is larger than a specified tolerance (`config.tolerance`, in seconds), it will return an error that the timestamps are not contiguous.  If you still want to process the data in this case, you can create segments from discontiguous samples using the function [`create_segments`](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/segmenting.py) and analyze these segments consecutively as shown in [here](#multiple_segments_cell). After resampling, a bandpass Butterworth filter (4th-order, bandpass frequencies: 0.4--3.5 Hz) is applied to the PPG signal, while a high-pass Butterworth filter (4th-order, cut-off frequency: 0.2 Hz) is applied to the accelerometer data.
+The first step after loading the data is preprocessing using the [preprocess_ppg_data](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.preprocess_ppg_data). This begins by isolating segments containing both PPG and IMU data, discarding portions where one modality (e.g., PPG) extends beyond the other, such as when the PPG recording is longer than the accelerometer data. This functionality requires the starting times (`metadata_time_ppg.start_iso8601` and `metadata_time_imu.start_iso8601`) in iso8601 format as inputs. After this step, the preprocess_ppg_data function resamples the PPG and accelerometer data to uniformly distributed timestamps, addressing the fixed but non-uniform sampling rates of the sensors. If the difference between timestamps is larger than a specified tolerance (`config.tolerance`, in seconds), it will return an error that the timestamps are not contiguous.  If you still want to process the data in this case, you can create segments from discontiguous samples using the function [`create_segments`](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/segmenting/index.html#paradigma.segmenting.create_segments) and analyze these segments consecutively as shown in [here](#multiple_segments_cell). After resampling, a bandpass Butterworth filter (4th-order, bandpass frequencies: 0.4--3.5 Hz) is applied to the PPG signal, while a high-pass Butterworth filter (4th-order, cut-off frequency: 0.2 Hz) is applied to the accelerometer data.
 
 Note: the printed shapes are (rows, columns) with each row corresponding to a single data point and each column representing a data column (e.g.time). The number of rows of the overlapping segments of PPG and accelerometer are not the same due to sampling differences (other sensors and possibly other sampling frequencies).
 
@@ -509,7 +509,7 @@ display(df_ppg_proc, df_acc_proc)
 
 The preprocessed data is windowed into overlapping windows of length `ppg_config.window_length_s` with a window step of `ppg_config.window_step_length_s`. From the PPG windows, 10 time- and frequency domain features are extracted to assess PPG morphology. In case of using the accelerometer data (optional),  one relative power feature is calculated per window to assess periodic motion artifacts.
 
-The detailed steps are encapsulated in `extract_signal_quality_features` (documentation can be found [here](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=extract_signal_quality_features)).
+The detailed steps are encapsulated in [`extract_signal_quality_features`](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.extract_signal_quality_features).
 
 
 ```python
@@ -759,7 +759,7 @@ display(df_features)
 A trained logistic classifier is used to predict PPG signal quality and returns the `pred_sqa_proba`, which is the posterior probability of a PPG window to look like the typical PPG morphology (higher probability indicates toward the typical PPG morphology).
 If accelerometer is used, the relative power feature from the accelerometer is compared to a threshold for periodic artifacts and therefore `pred_sqa_acc_label` is used to return a label indicating predicted periodic motion artifacts (label 0) or no periodic motion artifacts (label 1).
 
-The classification step is implemented in `signal_quality_classification` (documentation can be found [here](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=signal_quality_classification)).
+The classification step is implemented in [`signal_quality_classification`](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.signal_quality_classification).
 
 <u>**_Note on scale sensitivity_**</u>
 The PPG sensor used for developing this pipeline records in arbitrary units. Some features are scale sensitive and require rescaling when applying the pipeline to other datasets or PPG sensors.
@@ -1020,7 +1020,7 @@ df_sqa.head()
 
 ## Step 4: Pulse rate estimation
 
-For pulse rate estimation, we extract segments of `config.tfd_length` using [estimate_pulse_rate](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=estimate_pulse_rate). We calculate the smoothed-pseudo Wigner-Ville Distribution (SPWVD) to obtain the frequency content of the PPG signal over time. We extract for every timestamp in the SPWVD the frequency with the highest power. For every non-overlapping 2 s window we average the corresponding frequencies to obtain a pulse rate per window.
+For pulse rate estimation, we extract segments of `config.tfd_length` using [estimate_pulse_rate](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.estimate_pulse_rate). We calculate the smoothed-pseudo Wigner-Ville Distribution (SPWVD) to obtain the frequency content of the PPG signal over time. We extract for every timestamp in the SPWVD the frequency with the highest power. For every non-overlapping 2 s window we average the corresponding frequencies to obtain a pulse rate per window.
 
 Note: for the test data we set the tfd_length to 10 s instead of the default of 30 s, because the small PPP test data doesn't have 30 s of consecutive high-quality PPG data.
 
@@ -1239,7 +1239,7 @@ df_pr = pd.concat(list_df_pr, ignore_index=True)
 
 ## Step 5: Pulse rate aggregation
 
-The final step is to aggregate all 2 s pulse rate estimates using [aggregate_pulse_rate](https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=aggregate_pulse_rate). In the current example, the mode and 99th percentile are calculated. We hypothesize that the mode gives representation of the resting pulse rate while the 99th percentile indicates the maximum pulse rate. In Parkinson's disease, we expect that these two measures could reflect autonomic (dys)functioning. The `nr_pr_est` in the metadata indicates based on how many 2 s windows these aggregates are determined.
+The final step is to aggregate all 2 s pulse rate estimates using [aggregate_pulse_rate](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.aggregate_pulse_rate). In the current example, the mode and 99th percentile are calculated. We hypothesize that the mode gives representation of the resting pulse rate while the 99th percentile indicates the maximum pulse rate. In Parkinson's disease, we expect that these two measures could reflect autonomic (dys)functioning. The `nr_pr_est` in the metadata indicates based on how many 2 s windows these aggregates are determined.
 
 
 ```python
