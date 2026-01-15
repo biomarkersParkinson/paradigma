@@ -13,19 +13,27 @@ We then combine the output of the different raw data segments for the final step
 
 7. Aggregation
 
-To run the complete gait pipeline, a prerequisite is to have both accelerometer and gyroscope data, although the first three steps can be completed using only accelerometer data.
+To run the complete gait pipeline, a prerequisite is to have both accelerometer and gyroscope data.
 
-## Prerequisites
+## Import required modules
 
-This tutorial requires example data files. If you installed ParaDigMa via pip, you need to:
 
-1. **Install git-lfs**: https://git-lfs.com/ (see platform-specific instructions in the [installation guide](https://biomarkersparkinson.github.io/paradigma/guides/installation.html))
-2. **Clone the repository**: `git clone https://github.com/biomarkersParkinson/paradigma.git`
-3. **Pull data files**: `git lfs pull`
+```python
+from importlib.resources import files
+import json
+import numpy as np
+import pandas as pd
+from pathlib import Path
+import tsdf
 
-**Troubleshooting:** If you encounter a `JSONDecodeError` when loading data, the example data files weren't downloaded correctly. Run `git lfs install` followed by `git lfs pull` in your cloned repository.
-
-[!WARNING] The gait pipeline has been developed on data of the Gait Up Physilog 4, and is currently being validated on the Verily Study Watch. Different sensors and positions on the wrist may affect outcomes.
+from paradigma.classification import ClassifierPackage
+from paradigma.config import IMUConfig, GaitConfig
+from paradigma.constants import DataColumns
+from paradigma.pipelines.gait_pipeline import extract_gait_features, detect_gait, \
+    extract_arm_activity_features, filter_gait, quantify_arm_swing, aggregate_arm_swing_params
+from paradigma.preprocessing import preprocess_imu_data
+from paradigma.util import load_tsdf_dataframe, write_df_data, merge_predictions_with_timestamps
+```
 
 ## Load data
 Here, we start by loading a single contiguous time series (segment), for which we continue running steps 1-6. [Below](#multiple_segments_cell) we show how to run these steps for multiple raw data segments.
@@ -36,9 +44,6 @@ We use the internally developed `TSDF` ([documentation](https://biomarkersparkin
 
 
 ```python
-from pathlib import Path
-from paradigma.util import load_tsdf_dataframe
-
 # Set the path to where the prepared data is saved and load the data.
 # Note: the test data is stored in TSDF, but you can load your data in your own way
 path_to_data =  Path('../../example_data/verily')
@@ -212,10 +217,6 @@ The function [`preprocess_imu_data`](https://biomarkersparkinson.github.io/parad
 
 
 ```python
-from paradigma.config import IMUConfig
-from paradigma.constants import DataColumns
-from paradigma.preprocessing import preprocess_imu_data
-
 config = IMUConfig()
 
 df_preprocessed = preprocess_imu_data(
@@ -235,6 +236,9 @@ print(
 )
 df_preprocessed.head()
 ```
+
+    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+
 
     The dataset of 34339.61 seconds is automatically resampled to 100 Hz.
     The tolerance for checking contiguous timestamps is set to 0.030 seconds.
@@ -363,9 +367,6 @@ These steps are encapsulated in [`extract_gait_features`](https://biomarkerspark
 
 
 ```python
-from paradigma.config import GaitConfig
-from paradigma.pipelines.gait_pipeline import extract_gait_features
-
 # Set column names: replace DataColumn.* with your actual column names.
 # It is only necessary to set the columns that are present in your data, and
 # only if they differ from the default names defined in DataColumns.
@@ -576,10 +577,6 @@ For classification, ParaDigMa uses so-called Classifier Packages which contain a
 
 
 ```python
-from importlib.resources import files
-from paradigma.classification import ClassifierPackage
-from paradigma.pipelines.gait_pipeline import detect_gait
-
 # Set the path to the classifier package
 classifier_package_filename = 'gait_detection_clf_package.pkl'
 full_path_to_classifier_package = (
@@ -687,9 +684,6 @@ The predicted probabilities (and optionally other features) can be stored and lo
 
 
 ```python
-import tsdf
-from paradigma.util import write_df_data
-
 # Set 'path_to_data' to the directory where you want to save the data
 metadata_time_store = tsdf.TSDFMetadata(
     metadata_time.get_plain_tsdf_dict_copy(),
@@ -801,9 +795,6 @@ But, first, the gait predictions should be merged with the preprocessed time ser
 
 
 ```python
-from paradigma.constants import DataColumns
-from paradigma.util import merge_predictions_with_timestamps
-
 # Merge gait predictions into timeseries data
 if not any(df_gait[DataColumns.PRED_GAIT_PROBA] >= clf_package_detection.threshold):
     raise ValueError("No gait detected in the input data.")
@@ -829,8 +820,6 @@ df = df.loc[df[DataColumns.PRED_GAIT]==1].reset_index(drop=True)
 
 
 ```python
-from paradigma.pipelines.gait_pipeline import extract_arm_activity_features
-
 config = GaitConfig(step='arm_activity')
 
 df_arm = extract_arm_activity_features(
@@ -1028,9 +1017,6 @@ This classification task is similar to gait detection, although it uses a differ
 
 
 ```python
-from paradigma.classification import ClassifierPackage
-from paradigma.pipelines.gait_pipeline import filter_gait
-
 # Set the path to the classifier package
 classifier_package_filename = 'gait_filtering_clf_package.pkl'
 full_path_to_classifier_package = (
@@ -1175,9 +1161,6 @@ df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
 
 
 ```python
-from paradigma.pipelines.gait_pipeline import quantify_arm_swing
-import json
-
 # Set to True to quantify arm swing based on the filtered gait segments, and
 # False to quantify arm swing based on all gait segments
 filtered = True
@@ -1360,18 +1343,6 @@ If your data is also stored in multiple raw data segments, you can modify `raw_d
 
 
 ```python
-import pandas as pd
-from pathlib import Path
-from importlib.resources import files
-
-from paradigma.util import load_tsdf_dataframe, merge_predictions_with_timestamps
-from paradigma.config import IMUConfig, GaitConfig
-from paradigma.preprocessing import preprocess_imu_data
-from paradigma.pipelines.gait_pipeline import extract_gait_features, \
-    detect_gait,extract_arm_activity_features, filter_gait, quantify_arm_swing
-from paradigma.constants import DataColumns
-from paradigma.classification import ClassifierPackage
-
 # Set the path to where the prepared data is saved
 path_to_data =  Path('../../example_data/verily')
 path_to_prepared_data = path_to_data / 'imu'
@@ -1521,6 +1492,12 @@ for raw_data_segment_nr in raw_data_segments:
 quantified_arm_swing = pd.concat(list_quantified_arm_swing, ignore_index=True)
 ```
 
+    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+
+
+    Resampled: 7434685 -> 7388945 rows at 100.0 Hz
+
+
 ## Step 7: Aggregation
 Finally, the arm swing estimates can be aggregated across all gait segments.
 
@@ -1528,9 +1505,6 @@ Optionally, gait segments can be categorized into bins of specific length. Bins 
 
 
 ```python
-import numpy as np
-from paradigma.pipelines.gait_pipeline import aggregate_arm_swing_params
-
 segment_categories = [(0,10), (10,20), (20, np.inf), (0, np.inf)]
 
 arm_swing_aggregations = aggregate_arm_swing_params(

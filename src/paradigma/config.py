@@ -95,6 +95,10 @@ class IMUConfig(BaseConfig):
         self.upper_cutoff_frequency = 3.5
         self.filter_order = 4
 
+        # Segmentation parameters for handling non-contiguous data
+        self.max_segment_gap_s = 1.5
+        self.min_segment_length_s = 1.5
+
 
 class PPGConfig(BaseConfig):
 

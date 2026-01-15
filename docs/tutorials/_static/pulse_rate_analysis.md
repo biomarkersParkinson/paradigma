@@ -1,15 +1,5 @@
 # Pulse rate analysis
 
-## Prerequisites
-
-This tutorial requires example data files. If you installed ParaDigMa via pip, you need to:
-
-1. **Install git-lfs**: https://git-lfs.com/ (see platform-specific instructions in the [installation guide](https://biomarkersparkinson.github.io/paradigma/guides/installation.html))
-2. **Clone the repository**: `git clone https://github.com/biomarkersParkinson/paradigma.git`
-3. **Pull data files**: `git lfs pull`
-
-**Troubleshooting:** If you encounter a `JSONDecodeError` when loading data, the example data files weren't downloaded correctly. Run `git lfs install` followed by `git lfs pull` in your cloned repository.
-
 This tutorial shows how to extract pulse rate estimates using photoplethysmography (PPG) data and accelerometer data. The pipeline consists of a stepwise approach to determine signal quality, assessing both PPG morphology and accounting for periodic artifacts using the accelerometer. The usage of accelerometer is optional but is recommended to specifically account for periodic motion artifacts. Based on the signal quality, we extract high-quality segments and estimate the pulse rate for every 2 s using the smoothed pseudo Wigner-Ville Distribution.
 
 In this tutorial, we use two days of data from a participant of the Personalized Parkinson Project to demonstrate the functionalities. Since `ParaDigMa` expects contiguous time series, the collected data was stored in two segments each with contiguous timestamps. Per segment, we load the data and perform the following steps:
@@ -22,6 +12,25 @@ We then combine the output of the different segments for the final step:
 
 5. Pulse rate aggregation
 
+## Import required modules
+
+
+```python
+from importlib.resources import files
+import json
+import pandas as pd
+from pathlib import Path
+import tsdf
+
+from paradigma.classification import ClassifierPackage
+from paradigma.config import PPGConfig, IMUConfig, PulseRateConfig
+from paradigma.constants import DataColumns
+from paradigma.pipelines.pulse_rate_pipeline import extract_signal_quality_features, \
+    signal_quality_classification, estimate_pulse_rate, aggregate_pulse_rate
+from paradigma.preprocessing import preprocess_ppg_data
+from paradigma.util import load_tsdf_dataframe, write_df_data
+```
+
 ## Load data
 
 This pipeline requires PPG data and can be enhanced with accelerometer data (optional). Here, we start by loading a single contiguous time series (segment), for which we continue running steps 1-4. [Below](#multiple_segments_cell) we show how to run these steps for multiple segments. The channel `green` represents the values obtained with PPG using green light.
@@ -33,9 +42,6 @@ In this example we use the internally developed `TSDF` ([documentation](https://
 
 
 ```python
-from pathlib import Path
-from paradigma.util import load_tsdf_dataframe
-
 # Set the path to where the prepared data is saved and load the data.
 # Note: the test data is stored in TSDF, but you can load your data in your own way
 path_to_prepared_data =  Path('../../example_data/verily')
@@ -265,10 +271,6 @@ Note: the printed shapes are (rows, columns) with each row corresponding to a si
 
 
 ```python
-from paradigma.config import PPGConfig, IMUConfig
-from paradigma.constants import DataColumns
-from paradigma.preprocessing import preprocess_ppg_data
-
 # Set column names: replace DataColumn.* with your actual column names.
 # It is only necessary to set the columns that are present in your data, and
 # only if they differ from the default names defined in DataColumns.
@@ -316,6 +318,10 @@ display(df_ppg_proc, df_acc_proc)
     - Accelerometer data: (3455331, 7)
 
 
+    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+
+
+    Resampled: 1029374 -> 1030188 rows at 30.0 Hz
     Overlapping preprocessed data shapes:
     - PPG data: (1030188, 2)
     - Accelerometer data: (3433961, 4)
@@ -523,9 +529,6 @@ The detailed steps are encapsulated in [`extract_signal_quality_features`](https
 
 
 ```python
-from paradigma.config import PulseRateConfig
-from paradigma.pipelines.pulse_rate_pipeline import extract_signal_quality_features
-
 pulse_rate_ppg_config = PulseRateConfig(
     sensor='ppg',
     ppg_sampling_frequency=ppg_config.sampling_frequency,
@@ -777,10 +780,6 @@ In this pipeline, the logistic classifier for PPG morphology was trained on z-sc
 
 
 ```python
-from importlib.resources import files
-from paradigma.classification import ClassifierPackage
-from paradigma.pipelines.pulse_rate_pipeline import signal_quality_classification
-
 config = PulseRateConfig()
 
 ppg_quality_classifier_package_filename = 'ppg_quality_clf_package.pkl'
@@ -916,9 +915,6 @@ The predicted probabilities (and optionally other features) can be stored and lo
 
 
 ```python
-import tsdf
-from paradigma.util import write_df_data
-
 # Set 'path_to_data' to the directory where you want to save the data
 metadata_time_store = tsdf.TSDFMetadata(
     metadata_time_ppg.get_plain_tsdf_dict_copy(),
@@ -1036,8 +1032,6 @@ Note: for the test data we set the tfd_length to 10 s instead of the default of 
 
 
 ```python
-from paradigma.pipelines.pulse_rate_pipeline import estimate_pulse_rate
-
 print(
     "The standard default minimal window length for the pulse rate "
     "extraction is set to", pulse_rate_ppg_config.tfd_length, "seconds."
@@ -1149,16 +1143,6 @@ If your data is also stored in multiple segments, you can modify `segments` in t
 
 
 ```python
-import pandas as pd
-from pathlib import Path
-from importlib.resources import files
-
-from paradigma.util import load_tsdf_dataframe
-from paradigma.config import PPGConfig, IMUConfig, PulseRateConfig
-from paradigma.preprocessing import preprocess_ppg_data
-from paradigma.pipelines.pulse_rate_pipeline import extract_signal_quality_features, \
-    signal_quality_classification, estimate_pulse_rate
-
 # Set the path to where the prepared data is saved
 path_to_prepared_data =  Path('../../example_data/verily')
 
@@ -1247,15 +1231,24 @@ for segment_nr in segments:
 df_pr = pd.concat(list_df_pr, ignore_index=True)
 ```
 
+    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+
+
+    Resampled: 1029374 -> 1030188 rows at 30.0 Hz
+
+
+    Resampled: 7434685 -> 7388945 rows at 100.0 Hz
+
+
+    Resampled: 2214444 -> 2216683 rows at 30.0 Hz
+
+
 ## Step 5: Pulse rate aggregation
 
 The final step is to aggregate all 2 s pulse rate estimates using [aggregate_pulse_rate](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.aggregate_pulse_rate). In the current example, the mode and 99th percentile are calculated. We hypothesize that the mode gives representation of the resting pulse rate while the 99th percentile indicates the maximum pulse rate. In Parkinson's disease, we expect that these two measures could reflect autonomic (dys)functioning. The `nr_pr_est` in the metadata indicates based on how many 2 s windows these aggregates are determined.
 
 
 ```python
-import json
-from paradigma.pipelines.pulse_rate_pipeline import aggregate_pulse_rate
-
 pr_values = df_pr['pulse_rate'].values
 df_pr_agg = aggregate_pulse_rate(
     pr_values=pr_values,

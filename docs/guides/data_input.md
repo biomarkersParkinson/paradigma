@@ -7,8 +7,8 @@ ParaDigMa's `run_paradigma()` function supports multiple flexible input formats 
 Before diving into input formats, it's important to understand how to control output:
 
 - **`output_dir`**: Defaults to `"./output"`. You can specify a custom directory.
-- **`store_intermediate`**: Controls which intermediate results are saved to disk. Valid options: `['preparation', 'preprocessing', 'classification', 'quantification', 'aggregation']`
-- **No storage**: If `store_intermediate=[]` (empty list), no files are saved - results are only returned in memory.
+- **`save_intermediate`**: Controls which intermediate results are saved to disk. Valid options: `['preparation', 'preprocessing', 'classification', 'quantification', 'aggregation']`
+- **No storage**: If `save_intermediate=[]` (empty list), no files are saved - results are only returned in memory.
 
 ## Input Format Options
 
@@ -28,13 +28,13 @@ df = pd.read_parquet('data.parquet')
 # Process with a single DataFrame
 results = run_paradigma(
     dfs=df,  # Single DataFrame
-    pipeline_names='gait',
+    pipelines='gait',
     watch_side='right',
-    store_intermediate=['aggregation']  # Uses default ./output directory
+    save_intermediate=['aggregation']  # Uses default ./output directory
 )
 ```
 
-The DataFrame will be automatically assigned the segment identifier `'data'` internally.
+The DataFrame will be automatically assigned the identifier `'df_1'` internally.
 
 ### 2. List of DataFrames
 
@@ -49,13 +49,13 @@ df1 = pd.read_parquet('morning_session.parquet')
 df2 = pd.read_parquet('afternoon_session.parquet')
 df3 = pd.read_parquet('evening_session.parquet')
 
-# Process as a list - automatically assigned to 'segment_1', 'segment_2', 'segment_3'
+# Process as a list - automatically assigned to 'df_1', 'df_2', 'df_3'
 results = run_paradigma(
     dfs=[df1, df2, df3],  # List of DataFrames
-    pipeline_names='gait',
+    pipelines='gait',
     output_dir='./results',  # Custom output directory
     watch_side='right',
-    store_intermediate=['quantification', 'aggregation']
+    save_intermediate=['quantification', 'aggregation']
 )
 ```
 
@@ -83,7 +83,7 @@ dfs = {
 results = run_paradigma(
     dfs=dfs,  # Dictionary with custom keys
     watch_side='right',
-    store_intermediate=[]  # No files saved - results only in memorylts',
+    save_intermediate=[]  # No files saved - results only in memorylts',
     watch_side='right'
 )
 ```
@@ -103,14 +103,16 @@ from paradigma.orchestrator import run_paradigma
 # Load all files from a directory
 results = run_paradigma(
     data_path='./data/patient_001/',  # Directory containing data files
-    pipeline_names='gait',
+    pipelines='gait',
     watch_side='right',
-    file_patterns='parquet',  # Optional: specify file pattern
-    store_intermediate=['aggregation']  # Uses default ./output directory
+    file_pattern='parquet',  # Optional: specify file pattern
+    save_intermediate=['aggregation']  # Uses default ./output directory
 )
 ```
 
 This uses the `load_data_files()` function which automatically returns a dictionary of DataFrames with file names as keys.
+
+**Supported file formats:** `parquet`, `csv`, `pkl`, `pickle`, `json`, `avro` (Empatica), `cwa` (Axivity)
 
 ## Mixed Input Scenarios
 
@@ -130,10 +132,10 @@ loaded_dfs['custom_session'] = pd.read_parquet('custom_data.parquet')
 # Process combined data
 results = run_paradigma(
     dfs=loaded_dfs,
-    pipeline_names='gait',
+    pipelines='gait',
     output_dir='./results',  # Custom output directory
     watch_side='right',
-    store_intermediate=['quantification']
+    save_intermediate=['quantification']
 )
 ```
 
@@ -149,10 +151,14 @@ results = {
 }
 ```
 
-The `quantifications` DataFrame includes a `file_key` column that preserves:
-- For single DataFrame input: `'data'`
-- For list input: `'segment_0'`, `'segment_1'`, etc.
-- For dict input: The custom keys provided
+The `quantifications` DataFrame includes a `file_key` column when processing multiple files
+(i.e., when `len(dfs) > 1`). The column preserves:
+- For single DataFrame input: No `file_key` column (cleaner output for single-file processing)
+- For list input with 2+ files: `'df_1'`, `'df_2'`, etc.
+- For dict input with 2+ files: The custom keys provided
+
+This conditional behavior ensures single-file results are concise while multi-file
+results maintain traceability.
 
 ## Best Practices
 

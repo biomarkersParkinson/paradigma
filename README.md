@@ -44,23 +44,23 @@ from paradigma.orchestrator import run_paradigma
 # Example 1: Single DataFrame with default output directory
 results = run_paradigma(
     dfs=df,
-    pipeline_names=['gait', 'tremor'],
-    store_intermediate=['quantification', 'aggregation']  # Saves to ./output by default
+    pipelines=['gait', 'tremor'],
+    save_intermediate=['quantification', 'aggregation']  # Saves to ./output by default
 )
 
-# Example 2: Multiple DataFrames as list (assigned to 'segment_1', 'segment_2', etc.)
+# Example 2: Multiple DataFrames as list (assigned to 'df_1', 'df_2', etc.)
 results = run_paradigma(
     dfs=[df1, df2, df3],
-    pipeline_names=['gait', 'tremor'],
+    pipelines=['gait', 'tremor'],
     output_dir="./results",  # Custom output directory
-    store_intermediate=['quantification', 'aggregation']
+    save_intermediate=['quantification', 'aggregation']
 )
 
 # Example 3: Dictionary of DataFrames (custom segment/file names)
 results = run_paradigma(
     dfs={'morning_session': df1, 'evening_session': df2},
-    pipeline_names=['gait', 'tremor'],
-    store_intermediate=[]  # No files saved - results only in memory
+    pipelines=['gait', 'tremor'],
+    save_intermediate=[]  # No files saved - results only in memory
 )
 
 # Access results

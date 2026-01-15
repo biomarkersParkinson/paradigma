@@ -14,11 +14,10 @@ Based on data_preparation tutorial.
 import logging
 from typing import Dict, List
 
-import numpy as np
 import pandas as pd
-from scipy.interpolate import interp1d
 
 from paradigma.constants import DataColumns, TimeUnit
+from paradigma.preprocessing import resample_data
 from paradigma.util import (
     convert_units_accelerometer,
     convert_units_gyroscope,
@@ -252,108 +251,6 @@ def correct_watch_orientation(
     return out
 
 
-def resample_data(
-    df: pd.DataFrame,
-    target_frequency: float = 100.0,
-    time_column: str = DataColumns.TIME,
-    verbosity: int = 1,
-) -> pd.DataFrame:
-    """
-    Resample data to target frequency using cubic interpolation.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Input DataFrame
-    target_frequency : float, default 100.0
-        Target sampling frequency in Hz
-    time_column : str, default DataColumns.TIME
-        Name of time column
-
-    Returns
-    -------
-    pd.DataFrame
-        Resampled DataFrame
-    """
-    df = df.copy()
-
-    if time_column not in df.columns:
-        raise ValueError(f"Time column '{time_column}' not found in DataFrame")
-
-    # Check current sampling frequency
-    time_diff = df[time_column].diff().dropna()
-    current_dt = time_diff.median()
-    current_frequency = 1.0 / current_dt
-
-    if verbosity >= 2:
-        logger.info(f"Current sampling frequency: {current_frequency:.2f} Hz")
-
-    if abs(current_frequency - target_frequency) < 0.1:
-        if verbosity >= 2:
-            logger.info("Data already at target frequency")
-        return df
-
-    # Extract time and values
-    time_abs_array = np.array(df[time_column])
-
-    # Get all numeric columns except time
-    numeric_columns = df.select_dtypes(include=[np.number]).columns
-    values_column_names = [col for col in numeric_columns if col != time_column]
-
-    if not values_column_names:
-        logger.warning("No numeric columns found for resampling")
-        return df
-
-    values_array = np.array(df[values_column_names])
-
-    # Ensure the time array is strictly increasing
-    if not np.all(np.diff(time_abs_array) > 0):
-        raise ValueError("Time array is not strictly increasing")
-
-    # Resample the time data using the specified frequency
-    t_resampled = np.arange(time_abs_array[0], time_abs_array[-1], 1 / target_frequency)
-
-    # Choose interpolation method
-    interpolation_kind = "cubic" if len(time_abs_array) > 3 else "linear"
-    interpolator = interp1d(
-        time_abs_array,
-        values_array,
-        axis=0,
-        kind=interpolation_kind,
-        fill_value="extrapolate",
-    )
-
-    # Interpolate
-    resampled_values = interpolator(t_resampled)
-
-    # Create a DataFrame with the resampled data
-    df_resampled = pd.DataFrame(resampled_values, columns=values_column_names)
-    df_resampled[time_column] = t_resampled
-
-    # Copy non-numeric columns (if any) - take first value
-    for column in df.columns:
-        if column not in df_resampled.columns:
-            df_resampled[column] = df[column].iloc[0]
-
-    # Return the DataFrame with columns in the correct order
-    resampled_columns = (
-        [time_column]
-        + values_column_names
-        + [
-            col
-            for col in df_resampled.columns
-            if col not in [time_column] + values_column_names
-        ]
-    )
-    df_resampled = df_resampled[resampled_columns]
-
-    if verbosity >= 1:
-        logger.info(
-            f"Resampled data: {len(df)} -> {len(df_resampled)} rows at {target_frequency} Hz"
-        )
-    return df_resampled
-
-
 def validate_prepared_data(df: pd.DataFrame) -> Dict[str, bool | str]:
     """
     Validate that data is properly prepared for ParaDigMa analysis.
@@ -433,10 +330,13 @@ def prepare_raw_data(
     accelerometer_units: str = "m/s^2",
     gyroscope_units: str = "deg/s",
     time_input_unit: TimeUnit = TimeUnit.RELATIVE_S,
-    target_frequency: float = 100.0,
+    resampling_frequency: float = 100.0,
     column_mapping: Dict[str, str] | None = None,
     device_orientation: Dict[str, int] | None = None,
     validate: bool = True,
+    auto_segment: bool = False,
+    max_segment_gap_s: float | None = None,
+    min_segment_length_s: float | None = None,
     verbosity: int = 1,
 ) -> pd.DataFrame:
     """
@@ -454,7 +354,7 @@ def prepare_raw_data(
         Current units of gyroscope data
     time_input_unit : TimeUnit, default TimeUnit.RELATIVE_S
         Input time unit type
-    target_frequency : float, default 100.0
+    resampling_frequency : float, default 100.0
         Target sampling frequency in Hz
     column_mapping : Dict[str, str], optional
         Custom column name mapping
@@ -462,11 +362,23 @@ def prepare_raw_data(
         Custom orientation correction
     validate : bool, default True
         Whether to validate the prepared data
+    auto_segment : bool, default False
+        If True, automatically split non-contiguous data into segments.
+        Adds 'data_segment_nr' column to output.
+    max_segment_gap_s : float, optional
+        Maximum gap (seconds) before starting new segment. Used when auto_segment=True.
+        Defaults to 1.5s.
+    min_segment_length_s : float, optional
+        Minimum segment length (seconds) to keep. Used when auto_segment=True.
+        Defaults to 1.5s.
+    verbosity : int, default 1
+        Logging verbosity level
 
     Returns
     -------
     pd.DataFrame
-        Prepared data ready for ParaDigMa analysis
+        Prepared data ready for ParaDigMa analysis. If auto_segment=True and multiple
+        segments found, includes 'data_segment_nr' column.
     """
     if verbosity >= 1:
         logger.info("Starting data preparation pipeline")
@@ -501,8 +413,15 @@ def prepare_raw_data(
 
     # Step 5: Resample to target frequency
     if verbosity >= 1:
-        logger.info(f"Step 5: Resampling to {target_frequency} Hz")
-    df = resample_data(df, target_frequency, verbosity=verbosity)
+        logger.info(f"Step 5: Resampling to {resampling_frequency} Hz")
+    df = resample_data(
+        df,
+        resampling_frequency=resampling_frequency,
+        auto_segment=auto_segment,
+        max_segment_gap_s=max_segment_gap_s,
+        min_segment_length_s=min_segment_length_s,
+        verbosity=verbosity,
+    )
 
     # Step 6: Validate prepared data
     if validate:

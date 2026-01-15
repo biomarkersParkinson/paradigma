@@ -64,9 +64,11 @@ def run_pipeline_batch(
     ----------
     dfs : DataFrame, list of DataFrames, or dict of DataFrames
         Data files to process. Can be:
-        - Single DataFrame: Will be processed as one file with key 'data'.
-        - List[DataFrame]: Multiple dataframes assigned segment IDs as 'segment_0', 'segment_1', etc.
+        - Single DataFrame: Will be processed as one file with key 'df_1'.
+        - List[DataFrame]: Multiple dataframes assigned IDs as 'df_1', 'df_2', etc.
         - Dict[str, DataFrame]: Keys are file names, values are dataframes.
+        Note: The 'file_key' column is only added to quantification results when
+        len(dfs) > 1, allowing cleaner output for single-file processing.
     pipeline_name: str
         Name of the pipeline to run: 'gait', 'tremor', or 'pulse_rate'.
     watch_side : str, optional
@@ -116,13 +118,13 @@ def run_pipeline_batch(
 
     # Convert single DataFrame or list of DataFrames to dict if needed
     if isinstance(dfs, pd.DataFrame):
-        dfs = {"segment_1": dfs}
+        dfs = {"df_1": dfs}
     elif isinstance(dfs, list):
-        dfs = {f"segment_{i}": df for i, df in enumerate(dfs, start=1)}
+        dfs = {f"df_{i}": df for i, df in enumerate(dfs, start=1)}
 
     # Convert and validate output directory
     output_dir = Path(output_dir)
-    if store_intermediate:
+    if len(store_intermediate) > 0:
         output_dir.mkdir(parents=True, exist_ok=True)
 
     # Initialize results storage
@@ -131,15 +133,14 @@ def run_pipeline_batch(
 
     # Process each file with the appropriate pipeline
     for i, (file_key, df) in enumerate(dfs.items(), start=1):
-        logger.info(f"Processing file: {file_key} ({i}/{len(dfs)})")
+        if len(dfs) > 1:
+            logger.info(f"Processing file: {file_key} ({i}/{len(dfs)})")
+        else:
+            logger.info("Processing single provided DataFrame")
 
         try:
             # Set up output directory for this file (only if storing intermediate results)
-            file_output_dir = (
-                output_dir / "individual_files" / file_key
-                if store_intermediate
-                else None
-            )
+            file_output_dir = output_dir / "individual_files" / file_key
 
             # Run the appropriate pipeline based on pipeline_name
             if pipeline_name == "gait":
@@ -165,7 +166,7 @@ def run_pipeline_batch(
                     gait_config=gait_config,
                     arm_activity_config=arm_activity_config,
                     store_intermediate=store_intermediate,
-                    output_dir=str(file_output_dir) if file_output_dir else None,
+                    output_dir=file_output_dir,
                     segment_number_offset=segment_nr_offset,
                     verbosity=verbosity,
                 )
@@ -179,7 +180,7 @@ def run_pipeline_batch(
                 quantification_data = run_tremor_pipeline(
                     df_prepared=df,
                     store_intermediate=store_intermediate,
-                    output_dir=str(file_output_dir) if file_output_dir else None,
+                    output_dir=file_output_dir,
                     tremor_config=tremor_config,
                     imu_config=imu_config,
                     verbosity=verbosity,
@@ -188,7 +189,7 @@ def run_pipeline_batch(
                 quantification_data = run_pulse_rate_pipeline(
                     df_ppg_prepared=df,
                     store_intermediate=store_intermediate,
-                    output_dir=str(file_output_dir) if file_output_dir else None,
+                    output_dir=file_output_dir,
                     pulse_rate_config=pulse_rate_config,
                     ppg_config=ppg_config,
                     verbosity=verbosity,
@@ -203,7 +204,8 @@ def run_pipeline_batch(
                 quantification_data = (
                     quantification_data.copy()
                 )  # Ensure we're working with a copy
-                quantification_data["file_key"] = file_key
+                if len(dfs) > 1:
+                    quantification_data["file_key"] = file_key
                 all_quantifications.append(quantification_data)
             else:
                 logger.warning(
@@ -332,8 +334,8 @@ def run_paradigma(
     output_dir: str | Path = "./output",
     data_path: str | Path | None = None,
     dfs: pd.DataFrame | List[pd.DataFrame] | Dict[str, pd.DataFrame] | None = None,
-    data_prepared: bool = False,
-    pipeline_names: List[str] | str | None = None,
+    skip_preparation: bool = False,
+    pipelines: List[str] | str | None = None,
     watch_side: str | None = None,
     accelerometer_units: str = "g",
     gyroscope_units: str = "deg/s",
@@ -341,16 +343,19 @@ def run_paradigma(
     target_frequency: float = 100.0,
     column_mapping: Dict[str, str] | None = None,
     device_orientation: List[str] | None = ["x", "y", "z"],
-    store_intermediate: List[str] = [],
-    file_patterns: str | List[str] | None = None,
+    save_intermediate: List[str] = [],
+    file_pattern: str | List[str] | None = None,
     aggregates: List[str] | None = None,
-    gait_segment_categories: List[str] | None = None,
+    segment_length_bins: List[str] | None = None,
+    split_by_gaps: bool = False,
+    max_gap_seconds: float | None = None,
+    min_segment_seconds: float | None = None,
     imu_config: IMUConfig | None = None,
     ppg_config: PPGConfig | None = None,
     gait_config: GaitConfig | None = None,
     tremor_config: TremorConfig | None = None,
     pulse_rate_config: PulseRateConfig | None = None,
-    verbosity: int = 1,
+    verbose: int = 1,
 ) -> Dict[str, pd.DataFrame | Dict]:
     """
     Complete ParaDigMa analysis pipeline from data loading to aggregated results.
@@ -372,12 +377,15 @@ def run_paradigma(
         Path to directory containing data files.
     dfs : DataFrame, list of DataFrames, or dict of DataFrames, optional
         Dataframes used as input (bypasses data loading). Can be:
-        - Single DataFrame: Will be processed as one file with key 'data'.
-        - List[DataFrame]: Multiple dataframes assigned segment IDs as 'segment_0', 'segment_1', etc.
+        - Single DataFrame: Will be processed as one file with key 'df_1'.
+        - List[DataFrame]: Multiple dataframes assigned IDs as 'df_1', 'df_2', etc.
         - Dict[str, DataFrame]: Keys are file names, values are dataframes.
-    data_prepared : bool, default False
-        Whether data is already prepared or needs preprocessing.
-    pipeline_names : list of str or str, optional
+        Note: The 'file_key' column is only added to quantification results when
+        len(dfs) > 1, allowing cleaner output for single-file processing.
+    skip_preparation : bool, default False
+        Whether data is already prepared. If False, data will be prepared (unit conversion,
+        resampling, etc.). If True, assumes data is already in the required format.
+    pipelines : list of str or str, optional
         Pipelines to run: 'gait', 'tremor', and/or 'pulse_rate'. If providing a list, currently
         only tremor and gait pipelines can be run together.
     watch_side : str, optional
@@ -395,8 +403,8 @@ def run_paradigma(
     device_orientation : list of str, optional
         Custom device orientation corrections.
     output_dir : str or Path, default './output'
-        Output directory for all results. Files are only saved if store_intermediate is not empty.
-    store_intermediate : list of str, default []
+        Output directory for all results. Files are only saved if save_intermediate is not empty.
+    save_intermediate : list of str, default []
         Which intermediate results to store. Valid values:
         - 'preparation': Save prepared data
         - 'preprocessing': Save preprocessed signals
@@ -404,12 +412,23 @@ def run_paradigma(
         - 'quantification': Save quantified measures
         - 'aggregation': Save aggregated results
         If empty, no files are saved (results are only returned).
-    file_patterns : str or list of str, optional
-        File patterns to match when loading data.
+    file_pattern : str or list of str, optional
+        File pattern(s) to match when loading data (e.g., 'parquet', '*.csv').
     aggregates : list of str, optional
         Aggregation methods for quantification.
-    gait_segment_categories : list of str, optional
-        Categories for gait segment aggregation (gait pipeline only).
+    segment_length_bins : list of str, optional
+        Duration bins for gait segment aggregation (gait pipeline only).
+        Example: ['(0, 10)', '(10, 20)'] for segments 0-10s and 10-20s.
+    split_by_gaps : bool, default False
+        If True, automatically split non-contiguous data into segments during preparation.
+        Adds 'data_segment_nr' column to prepared data which is preserved through pipeline.
+        Useful for handling data with gaps/interruptions.
+    max_gap_seconds : float, optional
+        Maximum gap (seconds) before starting new segment. Used when split_by_gaps=True.
+        Defaults to 1.5s.
+    min_segment_seconds : float, optional
+        Minimum segment length (seconds) to keep. Used when split_by_gaps=True.
+        Defaults to 1.5s.
     imu_config : IMUConfig, optional
         IMU preprocessing configuration.
     ppg_config : PPGConfig, optional
@@ -420,7 +439,7 @@ def run_paradigma(
         Tremor analysis configuration.
     pulse_rate_config : PulseRateConfig, optional
         Pulse rate analysis configuration.
-    verbosity : int, default 1
+    verbose : int, default 1
         Logging verbosity level:
         - 0: Only errors and warnings
         - 1: Basic info (default)
@@ -440,44 +459,45 @@ def run_paradigma(
     ):
         raise ValueError("Either data_path or dfs must be provided, but not both")
 
-    if isinstance(pipeline_names, str):
-        pipeline_names = [pipeline_names]
+    if isinstance(pipelines, str):
+        pipelines = [pipelines]
 
-    if len(pipeline_names) > 1 and "pulse_rate" in pipeline_names:
+    if len(pipelines) > 1 and "pulse_rate" in pipelines:
         raise ValueError(
             "Pulse rate pipeline cannot be run together with other pipelines"
         )
 
-    if "gait" in pipeline_names and watch_side not in ["left", "right"]:
+    if "gait" in pipelines and watch_side not in ["left", "right"]:
         raise ValueError(
             "watch_side must be specified as 'left' or 'right' for gait pipeline"
         )
 
-    if any(p not in ["gait", "tremor", "pulse_rate"] for p in pipeline_names):
+    if any(p not in ["gait", "tremor", "pulse_rate"] for p in pipelines):
         raise ValueError(
-            f"At least one unknown pipeline provided: {pipeline_names}. "
+            f"At least one unknown pipeline provided: {pipelines}. "
             f"Supported pipelines: 'gait', 'tremor', 'pulse_rate'"
         )
 
     # Set logging level based on verbosity
-    if verbosity == 0:
+    if verbose == 0:
         logger.setLevel(logging.WARNING)
-    elif verbosity == 1:
+    elif verbose == 1:
         logger.setLevel(logging.INFO)
-    elif verbosity >= 2:
+    elif verbose >= 2:
         logger.setLevel(logging.DEBUG)
 
     if data_path is not None:
         data_path = Path(data_path)
-        if verbosity >= 1:
+        if verbose >= 1:
             logger.info(f"Applying ParaDigMa pipelines to {data_path}")
     else:
-        if verbosity >= 1:
+        if verbose >= 1:
             logger.info("Applying ParaDigMa pipelines to provided DataFrame")
 
     # Convert and create output directory
     output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
+    if len(save_intermediate) > 0:
+        output_dir.mkdir(parents=True, exist_ok=True)
 
     # Setup logging to file
     timestamp = datetime.now().strftime("%Y%m%d_%H%M")
@@ -492,13 +512,13 @@ def run_paradigma(
 
     # Step 1: Load data files
     if data_path is not None:
-        if verbosity >= 1:
+        if verbose >= 1:
             logger.info("Step 1: Loading data files")
         try:
             dfs = load_data_files(
-                data_path=data_path, file_patterns=file_patterns, verbosity=verbosity
+                data_path=data_path, file_patterns=file_pattern, verbosity=verbose
             )
-            if verbosity >= 1:
+            if verbose >= 1:
                 logger.info(f"Loaded {len(dfs)} data files")
         except Exception as e:
             logger.error(f"Failed to load data files: {e}")
@@ -507,33 +527,36 @@ def run_paradigma(
         if not dfs:
             raise ValueError(f"No data files found in {data_path}")
     else:
-        if verbosity >= 1:
+        if verbose >= 1:
             logger.info("Step 1: Using provided DataFrame(s) as input")
 
     if isinstance(dfs, list):
-        # Convert list to dict with unique segment IDs
-        dfs = {f"segment_{i}": df for i, df in enumerate(dfs, start=1)}
+        # Convert list to dict with unique dataframe IDs
+        dfs = {f"df_{i}": df for i, df in enumerate(dfs, start=1)}
     elif isinstance(dfs, pd.DataFrame):
         # Convert single DataFrame to dict with default name
-        dfs = {"segment_1": dfs}
+        dfs = {"df_1": dfs}
 
     # Step 2: Prepare data if needed
-    if not data_prepared:
-        if verbosity >= 1:
+    if not skip_preparation:
+        if verbose >= 1:
             logger.info("Step 2: Preparing raw data")
 
         prepare_params = {
             "time_input_unit": time_input_unit,
-            "target_frequency": target_frequency,
+            "resampling_frequency": target_frequency,
             "column_mapping": column_mapping,
-            "verbosity": verbosity,
+            "auto_segment": split_by_gaps,
+            "max_segment_gap_s": max_gap_seconds,
+            "min_segment_length_s": min_segment_seconds,
+            "verbosity": verbose,
         }
 
         # Add pipeline-specific preparation parameters
-        if "gait" in pipeline_names or "tremor" in pipeline_names:
+        if "gait" in pipelines or "tremor" in pipelines:
             prepare_params["gyroscope_units"] = gyroscope_units
 
-        if "gait" in pipeline_names:
+        if "gait" in pipelines:
             prepare_params.update(
                 {
                     "accelerometer_units": accelerometer_units,
@@ -543,7 +566,7 @@ def run_paradigma(
 
         prepared_files = {}
         for file_name, df_raw in dfs.items():
-            if verbosity >= 2:
+            if verbose >= 2:
                 logger.info(f"Preparing data for {file_name}")
             try:
                 df_prepared = prepare_raw_data(
@@ -552,13 +575,13 @@ def run_paradigma(
                 prepared_files[file_name] = df_prepared
 
                 # Save prepared data
-                if output_dir and "preparation" in store_intermediate:
+                if output_dir and "preparation" in save_intermediate:
                     prepared_dir = output_dir / "prepared_data"
                     prepared_dir.mkdir(exist_ok=True)
                     save_prepared_data(
                         df_prepared,
                         prepared_dir / f"{file_name}.parquet",
-                        verbosity=verbosity,
+                        verbosity=verbose,
                     )
 
             except Exception as e:
@@ -566,17 +589,15 @@ def run_paradigma(
                 # Continue with other files
 
         dfs = prepared_files
-        if verbosity >= 1:
+        if verbose >= 1:
             logger.info(f"Successfully prepared {len(dfs)} data files")
     else:
-        if verbosity >= 1:
+        if verbose >= 1:
             logger.info("Step 2: Data already prepared, skipping preparation")
 
     # Step 3: Run pipelines on all data files
-    if verbosity >= 1:
-        logger.info(
-            f"Step 3: Running pipelines {pipeline_names} on {len(dfs)} data files"
-        )
+    if verbose >= 1:
+        logger.info(f"Step 3: Running pipelines {pipelines} on {len(dfs)} data files")
 
     # Initialize combined results structure
     all_results = {
@@ -586,8 +607,8 @@ def run_paradigma(
     }
 
     # Run each pipeline
-    for pipeline_name in pipeline_names:
-        if verbosity >= 1:
+    for pipeline_name in pipelines:
+        if verbose >= 1:
             logger.info(f"Running {pipeline_name} pipeline")
 
         try:
@@ -600,11 +621,11 @@ def run_paradigma(
                 gait_config=gait_config,
                 tremor_config=tremor_config,
                 pulse_rate_config=pulse_rate_config,
-                store_intermediate=store_intermediate,
+                store_intermediate=save_intermediate,
                 output_dir=output_dir,
-                gait_segment_categories=gait_segment_categories,
+                gait_segment_categories=segment_length_bins,
                 aggregates=aggregates,
-                verbosity=verbosity,
+                verbosity=verbose,
             )
 
             # Store results for this pipeline
@@ -616,7 +637,7 @@ def run_paradigma(
             ]
             all_results["metadata"][pipeline_name] = pipeline_results["metadata"]
 
-            if verbosity >= 1:
+            if verbose >= 1:
                 logger.info(f"{pipeline_name.capitalize()} pipeline completed")
 
         except Exception as e:
@@ -626,18 +647,22 @@ def run_paradigma(
             all_results["aggregations"][pipeline_name] = {}
             all_results["metadata"][pipeline_name] = {}
 
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info("ParaDigMa analysis completed for all pipelines")
 
     # Log final summary for all pipelines
-    if verbosity >= 2:
-        for pipeline_name in pipeline_names:
+    if verbose >= 2:
+        for pipeline_name in pipelines:
             try:
                 quant_df = all_results["quantifications"][pipeline_name]
                 if not quant_df.empty and "file_key" in quant_df.columns:
                     successful_files = np.unique(quant_df["file_key"].values)
                     logger.info(
                         f"{pipeline_name.capitalize()}: Files successfully processed: {successful_files}"
+                    )
+                elif not quant_df.empty:
+                    logger.info(
+                        f"{pipeline_name.capitalize()}: Single file processed successfully"
                     )
                 else:
                     logger.info(f"{pipeline_name.capitalize()}: No successful results")

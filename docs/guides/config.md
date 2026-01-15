@@ -62,7 +62,7 @@ gait_config = GaitConfig()
 
 results = run_paradigma(
     dfs={'data': df},
-    pipeline_names=['gait'],
+    pipelines=['gait'],
     imu_config=imu_config,
     gait_config=gait_config
 )

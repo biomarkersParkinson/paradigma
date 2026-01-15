@@ -1,15 +1,5 @@
 # Tremor analysis
 
-## Prerequisites
-
-This tutorial requires example data files. If you installed ParaDigMa via pip, you need to:
-
-1. **Install git-lfs**: https://git-lfs.com/ (see platform-specific instructions in the [installation guide](https://biomarkersparkinson.github.io/paradigma/guides/installation.html))
-2. **Clone the repository**: `git clone https://github.com/biomarkersParkinson/paradigma.git`
-3. **Pull data files**: `git lfs pull`
-
-**Troubleshooting:** If you encounter a `JSONDecodeError` when loading data, the example data files weren't downloaded correctly. Run `git lfs install` followed by `git lfs pull` in your cloned repository.
-
 This tutorial shows how to run the tremor pipeline to obtain aggregated tremor measures from gyroscope sensor data. Before following along, make sure all data preparation steps have been followed in the data preparation tutorial.
 
 In this tutorial, we use two days of data from a participant of the Personalized Parkinson Project to demonstrate the functionalities. Since `ParaDigMa` expects contiguous time series, the collected data was stored in two segments each with contiguous timestamps. Per segment, we load the data and perform the following steps:
@@ -22,6 +12,26 @@ We then combine the output of the different segments for the final step:
 
 5. Compute aggregated tremor measures
 
+## Import required modules
+
+
+```python
+import datetime
+from importlib.resources import files
+import json
+import pandas as pd
+from pathlib import Path
+import pytz
+import tsdf
+
+from paradigma.config import IMUConfig, TremorConfig
+from paradigma.constants import DataColumns, DataUnits
+from paradigma.pipelines.tremor_pipeline import extract_tremor_features, detect_tremor, \
+    aggregate_tremor
+from paradigma.preprocessing import preprocess_imu_data
+from paradigma.util import load_tsdf_dataframe, write_df_data, select_hours, select_days
+```
+
 ## Load example data
 
 Here, we start by loading a single contiguous time series (segment), for which we continue running steps 1-3. [Below](#multiple_segments_cell) we show how to run these steps for multiple segments.
@@ -32,9 +42,6 @@ We use the internally developed `TSDF` ([documentation](https://biomarkersparkin
 
 
 ```python
-from pathlib import Path
-from paradigma.util import load_tsdf_dataframe
-
 # Set the path to where the prepared data is saved and load the data.
 # Note: the test data is stored in TSDF, but you can load your data in your own way
 path_to_data =  Path('../../example_data/verily')
@@ -204,10 +211,6 @@ IMU sensors collect data at a fixed sampling frequency, but the sampling rate is
 
 
 ```python
-from paradigma.config import IMUConfig
-from paradigma.constants import DataColumns
-from paradigma.preprocessing import preprocess_imu_data
-
 # Set column names: replace DataColumn.* with your actual column names.
 # It is only necessary to set the columns that are present in your data, and
 # only if they differ from the default names defined in DataColumns.
@@ -235,6 +238,9 @@ df_preprocessed_data
 
     The data is resampled to 100 Hz.
     The tolerance for checking contiguous timestamps is set to 0.030 seconds.
+
+
+    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
 
 
 
@@ -355,9 +361,6 @@ The function [`extract_tremor_features`](https://biomarkersparkinson.github.io/p
 
 
 ```python
-from paradigma.config import TremorConfig
-from paradigma.pipelines.tremor_pipeline import extract_tremor_features
-
 config = TremorConfig()
 print(f'The window length is {config.window_length_s} seconds')
 
@@ -631,9 +634,6 @@ The function [`detect_tremor`](https://biomarkersparkinson.github.io/paradigma/a
 
 
 ```python
-from importlib.resources import files
-from paradigma.pipelines.tremor_pipeline import detect_tremor
-
 print(f'A threshold of {config.movement_threshold} deg\u00b2/s\u00b2 \
 is used to determine whether the arm is at rest or in stable posture.')
 
@@ -786,10 +786,6 @@ The predicted probabilities (and optionally other features) can be stored and lo
 
 
 ```python
-import tsdf
-from paradigma.util import write_df_data
-from paradigma.constants import DataUnits
-
 # Set 'path_to_data' to the directory where you want to save the data
 metadata_time_store = tsdf.TSDFMetadata(
     metadata_time.get_plain_tsdf_dict_copy(),
@@ -923,10 +919,6 @@ The tremor power of all predicted tremor windows (where `pred_tremor_checked` is
 
 
 ```python
-import pandas as pd
-import datetime
-import pytz
-
 df_quantification = df_predictions[[
     config.time_colname, DataColumns.PRED_ARM_AT_REST,
     DataColumns.PRED_TREMOR_CHECKED, DataColumns.TREMOR_POWER
@@ -1084,17 +1076,6 @@ If your data is also stored in multiple segments, you can modify `segments` in t
 
 
 ```python
-from pathlib import Path
-from importlib.resources import files
-import datetime
-import pytz
-import pandas as pd
-
-from paradigma.util import load_tsdf_dataframe
-from paradigma.config import IMUConfig, TremorConfig
-from paradigma.preprocessing import preprocess_imu_data
-from paradigma.pipelines.tremor_pipeline import extract_tremor_features, detect_tremor
-
 # Set the path to where the prepared data is saved
 path_to_data =  Path('../../example_data/verily')
 path_to_prepared_data = path_to_data / 'imu'
@@ -1166,6 +1147,12 @@ for segment_nr in segments:
 df_quantification = pd.concat(list_df_quantifications, ignore_index=True)
 ```
 
+    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+
+
+    Resampled: 7434685 -> 7388945 rows at 100.0 Hz
+
+
 ## Step 5: Compute aggregated tremor measures
 
 The final step is to compute the amount of tremor time and tremor power with the function [`aggregate_tremor`](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/pipelines/tremor_pipeline/index.html#paradigma.pipelines.tremor_pipeline.aggregate_tremor), which aggregates over all windows in the input dataframe. Depending on the size of the input dateframe, you could select the hours and days (both optional) that you want to include in this analysis. In this case we use data collected between 8 am and 10 pm (specified as `select_hours_start` and `select_hours_end`), and days with at least 10 hours of data (`min_hours_per_day`) based on. Based on the selected data, we compute aggregated measures for tremor time and tremor power:
@@ -1174,10 +1161,6 @@ The final step is to compute the amount of tremor time and tremor power with the
 
 
 ```python
-import json
-from paradigma.util import select_hours, select_days
-from paradigma.pipelines.tremor_pipeline import aggregate_tremor
-
 select_hours_start = '08:00' # you can specifiy the hours and minutes here
 select_hours_end = '22:00'
 min_hours_per_day = 10
