@@ -55,7 +55,7 @@ def run_pipeline_batch(
     tremor_config: TremorConfig | None = None,
     pulse_rate_config: PulseRateConfig | None = None,
     gait_segment_categories: List[str] | None = None,
-    verbosity: int = 1,
+    verbose: int = 1,
 ) -> Dict[str, pd.DataFrame | Dict]:
     """
     Run specific pipeline on multiple data files and aggregate results.
@@ -95,8 +95,8 @@ def run_pipeline_batch(
         Pulse rate analysis configuration.
     gait_segment_categories : list of str, optional
         Categories for gait segment aggregation.
-    verbosity : int, default 1
-        Logging verbosity level.
+    verbose : int, default 1
+        Logging verbose level.
 
     Returns
     -------
@@ -168,7 +168,7 @@ def run_pipeline_batch(
                     store_intermediate=store_intermediate,
                     output_dir=file_output_dir,
                     segment_number_offset=segment_nr_offset,
-                    verbosity=verbosity,
+                    verbose=verbose,
                 )
 
                 # Store metadata in the combined metadata dictionary
@@ -183,7 +183,7 @@ def run_pipeline_batch(
                     output_dir=file_output_dir,
                     tremor_config=tremor_config,
                     imu_config=imu_config,
-                    verbosity=verbosity,
+                    verbose=verbose,
                 )
             elif pipeline_name == "pulse_rate":
                 quantification_data = run_pulse_rate_pipeline(
@@ -192,7 +192,7 @@ def run_pipeline_batch(
                     output_dir=file_output_dir,
                     pulse_rate_config=pulse_rate_config,
                     ppg_config=ppg_config,
-                    verbosity=verbosity,
+                    verbose=verbose,
                 )
             else:
                 raise ValueError(
@@ -312,7 +312,7 @@ def run_pipeline_batch(
         save_prepared_data(
             combined_quantified,
             output_dir / f"quantifications_{pipeline_name}.parquet",
-            verbosity=verbosity,
+            verbose=verbose,
         )
 
     # Save aggregated results
@@ -440,7 +440,7 @@ def run_paradigma(
     pulse_rate_config : PulseRateConfig, optional
         Pulse rate analysis configuration.
     verbose : int, default 1
-        Logging verbosity level:
+        Logging verbose level:
         - 0: Only errors and warnings
         - 1: Basic info (default)
         - 2: Detailed info with progress
@@ -478,7 +478,7 @@ def run_paradigma(
             f"Supported pipelines: 'gait', 'tremor', 'pulse_rate'"
         )
 
-    # Set logging level based on verbosity
+    # Set logging level based on verbose
     if verbose == 0:
         logger.setLevel(logging.WARNING)
     elif verbose == 1:
@@ -516,7 +516,7 @@ def run_paradigma(
             logger.info("Step 1: Loading data files")
         try:
             dfs = load_data_files(
-                data_path=data_path, file_patterns=file_pattern, verbosity=verbose
+                data_path=data_path, file_patterns=file_pattern, verbose=verbose
             )
             if verbose >= 1:
                 logger.info(f"Loaded {len(dfs)} data files")
@@ -549,7 +549,7 @@ def run_paradigma(
             "auto_segment": split_by_gaps,
             "max_segment_gap_s": max_gap_seconds,
             "min_segment_length_s": min_segment_seconds,
-            "verbosity": verbose,
+            "verbose": verbose,
         }
 
         # Add pipeline-specific preparation parameters
@@ -581,7 +581,7 @@ def run_paradigma(
                     save_prepared_data(
                         df_prepared,
                         prepared_dir / f"{file_name}.parquet",
-                        verbosity=verbose,
+                        verbose=verbose,
                     )
 
             except Exception as e:
@@ -625,7 +625,7 @@ def run_paradigma(
                 output_dir=output_dir,
                 gait_segment_categories=segment_length_bins,
                 aggregates=aggregates,
-                verbosity=verbose,
+                verbose=verbose,
             )
 
             # Store results for this pipeline

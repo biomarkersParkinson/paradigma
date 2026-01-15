@@ -125,3 +125,9 @@ pip-delete-this-directory.txt
 # =========================
 *.log
 output*/
+
+# =========================
+# Generated TSDF files (from running notebooks/tests)
+# =========================
+example_data/**/segment*.json
+example_data/**/segment*.bin

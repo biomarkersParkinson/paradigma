@@ -773,7 +773,7 @@ def run_gait_pipeline(
     arm_activity_config: GaitConfig | None = None,
     store_intermediate: List[str] = [],
     segment_number_offset: int = 0,
-    verbosity: int = 1,
+    verbose: int = 1,
 ) -> Tuple[pd.DataFrame, Dict]:
     """
     Run the complete gait analysis pipeline on prepared data (steps 1-6).
@@ -862,7 +862,7 @@ def run_gait_pipeline(
         raise ValueError(f"Missing required columns: {missing_columns}")
 
     # Step 1: Preprocess data
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info("Step 1: Preprocessing IMU data")
 
     df_preprocessed = preprocess_imu_data(
@@ -870,7 +870,7 @@ def run_gait_pipeline(
         config=imu_config,
         sensor="both",
         watch_side=watch_side,
-        verbosity=verbosity,
+        verbose=verbose,
     )
 
     if "preprocessing" in store_intermediate:
@@ -879,13 +879,13 @@ def run_gait_pipeline(
         df_preprocessed.to_parquet(
             preprocessing_dir / "preprocessed_data.parquet", index=False
         )
-        if verbosity >= 2:
+        if verbose >= 2:
             logger.info(
                 f"Saved preprocessed data to {preprocessing_dir / 'preprocessed_data.parquet'}"
             )
 
     # Step 2: Extract gait features
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info("Step 2: Extracting gait features")
     df_gait = extract_gait_features(df_preprocessed, gait_config)
 
@@ -893,11 +893,11 @@ def run_gait_pipeline(
         gait_dir = output_dir / "gait"
         gait_dir.mkdir(parents=True, exist_ok=True)
         df_gait.to_parquet(gait_dir / "gait_features.parquet", index=False)
-        if verbosity >= 2:
+        if verbose >= 2:
             logger.info(f"Saved gait features to {gait_dir / 'gait_features.parquet'}")
 
     # Step 3: Detect gait
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info("Step 3: Detecting gait")
     try:
         classifier_path = files("paradigma.assets") / "gait_detection_clf_package.pkl"
@@ -942,7 +942,7 @@ def run_gait_pipeline(
         return pd.DataFrame()
 
     # Step 4: Extract arm activity features
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info("Step 4: Extracting arm activity features")
     df_arm_activity = extract_arm_activity_features(df_gait_only, arm_activity_config)
 
@@ -952,7 +952,7 @@ def run_gait_pipeline(
         df_arm_activity.to_parquet(
             arm_activity_dir / "arm_activity_features.parquet", index=False
         )
-        if verbosity >= 2:
+        if verbose >= 2:
             logger.info(
                 f"Saved arm activity features to {arm_activity_dir / 'arm_activity_features.parquet'}"
             )
@@ -994,7 +994,7 @@ def run_gait_pipeline(
         arm_activity_dir = output_dir / "arm_activity"
         arm_activity_dir.mkdir(parents=True, exist_ok=True)
         df_filtered.to_parquet(arm_activity_dir / "filtered_gait.parquet", index=False)
-        if verbosity >= 2:
+        if verbose >= 2:
             logger.info(
                 f"Saved filtered gait to {arm_activity_dir / 'filtered_gait.parquet'}"
             )
@@ -1007,7 +1007,7 @@ def run_gait_pipeline(
         return pd.DataFrame()
 
     # Step 6: Quantify arm swing
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info("Step 6: Quantifying arm swing")
     quantified_arm_swing, gait_segment_meta = quantify_arm_swing(
         df=df_filtered,
@@ -1028,7 +1028,7 @@ def run_gait_pipeline(
         with open(quantification_dir / "gait_segment_meta.json", "w") as f:
             json.dump(gait_segment_meta, f, indent=2)
 
-        if verbosity >= 2:
+        if verbose >= 2:
             logger.info(
                 f"Saved arm swing quantification to {quantification_dir / 'arm_swing_quantified.parquet'}"
             )
@@ -1036,7 +1036,7 @@ def run_gait_pipeline(
                 f"Saved gait segment metadata to {quantification_dir / 'gait_segment_meta.json'}"
             )
 
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info(
             f"Gait analysis pipeline completed. Found {len(quantified_arm_swing)} windows of gait "
             f"without other arm activities."

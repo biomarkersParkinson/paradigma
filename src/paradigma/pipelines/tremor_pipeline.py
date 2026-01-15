@@ -383,7 +383,7 @@ def run_tremor_pipeline(
     store_intermediate: List[str] = [],
     tremor_config: TremorConfig | None = None,
     imu_config: IMUConfig | None = None,
-    verbosity: int = 1,
+    verbose: int = 1,
 ) -> pd.DataFrame:
     """
     High-level tremor analysis pipeline for a single segment.
@@ -444,14 +444,14 @@ def run_tremor_pipeline(
         return pd.DataFrame()
 
     # Step 1: Preprocess gyroscope data (following tutorial)
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info("Step 1: Preprocessing gyroscope data")
     df_preprocessed = preprocess_imu_data(
         df_prepared,
         imu_config,
         sensor="gyroscope",
         watch_side="left",  # Watch side is unimportant for tremor detection
-        verbosity=verbosity,
+        verbose=verbose,
     )
 
     if "preprocessing" in store_intermediate:
@@ -461,7 +461,7 @@ def run_tremor_pipeline(
         logger.info(f"Saved preprocessed data to {preprocessing_dir}")
 
     # Step 2: Extract tremor features
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info("Step 2: Extracting tremor features")
     df_features = extract_tremor_features(df_preprocessed, tremor_config)
 
@@ -472,7 +472,7 @@ def run_tremor_pipeline(
         logger.info(f"Saved tremor features to {tremor_dir}")
 
     # Step 3: Detect tremor
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info("Step 3: Detecting tremor")
     try:
         from importlib.resources import files
@@ -484,7 +484,7 @@ def run_tremor_pipeline(
         return pd.DataFrame()
 
     # Step 4: Quantify tremor (following tutorial pattern)
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info("Step 4: Quantifying tremor")
 
     # Select quantification columns as in the tutorial
@@ -537,7 +537,7 @@ def run_tremor_pipeline(
         with open(quantification_dir / "tremor_quantification_meta.json", "w") as f:
             json.dump(quantification_meta, f, indent=2)
 
-        if verbosity >= 2:
+        if verbose >= 2:
             logger.info(f"Saved tremor quantification to {quantification_dir}")
 
     tremor_windows = (
@@ -545,7 +545,7 @@ def run_tremor_pipeline(
         if DataColumns.PRED_TREMOR_CHECKED in df_quantification.columns
         else 0
     )
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info(
             f"Tremor analysis completed: {tremor_windows} tremor windows detected from {len(df_quantification)} total windows"
         )

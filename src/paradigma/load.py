@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 def load_tsdf_data(
-    data_path: str | Path, prefix: str = "IMU", verbosity: int = 1
+    data_path: str | Path, prefix: str = "IMU", verbose: int = 1
 ) -> Tuple[pd.DataFrame, Dict, Dict]:
     """
     Load TSDF data from .meta and .bin files.
@@ -34,8 +34,8 @@ def load_tsdf_data(
         Path to directory containing TSDF files.
     prefix : str, default "IMU"
         Prefix for TSDF files (e.g., "IMU_segment0001").
-    verbosity : int, default 1
-        Logging verbosity level.
+    verbose : int, default 1
+        Logging verbose level.
 
     Returns
     -------
@@ -43,19 +43,19 @@ def load_tsdf_data(
         Tuple containing (DataFrame with loaded data, time metadata dict, values metadata dict)
     """
     data_path = Path(data_path)
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info(f"Loading TSDF data from {data_path} with prefix '{prefix}'")
 
     df, time_meta, values_meta = load_tsdf_dataframe(
         path_to_data=data_path, prefix=prefix
     )
 
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info(f"Loaded TSDF data: {df.shape[0]} rows, {df.shape[1]} columns")
     return df, time_meta, values_meta
 
 
-def load_empatica_data(file_path: str | Path, verbosity: int = 1) -> pd.DataFrame:
+def load_empatica_data(file_path: str | Path, verbose: int = 1) -> pd.DataFrame:
     """
     Load Empatica .avro file.
 
@@ -63,8 +63,8 @@ def load_empatica_data(file_path: str | Path, verbosity: int = 1) -> pd.DataFram
     ----------
     file_path : str or Path
         Path to .avro file.
-    verbosity : int, default 1
-        Logging verbosity level.
+    verbose : int, default 1
+        Logging verbose level.
 
     Returns
     -------
@@ -72,7 +72,7 @@ def load_empatica_data(file_path: str | Path, verbosity: int = 1) -> pd.DataFram
         DataFrame with columns: time, time_dt, accelerometer_x/y/z, gyroscope_x/y/z (if available).
     """
     file_path = Path(file_path)
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info(f"Loading Empatica data from {file_path}")
 
     with open(file_path, "rb") as f:
@@ -150,16 +150,16 @@ def load_empatica_data(file_path: str | Path, verbosity: int = 1) -> pd.DataFram
 
     df = pd.DataFrame(df_data)
 
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info(f"Loaded Empatica data: {nrows} rows at {sampling_frequency} Hz")
-    if verbosity >= 2:
+    if verbose >= 2:
         logger.info(f"Start time: {pd.to_datetime(t_start, unit='us')}")
         logger.info(f"Columns: {list(df.columns)}")
 
     return df
 
 
-def load_axivity_data(file_path: str | Path, verbosity: int = 1) -> pd.DataFrame:
+def load_axivity_data(file_path: str | Path, verbose: int = 1) -> pd.DataFrame:
     """
     Load Axivity .CWA file.
 
@@ -167,8 +167,8 @@ def load_axivity_data(file_path: str | Path, verbosity: int = 1) -> pd.DataFrame
     ----------
     file_path : str or Path
         Path to .CWA file.
-    verbosity : int, default 1
-        Logging verbosity level.
+    verbose : int, default 1
+        Logging verbose level.
 
     Returns
     -------
@@ -184,7 +184,7 @@ def load_axivity_data(file_path: str | Path, verbosity: int = 1) -> pd.DataFrame
         )
 
     file_path = Path(file_path)
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info(f"Loading Axivity data from {file_path}")
 
     with CwaData(
@@ -192,7 +192,7 @@ def load_axivity_data(file_path: str | Path, verbosity: int = 1) -> pd.DataFrame
         include_gyro=True,  # Set to False for AX3 devices without gyroscope
         include_temperature=False,
     ) as cwa_data:
-        if verbosity >= 2:
+        if verbose >= 2:
             logger.info(f"Data format info: {cwa_data.data_format}")
         df = cwa_data.get_samples()
 
@@ -217,15 +217,15 @@ def load_axivity_data(file_path: str | Path, verbosity: int = 1) -> pd.DataFrame
 
     df = df.rename(columns=column_mapping)
 
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info(f"Loaded Axivity data: {df.shape[0]} rows, {df.shape[1]} columns")
-    if verbosity >= 2:
+    if verbose >= 2:
         logger.info(f"Columns: {list(df.columns)}")
 
     return df
 
 
-def load_prepared_data(file_path: str | Path, verbosity: int = 1) -> pd.DataFrame:
+def load_prepared_data(file_path: str | Path, verbose: int = 1) -> pd.DataFrame:
     """
     Load prepared data from various formats (parquet, pickle, csv, json).
     If json, expects TSDF format with corresponding .bin files.
@@ -234,8 +234,8 @@ def load_prepared_data(file_path: str | Path, verbosity: int = 1) -> pd.DataFram
     ----------
     file_path : str or Path
         Path to prepared data file.
-    verbosity : int, default 1
-        Logging verbosity level.
+    verbose : int, default 1
+        Logging verbose level.
 
     Returns
     -------
@@ -243,7 +243,7 @@ def load_prepared_data(file_path: str | Path, verbosity: int = 1) -> pd.DataFram
         DataFrame with prepared data.
     """
     file_path = Path(file_path)
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info(f"Loading prepared data from {file_path}")
 
     if not file_path.exists():
@@ -270,9 +270,9 @@ def load_prepared_data(file_path: str | Path, verbosity: int = 1) -> pd.DataFram
             f"Unsupported file format: {suffix}. Supported: .parquet, .csv, .pkl, .pickle"
         )
 
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info(f"Loaded prepared data: {df.shape[0]} rows, {df.shape[1]} columns")
-    if verbosity >= 2:
+    if verbose >= 2:
         logger.info(f"Columns: {list(df.columns)}")
 
     return df
@@ -310,7 +310,7 @@ def detect_file_format(file_path: str | Path) -> str:
 def load_data_files(
     data_path: str | Path,
     file_patterns: List[str] | None = None,
-    verbosity: int = 1,
+    verbose: int = 1,
 ) -> Dict[str, pd.DataFrame]:
     """
     Load all data files from a directory with automatic format detection.
@@ -322,8 +322,8 @@ def load_data_files(
     file_patterns : str or list of str, optional
         File extensions to consider (e.g. ["parquet", "csv", "cwa"]).
         If None, all supported formats are considered.
-    verbosity : int, default 1
-        Verbosity level for logging.
+    verbose : int, default 1
+        verbose level for logging.
 
     Returns
     -------
@@ -358,24 +358,24 @@ def load_data_files(
                 # For TSDF, load based on .meta file and infer prefix
                 if file_path.suffix.lower() == ".json":
                     prefix = file_path.stem.replace("_meta", "")
-                    df, _, _ = load_tsdf_data(data_path, prefix, verbosity=verbosity)
+                    df, _, _ = load_tsdf_data(data_path, prefix, verbose=verbose)
                     loaded_files[prefix] = df
 
             elif file_format == "empatica":
-                df = load_empatica_data(file_path, verbosity=verbosity)
+                df = load_empatica_data(file_path, verbose=verbose)
                 loaded_files[file_path.stem] = df
 
             elif file_format == "axivity":
-                df = load_axivity_data(file_path, verbosity=verbosity)
+                df = load_axivity_data(file_path, verbose=verbose)
                 loaded_files[file_path.stem] = df
 
             elif file_format == "prepared":
-                df = load_prepared_data(file_path, verbosity=verbosity)
+                df = load_prepared_data(file_path, verbose=verbose)
                 prefix = file_path.stem.replace("_meta", "")
                 loaded_files[prefix] = df
 
             else:
-                if verbosity >= 2:
+                if verbose >= 2:
                     logger.warning(f"Unknown file format for {file_path}, skipping.")
 
         except Exception as e:
@@ -384,7 +384,7 @@ def load_data_files(
     if len(loaded_files) == 0:
         logger.warning("No data files were loaded.")
     else:
-        if verbosity >= 1:
+        if verbose >= 1:
             logger.info(f"Successfully loaded {len(loaded_files)} files")
 
     return loaded_files
@@ -394,7 +394,7 @@ def save_prepared_data(
     df: pd.DataFrame,
     file_path: str | Path,
     file_format: str = "parquet",
-    verbosity: int = 1,
+    verbose: int = 1,
 ) -> None:
     """
     Save prepared data to file.
@@ -423,5 +423,5 @@ def save_prepared_data(
     else:
         raise ValueError(f"Unsupported file_format: {file_format}")
 
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info(f"Saved prepared data to {file_path}")

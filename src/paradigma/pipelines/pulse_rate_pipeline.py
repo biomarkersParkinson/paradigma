@@ -506,7 +506,7 @@ def run_pulse_rate_pipeline(
     store_intermediate: List[str] = [],
     pulse_rate_config: PulseRateConfig | None = None,
     ppg_config: PPGConfig | None = None,
-    verbosity: int = 1,
+    verbose: int = 1,
 ) -> pd.DataFrame:
     """
     High-level pulse rate analysis pipeline for a single segment.
@@ -572,7 +572,7 @@ def run_pulse_rate_pipeline(
         df_ppg_proc, _ = preprocess_ppg_data(
             df_ppg=df_ppg,
             ppg_config=ppg_config,
-            verbosity=verbosity,
+            verbose=verbose,
         )
 
         if "preprocessing" in store_intermediate:
@@ -586,7 +586,7 @@ def run_pulse_rate_pipeline(
         return pd.DataFrame()
 
     # Step 2: Extract signal quality features
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info("Step 2: Extracting signal quality features")
     try:
         df_features = extract_signal_quality_features(df_ppg_proc, pulse_rate_config)
@@ -602,7 +602,7 @@ def run_pulse_rate_pipeline(
         return pd.DataFrame()
 
     # Step 3: Signal quality classification
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info("Step 3: Signal quality classification")
     try:
         classifier_path = files("paradigma.assets") / "ppg_quality_clf_package.pkl"
@@ -617,7 +617,7 @@ def run_pulse_rate_pipeline(
         return pd.DataFrame()
 
     # Step 4: Pulse rate estimation
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info("Step 4: Pulse rate estimation")
     try:
         df_pulse_rates = estimate_pulse_rate(
@@ -631,7 +631,7 @@ def run_pulse_rate_pipeline(
         return pd.DataFrame()
 
     # Step 5: Quantify pulse rate (select relevant columns and apply quality filtering)
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info("Step 5: Quantifying pulse rate")
 
     # Select quantification columns

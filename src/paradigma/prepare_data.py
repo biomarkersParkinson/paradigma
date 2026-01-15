@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 def standardize_column_names(
     df: pd.DataFrame,
     column_mapping: Dict[str, str] | None = None,
-    verbosity: int = 1,
+    verbose: int = 1,
 ) -> pd.DataFrame:
     """
     Standardize column names to ParaDigMa conventions.
@@ -42,8 +42,8 @@ def standardize_column_names(
         Input DataFrame.
     column_mapping : dict, optional
         Custom column mapping.
-    verbosity : int, default 1
-        Logging verbosity level.
+    verbose : int, default 1
+        Logging verbose level.
 
     Returns
     -------
@@ -59,7 +59,7 @@ def standardize_column_names(
     existing_mapping = {k: v for k, v in column_mapping.items() if k in df.columns}
     df = df.rename(columns=existing_mapping)
 
-    if verbosity >= 2 and existing_mapping:
+    if verbose >= 2 and existing_mapping:
         logger.info(f"Standardized columns: {existing_mapping}")
     return df
 
@@ -68,7 +68,7 @@ def convert_sensor_units(
     df: pd.DataFrame,
     accelerometer_units: str = "m/s^2",
     gyroscope_units: str = "deg/s",
-    verbosity: int = 1,
+    verbose: int = 1,
 ) -> pd.DataFrame:
     """
     Convert sensor units to ParaDigMa expected format (g for acceleration, deg/s for gyroscope).
@@ -81,8 +81,8 @@ def convert_sensor_units(
         Current units of accelerometer data.
     gyroscope_units : str, default 'deg/s'
         Current units of gyroscope data.
-    verbosity : int, default 1
-        Logging verbosity level.
+    verbose : int, default 1
+        Logging verbose level.
 
     Returns
     -------
@@ -103,7 +103,7 @@ def convert_sensor_units(
     ]
 
     if accelerometer_columns and accelerometer_units != "g":
-        if verbosity >= 2:
+        if verbose >= 2:
             logger.info(
                 f"Converting accelerometer units from {accelerometer_units} to g"
             )
@@ -124,7 +124,7 @@ def convert_sensor_units(
     ]
 
     if gyroscope_columns and gyroscope_units != "deg/s":
-        if verbosity >= 2:
+        if verbose >= 2:
             logger.info(f"Converting gyroscope units from {gyroscope_units} to deg/s")
         gyroscope_data = df[gyroscope_columns].values
         df[gyroscope_columns] = convert_units_gyroscope(
@@ -139,7 +139,7 @@ def prepare_time_column(
     time_column: str = DataColumns.TIME,
     input_unit_type: TimeUnit = TimeUnit.RELATIVE_S,
     output_unit_type: TimeUnit = TimeUnit.RELATIVE_S,
-    verbosity: int = 1,
+    verbose: int = 1,
 ) -> pd.DataFrame:
     """
     Prepare time column to start from 0 seconds.
@@ -154,8 +154,8 @@ def prepare_time_column(
         Input time unit type.
     output_unit_type : TimeUnit, default TimeUnit.RELATIVE_S
         Output time unit type.
-    verbosity : int, default 1
-        Logging verbosity level.
+    verbose : int, default 1
+        Logging verbose level.
 
     Returns
     -------
@@ -167,7 +167,7 @@ def prepare_time_column(
     if time_column not in df.columns:
         raise ValueError(f"Time column '{time_column}' not found in DataFrame")
 
-    if verbosity >= 2:
+    if verbose >= 2:
         logger.info(f"Preparing time column: {input_unit_type} -> {output_unit_type}")
 
     df[time_column] = transform_time_array(
@@ -184,7 +184,7 @@ def correct_watch_orientation(
     watch_side: str,
     device_orientation: List[str] | None = None,
     sensor: str = "both",
-    verbosity: int = 1,
+    verbose: int = 1,
 ) -> pd.DataFrame:
     """
     Correct sensor orientation based on watch side using ParaDigMa's invert_watch_side function.
@@ -227,7 +227,7 @@ def correct_watch_orientation(
             raise ValueError("device_orientation must have exactly 3 elements")
 
         if all([device_orientation[x] == target_orientation[x] for x in range(3)]):
-            if verbosity >= 2:
+            if verbose >= 2:
                 logger.info(
                     "Device orientation matches target orientation, no correction applied"
                 )
@@ -241,14 +241,14 @@ def correct_watch_orientation(
                         sign * df[f"{sensor_type}_{source_axis}"]
                     )
 
-                    if verbosity >= 2:
+                    if verbose >= 2:
                         logger.info(
                             f"Applied custom orientation: {sensor_type} {target_axis} mapped from {mapping}"
                         )
 
     # Use ParaDigMa's invert_watch_side function for proper orientation correction
     out = invert_watch_side(out, watch_side, sensor="both")
-    if verbosity >= 2:
+    if verbose >= 2:
         logger.info(f"Applied invert_watch_side correction for {watch_side} wrist")
 
     return out
@@ -340,7 +340,7 @@ def prepare_raw_data(
     auto_segment: bool = False,
     max_segment_gap_s: float | None = None,
     min_segment_length_s: float | None = None,
-    verbosity: int = 1,
+    verbose: int = 1,
 ) -> pd.DataFrame:
     """
     Complete data preparation pipeline for raw sensor data.
@@ -374,8 +374,8 @@ def prepare_raw_data(
     min_segment_length_s : float, optional
         Minimum segment length (seconds) to keep. Used when auto_segment=True.
         Defaults to 1.5s.
-    verbosity : int, default 1
-        Logging verbosity level
+    verbose : int, default 1
+        Logging verbose level
 
     Returns
     -------
@@ -383,39 +383,35 @@ def prepare_raw_data(
         Prepared data ready for ParaDigMa analysis. If auto_segment=True and multiple
         segments found, includes 'data_segment_nr' column.
     """
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info("Starting data preparation pipeline")
 
     # Step 1: Standardize column names
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info("Step 1: Standardizing column names")
     if column_mapping is None:
-        if verbosity >= 2:
+        if verbose >= 2:
             logger.info("No column mapping provided, using default mapping")
     else:
-        df = standardize_column_names(df, column_mapping, verbosity=verbosity)
+        df = standardize_column_names(df, column_mapping, verbose=verbose)
 
     # Step 2: Convert units
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info("Step 2: Converting sensor units")
-    df = convert_sensor_units(
-        df, accelerometer_units, gyroscope_units, verbosity=verbosity
-    )
+    df = convert_sensor_units(df, accelerometer_units, gyroscope_units, verbose=verbose)
 
     # Step 3: Prepare time column
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info("Step 3: Preparing time column")
-    df = prepare_time_column(df, input_unit_type=time_input_unit, verbosity=verbosity)
+    df = prepare_time_column(df, input_unit_type=time_input_unit, verbose=verbose)
 
     # Step 4: Correct orientation for watch side
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info(f"Step 4: Correcting orientation for {watch_side} wrist")
-    df = correct_watch_orientation(
-        df, watch_side, device_orientation, verbosity=verbosity
-    )
+    df = correct_watch_orientation(df, watch_side, device_orientation, verbose=verbose)
 
     # Step 5: Resample to target frequency
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info(f"Step 5: Resampling to {resampling_frequency} Hz")
     df = resample_data(
         df,
@@ -423,12 +419,12 @@ def prepare_raw_data(
         auto_segment=auto_segment,
         max_segment_gap_s=max_segment_gap_s,
         min_segment_length_s=min_segment_length_s,
-        verbosity=verbosity,
+        verbose=verbose,
     )
 
     # Step 6: Validate prepared data
     if validate:
-        if verbosity >= 1:
+        if verbose >= 1:
             logger.info("Step 6: Validating prepared data")
         validation = validate_prepared_data(df)
 
@@ -441,7 +437,7 @@ def prepare_raw_data(
                 logger.error(error)
             raise ValueError("Data preparation validation failed")
 
-    if verbosity >= 1:
+    if verbose >= 1:
         logger.info(
             f"Data preparation completed: {df.shape[0]} rows, {df.shape[1]} columns"
         )

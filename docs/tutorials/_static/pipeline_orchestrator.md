@@ -67,7 +67,7 @@ path_to_ppg_data = Path('../../example_data/verily/ppg')
 dfs_ppg = load_data_files(
     data_path=path_to_ppg_data,
     file_patterns='json',
-    verbosity=0
+    verbose=0
 )
 
 print(f"Loaded {len(dfs_ppg)} PPG files:")
@@ -192,7 +192,7 @@ results_single_pipeline['quantifications'][pipeline].head()
     INFO: Applying ParaDigMa pipelines to provided DataFrame
 
 
-    INFO: Logging to output\paradigma_run_20260115_1608.log
+    INFO: Logging to output\paradigma_run_20260115_1721.log
 
 
     INFO: Step 1: Using provided DataFrame(s) as input
@@ -369,7 +369,7 @@ print(f"  Aggregations: {results_no_storage['aggregations'][pipeline]}")
     INFO: Applying ParaDigMa pipelines to provided DataFrame
 
 
-    INFO: Logging to output\paradigma_run_20260115_1610.log
+    INFO: Logging to output\paradigma_run_20260115_1724.log
 
 
     INFO: Step 1: Using provided DataFrame(s) as input
@@ -494,7 +494,7 @@ path_to_imu_data = Path('../../example_data/verily/imu')
 dfs_imu = load_data_files(
     data_path=path_to_imu_data,
     file_patterns='json',
-    verbosity=0
+    verbose=0
 )
 
 print(f"Loaded {len(dfs_imu)} IMU files:")
@@ -618,7 +618,7 @@ results_multi_pipeline = run_paradigma(
     INFO: Applying ParaDigMa pipelines to provided DataFrame
 
 
-    INFO: Logging to output_multi\paradigma_run_20260115_1613.log
+    INFO: Logging to output_multi\paradigma_run_20260115_1727.log
 
 
     INFO: Step 1: Using provided DataFrame(s) as input
@@ -887,7 +887,7 @@ results_end_to_end['quantifications'][pipeline].head()
     INFO: Applying ParaDigMa pipelines to ..\..\example_data\axivity
 
 
-    INFO: Logging to output_raw\paradigma_run_20260115_1613.log
+    INFO: Logging to output_raw\paradigma_run_20260115_1727.log
 
 
     INFO: Step 1: Loading data files
@@ -1136,7 +1136,7 @@ path_to_physilog_data = Path('../../example_data/gait_up_physilog')
 dfs_physilog = load_data_files(
     data_path=path_to_physilog_data,
     file_patterns='parquet',
-    verbosity=0
+    verbose=0
 )
 
 print(f"Loaded {len(dfs_physilog)} Gait-up Physilog file(s):")
@@ -1146,7 +1146,6 @@ for filename, df in dfs_physilog.items():
     print(f"    Duration: {(df['time'].max() - df['time'].min()):.1f}s")
 
     # Check for gaps
-    import numpy as np
     time_diffs = df['time'].diff().dropna()
     large_gaps = time_diffs[time_diffs > 1.0]
     if len(large_gaps) > 0:
@@ -1293,7 +1292,7 @@ gait_results.head()
     INFO: Applying ParaDigMa pipelines to provided DataFrame
 
 
-    INFO: Logging to output\paradigma_run_20260115_1613.log
+    INFO: Logging to output\paradigma_run_20260115_1727.log
 
 
     INFO: Step 1: Using provided DataFrame(s) as input
