@@ -89,12 +89,6 @@ ipython_config.py
 .ropeproject
 
 # =========================
-# GitHub Copilot
-# =========================
-.github/copilot-instructions.md
-copilot-instructions.md
-
-# =========================
 # Environment / dependency managers
 # =========================
 .python-version  # pyenv
