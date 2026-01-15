@@ -359,7 +359,11 @@ def butterworth_filter(
 
 
 def preprocess_imu_data(
-    df: pd.DataFrame, config: IMUConfig, sensor: str, watch_side: str
+    df: pd.DataFrame,
+    config: IMUConfig,
+    sensor: str,
+    watch_side: str,
+    verbosity: int = 1,
 ) -> pd.DataFrame:
     """
     Preprocesses IMU data by resampling and applying filters.
@@ -380,6 +384,8 @@ def preprocess_imu_data(
         The side of the watch where the data was collected. Must be one of:
         - "left": Data was collected from the left wrist.
         - "right": Data was collected from the right wrist.
+    verbosity : int, default 1
+        Logging verbosity level: 0=errors only, 1=basic info, 2+=detailed info.
 
     Returns
     -------
@@ -432,6 +438,7 @@ def preprocess_imu_data(
             resampling_frequency=config.resampling_frequency,
             tolerance=config.tolerance,
             validate_contiguous=validate_contiguous,
+            verbosity=verbosity,
         )
 
     # Invert the IMU data if the watch was worn on the right wrist
@@ -483,6 +490,7 @@ def preprocess_ppg_data(
     df_acc: pd.DataFrame | None = None,
     imu_config: IMUConfig | None = None,
     start_time_imu: str | None = None,
+    verbosity: int = 1,
 ) -> Tuple[pd.DataFrame, pd.DataFrame | None]:
     """
     This function preprocesses PPG and accelerometer data by resampling, filtering and aligning the data segments of both sensors (if applicable).
@@ -505,6 +513,8 @@ def preprocess_ppg_data(
         iso8601 formatted start time of the PPG data.
     start_time_imu : str
         iso8601 formatted start time of the IMU data.
+    verbosity : int, default 1
+        Logging verbosity level: 0=errors only, 1=basic info, 2+=detailed info.
 
     Returns
     -------
@@ -550,6 +560,7 @@ def preprocess_ppg_data(
             resampling_frequency=imu_config.resampling_frequency,
             tolerance=imu_config.tolerance,
             validate_contiguous=validate_contiguous_acc,
+            verbosity=verbosity,
         )
 
         # Extract accelerometer data for filtering
@@ -590,6 +601,7 @@ def preprocess_ppg_data(
         resampling_frequency=ppg_config.resampling_frequency,
         tolerance=ppg_config.tolerance,
         validate_contiguous=validate_contiguous_ppg,
+        verbosity=verbosity,
     )
 
     # Extract accelerometer data for filtering

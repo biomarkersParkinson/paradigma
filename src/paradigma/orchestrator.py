@@ -45,7 +45,7 @@ def run_pipeline_batch(
     pipeline_name: str,
     dfs: pd.DataFrame | List[pd.DataFrame] | Dict[str, pd.DataFrame],
     output_dir: str | Path = "./output",
-    watch_side: str = None,
+    watch_side: str | None = None,
     store_intermediate: List[str] | None = [],
     aggregates: List[str] | None = None,
     imu_config: IMUConfig | None = None,

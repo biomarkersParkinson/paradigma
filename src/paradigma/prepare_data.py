@@ -53,6 +53,9 @@ def standardize_column_names(
     df = df.copy()
 
     # Apply mapping for existing columns only
+    if column_mapping is None:
+        return df
+
     existing_mapping = {k: v for k, v in column_mapping.items() if k in df.columns}
     df = df.rename(columns=existing_mapping)
 

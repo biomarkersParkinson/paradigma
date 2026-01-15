@@ -393,7 +393,7 @@ def load_data_files(
 def save_prepared_data(
     df: pd.DataFrame,
     file_path: str | Path,
-    format: str = "parquet",
+    file_format: str = "parquet",
     verbosity: int = 1,
 ) -> None:
     """
@@ -405,7 +405,7 @@ def save_prepared_data(
         DataFrame to save
     file_path : str or Path
         Path for output file
-    format : str, default 'parquet'
+    file_format : str, default 'parquet'
         Output format: 'parquet', 'csv', 'pickle'
     """
     file_path = Path(file_path)
@@ -413,15 +413,15 @@ def save_prepared_data(
     # Ensure directory exists
     file_path.parent.mkdir(parents=True, exist_ok=True)
 
-    if format == "parquet":
+    if file_format == "parquet":
         df.to_parquet(file_path, index=False)
-    elif format == "csv":
+    elif file_format == "csv":
         df.to_csv(file_path, index=False)
-    elif format == "pickle":
+    elif file_format == "pickle":
         with open(file_path, "wb") as f:
             pickle.dump(df, f)
     else:
-        raise ValueError(f"Unsupported format: {format}")
+        raise ValueError(f"Unsupported file_format: {file_format}")
 
     if verbosity >= 1:
         logger.info(f"Saved prepared data to {file_path}")

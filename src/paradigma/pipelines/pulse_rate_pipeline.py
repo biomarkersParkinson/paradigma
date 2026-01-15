@@ -572,6 +572,7 @@ def run_pulse_rate_pipeline(
         df_ppg_proc, _ = preprocess_ppg_data(
             df_ppg=df_ppg,
             ppg_config=ppg_config,
+            verbosity=verbosity,
         )
 
         if "preprocessing" in store_intermediate:

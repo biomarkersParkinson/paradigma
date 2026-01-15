@@ -866,7 +866,11 @@ def run_gait_pipeline(
         logger.info("Step 1: Preprocessing IMU data")
 
     df_preprocessed = preprocess_imu_data(
-        df=df_prepared, config=imu_config, sensor="both", watch_side=watch_side
+        df=df_prepared,
+        config=imu_config,
+        sensor="both",
+        watch_side=watch_side,
+        verbosity=verbosity,
     )
 
     if "preprocessing" in store_intermediate:
