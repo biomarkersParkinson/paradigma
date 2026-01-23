@@ -192,7 +192,7 @@ results_single_pipeline['quantifications'][pipeline].head()
     INFO: Applying ParaDigMa pipelines to provided DataFrame
 
 
-    INFO: Logging to output\paradigma_run_20260115_1721.log
+    INFO: Logging to output\paradigma_run_20260123_0905.log
 
 
     INFO: Step 1: Using provided DataFrame(s) as input
@@ -369,7 +369,7 @@ print(f"  Aggregations: {results_no_storage['aggregations'][pipeline]}")
     INFO: Applying ParaDigMa pipelines to provided DataFrame
 
 
-    INFO: Logging to output\paradigma_run_20260115_1724.log
+    INFO: Logging to output\paradigma_run_20260123_0908.log
 
 
     INFO: Step 1: Using provided DataFrame(s) as input
@@ -618,7 +618,7 @@ results_multi_pipeline = run_paradigma(
     INFO: Applying ParaDigMa pipelines to provided DataFrame
 
 
-    INFO: Logging to output_multi\paradigma_run_20260115_1727.log
+    INFO: Logging to output_multi\paradigma_run_20260123_0911.log
 
 
     INFO: Step 1: Using provided DataFrame(s) as input
@@ -805,7 +805,7 @@ print(f"   Metadata first tremor segment: {tremor_meta}")
     Detailed Results Analysis:
 
     Arm swing quantification (5299 windows):
-       Columns: ['segment_nr', 'range_of_motion', 'peak_velocity', 'file_key']... (4 total)
+       Columns: ['gait_segment_nr', 'range_of_motion', 'peak_velocity', 'file_key']... (4 total)
        Files: ['IMU_segment0001' 'IMU_segment0002']
 
     Arm swing aggregation (4 time ranges):
@@ -887,7 +887,7 @@ results_end_to_end['quantifications'][pipeline].head()
     INFO: Applying ParaDigMa pipelines to ..\..\example_data\axivity
 
 
-    INFO: Logging to output_raw\paradigma_run_20260115_1727.log
+    INFO: Logging to output_raw\paradigma_run_20260123_0912.log
 
 
     INFO: Step 1: Loading data files
@@ -956,10 +956,10 @@ results_end_to_end['quantifications'][pipeline].head()
     INFO: Step 4: Extracting arm activity features
 
 
-    Resampled: 36400 -> 36433 rows at 100.0 Hz
-
-
     INFO: Step 5: Filtering gait
+
+
+    Resampled: 36400 -> 36433 rows at 100.0 Hz
 
 
     INFO: Step 6: Quantifying arm swing
@@ -1051,7 +1051,7 @@ results_end_to_end['quantifications'][pipeline].head()
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>segment_nr</th>
+      <th>gait_segment_nr</th>
       <th>range_of_motion</th>
       <th>peak_velocity</th>
     </tr>
@@ -1105,16 +1105,17 @@ Use `split_by_gaps=True` when:
 - You want to process multiple recording sessions in one file
 - Data spans multiple days with breaks
 
-### Understanding Data Segments vs Analysis Segments
+### Understanding Data Segments vs Gait Segments
 
 Important distinction:
 - **Data segments (`data_segment_nr`)**: Contiguous recording chunks separated by temporal gaps
   - Created during data preparation
   - Example: 4 segments if recording had 3 interruptions
 
-- **Analysis segments (`segment_nr`)**: Detected activity bouts (gait, tremor)
-  - Created during pipeline analysis
+- **Gait segments (`gait_segment_nr`)**: Detected gait bouts within the data
+  - Created during gait pipeline analysis
   - Example: 52 gait bouts detected across all data segments
+  - Only applicable to gait analysis
 
 The orchestrator will:
 1. Detect gaps larger than `max_gap_seconds` (default: 1.5 seconds)
@@ -1122,7 +1123,7 @@ The orchestrator will:
 3. Discard segments shorter than `min_segment_seconds` (default: 1.5 seconds)
 4. Add a `data_segment_nr` column to track which recording chunk each data point belongs to
 5. Process each data segment independently through the pipeline
-6. Combine results with `segment_nr` for detected activities
+6. Combine results with `gait_segment_nr` for detected gait bouts (gait pipeline only)
 
 ### Example: Gait-up Physilog Data with Gaps
 
@@ -1270,7 +1271,7 @@ dfs_physilog[list(dfs_physilog.keys())[0]].head()
 
 results_with_segmentation = run_paradigma(
     dfs=dfs_physilog,                     # Pre-loaded data dictionary
-    skip_preparation=True,                # Data has standard format
+    skip_preparation=False,               # Need preparation to add data_segment_nr
     pipelines='gait',
     watch_side="left",
     time_input_unit=TimeUnit.RELATIVE_S,
@@ -1285,20 +1286,59 @@ results_with_segmentation = run_paradigma(
 gait_results = results_with_segmentation['quantifications']['gait']
 
 print(f"\nTotal arm swings quantified: {len(gait_results)}")
-print(f"Number of gait segments: {gait_results['segment_nr'].nunique()}")
+print(f"Number of gait segments: {gait_results['gait_segment_nr'].nunique()}")
+if 'data_segment_nr' in gait_results.columns:
+    print(f"Number of data segments: {gait_results['data_segment_nr'].nunique()}")
+print(f"\nColumns in output: {list(gait_results.columns)}")
 gait_results.head()
 ```
 
     INFO: Applying ParaDigMa pipelines to provided DataFrame
 
 
-    INFO: Logging to output\paradigma_run_20260115_1727.log
+    INFO: Logging to output\paradigma_run_20260123_0912.log
 
 
     INFO: Step 1: Using provided DataFrame(s) as input
 
 
-    INFO: Step 2: Data already prepared, skipping preparation
+    INFO: Step 2: Preparing raw data
+
+
+    INFO: Starting data preparation pipeline
+
+
+    INFO: Step 1: Standardizing column names
+
+
+    INFO: Step 2: Converting sensor units
+
+
+    INFO: Step 3: Preparing time column
+
+
+    INFO: Step 4: Correcting orientation for left wrist
+
+
+    INFO: Step 5: Resampling to 100.0 Hz
+
+
+    Non-contiguous data detected. Auto-segmenting...
+
+
+    Created 4 segments: 1713.3s, 1588.3s, 2243.5s, 3220.3s
+
+
+    INFO: Step 6: Validating prepared data
+
+
+    WARNING: Time column has irregular sampling
+
+
+    INFO: Data preparation completed: 876535 rows, 8 columns
+
+
+    INFO: Successfully prepared 1 data files
 
 
     INFO: Step 3: Running pipelines ['gait'] on 1 data files
@@ -1311,6 +1351,9 @@ gait_results.head()
 
 
     INFO: Step 1: Preprocessing IMU data
+
+
+    Resampled: 876525 -> 876535 rows at 100.0 Hz
 
 
     INFO: Step 2: Extracting gait features
@@ -1328,10 +1371,10 @@ gait_results.head()
     INFO: Step 6: Quantifying arm swing
 
 
-    INFO: Gait analysis pipeline completed. Found 1799 windows of gait without other arm activities.
+    INFO: Gait analysis pipeline completed. Found 1834 windows of gait without other arm activities.
 
 
-    INFO: Combined results: 1799 windows from 1 data files
+    INFO: Combined results: 1834 windows from 1 data files
 
 
     INFO: Aggregating gait results across all data files
@@ -1347,8 +1390,10 @@ gait_results.head()
 
 
 
-    Total arm swings quantified: 1799
-    Number of gait segments: 48
+    Total arm swings quantified: 1834
+    Number of gait segments: 47
+
+    Columns in output: ['gait_segment_nr', 'range_of_motion', 'peak_velocity']
 
 
 
@@ -1372,7 +1417,7 @@ gait_results.head()
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>segment_nr</th>
+      <th>gait_segment_nr</th>
       <th>range_of_motion</th>
       <th>peak_velocity</th>
     </tr>
@@ -1381,32 +1426,32 @@ gait_results.head()
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>14.141466</td>
-      <td>40.907163</td>
+      <td>14.394159</td>
+      <td>40.731020</td>
     </tr>
     <tr>
       <th>1</th>
       <td>2</td>
-      <td>13.592880</td>
-      <td>21.348593</td>
+      <td>13.593113</td>
+      <td>21.522583</td>
     </tr>
     <tr>
       <th>2</th>
       <td>2</td>
-      <td>20.881601</td>
-      <td>102.796801</td>
+      <td>20.881968</td>
+      <td>102.620567</td>
     </tr>
     <tr>
       <th>3</th>
       <td>2</td>
-      <td>16.711728</td>
-      <td>48.614957</td>
+      <td>16.711927</td>
+      <td>48.794681</td>
     </tr>
     <tr>
       <th>4</th>
       <td>2</td>
-      <td>6.855662</td>
-      <td>26.273063</td>
+      <td>6.565145</td>
+      <td>26.096350</td>
     </tr>
   </tbody>
 </table>

@@ -1,12 +1,23 @@
 """
 High-level pipeline orchestrator for ParaDigMa toolbox.
 
-This module provides the main entry point for running gait analysis on multiple data files:
-- run_paradigma(): Complete pipeline from data loading to aggregated results
-- run_pipeline(): Orchestrates multiple files and aggregation
-- run_gait_pipeline(): Single file analysis (imported from gait_pipeline)
+This module provides the main entry point for running analysis pipelines:
 
-Based on gait analysis tutorial aggregation patterns.
+Main Functions
+--------------
+- run_paradigma(): Complete pipeline from data loading/preparation to aggregated results.
+  Main entry point for end-to-end analysis supporting multiple pipelines (gait, tremor, pulse_rate).
+
+- run_pipeline_batch(): Runs a specific pipeline on multiple data files and aggregates results.
+  Used internally by run_paradigma() for processing batches of prepared data.
+
+The orchestrator coordinates:
+1. Data loading and preparation (unit conversion, resampling, orientation correction)
+2. Pipeline execution on single or multiple files (imports from pipeline modules)
+3. Result aggregation across files and segments
+4. Optional intermediate result storage
+
+Supports multi-file processing with automatic segment numbering and metadata tracking.
 """
 
 import json
@@ -152,7 +163,7 @@ def run_pipeline_batch(
                     segment_nr_offset = int(
                         max(
                             [
-                                df["segment_nr"].max()
+                                df["gait_segment_nr"].max()
                                 for df in all_quantifications
                                 if len(df) > 0
                             ]

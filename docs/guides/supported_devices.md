@@ -59,7 +59,7 @@ See the [Device-Specific Data Loading Tutorial](https://biomarkersparkinson.gith
 
 **Validation Status**: Community support (not formally validated by ParaDigMa team)
 
-A compact wrist-worn accelerometer designed for long-term monitoring.
+A compact wrist-worn IMU designed for long-term monitoring.
 
 - **Sensors**: 3-axis accelerometer (AX3), or 3-axis accelerometer and gyroscope (AX6)
 - **Data Format**: CWA format (native)
@@ -71,7 +71,8 @@ See the [Device-Specific Data Loading Tutorial](https://biomarkersparkinson.gith
 
 #### Known Considerations
 
-- Axivity AX3 lacks gyroscope and PPG data; tremor and pulse rate analysis not possible
+- Axivity AX3 lacks gyroscope and PPG data: tremor and pulse rate analysis not possible
+- Axivity AX6 lacks PPG data: pulse rate analysis not possible
 
 ## Using Data from Unsupported Devices
 

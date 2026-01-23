@@ -27,8 +27,7 @@ def resample_data(
     """
     Unified resampling function with optional auto-segmentation for non-contiguous data.
 
-    This function combines the functionality of both prepare_data.resample_data (auto-detection)
-    and preprocessing.resample_data (explicit validation). It supports:
+    This function supports:
     - Automatic frequency detection or explicit specification
     - Contiguity validation with configurable tolerance
     - Automatic segmentation of non-contiguous data

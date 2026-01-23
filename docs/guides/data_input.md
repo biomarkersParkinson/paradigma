@@ -61,8 +61,8 @@ results = run_paradigma(
 
 **Benefits:**
 - Automatic segment ID assignment
-- Clean, concise syntax for multiple inputs
 - Each DataFrame is processed independently before aggregation
+- Aggregation is performed across input DataFrame objects
 
 ### 3. Dictionary of DataFrames
 

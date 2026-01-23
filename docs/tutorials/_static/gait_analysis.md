@@ -1185,7 +1185,7 @@ print(
     f"and maximum {config.max_segment_gap_s} seconds gap between segments.\n"
 )
 print(
-    f"A total of {quantified_arm_swing['segment_nr'].nunique()} {dataset_used} "
+    f"A total of {quantified_arm_swing['gait_segment_nr'].nunique()} {dataset_used} "
     f"gait segments have been quantified."
 )
 
@@ -1204,7 +1204,7 @@ print(
     f"\nIndividual arm swings of the first gait segment of the "
     f" {dataset_used} dataset:"
 )
-quantified_arm_swing.loc[quantified_arm_swing['segment_nr'] == 1]
+quantified_arm_swing.loc[quantified_arm_swing['gait_segment_nr'] == 1]
 ```
 
     The arm swing quantification is based on the filtered gait segments.
@@ -1247,7 +1247,7 @@ quantified_arm_swing.loc[quantified_arm_swing['segment_nr'] == 1]
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>segment_nr</th>
+      <th>gait_segment_nr</th>
       <th>range_of_motion</th>
       <th>peak_velocity</th>
     </tr>
@@ -1472,15 +1472,15 @@ for raw_data_segment_nr in raw_data_segments:
         min_segment_length_s=config.min_segment_length_s,
     )
 
-    # Since segments start at zero, and we are concatenating multiple segments,
-    # we need to update the segment numbers to avoid aggregating multiple
-    # segments with the same number
+    # Since gait segments start at zero, and we are concatenating multiple segments,
+    # we need to update the gait segment numbers to avoid aggregating multiple
+    # gait segments with the same number
     if len(list_quantified_arm_swing) == 0:
         max_gait_segment_nr = 0
     else:
-        max_gait_segment_nr = quantified_arm_swing['segment_nr'].max()
+        max_gait_segment_nr = quantified_arm_swing['gait_segment_nr'].max()
 
-    quantified_arm_swing['segment_nr'] += max_gait_segment_nr
+    quantified_arm_swing['gait_segment_nr'] += max_gait_segment_nr
     gait_segment_meta['per_segment'] = {
         k + max_gait_segment_nr: v for k, v in gait_segment_meta['per_segment'].items()
     }

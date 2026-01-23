@@ -15,7 +15,9 @@ class DataColumns:
     GYROSCOPE_Z: str = "gyroscope_z"
     PPG: str = "green"
     TIME: str = "time"
-    SEGMENT_NR: str = "segment_nr"
+    GAIT_SEGMENT_NR: str = "gait_segment_nr"
+    SEGMENT_NR: str = "gait_segment_nr"  # Deprecated: Use GAIT_SEGMENT_NR instead
+    DATA_SEGMENT_NR: str = "data_segment_nr"
     SEGMENT_CAT: str = "segment_category"
 
     # Gait

@@ -209,14 +209,39 @@ def extract_arm_activity_features(
         temporal, and spectral features.
     """
     # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
-    df[DataColumns.SEGMENT_NR] = create_segments(
-        time_array=df[DataColumns.TIME], max_segment_gap_s=config.max_segment_gap_s
-    )
+    # If data_segment_nr exists, create gait segments per data segment to preserve both
+    has_data_segments = DataColumns.DATA_SEGMENT_NR in df.columns
+
+    if has_data_segments:
+        df_list = []
+        gait_segment_offset = 0
+
+        for data_seg_nr in sorted(df[DataColumns.DATA_SEGMENT_NR].unique()):
+            df_seg = df[df[DataColumns.DATA_SEGMENT_NR] == data_seg_nr].copy()
+
+            # Create gait segments within this data segment
+            df_seg[DataColumns.GAIT_SEGMENT_NR] = create_segments(
+                time_array=df_seg[DataColumns.TIME].values,
+                max_segment_gap_s=config.max_segment_gap_s,
+            )
+
+            # Offset gait segment numbers to be unique across data segments
+            if gait_segment_offset > 0:
+                df_seg[DataColumns.GAIT_SEGMENT_NR] += gait_segment_offset
+            gait_segment_offset = df_seg[DataColumns.GAIT_SEGMENT_NR].max() + 1
+
+            df_list.append(df_seg)
+
+        df = pd.concat(df_list, ignore_index=True)
+    else:
+        df[DataColumns.GAIT_SEGMENT_NR] = create_segments(
+            time_array=df[DataColumns.TIME], max_segment_gap_s=config.max_segment_gap_s
+        )
 
     # Remove segments that do not meet predetermined criteria
     df = discard_segments(
         df=df,
-        segment_nr_colname=DataColumns.SEGMENT_NR,
+        segment_nr_colname=DataColumns.GAIT_SEGMENT_NR,
         min_segment_length_s=config.min_segment_length_s,
         fs=config.sampling_frequency,
         format="timestamps",
@@ -224,7 +249,7 @@ def extract_arm_activity_features(
 
     # Create windows of fixed length and step size from the time series per segment
     windowed_data = []
-    df_grouped = df.groupby(DataColumns.SEGMENT_NR)
+    df_grouped = df.groupby(DataColumns.GAIT_SEGMENT_NR)
     windowed_colnames = (
         [config.time_colname]
         + config.accelerometer_colnames
@@ -517,13 +542,19 @@ def quantify_arm_swing(
                     )
                     pav = np.array([np.nan])
 
-                df_params_segment = pd.DataFrame(
-                    {
-                        DataColumns.SEGMENT_NR: segment_nr,
-                        DataColumns.RANGE_OF_MOTION: rom,
-                        DataColumns.PEAK_VELOCITY: pav,
-                    }
-                )
+                params_dict = {
+                    DataColumns.GAIT_SEGMENT_NR: segment_nr,
+                    DataColumns.RANGE_OF_MOTION: rom,
+                    DataColumns.PEAK_VELOCITY: pav,
+                }
+
+                # Add data_segment_nr if it exists in the input data
+                if DataColumns.DATA_SEGMENT_NR in group.columns:
+                    params_dict[DataColumns.DATA_SEGMENT_NR] = group[
+                        DataColumns.DATA_SEGMENT_NR
+                    ].iloc[0]
+
+                df_params_segment = pd.DataFrame(params_dict)
 
                 arm_swing_quantified.append(df_params_segment)
 
@@ -587,7 +618,7 @@ def aggregate_arm_swing_params(
             }
 
             df_arm_swing_params_cat = df_arm_swing_params.loc[
-                df_arm_swing_params[DataColumns.SEGMENT_NR].isin(cat_segments)
+                df_arm_swing_params[DataColumns.GAIT_SEGMENT_NR].isin(cat_segments)
             ]
 
             # Aggregate across all segments
@@ -600,7 +631,9 @@ def aggregate_arm_swing_params(
                         # If the aggregate is 'cov' (coefficient of variation), we also compute the mean and standard deviation per segment
                         segment_groups = dict(
                             tuple(
-                                df_arm_swing_params_cat.groupby(DataColumns.SEGMENT_NR)
+                                df_arm_swing_params_cat.groupby(
+                                    DataColumns.GAIT_SEGMENT_NR
+                                )
                             )
                         )
                         for segment_nr in cat_segments:
@@ -822,7 +855,7 @@ def run_gait_pipeline(
     -------
     pd.DataFrame
         Quantified arm swing parameters with the following columns:
-        - segment_nr: Gait segment number within this data segment
+        - gait_segment_nr: Gait segment number within this data segment
         - Various arm swing metrics (range of motion, peak angular velocity, etc.)
         - Additional metadata columns
 
@@ -1045,7 +1078,7 @@ def run_gait_pipeline(
     # Apply segment number offset if specified (for multi-segment concatenation)
     if segment_number_offset > 0 and len(quantified_arm_swing) > 0:
         quantified_arm_swing = quantified_arm_swing.copy()
-        quantified_arm_swing["segment_nr"] += segment_number_offset
+        quantified_arm_swing["gait_segment_nr"] += segment_number_offset
 
         # Also update the metadata with the new segment numbers
         if gait_segment_meta and "per_segment" in gait_segment_meta:
