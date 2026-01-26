@@ -80,6 +80,7 @@ def run_pipeline_batch(
         - Dict[str, DataFrame]: Keys are file names, values are dataframes.
         Note: The 'file_key' column is only added to quantification results when
         len(dfs) > 1, allowing cleaner output for single-file processing.
+        See input_formats guide for details.
     pipeline_name: str
         Name of the pipeline to run: 'gait', 'tremor', or 'pulse_rate'.
     watch_side : str, optional
@@ -393,6 +394,7 @@ def run_paradigma(
         - Dict[str, DataFrame]: Keys are file names, values are dataframes.
         Note: The 'file_key' column is only added to quantification results when
         len(dfs) > 1, allowing cleaner output for single-file processing.
+        See input_formats guide for details.
     skip_preparation : bool, default False
         Whether data is already prepared. If False, data will be prepared (unit conversion,
         resampling, etc.). If True, assumes data is already in the required format.

@@ -1,7 +1,7 @@
 # Device specific data loading
 This tutorial demonstrates how to load sensor data of the following devices into memory:
-- Axivity
-- Empatica
+- Axivity AX3 / AX6
+- Empatica EmbracePlus
 
 Note that Paradigma requires further data preparation as outlined in [the data preparation tutorial](data_preparation).
 
@@ -173,8 +173,8 @@ df.head()
 
 
 
-### Empatica
-Empatica sensor data is stored in Apache Avro (`.avro`) format. In short, Empatica automatically writes sensor data every 30 minutes to a cloud storage with the naming convention [participant_id]_[timestamp].avro. In this tutorial we will show how to read and prepare a single `.avro` file.
+### Empatica EmbracePlus
+Empatica EmbracePlus sensor data is stored in Apache Avro (`.avro`) format. In short, Empatica automatically writes sensor data every 30 minutes to a cloud storage with the naming convention [participant_id]_[timestamp].avro. In this tutorial we will show how to read and prepare a single `.avro` file.
 
 For more detailed documentation on using this data format in Python, consider reading [the official Apache Avro documentation](https://avro.apache.org/docs/). Extensive documentation is available on how to read and write `.avro` files in Python [here](https://avro.apache.org/docs/++version++/getting-started-python/).
 

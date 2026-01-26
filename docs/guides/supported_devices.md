@@ -1,132 +1,247 @@
 # Supported Devices
 
-This guide documents the devices that have been tested with ParaDigMa and provides device-specific loading and usage guidance.
+This guide documents devices that have been tested with ParaDigMa and provides device-specific guidance for data loading and usage.
 
-## Validated Devices
+ParaDigMa is designed to work with wrist sensor data from any device, as long as the data meets the [Sensor Requirements](sensor_requirements.md). However, validation has only been performed for specific devices listed below.
 
-### Gait-up Physilog 4
+---
 
-**Validation Status**: Arm Swing & Tremor ✓
+## Scientifically Validated Devices
 
-A research-grade inertial measurement unit (IMU) worn as a wrist-mounted sensor band.
-
-- **Sensors**: 3-axis accelerometer, 3-axis gyroscope, 3-axis magnetometer
-- **Sampling Rate**: 200 Hz
-
-#### Validation Details
-
-- **Arm Swing**: Validated on Parkinson@Home dataset
-- **Tremor**: Validated on Parkinson@Home dataset
-- **Known Limitations**: No PPG sensor on this device
+These devices have undergone rigorous scientific validation with ParaDigMa pipelines.
 
 ### Verily Study Watch
 
-**Validation Status**: Arm Swing, Tremor & Pulse Rate ✓
-
 A research-grade smartwatch developed by Verily Life Sciences for clinical research.
 
+#### Specifications
+
 - **Sensors**: 3-axis accelerometer, 3-axis gyroscope, photoplethysmography (PPG)
-- **Sampling Rate**: 100 Hz (IMU), 30 Hz (PPG)
+- **Sampling Rates**: 100 Hz (IMU), 30 Hz (PPG)
+- **Validated Pipelines**: Gait, Tremor, Pulse Rate
 
-#### Validation Details
+---
 
-- **Arm Swing**: Validated on PPP dataset
-- **Tremor**: Validated on PPP dataset
-- **Pulse Rate**: Validated on PPP dataset
+### Gait-up Physilog 4
 
-## Commonly Used Devices with Community Support
+A research-grade IMU worn as a wrist-mounted sensor band.
 
-### Empatica E4
+#### Specifications
 
-**Validation Status**: Community support (not formally validated by ParaDigMa team)
+- **Sensors**: 3-axis accelerometer, 3-axis gyroscope, 3-axis magnetometer
+- **Sampling Rate**: 200 Hz
+- **Validated Pipelines**: Gait, Tremor
 
-A wrist-worn research device with PPG and accelerometer sensors.
+---
 
-- **Sensors**: 3-axis accelerometer, PPG
-- **Data Format**: AVRO format (native)
-- **Supported by ParaDigMa**: Partial (data loading supported; not validated)
+## Empirically Validated Devices
 
-#### Loading Empatica Data
+These devices have been tested with ParaDigMa and show promising results, but have not undergone full scientific validation.
 
-See the [Device-Specific Data Loading Tutorial](https://biomarkersparkinson.github.io/paradigma/tutorials/device_specific_data_loading.html) for Empatica E4 data loading examples.
-
-#### Known Considerations
-
-- Empatica E4 lacks gyroscope data; tremor and gait analysis require external gyroscope
-- Community examples available but not validated by ParaDigMa team
-
-### Axivity AX3/6
-
-**Validation Status**: Community support (not formally validated by ParaDigMa team)
+### Axivity AX6
 
 A compact wrist-worn IMU designed for long-term monitoring.
 
-- **Sensors**: 3-axis accelerometer (AX3), or 3-axis accelerometer and gyroscope (AX6)
-- **Data Format**: CWA format (native)
-- **Supported by ParaDigMa**: Partial (data loading supported; not validated)
+#### Specifications
 
-#### Loading Axivity Data
+- **Sensors**: 3-axis accelerometer, 3-axis gyroscope
+- **Sampling Rate**: Configurable (typically 100 Hz)
+- **Data Format**: CWA (native)
+- **Validated Pipelines**: Gait, Tremor
 
-See the [Device-Specific Data Loading Tutorial](https://biomarkersparkinson.github.io/paradigma/tutorials/device_specific_data_loading.html) for Axivity AX3 data loading examples.
+See the [Device-Specific Data Loading Tutorial](https://biomarkersparkinson.github.io/paradigma/tutorials/device_specific_data_loading.html) for more examples.
 
-#### Known Considerations
+---
 
-- Axivity AX3 lacks gyroscope and PPG data: tremor and pulse rate analysis not possible
-- Axivity AX6 lacks PPG data: pulse rate analysis not possible
+### Empatica EmbracePlus
 
-## Using Data from Unsupported Devices
+A wrist-worn research device with accelerometer sensors.
 
-If your device is not listed above, you can still use ParaDigMa by:
+#### Specifications
 
-1. **Export to Standard Format**: Convert your device's proprietary format to pandas DataFrame or a supported file format (Parquet, CSV)
-2. **Ensure Data Compliance**: Verify your sensor data meets the [Sensor Requirements](https://biomarkersparkinson.github.io/paradigma/guides/sensor_requirements.html)
-3. **Data Preparation**: Follow the [Data Preparation Tutorial](https://biomarkersparkinson.github.io/paradigma/tutorials/data_preparation.html) to standardize your data
-4. **Pipeline Testing**: Test with a small dataset first to validate results
+- **Sensors**: 3-axis accelerometer
+- **Sampling Rate**: 64 Hz (accelerometer)
+- **Data Format**: AVRO (native)
+- **Validated Pipelines**: None (data preparation only)
 
-## Data Format Support
+
+See the [Device-Specific Data Loading Tutorial](https://biomarkersparkinson.github.io/paradigma/tutorials/device_specific_data_loading.html) for Empatica-specific loading examples.
+
+#### Considerations
+
+- **No gyroscope**: Tremor analysis not possible
+- **No PPG in accelerometer file**: Pulse rate analysis requires separate PPG file
+- AVRO format loading is supported but may require additional configuration
+- **Not validated**: Gait pipeline results not scientifically validated on this device
+
+---
+
+## Device Comparison Table
+
+| Device | Accel | Gyro | PPG | Sampling Rate (Hz) | Gait | Tremor | Pulse Rate | Validation Status |
+|--------|:-----:|:----:|:---:|:------------------:|:----:|:------:|:----------:|-------------------|
+| **Verily Study Watch** | ✓ | ✓ | ✓ | 100 (IMU), 30 (PPG) | ✓ | ✓ | ✓ | Scientific |
+| **Gait-up Physilog 4** | ✓ | ✓ | - | 200 | ✓ | ✓ | - | Scientific |
+| **Axivity AX6** | ✓ | ✓ | - | 100 | ~ | ~ | - | Empirical |
+| **Axivity AX3** | ✓ | - | - | 100 | ~ | - | - | Limited |
+| **Empatica EmbracePlus** | ✓ | - | - | 64 | - | - | - | Limited |
+
+✓ = Fully supported/validated | ~ = Empirically validated | - = Not possible
+
+---
+
+## File Format Support
 
 ParaDigMa can load data from multiple formats:
 
-| Format | Extension | Status |
-|--------|-----------|--------|
-| **Pandas DataFrame** | (in-memory) | ✓ Recommended |
-| **TSDF** | `.meta` + `.bin` | ✓ Supported |
-| **Parquet** | `.parquet` | ✓ Supported |
-| **CSV** | `.csv` | ✓ Supported |
-| **Pickle** | `.pkl` / `.pickle` | ✓ Supported |
-| **AVRO** | `.avro` | ✓ Supported |
-| **CWA** | `.cwa` | ✓ Supported |
+| Format | Extension | Device Examples | Notes |
+|--------|-----------|-----------------|-------|
+| **Pandas DataFrame** | (in-memory) | All | Recommended for pre-processed data |
+| **TSDF** | `.meta` + `.bin` | Verily Study Watch | Standard research format |
+| **Parquet** | `.parquet` | All | Efficient storage, fast loading |
+| **CSV** | `.csv` | All | Universal but slower |
+| **Pickle** | `.pkl`, `.pickle` | All | Python-specific |
+| **CWA** | `.cwa` | Axivity AX3/AX6 | Native Axivity format |
+| **AVRO** | `.avro` | Empatica | Native Empatica format |
 
-See [Data Preparation Tutorial](https://biomarkersparkinson.github.io/paradigma/tutorials/data_preparation.html) for examples of loading each format.
+See [Data Input Formats](input_formats.md) for detailed loading examples.
 
-## Testing Example Data
+---
 
-ParaDigMa includes example data from validated devices in the `example_data/` folder:
+## Using Unsupported Devices
+
+If your device is not listed, you can still use ParaDigMa:
+
+### Step 1: Export to Standard Format
+
+Convert your device's data to pandas DataFrame or a supported file format (Parquet/CSV recommended).
+
+### Step 2: Verify Sensor Requirements
+
+Ensure your data meets the [Sensor Requirements](sensor_requirements.md):
+
+- Accelerometer: ≥100 Hz, ±4g range (for gait/tremor)
+- Gyroscope: ≥100 Hz, ±1000 deg/s range (for tremor)
+- PPG: ≥30 Hz (for pulse rate)
+
+### Step 3: Prepare Data Format
+
+Follow the [Data Preparation Tutorial](../tutorials/data_preparation.html) to format your DataFrame:
+
+```python
+import pandas as pd
+
+# Example: Format your device data
+df = pd.DataFrame({
+    'time': your_timestamps,  # Relative seconds or absolute datetime
+    'x': your_acc_x,         # Accelerometer X
+    'y': your_acc_y,         # Accelerometer Y
+    'z': your_acc_z,         # Accelerometer Z
+    'gyro_x': your_gyro_x,   # Gyroscope X (if available)
+    'gyro_y': your_gyro_y,   # Gyroscope Y (if available)
+    'gyro_z': your_gyro_z,   # Gyroscope Z (if available)
+})
+```
+
+### Step 4: Test with Small Dataset
+
+```python
+from paradigma.orchestrator import run_paradigma
+
+# Test on a small sample first
+results = run_paradigma(
+    dfs=df.iloc[:10000],  # First 10,000 samples
+    pipelines=['gait'],
+    watch_side='left',
+    accelerometer_units='g',
+    gyroscope_units='deg/s',
+    target_frequency=100.0
+)
+```
+
+### Step 5: Validate Results
+
+- Compare with known validated devices if possible
+- Check for reasonable output values
+- Inspect intermediate results with `save_intermediate=['quantification']`
+
+---
+
+## Testing with Example Data
+
+ParaDigMa includes example data in `example_data/`:
 
 ```
 example_data/
-├── axivity/
-├── empatica/
-└── verily/
+├── axivity/          # Axivity AX6 sample
+├── empatica/         # Empatica EmbracePlus sample
+├── gait_up_physilog/ # Physilog 4 sample
+└── verily/           # Verily Study Watch sample
 ```
 
-Use these examples to test your ParaDigMa installation and understand expected data formats.
+Use these to test your installation:
+
+```python
+from paradigma.orchestrator import run_paradigma
+from pathlib import Path
+
+# Get example data path
+example_dir = Path('path/to/paradigma/example_data/verily/imu')
+
+# Run on example data
+results = run_paradigma(
+    data_path=example_dir,
+    pipelines=['gait', 'tremor'],
+    watch_side='left',
+    file_pattern='*.parquet'
+)
+```
+
+---
 
 ## Hardware Considerations
 
 ### Wrist Placement
 
-All validation was performed with the sensor on the wrist (not upper arm or other locations). The sensor should be:
+All validation was performed with the sensor on the **wrist** (not upper arm or other locations):
 
 - Fitted snugly to minimize motion artifacts
-- Worn on either wrist (left or right)
+- Worn on either left or right wrist
+- Specify wrist side with `watch_side` parameter
+
+### Device Orientation
+
+ParaDigMa expects a standardized coordinate system. See [Coordinate System Guide](coordinate_system.md) for details.
+
+If your device uses a different orientation, use the `device_orientation` parameter:
+
+```python
+results = run_paradigma(
+    dfs=df,
+    pipelines=['gait'],
+    watch_side='left',
+    device_orientation=['z', '-x', 'y']  # Example custom orientation
+)
+```
+
+---
 
 ## Contributing Device Support
 
-If you have experience with a device not listed here or want to contribute validation results, please:
+We welcome community contributions! If you have experience with a device not listed here:
 
-1. Open a [GitHub Discussion](https://github.com/biomarkersParkinson/paradigma/discussions)
-2. Share data loading code and validation results
-3. Contact: paradigma@radboudumc.nl
+1. Test ParaDigMa on your device
+2. Document loading procedures and any device-specific considerations
+3. Share validation results
+4. Open a [GitHub Discussion](https://github.com/biomarkersParkinson/paradigma/discussions) or contact paradigma@radboudumc.nl
 
-We welcome community contributions to expand device support!
+Your contribution helps expand ParaDigMa's device ecosystem!
+
+---
+
+## See Also
+
+- [Sensor Requirements](sensor_requirements.md) - Technical specifications for sensors
+- [Input Formats Guide](input_formats.md) - How to provide data to ParaDigMa
+- [Data Preparation Tutorial](../tutorials/data_preparation.html) - Step-by-step guide
+- [Coordinate System Guide](coordinate_system.md) - Orientation requirements

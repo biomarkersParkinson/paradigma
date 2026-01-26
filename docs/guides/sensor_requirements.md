@@ -4,107 +4,132 @@ ParaDigMa is designed for analysis of wrist-worn sensor data collected during pa
 
 ## General Requirements
 
-All pipelines require data from a wrist-worn sensor with the following characteristics:
+All pipelines require data from a wrist-worn sensor with:
 
-- **Sensor Position**: Either wrist
-- **Data Format**: Contiguous, strictly increasing timestamps (see [Data Preparation](https://biomarkersparkinson.github.io/paradigma/tutorials/data_preparation.html))
-- **Orientation**: Proper coordinate system alignment (see [Coordinate System Guide](https://biomarkersparkinson.github.io/paradigma/guides/coordinate_system.html))
+- **Sensor Position**: Either wrist (left or right)
 - **Population**: Persons with Parkinson's disease
+- **Data Quality**: Contiguous, strictly increasing timestamps
+- **Orientation**: Standardized coordinate system (see [Coordinate System Guide](coordinate_system.md))
 
-## Arm Swing during Gait
+## Pipeline-Specific Requirements
 
-### Sensor Specifications
+### Arm Swing during Gait
+
+#### Sensor Specifications
 
 | Specification | Minimum Requirement |
 |---------------|-------------------|
-| **Accelerometer** | Sampling rate ≥ 100 Hz, Range ≥ ± 4 g |
-| **Gyroscope** | Sampling rate ≥ 100 Hz, Range ≥ ± 1000 degrees/sec |
+| **Accelerometer** | Sampling rate ≥ 100 Hz<br>Range ≥ ± 4 g |
+| **Gyroscope** | Sampling rate ≥ 100 Hz<br>Range ≥ ± 1000 degrees/sec |
 
-### Data Compliance
+#### Physical Units
+
+- **Accelerometer**: `g` (gravitational force)
+- **Gyroscope**: `deg/s` (degrees per second)
+
+> ParaDigMa automatically converts other units (e.g., `m/s^2`, `rad/s`) to these standard units.
+
+#### Data Compliance
 
 For reliable weekly measures:
 
 - **Minimum 3 compliant days** with ≥10 hours of data between 8 am and 10 pm
 - **At least 2 minutes** of arm swing activity per week
-- **Population**: No walking aid, no severe dyskinesia in the watch-sided arm
 
-### Physical Units
+#### Population Constraints
 
-- Accelerometer: **g** (gravitational force)
-- Gyroscope: **deg/s** (degrees per second)
+- No walking aid usage
+- No severe dyskinesia in the watch-sided arm
 
-## Tremor
+#### Required Parameters
 
-### Sensor Specifications
+- `watch_side`: Must specify `'left'` or `'right'`
+
+---
+
+### Tremor
+
+#### Sensor Specifications
 
 | Specification | Minimum Requirement |
 |---------------|-------------------|
-| **Gyroscope** | Sampling rate ≥ 100 Hz, Range ≥ ± 1000 degrees/sec |
+| **Gyroscope** | Sampling rate ≥ 100 Hz<br>Range ≥ ± 1000 degrees/sec |
 
-### Data Compliance
+#### Physical Units
+
+- **Gyroscope**: `deg/s` (degrees per second)
+
+> ParaDigMa automatically converts other units (e.g., `rad/s`) to standard units.
+
+#### Data Compliance
 
 For reliable weekly measures:
 
 - **Minimum 3 compliant days** with ≥10 hours of data between 8 am and 10 pm
 
-### Physical Units
+---
 
-- Gyroscope: **deg/s** (degrees per second)
+### Pulse Rate
 
-## Pulse Rate
-
-### Sensor Specifications
+#### Sensor Specifications
 
 | Specification | Minimum Requirement |
 |---------------|-------------------|
-| **PPG (Photoplethysmography)** | Sampling rate ≥ 30 Hz, Green LED |
-| **Accelerometer** | Sampling rate ≥ 100 Hz, Range ≥ ± 4 g |
+| **PPG (Photoplethysmography)** | Sampling rate ≥ 30 Hz<br>Green LED wavelength |
+| **Accelerometer** (optional) | Sampling rate ≥ 100 Hz<br>Range ≥ ± 4 g<br>*(for motion artifact detection)* |
 
-### Data Compliance
+#### Physical Units
+
+- **PPG**: Blood volume pulse in arbitrary units (device-dependent)
+- **Accelerometer**: `g` (gravitational force) - if used for motion detection
+
+#### Data Compliance
 
 For reliable weekly measures:
 
 - **Minimum 12 hours** of data per day on average
-- **Population**: No rhythm disorders (e.g., atrial fibrillation, atrial flutter)
 
-### Physical Units
+#### Population Constraints
 
-- Accelerometer: **g** (gravitational force)
-- PPG: Blood volume pulse in **arbitrary units** (device-dependent)
+- No cardiac rhythm disorders (e.g., atrial fibrillation, atrial flutter)
 
-> **Note**: The PPG processing pipeline is currently validated with the blood volume pulse (BVP) signal from the Verily Study Watch. To use PPG data from other devices, see the [Pulse Rate Analysis Tutorial](https://biomarkersparkinson.github.io/paradigma/tutorials/_static/pulse_rate_analysis.html#step-3-signal-quality-classification) for guidance on signal adaptation.
+#### Important Notes
 
-## Validated Devices
+> **Device-Specific Adaptation**: The PPG processing pipeline is currently validated with the blood volume pulse (BVP) signal from the Verily Study Watch. To use PPG data from other devices, see the [Pulse Rate Analysis Tutorial](../tutorials/_static/pulse_rate_analysis.html#step-3-signal-quality-classification) for signal adaptation guidance.
 
-ParaDigMa has been empirically validated on:
+> **Cannot Combine with Other Pipelines**: The pulse rate pipeline requires different sensor data (PPG) than gait/tremor (IMU) and must be run separately.
 
-| Device | Arm Swing | Tremor | Pulse Rate |
-|--------|:---------:|:------:|:----------:|
-| **Gait-up Physilog 4** | ✓ | ✓ | - |
-| **Verily Study Watch** | ✓ | ✓ | ✓ |
+---
 
-See [Supported Devices](https://biomarkersparkinson.github.io/paradigma/guides/supported_devices.html) for more details on device-specific loading and considerations.
+## Multi-Pipeline Processing
 
-## Important Notes
+ParaDigMa supports running compatible pipelines together:
 
-> [!WARNING]
-> While ParaDigMa is designed to work on any wrist sensor device meeting the requirements above, performance has only been empirically validated on the Gait-up Physilog 4 and Verily Study Watch.
+```python
+from paradigma.orchestrator import run_paradigma
+
+# Gait and tremor can run together (both use IMU data)
+results = run_paradigma(
+    dfs=df,
+    pipelines=['gait', 'tremor'],
+    watch_side='left'
+)
+```
+
+### Pipeline Compatibility Matrix
+
+| Pipeline Combination | Compatible | Reason |
+|---------------------|:----------:|---------|
+| Gait + Tremor | ✓ | Both use IMU sensors (accelerometer + gyroscope) |
+| Gait + Pulse Rate | ✗ | Different sensor types (IMU vs PPG) |
+| Tremor + Pulse Rate | ✗ | Different sensor types (IMU vs PPG) |
+| Gait + Tremor + Pulse Rate | ✗ | Cannot mix IMU and PPG pipelines |
+
+---
+
+## Important Notes on Validation
 
 > [!NOTE]
-> The specifications above represent the **minimally validated requirements**. For example, while ParaDigMa works with accelerometer and gyroscope data sampled at 50 Hz, the effect on subsequent processing has not been empirically validated. Higher sampling rates and ranges generally improve accuracy.
+> The specifications above represent **minimally validated requirements**. For example, while ParaDigMa works with accelerometer and gyroscope data sampled at 50 Hz, the effect on processing accuracy has not been empirically validated. **Higher sampling rates and sensor ranges generally improve accuracy.**
 
-## Data Preparation
-
-Raw sensor data must be converted to standardized pandas DataFrames before pipeline processing. See the [Device-specific Data Loading](https://biomarkersparkinson.github.io/paradigma/tutorials/device_specific_data_loading.html) and [Data Preparation](https://biomarkersparkinson.github.io/paradigma/tutorials/data_preparation.html) tutorials for:
-
-- Loading data from various file formats (TSDF, Parquet, CSV, etc.)
-- Device-specific loading (Empatica, Axivity)
-- Unit conversions and coordinate system alignment
-- Resampling and timestamp handling
-
-## Contact
-
-For questions about sensor requirements or device-specific issues:
-
-* paradigma@radboudumc.nl
-* [GitHub Issues](https://github.com/biomarkersParkinson/paradigma/issues)
+---

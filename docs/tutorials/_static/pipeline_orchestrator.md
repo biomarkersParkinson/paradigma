@@ -192,7 +192,7 @@ results_single_pipeline['quantifications'][pipeline].head()
     INFO: Applying ParaDigMa pipelines to provided DataFrame
 
 
-    INFO: Logging to output\paradigma_run_20260123_0905.log
+    INFO: Logging to output\paradigma_run_20260126_1558.log
 
 
     INFO: Step 1: Using provided DataFrame(s) as input
@@ -369,7 +369,7 @@ print(f"  Aggregations: {results_no_storage['aggregations'][pipeline]}")
     INFO: Applying ParaDigMa pipelines to provided DataFrame
 
 
-    INFO: Logging to output\paradigma_run_20260123_0908.log
+    INFO: Logging to output\paradigma_run_20260126_1601.log
 
 
     INFO: Step 1: Using provided DataFrame(s) as input
@@ -618,7 +618,7 @@ results_multi_pipeline = run_paradigma(
     INFO: Applying ParaDigMa pipelines to provided DataFrame
 
 
-    INFO: Logging to output_multi\paradigma_run_20260123_0911.log
+    INFO: Logging to output_multi\paradigma_run_20260126_1603.log
 
 
     INFO: Step 1: Using provided DataFrame(s) as input
@@ -887,7 +887,7 @@ results_end_to_end['quantifications'][pipeline].head()
     INFO: Applying ParaDigMa pipelines to ..\..\example_data\axivity
 
 
-    INFO: Logging to output_raw\paradigma_run_20260123_0912.log
+    INFO: Logging to output_raw\paradigma_run_20260126_1604.log
 
 
     INFO: Step 1: Loading data files
@@ -1296,7 +1296,7 @@ gait_results.head()
     INFO: Applying ParaDigMa pipelines to provided DataFrame
 
 
-    INFO: Logging to output\paradigma_run_20260123_0912.log
+    INFO: Logging to output\paradigma_run_20260126_1604.log
 
 
     INFO: Step 1: Using provided DataFrame(s) as input
