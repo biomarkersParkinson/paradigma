@@ -14,11 +14,11 @@
 ParaDigMa (Parkinson's disease Digital Markers) is a Python toolbox for extracting validated digital biomarkers from wrist-worn sensor data in Parkinson's disease. It processes accelerometer, gyroscope, and PPG signals collected during passive monitoring in daily life.
 
 **Key Features:**
-- **Arm swing during gait analysis**: Arm swing quantification from IMU data
-- **Tremor analysis**: Tremor quantification from gyroscope data
-- **Pulse Rate analysis**: Heart rate estimation from PPG data
-- **Scientifically Validated**: Validated in peer-reviewed publications
-- **Modular Design**: Extensible architecture for custom analyses
+- Arm swing during gait analysis
+- Tremor analysis
+- Pulse Rate analysis
+- Scientifically Validated in peer-reviewed publications
+- Extensible architecture for custom analyses
 
 ## Quick Start
 
@@ -115,16 +115,16 @@ ParaDigMa can best be understood by categorizing the sequential processes:
 
 - **[Tutorials](https://biomarkersparkinson.github.io/paradigma/tutorials/index.html)** - Step-by-step usage examples
 - **[Installation Guide](https://biomarkersparkinson.github.io/paradigma/guides/installation.html)** - Setup and troubleshooting
-- **[Input Formats Guide](https://biomarkersparkinson.github.io/paradigma/guides/input_formats.html)** - Input format options and data loading
 - **[Sensor Requirements](https://biomarkersparkinson.github.io/paradigma/guides/sensor_requirements.html)** - Data specifications and compliance
 - **[Supported Devices](https://biomarkersparkinson.github.io/paradigma/guides/supported_devices.html)** - Validated hardware
+- **[Input Formats Guide](https://biomarkersparkinson.github.io/paradigma/guides/input_formats.html)** - Input format options and data loading
 - **[Configuration Guide](https://biomarkersparkinson.github.io/paradigma/guides/config.html)** - Pipeline configuration
 - **[Scientific Validation](https://biomarkersparkinson.github.io/paradigma/guides/validation.html)** - Validation studies and publications
 - **[API Reference](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/index.html)** - Complete API documentation
 
 ### Data Formats
 
-ParaDigMa supports the following data file formats:
+ParaDigMa supports the following data formats:
 
 - In-memory (recommend): **Pandas DataFrames** (see examples above)
 - Data loading file extensions: **TSDF, Parquet, CSV, Pickle** and **several Device-specific formats** (AVRO (Empatica), CWA (Axivity))
@@ -143,7 +143,7 @@ All pipelines require data from a wrist-worn sensor with:
 
 - **Sensor Position**: Either wrist (left or right)
 - **Population**: Persons with Parkinson's disease
-- **Data Quality**: Contiguous, strictly increasing timestamps
+- **Data Quality**: Strictly increasing timestamps
 - **Orientation**: Standardized coordinate system (see [Coordinate System Guide](coordinate_system.md))
 
 ParaDigMa is designed to work on prepared sensor data of any device, but it has been emperically validated on:

@@ -117,12 +117,13 @@ Your DataFrame must contain the following columns depending on the pipeline:
 
 ```python
 # Required columns
-df.columns = ['time', 'x', 'y', 'z', 'gyro_x', 'gyro_y', 'gyro_z']
+df.columns = ['time', 'accelerometer_x', 'accelerometer_y', 'accelerometer_z',
+              'gyroscope_x', 'gyroscope_y', 'gyroscope_z']
 ```
 
 - `time`: Timestamp (float seconds or datetime)
-- `x`, `y`, `z`: Accelerometer data
-- `gyro_x`, `gyro_y`, `gyro_z`: Gyroscope data
+- `accelerometer_x`, `accelerometer_y`, `accelerometer_z`: Accelerometer data
+- `gyroscope_x`, `gyroscope_y`, `gyroscope_z`: Gyroscope data
 
 ### For Pulse Rate Pipeline
 
@@ -136,7 +137,7 @@ df.columns = ['time', 'ppg']  # Accelerometer optional
 
 ### Custom Column Names
 
-If your data uses different column names, use `column_mapping`:
+If your data uses different column names, rename the columns or use `column_mapping`:
 
 ```python
 results = run_paradigma(
@@ -145,12 +146,12 @@ results = run_paradigma(
     watch_side='left',
     column_mapping={
         'timestamp': 'time',
-        'acc_x': 'x',
-        'acc_y': 'y',
-        'acc_z': 'z',
-        'gyr_x': 'gyro_x',
-        'gyr_y': 'gyro_y',
-        'gyr_z': 'gyro_z'
+        'acc_x': 'accelerometer_x',
+        'acc_y': 'accelerometer_y',
+        'acc_z': 'accelerometer_z',
+        'gyr_x': 'gyroscope_x',
+        'gyr_y': 'gyroscope_y',
+        'gyr_z': 'gyroscope_z'
     }
 )
 ```

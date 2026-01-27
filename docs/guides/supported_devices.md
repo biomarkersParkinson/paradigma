@@ -8,7 +8,7 @@ ParaDigMa is designed to work with wrist sensor data from any device, as long as
 
 ## Scientifically Validated Devices
 
-These devices have undergone rigorous scientific validation with ParaDigMa pipelines.
+These devices have undergone scientific validation with ParaDigMa pipelines.
 
 ### Verily Study Watch
 
@@ -19,8 +19,6 @@ A research-grade smartwatch developed by Verily Life Sciences for clinical resea
 - **Sensors**: 3-axis accelerometer, 3-axis gyroscope, photoplethysmography (PPG)
 - **Sampling Rates**: 100 Hz (IMU), 30 Hz (PPG)
 - **Validated Pipelines**: Gait, Tremor, Pulse Rate
-
----
 
 ### Gait-up Physilog 4
 
@@ -49,9 +47,7 @@ A compact wrist-worn IMU designed for long-term monitoring.
 - **Data Format**: CWA (native)
 - **Validated Pipelines**: Gait, Tremor
 
-See the [Device-Specific Data Loading Tutorial](https://biomarkersparkinson.github.io/paradigma/tutorials/device_specific_data_loading.html) for more examples.
-
----
+See the [Device-Specific Data Loading Tutorial](https://biomarkersparkinson.github.io/paradigma/tutorials/device_specific_data_loading.html) for CWA-specific loading examples.
 
 ### Empatica EmbracePlus
 
@@ -65,38 +61,17 @@ A wrist-worn research device with accelerometer sensors.
 - **Validated Pipelines**: None (data preparation only)
 
 
-See the [Device-Specific Data Loading Tutorial](https://biomarkersparkinson.github.io/paradigma/tutorials/device_specific_data_loading.html) for Empatica-specific loading examples.
-
-#### Considerations
-
-- **No gyroscope**: Tremor analysis not possible
-- **No PPG in accelerometer file**: Pulse rate analysis requires separate PPG file
-- AVRO format loading is supported but may require additional configuration
-- **Not validated**: Gait pipeline results not scientifically validated on this device
-
----
-
-## Device Comparison Table
-
-| Device | Accel | Gyro | PPG | Sampling Rate (Hz) | Gait | Tremor | Pulse Rate | Validation Status |
-|--------|:-----:|:----:|:---:|:------------------:|:----:|:------:|:----------:|-------------------|
-| **Verily Study Watch** | ✓ | ✓ | ✓ | 100 (IMU), 30 (PPG) | ✓ | ✓ | ✓ | Scientific |
-| **Gait-up Physilog 4** | ✓ | ✓ | - | 200 | ✓ | ✓ | - | Scientific |
-| **Axivity AX6** | ✓ | ✓ | - | 100 | ~ | ~ | - | Empirical |
-| **Axivity AX3** | ✓ | - | - | 100 | ~ | - | - | Limited |
-| **Empatica EmbracePlus** | ✓ | - | - | 64 | - | - | - | Limited |
-
-✓ = Fully supported/validated | ~ = Empirically validated | - = Not possible
+See the [Device-Specific Data Loading Tutorial](https://biomarkersparkinson.github.io/paradigma/tutorials/device_specific_data_loading.html) for AVRO-specific loading examples.
 
 ---
 
 ## File Format Support
 
-ParaDigMa can load data from multiple formats:
+ParaDigMa works on in-memory Pandas DataFrames, but it also provides support for
+automatic data loading from multiple formats:
 
 | Format | Extension | Device Examples | Notes |
 |--------|-----------|-----------------|-------|
-| **Pandas DataFrame** | (in-memory) | All | Recommended for pre-processed data |
 | **TSDF** | `.meta` + `.bin` | Verily Study Watch | Standard research format |
 | **Parquet** | `.parquet` | All | Efficient storage, fast loading |
 | **CSV** | `.csv` | All | Universal but slower |
@@ -112,58 +87,13 @@ See [Data Input Formats](input_formats.md) for detailed loading examples.
 
 If your device is not listed, you can still use ParaDigMa:
 
-### Step 1: Export to Standard Format
-
-Convert your device's data to pandas DataFrame or a supported file format (Parquet/CSV recommended).
-
-### Step 2: Verify Sensor Requirements
-
-Ensure your data meets the [Sensor Requirements](sensor_requirements.md):
-
-- Accelerometer: ≥100 Hz, ±4g range (for gait/tremor)
-- Gyroscope: ≥100 Hz, ±1000 deg/s range (for tremor)
-- PPG: ≥30 Hz (for pulse rate)
-
-### Step 3: Prepare Data Format
-
-Follow the [Data Preparation Tutorial](../tutorials/data_preparation.html) to format your DataFrame:
-
-```python
-import pandas as pd
-
-# Example: Format your device data
-df = pd.DataFrame({
-    'time': your_timestamps,  # Relative seconds or absolute datetime
-    'x': your_acc_x,         # Accelerometer X
-    'y': your_acc_y,         # Accelerometer Y
-    'z': your_acc_z,         # Accelerometer Z
-    'gyro_x': your_gyro_x,   # Gyroscope X (if available)
-    'gyro_y': your_gyro_y,   # Gyroscope Y (if available)
-    'gyro_z': your_gyro_z,   # Gyroscope Z (if available)
-})
-```
-
-### Step 4: Test with Small Dataset
-
-```python
-from paradigma.orchestrator import run_paradigma
-
-# Test on a small sample first
-results = run_paradigma(
-    dfs=df.iloc[:10000],  # First 10,000 samples
-    pipelines=['gait'],
-    watch_side='left',
-    accelerometer_units='g',
-    gyroscope_units='deg/s',
-    target_frequency=100.0
-)
-```
-
-### Step 5: Validate Results
-
-- Compare with known validated devices if possible
-- Check for reasonable output values
-- Inspect intermediate results with `save_intermediate=['quantification']`
+1. Convert your device's data to pandas DataFrame or a supported file format (Parquet recommended).
+2. Ensure your data meets the [Sensor Requirements](sensor_requirements.md).
+3. Follow the [Data Preparation Tutorial](../tutorials/data_preparation.html) to
+format your DataFrame, or set the `skip_preparation` parameter of `run_paradigma`
+to False and provide the required set of parameters to automate data preparation.
+4. Test with Small Dataset.
+5. Check for reasonable output values and inspect intermediate results with `save_intermediate=['quantification']`
 
 ---
 
@@ -193,7 +123,7 @@ results = run_paradigma(
     data_path=example_dir,
     pipelines=['gait', 'tremor'],
     watch_side='left',
-    file_pattern='*.parquet'
+    file_pattern='*.json'
 )
 ```
 
@@ -203,7 +133,7 @@ results = run_paradigma(
 
 ### Wrist Placement
 
-All validation was performed with the sensor on the **wrist** (not upper arm or other locations):
+All development and validation was performed with the sensor on the **wrist** (not upper arm or other locations):
 
 - Fitted snugly to minimize motion artifacts
 - Worn on either left or right wrist

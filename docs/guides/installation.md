@@ -122,16 +122,16 @@ The `[dev]` extra includes development dependencies such as testing tools and li
 
 ParaDigMa requires the following core dependencies:
 
-- **numpy**: Numerical computing
-- **pandas**: Data manipulation and analysis
-- **scipy**: Scientific computing
-- **scikit-learn**: Machine learning algorithms
-- **pyyaml**: Configuration file parsing
+- numpy
+- pandas
+- scipy
+- scikit-learn
+- pyyaml
 
 Optional dependencies for specific data format support:
 
-- **pyarrow**: For reading/writing Parquet files
-- **pytz**: Timezone handling
+- pyarrow
+- pytz
 
 ## Troubleshooting
 

@@ -8,7 +8,7 @@ All pipelines require data from a wrist-worn sensor with:
 
 - **Sensor Position**: Either wrist (left or right)
 - **Population**: Persons with Parkinson's disease
-- **Data Quality**: Contiguous, strictly increasing timestamps
+- **Data Quality**: Strictly increasing timestamps
 - **Orientation**: Standardized coordinate system (see [Coordinate System Guide](coordinate_system.md))
 
 ## Pipeline-Specific Requirements
@@ -27,7 +27,7 @@ All pipelines require data from a wrist-worn sensor with:
 - **Accelerometer**: `g` (gravitational force)
 - **Gyroscope**: `deg/s` (degrees per second)
 
-> ParaDigMa automatically converts other units (e.g., `m/s^2`, `rad/s`) to these standard units.
+> ParaDigMa has functionalities for converting [accelerometer](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/util/index.html#paradigma.util.convert_units_accelerometer) and [gyroscope](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/util/index.html#paradigma.util.convert_units_gyroscope) in other units (e.g., `m/s^2`, `rad/s`) to these standard units. This can also be setup when using `run_paradigma`.
 
 #### Data Compliance
 
@@ -59,7 +59,7 @@ For reliable weekly measures:
 
 - **Gyroscope**: `deg/s` (degrees per second)
 
-> ParaDigMa automatically converts other units (e.g., `rad/s`) to standard units.
+> ParaDigMa has functionalities for converting [gyroscope](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/util/index.html#paradigma.util.convert_units_gyroscope) in other units (e.g., `rad/s`) to these standard units. This can also be setup when using `run_paradigma`.
 
 #### Data Compliance
 
