@@ -97,6 +97,10 @@ class IMUConfig(BaseConfig):
         self.upper_cutoff_frequency = 3.5
         self.filter_order = 4
 
+        # Segmentation parameters for handling non-contiguous data
+        self.max_segment_gap_s = 1.5
+        self.min_segment_length_s = 1.5
+
 
 class PPGConfig(BaseConfig):
     def __init__(self, column_mapping: dict[str, str] | None = None) -> None:
@@ -178,18 +182,18 @@ class GaitConfig(IMUConfig):
             "accelerometer_x_grav_std": DataUnits.GRAVITY,
             "accelerometer_y_grav_std": DataUnits.GRAVITY,
             "accelerometer_z_grav_std": DataUnits.GRAVITY,
-            "accelerometer_x_power_below_gait": DataUnits.POWER_SPECTRAL_DENSITY,
-            "accelerometer_y_power_below_gait": DataUnits.POWER_SPECTRAL_DENSITY,
-            "accelerometer_z_power_below_gait": DataUnits.POWER_SPECTRAL_DENSITY,
-            "accelerometer_x_power_gait": DataUnits.POWER_SPECTRAL_DENSITY,
-            "accelerometer_y_power_gait": DataUnits.POWER_SPECTRAL_DENSITY,
-            "accelerometer_z_power_gait": DataUnits.POWER_SPECTRAL_DENSITY,
-            "accelerometer_x_power_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
-            "accelerometer_y_power_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
-            "accelerometer_z_power_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
-            "accelerometer_x_power_above_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
-            "accelerometer_y_power_above_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
-            "accelerometer_z_power_above_tremor": DataUnits.POWER_SPECTRAL_DENSITY,
+            "accelerometer_x_power_below_gait": DataUnits.POWER_SPECTRAL_DENSITY_ACC,
+            "accelerometer_y_power_below_gait": DataUnits.POWER_SPECTRAL_DENSITY_ACC,
+            "accelerometer_z_power_below_gait": DataUnits.POWER_SPECTRAL_DENSITY_ACC,
+            "accelerometer_x_power_gait": DataUnits.POWER_SPECTRAL_DENSITY_ACC,
+            "accelerometer_y_power_gait": DataUnits.POWER_SPECTRAL_DENSITY_ACC,
+            "accelerometer_z_power_gait": DataUnits.POWER_SPECTRAL_DENSITY_ACC,
+            "accelerometer_x_power_tremor": DataUnits.POWER_SPECTRAL_DENSITY_ACC,
+            "accelerometer_y_power_tremor": DataUnits.POWER_SPECTRAL_DENSITY_ACC,
+            "accelerometer_z_power_tremor": DataUnits.POWER_SPECTRAL_DENSITY_ACC,
+            "accelerometer_x_power_above_tremor": DataUnits.POWER_SPECTRAL_DENSITY_ACC,
+            "accelerometer_y_power_above_tremor": DataUnits.POWER_SPECTRAL_DENSITY_ACC,
+            "accelerometer_z_power_above_tremor": DataUnits.POWER_SPECTRAL_DENSITY_ACC,
             "accelerometer_x_dominant_frequency": DataUnits.FREQUENCY,
             "accelerometer_y_dominant_frequency": DataUnits.FREQUENCY,
             "accelerometer_z_dominant_frequency": DataUnits.FREQUENCY,
@@ -265,11 +269,14 @@ class TremorConfig(IMUConfig):
         if step == "features":
             self.d_channels_values: Dict[str, str] = {}
             for mfcc_coef in range(1, self.n_coefficients_mfcc + 1):
-                self.d_channels_values[f"mfcc_{mfcc_coef}"] = "unitless"
+                self.d_channels_values[f"mfcc_{mfcc_coef}"] = DataUnits.NONE
 
-            self.d_channels_values["freq_peak"] = "Hz"
-            self.d_channels_values["below_tremor_power"] = "(deg/s)^2"
-            self.d_channels_values["tremor_power"] = "(deg/s)^2"
+            self.d_channels_values[DataColumns.FREQ_PEAK] = DataUnits.FREQUENCY
+            self.d_channels_values[DataColumns.BELOW_TREMOR_POWER] = (
+                DataUnits.POWER_ROTATION
+            )
+            self.d_channels_values[DataColumns.TREMOR_POWER] = DataUnits.POWER_ROTATION
+
         elif step == "classification":
             self.d_channels_values = {
                 DataColumns.PRED_TREMOR_PROBA: "probability",

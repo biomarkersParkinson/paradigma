@@ -1,11 +1,14 @@
+import json
+import logging
 from pathlib import Path
+from typing import List
 
 import numpy as np
 import pandas as pd
 from scipy import signal
 
 from paradigma.classification import ClassifierPackage
-from paradigma.config import TremorConfig
+from paradigma.config import IMUConfig, TremorConfig
 from paradigma.constants import DataColumns
 from paradigma.feature_extraction import (
     compute_mfccs,
@@ -14,6 +17,7 @@ from paradigma.feature_extraction import (
     extract_frequency_peak,
     extract_tremor_power,
 )
+from paradigma.preprocessing import preprocess_imu_data
 from paradigma.segmenting import WindowedDataExtractor, tabulate_windows
 from paradigma.util import aggregate_parameter
 
@@ -133,11 +137,11 @@ def detect_tremor(
     ).astype(int)
 
     # Perform extra checks for rest tremor
-    peak_check = (df["freq_peak"] >= config.fmin_rest_tremor) & (
-        df["freq_peak"] <= config.fmax_rest_tremor
+    peak_check = (df[DataColumns.FREQ_PEAK] >= config.fmin_rest_tremor) & (
+        df[DataColumns.FREQ_PEAK] <= config.fmax_rest_tremor
     )  # peak within 3-7 Hz
     df[DataColumns.PRED_ARM_AT_REST] = (
-        df["below_tremor_power"] <= config.movement_threshold
+        df[DataColumns.BELOW_TREMOR_POWER] <= config.movement_threshold
     ).astype(
         int
     )  # arm at rest or in stable posture
@@ -198,7 +202,7 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
         raise Warning("No windows without non-tremor arm movement are detected.")
 
     # calculate tremor time
-    n_windows_tremor = np.sum(df_filtered["pred_tremor_checked"])
+    n_windows_tremor = np.sum(df_filtered[DataColumns.PRED_TREMOR_CHECKED])
     perc_windows_tremor = (
         n_windows_tremor / nr_windows_rest * 100
     )  # as percentage of total measured time without non-tremor arm movement
@@ -210,7 +214,6 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     if (
         n_windows_tremor == 0
     ):  # if no tremor is detected, the tremor power measures are set to NaN
-
         aggregated_tremor_power["median_tremor_power"] = np.nan
         aggregated_tremor_power["mode_binned_tremor_power"] = np.nan
         aggregated_tremor_power["90p_tremor_power"] = np.nan
@@ -219,7 +222,7 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
 
         # calculate aggregated tremor power measures
         tremor_power = df_filtered.loc[
-            df_filtered["pred_tremor_checked"] == 1, "tremor_power"
+            df_filtered[DataColumns.PRED_TREMOR_CHECKED] == 1, DataColumns.TREMOR_POWER
         ]
         tremor_power = np.log10(tremor_power + 1)  # convert to log scale
 
@@ -340,10 +343,10 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
         feature_dict[colname] = mfccs[:, i]
 
     # Compute the frequency of the peak, non-tremor power and tremor power
-    feature_dict["freq_peak"] = extract_frequency_peak(
+    feature_dict[DataColumns.FREQ_PEAK] = extract_frequency_peak(
         freqs, total_psd, config.fmin_peak_search, config.fmax_peak_search
     )
-    feature_dict["below_tremor_power"] = compute_power_in_bandwidth(
+    feature_dict[DataColumns.BELOW_TREMOR_POWER] = compute_power_in_bandwidth(
         freqs,
         total_psd,
         config.fmin_below_rest_tremor,
@@ -352,8 +355,184 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
         spectral_resolution=config.spectral_resolution,
         cumulative_sum_method="sum",
     )
-    feature_dict["tremor_power"] = extract_tremor_power(
+    feature_dict[DataColumns.TREMOR_POWER] = extract_tremor_power(
         freqs, total_psd, config.fmin_rest_tremor, config.fmax_rest_tremor
     )
 
     return pd.DataFrame(feature_dict)
+
+
+def run_tremor_pipeline(
+    df_prepared: pd.DataFrame,
+    output_dir: str | Path,
+    store_intermediate: List[str] = [],
+    tremor_config: TremorConfig | None = None,
+    imu_config: IMUConfig | None = None,
+    verbose: int = 1,
+) -> pd.DataFrame:
+    """
+    High-level tremor analysis pipeline for a single segment.
+
+    This function implements the complete tremor analysis workflow from the
+    tremor tutorial:
+    1. Preprocess gyroscope data
+    2. Extract tremor features
+    3. Detect tremor
+    4. Quantify tremor (select relevant columns)
+
+    Parameters
+    ----------
+    df_prepared : pd.DataFrame
+        Prepared sensor data with time and gyroscope columns
+    output_dir : str or Path
+        Output directory for intermediate results (required)
+    store_intermediate : list of str, default []
+        Which intermediate results to store
+    tremor_config : TremorConfig, optional
+        Tremor analysis configuration
+    imu_config : IMUConfig, optional
+        IMU preprocessing configuration
+
+    Returns
+    -------
+    pd.DataFrame
+        Quantified tremor data with columns:
+        - time: timestamp
+        - pred_arm_at_rest: arm at rest prediction
+        - pred_tremor_checked: tremor detection result
+        - tremor_power: tremor power measure
+
+    """
+    logger = logging.getLogger(__name__)
+
+    if tremor_config is None:
+        tremor_config = TremorConfig()
+    if imu_config is None:
+        imu_config = IMUConfig()
+
+    output_dir = Path(output_dir)
+
+    # Validate input data columns
+    required_columns = [
+        DataColumns.TIME,
+        DataColumns.GYROSCOPE_X,
+        DataColumns.GYROSCOPE_Y,
+        DataColumns.GYROSCOPE_Z,
+    ]
+    missing_columns = [
+        col for col in required_columns if col not in df_prepared.columns
+    ]
+    if missing_columns:
+        logger.warning(
+            f"Missing required columns for tremor pipeline: {missing_columns}"
+        )
+        return pd.DataFrame()
+
+    # Step 1: Preprocess gyroscope data (following tutorial)
+    if verbose >= 1:
+        logger.info("Step 1: Preprocessing gyroscope data")
+    df_preprocessed = preprocess_imu_data(
+        df_prepared,
+        imu_config,
+        sensor="gyroscope",
+        watch_side="left",  # Watch side is unimportant for tremor detection
+        verbose=verbose,
+    )
+
+    if "preprocessing" in store_intermediate:
+        preprocessing_dir = output_dir / "preprocessing"
+        preprocessing_dir.mkdir(exist_ok=True)
+        df_preprocessed.to_parquet(preprocessing_dir / "tremor_preprocessed.parquet")
+        logger.info(f"Saved preprocessed data to {preprocessing_dir}")
+
+    # Step 2: Extract tremor features
+    if verbose >= 1:
+        logger.info("Step 2: Extracting tremor features")
+    df_features = extract_tremor_features(df_preprocessed, tremor_config)
+
+    if "tremor" in store_intermediate:
+        tremor_dir = output_dir / "tremor"
+        tremor_dir.mkdir(exist_ok=True)
+        df_features.to_parquet(tremor_dir / "tremor_features.parquet")
+        logger.info(f"Saved tremor features to {tremor_dir}")
+
+    # Step 3: Detect tremor
+    if verbose >= 1:
+        logger.info("Step 3: Detecting tremor")
+    try:
+        from importlib.resources import files
+
+        classifier_path = files("paradigma.assets") / "tremor_detection_clf_package.pkl"
+        df_predictions = detect_tremor(df_features, tremor_config, classifier_path)
+    except Exception as e:
+        logger.error(f"Tremor detection failed: {e}")
+        return pd.DataFrame()
+
+    # Step 4: Quantify tremor (following tutorial pattern)
+    if verbose >= 1:
+        logger.info("Step 4: Quantifying tremor")
+
+    # Select quantification columns as in the tutorial
+    quantification_columns = [
+        tremor_config.time_colname,
+        DataColumns.PRED_ARM_AT_REST,
+        DataColumns.PRED_TREMOR_CHECKED,
+        DataColumns.TREMOR_POWER,
+    ]
+
+    # Check if all required columns exist
+    available_columns = [
+        col for col in quantification_columns if col in df_predictions.columns
+    ]
+    if len(available_columns) != len(quantification_columns):
+        missing = set(quantification_columns) - set(available_columns)
+        logger.warning(f"Missing quantification columns: {missing}")
+        # Use available columns
+        quantification_columns = available_columns
+
+    df_quantification = df_predictions[quantification_columns].copy()
+
+    # Set tremor power to None for non-tremor windows (following tutorial)
+    if (
+        DataColumns.TREMOR_POWER in df_quantification.columns
+        and DataColumns.PRED_TREMOR_CHECKED in df_quantification.columns
+    ):
+        df_quantification.loc[
+            df_quantification[DataColumns.PRED_TREMOR_CHECKED] == 0,
+            DataColumns.TREMOR_POWER,
+        ] = None
+
+    if "quantification" in store_intermediate:
+        quantification_dir = output_dir / "quantification"
+        quantification_dir.mkdir(exist_ok=True)
+        df_quantification.to_parquet(
+            quantification_dir / "tremor_quantification.parquet"
+        )
+
+        # Save quantification metadata
+        quantification_meta = {
+            "total_windows": len(df_quantification),
+            "tremor_windows": (
+                int(df_quantification[DataColumns.PRED_TREMOR_CHECKED].sum())
+                if DataColumns.PRED_TREMOR_CHECKED in df_quantification.columns
+                else 0
+            ),
+            "columns": list(df_quantification.columns),
+        }
+        with open(quantification_dir / "tremor_quantification_meta.json", "w") as f:
+            json.dump(quantification_meta, f, indent=2)
+
+        if verbose >= 2:
+            logger.info(f"Saved tremor quantification to {quantification_dir}")
+
+    tremor_windows = (
+        int(df_quantification[DataColumns.PRED_TREMOR_CHECKED].sum())
+        if DataColumns.PRED_TREMOR_CHECKED in df_quantification.columns
+        else 0
+    )
+    if verbose >= 1:
+        logger.info(
+            f"Tremor analysis completed: {tremor_windows} tremor windows detected from {len(df_quantification)} total windows"
+        )
+
+    return df_quantification
