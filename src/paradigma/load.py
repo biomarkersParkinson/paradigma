@@ -307,6 +307,112 @@ def detect_file_format(file_path: str | Path) -> str:
         raise ValueError(f"Unknown file format: {suffix}")
 
 
+def get_data_file_paths(
+    data_path: str | Path,
+    file_patterns: List[str] | str | None = None,
+    verbose: int = 1,
+) -> List[Path]:
+    """
+    Get list of data file paths without loading them.
+
+    This function is useful for memory-efficient processing where you want to
+    load and process files one at a time instead of loading all at once.
+
+    Parameters
+    ----------
+    data_path : str or Path
+        Path to directory containing data files
+    file_patterns : str or list of str, optional
+        File extensions to consider (e.g. ["parquet", "csv", "cwa"]).
+        If None, all supported formats are considered.
+    verbose : int, default 1
+        Verbose level for logging.
+
+    Returns
+    -------
+    list of Path
+        List of file paths found in the directory
+    """
+    data_path = Path(data_path)
+
+    if not data_path.exists():
+        raise FileNotFoundError(f"Directory not found: {data_path}")
+
+    valid_file_patterns = ["parquet", "csv", "pkl", "pickle", "json", "avro", "cwa"]
+
+    if file_patterns is None:
+        file_patterns = valid_file_patterns
+    elif isinstance(file_patterns, str):
+        file_patterns = [file_patterns]
+
+    # Collect candidate files
+    all_files = [
+        f
+        for f in data_path.iterdir()
+        if f.is_file() and f.suffix[1:].lower() in file_patterns
+    ]
+
+    if verbose >= 1:
+        logger.info(f"Found {len(all_files)} data files in {data_path}")
+
+    return all_files
+
+
+def load_single_data_file(
+    file_path: str | Path,
+    verbose: int = 1,
+) -> Tuple[str, pd.DataFrame]:
+    """
+    Load a single data file with automatic format detection.
+
+    Parameters
+    ----------
+    file_path : str or Path
+        Path to data file
+    verbose : int, default 1
+        Verbose level for logging.
+
+    Returns
+    -------
+    tuple
+        Tuple of (file_key, DataFrame) where file_key is the file name without extension
+    """
+    file_path = Path(file_path)
+
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+
+    try:
+        file_format = detect_file_format(file_path)
+
+        if file_format == "tsdf":
+            # For TSDF, load based on .meta file and infer prefix
+            if file_path.suffix.lower() == ".json":
+                prefix = file_path.stem.replace("_meta", "")
+                df, _, _ = load_tsdf_data(file_path.parent, prefix, verbose=verbose)
+                return prefix, df
+
+        elif file_format == "empatica":
+            df = load_empatica_data(file_path, verbose=verbose)
+            return file_path.stem, df
+
+        elif file_format == "axivity":
+            df = load_axivity_data(file_path, verbose=verbose)
+            return file_path.stem, df
+
+        elif file_format == "prepared":
+            df = load_prepared_data(file_path, verbose=verbose)
+            prefix = file_path.stem.replace("_meta", "")
+            return prefix, df
+
+        else:
+            raise ValueError(f"Unknown file format for {file_path}")
+
+    except Exception as e:
+        logger.error(f"Failed to load {file_path}: {e}")
+        raise
+
+
 def load_data_files(
     data_path: str | Path,
     file_patterns: List[str] | None = None,
@@ -314,6 +420,10 @@ def load_data_files(
 ) -> Dict[str, pd.DataFrame]:
     """
     Load all data files from a directory with automatic format detection.
+
+    Note: This function loads all files into memory at once. For large datasets,
+    consider using get_data_file_paths() and load_single_data_file() to process
+    files one at a time.
 
     Parameters
     ----------
@@ -330,54 +440,16 @@ def load_data_files(
     dict
         Dictionary mapping file names (without extension) to DataFrames
     """
-    data_path = Path(data_path)
-
-    if not data_path.exists():
-        raise FileNotFoundError(f"Directory not found: {data_path}")
+    # Get all file paths
+    all_files = get_data_file_paths(data_path, file_patterns, verbose=verbose)
 
     loaded_files = {}
-    valid_file_patterns = ["parquet", "csv", "pkl", "pickle", "json", "avro", "cwa"]
 
-    if file_patterns is None:
-        file_patterns = valid_file_patterns
-    elif isinstance(file_patterns, str):
-        file_patterns = [file_patterns]
-
-    # Collect candidate files
-    all_files = [
-        f
-        for f in data_path.iterdir()
-        if f.is_file() and f.suffix[1:].lower() in file_patterns
-    ]
-
+    # Load each file
     for file_path in all_files:
         try:
-            file_format = detect_file_format(file_path)
-
-            if file_format == "tsdf":
-                # For TSDF, load based on .meta file and infer prefix
-                if file_path.suffix.lower() == ".json":
-                    prefix = file_path.stem.replace("_meta", "")
-                    df, _, _ = load_tsdf_data(data_path, prefix, verbose=verbose)
-                    loaded_files[prefix] = df
-
-            elif file_format == "empatica":
-                df = load_empatica_data(file_path, verbose=verbose)
-                loaded_files[file_path.stem] = df
-
-            elif file_format == "axivity":
-                df = load_axivity_data(file_path, verbose=verbose)
-                loaded_files[file_path.stem] = df
-
-            elif file_format == "prepared":
-                df = load_prepared_data(file_path, verbose=verbose)
-                prefix = file_path.stem.replace("_meta", "")
-                loaded_files[prefix] = df
-
-            else:
-                if verbose >= 2:
-                    logger.warning(f"Unknown file format for {file_path}, skipping.")
-
+            file_key, df = load_single_data_file(file_path, verbose=verbose)
+            loaded_files[file_key] = df
         except Exception as e:
             logger.warning(f"Failed to load {file_path}: {e}")
 
