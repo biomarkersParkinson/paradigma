@@ -7,7 +7,7 @@ import pytest
 
 from paradigma.config import IMUConfig, TremorConfig
 from paradigma.constants import DataColumns
-from paradigma.orchestrator import run_pipeline_batch
+from paradigma.orchestrator import run_paradigma
 from paradigma.pipelines.tremor_pipeline import run_tremor_pipeline
 
 try:
@@ -62,10 +62,11 @@ def test_tremor_pipeline_integration():
     dfs = {"test": create_test_tremor_data()}
 
     with tempfile.TemporaryDirectory() as temp_dir:
-        results = run_pipeline_batch(
-            pipeline_name="tremor",
+        results = run_paradigma(
+            pipelines=["tremor"],
             dfs=dfs,
             output_dir=temp_dir,
+            skip_preparation=True,
             tremor_config=TremorConfig(),
             imu_config=IMUConfig(),
         )

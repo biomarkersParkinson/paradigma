@@ -7,7 +7,7 @@ import pytest
 
 from paradigma.config import GaitConfig, IMUConfig
 from paradigma.constants import DataColumns
-from paradigma.orchestrator import run_pipeline_batch
+from paradigma.orchestrator import run_paradigma
 from paradigma.pipelines.gait_pipeline import run_gait_pipeline
 
 try:
@@ -109,11 +109,12 @@ def test_gait_pipeline_integration():
     dfs = {"test": create_test_gait_data()}
 
     with tempfile.TemporaryDirectory() as temp_dir:
-        results = run_pipeline_batch(
-            pipeline_name="gait",
+        results = run_paradigma(
+            pipelines=["gait"],
             dfs=dfs,
             output_dir=temp_dir,
             watch_side="right",
+            skip_preparation=True,
             imu_config=IMUConfig(),
             gait_config=GaitConfig("gait"),
             arm_activity_config=GaitConfig("arm_activity"),

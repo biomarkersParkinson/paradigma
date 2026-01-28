@@ -3,13 +3,11 @@ High-level pipeline orchestrator for ParaDigMa toolbox.
 
 This module provides the main entry point for running analysis pipelines:
 
-Main Functions
---------------
+Main Function
+-------------
 - run_paradigma(): Complete pipeline from data loading/preparation to aggregated results.
   Main entry point for end-to-end analysis supporting multiple pipelines (gait, tremor, pulse_rate).
-
-- run_pipeline_batch(): Runs a specific pipeline on multiple data files and aggregates results.
-  Used internally by run_paradigma() for processing batches of prepared data.
+  Can process raw data from disk or already-prepared DataFrames.
 
 The orchestrator coordinates:
 1. Data loading and preparation (unit conversion, resampling, orientation correction)
@@ -56,295 +54,6 @@ from paradigma.prepare_data import prepare_raw_data
 logger = logging.getLogger(__name__)
 
 
-def run_pipeline_batch(
-    pipeline_name: str,
-    dfs: pd.DataFrame | List[pd.DataFrame] | Dict[str, pd.DataFrame],
-    output_dir: str | Path = "./output",
-    watch_side: str | None = None,
-    store_intermediate: List[str] | None = [],
-    aggregates: List[str] | None = None,
-    imu_config: IMUConfig | None = None,
-    ppg_config: PPGConfig | None = None,
-    gait_config: GaitConfig | None = None,
-    arm_activity_config: GaitConfig | None = None,
-    tremor_config: TremorConfig | None = None,
-    pulse_rate_config: PulseRateConfig | None = None,
-    gait_segment_categories: List[str] | None = None,
-    verbose: int = 1,
-) -> Dict[str, pd.DataFrame | Dict]:
-    """
-    Run specific pipeline on multiple data files and aggregate results.
-
-    Parameters
-    ----------
-    dfs : DataFrame, list of DataFrames, or dict of DataFrames
-        Data files to process. Can be:
-        - Single DataFrame: Will be processed as one file with key 'df_1'.
-        - List[DataFrame]: Multiple dataframes assigned IDs as 'df_1', 'df_2', etc.
-        - Dict[str, DataFrame]: Keys are file names, values are dataframes.
-        Note: The 'file_key' column is only added to quantification results when
-        len(dfs) > 1, allowing cleaner output for single-file processing.
-        See input_formats guide for details.
-    pipeline_name: str
-        Name of the pipeline to run: 'gait', 'tremor', or 'pulse_rate'.
-    watch_side : str, optional
-        Watch side: 'left' or 'right' (required for gait pipeline).
-    store_intermediate : list of str, default []
-        Steps of which output is to be stored. Valid values:
-        ['preparation', 'preprocessing', 'classification', 'quantification', 'aggregation']
-        If empty, no files are saved (results are only returned).
-    output_dir : str or Path, optional
-        Output directory for results (required only if store_intermediate is not empty).
-    aggregates : list of str, optional
-        Aggregation methods for quantification.
-    imu_config : IMUConfig, optional
-        IMU preprocessing configuration.
-    ppg_config : PPGConfig, optional
-        PPG preprocessing configuration.
-    gait_config : GaitConfig, optional
-        Gait analysis configuration.
-    arm_activity_config : GaitConfig, optional
-        Arm activity analysis configuration.
-    tremor_config : TremorConfig, optional
-        Tremor analysis configuration.
-    pulse_rate_config : PulseRateConfig, optional
-        Pulse rate analysis configuration.
-    gait_segment_categories : list of str, optional
-        Categories for gait segment aggregation.
-    verbose : int, default 1
-        Logging verbose level.
-
-    Returns
-    -------
-    dict
-        Results dictionary containing:
-        - 'quantifications': Combined quantified results from all files (DataFrame)
-        - 'metadata': Combined metadata from all files (dict)
-        - 'aggregations': Aggregated results across all files (dict)
-    """
-
-    # Validate pipeline-specific requirements
-    if pipeline_name == "gait" and watch_side not in ["left", "right"]:
-        logger.error(
-            "watch_side must be specified as 'left' or 'right' for gait pipeline"
-        )
-        raise ValueError(
-            "watch_side must be specified as 'left' or 'right' for gait pipeline"
-        )
-
-    # Convert single DataFrame or list of DataFrames to dict if needed
-    if isinstance(dfs, pd.DataFrame):
-        dfs = {"df_1": dfs}
-    elif isinstance(dfs, list):
-        dfs = {f"df_{i}": df for i, df in enumerate(dfs, start=1)}
-
-    # Convert and validate output directory
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Initialize results storage
-    all_quantifications = []
-    all_metadata = {}
-
-    # Process each file with the appropriate pipeline
-    for i, (file_key, df) in enumerate(dfs.items(), start=1):
-        if len(dfs) > 1:
-            logger.info(f"Processing file: {file_key} ({i}/{len(dfs)})")
-        else:
-            logger.info("Processing single provided DataFrame")
-
-        try:
-            # Set up output directory for this file (only if storing intermediate results)
-            file_output_dir = output_dir / "individual_files" / file_key
-
-            # Run the appropriate pipeline based on pipeline_name
-            if pipeline_name == "gait":
-                # Calculate gait segment number offset to avoid conflicts when concatenating multiple gait segments
-                if len(all_quantifications) == 0:
-                    segment_nr_offset = 0
-                else:
-                    # Find maximum gait segment number from all previously processed data files
-                    segment_nr_offset = int(
-                        max(
-                            [
-                                df["gait_segment_nr"].max()
-                                for df in all_quantifications
-                                if len(df) > 0
-                            ]
-                        )
-                    )
-
-                quantification_data, quantification_metadata = run_gait_pipeline(
-                    df_prepared=df,
-                    watch_side=watch_side,
-                    imu_config=imu_config,
-                    gait_config=gait_config,
-                    arm_activity_config=arm_activity_config,
-                    store_intermediate=store_intermediate,
-                    output_dir=file_output_dir,
-                    segment_number_offset=segment_nr_offset,
-                    verbose=verbose,
-                )
-
-                # Store metadata in the combined metadata dictionary
-                if quantification_metadata and "per_segment" in quantification_metadata:
-                    for seg_id, meta in quantification_metadata["per_segment"].items():
-                        all_metadata[seg_id] = meta
-
-            elif pipeline_name == "tremor":
-                quantification_data = run_tremor_pipeline(
-                    df_prepared=df,
-                    store_intermediate=store_intermediate,
-                    output_dir=file_output_dir,
-                    tremor_config=tremor_config,
-                    imu_config=imu_config,
-                    verbose=verbose,
-                )
-            elif pipeline_name == "pulse_rate":
-                quantification_data = run_pulse_rate_pipeline(
-                    df_ppg_prepared=df,
-                    store_intermediate=store_intermediate,
-                    output_dir=file_output_dir,
-                    pulse_rate_config=pulse_rate_config,
-                    ppg_config=ppg_config,
-                    verbose=verbose,
-                )
-            else:
-                raise ValueError(
-                    f"Unknown pipeline: {pipeline_name}. Supported pipelines: 'gait', 'tremor', 'pulse_rate'"
-                )
-
-            if len(quantification_data) > 0:
-                # Add file identifier to quantified results
-                quantification_data = (
-                    quantification_data.copy()
-                )  # Ensure we're working with a copy
-                if len(dfs) > 1:
-                    quantification_data["file_key"] = file_key
-                all_quantifications.append(quantification_data)
-            else:
-                logger.warning(
-                    f"Data file {file_key}: No quantified data returned from {pipeline_name} pipeline"
-                )
-
-        except Exception as e:
-            logger.error(f"Failed to process data file {file_key}: {e}")
-
-    # Combine all quantified files
-    if all_quantifications:
-        combined_quantified = pd.concat(all_quantifications, ignore_index=True)
-        logger.info(
-            f"Combined results: {len(combined_quantified)} windows from {len(all_quantifications)} data files"
-        )
-    else:
-        combined_quantified = pd.DataFrame()
-        logger.warning(f"No quantified {pipeline_name} found in any data file")
-
-    # Aggregate results across all data files
-    aggregations = {}
-    if (
-        len(combined_quantified) > 0
-        and pipeline_name == "gait"
-        and len(all_metadata) > 0
-    ):
-        logger.info("Aggregating gait results across all data files")
-        try:
-            # Use default gait segment categories if none provided
-            if gait_segment_categories is None:
-                gait_segment_categories = [(0, 10), (10, 20), (20, np.inf), (0, np.inf)]
-
-            # Use default aggregates if none provided
-            if aggregates is None:
-                aggregates = ["median", "95p", "cov"]
-
-            aggregations = aggregate_arm_swing_params(
-                df_arm_swing_params=combined_quantified,
-                segment_meta=all_metadata,
-                segment_cats=gait_segment_categories,
-                aggregates=aggregates,
-            )
-            logger.info(
-                f"Aggregation completed across {len(gait_segment_categories)} gait segment length categories"
-            )
-        except Exception as e:
-            logger.error(f"Aggregation failed: {e}")
-            aggregations = {}
-    elif len(combined_quantified) > 0 and pipeline_name == "tremor":
-        logger.info("Aggregating tremor results across all data files")
-        try:
-            # Work on a copy for tremor aggregation
-            tremor_data_for_aggregation = combined_quantified.copy()
-
-            # Need to add datetime column for aggregate_tremor
-            if (
-                "time_dt" not in tremor_data_for_aggregation.columns
-                and "time" in tremor_data_for_aggregation.columns
-            ):
-                tremor_data_for_aggregation["time_dt"] = pd.to_datetime(
-                    tremor_data_for_aggregation["time"], unit="s"
-                )
-
-            # Use default tremor config for aggregation
-            if tremor_config is None:
-                tremor_config = TremorConfig()
-
-            aggregation_output_tremor = aggregate_tremor(
-                tremor_data_for_aggregation, tremor_config
-            )
-            aggregations = aggregation_output_tremor["aggregated_tremor_measures"]
-            all_metadata = aggregation_output_tremor["metadata"]
-            logger.info("Tremor aggregation completed")
-        except Exception as e:
-            logger.error(f"Tremor aggregation failed: {e}")
-    elif len(combined_quantified) > 0 and pipeline_name == "pulse_rate":
-        logger.info("Aggregating pulse rate results across all data files")
-        try:
-            # Extract pulse rate values for aggregation
-            pulse_rate_values = (
-                combined_quantified[DataColumns.PULSE_RATE].dropna().values
-            )
-
-            if len(pulse_rate_values) > 0:
-                aggregation_output_pr = aggregate_pulse_rate(
-                    pr_values=pulse_rate_values,
-                    aggregates=aggregates if aggregates else ["mode", "99p"],
-                )
-                aggregations = aggregation_output_pr["pr_aggregates"]
-                all_metadata = aggregation_output_pr["metadata"]
-                logger.info(
-                    f"Pulse rate aggregation completed with {len(pulse_rate_values)} valid estimates"
-                )
-            else:
-                logger.warning("No valid pulse rate estimates found for aggregation")
-                aggregations = {}
-        except Exception as e:
-            logger.error(f"Pulse rate aggregation failed: {e}")
-            aggregations = {}
-
-    # Save combined results (only if store_intermediate is not empty)
-    # Save combined quantified data
-    if len(combined_quantified) > 0 and "quantification" in store_intermediate:
-        save_prepared_data(
-            combined_quantified,
-            output_dir / f"quantifications_{pipeline_name}.parquet",
-            verbose=verbose,
-        )
-
-    # Save aggregated results
-    if aggregations and "aggregation" in store_intermediate:
-        with open(output_dir / f"aggregations_{pipeline_name}.json", "w") as f:
-            json.dump(aggregations, f, indent=2)
-
-    if store_intermediate:
-        logger.info(f"Results saved to {output_dir}")
-
-    return {
-        "quantifications": combined_quantified,
-        "aggregations": aggregations,
-        "metadata": all_metadata,
-    }
-
-
 def run_paradigma(
     output_dir: str | Path = "./output",
     data_path: str | Path | None = None,
@@ -368,6 +77,7 @@ def run_paradigma(
     imu_config: IMUConfig | None = None,
     ppg_config: PPGConfig | None = None,
     gait_config: GaitConfig | None = None,
+    arm_activity_config: GaitConfig | None = None,
     tremor_config: TremorConfig | None = None,
     pulse_rate_config: PulseRateConfig | None = None,
     verbose: int = 1,
@@ -451,6 +161,8 @@ def run_paradigma(
         PPG preprocessing configuration.
     gait_config : GaitConfig, optional
         Gait analysis configuration.
+    arm_activity_config : GaitConfig, optional
+        Arm activity analysis configuration.
     tremor_config : TremorConfig, optional
         Tremor analysis configuration.
     pulse_rate_config : PulseRateConfig, optional
@@ -536,8 +248,6 @@ def run_paradigma(
             file_paths = get_data_file_paths(
                 data_path=data_path, file_patterns=file_pattern, verbose=verbose
             )
-            if verbose >= 1:
-                logger.info(f"Found {len(file_paths)} data files")
         except Exception as e:
             logger.error(f"Failed to find data files: {e}")
             raise
@@ -569,6 +279,9 @@ def run_paradigma(
     # Step 2 & 3: Process each file individually
     if verbose >= 1:
         logger.info(f"Steps 2-3: Processing {num_files} files individually")
+
+    # Track maximum gait segment number across files for proper offset
+    max_gait_segment_nr = 0
 
     for i in range(num_files):
         # Load one file at a time
@@ -635,42 +348,95 @@ def run_paradigma(
             # Release raw data from memory
             del df_raw
 
-            # Step 3: Run each pipeline on this single file
+            # Step 3: Run each pipeline on this single file (call pipeline functions directly)
+            # Filter out 'aggregation' and 'quantification' from intermediate saves per file
+            store_intermediate_per_file = [
+                x
+                for x in save_intermediate
+                if x not in ["aggregation", "quantification"]
+            ]
+
+            # Create file-specific output directory
+            file_output_dir = output_dir / "individual_files" / file_name
+
             for pipeline_name in pipelines:
                 if verbose >= 2:
                     logger.info(f"Running {pipeline_name} pipeline on {file_name}")
 
-                # Create single-file dict for run_pipeline_batch
-                single_file_dict = {file_name: df_prepared}
-
                 try:
-                    pipeline_results = run_pipeline_batch(
-                        dfs=single_file_dict,
-                        pipeline_name=pipeline_name,
-                        watch_side=watch_side,
-                        imu_config=imu_config,
-                        ppg_config=ppg_config,
-                        gait_config=gait_config,
-                        tremor_config=tremor_config,
-                        pulse_rate_config=pulse_rate_config,
-                        store_intermediate=save_intermediate,
-                        output_dir=output_dir,
-                        gait_segment_categories=segment_length_bins,
-                        aggregates=aggregates,
-                        verbose=verbose,
-                    )
-
-                    # Store quantifications (append to list for later concatenation)
-                    if not pipeline_results["quantifications"].empty:
-                        all_results["quantifications"][pipeline_name].append(
-                            pipeline_results["quantifications"]
+                    if pipeline_name == "gait":
+                        quantification_data, quantification_metadata = (
+                            run_gait_pipeline(
+                                df_prepared=df_prepared,
+                                watch_side=watch_side,
+                                imu_config=imu_config,
+                                gait_config=gait_config,
+                                arm_activity_config=arm_activity_config,
+                                store_intermediate=store_intermediate_per_file,
+                                output_dir=file_output_dir,
+                                segment_number_offset=max_gait_segment_nr,
+                                verbose=verbose,
+                            )
                         )
 
-                    # Store metadata (merge dicts)
-                    if pipeline_results["metadata"]:
-                        all_results["metadata"][pipeline_name].update(
-                            pipeline_results["metadata"]
+                        if len(quantification_data) > 0:
+                            # Add file identifier if processing multiple files
+                            quantification_data = quantification_data.copy()
+                            if num_files > 1:
+                                quantification_data["file_key"] = file_name
+                            all_results["quantifications"][pipeline_name].append(
+                                quantification_data
+                            )
+
+                            # Update max segment number for next file
+                            max_gait_segment_nr = int(
+                                quantification_data["gait_segment_nr"].max()
+                            )
+
+                        # Store metadata
+                        if (
+                            quantification_metadata
+                            and "per_segment" in quantification_metadata
+                        ):
+                            all_results["metadata"][pipeline_name].update(
+                                quantification_metadata["per_segment"]
+                            )
+
+                    elif pipeline_name == "tremor":
+                        quantification_data = run_tremor_pipeline(
+                            df_prepared=df_prepared,
+                            store_intermediate=store_intermediate_per_file,
+                            output_dir=file_output_dir,
+                            tremor_config=tremor_config,
+                            imu_config=imu_config,
+                            verbose=verbose,
                         )
+
+                        if len(quantification_data) > 0:
+                            quantification_data = quantification_data.copy()
+                            if num_files > 1:
+                                quantification_data["file_key"] = file_name
+                            all_results["quantifications"][pipeline_name].append(
+                                quantification_data
+                            )
+
+                    elif pipeline_name == "pulse_rate":
+                        quantification_data = run_pulse_rate_pipeline(
+                            df_ppg_prepared=df_prepared,
+                            store_intermediate=store_intermediate_per_file,
+                            output_dir=file_output_dir,
+                            pulse_rate_config=pulse_rate_config,
+                            ppg_config=ppg_config,
+                            verbose=verbose,
+                        )
+
+                        if len(quantification_data) > 0:
+                            quantification_data = quantification_data.copy()
+                            if num_files > 1:
+                                quantification_data["file_key"] = file_name
+                            all_results["quantifications"][pipeline_name].append(
+                                quantification_data
+                            )
 
                 except Exception as e:
                     logger.error(
@@ -685,9 +451,11 @@ def run_paradigma(
             logger.error(f"Failed to process file {file_name}: {e}")
             continue
 
-    # Step 4: Combine quantifications and perform final aggregations
+    # Step 4: Combine quantifications and perform final aggregations across ALL files
     if verbose >= 1:
-        logger.info("Step 4: Combining results and performing aggregations")
+        logger.info(
+            "Step 4: Combining results and performing aggregations across all files"
+        )
 
     for pipeline_name in pipelines:
         # Concatenate all quantifications for this pipeline
@@ -705,10 +473,10 @@ def run_paradigma(
                     f"windows from {num_files_processed} files"
                 )
 
-            # Perform aggregation on combined results
+            # Perform aggregation on combined results FROM ALL FILES
             try:
                 if pipeline_name == "gait" and all_results["metadata"][pipeline_name]:
-                    logger.info("Aggregating gait results across all files")
+                    logger.info("Aggregating gait results across ALL files")
 
                     if segment_length_bins is None:
                         gait_segment_categories = [
@@ -737,7 +505,7 @@ def run_paradigma(
                     )
 
                 elif pipeline_name == "tremor":
-                    logger.info("Aggregating tremor results across all files")
+                    logger.info("Aggregating tremor results across ALL files")
 
                     # Work on a copy for tremor aggregation
                     tremor_data_for_aggregation = combined_quantified.copy()
@@ -766,7 +534,7 @@ def run_paradigma(
                     logger.info("Tremor aggregation completed")
 
                 elif pipeline_name == "pulse_rate":
-                    logger.info("Aggregating pulse rate results across all files")
+                    logger.info("Aggregating pulse rate results across ALL files")
 
                     pulse_rate_values = (
                         combined_quantified[DataColumns.PULSE_RATE].dropna().values
@@ -800,6 +568,27 @@ def run_paradigma(
             all_results["quantifications"][pipeline_name] = pd.DataFrame()
             logger.warning(f"No quantified {pipeline_name} results found")
 
+    # Save combined quantifications if requested
+    if "quantification" in save_intermediate:
+        for pipeline_name in pipelines:
+            if not all_results["quantifications"][pipeline_name].empty:
+                quant_file = output_dir / f"quantifications_{pipeline_name}.parquet"
+                save_prepared_data(
+                    all_results["quantifications"][pipeline_name],
+                    quant_file,
+                    verbose=verbose,
+                )
+
+    # Save aggregations if requested
+    if "aggregation" in save_intermediate:
+        for pipeline_name in pipelines:
+            if all_results["aggregations"][pipeline_name]:
+                agg_file = output_dir / f"aggregations_{pipeline_name}.json"
+                with open(agg_file, "w") as f:
+                    json.dump(all_results["aggregations"][pipeline_name], f, indent=2)
+                if verbose >= 1:
+                    logger.info(f"Saved aggregations to {agg_file}")
+
     if verbose >= 1:
         logger.info("ParaDigMa analysis completed for all pipelines")
 
@@ -821,5 +610,11 @@ def run_paradigma(
                     logger.info(f"{pipeline_name.capitalize()}: No successful results")
             except Exception as e:
                 logger.error(f"Error logging summary for {pipeline_name}: {e}")
+
+    # Close file handler to release log file
+    for handler in logger.handlers[:]:
+        if isinstance(handler, logging.FileHandler):
+            handler.close()
+            logger.removeHandler(handler)
 
     return all_results

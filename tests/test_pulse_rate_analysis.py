@@ -7,7 +7,7 @@ import pytest
 
 from paradigma.config import IMUConfig, PPGConfig, PulseRateConfig
 from paradigma.constants import DataColumns
-from paradigma.orchestrator import run_pipeline_batch
+from paradigma.orchestrator import run_paradigma
 from paradigma.pipelines.pulse_rate_pipeline import run_pulse_rate_pipeline
 
 try:
@@ -69,10 +69,11 @@ def test_pulse_rate_pipeline_integration():
     dfs = {"test": create_test_pulse_rate_data()}
 
     with tempfile.TemporaryDirectory() as temp_dir:
-        results = run_pipeline_batch(
-            pipeline_name="pulse_rate",
+        results = run_paradigma(
+            pipelines=["pulse_rate"],
             dfs=dfs,
             output_dir=temp_dir,
+            skip_preparation=True,
             pulse_rate_config=PulseRateConfig(),
             ppg_config=PPGConfig(),
         )
