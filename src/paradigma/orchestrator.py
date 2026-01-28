@@ -276,7 +276,7 @@ def run_paradigma(
         "metadata": {p: {} for p in pipelines},
     }
 
-    # Step 2 & 3: Process each file individually
+    # Steps 2-3: Process each file individually
     if verbose >= 1:
         logger.info(f"Steps 2-3: Processing {num_files} files individually")
 
@@ -451,11 +451,9 @@ def run_paradigma(
             logger.error(f"Failed to process file {file_name}: {e}")
             continue
 
-    # Step 4: Combine quantifications and perform final aggregations across ALL files
+    # Step 4: Combine quantifications from all files
     if verbose >= 1:
-        logger.info(
-            "Step 4: Combining results and performing aggregations across all files"
-        )
+        logger.info("Step 4: Combining quantifications from all files")
 
     for pipeline_name in pipelines:
         # Concatenate all quantifications for this pipeline
@@ -473,10 +471,11 @@ def run_paradigma(
                     f"windows from {num_files_processed} files"
                 )
 
-            # Perform aggregation on combined results FROM ALL FILES
+            # Step 5: Perform aggregation on combined results FROM ALL FILES
             try:
                 if pipeline_name == "gait" and all_results["metadata"][pipeline_name]:
-                    logger.info("Aggregating gait results across ALL files")
+                    if verbose >= 1:
+                        logger.info("Step 5: Aggregating gait results across ALL files")
 
                     if segment_length_bins is None:
                         gait_segment_categories = [
@@ -505,7 +504,10 @@ def run_paradigma(
                     )
 
                 elif pipeline_name == "tremor":
-                    logger.info("Aggregating tremor results across ALL files")
+                    if verbose >= 1:
+                        logger.info(
+                            "Step 5: Aggregating tremor results across ALL files"
+                        )
 
                     # Work on a copy for tremor aggregation
                     tremor_data_for_aggregation = combined_quantified.copy()
@@ -534,7 +536,10 @@ def run_paradigma(
                     logger.info("Tremor aggregation completed")
 
                 elif pipeline_name == "pulse_rate":
-                    logger.info("Aggregating pulse rate results across ALL files")
+                    if verbose >= 1:
+                        logger.info(
+                            "Step 5: Aggregating pulse rate results across ALL files"
+                        )
 
                     pulse_rate_values = (
                         combined_quantified[DataColumns.PULSE_RATE].dropna().values

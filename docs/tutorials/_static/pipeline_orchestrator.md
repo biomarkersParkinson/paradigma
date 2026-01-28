@@ -192,22 +192,16 @@ results_single_pipeline['quantifications'][pipeline].head()
     INFO: Applying ParaDigMa pipelines to provided DataFrame
 
 
-    INFO: Logging to output\paradigma_run_20260126_1558.log
+    INFO: Logging to output\paradigma_run_20260128_1145.log
 
 
     INFO: Step 1: Using provided DataFrame(s) as input
 
 
-    INFO: Step 2: Data already prepared, skipping preparation
+    INFO: Steps 2-3: Processing 2 files individually
 
 
-    INFO: Step 3: Running pipelines ['pulse_rate'] on 2 data files
-
-
-    INFO: Running pulse_rate pipeline
-
-
-    INFO: Processing file: PPG_segment0001 (1/2)
+    INFO: Processing DataFrame 1/2: PPG_segment0001
 
 
     INFO: Step 1: Preprocessing PPG and accelerometer data
@@ -228,13 +222,10 @@ results_single_pipeline['quantifications'][pipeline].head()
     INFO: Step 5: Quantifying pulse rate
 
 
-    INFO: Saved pulse rate quantification to output\individual_files\PPG_segment0001\quantification
-
-
     INFO: Pulse rate analysis completed: 830 valid pulse rate estimates from 830 total windows
 
 
-    INFO: Processing file: PPG_segment0002 (2/2)
+    INFO: Processing DataFrame 2/2: PPG_segment0002
 
 
     INFO: Step 1: Preprocessing PPG and accelerometer data
@@ -255,16 +246,16 @@ results_single_pipeline['quantifications'][pipeline].head()
     INFO: Step 5: Quantifying pulse rate
 
 
-    INFO: Saved pulse rate quantification to output\individual_files\PPG_segment0002\quantification
-
-
     INFO: Pulse rate analysis completed: 7854 valid pulse rate estimates from 7854 total windows
 
 
-    INFO: Combined results: 8684 windows from 2 data files
+    INFO: Step 4: Combining quantifications from all files
 
 
-    INFO: Aggregating pulse rate results across all data files
+    INFO: Pulse_rate: Combined 8684 windows from 2 files
+
+
+    INFO: Step 5: Aggregating pulse rate results across ALL files
 
 
     INFO: Pulse rate aggregation completed with 8684 valid estimates
@@ -273,10 +264,7 @@ results_single_pipeline['quantifications'][pipeline].head()
     INFO: Saved prepared data to output\quantifications_pulse_rate.parquet
 
 
-    INFO: Results saved to output
-
-
-    INFO: Pulse_rate pipeline completed
+    INFO: Saved aggregations to output\aggregations_pulse_rate.json
 
 
     INFO: ParaDigMa analysis completed for all pipelines
@@ -369,22 +357,16 @@ print(f"  Aggregations: {results_no_storage['aggregations'][pipeline]}")
     INFO: Applying ParaDigMa pipelines to provided DataFrame
 
 
-    INFO: Logging to output\paradigma_run_20260126_1601.log
+    INFO: Logging to output\paradigma_run_20260128_1148.log
 
 
     INFO: Step 1: Using provided DataFrame(s) as input
 
 
-    INFO: Step 2: Data already prepared, skipping preparation
+    INFO: Steps 2-3: Processing 2 files individually
 
 
-    INFO: Step 3: Running pipelines ['pulse_rate'] on 2 data files
-
-
-    INFO: Running pulse_rate pipeline
-
-
-    INFO: Processing file: PPG_segment0001 (1/2)
+    INFO: Processing DataFrame 1/2: PPG_segment0001
 
 
     INFO: Step 1: Preprocessing PPG and accelerometer data
@@ -408,7 +390,7 @@ print(f"  Aggregations: {results_no_storage['aggregations'][pipeline]}")
     INFO: Pulse rate analysis completed: 830 valid pulse rate estimates from 830 total windows
 
 
-    INFO: Processing file: PPG_segment0002 (2/2)
+    INFO: Processing DataFrame 2/2: PPG_segment0002
 
 
     INFO: Step 1: Preprocessing PPG and accelerometer data
@@ -432,16 +414,16 @@ print(f"  Aggregations: {results_no_storage['aggregations'][pipeline]}")
     INFO: Pulse rate analysis completed: 7854 valid pulse rate estimates from 7854 total windows
 
 
-    INFO: Combined results: 8684 windows from 2 data files
+    INFO: Step 4: Combining quantifications from all files
 
 
-    INFO: Aggregating pulse rate results across all data files
+    INFO: Pulse_rate: Combined 8684 windows from 2 files
+
+
+    INFO: Step 5: Aggregating pulse rate results across ALL files
 
 
     INFO: Pulse rate aggregation completed with 8684 valid estimates
-
-
-    INFO: Pulse_rate pipeline completed
 
 
     INFO: ParaDigMa analysis completed for all pipelines
@@ -618,22 +600,16 @@ results_multi_pipeline = run_paradigma(
     INFO: Applying ParaDigMa pipelines to provided DataFrame
 
 
-    INFO: Logging to output_multi\paradigma_run_20260126_1603.log
+    INFO: Logging to output_multi\paradigma_run_20260128_1151.log
 
 
     INFO: Step 1: Using provided DataFrame(s) as input
 
 
-    INFO: Step 2: Data already prepared, skipping preparation
+    INFO: Steps 2-3: Processing 2 files individually
 
 
-    INFO: Step 3: Running pipelines ['gait', 'tremor'] on 2 data files
-
-
-    INFO: Running gait pipeline
-
-
-    INFO: Processing file: IMU_segment0001 (1/2)
+    INFO: Processing DataFrame 1/2: IMU_segment0001
 
 
     INFO: Step 1: Preprocessing IMU data
@@ -660,7 +636,25 @@ results_multi_pipeline = run_paradigma(
     INFO: Gait analysis pipeline completed. Found 1228 windows of gait without other arm activities.
 
 
-    INFO: Processing file: IMU_segment0002 (2/2)
+    INFO: Step 1: Preprocessing gyroscope data
+
+
+    INFO: Step 2: Extracting tremor features
+
+
+    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+
+
+    INFO: Step 3: Detecting tremor
+
+
+    INFO: Step 4: Quantifying tremor
+
+
+    INFO: Tremor analysis completed: 728 tremor windows detected from 8584 total windows
+
+
+    INFO: Processing DataFrame 2/2: IMU_segment0002
 
 
     INFO: Step 1: Preprocessing IMU data
@@ -687,51 +681,6 @@ results_multi_pipeline = run_paradigma(
     INFO: Gait analysis pipeline completed. Found 4071 windows of gait without other arm activities.
 
 
-    INFO: Combined results: 5299 windows from 2 data files
-
-
-    INFO: Aggregating gait results across all data files
-
-
-    INFO: Aggregation completed across 4 gait segment length categories
-
-
-    INFO: Saved prepared data to output_multi\quantifications_gait.parquet
-
-
-    INFO: Results saved to output_multi
-
-
-    INFO: Gait pipeline completed
-
-
-    INFO: Running tremor pipeline
-
-
-    INFO: Processing file: IMU_segment0001 (1/2)
-
-
-    INFO: Step 1: Preprocessing gyroscope data
-
-
-    INFO: Step 2: Extracting tremor features
-
-
-    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
-
-
-    INFO: Step 3: Detecting tremor
-
-
-    INFO: Step 4: Quantifying tremor
-
-
-    INFO: Tremor analysis completed: 728 tremor windows detected from 8584 total windows
-
-
-    INFO: Processing file: IMU_segment0002 (2/2)
-
-
     INFO: Step 1: Preprocessing gyroscope data
 
 
@@ -750,22 +699,31 @@ results_multi_pipeline = run_paradigma(
     INFO: Tremor analysis completed: 1794 tremor windows detected from 18472 total windows
 
 
-    INFO: Combined results: 27056 windows from 2 data files
+    INFO: Step 4: Combining quantifications from all files
 
 
-    INFO: Aggregating tremor results across all data files
+    INFO: Gait: Combined 5299 windows from 2 files
+
+
+    INFO: Step 5: Aggregating gait results across ALL files
+
+
+    INFO: Aggregation completed across 4 gait segment categories
+
+
+    INFO: Tremor: Combined 27056 windows from 2 files
+
+
+    INFO: Step 5: Aggregating tremor results across ALL files
 
 
     INFO: Tremor aggregation completed
 
 
+    INFO: Saved prepared data to output_multi\quantifications_gait.parquet
+
+
     INFO: Saved prepared data to output_multi\quantifications_tremor.parquet
-
-
-    INFO: Results saved to output_multi
-
-
-    INFO: Tremor pipeline completed
 
 
     INFO: ParaDigMa analysis completed for all pipelines
@@ -887,25 +845,25 @@ results_end_to_end['quantifications'][pipeline].head()
     INFO: Applying ParaDigMa pipelines to ..\..\example_data\axivity
 
 
-    INFO: Logging to output_raw\paradigma_run_20260126_1604.log
+    INFO: Logging to output_raw\paradigma_run_20260128_1151.log
 
 
-    INFO: Step 1: Loading data files
+    INFO: Step 1: Finding data files
+
+
+    INFO: Found 1 data files in ..\..\example_data\axivity
+
+
+    INFO: Steps 2-3: Processing 1 files individually
+
+
+    INFO: Processing file 1/1: test_data.CWA
 
 
     INFO: Loading Axivity data from ..\..\example_data\axivity\test_data.CWA
 
 
     INFO: Loaded Axivity data: 36400 rows, 8 columns
-
-
-    INFO: Successfully loaded 1 files
-
-
-    INFO: Loaded 1 data files
-
-
-    INFO: Step 2: Preparing raw data
 
 
     INFO: Starting data preparation pipeline
@@ -932,18 +890,6 @@ results_end_to_end['quantifications'][pipeline].head()
     INFO: Data preparation completed: 36433 rows, 7 columns
 
 
-    INFO: Successfully prepared 1 data files
-
-
-    INFO: Step 3: Running pipelines ['gait'] on 1 data files
-
-
-    INFO: Running gait pipeline
-
-
-    INFO: Processing single provided DataFrame
-
-
     INFO: Step 1: Preprocessing IMU data
 
 
@@ -968,19 +914,19 @@ results_end_to_end['quantifications'][pipeline].head()
     INFO: Gait analysis pipeline completed. Found 27 windows of gait without other arm activities.
 
 
-    INFO: Combined results: 27 windows from 1 data files
+    INFO: Step 4: Combining quantifications from all files
 
 
-    INFO: Aggregating gait results across all data files
+    INFO: Gait: Combined 27 windows from 1 files
 
 
-    INFO: Aggregation completed across 4 gait segment length categories
+    INFO: Step 5: Aggregating gait results across ALL files
 
 
-    INFO: Results saved to output_raw
+    INFO: Aggregation completed across 4 gait segment categories
 
 
-    INFO: Gait pipeline completed
+    INFO: Saved aggregations to output_raw\aggregations_gait.json
 
 
     INFO: ParaDigMa analysis completed for all pipelines
@@ -1296,13 +1242,16 @@ gait_results.head()
     INFO: Applying ParaDigMa pipelines to provided DataFrame
 
 
-    INFO: Logging to output\paradigma_run_20260126_1604.log
+    INFO: Logging to output\paradigma_run_20260128_1151.log
 
 
     INFO: Step 1: Using provided DataFrame(s) as input
 
 
-    INFO: Step 2: Preparing raw data
+    INFO: Steps 2-3: Processing 1 files individually
+
+
+    INFO: Processing DataFrame 1/1: test_file
 
 
     INFO: Starting data preparation pipeline
@@ -1338,18 +1287,6 @@ gait_results.head()
     INFO: Data preparation completed: 876535 rows, 8 columns
 
 
-    INFO: Successfully prepared 1 data files
-
-
-    INFO: Step 3: Running pipelines ['gait'] on 1 data files
-
-
-    INFO: Running gait pipeline
-
-
-    INFO: Processing single provided DataFrame
-
-
     INFO: Step 1: Preprocessing IMU data
 
 
@@ -1374,16 +1311,16 @@ gait_results.head()
     INFO: Gait analysis pipeline completed. Found 1834 windows of gait without other arm activities.
 
 
-    INFO: Combined results: 1834 windows from 1 data files
+    INFO: Step 4: Combining quantifications from all files
 
 
-    INFO: Aggregating gait results across all data files
+    INFO: Gait: Combined 1834 windows from 1 files
 
 
-    INFO: Aggregation completed across 4 gait segment length categories
+    INFO: Step 5: Aggregating gait results across ALL files
 
 
-    INFO: Gait pipeline completed
+    INFO: Aggregation completed across 4 gait segment categories
 
 
     INFO: ParaDigMa analysis completed for all pipelines

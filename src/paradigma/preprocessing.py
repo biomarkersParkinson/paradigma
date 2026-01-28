@@ -154,9 +154,9 @@ def resample_data(
     if not is_contiguous:
         if validate_contiguous and not auto_segment:
             raise ValueError(
-                "Time array is not contiguous. Consider setting auto_segment=True to "
-                "automatically split and process non-contiguous segments, or set "
-                "validate_contiguous=False to interpolate over gaps."
+                "Time array is not contiguous. Consider enabling automatic segmentation "
+                "to split and process non-contiguous segments, or disable contiguity "
+                "validation to interpolate over gaps."
             )
         elif auto_segment:
             # Split into segments
