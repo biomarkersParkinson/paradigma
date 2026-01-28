@@ -136,8 +136,7 @@ def run_pipeline_batch(
 
     # Convert and validate output directory
     output_dir = Path(output_dir)
-    if len(store_intermediate) > 0:
-        output_dir.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     # Initialize results storage
     all_quantifications = []
@@ -509,8 +508,7 @@ def run_paradigma(
 
     # Convert and create output directory
     output_dir = Path(output_dir)
-    if len(save_intermediate) > 0:
-        output_dir.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     # Setup logging to file
     timestamp = datetime.now().strftime("%Y%m%d_%H%M")

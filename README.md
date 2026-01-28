@@ -17,7 +17,7 @@ ParaDigMa (Parkinson's disease Digital Markers) is a Python toolbox for extracti
 - Arm swing during gait analysis
 - Tremor analysis
 - Pulse Rate analysis
-- Scientifically Validated in peer-reviewed publications
+- Scientifically validated in peer-reviewed publications
 - Extensible architecture for custom analyses
 
 ## Quick Start
@@ -92,7 +92,6 @@ tremor_aggregates = results['aggregations']['tremor']
 
 ### Validated Processing Pipelines
 
-ParaDigMa contains the following validated processing pipelines:
 | Pipeline | Input sensors | Output week-level aggregation | Tutorial |
 | ---- | ---- | ------- | ---- |
 | **Arm swing during gait** | Accelerometer + Gyroscope | Typical, maximum & variability of arm swing range of motion | [Guide](https://biomarkersparkinson.github.io/paradigma/tutorials/gait_analysis) |
