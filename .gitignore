@@ -116,5 +116,18 @@ celerybeat.pid
 *.spec
 *.sage.py
 *.asv
+
 pip-log.txt
 pip-delete-this-directory.txt
+
+# =========================
+# Logs and databases
+# =========================
+*.log
+output*/
+
+# =========================
+# Generated TSDF files (from running notebooks/tests)
+# =========================
+example_data/**/segment*.json
+example_data/**/segment*.bin

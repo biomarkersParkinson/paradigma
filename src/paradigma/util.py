@@ -2,7 +2,7 @@ import functools
 import os
 import warnings
 from datetime import datetime, timedelta
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -383,7 +383,7 @@ def invert_watch_side(df: pd.DataFrame, side: str, sensor="both") -> np.ndarray:
 def aggregate_parameter(
     parameter: np.ndarray,
     aggregate: str,
-    evaluation_points: Optional[np.ndarray] = None,
+    evaluation_points: np.ndarray | None = None,
 ) -> np.ndarray | int:
     """
     Aggregate a parameter based on the specified method.

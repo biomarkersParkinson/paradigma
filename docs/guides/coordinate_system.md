@@ -1,5 +1,12 @@
 # Coordinate System
-As a prerequisite to reliably estimating gait and arm swing measures, it is important to align the coordinate system of the IMU sensor with the coordinate system of the trained classifiers. For the tremor and heart rate pipelines, differences between coordinate systems do not affect outcomes.
+As a prerequisite to reliably estimating gait and arm swing measures, it is important to align the coordinate system of the IMU sensor with the coordinate system of the trained classifiers. For the tremor and heart rate pipelines, differences between coordinate systems do not affect outcomes. However, for the gait pipeline it does.
+
+**Note**: In v1.0.5 we implemented `run_paradigma` which takes `device_orientation` as one of
+its arguments. This is a list set to `['x', 'y', 'z'] by default, which maps the first element
+to the target x-axis, the second element to the target y-axis, and the third element to the
+targer z-axis. For example, if your device has the x-axis and y-axis switched around, and then the y-axis inverted, the `device_orientation` argument should be set to `['y', '-x', 'z]`
+(i.e., the y-axis of your device is set to the target x-axis, the inverted x-axis of your
+device is set to the target y-axis, and the z-axis of your device is set to the target z-axis).
 
 ## Coordinate system used
 The coordinate system of the IMU sensor used for training the classifiers can be observed below. The direction of acceleration is indicated by arrows, and the direction of gyroscope rotation can be determined using [Ampère's right-hand grip rule](https://en.wikipedia.org/wiki/Right-hand_rule#Amp%C3%A8re's_right-hand_grip_rule) applied to the accelerometer axes.

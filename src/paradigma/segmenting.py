@@ -313,7 +313,7 @@ def categorize_segments(df, fs, format="timestamps", window_step_length_s=None):
         d_max_duration = {k: v * fs for k, v in d_max_duration.items()}
 
     # Count rows per segment
-    segment_sizes = df[DataColumns.SEGMENT_NR].value_counts()
+    segment_sizes = df[DataColumns.GAIT_SEGMENT_NR].value_counts()
 
     # Convert segment sizes to duration in seconds
     if format == "windows":
@@ -332,7 +332,10 @@ def categorize_segments(df, fs, format="timestamps", window_step_length_s=None):
 
     # Apply categorization to the DataFrame
     return (
-        df[DataColumns.SEGMENT_NR].map(segment_sizes).map(categorize).astype("category")
+        df[DataColumns.GAIT_SEGMENT_NR]
+        .map(segment_sizes)
+        .map(categorize)
+        .astype("category")
     )
 
 

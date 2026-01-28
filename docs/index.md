@@ -7,6 +7,11 @@
 :caption: User guides
 
 tutorials/index
+guides/installation.md
+guides/data_input.md
+guides/sensor_requirements.md
+guides/supported_devices.md
+guides/validation.md
 guides/config.md
 guides/coordinate_system.md
 ```
