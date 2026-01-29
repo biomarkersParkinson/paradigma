@@ -2,7 +2,6 @@ import functools
 import os
 import warnings
 from datetime import datetime, timedelta
-from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -16,12 +15,14 @@ from paradigma.constants import DataColumns, TimeUnit
 
 def deprecated(reason: str = ""):
     """
-    Decorator to mark functions as deprecated. It will show a warning when the function is used.
+    Decorator to mark functions as deprecated. It will show a warning when the
+    function is used.
 
     Parameters
     ----------
     reason : str, optional
-        Additional message to explain why it is deprecated and what to use instead.
+        Additional message to explain why it is deprecated and what to use
+        instead.
     """
 
     def decorator(func):
@@ -155,7 +156,7 @@ def write_df_data(
 
 def read_metadata(
     input_path: str, meta_filename: str, time_filename: str, values_filename: str
-) -> Tuple[TSDFMetadata, TSDFMetadata]:
+) -> tuple[TSDFMetadata, TSDFMetadata]:
     metadata_dict = tsdf.load_metadata_from_path(
         os.path.join(input_path, meta_filename)
     )
@@ -186,8 +187,8 @@ def load_tsdf_dataframe(
 
 
 def load_metadata_list(
-    dir_path: str, meta_filename: str, filenames: List[str]
-) -> List[TSDFMetadata]:
+    dir_path: str, meta_filename: str, filenames: list[str]
+) -> list[TSDFMetadata]:
     """
     Load the metadata objects from a metadata file according to the specified binaries.
 
@@ -216,7 +217,8 @@ def transform_time_array(
     start_time: float = 0.0,
 ) -> np.ndarray:
     """
-    Transforms the time array to relative time (when defined in delta time) and scales the values.
+    Transforms the time array to relative time (when defined in delta time)
+    and scales the values.
 
     Parameters
     ----------
@@ -225,7 +227,8 @@ def transform_time_array(
     input_unit_type : str
         The time unit type of the input time array.
     output_unit_type : str
-        The time unit type of the output time array. ParaDigMa expects `TimeUnit.RELATIVE_S`.
+        The time unit type of the output time array. ParaDigMa expects
+        `TimeUnit.RELATIVE_S`.
     start_time : float, optional
         The start time of the time array in UNIX seconds (default is 0.0)
 
@@ -236,9 +239,13 @@ def transform_time_array(
 
     Notes
     -----
-    - The function handles different time units (`TimeUnit.RELATIVE_MS`, `TimeUnit.RELATIVE_S`, `TimeUnit.ABSOLUTE_MS`, `TimeUnit.ABSOLUTE_S`, `TimeUnit.DIFFERENCE_MS`, `TimeUnit.DIFFERENCE_S`).
-    - The transformation allows for scaling of the time array, converting between time unit types (e.g., relative, absolute, or difference).
-    - When converting to `TimeUnit.RELATIVE_MS`, the function calculates the relative time starting from the provided or default start time.
+    - The function handles different time units (`TimeUnit.RELATIVE_MS`,
+      `TimeUnit.RELATIVE_S`, `TimeUnit.ABSOLUTE_MS`, `TimeUnit.ABSOLUTE_S`,
+      `TimeUnit.DIFFERENCE_MS`, `TimeUnit.DIFFERENCE_S`).
+    - The transformation allows for scaling of the time array, converting
+      between time unit types (e.g., relative, absolute, or difference).
+    - When converting to `TimeUnit.RELATIVE_MS`, the function calculates the
+      relative time starting from the provided or default start time.
     """
     input_units = input_unit_type.split("_")[-1].lower()
     output_units = output_unit_type.split("_")[-1].lower()
@@ -259,7 +266,8 @@ def transform_time_array(
         input_unit_type == TimeUnit.DIFFERENCE_MS
         or input_unit_type == TimeUnit.DIFFERENCE_S
     ):
-        # Convert a series of differences into cumulative sum to reconstruct original time series.
+        # Convert a series of differences into cumulative sum to
+        # reconstruct original time series.
         time_array = np.cumsum(np.double(time_array))
     elif (
         input_unit_type == TimeUnit.ABSOLUTE_MS
@@ -271,7 +279,8 @@ def transform_time_array(
         # Convert absolute time stamps into a time series relative to start_time.
         time_array = time_array - start_time
 
-    # Transform the time array from `TimeUnit.RELATIVE_MS` to the specified time unit type
+    # Transform the time array from `TimeUnit.RELATIVE_MS` to the
+    # specified time unit type
     if (
         output_unit_type == TimeUnit.ABSOLUTE_MS
         or output_unit_type == TimeUnit.ABSOLUTE_S
@@ -282,7 +291,8 @@ def transform_time_array(
         output_unit_type == TimeUnit.DIFFERENCE_MS
         or output_unit_type == TimeUnit.DIFFERENCE_S
     ):
-        # Creates a new array starting with 0, followed by the differences between consecutive elements.
+        # Creates a new array starting with 0, followed by the
+        # differences between consecutive elements.
         time_array = np.diff(np.insert(time_array, 0, start_time))
     elif (
         output_unit_type == TimeUnit.RELATIVE_MS
@@ -398,7 +408,8 @@ def aggregate_parameter(
 
     evaluation_points : np.ndarray, optional
         Should be specified if the mode is derived for a continuous parameter.
-        Defines the evaluation points for the kernel density estimation function, from which the maximum is derived as the mode.
+        Defines the evaluation points for the kernel density estimation
+        function, from which the maximum is derived as the mode.
 
     Returns
     -------
@@ -445,8 +456,9 @@ def merge_predictions_with_timestamps(
     fs: int,
 ) -> pd.DataFrame:
     """
-    Merges prediction probabilities with timestamps by expanding overlapping windows
-    into individual timestamps and averaging probabilities per unique timestamp.
+    Merges prediction probabilities with timestamps by expanding overlapping
+    windows into individual timestamps and averaging probabilities per unique
+    timestamp.
 
     Parameters:
     ----------
@@ -455,10 +467,11 @@ def merge_predictions_with_timestamps(
         Must include the timestamp column specified in `DataColumns.TIME`.
 
     df_predictions : pd.DataFrame
-        DataFrame containing prediction windows with start times and probabilities.
-        Must include:
+        DataFrame containing prediction windows with start times and
+        probabilities. Must include:
         - A column for window start times (defined by `DataColumns.TIME`).
-        - A column for prediction probabilities (defined by `DataColumns.PRED_GAIT_PROBA`).
+        - A column for prediction probabilities (defined by
+          `DataColumns.PRED_GAIT_PROBA`).
 
     pred_proba_colname : str
         The column name for the prediction probabilities in `df_predictions`.
@@ -559,7 +572,8 @@ def select_days(df: pd.DataFrame, min_hours_per_day: int) -> pd.DataFrame:
         Input data with column 'time_dt' in which the date is stored.
 
     min_hours_per_day: int
-        The minimum number of hours per day required for including the day in the aggregation step.
+        The minimum number of hours per day required for including the day
+        in the aggregation step.
 
 
     Returns

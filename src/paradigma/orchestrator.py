@@ -5,8 +5,9 @@ This module provides the main entry point for running analysis pipelines:
 
 Main Function
 -------------
-- run_paradigma(): Complete pipeline from data loading/preparation to aggregated results.
-  Main entry point for end-to-end analysis supporting multiple pipelines (gait, tremor, pulse_rate).
+- run_paradigma(): Complete pipeline from data loading/preparation
+  to aggregated results. Main entry point for end-to-end analysis
+  supporting multiple pipelines (gait, tremor, pulse_rate).
   Can process raw data from disk or already-prepared DataFrames.
 
 The orchestrator coordinates:
@@ -22,7 +23,6 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List
 
 import numpy as np
 import pandas as pd
@@ -57,20 +57,20 @@ logger = logging.getLogger(__name__)
 def run_paradigma(
     output_dir: str | Path = "./output",
     data_path: str | Path | None = None,
-    dfs: pd.DataFrame | List[pd.DataFrame] | Dict[str, pd.DataFrame] | None = None,
+    dfs: pd.DataFrame | list[pd.DataFrame] | dict[str, pd.DataFrame] | None = None,
     skip_preparation: bool = False,
-    pipelines: List[str] | str | None = None,
+    pipelines: list[str] | str | None = None,
     watch_side: str | None = None,
     accelerometer_units: str = "g",
     gyroscope_units: str = "deg/s",
     time_input_unit: TimeUnit = TimeUnit.RELATIVE_S,
     target_frequency: float = 100.0,
-    column_mapping: Dict[str, str] | None = None,
-    device_orientation: List[str] | None = ["x", "y", "z"],
-    save_intermediate: List[str] = [],
-    file_pattern: str | List[str] | None = None,
-    aggregates: List[str] | None = None,
-    segment_length_bins: List[str] | None = None,
+    column_mapping: dict[str, str] | None = None,
+    device_orientation: list[str] | None = ["x", "y", "z"],
+    save_intermediate: list[str] = [],
+    file_pattern: str | list[str] | None = None,
+    aggregates: list[str] | None = None,
+    segment_length_bins: list[str] | None = None,
     split_by_gaps: bool = False,
     max_gap_seconds: float | None = None,
     min_segment_seconds: float | None = None,
@@ -81,11 +81,12 @@ def run_paradigma(
     tremor_config: TremorConfig | None = None,
     pulse_rate_config: PulseRateConfig | None = None,
     verbose: int = 1,
-) -> Dict[str, pd.DataFrame | Dict]:
+) -> dict[str, pd.DataFrame | dict]:
     """
     Complete ParaDigMa analysis pipeline from data loading to aggregated results.
 
-    This is the main entry point for ParaDigMa analysis. It supports multiple pipeline types:
+    This is the main entry point for ParaDigMa analysis. It supports
+    multiple pipeline types:
     - gait: Arm swing during gait analysis
     - tremor: Tremor detection and quantification
     - pulse_rate: Pulse rate estimation from PPG signals
@@ -109,11 +110,13 @@ def run_paradigma(
         len(dfs) > 1, allowing cleaner output for single-file processing.
         See input_formats guide for details.
     skip_preparation : bool, default False
-        Whether data is already prepared. If False, data will be prepared (unit conversion,
-        resampling, etc.). If True, assumes data is already in the required format.
+        Whether data is already prepared. If False, data will be
+        prepared (unit conversion, resampling, etc.). If True,
+        assumes data is already in the required format.
     pipelines : list of str or str, optional
-        Pipelines to run: 'gait', 'tremor', and/or 'pulse_rate'. If providing a list, currently
-        only tremor and gait pipelines can be run together.
+        Pipelines to run: 'gait', 'tremor', and/or 'pulse_rate'.
+        If providing a list, currently only tremor and gait pipelines
+        can be run together.
     watch_side : str, optional
         Watch side: 'left' or 'right' (required for gait pipeline).
     accelerometer_units : str, default 'm/s^2'
@@ -129,7 +132,8 @@ def run_paradigma(
     device_orientation : list of str, optional
         Custom device orientation corrections.
     output_dir : str or Path, default './output'
-        Output directory for all results. Files are only saved if save_intermediate is not empty.
+        Output directory for all results. Files are only saved if
+        save_intermediate is not empty.
     save_intermediate : list of str, default []
         Which intermediate results to store. Valid values:
         - 'preparation': Save prepared data
@@ -146,8 +150,10 @@ def run_paradigma(
         Duration bins for gait segment aggregation (gait pipeline only).
         Example: ['(0, 10)', '(10, 20)'] for segments 0-10s and 10-20s.
     split_by_gaps : bool, default False
-        If True, automatically split non-contiguous data into segments during preparation.
-        Adds 'data_segment_nr' column to prepared data which is preserved through pipeline.
+        If True, automatically split non-contiguous data into segments
+        during preparation.
+        Adds 'data_segment_nr' column to prepared data which is preserved
+        through pipeline.
         Useful for handling data with gaps/interruptions.
     max_gap_seconds : float, optional
         Maximum gap (seconds) before starting new segment. Used when split_by_gaps=True.
@@ -348,8 +354,10 @@ def run_paradigma(
             # Release raw data from memory
             del df_raw
 
-            # Step 3: Run each pipeline on this single file (call pipeline functions directly)
-            # Filter out 'aggregation' and 'quantification' from intermediate saves per file
+            # Step 3: Run each pipeline on this single file (call pipeline
+            # functions directly)
+            # Filter out 'aggregation' and 'quantification' from intermediate
+            # saves per file
             store_intermediate_per_file = [
                 x
                 for x in save_intermediate
@@ -467,8 +475,9 @@ def run_paradigma(
 
             if verbose >= 1:
                 logger.info(
-                    f"{pipeline_name.capitalize()}: Combined {len(combined_quantified)} "
-                    f"windows from {num_files_processed} files"
+                    f"{pipeline_name.capitalize()}: Combined "
+                    f"{len(combined_quantified)} windows from "
+                    f"{num_files_processed} files"
                 )
 
             # Step 5: Perform aggregation on combined results FROM ALL FILES
@@ -500,7 +509,8 @@ def run_paradigma(
                     )
                     all_results["aggregations"][pipeline_name] = aggregations
                     logger.info(
-                        f"Aggregation completed across {len(gait_segment_categories)} gait segment categories"
+                        f"Aggregation completed across "
+                        f"{len(gait_segment_categories)} gait segment categories"
                     )
 
                 elif pipeline_name == "tremor":
@@ -557,7 +567,8 @@ def run_paradigma(
                             "metadata"
                         ]
                         logger.info(
-                            f"Pulse rate aggregation completed with {len(pulse_rate_values)} valid estimates"
+                            f"Pulse rate aggregation completed with "
+                            f"{len(pulse_rate_values)} valid estimates"
                         )
                     else:
                         logger.warning(
@@ -605,11 +616,13 @@ def run_paradigma(
                 if not quant_df.empty and "file_key" in quant_df.columns:
                     successful_files = np.unique(quant_df["file_key"].values)
                     logger.info(
-                        f"{pipeline_name.capitalize()}: Files successfully processed: {successful_files}"
+                        f"{pipeline_name.capitalize()}: Files successfully "
+                        f"processed: {successful_files}"
                     )
                 elif not quant_df.empty:
                     logger.info(
-                        f"{pipeline_name.capitalize()}: Single file processed successfully"
+                        f"{pipeline_name.capitalize()}: Single file processed "
+                        f"successfully"
                     )
                 else:
                     logger.info(f"{pipeline_name.capitalize()}: No successful results")

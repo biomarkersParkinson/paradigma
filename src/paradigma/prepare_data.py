@@ -12,7 +12,6 @@ Based on data_preparation tutorial.
 """
 
 import logging
-from typing import Dict, List
 
 import pandas as pd
 
@@ -30,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 def standardize_column_names(
     df: pd.DataFrame,
-    column_mapping: Dict[str, str] | None = None,
+    column_mapping: dict[str, str] | None = None,
     verbose: int = 1,
 ) -> pd.DataFrame:
     """
@@ -71,7 +70,8 @@ def convert_sensor_units(
     verbose: int = 1,
 ) -> pd.DataFrame:
     """
-    Convert sensor units to ParaDigMa expected format (g for acceleration, deg/s for gyroscope).
+    Convert sensor units to ParaDigMa expected format (g for acceleration,
+    deg/s for gyroscope).
 
     Parameters
     ----------
@@ -182,12 +182,13 @@ def prepare_time_column(
 def correct_watch_orientation(
     df: pd.DataFrame,
     watch_side: str,
-    device_orientation: List[str] | None = None,
+    device_orientation: list[str] | None = None,
     sensor: str = "both",
     verbose: int = 1,
 ) -> pd.DataFrame:
     """
-    Correct sensor orientation based on watch side using ParaDigMa's invert_watch_side function.
+    Correct sensor orientation based on watch side using ParaDigMa's
+    invert_watch_side function.
 
     Parameters
     ----------
@@ -229,7 +230,8 @@ def correct_watch_orientation(
         if all([device_orientation[x] == target_orientation[x] for x in range(3)]):
             if verbose >= 2:
                 logger.info(
-                    "Device orientation matches target orientation, no correction applied"
+                    "Device orientation matches target orientation, "
+                    "no correction applied"
                 )
         else:
             for sensor_type in sensors_to_correct:
@@ -243,7 +245,8 @@ def correct_watch_orientation(
 
                     if verbose >= 2:
                         logger.info(
-                            f"Applied custom orientation: {sensor_type} {target_axis} mapped from {mapping}"
+                            f"Applied custom orientation: {sensor_type} "
+                            f"{target_axis} mapped from {mapping}"
                         )
 
     # Use ParaDigMa's invert_watch_side function for proper orientation correction
@@ -254,7 +257,7 @@ def correct_watch_orientation(
     return out
 
 
-def validate_prepared_data(df: pd.DataFrame) -> Dict[str, bool | str]:
+def validate_prepared_data(df: pd.DataFrame) -> dict[str, bool | str]:
     """
     Validate that data is properly prepared for ParaDigMa analysis.
 
@@ -318,7 +321,8 @@ def validate_prepared_data(df: pd.DataFrame) -> Dict[str, bool | str]:
 
         if abs(current_frequency - 100.0) > 5.0:
             validation["warnings"].append(
-                f"Sampling frequency {current_frequency:.2f} Hz differs from expected 100 Hz"
+                f"Sampling frequency {current_frequency:.2f} Hz differs from "
+                f"expected 100 Hz"
             )
 
     # Set overall validity
@@ -334,8 +338,8 @@ def prepare_raw_data(
     gyroscope_units: str = "deg/s",
     time_input_unit: TimeUnit = TimeUnit.RELATIVE_S,
     resampling_frequency: float = 100.0,
-    column_mapping: Dict[str, str] | None = None,
-    device_orientation: Dict[str, int] | None = None,
+    column_mapping: dict[str, str] | None = None,
+    device_orientation: dict[str, int] | None = None,
     validate: bool = True,
     auto_segment: bool = False,
     max_segment_gap_s: float | None = None,

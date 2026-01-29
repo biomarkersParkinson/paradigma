@@ -11,7 +11,6 @@ Based on device_specific_data_loading tutorial.
 import logging
 import pickle
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 import pandas as pd
 from avro.datafile import DataFileReader
@@ -24,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 def load_tsdf_data(
     data_path: str | Path, prefix: str = "IMU", verbose: int = 1
-) -> Tuple[pd.DataFrame, Dict, Dict]:
+) -> tuple[pd.DataFrame, dict, dict]:
     """
     Load TSDF data from .meta and .bin files.
 
@@ -40,7 +39,8 @@ def load_tsdf_data(
     Returns
     -------
     tuple
-        Tuple containing (DataFrame with loaded data, time metadata dict, values metadata dict)
+        Tuple containing (DataFrame with loaded data, time metadata
+        dict, values metadata dict)
     """
     data_path = Path(data_path)
     if verbose >= 1:
@@ -69,7 +69,8 @@ def load_empatica_data(file_path: str | Path, verbose: int = 1) -> pd.DataFrame:
     Returns
     -------
     pd.DataFrame
-        DataFrame with columns: time, time_dt, accelerometer_x/y/z, gyroscope_x/y/z (if available).
+        DataFrame with columns: time, time_dt, accelerometer_x/y/z,
+        gyroscope_x/y/z (if available).
     """
     file_path = Path(file_path)
     if verbose >= 1:
@@ -173,7 +174,8 @@ def load_axivity_data(file_path: str | Path, verbose: int = 1) -> pd.DataFrame:
     Returns
     -------
     pd.DataFrame
-        DataFrame with columns: time, time_dt, accelerometer_x/y/z, gyroscope_x/y/z (if available).
+        DataFrame with columns: time, time_dt, accelerometer_x/y/z,
+        gyroscope_x/y/z (if available).
     """
     try:
         from openmovement.load import CwaData
@@ -267,7 +269,8 @@ def load_prepared_data(file_path: str | Path, verbose: int = 1) -> pd.DataFrame:
         )
     else:
         raise ValueError(
-            f"Unsupported file format: {suffix}. Supported: .parquet, .csv, .pkl, .pickle"
+            f"Unsupported file format: {suffix}. "
+            f"Supported: .parquet, .csv, .pkl, .pickle"
         )
 
     if verbose >= 1:
@@ -309,9 +312,9 @@ def detect_file_format(file_path: str | Path) -> str:
 
 def get_data_file_paths(
     data_path: str | Path,
-    file_patterns: List[str] | str | None = None,
+    file_patterns: list[str] | str | None = None,
     verbose: int = 1,
-) -> List[Path]:
+) -> list[Path]:
     """
     Get list of data file paths without loading them.
 
@@ -361,7 +364,7 @@ def get_data_file_paths(
 def load_single_data_file(
     file_path: str | Path,
     verbose: int = 1,
-) -> Tuple[str, pd.DataFrame]:
+) -> tuple[str, pd.DataFrame]:
     """
     Load a single data file with automatic format detection.
 
@@ -415,9 +418,9 @@ def load_single_data_file(
 
 def load_data_files(
     data_path: str | Path,
-    file_patterns: List[str] | None = None,
+    file_patterns: list[str] | None = None,
     verbose: int = 1,
-) -> Dict[str, pd.DataFrame]:
+) -> dict[str, pd.DataFrame]:
     """
     Load all data files from a directory with automatic format detection.
 
