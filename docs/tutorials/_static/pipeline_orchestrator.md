@@ -192,7 +192,7 @@ results_single_pipeline['quantifications'][pipeline].head()
     INFO: Applying ParaDigMa pipelines to provided DataFrame
 
 
-    INFO: Logging to output\paradigma_run_20260128_1145.log
+    INFO: Logging to output\paradigma_run_20260129_0919.log
 
 
     INFO: Step 1: Using provided DataFrame(s) as input
@@ -357,7 +357,7 @@ print(f"  Aggregations: {results_no_storage['aggregations'][pipeline]}")
     INFO: Applying ParaDigMa pipelines to provided DataFrame
 
 
-    INFO: Logging to output\paradigma_run_20260128_1148.log
+    INFO: Logging to output\paradigma_run_20260129_0922.log
 
 
     INFO: Step 1: Using provided DataFrame(s) as input
@@ -600,7 +600,7 @@ results_multi_pipeline = run_paradigma(
     INFO: Applying ParaDigMa pipelines to provided DataFrame
 
 
-    INFO: Logging to output_multi\paradigma_run_20260128_1151.log
+    INFO: Logging to output_multi\paradigma_run_20260129_0925.log
 
 
     INFO: Step 1: Using provided DataFrame(s) as input
@@ -845,7 +845,7 @@ results_end_to_end['quantifications'][pipeline].head()
     INFO: Applying ParaDigMa pipelines to ..\..\example_data\axivity
 
 
-    INFO: Logging to output_raw\paradigma_run_20260128_1151.log
+    INFO: Logging to output_raw\paradigma_run_20260129_0925.log
 
 
     INFO: Step 1: Finding data files
@@ -896,6 +896,9 @@ results_end_to_end['quantifications'][pipeline].head()
     INFO: Step 2: Extracting gait features
 
 
+    Resampled: 36400 -> 36433 rows at 100.0 Hz
+
+
     INFO: Step 3: Detecting gait
 
 
@@ -903,9 +906,6 @@ results_end_to_end['quantifications'][pipeline].head()
 
 
     INFO: Step 5: Filtering gait
-
-
-    Resampled: 36400 -> 36433 rows at 100.0 Hz
 
 
     INFO: Step 6: Quantifying arm swing
@@ -1242,7 +1242,7 @@ gait_results.head()
     INFO: Applying ParaDigMa pipelines to provided DataFrame
 
 
-    INFO: Logging to output\paradigma_run_20260128_1151.log
+    INFO: Logging to output\paradigma_run_20260129_0925.log
 
 
     INFO: Step 1: Using provided DataFrame(s) as input
