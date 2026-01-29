@@ -46,7 +46,8 @@ def compare_data(
     reference_dir: Path, tested_dir: Path, binaries_pairs: list[tuple[str, str]]
 ):
     """
-    This function is used to evaluate the output of a notebook. It evaluates it by comparing the output to a reference output.
+    This function is used to evaluate the output of a notebook.
+    It evaluates it by comparing the output to a reference output.
 
     Parameters
     ----------
@@ -74,12 +75,13 @@ def compare_data(
         # Allow small differences in length due to edge effects in resampling/filtering
         # Compare shapes allowing up to 0.5% difference in length
         shape_diff_pct = abs(len(tested_data) - len(ref_data)) / len(ref_data) * 100
-        assert (
-            shape_diff_pct < 0.5
-        ), f"Shape difference too large: {shape_diff_pct:.2f}% (tested: {tested_data.shape}, ref: {ref_data.shape})"
+        assert shape_diff_pct < 0.5, (
+            f"Shape difference too large: {shape_diff_pct:.2f}% "
+            f"(tested: {len(tested_data)}, ref: {len(ref_data)})"
+        )
 
         # Compare overlapping data
         min_len = min(len(tested_data), len(ref_data))
         assert np.allclose(
-            tested_data[:min_len], ref_data[:min_len], tolerance, abs_tol
-        )
+            tested_data[:min_len], ref_data[:min_len], rtol=tolerance, atol=abs_tol
+        ), f"Data values differ beyond tolerance (rtol={tolerance}, atol={abs_tol})"

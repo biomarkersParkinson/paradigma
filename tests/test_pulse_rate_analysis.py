@@ -88,7 +88,8 @@ def compare_ppg_preprocessing(
     shared_datadir: Path, binaries_pairs: list[tuple[str, str]]
 ):
     """
-    This function is used to evaluate the output of the PPG pipeline preprocessing function. It evaluates it by comparing the output to a reference output.
+    This function is used to evaluate the output of the PPG pipeline preprocessing
+    function. It evaluates it by comparing the output to a reference output.
 
     Parameters
     ----------

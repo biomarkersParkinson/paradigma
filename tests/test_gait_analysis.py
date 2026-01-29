@@ -127,7 +127,8 @@ def test_gait_pipeline_integration():
 
 def test_gait_segment_nr_column_name():
     """
-    Test that gait_segment_nr column is present and backward compatibility is maintained.
+    Test that gait_segment_nr column is present and backward compatibility is
+    maintained.
 
     This test verifies:
     1. The new GAIT_SEGMENT_NR constant exists
@@ -188,7 +189,8 @@ def test_gait_segment_nr_column_name():
 
 def test_data_segment_nr_preserved():
     """
-    Test that data_segment_nr is preserved in gait pipeline output when present in input.
+    Test that data_segment_nr is preserved in gait pipeline output when present
+    in input.
 
     This test verifies:
     1. DATA_SEGMENT_NR constant exists
@@ -231,7 +233,8 @@ def test_data_segment_nr_preserved():
         constant_works
     ), "DATA_SEGMENT_NR constant should work to access data_segment_nr column"
 
-    # Test 4: Verify data integrity - each gait segment belongs to exactly one data segment
+    # Test 4: Verify data integrity - each gait segment belongs to exactly one
+    # data segment
     gait_to_data = mock_gait_results.groupby("gait_segment_nr")[
         "data_segment_nr"
     ].nunique()
@@ -264,7 +267,8 @@ path_to_assets = Path("src/paradigma/assets")
 @pytest.mark.skipif(not HAS_TESTING_UTILS, reason="Testing utilities not available")
 def test_2_extract_features_gait_output(shared_datadir: Path):
     """
-    This function is used to evaluate the output of the gait feature extraction. It evaluates it by comparing the output to a reference output.
+    This function is used to evaluate the output of the gait feature extraction.
+    It evaluates it by comparing the output to a reference output.
     """
 
     input_dir_name: str = "2.preprocessed_data"
