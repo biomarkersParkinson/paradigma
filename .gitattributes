@@ -1,7 +1,6 @@
 * text=auto
 *_time.bin filter=lfs diff=lfs merge=lfs -text
 *_values.bin filter=lfs diff=lfs merge=lfs -text
-*_meta.json filter=lfs diff=lfs merge=lfs -text
 test_file.parquet filter=lfs diff=lfs merge=lfs -text
 
 # Normalize line endings
