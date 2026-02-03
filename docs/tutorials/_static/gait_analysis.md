@@ -19,20 +19,31 @@ To run the complete gait pipeline, a prerequisite is to have both accelerometer 
 
 
 ```python
-from importlib.resources import files
 import json
+from importlib.resources import files
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
 import tsdf
 
 from paradigma.classification import ClassifierPackage
-from paradigma.config import IMUConfig, GaitConfig
+from paradigma.config import GaitConfig, IMUConfig
 from paradigma.constants import DataColumns
-from paradigma.pipelines.gait_pipeline import extract_gait_features, detect_gait, \
-    extract_arm_activity_features, filter_gait, quantify_arm_swing, aggregate_arm_swing_params
+from paradigma.pipelines.gait_pipeline import (
+    aggregate_arm_swing_params,
+    detect_gait,
+    extract_arm_activity_features,
+    extract_gait_features,
+    filter_gait,
+    quantify_arm_swing,
+)
 from paradigma.preprocessing import preprocess_imu_data
-from paradigma.util import load_tsdf_dataframe, write_df_data, merge_predictions_with_timestamps
+from paradigma.util import (
+    load_tsdf_dataframe,
+    merge_predictions_with_timestamps,
+    write_df_data,
+)
 ```
 
 ## Load data
@@ -64,19 +75,6 @@ df_imu
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -248,19 +246,6 @@ df_preprocessed.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -402,19 +387,6 @@ df_gait.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -607,8 +579,10 @@ n_predictions_non_gait = df_gait.loc[
 perc_predictions_non_gait = round(100 * n_predictions_non_gait / n_windows, 1)
 
 print(
-    f"Out of {n_windows} windows, {n_predictions_gait} ({perc_predictions_gait}%) \n"
-    f"were predicted as gait, and {n_predictions_non_gait} ({perc_predictions_non_gait}%) \n"
+    f"Out of {n_windows} windows, {n_predictions_gait} "
+    f"({perc_predictions_gait}%) \n"
+    f"were predicted as gait, and {n_predictions_non_gait} "
+    f"({perc_predictions_non_gait}%) \n"
     f"as non-gait."
 )
 
@@ -626,19 +600,6 @@ df_gait[[config.time_colname, DataColumns.PRED_GAIT_PROBA]].head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -729,19 +690,6 @@ df_gait.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -842,19 +790,6 @@ df_arm.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1072,19 +1007,6 @@ df_arm[[config.time_colname, DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]].head
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1232,19 +1154,6 @@ quantified_arm_swing.loc[quantified_arm_swing['gait_segment_nr'] == 1]
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">

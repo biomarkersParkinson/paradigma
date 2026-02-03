@@ -17,19 +17,23 @@ We then combine the output of the different segments for the final step:
 
 ```python
 import datetime
-from importlib.resources import files
 import json
-import pandas as pd
+from importlib.resources import files
 from pathlib import Path
+
+import pandas as pd
 import pytz
 import tsdf
 
 from paradigma.config import IMUConfig, TremorConfig
 from paradigma.constants import DataColumns, DataUnits
-from paradigma.pipelines.tremor_pipeline import extract_tremor_features, detect_tremor, \
-    aggregate_tremor
+from paradigma.pipelines.tremor_pipeline import (
+    aggregate_tremor,
+    detect_tremor,
+    extract_tremor_features,
+)
 from paradigma.preprocessing import preprocess_imu_data
-from paradigma.util import load_tsdf_dataframe, write_df_data, select_hours, select_days
+from paradigma.util import load_tsdf_dataframe, select_days, select_hours, write_df_data
 ```
 
 ## Load example data
@@ -61,19 +65,6 @@ df_data
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -247,19 +238,6 @@ df_preprocessed_data
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -376,19 +354,6 @@ df_features
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -661,19 +626,6 @@ df_predictions[[
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -799,14 +751,21 @@ metadata_values_store = tsdf.TSDFMetadata(
 # Select the columns to be saved
 metadata_time_store.channels = [config.time_colname]
 metadata_values_store.channels = [
-    DataColumns.TREMOR_POWER, DataColumns.PRED_TREMOR_PROBA, DataColumns.PRED_TREMOR_LOGREG,
-    DataColumns.PRED_ARM_AT_REST, DataColumns.PRED_TREMOR_CHECKED
+    DataColumns.TREMOR_POWER,
+    DataColumns.PRED_TREMOR_PROBA,
+    DataColumns.PRED_TREMOR_LOGREG,
+    DataColumns.PRED_ARM_AT_REST,
+    DataColumns.PRED_TREMOR_CHECKED
 ]
 
 # Set the units
 metadata_time_store.units = ['Relative seconds']
 metadata_values_store.units = [
-    DataUnits.POWER_ROTATION, DataUnits.NONE, DataUnits.NONE, DataUnits.NONE, DataUnits.NONE
+    DataUnits.POWER_ROTATION,
+    DataUnits.NONE,
+    DataUnits.NONE,
+    DataUnits.NONE,
+    DataUnits.NONE
 ]
 metadata_time_store.data_type = float
 metadata_values_store.data_type = float
@@ -836,19 +795,6 @@ df_predictions.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -939,8 +885,11 @@ start_time = (
 df_quantification[f'{config.time_colname}_dt'] = start_time + \
     pd.to_timedelta(df_quantification[config.time_colname], unit="s")
 df_quantification = df_quantification[[
-    config.time_colname, f'{config.time_colname}_dt',
-    DataColumns.PRED_ARM_AT_REST, DataColumns.PRED_TREMOR_CHECKED, DataColumns.TREMOR_POWER
+    config.time_colname,
+    f'{config.time_colname}_dt',
+    DataColumns.PRED_ARM_AT_REST,
+    DataColumns.PRED_TREMOR_CHECKED,
+    DataColumns.TREMOR_POWER
 ]]
 
 df_quantification
@@ -950,19 +899,6 @@ df_quantification
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1102,7 +1038,8 @@ for segment_nr in segments:
     )
 
     # 1: Preprocess the data
-    # Change column names if necessary by creating parameter column_mapping (see previous cells for an example)
+    # Change column names if necessary by creating parameter
+    # column_mapping (see previous cells for an example)
     config = IMUConfig()
     df_preprocessed_data = preprocess_imu_data(
         df_data, config, sensor='gyroscope', watch_side='left'
@@ -1135,16 +1072,6 @@ for segment_nr in segments:
     )
     df_quantification[f'{config.time_colname}_dt'] = start_time + \
         pd.to_timedelta(df_quantification[config.time_colname], unit="s")
-    df_quantification = df_quantification[[
-        config.time_colname, f'{config.time_colname}_dt',
-        DataColumns.PRED_ARM_AT_REST, DataColumns.PRED_TREMOR_CHECKED, DataColumns.TREMOR_POWER
-    ]]
-
-    # Add the quantifications of the current segment to the list
-    df_quantification['segment_nr'] = segment_nr
-    list_df_quantifications.append(df_quantification)
-
-df_quantification = pd.concat(list_df_quantifications, ignore_index=True)
 ```
 
     Resampled: 3455331 -> 3433961 rows at 100.0 Hz

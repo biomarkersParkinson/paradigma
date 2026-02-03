@@ -216,9 +216,12 @@ poetry run build-docs
 poetry run serve-docs
 ```
 
-`build-docs` accepts arguments `--dev` to skip execution of notebooks and `--no-nbconvert` to skip
-conversion of notebooks to markdown. This speeds up development significantly if no changes are
-made to notebooks.
+`build-docs` accepts the following arguments to speed up development:
+- `--notebook <filename>` - Build only a specific notebook (e.g., `--notebook pipeline_orchestrator.ipynb`)
+- `--dev` - Skip execution of notebooks
+- `--no-nbconvert` - Skip conversion of notebooks to markdown
+
+These options are useful when iterating on documentation changes without rebuilding everything.
 
 7. Commit your changes and open a pull request.
 

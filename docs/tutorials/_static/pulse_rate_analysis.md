@@ -16,17 +16,22 @@ We then combine the output of the different segments for the final step:
 
 
 ```python
-from importlib.resources import files
 import json
-import pandas as pd
+from importlib.resources import files
 from pathlib import Path
+
+import pandas as pd
 import tsdf
 
 from paradigma.classification import ClassifierPackage
-from paradigma.config import PPGConfig, IMUConfig, PulseRateConfig
+from paradigma.config import IMUConfig, PPGConfig, PulseRateConfig
 from paradigma.constants import DataColumns
-from paradigma.pipelines.pulse_rate_pipeline import extract_signal_quality_features, \
-    signal_quality_classification, estimate_pulse_rate, aggregate_pulse_rate
+from paradigma.pipelines.pulse_rate_pipeline import (
+    aggregate_pulse_rate,
+    estimate_pulse_rate,
+    extract_signal_quality_features,
+    signal_quality_classification,
+)
 from paradigma.preprocessing import preprocess_ppg_data
 from paradigma.util import load_tsdf_dataframe, write_df_data
 ```
@@ -71,19 +76,6 @@ display(df_ppg, df_acc)
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -156,19 +148,6 @@ display(df_ppg, df_acc)
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -329,19 +308,6 @@ display(df_ppg_proc, df_acc_proc)
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -414,19 +380,6 @@ display(df_ppg_proc, df_acc_proc)
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -564,19 +517,6 @@ display(df_features)
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -814,19 +754,6 @@ df_sqa
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -965,19 +892,6 @@ df_sqa.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1053,19 +967,6 @@ df_pr
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">

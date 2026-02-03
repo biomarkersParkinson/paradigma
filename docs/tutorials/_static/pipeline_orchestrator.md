@@ -30,6 +30,7 @@ Let's explore different usage scenarios with examples.
 
 ```python
 import json
+import logging
 from pathlib import Path
 
 from paradigma.constants import TimeUnit
@@ -66,8 +67,7 @@ path_to_ppg_data = Path('../../example_data/verily/ppg')
 
 dfs_ppg = load_data_files(
     data_path=path_to_ppg_data,
-    file_patterns='json',
-    verbose=0
+    file_patterns='json'
 )
 
 print(f"Loaded {len(dfs_ppg)} PPG files:")
@@ -78,6 +78,24 @@ for filename in dfs_ppg.keys():
 print(f"\nFirst 5 rows of {list(dfs_ppg.keys())[0]}:")
 dfs_ppg[list(dfs_ppg.keys())[0]].head()
 ```
+
+    INFO: Found 2 data files in ..\..\example_data\verily\ppg
+
+
+    INFO: Loading TSDF data from ..\..\example_data\verily\ppg with prefix 'PPG_segment0001'
+
+
+    INFO: Loaded TSDF data: 1029375 rows, 2 columns
+
+
+    INFO: Loading TSDF data from ..\..\example_data\verily\ppg with prefix 'PPG_segment0002'
+
+
+    INFO: Loaded TSDF data: 2214450 rows, 2 columns
+
+
+    INFO: Successfully loaded 2 files
+
 
     Loaded 2 PPG files:
       - PPG_segment0001: 1029375 samples, 2 columns
@@ -90,19 +108,6 @@ dfs_ppg[list(dfs_ppg.keys())[0]].head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -170,6 +175,44 @@ If `save_intermediate=[]` (empty list), **no files are saved** - results are onl
 
 Also, set the correct units of the `time` column. For all options, please check [the API reference](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/constants/index.html#paradigma.constants.TimeUnit).
 
+### Logging Control
+
+ParaDigMa uses Python's standard `logging` module to provide progress updates and diagnostics. You can control the verbosity level and optionally provide a custom logger for advanced use cases.
+
+**Basic Logging Levels:**
+
+```python
+import logging
+
+# Default - shows progress and important information
+run_paradigma(..., logging_level=logging.INFO)
+
+# Detailed - shows additional processing details
+run_paradigma(..., logging_level=logging.DEBUG)
+
+# Quiet - only warnings and errors
+run_paradigma(..., logging_level=logging.WARNING)
+
+# Silent - only errors
+run_paradigma(..., logging_level=logging.ERROR)
+```
+
+**Custom Logger (Advanced):**
+
+For full control over logging (custom formatting, multiple handlers, etc.), provide your own logger:
+
+```python
+# Create custom logger with your configuration
+custom_logger = logging.getLogger('my_analysis')
+custom_logger.setLevel(logging.DEBUG)
+custom_logger.addHandler(...)  # Add your handlers
+
+# Pass it to run_paradigma
+run_paradigma(..., custom_logger=custom_logger)
+```
+
+When a custom logger is provided, the `logging_level` parameter is ignored.
+
 
 ```python
 pipeline = 'pulse_rate'
@@ -181,94 +224,13 @@ results_single_pipeline = run_paradigma(
     skip_preparation=True,
     time_input_unit=TimeUnit.RELATIVE_S,
     save_intermediate=['quantification', 'aggregation'],  # Files saved to ./output
-    verbose=1
+    logging_level=logging.WARNING  # Only show warnings and errors
 )
 
 print(results_single_pipeline['metadata'][pipeline])
 print(results_single_pipeline['aggregations'][pipeline])
 results_single_pipeline['quantifications'][pipeline].head()
 ```
-
-    INFO: Applying ParaDigMa pipelines to provided DataFrame
-
-
-    INFO: Logging to output\paradigma_run_20260129_0919.log
-
-
-    INFO: Step 1: Using provided DataFrame(s) as input
-
-
-    INFO: Steps 2-3: Processing 2 files individually
-
-
-    INFO: Processing DataFrame 1/2: PPG_segment0001
-
-
-    INFO: Step 1: Preprocessing PPG and accelerometer data
-
-
-    INFO: Step 2: Extracting signal quality features
-
-
-    Resampled: 1029375 -> 1030189 rows at 30.0 Hz
-
-
-    INFO: Step 3: Signal quality classification
-
-
-    INFO: Step 4: Pulse rate estimation
-
-
-    INFO: Step 5: Quantifying pulse rate
-
-
-    INFO: Pulse rate analysis completed: 830 valid pulse rate estimates from 830 total windows
-
-
-    INFO: Processing DataFrame 2/2: PPG_segment0002
-
-
-    INFO: Step 1: Preprocessing PPG and accelerometer data
-
-
-    INFO: Step 2: Extracting signal quality features
-
-
-    Resampled: 2214450 -> 2216689 rows at 30.0 Hz
-
-
-    INFO: Step 3: Signal quality classification
-
-
-    INFO: Step 4: Pulse rate estimation
-
-
-    INFO: Step 5: Quantifying pulse rate
-
-
-    INFO: Pulse rate analysis completed: 7854 valid pulse rate estimates from 7854 total windows
-
-
-    INFO: Step 4: Combining quantifications from all files
-
-
-    INFO: Pulse_rate: Combined 8684 windows from 2 files
-
-
-    INFO: Step 5: Aggregating pulse rate results across ALL files
-
-
-    INFO: Pulse rate aggregation completed with 8684 valid estimates
-
-
-    INFO: Saved prepared data to output\quantifications_pulse_rate.parquet
-
-
-    INFO: Saved aggregations to output\aggregations_pulse_rate.json
-
-
-    INFO: ParaDigMa analysis completed for all pipelines
-
 
     {'nr_pr_est': 8684}
     {'mode_pulse_rate': np.float64(63.59175662414131), '99p_pulse_rate': np.float64(85.77263444520081)}
@@ -278,19 +240,6 @@ results_single_pipeline['quantifications'][pipeline].head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -346,88 +295,13 @@ results_no_storage = run_paradigma(
     skip_preparation=True,
     time_input_unit=TimeUnit.RELATIVE_S,
     save_intermediate=[],  # No files saved
-    verbose=1
+    logging_level=logging.WARNING  # Only show warnings and errors
 )
 
 print("Results returned without file storage:")
 print(f"  Quantifications: {len(results_no_storage['quantifications'][pipeline])} rows")
 print(f"  Aggregations: {results_no_storage['aggregations'][pipeline]}")
 ```
-
-    INFO: Applying ParaDigMa pipelines to provided DataFrame
-
-
-    INFO: Logging to output\paradigma_run_20260129_0922.log
-
-
-    INFO: Step 1: Using provided DataFrame(s) as input
-
-
-    INFO: Steps 2-3: Processing 2 files individually
-
-
-    INFO: Processing DataFrame 1/2: PPG_segment0001
-
-
-    INFO: Step 1: Preprocessing PPG and accelerometer data
-
-
-    INFO: Step 2: Extracting signal quality features
-
-
-    Resampled: 1029375 -> 1030189 rows at 30.0 Hz
-
-
-    INFO: Step 3: Signal quality classification
-
-
-    INFO: Step 4: Pulse rate estimation
-
-
-    INFO: Step 5: Quantifying pulse rate
-
-
-    INFO: Pulse rate analysis completed: 830 valid pulse rate estimates from 830 total windows
-
-
-    INFO: Processing DataFrame 2/2: PPG_segment0002
-
-
-    INFO: Step 1: Preprocessing PPG and accelerometer data
-
-
-    INFO: Step 2: Extracting signal quality features
-
-
-    Resampled: 2214450 -> 2216689 rows at 30.0 Hz
-
-
-    INFO: Step 3: Signal quality classification
-
-
-    INFO: Step 4: Pulse rate estimation
-
-
-    INFO: Step 5: Quantifying pulse rate
-
-
-    INFO: Pulse rate analysis completed: 7854 valid pulse rate estimates from 7854 total windows
-
-
-    INFO: Step 4: Combining quantifications from all files
-
-
-    INFO: Pulse_rate: Combined 8684 windows from 2 files
-
-
-    INFO: Step 5: Aggregating pulse rate results across ALL files
-
-
-    INFO: Pulse rate aggregation completed with 8684 valid estimates
-
-
-    INFO: ParaDigMa analysis completed for all pipelines
-
 
     Results returned without file storage:
       Quantifications: 8684 rows
@@ -464,8 +338,23 @@ The multi-pipeline orchestrator returns a nested structure that organizes result
     'metadata': {
         'gait': {...},         # Gait analysis metadata
         'tremor': {...}        # Tremor analysis metadata
-    }
+    },
+    'errors': [...]            # List of errors encountered (empty if successful)
 }
+```
+
+The `errors` list tracks any failures during processing. Each error contains:
+- `stage`: Where the error occurred (loading, preparation, pipeline_execution, aggregation)
+- `error`: Error message
+- `file`: Filename (if file-specific)
+- `pipeline`: Pipeline name (if pipeline-specific)
+
+Check for errors after processing:
+```python
+if results['errors']:
+    print(f"Warning: {len(results['errors'])} error(s) occurred")
+    for error in results['errors']:
+        print(f"  - {error['stage']}: {error['error']}")
 ```
 
 
@@ -475,8 +364,7 @@ path_to_imu_data = Path('../../example_data/verily/imu')
 
 dfs_imu = load_data_files(
     data_path=path_to_imu_data,
-    file_patterns='json',
-    verbose=0
+    file_patterns='json'
 )
 
 print(f"Loaded {len(dfs_imu)} IMU files:")
@@ -499,19 +387,6 @@ dfs_imu[list(dfs_imu.keys())[0]].head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -593,141 +468,9 @@ results_multi_pipeline = run_paradigma(
     pipelines=['gait', 'tremor'],       # Multiple pipelines (list format)
     watch_side='left',                  # Required for gait analysis
     save_intermediate=['quantification'],  # Store quantifications only
-    verbose=1
+    logging_level=logging.WARNING  # Only show warnings and errors
 )
 ```
-
-    INFO: Applying ParaDigMa pipelines to provided DataFrame
-
-
-    INFO: Logging to output_multi\paradigma_run_20260129_0925.log
-
-
-    INFO: Step 1: Using provided DataFrame(s) as input
-
-
-    INFO: Steps 2-3: Processing 2 files individually
-
-
-    INFO: Processing DataFrame 1/2: IMU_segment0001
-
-
-    INFO: Step 1: Preprocessing IMU data
-
-
-    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
-
-
-    INFO: Step 2: Extracting gait features
-
-
-    INFO: Step 3: Detecting gait
-
-
-    INFO: Step 4: Extracting arm activity features
-
-
-    INFO: Step 5: Filtering gait
-
-
-    INFO: Step 6: Quantifying arm swing
-
-
-    INFO: Gait analysis pipeline completed. Found 1228 windows of gait without other arm activities.
-
-
-    INFO: Step 1: Preprocessing gyroscope data
-
-
-    INFO: Step 2: Extracting tremor features
-
-
-    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
-
-
-    INFO: Step 3: Detecting tremor
-
-
-    INFO: Step 4: Quantifying tremor
-
-
-    INFO: Tremor analysis completed: 728 tremor windows detected from 8584 total windows
-
-
-    INFO: Processing DataFrame 2/2: IMU_segment0002
-
-
-    INFO: Step 1: Preprocessing IMU data
-
-
-    Resampled: 7434685 -> 7388945 rows at 100.0 Hz
-
-
-    INFO: Step 2: Extracting gait features
-
-
-    INFO: Step 3: Detecting gait
-
-
-    INFO: Step 4: Extracting arm activity features
-
-
-    INFO: Step 5: Filtering gait
-
-
-    INFO: Step 6: Quantifying arm swing
-
-
-    INFO: Gait analysis pipeline completed. Found 4071 windows of gait without other arm activities.
-
-
-    INFO: Step 1: Preprocessing gyroscope data
-
-
-    INFO: Step 2: Extracting tremor features
-
-
-    Resampled: 7434685 -> 7388945 rows at 100.0 Hz
-
-
-    INFO: Step 3: Detecting tremor
-
-
-    INFO: Step 4: Quantifying tremor
-
-
-    INFO: Tremor analysis completed: 1794 tremor windows detected from 18472 total windows
-
-
-    INFO: Step 4: Combining quantifications from all files
-
-
-    INFO: Gait: Combined 5299 windows from 2 files
-
-
-    INFO: Step 5: Aggregating gait results across ALL files
-
-
-    INFO: Aggregation completed across 4 gait segment categories
-
-
-    INFO: Tremor: Combined 27056 windows from 2 files
-
-
-    INFO: Step 5: Aggregating tremor results across ALL files
-
-
-    INFO: Tremor aggregation completed
-
-
-    INFO: Saved prepared data to output_multi\quantifications_gait.parquet
-
-
-    INFO: Saved prepared data to output_multi\quantifications_tremor.parquet
-
-
-    INFO: ParaDigMa analysis completed for all pipelines
-
 
 
 ```python
@@ -739,7 +482,10 @@ arm_swing_quantified = results_multi_pipeline['quantifications']['gait']
 arm_swing_aggregates = results_multi_pipeline['aggregations']['gait']
 arm_swing_meta = results_multi_pipeline['metadata']['gait']
 print(f"\nArm swing quantification ({len(arm_swing_quantified)} windows):")
-print(f"   Columns: {list(arm_swing_quantified.columns[:5])}... ({len(arm_swing_quantified.columns)} total)")
+print(
+    f"   Columns: {list(arm_swing_quantified.columns[:5])}... "
+    f"({len(arm_swing_quantified.columns)} total)"
+)
 print(f"   Files: {arm_swing_quantified['file_key'].unique()}")
 
 print(f"\nArm swing aggregation ({len(arm_swing_aggregates)} time ranges):")
@@ -752,7 +498,10 @@ tremor_quantified = results_multi_pipeline['quantifications']['tremor']
 tremor_aggregates = results_multi_pipeline['aggregations']['tremor']
 tremor_meta = results_multi_pipeline['metadata']['tremor']
 print(f"\nTremor quantification ({len(tremor_quantified)} windows):")
-print(f"   Columns: {list(tremor_quantified.columns[:5])}... ({len(tremor_quantified.columns)} total)")
+print(
+    f"   Columns: {list(tremor_quantified.columns[:5])}... "
+    f"({len(tremor_quantified.columns)} total)"
+)
 print(f"   Files: {tremor_quantified['file_key'].unique()}")
 
 print(f"\nTremor aggregation ({len(tremor_aggregates)} time ranges):")
@@ -833,103 +582,22 @@ results_end_to_end = run_paradigma(
     target_frequency=100.0,
     device_orientation=device_orientation,
     save_intermediate=['aggregation'],      # Only save aggregations
-    verbose=1,
+    logging_level=logging.WARNING,  # Only show warnings and errors
 )
 
-print(f"\nMetadata:\n{json.dumps(results_end_to_end['metadata'][pipeline][1], indent=2)}")
-print(f"\nAggregations:\n{json.dumps(results_end_to_end['aggregations'][pipeline], indent=2)}")
+print(
+    f"\nMetadata:\n"
+    f"{json.dumps(results_end_to_end['metadata'][pipeline][1], indent=2)}"
+)
+print(
+    f"\nAggregations:\n"
+    f"{json.dumps(results_end_to_end['aggregations'][pipeline], indent=2)}"
+)
 print("\nQuantifications (first 5 rows; each row represents a single arm swing):")
 results_end_to_end['quantifications'][pipeline].head()
 ```
 
-    INFO: Applying ParaDigMa pipelines to ..\..\example_data\axivity
-
-
-    INFO: Logging to output_raw\paradigma_run_20260129_0925.log
-
-
-    INFO: Step 1: Finding data files
-
-
-    INFO: Found 1 data files in ..\..\example_data\axivity
-
-
-    INFO: Steps 2-3: Processing 1 files individually
-
-
-    INFO: Processing file 1/1: test_data.CWA
-
-
-    INFO: Loading Axivity data from ..\..\example_data\axivity\test_data.CWA
-
-
-    INFO: Loaded Axivity data: 36400 rows, 8 columns
-
-
-    INFO: Starting data preparation pipeline
-
-
-    INFO: Step 1: Standardizing column names
-
-
-    INFO: Step 2: Converting sensor units
-
-
-    INFO: Step 3: Preparing time column
-
-
-    INFO: Step 4: Correcting orientation for left wrist
-
-
-    INFO: Step 5: Resampling to 100.0 Hz
-
-
-    INFO: Step 6: Validating prepared data
-
-
-    INFO: Data preparation completed: 36433 rows, 7 columns
-
-
-    INFO: Step 1: Preprocessing IMU data
-
-
-    INFO: Step 2: Extracting gait features
-
-
     Resampled: 36400 -> 36433 rows at 100.0 Hz
-
-
-    INFO: Step 3: Detecting gait
-
-
-    INFO: Step 4: Extracting arm activity features
-
-
-    INFO: Step 5: Filtering gait
-
-
-    INFO: Step 6: Quantifying arm swing
-
-
-    INFO: Gait analysis pipeline completed. Found 27 windows of gait without other arm activities.
-
-
-    INFO: Step 4: Combining quantifications from all files
-
-
-    INFO: Gait: Combined 27 windows from 1 files
-
-
-    INFO: Step 5: Aggregating gait results across ALL files
-
-
-    INFO: Aggregation completed across 4 gait segment categories
-
-
-    INFO: Saved aggregations to output_raw\aggregations_gait.json
-
-
-    INFO: ParaDigMa analysis completed for all pipelines
 
 
 
@@ -980,19 +648,6 @@ results_end_to_end['quantifications'][pipeline].head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1082,8 +737,7 @@ path_to_physilog_data = Path('../../example_data/gait_up_physilog')
 
 dfs_physilog = load_data_files(
     data_path=path_to_physilog_data,
-    file_patterns='parquet',
-    verbose=0
+    file_patterns='parquet'
 )
 
 print(f"Loaded {len(dfs_physilog)} Gait-up Physilog file(s):")
@@ -1096,7 +750,10 @@ for filename, df in dfs_physilog.items():
     time_diffs = df['time'].diff().dropna()
     large_gaps = time_diffs[time_diffs > 1.0]
     if len(large_gaps) > 0:
-        print(f"Contains {len(large_gaps)} gap(s) > 1s (largest: {large_gaps.max():.1f}s)")
+        print(
+            f"Contains {len(large_gaps)} gap(s) > 1s "
+            f"(largest: {large_gaps.max():.1f}s)"
+        )
 
     # Check for NaN values (common in real-world data)
     nan_counts = df.isnull().sum()
@@ -1106,12 +763,13 @@ for filename, df in dfs_physilog.items():
 # Clean DataFrames with NaN values (after iteration to avoid SettingWithCopyWarning)
 for filename in list(dfs_physilog.keys()):
     df = dfs_physilog[filename]
-    if df.isnull().sum().sum() > 0:
-        df_clean = df.dropna()
-        dfs_physilog[filename] = df_clean
-        print(f"  Cleaned {filename} to {len(df_clean)} samples")
-
-dfs_physilog[list(dfs_physilog.keys())[0]].head()
+    df_clean = df.dropna().reset_index(drop=True)
+    if len(df_clean) < len(df):
+        print(
+            f"Dropping {len(df) - len(df_clean)} rows with NaN values "
+            f"from file {filename}"
+        )
+    dfs_physilog[filename] = df_clean
 ```
 
     Loaded 1 Gait-up Physilog file(s):
@@ -1120,94 +778,7 @@ dfs_physilog[list(dfs_physilog.keys())[0]].head()
         Duration: 10026.1s
     Contains 3 gap(s) > 1s (largest: 1243.6s)
     Contains 30 NaN values
-      Cleaned test_file to 876525 samples
-
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>time</th>
-      <th>accelerometer_x</th>
-      <th>accelerometer_y</th>
-      <th>accelerometer_z</th>
-      <th>gyroscope_x</th>
-      <th>gyroscope_y</th>
-      <th>gyroscope_z</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.00</td>
-      <td>-0.101459</td>
-      <td>-0.564616</td>
-      <td>0.837138</td>
-      <td>0.269809</td>
-      <td>-0.044764</td>
-      <td>0.067904</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.01</td>
-      <td>-0.102069</td>
-      <td>-0.565342</td>
-      <td>0.835092</td>
-      <td>-0.065885</td>
-      <td>0.138342</td>
-      <td>0.098422</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>0.02</td>
-      <td>-0.101337</td>
-      <td>-0.565827</td>
-      <td>0.836657</td>
-      <td>-0.432096</td>
-      <td>0.290930</td>
-      <td>0.128939</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0.03</td>
-      <td>-0.100482</td>
-      <td>-0.562073</td>
-      <td>0.838463</td>
-      <td>-0.767789</td>
-      <td>0.382482</td>
-      <td>0.128939</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>0.04</td>
-      <td>-0.100849</td>
-      <td>-0.563526</td>
-      <td>0.837981</td>
-      <td>-0.950895</td>
-      <td>0.504553</td>
-      <td>0.189975</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
+    Dropping 10 rows with NaN values from file test_file
 
 
 
@@ -1226,7 +797,7 @@ results_with_segmentation = run_paradigma(
     max_gap_seconds=1.0,                  # Gaps > 1s create new data segment
     min_segment_seconds=2.0,              # Keep only data segments >= 2s
     save_intermediate=[],                 # No file storage for demo
-    verbose=1,
+    logging_level=logging.WARNING,  # Only show warnings and errors
 )
 
 gait_results = results_with_segmentation['quantifications']['gait']
@@ -1239,91 +810,14 @@ print(f"\nColumns in output: {list(gait_results.columns)}")
 gait_results.head()
 ```
 
-    INFO: Applying ParaDigMa pipelines to provided DataFrame
-
-
-    INFO: Logging to output\paradigma_run_20260129_0925.log
-
-
-    INFO: Step 1: Using provided DataFrame(s) as input
-
-
-    INFO: Steps 2-3: Processing 1 files individually
-
-
-    INFO: Processing DataFrame 1/1: test_file
-
-
-    INFO: Starting data preparation pipeline
-
-
-    INFO: Step 1: Standardizing column names
-
-
-    INFO: Step 2: Converting sensor units
-
-
-    INFO: Step 3: Preparing time column
-
-
-    INFO: Step 4: Correcting orientation for left wrist
-
-
-    INFO: Step 5: Resampling to 100.0 Hz
-
-
     Non-contiguous data detected. Auto-segmenting...
-
-
     Created 4 segments: 1713.3s, 1588.3s, 2243.5s, 3220.3s
-
-
-    INFO: Step 6: Validating prepared data
 
 
     WARNING: Time column has irregular sampling
 
 
-    INFO: Data preparation completed: 876535 rows, 8 columns
-
-
-    INFO: Step 1: Preprocessing IMU data
-
-
     Resampled: 876525 -> 876535 rows at 100.0 Hz
-
-
-    INFO: Step 2: Extracting gait features
-
-
-    INFO: Step 3: Detecting gait
-
-
-    INFO: Step 4: Extracting arm activity features
-
-
-    INFO: Step 5: Filtering gait
-
-
-    INFO: Step 6: Quantifying arm swing
-
-
-    INFO: Gait analysis pipeline completed. Found 1834 windows of gait without other arm activities.
-
-
-    INFO: Step 4: Combining quantifications from all files
-
-
-    INFO: Gait: Combined 1834 windows from 1 files
-
-
-    INFO: Step 5: Aggregating gait results across ALL files
-
-
-    INFO: Aggregation completed across 4 gait segment categories
-
-
-    INFO: ParaDigMa analysis completed for all pipelines
 
 
 
@@ -1337,19 +831,6 @@ gait_results.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">

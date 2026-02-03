@@ -80,6 +80,10 @@ gait_measures = results['quantifications']['gait']
 tremor_measures = results['quantifications']['tremor']
 gait_aggregates = results['aggregations']['gait']
 tremor_aggregates = results['aggregations']['tremor']
+
+# Check for errors
+if results['errors']:
+    print(f"Warning: {len(results['errors'])} error(s) occurred")
 ```
 
 **See our [tutorials](https://biomarkersparkinson.github.io/paradigma/tutorials/index.html) for complete examples.**

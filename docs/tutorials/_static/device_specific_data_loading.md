@@ -21,11 +21,11 @@ openmovement = { git = "https://github.com/digitalinteraction/openmovement-pytho
 
 
 ```python
-import pandas as pd
-
-from openmovement.load import CwaData
 from pathlib import Path
 from pprint import pprint
+
+import pandas as pd
+from openmovement.load import CwaData
 
 # Load data
 path_to_input_data = Path('../../example_data/axivity/')
@@ -84,19 +84,6 @@ df.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -181,7 +168,6 @@ For more detailed documentation on using this data format in Python, consider re
 
 ```python
 import json
-
 from pathlib import Path
 
 from avro.datafile import DataFileReader
@@ -191,7 +177,10 @@ path_to_input_data = Path('../../example_data/empatica/')
 empatica_data_filename = 'test_data.avro'
 
 ## Read Avro file
-# reader = DataFileReader(open(path_to_empatica_data / empatica_data_filename, "rb"), DatumReader())
+# reader = DataFileReader(
+#     open(path_to_empatica_data / empatica_data_filename, "rb"),
+#     DatumReader()
+# )
 with open(path_to_input_data / empatica_data_filename, "rb") as f:
     reader = DataFileReader(f, DatumReader())
 
@@ -200,7 +189,8 @@ with open(path_to_input_data / empatica_data_filename, "rb") as f:
 
 accel_data = empatica_data['rawData']['accelerometer']
 
-# The example data does not contain gyroscope data, but if it did, you could access it like this:
+# The example data does not contain gyroscope data, but if it did,
+# you could access it like this:
 # gyro_data = empatica_data['rawData']['gyroscope']
 
 # To convert accelerometer and gyroscope data into the correct format, we need to
@@ -214,10 +204,17 @@ avro_version = (
     (empatica_data["schemaVersion"]["patch"]),
 )
 
-# Due to changes in the Avro schema, conversion differs for versions before and after 6.5.0
+# Due to changes in the Avro schema, conversion differs for versions
+# before and after 6.5.0
 if avro_version < (6, 5, 0):
-    physical_range = accel_data["imuParams"]["physicalMax"] - accel_data["imuParams"]["physicalMin"]
-    digital_range = accel_data["imuParams"]["digitalMax"] - accel_data["imuParams"]["digitalMin"]
+    physical_range = (
+        accel_data["imuParams"]["physicalMax"]
+        - accel_data["imuParams"]["physicalMin"]
+    )
+    digital_range = (
+        accel_data["imuParams"]["digitalMax"]
+        - accel_data["imuParams"]["digitalMin"]
+    )
     accel_x = [val * physical_range / digital_range for val in accel_data["x"]]
     accel_y = [val * physical_range / digital_range for val in accel_data["y"]]
     accel_z = [val * physical_range / digital_range for val in accel_data["z"]]
@@ -242,7 +239,10 @@ df = pd.DataFrame({
     'accel_z': accel_z,
 })
 
-print(f"Data loaded from Avro file with {nrows} rows sampled at {sampling_frequency} Hz.")
+print(
+    f"Data loaded from Avro file with {nrows} rows sampled "
+    f"at {sampling_frequency} Hz."
+)
 print(f"Start time: {pd.to_datetime(t_start, unit='us')}")
 
 df.head()
@@ -256,19 +256,6 @@ df.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">

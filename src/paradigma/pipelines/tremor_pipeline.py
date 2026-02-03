@@ -419,7 +419,8 @@ def run_tremor_pipeline(
     store_intermediate: list[str] = [],
     tremor_config: TremorConfig | None = None,
     imu_config: IMUConfig | None = None,
-    verbose: int = 1,
+    logging_level: int = logging.INFO,
+    custom_logger: logging.Logger | None = None,
 ) -> pd.DataFrame:
     """
     High-level tremor analysis pipeline for a single segment.
@@ -443,6 +444,10 @@ def run_tremor_pipeline(
         Tremor analysis configuration
     imu_config : IMUConfig, optional
         IMU preprocessing configuration
+    logging_level : int, default logging.INFO
+        Logging level using standard logging constants
+    custom_logger : logging.Logger, optional
+        Custom logger instance
 
     Returns
     -------
@@ -454,7 +459,12 @@ def run_tremor_pipeline(
         - tremor_power: tremor power measure
 
     """
-    logger = logging.getLogger(__name__)
+    # Setup logger
+    active_logger = (
+        custom_logger if custom_logger is not None else logging.getLogger(__name__)
+    )
+    if custom_logger is None:
+        active_logger.setLevel(logging_level)
 
     if tremor_config is None:
         tremor_config = TremorConfig()
@@ -474,54 +484,50 @@ def run_tremor_pipeline(
         col for col in required_columns if col not in df_prepared.columns
     ]
     if missing_columns:
-        logger.warning(
+        active_logger.warning(
             f"Missing required columns for tremor pipeline: " f"{missing_columns}"
         )
         return pd.DataFrame()
 
     # Step 1: Preprocess gyroscope data (following tutorial)
-    if verbose >= 1:
-        logger.info("Step 1: Preprocessing gyroscope data")
+    active_logger.info("Step 1: Preprocessing gyroscope data")
     df_preprocessed = preprocess_imu_data(
         df_prepared,
         imu_config,
         sensor="gyroscope",
         watch_side="left",  # Watch side is unimportant for tremor detection
-        verbose=verbose,
+        verbose=1 if logging_level <= logging.INFO else 0,
     )
 
     if "preprocessing" in store_intermediate:
         preprocessing_dir = output_dir / "preprocessing"
         preprocessing_dir.mkdir(exist_ok=True)
         df_preprocessed.to_parquet(preprocessing_dir / "tremor_preprocessed.parquet")
-        logger.info(f"Saved preprocessed data to {preprocessing_dir}")
+        active_logger.info(f"Saved preprocessed data to {preprocessing_dir}")
 
     # Step 2: Extract tremor features
-    if verbose >= 1:
-        logger.info("Step 2: Extracting tremor features")
+    active_logger.info("Step 2: Extracting tremor features")
     df_features = extract_tremor_features(df_preprocessed, tremor_config)
 
     if "tremor" in store_intermediate:
         tremor_dir = output_dir / "tremor"
         tremor_dir.mkdir(exist_ok=True)
         df_features.to_parquet(tremor_dir / "tremor_features.parquet")
-        logger.info(f"Saved tremor features to {tremor_dir}")
+        active_logger.info(f"Saved tremor features to {tremor_dir}")
 
     # Step 3: Detect tremor
-    if verbose >= 1:
-        logger.info("Step 3: Detecting tremor")
+    active_logger.info("Step 3: Detecting tremor")
     try:
         from importlib.resources import files
 
         classifier_path = files("paradigma.assets") / "tremor_detection_clf_package.pkl"
         df_predictions = detect_tremor(df_features, tremor_config, classifier_path)
     except Exception as e:
-        logger.error(f"Tremor detection failed: {e}")
+        active_logger.error(f"Tremor detection failed: {e}")
         return pd.DataFrame()
 
     # Step 4: Quantify tremor (following tutorial pattern)
-    if verbose >= 1:
-        logger.info("Step 4: Quantifying tremor")
+    active_logger.info("Step 4: Quantifying tremor")
 
     # Select quantification columns as in the tutorial
     quantification_columns = [
@@ -537,7 +543,7 @@ def run_tremor_pipeline(
     ]
     if len(available_columns) != len(quantification_columns):
         missing = set(quantification_columns) - set(available_columns)
-        logger.warning(f"Missing quantification columns: {missing}")
+        active_logger.warning(f"Missing quantification columns: {missing}")
         # Use available columns
         quantification_columns = available_columns
 
@@ -573,18 +579,16 @@ def run_tremor_pipeline(
         with open(quantification_dir / "tremor_quantification_meta.json", "w") as f:
             json.dump(quantification_meta, f, indent=2)
 
-        if verbose >= 2:
-            logger.info(f"Saved tremor quantification to {quantification_dir}")
+        active_logger.debug(f"Saved tremor quantification to {quantification_dir}")
 
     tremor_windows = (
         int(df_quantification[DataColumns.PRED_TREMOR_CHECKED].sum())
         if DataColumns.PRED_TREMOR_CHECKED in df_quantification.columns
         else 0
     )
-    if verbose >= 1:
-        logger.info(
-            f"Tremor analysis completed: {tremor_windows} tremor windows "
-            f"detected from {len(df_quantification)} total windows"
-        )
+    active_logger.info(
+        f"Tremor analysis completed: {tremor_windows} tremor windows "
+        f"detected from {len(df_quantification)} total windows"
+    )
 
     return df_quantification

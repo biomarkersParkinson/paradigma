@@ -856,7 +856,8 @@ def run_gait_pipeline(
     arm_activity_config: GaitConfig | None = None,
     store_intermediate: list[str] = [],
     segment_number_offset: int = 0,
-    verbose: int = 1,
+    logging_level: int = logging.INFO,
+    custom_logger: logging.Logger | None = None,
 ) -> tuple[pd.DataFrame, dict]:
     """
     Run the complete gait analysis pipeline on prepared data (steps 1-6).
@@ -879,6 +880,8 @@ def run_gait_pipeline(
         Will be preprocessed as step 1 of the pipeline.
     watch_side : str
         Side of the watch ('left' or 'right') to configure preprocessing accordingly.
+    output_dir : str or Path
+        Directory to save intermediate results (required)
     imu_config : IMUConfig, optional
         Configuration for IMU data preprocessing.
         If None, uses default IMUConfig.
@@ -895,19 +898,25 @@ def run_gait_pipeline(
         - 'arm_activity': Store arm activity features and predictions after step 5
         - 'quantification': Store arm swing quantification results after step 6
         If empty, only returns the final quantified results.
-    output_dir : str or Path
-        Directory to save intermediate results (required)
     segment_number_offset : int, optional, default=0
         Offset to add to all segment numbers to avoid conflicts when concatenating
         multiple data segments. Used for proper segment numbering across multiple files.
+    logging_level : int, default logging.INFO
+        Logging level using standard logging constants (logging.DEBUG, logging.INFO,
+        etc.)
+    custom_logger : logging.Logger, optional
+        Custom logger instance. If provided, logging_level is ignored.
 
     Returns
     -------
-    pd.DataFrame
-        Quantified arm swing parameters with the following columns:
-        - gait_segment_nr: Gait segment number within this data segment
-        - Various arm swing metrics (range of motion, peak angular velocity, etc.)
-        - Additional metadata columns
+    tuple[pd.DataFrame, dict]
+        A tuple containing:
+        - pd.DataFrame: Quantified arm swing parameters with the following columns:
+            - gait_segment_nr: Gait segment number within this data segment
+            - Various arm swing metrics (range of motion, peak angular velocity, etc.)
+            - Additional metadata columns
+        - dict: Gait segment metadata containing information about each detected
+        gait segment
 
     Notes
     -----
@@ -919,6 +928,11 @@ def run_gait_pipeline(
     https://github.com/biomarkersParkinson/paradigma/blob/main/docs/
     tutorials/gait_analysis.ipynb
     """
+    # Setup logger
+    active_logger = custom_logger if custom_logger is not None else logger
+    if custom_logger is None:
+        active_logger.setLevel(logging_level)
+
     # Set default configurations
     if imu_config is None:
         imu_config = IMUConfig()
@@ -946,15 +960,14 @@ def run_gait_pipeline(
         raise ValueError(f"Missing required columns: {missing_columns}")
 
     # Step 1: Preprocess data
-    if verbose >= 1:
-        logger.info("Step 1: Preprocessing IMU data")
+    active_logger.info("Step 1: Preprocessing IMU data")
 
     df_preprocessed = preprocess_imu_data(
         df=df_prepared,
         config=imu_config,
         sensor="both",
         watch_side=watch_side,
-        verbose=verbose,
+        verbose=1 if logging_level <= logging.INFO else 0,
     )
 
     if "preprocessing" in store_intermediate:
@@ -963,32 +976,30 @@ def run_gait_pipeline(
         df_preprocessed.to_parquet(
             preprocessing_dir / "preprocessed_data.parquet", index=False
         )
-        if verbose >= 2:
-            logger.info(
-                f"Saved preprocessed data to "
-                f"{preprocessing_dir / 'preprocessed_data.parquet'}"
-            )
+        active_logger.debug(
+            f"Saved preprocessed data to "
+            f"{preprocessing_dir / 'preprocessed_data.parquet'}"
+        )
 
     # Step 2: Extract gait features
-    if verbose >= 1:
-        logger.info("Step 2: Extracting gait features")
+    active_logger.info("Step 2: Extracting gait features")
     df_gait = extract_gait_features(df_preprocessed, gait_config)
 
     if "gait" in store_intermediate:
         gait_dir = output_dir / "gait"
         gait_dir.mkdir(parents=True, exist_ok=True)
         df_gait.to_parquet(gait_dir / "gait_features.parquet", index=False)
-        if verbose >= 2:
-            logger.info(f"Saved gait features to {gait_dir / 'gait_features.parquet'}")
+        active_logger.debug(
+            f"Saved gait features to {gait_dir / 'gait_features.parquet'}"
+        )
 
     # Step 3: Detect gait
-    if verbose >= 1:
-        logger.info("Step 3: Detecting gait")
+    active_logger.info("Step 3: Detecting gait")
     try:
         classifier_path = files("paradigma.assets") / "gait_detection_clf_package.pkl"
         classifier_package_gait = ClassifierPackage.load(classifier_path)
     except Exception as e:
-        logger.error(f"Could not load gait detection classifier: {e}")
+        active_logger.error(f"Could not load gait detection classifier: {e}")
         raise RuntimeError("Gait detection classifier not available")
 
     gait_proba = detect_gait(df_gait, classifier_package_gait, parallel=False)
@@ -1013,7 +1024,7 @@ def run_gait_pipeline(
         gait_dir = output_dir / "gait"
         gait_dir.mkdir(parents=True, exist_ok=True)
         df_gait_with_time.to_parquet(gait_dir / "gait_predictions.parquet", index=False)
-        logger.info(
+        active_logger.info(
             f"Saved gait predictions to {gait_dir / 'gait_predictions.parquet'}"
         )
 
@@ -1023,12 +1034,11 @@ def run_gait_pipeline(
     ].reset_index(drop=True)
 
     if len(df_gait_only) == 0:
-        logger.warning("No gait detected in this segment")
-        return pd.DataFrame()
+        active_logger.warning("No gait detected in this segment")
+        return pd.DataFrame(), {}
 
     # Step 4: Extract arm activity features
-    if verbose >= 1:
-        logger.info("Step 4: Extracting arm activity features")
+    active_logger.info("Step 4: Extracting arm activity features")
     df_arm_activity = extract_arm_activity_features(df_gait_only, arm_activity_config)
 
     if "arm_activity" in store_intermediate:
@@ -1037,19 +1047,18 @@ def run_gait_pipeline(
         df_arm_activity.to_parquet(
             arm_activity_dir / "arm_activity_features.parquet", index=False
         )
-        if verbose >= 2:
-            logger.info(
-                f"Saved arm activity features to "
-                f"{arm_activity_dir / 'arm_activity_features.parquet'}"
-            )
+        active_logger.debug(
+            f"Saved arm activity features to "
+            f"{arm_activity_dir / 'arm_activity_features.parquet'}"
+        )
 
     # Step 5: Filter gait (remove other arm activities)
-    logger.info("Step 5: Filtering gait")
+    active_logger.info("Step 5: Filtering gait")
     try:
         classifier_path = files("paradigma.assets") / "gait_filtering_clf_package.pkl"
         classifier_package_arm_activity = ClassifierPackage.load(classifier_path)
     except Exception as e:
-        logger.error(f"Could not load arm activity classifier: {e}")
+        active_logger.error(f"Could not load arm activity classifier: {e}")
         raise RuntimeError("Arm activity classifier not available")
 
     # Filter gait returns probabilities which we add to the arm activity features
@@ -1080,21 +1089,19 @@ def run_gait_pipeline(
         arm_activity_dir = output_dir / "arm_activity"
         arm_activity_dir.mkdir(parents=True, exist_ok=True)
         df_filtered.to_parquet(arm_activity_dir / "filtered_gait.parquet", index=False)
-        if verbose >= 2:
-            logger.info(
-                f"Saved filtered gait to {arm_activity_dir / 'filtered_gait.parquet'}"
-            )
+        active_logger.debug(
+            f"Saved filtered gait to {arm_activity_dir / 'filtered_gait.parquet'}"
+        )
 
     if (
         len(df_filtered.loc[df_filtered[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] == 1])
         == 0
     ):
-        logger.warning("No clean gait data remaining after filtering")
-        return pd.DataFrame()
+        active_logger.warning("No clean gait data remaining after filtering")
+        return pd.DataFrame(), {}
 
     # Step 6: Quantify arm swing
-    if verbose >= 1:
-        logger.info("Step 6: Quantifying arm swing")
+    active_logger.info("Step 6: Quantifying arm swing")
     quantified_arm_swing, gait_segment_meta = quantify_arm_swing(
         df=df_filtered,
         fs=arm_activity_config.sampling_frequency,
@@ -1114,22 +1121,20 @@ def run_gait_pipeline(
         with open(quantification_dir / "gait_segment_meta.json", "w") as f:
             json.dump(gait_segment_meta, f, indent=2)
 
-        if verbose >= 2:
-            logger.info(
-                f"Saved arm swing quantification to "
-                f"{quantification_dir / 'arm_swing_quantified.parquet'}"
-            )
-            logger.info(
-                f"Saved gait segment metadata to "
-                f"{quantification_dir / 'gait_segment_meta.json'}"
-            )
-
-    if verbose >= 1:
-        logger.info(
-            f"Gait analysis pipeline completed. Found "
-            f"{len(quantified_arm_swing)} windows of gait "
-            f"without other arm activities."
+        active_logger.debug(
+            f"Saved arm swing quantification to "
+            f"{quantification_dir / 'arm_swing_quantified.parquet'}"
         )
+        active_logger.debug(
+            f"Saved gait segment metadata to "
+            f"{quantification_dir / 'gait_segment_meta.json'}"
+        )
+
+    active_logger.info(
+        f"Gait analysis pipeline completed. Found "
+        f"{len(quantified_arm_swing)} windows of gait "
+        f"without other arm activities."
+    )
 
     # Apply segment number offset if specified (for multi-segment concatenation)
     if segment_number_offset > 0 and len(quantified_arm_swing) > 0:

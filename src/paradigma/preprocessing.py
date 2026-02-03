@@ -61,6 +61,8 @@ def resample_data(
         Defaults to IMUConfig.min_segment_length_s (1.5s).
     verbose : int, default 1
         Logging verbose: 0=errors only, 1=basic info, 2+=detailed info.
+        Note: This function still uses verbose for backward compatibility
+        with existing code that calls it directly.
 
     Returns
     -------
@@ -115,7 +117,11 @@ def resample_data(
     # Auto-detect or use provided column names
     if values_column_names is None:
         numeric_columns = df.select_dtypes(include=[np.number]).columns
-        values_column_names = [col for col in numeric_columns if col != time_column]
+        values_column_names = [
+            col
+            for col in numeric_columns
+            if col != time_column and col != "data_segment_nr"
+        ]
         if not values_column_names:
             raise ValueError("No numeric columns found for resampling")
         if verbose >= 2:
@@ -521,14 +527,14 @@ def preprocess_ppg_data(
     ----------
     df_ppg : pd.DataFrame
         DataFrame containing PPG data.
-    df_acc : pd.DataFrame
-        DataFrame containing accelerometer from IMU data.
     ppg_config : PPGPreprocessingConfig
         Configuration object for PPG preprocessing.
-    imu_config : IMUPreprocessingConfig
-        Configuration object for IMU preprocessing.
     start_time_ppg : str
         iso8601 formatted start time of the PPG data.
+    df_acc : pd.DataFrame
+        DataFrame containing accelerometer from IMU data.
+    imu_config : IMUPreprocessingConfig
+        Configuration object for IMU preprocessing.
     start_time_imu : str
         iso8601 formatted start time of the IMU data.
     verbose : int, default 1

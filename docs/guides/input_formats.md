@@ -255,9 +255,30 @@ results = {
         'gait': dict,            # Time-period aggregated gait measures
         'tremor': dict,          # Time-period aggregated tremor measures
     },
-    'metadata': dict             # Analysis metadata
+    'metadata': dict,            # Analysis metadata
+    'errors': list               # List of errors (empty if successful)
 }
 ```
+
+### Error Tracking
+
+The `errors` list contains any errors encountered during processing. Always check this after running:
+
+```python
+if results['errors']:
+    print(f"Warning: {len(results['errors'])} error(s) occurred")
+    for error in results['errors']:
+        print(f"  Stage: {error['stage']}")
+        print(f"  Error: {error['error']}")
+        if 'file' in error:
+            print(f"  File: {error['file']}")
+```
+
+Each error dict contains:
+- `stage`: Where the error occurred (loading, preparation, pipeline_execution, aggregation)
+- `error`: Error message
+- `file`: Filename (if file-specific, optional)
+- `pipeline`: Pipeline name (if pipeline-specific, optional)
 
 ### File Key Column
 

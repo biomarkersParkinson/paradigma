@@ -53,11 +53,17 @@ from paradigma.prepare_data import prepare_raw_data
 
 logger = logging.getLogger(__name__)
 
+# Custom logging level for detailed info (between INFO=20 and DEBUG=10)
+DETAILED_INFO = 15
+logging.addLevelName(DETAILED_INFO, "DETAILED")
+
 
 def run_paradigma(
-    output_dir: str | Path = "./output",
+    *,
     data_path: str | Path | None = None,
     dfs: pd.DataFrame | list[pd.DataFrame] | dict[str, pd.DataFrame] | None = None,
+    save_intermediate: list[str] = [],
+    output_dir: str | Path = "./output",
     skip_preparation: bool = False,
     pipelines: list[str] | str | None = None,
     watch_side: str | None = None,
@@ -67,7 +73,6 @@ def run_paradigma(
     target_frequency: float = 100.0,
     column_mapping: dict[str, str] | None = None,
     device_orientation: list[str] | None = ["x", "y", "z"],
-    save_intermediate: list[str] = [],
     file_pattern: str | list[str] | None = None,
     aggregates: list[str] | None = None,
     segment_length_bins: list[str] | None = None,
@@ -80,7 +85,8 @@ def run_paradigma(
     arm_activity_config: GaitConfig | None = None,
     tremor_config: TremorConfig | None = None,
     pulse_rate_config: PulseRateConfig | None = None,
-    verbose: int = 1,
+    logging_level: int = logging.INFO,
+    custom_logger: logging.Logger | None = None,
 ) -> dict[str, pd.DataFrame | dict]:
     """
     Complete ParaDigMa analysis pipeline from data loading to aggregated results.
@@ -109,6 +115,17 @@ def run_paradigma(
         Note: The 'file_key' column is only added to quantification results when
         len(dfs) > 1, allowing cleaner output for single-file processing.
         See input_formats guide for details.
+    save_intermediate : list of str, default []
+        Which intermediate results to store. Valid values:
+        - 'preparation': Save prepared data
+        - 'preprocessing': Save preprocessed signals
+        - 'classification': Save classification results
+        - 'quantification': Save quantified measures
+        - 'aggregation': Save aggregated results
+        If empty, no files are saved (results are only returned).
+    output_dir : str or Path, default './output'
+        Output directory for all results. Files are only saved if
+        save_intermediate is not empty.
     skip_preparation : bool, default False
         Whether data is already prepared. If False, data will be
         prepared (unit conversion, resampling, etc.). If True,
@@ -131,17 +148,6 @@ def run_paradigma(
         Custom column name mapping.
     device_orientation : list of str, optional
         Custom device orientation corrections.
-    output_dir : str or Path, default './output'
-        Output directory for all results. Files are only saved if
-        save_intermediate is not empty.
-    save_intermediate : list of str, default []
-        Which intermediate results to store. Valid values:
-        - 'preparation': Save prepared data
-        - 'preprocessing': Save preprocessed signals
-        - 'classification': Save classification results
-        - 'quantification': Save quantified measures
-        - 'aggregation': Save aggregated results
-        If empty, no files are saved (results are only returned).
     file_pattern : str or list of str, optional
         File pattern(s) to match when loading data (e.g., 'parquet', '*.csv').
     aggregates : list of str, optional
@@ -173,12 +179,16 @@ def run_paradigma(
         Tremor analysis configuration.
     pulse_rate_config : PulseRateConfig, optional
         Pulse rate analysis configuration.
-    verbose : int, default 1
-        Logging verbose level:
-        - 0: Only errors and warnings
-        - 1: Basic info (default)
-        - 2: Detailed info with progress
-        - 3: Debug level with all details
+    logging_level : int, default logging.INFO
+        Logging level using standard logging constants:
+        - logging.ERROR: Only errors
+        - logging.WARNING: Warnings and errors
+        - logging.INFO: Basic progress information (default)
+        - logging.DEBUG: Detailed debug information
+        Can also use DETAILED_INFO (15) for intermediate detail level.
+    custom_logger : logging.Logger, optional
+        Custom logger instance. If provided, logging_level is ignored.
+        Allows full control over logging configuration.
 
     Returns
     -------
@@ -187,11 +197,13 @@ def run_paradigma(
         - 'quantifications': dict with pipeline names as keys and DataFrames as values
         - 'aggregations': dict with pipeline names as keys and result dicts as values
         - 'metadata': dict with pipeline names as keys and metadata dicts as values
+        - 'errors': list of dicts tracking any errors that occurred during processing.
+          Each error dict contains 'stage', 'error', and optionally 'file' and
+          'pipeline'.
+          Empty list indicates successful processing of all files.
     """
-    if (data_path is None and dfs is None) or (
-        data_path is not None and dfs is not None
-    ):
-        raise ValueError("Either data_path or dfs must be provided, but not both")
+    if (data_path is None) == (dfs is None):
+        raise ValueError("Exactly one of data_path or dfs must be provided")
 
     if isinstance(pipelines, str):
         pipelines = [pipelines]
@@ -201,68 +213,62 @@ def run_paradigma(
             "Pulse rate pipeline cannot be run together with other pipelines"
         )
 
-    if "gait" in pipelines and watch_side not in ["left", "right"]:
-        raise ValueError(
-            "watch_side must be specified as 'left' or 'right' for gait pipeline"
-        )
-
     if any(p not in ["gait", "tremor", "pulse_rate"] for p in pipelines):
         raise ValueError(
             f"At least one unknown pipeline provided: {pipelines}. "
             f"Supported pipelines: 'gait', 'tremor', 'pulse_rate'"
         )
 
-    # Set logging level based on verbose
-    if verbose == 0:
-        logger.setLevel(logging.WARNING)
-    elif verbose == 1:
-        logger.setLevel(logging.INFO)
-    elif verbose >= 2:
-        logger.setLevel(logging.DEBUG)
+    # Use custom logger if provided, otherwise use module logger
+    active_logger = custom_logger if custom_logger is not None else logger
+
+    # Get package logger for configuration (affects all paradigma.* modules)
+    package_logger = logging.getLogger("paradigma")
+
+    # Configure package-wide logging level for all paradigma modules
+    if custom_logger is None:
+        package_logger.setLevel(logging_level)
 
     if data_path is not None:
         data_path = Path(data_path)
-        if verbose >= 1:
-            logger.info(f"Applying ParaDigMa pipelines to {data_path}")
+        active_logger.info(f"Applying ParaDigMa pipelines to {data_path}")
     else:
-        if verbose >= 1:
-            logger.info("Applying ParaDigMa pipelines to provided DataFrame")
+        active_logger.info("Applying ParaDigMa pipelines to provided DataFrame")
 
     # Convert and create output directory
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Setup logging to file
+    # Setup logging to file - add handler to package logger so ALL paradigma modules
+    # log to file
     timestamp = datetime.now().strftime("%Y%m%d_%H%M")
     log_file = output_dir / f"paradigma_run_{timestamp}.log"
     file_handler = logging.FileHandler(log_file)
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(
-        logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     )
-    logger.addHandler(file_handler)
-    logger.info(f"Logging to {log_file}")
+    package_logger.addHandler(file_handler)
+    active_logger.info(f"Logging to {log_file}")
 
     # Step 1: Get file paths or convert provided DataFrames
     file_paths = None  # Will hold list of file paths if loading from directory
     dfs_dict = None  # Will hold dict of DataFrames if provided directly
 
     if data_path is not None:
-        if verbose >= 1:
-            logger.info("Step 1: Finding data files")
+        active_logger.info("Step 1: Finding data files")
         try:
             file_paths = get_data_file_paths(
-                data_path=data_path, file_patterns=file_pattern, verbose=verbose
+                data_path=data_path, file_patterns=file_pattern
             )
         except Exception as e:
-            logger.error(f"Failed to find data files: {e}")
+            active_logger.error(f"Failed to find data files: {e}")
             raise
 
         if not file_paths:
             raise ValueError(f"No data files found in {data_path}")
     else:
-        if verbose >= 1:
-            logger.info("Step 1: Using provided DataFrame(s) as input")
+        active_logger.info("Step 1: Using provided DataFrame(s) as input")
 
         # Convert provided dfs to dict format
         if isinstance(dfs, list):
@@ -280,11 +286,11 @@ def run_paradigma(
         "quantifications": {p: [] for p in pipelines},
         "aggregations": {p: {} for p in pipelines},
         "metadata": {p: {} for p in pipelines},
+        "errors": [],
     }
 
     # Steps 2-3: Process each file individually
-    if verbose >= 1:
-        logger.info(f"Steps 2-3: Processing {num_files} files individually")
+    active_logger.info(f"Steps 2-3: Processing {num_files} files individually")
 
     # Track maximum gait segment number across files for proper offset
     max_gait_segment_nr = 0
@@ -293,25 +299,26 @@ def run_paradigma(
         # Load one file at a time
         if file_paths:
             file_path = file_paths[i]
-            if verbose >= 1:
-                logger.info(f"Processing file {i+1}/{num_files}: {file_path.name}")
+            active_logger.info(f"Processing file {i+1}/{num_files}: {file_path.name}")
             try:
-                file_name, df_raw = load_single_data_file(file_path, verbose=verbose)
+                file_name, df_raw = load_single_data_file(file_path)
             except Exception as e:
-                logger.error(f"Failed to load file {file_path.name}: {e}")
+                error_msg = f"Failed to load file {file_path.name}: {e}"
+                active_logger.error(error_msg)
+                all_results["errors"].append(
+                    {"file": file_path.name, "stage": "loading", "error": str(e)}
+                )
                 continue
         else:
             # Using in-memory data
             file_name = list(dfs_dict.keys())[i]
             df_raw = dfs_dict[file_name]
-            if verbose >= 1:
-                logger.info(f"Processing DataFrame {i+1}/{num_files}: {file_name}")
+            active_logger.info(f"Processing DataFrame {i+1}/{num_files}: {file_name}")
 
         try:
             # Step 2: Prepare data (if needed)
             if not skip_preparation:
-                if verbose >= 2:
-                    logger.info(f"Preparing data for {file_name}")
+                active_logger.log(DETAILED_INFO, f"Preparing data for {file_name}")
 
                 prepare_params = {
                     "time_input_unit": time_input_unit,
@@ -320,7 +327,6 @@ def run_paradigma(
                     "auto_segment": split_by_gaps,
                     "max_segment_gap_s": max_gap_seconds,
                     "min_segment_length_s": min_segment_seconds,
-                    "verbose": verbose,
                 }
 
                 # Add pipeline-specific preparation parameters
@@ -335,9 +341,7 @@ def run_paradigma(
                         }
                     )
 
-                df_prepared = prepare_raw_data(
-                    df=df_raw, watch_side=watch_side, **prepare_params
-                )
+                df_prepared = prepare_raw_data(df=df_raw, **prepare_params)
 
                 # Save prepared data if requested
                 if "preparation" in save_intermediate:
@@ -346,7 +350,6 @@ def run_paradigma(
                     save_prepared_data(
                         df_prepared,
                         prepared_dir / f"{file_name}.parquet",
-                        verbose=verbose,
                     )
             else:
                 df_prepared = df_raw
@@ -354,10 +357,7 @@ def run_paradigma(
             # Release raw data from memory
             del df_raw
 
-            # Step 3: Run each pipeline on this single file (call pipeline
-            # functions directly)
-            # Filter out 'aggregation' and 'quantification' from intermediate
-            # saves per file
+            # Step 3: Run each pipeline on this single file
             store_intermediate_per_file = [
                 x
                 for x in save_intermediate
@@ -368,8 +368,9 @@ def run_paradigma(
             file_output_dir = output_dir / "individual_files" / file_name
 
             for pipeline_name in pipelines:
-                if verbose >= 2:
-                    logger.info(f"Running {pipeline_name} pipeline on {file_name}")
+                active_logger.log(
+                    DETAILED_INFO, f"Running {pipeline_name} pipeline on {file_name}"
+                )
 
                 try:
                     if pipeline_name == "gait":
@@ -383,7 +384,8 @@ def run_paradigma(
                                 store_intermediate=store_intermediate_per_file,
                                 output_dir=file_output_dir,
                                 segment_number_offset=max_gait_segment_nr,
-                                verbose=verbose,
+                                logging_level=logging_level,
+                                custom_logger=active_logger,
                             )
                         )
 
@@ -401,7 +403,7 @@ def run_paradigma(
                                 quantification_data["gait_segment_nr"].max()
                             )
 
-                        # Store metadata
+                        # Store metadata and update offset even if no quantifications
                         if (
                             quantification_metadata
                             and "per_segment" in quantification_metadata
@@ -410,6 +412,16 @@ def run_paradigma(
                                 quantification_metadata["per_segment"]
                             )
 
+                            # Update max segment number based on metadata to prevent
+                            # overwrites
+                            if quantification_metadata["per_segment"]:
+                                max_segment_in_metadata = max(
+                                    quantification_metadata["per_segment"].keys()
+                                )
+                                max_gait_segment_nr = max(
+                                    max_gait_segment_nr, max_segment_in_metadata
+                                )
+
                     elif pipeline_name == "tremor":
                         quantification_data = run_tremor_pipeline(
                             df_prepared=df_prepared,
@@ -417,7 +429,8 @@ def run_paradigma(
                             output_dir=file_output_dir,
                             tremor_config=tremor_config,
                             imu_config=imu_config,
-                            verbose=verbose,
+                            logging_level=logging_level,
+                            custom_logger=active_logger,
                         )
 
                         if len(quantification_data) > 0:
@@ -435,7 +448,8 @@ def run_paradigma(
                             output_dir=file_output_dir,
                             pulse_rate_config=pulse_rate_config,
                             ppg_config=ppg_config,
-                            verbose=verbose,
+                            logging_level=logging_level,
+                            custom_logger=active_logger,
                         )
 
                         if len(quantification_data) > 0:
@@ -447,8 +461,17 @@ def run_paradigma(
                             )
 
                 except Exception as e:
-                    logger.error(
+                    error_msg = (
                         f"Failed to run {pipeline_name} pipeline on {file_name}: {e}"
+                    )
+                    active_logger.error(error_msg)
+                    all_results["errors"].append(
+                        {
+                            "file": file_name,
+                            "pipeline": pipeline_name,
+                            "stage": "pipeline_execution",
+                            "error": str(e),
+                        }
                     )
                     continue
 
@@ -456,12 +479,15 @@ def run_paradigma(
             del df_prepared
 
         except Exception as e:
-            logger.error(f"Failed to process file {file_name}: {e}")
+            error_msg = f"Failed to process file {file_name}: {e}"
+            active_logger.error(error_msg)
+            all_results["errors"].append(
+                {"file": file_name, "stage": "preparation", "error": str(e)}
+            )
             continue
 
     # Step 4: Combine quantifications from all files
-    if verbose >= 1:
-        logger.info("Step 4: Combining quantifications from all files")
+    active_logger.info("Step 4: Combining quantifications from all files")
 
     for pipeline_name in pipelines:
         # Concatenate all quantifications for this pipeline
@@ -473,18 +499,18 @@ def run_paradigma(
             num_files_processed = len(all_results["quantifications"][pipeline_name])
             all_results["quantifications"][pipeline_name] = combined_quantified
 
-            if verbose >= 1:
-                logger.info(
-                    f"{pipeline_name.capitalize()}: Combined "
-                    f"{len(combined_quantified)} windows from "
-                    f"{num_files_processed} files"
-                )
+            active_logger.info(
+                f"{pipeline_name.capitalize()}: Combined "
+                f"{len(combined_quantified)} windows from "
+                f"{num_files_processed} files"
+            )
 
             # Step 5: Perform aggregation on combined results FROM ALL FILES
             try:
                 if pipeline_name == "gait" and all_results["metadata"][pipeline_name]:
-                    if verbose >= 1:
-                        logger.info("Step 5: Aggregating gait results across ALL files")
+                    active_logger.info(
+                        "Step 5: Aggregating gait results across ALL files"
+                    )
 
                     if segment_length_bins is None:
                         gait_segment_categories = [
@@ -508,16 +534,15 @@ def run_paradigma(
                         aggregates=agg_methods,
                     )
                     all_results["aggregations"][pipeline_name] = aggregations
-                    logger.info(
+                    active_logger.info(
                         f"Aggregation completed across "
                         f"{len(gait_segment_categories)} gait segment categories"
                     )
 
                 elif pipeline_name == "tremor":
-                    if verbose >= 1:
-                        logger.info(
-                            "Step 5: Aggregating tremor results across ALL files"
-                        )
+                    active_logger.info(
+                        "Step 5: Aggregating tremor results across ALL files"
+                    )
 
                     # Work on a copy for tremor aggregation
                     tremor_data_for_aggregation = combined_quantified.copy()
@@ -543,13 +568,12 @@ def run_paradigma(
                     all_results["metadata"][pipeline_name] = aggregation_output[
                         "metadata"
                     ]
-                    logger.info("Tremor aggregation completed")
+                    active_logger.info("Tremor aggregation completed")
 
                 elif pipeline_name == "pulse_rate":
-                    if verbose >= 1:
-                        logger.info(
-                            "Step 5: Aggregating pulse rate results across ALL files"
-                        )
+                    active_logger.info(
+                        "Step 5: Aggregating pulse rate results across ALL files"
+                    )
 
                     pulse_rate_values = (
                         combined_quantified[DataColumns.PULSE_RATE].dropna().values
@@ -566,23 +590,27 @@ def run_paradigma(
                         all_results["metadata"][pipeline_name] = aggregation_output[
                             "metadata"
                         ]
-                        logger.info(
+                        active_logger.info(
                             f"Pulse rate aggregation completed with "
                             f"{len(pulse_rate_values)} valid estimates"
                         )
                     else:
-                        logger.warning(
+                        active_logger.warning(
                             "No valid pulse rate estimates found for aggregation"
                         )
 
             except Exception as e:
-                logger.error(f"Failed to aggregate {pipeline_name} results: {e}")
+                error_msg = f"Failed to aggregate {pipeline_name} results: {e}"
+                active_logger.error(error_msg)
+                all_results["errors"].append(
+                    {"pipeline": pipeline_name, "stage": "aggregation", "error": str(e)}
+                )
                 all_results["aggregations"][pipeline_name] = {}
 
         else:
             # No quantifications found for this pipeline
             all_results["quantifications"][pipeline_name] = pd.DataFrame()
-            logger.warning(f"No quantified {pipeline_name} results found")
+            active_logger.warning(f"No quantified {pipeline_name} results found")
 
     # Save combined quantifications if requested
     if "quantification" in save_intermediate:
@@ -592,7 +620,6 @@ def run_paradigma(
                 save_prepared_data(
                     all_results["quantifications"][pipeline_name],
                     quant_file,
-                    verbose=verbose,
                 )
 
     # Save aggregations if requested
@@ -602,37 +629,42 @@ def run_paradigma(
                 agg_file = output_dir / f"aggregations_{pipeline_name}.json"
                 with open(agg_file, "w") as f:
                     json.dump(all_results["aggregations"][pipeline_name], f, indent=2)
-                if verbose >= 1:
-                    logger.info(f"Saved aggregations to {agg_file}")
+                active_logger.info(f"Saved aggregations to {agg_file}")
 
-    if verbose >= 1:
-        logger.info("ParaDigMa analysis completed for all pipelines")
+    if all_results["errors"]:
+        active_logger.warning(
+            f"ParaDigMa analysis completed with {len(all_results['errors'])} error(s)"
+        )
+    else:
+        active_logger.info(
+            "ParaDigMa analysis completed successfully for all pipelines"
+        )
 
     # Log final summary for all pipelines
-    if verbose >= 2:
-        for pipeline_name in pipelines:
-            try:
-                quant_df = all_results["quantifications"][pipeline_name]
-                if not quant_df.empty and "file_key" in quant_df.columns:
-                    successful_files = np.unique(quant_df["file_key"].values)
-                    logger.info(
-                        f"{pipeline_name.capitalize()}: Files successfully "
-                        f"processed: {successful_files}"
-                    )
-                elif not quant_df.empty:
-                    logger.info(
-                        f"{pipeline_name.capitalize()}: Single file processed "
-                        f"successfully"
-                    )
-                else:
-                    logger.info(f"{pipeline_name.capitalize()}: No successful results")
-            except Exception as e:
-                logger.error(f"Error logging summary for {pipeline_name}: {e}")
+    for pipeline_name in pipelines:
+        quant_df = all_results["quantifications"][pipeline_name]
+        if not quant_df.empty and "file_key" in quant_df.columns:
+            successful_files = np.unique(quant_df["file_key"].values)
+            active_logger.log(
+                DETAILED_INFO,
+                f"{pipeline_name.capitalize()}: Files successfully "
+                f"processed: {successful_files}",
+            )
+        elif not quant_df.empty:
+            active_logger.log(
+                DETAILED_INFO,
+                f"{pipeline_name.capitalize()}: Single file processed " f"successfully",
+            )
+        else:
+            active_logger.log(
+                DETAILED_INFO, f"{pipeline_name.capitalize()}: No successful results"
+            )
 
-    # Close file handler to release log file
-    for handler in logger.handlers[:]:
+    # Close file handler to release log file - remove from package logger
+    package_logger = logging.getLogger("paradigma")
+    for handler in package_logger.handlers[:]:
         if isinstance(handler, logging.FileHandler):
             handler.close()
-            logger.removeHandler(handler)
+            package_logger.removeHandler(handler)
 
     return all_results
