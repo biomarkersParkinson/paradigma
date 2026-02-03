@@ -34,13 +34,11 @@ class TestPrepareRawData:
         # Prepare data
         df_prepared = prepare_raw_data(
             df=df_raw,
-            watch_side="left",
             accelerometer_units="g",
             gyroscope_units="deg/s",
             time_input_unit=TimeUnit.RELATIVE_S,
             resampling_frequency=100.0,
             validate=True,
-            verbose=0,
         )
 
         # Verify output
@@ -80,7 +78,6 @@ class TestPrepareRawData:
         # Prepare with auto-segmentation
         df_prepared = prepare_raw_data(
             df=df_raw,
-            watch_side="left",
             accelerometer_units="g",
             gyroscope_units="deg/s",
             time_input_unit=TimeUnit.RELATIVE_S,
@@ -89,7 +86,6 @@ class TestPrepareRawData:
             max_segment_gap_s=2.0,  # Gaps > 2s trigger segmentation
             min_segment_length_s=1.0,
             validate=False,  # Skip validation since we have segments
-            verbose=0,
         )
 
         # Verify segmentation occurred

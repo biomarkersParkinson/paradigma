@@ -100,8 +100,10 @@ def test_gait_pipeline_basic():
             arm_activity_config=GaitConfig("arm_activity"),
         )
 
-        assert isinstance(result, pd.DataFrame)
-        # May be empty if no gait detected, which is OK
+        assert isinstance(result, tuple)
+        assert len(result) == 2
+        assert isinstance(result[0], pd.DataFrame)  # Gait results DataFrame
+        assert isinstance(result[1], dict)  # Gait metadata dictionary
 
 
 def test_gait_pipeline_integration():
