@@ -39,6 +39,8 @@ logger = logging.getLogger(__name__)
 if not logger.hasHandlers():
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
+logger = logging.getLogger(__name__)
+
 
 def extract_gait_features(df: pd.DataFrame, config: GaitConfig) -> pd.DataFrame:
     """
