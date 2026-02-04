@@ -811,6 +811,8 @@ gait_results.head()
 ```
 
     Non-contiguous data detected. Auto-segmenting...
+
+
     Created 4 segments: 1713.3s, 1588.3s, 2243.5s, 3220.3s
 
 

@@ -5,6 +5,8 @@ message: >-
   If you use this software, please cite it using the
   metadata from this file.
 type: software
+version: 1.1.0
+date-released: '2026-02-04'
 authors:
 - given-names: Erik
   family-names: Post
@@ -95,18 +97,19 @@ abstract: >-
   package designed for processing and analyzing real-life wrist sensor data to
   extract digital measures of motor and non-motor signs of Parkinson's disease (PD).
 
-  Specifically, the toolbox is designed to process accelerometer, gyroscope and
-  photoplethysmography signals, collected during passive monitoring in daily life.
-  It contains three data processing pipelines: (1) arm swing during gait, (2) tremor,
-  and (3) pulse rate analysis. These pipelines are scientifically validated for their
-  use in persons with PD. Furthermore, the toolbox contains general functionalities
-  for signal processing and feature extraction, such as filtering, peak detection, and
-  spectral analysis.
+  The toolbox processes accelerometer, gyroscope and photoplethysmography signals
+  collected during passive monitoring in daily life. It contains three scientifically
+  validated data processing pipelines: (1) arm swing during gait, (2) tremor, and
+  (3) pulse rate analysis. An orchestrator function enables end-to-end processing from
+  raw data loading to aggregated measures, with automatic data preparation including
+  flexible column mapping and sensor orientation adjustment. The toolbox also provides
+  general functionalities for signal processing and feature extraction, such as
+  filtering, peak detection, and spectral analysis.
 
-  The toolbox is accompanied by a set of example scripts and notebooks for each
-  processing pipeline that demonstrate how to use the toolbox for extracting digital
-  measures. In addition, the toolbox is designed to be modular, enabling researchers
-  to easily extend the toolbox with new algorithms and functionalities.
+  ParaDigMa is accompanied by comprehensive documentation including tutorials,
+  installation guides, and API reference. The modular architecture enables researchers
+  to easily extend the toolbox with custom algorithms and functionalities while
+  maintaining compatibility with standardized data formats.
 
 keywords:
   - parkinson's disease
