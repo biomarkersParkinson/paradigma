@@ -1131,8 +1131,6 @@ quantified_arm_swing.loc[quantified_arm_swing['gait_segment_nr'] == 1]
 
     The arm swing quantification is based on the filtered gait segments.
 
-
-
     Gait segments are created of minimum 1.5 seconds and maximum 1.5 seconds gap between segments.
 
     A total of 84 filtered gait segments have been quantified.
