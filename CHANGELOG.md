@@ -34,7 +34,7 @@
 - Previously used pipeline code remains functional.
 
 ## v1.0.4 (11/11/2025)
-- Column names not long have to be set to ParaDigMa standards, but can be flexibly adjusted (see data_preparation.ipynb tutorial for instructions).
+- Column names no longer have to be set to ParaDigMa standards, but can be flexibly adjusted (see data_preparation.ipynb tutorial for instructions).
 - Users can now change the tolerance threshold for determining when consecutive timestamps are contiguous using config.
 - The usage of accelerometry is now optional. Accelerometry can be used to detect motion artefacts that can be removed using Paradigma (see pulse_rate_analysis.ipynb for more details).
 - We also added instructions for how to scale PPG features using z-scoring.
