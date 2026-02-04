@@ -1,6 +1,5 @@
 import warnings
 from dataclasses import asdict
-from typing import Dict, List
 
 import numpy as np
 
@@ -19,7 +18,9 @@ class BaseConfig:
         self.set_filenames(sensor)
 
     def set_filenames(self, prefix: str) -> None:
-        """Sets the filenames based on the prefix. This method is duplicated from `gaits_analysis_config.py`.
+        """Sets the filenames based on the prefix.
+
+        This method is duplicated from `gaits_analysis_config.py`.
 
         Parameters
         ----------
@@ -51,12 +52,12 @@ class IMUConfig(BaseConfig):
 
         self.time_colname = self.column_mapping["TIME"]
 
-        self.accelerometer_colnames: List[str] = []
-        self.gyroscope_colnames: List[str] = []
-        self.gravity_colnames: List[str] = []
+        self.accelerometer_colnames: list[str] = []
+        self.gyroscope_colnames: list[str] = []
+        self.gravity_colnames: list[str] = []
 
-        self.d_channels_accelerometer: Dict[str, str] = {}
-        self.d_channels_gyroscope: Dict[str, str] = {}
+        self.d_channels_accelerometer: dict[str, str] = {}
+        self.d_channels_gyroscope: dict[str, str] = {}
 
         accel_keys = ["ACCELEROMETER_X", "ACCELEROMETER_Y", "ACCELEROMETER_Z"]
         grav_keys = [
@@ -83,7 +84,7 @@ class IMUConfig(BaseConfig):
                 c: self.rotation_units for c in self.gyroscope_colnames
             }
 
-        self.d_channels_imu: Dict[str, str] = {
+        self.d_channels_imu: dict[str, str] = {
             **self.d_channels_accelerometer,
             **self.d_channels_gyroscope,
         }
@@ -94,6 +95,10 @@ class IMUConfig(BaseConfig):
         self.lower_cutoff_frequency = 0.2
         self.upper_cutoff_frequency = 3.5
         self.filter_order = 4
+
+        # Segmentation parameters for handling non-contiguous data
+        self.max_segment_gap_s = 1.5
+        self.min_segment_length_s = 1.5
 
 
 class PPGConfig(BaseConfig):
@@ -150,7 +155,7 @@ class GaitConfig(IMUConfig):
         self.spectrum_high_frequency: int = int(self.sampling_frequency / 2)
 
         # Power in specified frequency bands
-        self.d_frequency_bandwidths: Dict[str, List[float]] = {
+        self.d_frequency_bandwidths: dict[str, list[float]] = {
             "power_below_gait": [0.2, 0.7],
             "power_gait": [0.7, 3.5],
             "power_tremor": [3.5, 8],
@@ -170,7 +175,7 @@ class GaitConfig(IMUConfig):
         # -----------------
         # TSDF data storage
         # -----------------
-        self.d_channels_values: Dict[str, str] = {
+        self.d_channels_values: dict[str, str] = {
             "accelerometer_std_norm": DataUnits.GRAVITY,
             "accelerometer_x_grav_mean": DataUnits.GRAVITY,
             "accelerometer_y_grav_mean": DataUnits.GRAVITY,
@@ -257,14 +262,14 @@ class TremorConfig(IMUConfig):
         # -----------
         # Aggregation
         # -----------
-        self.aggregates_tremor_power: List[str] = ["mode_binned", "median", "90p"]
+        self.aggregates_tremor_power: list[str] = ["mode_binned", "median", "90p"]
         self.evaluation_points_tremor_power: np.ndarray = np.linspace(0, 6, 301)
 
         # -----------------
         # TSDF data storage
         # -----------------
         if step == "features":
-            self.d_channels_values: Dict[str, str] = {}
+            self.d_channels_values: dict[str, str] = {}
             for mfcc_coef in range(1, self.n_coefficients_mfcc + 1):
                 self.d_channels_values[f"mfcc_{mfcc_coef}"] = DataUnits.NONE
 
@@ -302,7 +307,8 @@ class PulseRateConfig(PPGConfig):
             else:
                 self.imu_sampling_frequency = IMUConfig().sampling_frequency
                 warnings.warn(
-                    f"imu_sampling_frequency not provided, using default of {self.imu_sampling_frequency} Hz"
+                    f"imu_sampling_frequency not provided, using default "
+                    f"of {self.imu_sampling_frequency} Hz"
                 )
 
         # Windowing parameters

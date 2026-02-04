@@ -7,8 +7,14 @@
 # -- Project information -----------------------------------------------------
 
 project = "paradigma"
-copyright = "2025, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, and Luc Evers"
-author = "Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, and Luc Evers"
+copyright = (
+    "2025, Erik Post, Kars Veldkamp, Nienke Timmermans, "
+    "Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, and Luc Evers"
+)
+author = (
+    "Erik Post, Kars Veldkamp, Nienke Timmermans, "
+    "Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, and Luc Evers"
+)
 
 # -- General configuration ---------------------------------------------------
 
@@ -30,9 +36,10 @@ myst_enable_extensions = [
 
 autoapi_dirs = ["../src"]
 
-# Include the following entities in the API documentation, this explicitly excludes 'imported-members',
-# as we don't want to clutter the documentation with all the imported members.
-# https://sphinx-autoapi.readthedocs.io/en/latest/reference/config.html#confval-autoapi_options
+# Include the following entities in the API documentation, this explicitly
+# excludes 'imported-members', as we don't want to clutter the documentation
+# with all the imported members.
+# https://sphinx-autoapi.readthedocs.io/en/latest/reference/config.html
 autoapi_options = [
     "members",
     "undoc-members",

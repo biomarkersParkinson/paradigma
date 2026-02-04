@@ -8,14 +8,27 @@ ParaDigMa requires the sensor data to be of a specific format. This tutorial pro
 
 The final dataframe should be resampled to 100 Hz, have the correct units for the sensor columns, and the correct format for the time column. Also note that the _gait_ pipeline expects a specific orientation of sensor axes, as explained in [Coordinate system](../guides/coordinate_system).
 
+## Import required modules
+
+
+```python
+import os
+from pathlib import Path
+
+from paradigma.constants import TimeUnit
+from paradigma.util import (
+    convert_units_accelerometer,
+    convert_units_gyroscope,
+    load_tsdf_dataframe,
+    transform_time_array,
+)
+```
+
 ## Load data
 This example uses data of the [Personalized Parkinson Project](https://pubmed.ncbi.nlm.nih.gov/31315608/), which is stored in Time Series Data Format (`TSDF`). Inertial Measurements Units (IMU) and photoplethysmography (PPG) data are sampled at a different sampling frequency and therefore stored separately. Note that ParaDigMa works independent of data storage format; it only requires a `pandas.DataFrame` as input.
 
 
 ```python
-from pathlib import Path
-from paradigma.util import load_tsdf_dataframe
-
 path_to_raw_data = Path('../../tests/data/data_preparation_tutorial')
 path_to_imu_data = path_to_raw_data / 'imu'
 
@@ -31,19 +44,6 @@ df_imu.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -116,9 +116,6 @@ df_imu.head()
 
 
 ```python
-import os
-from paradigma.util import load_tsdf_dataframe
-
 path_to_ppg_data = os.path.join(path_to_raw_data, 'ppg')
 
 df_ppg, ppg_time, ppg_values = load_tsdf_dataframe(
@@ -133,19 +130,6 @@ df_ppg.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -212,8 +196,6 @@ ParaDigMa expects acceleration to be measured in g, and rotation in deg/s. Units
 
 
 ```python
-from paradigma.util import convert_units_accelerometer, convert_units_gyroscope
-
 # Set to units of the sampled data
 accelerometer_units = 'm/s^2'
 gyroscope_units = 'deg/s'
@@ -242,19 +224,6 @@ df_imu.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -345,19 +314,6 @@ df_imu.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -433,9 +389,6 @@ ParaDigMa expects the data to be in seconds relative to the first row, which sho
 
 
 ```python
-from paradigma.constants import TimeUnit
-from paradigma.util import transform_time_array
-
 df_imu[time_colname] = transform_time_array(
     time_array=df_imu[time_colname],
     input_unit_type=TimeUnit.DIFFERENCE_MS,
@@ -449,19 +402,6 @@ df_imu.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -534,9 +474,6 @@ df_imu.head()
 
 
 ```python
-from paradigma.constants import TimeUnit
-from paradigma.util import transform_time_array
-
 df_ppg[time_colname] = transform_time_array(
     time_array=df_ppg[time_colname],
     input_unit_type=TimeUnit.DIFFERENCE_MS,
@@ -550,19 +487,6 @@ df_ppg.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -604,3 +528,61 @@ df_ppg.head()
 
 
 These dataframes are ready to be processed by ParaDigMa.
+
+## Note on Non-Contiguous Data
+
+If your data has gaps or interruptions (e.g., battery died, device removed, multiple recording sessions), you have two options:
+
+### Option 1: Auto-segmentation (Recommended)
+Use the `split_by_gaps=True` parameter in `run_paradigma()`:
+
+```python
+from paradigma.orchestrator import run_paradigma
+
+results = run_paradigma(
+    dfs=df_prepared,
+    pipelines='gait',
+    watch_side='left',
+    split_by_gaps=True,             # Automatically handle gaps
+    max_gap_seconds=1.5,            # Split on gaps > 1.5s
+    min_segment_seconds=2.0,        # Discard segments < 2s
+)
+```
+
+This will:
+- Automatically detect and split data at gaps larger than `max_gap_seconds`
+- Discard segments shorter than `min_segment_seconds`
+- Process each contiguous segment independently
+- Add a `data_segment_nr` column to track recording chunks
+
+### Option 2: Manual segmentation
+Create segments yourself using functions from [segmenting.py](../../src/paradigma/segmenting.py):
+
+```python
+from paradigma.segmenting import create_segments, discard_segments
+
+# Create segments based on time gaps
+df_prepared['data_segment_nr'] = create_segments(
+    time_array=df_prepared['time'].values,
+    max_segment_gap_s=1.5
+)
+
+# Optionally discard short segments
+df_prepared = discard_segments(
+    df=df_prepared,
+    segment_nr_colname='data_segment_nr',
+    min_segment_length_s=2.0,
+    fs=100,  # sampling frequency
+    format='timestamps'
+)
+
+# Then run paradigma normally (split_by_gaps=False)
+results = run_paradigma(
+    dfs=df_prepared,
+    pipelines='gait',
+    watch_side='left',
+    split_by_gaps=False  # Data already segmented
+)
+```
+
+For more details and examples, see the [Pipeline Orchestrator Tutorial](https://biomarkersparkinson.github.io/paradigma/tutorials/pipeline_orchestrator.html#auto-segmentation-for-non-contiguous-data).

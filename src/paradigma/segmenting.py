@@ -1,5 +1,3 @@
-from typing import List
-
 import numpy as np
 import pandas as pd
 
@@ -9,19 +7,21 @@ from paradigma.util import deprecated
 
 def tabulate_windows(
     df: pd.DataFrame,
-    columns: List[str],
+    columns: list[str],
     window_length_s: float,
     window_step_length_s: float,
     fs: int,
 ) -> np.ndarray:
     """
-    Split the given DataFrame into overlapping windows of specified length and step size.
+    Split the given DataFrame into overlapping windows of specified length
+    and step size.
 
-    This function extracts windows of data from the specified columns of the DataFrame, based on
-    the window length and step size provided in the configuration. The windows are returned in
-    a 3D NumPy array, where the first dimension represents the window index, the second dimension
-    represents the time steps within the window, and the third dimension represents the columns
-    of the data.
+    This function extracts windows of data from the specified columns of the
+    DataFrame, based on the window length and step size provided in the
+    configuration. The windows are returned in a 3D NumPy array, where the
+    first dimension represents the window index, the second dimension
+    represents the time steps within the window, and the third dimension
+    represents the columns of the data.
 
     Parameters
     ----------
@@ -40,17 +40,22 @@ def tabulate_windows(
     -------
     np.ndarray
         A 3D NumPy array of shape (n_windows, window_size, n_columns), where:
-        - `n_windows` is the number of windows that can be formed from the data.
-        - `window_size` is the length of each window in terms of the number of time steps.
-        - `n_columns` is the number of columns in the input DataFrame specified by `columns`.
+        - `n_windows` is the number of windows that can be formed from the
+          data.
+        - `window_size` is the length of each window in terms of the number
+          of time steps.
+        - `n_columns` is the number of columns in the input DataFrame
+          specified by `columns`.
 
-        If the length of the data is shorter than the specified window size, an empty array is returned.
+        If the length of the data is shorter than the specified window size,
+        an empty array is returned.
 
     Notes
     -----
-    This function uses `np.lib.stride_tricks.sliding_window_view` to generate sliding windows of data.
-    The step size is applied to extract windows at intervals.
-    If the data is insufficient for at least one window, an empty array will be returned.
+    This function uses `np.lib.stride_tricks.sliding_window_view` to
+    generate sliding windows of data. The step size is applied to extract
+    windows at intervals. If the data is insufficient for at least one
+    window, an empty array will be returned.
 
     Example
     -------
@@ -84,7 +89,8 @@ def tabulate_windows(
 
 def tabulate_windows_legacy(config, df, agg_func="first"):
     """
-    Efficiently creates a windowed dataframe from the input dataframe using vectorized operations.
+    Efficiently creates a windowed dataframe from the input dataframe using
+    vectorized operations.
 
     Parameters
     ----------
@@ -93,11 +99,13 @@ def tabulate_windows_legacy(config, df, agg_func="first"):
         - `window_length_s`: The number of seconds per window.
         - `window_step_length_s`: The number of seconds to shift between windows.
         - `sampling_frequency`: The sampling frequency in Hz.
-        - `single_value_colnames`: List of column names where a single value (e.g., mean) is needed.
-        - `list_value_colnames`: List of column names where all 600 values should be stored in a list.
+        - `single_value_colnames`: List of column names where a single value
+          (e.g., mean) is needed.
+        - `list_value_colnames`: List of column names where all 600 values
+          should be stored in a list.
     agg_func : str or callable, optional
-        Aggregation function for single-value columns. Can be 'mean', 'first', or a custom callable.
-        Default is 'first'.
+        Aggregation function for single-value columns. Can be 'mean',
+        'first', or a custom callable. Default is 'first'.
 
     Returns
     -------
@@ -122,7 +130,8 @@ def tabulate_windows_legacy(config, df, agg_func="first"):
     n_rows = len(df)
     if window_length > n_rows:
         raise ValueError(
-            f"Window size ({window_length}) cannot be greater than the number of rows ({n_rows}) in the dataframe."
+            f"Window size ({window_length}) cannot be greater than the "
+            f"number of rows ({n_rows}) in the dataframe."
         )
 
     # Create indices for window start positions
@@ -170,7 +179,8 @@ def tabulate_windows_legacy(config, df, agg_func="first"):
     # Convert result list into a DataFrame
     windowed_df = pd.DataFrame(result)
 
-    # Ensure the column order is as desired: window_nr, window_start, window_end, pre_or_post, and then the rest
+    # Ensure the column order is as desired: window_nr, window_start,
+    # window_end, pre_or_post, and then the rest
     desired_order = (
         ["window_nr", "window_start", "window_end"]
         + config.single_value_colnames
@@ -229,7 +239,8 @@ def discard_segments(
 
     Example
     -------
-    config = Config(min_segment_length_s=2, sampling_frequency=100, segment_nr_colname='segment')
+    config = Config(min_segment_length_s=2, sampling_frequency=100,
+                    segment_nr_colname='segment')
     df = pd.DataFrame({
         'segment': [1, 1, 2, 2, 2],
         'time': [0, 1, 2, 3, 4]
@@ -313,7 +324,7 @@ def categorize_segments(df, fs, format="timestamps", window_step_length_s=None):
         d_max_duration = {k: v * fs for k, v in d_max_duration.items()}
 
     # Count rows per segment
-    segment_sizes = df[DataColumns.SEGMENT_NR].value_counts()
+    segment_sizes = df[DataColumns.GAIT_SEGMENT_NR].value_counts()
 
     # Convert segment sizes to duration in seconds
     if format == "windows":
@@ -332,7 +343,10 @@ def categorize_segments(df, fs, format="timestamps", window_step_length_s=None):
 
     # Apply categorization to the DataFrame
     return (
-        df[DataColumns.SEGMENT_NR].map(segment_sizes).map(categorize).astype("category")
+        df[DataColumns.GAIT_SEGMENT_NR]
+        .map(segment_sizes)
+        .map(categorize)
+        .astype("category")
     )
 
 
@@ -354,7 +368,7 @@ class WindowedDataExtractor:
         Returns a slice object for a range of consecutive column names.
     """
 
-    def __init__(self, windowed_colnames: List[str]):
+    def __init__(self, windowed_colnames: list[str]):
         """
         Initialize the WindowedDataExtractor.
 
@@ -395,7 +409,7 @@ class WindowedDataExtractor:
             raise ValueError(f"Column name '{colname}' not found in windowed_colnames.")
         return self.column_indices[colname]
 
-    def get_slice(self, colnames: List[str]) -> slice:
+    def get_slice(self, colnames: list[str]) -> slice:
         """
         Get a slice object for a range of consecutive columns.
 
@@ -412,7 +426,8 @@ class WindowedDataExtractor:
         Raises
         ------
         ValueError
-            If one or more columns in `colnames` are not found in the `windowed_colnames` list.
+            If one or more columns in `colnames` are not found in the
+            `windowed_colnames` list.
         """
         if not all(col in self.column_indices for col in colnames):
             missing = [col for col in colnames if col not in self.column_indices]

@@ -1,7 +1,7 @@
 # Gait analysis
-This tutorial showcases the high-level functions composing the gait pipeline. Before following along, make sure all data preparation steps have been followed in the data preparation tutorial.
+This tutorial showcases the high-level functions composing the gait pipeline. Before following along, make sure all data preparation steps have been followed in the [Data preparation tutorial](https://biomarkersparkinson.github.io/paradigma/tutorials/_static/data_preparation.html).
 
-In this tutorial, we use two days of data from a participant of the Personalized Parkinson Project to demonstrate the functionalities. Since `ParaDigMa` expects contiguous time series, the collected data was stored in two segments each with contiguous timestamps. Per segment, we load the data and perform the following steps:
+In this tutorial, we use two days of data from a participant of the Personalized Parkinson Project to demonstrate the functionalities. Since ParaDigMa expects contiguous time series, the collected data was stored in two segments each with contiguous timestamps. Per segment, we load the data and perform the following steps:
 1. Data preprocessing
 2. Gait feature extraction
 3. Gait detection
@@ -13,9 +13,38 @@ We then combine the output of the different raw data segments for the final step
 
 7. Aggregation
 
-To run the complete gait pipeline, a prerequisite is to have both accelerometer and gyroscope data, although the first three steps can be completed using only accelerometer data.
+To run the complete gait pipeline, a prerequisite is to have both accelerometer and gyroscope data.
 
-[!WARNING] The gait pipeline has been developed on data of the Gait Up Physilog 4, and is currently being validated on the Verily Study Watch. Different sensors and positions on the wrist may affect outcomes.
+## Import required modules
+
+
+```python
+import json
+from importlib.resources import files
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import tsdf
+
+from paradigma.classification import ClassifierPackage
+from paradigma.config import GaitConfig, IMUConfig
+from paradigma.constants import DataColumns
+from paradigma.pipelines.gait_pipeline import (
+    aggregate_arm_swing_params,
+    detect_gait,
+    extract_arm_activity_features,
+    extract_gait_features,
+    filter_gait,
+    quantify_arm_swing,
+)
+from paradigma.preprocessing import preprocess_imu_data
+from paradigma.util import (
+    load_tsdf_dataframe,
+    merge_predictions_with_timestamps,
+    write_df_data,
+)
+```
 
 ## Load data
 Here, we start by loading a single contiguous time series (segment), for which we continue running steps 1-6. [Below](#multiple_segments_cell) we show how to run these steps for multiple raw data segments.
@@ -26,9 +55,6 @@ We use the internally developed `TSDF` ([documentation](https://biomarkersparkin
 
 
 ```python
-from pathlib import Path
-from paradigma.util import load_tsdf_dataframe
-
 # Set the path to where the prepared data is saved and load the data.
 # Note: the test data is stored in TSDF, but you can load your data in your own way
 path_to_data =  Path('../../example_data/verily')
@@ -49,19 +75,6 @@ df_imu
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -202,24 +215,7 @@ The function [`preprocess_imu_data`](https://biomarkersparkinson.github.io/parad
 
 
 ```python
-from paradigma.config import IMUConfig
-from paradigma.constants import DataColumns
-from paradigma.preprocessing import preprocess_imu_data
-
-# Set column names: replace DataColumn.* with your actual column names.
-# It is only necessary to set the columns that are present in your data, and
-# only if they differ from the default names defined in DataColumns.
-column_mapping = {
-    'TIME': DataColumns.TIME,
-    'ACCELEROMETER_X': DataColumns.ACCELEROMETER_X,
-    'ACCELEROMETER_Y': DataColumns.ACCELEROMETER_Y,
-    'ACCELEROMETER_Z': DataColumns.ACCELEROMETER_Z,
-    'GYROSCOPE_X': DataColumns.GYROSCOPE_X,
-    'GYROSCOPE_Y': DataColumns.GYROSCOPE_Y,
-    'GYROSCOPE_Z': DataColumns.GYROSCOPE_Z,
-}
-
-config = IMUConfig(column_mapping)
+config = IMUConfig()
 
 df_preprocessed = preprocess_imu_data(
     df=df_imu,
@@ -239,6 +235,9 @@ print(
 df_preprocessed.head()
 ```
 
+    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+
+
     The dataset of 34339.61 seconds is automatically resampled to 100 Hz.
     The tolerance for checking contiguous timestamps is set to 0.030 seconds.
 
@@ -247,19 +246,6 @@ df_preprocessed.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -366,8 +352,18 @@ These steps are encapsulated in [`extract_gait_features`](https://biomarkerspark
 
 
 ```python
-from paradigma.config import GaitConfig
-from paradigma.pipelines.gait_pipeline import extract_gait_features
+# Set column names: replace DataColumn.* with your actual column names.
+# It is only necessary to set the columns that are present in your data, and
+# only if they differ from the default names defined in DataColumns.
+column_mapping = {
+    'TIME': DataColumns.TIME,
+    'ACCELEROMETER_X': DataColumns.ACCELEROMETER_X,
+    'ACCELEROMETER_Y': DataColumns.ACCELEROMETER_Y,
+    'ACCELEROMETER_Z': DataColumns.ACCELEROMETER_Z,
+    'GYROSCOPE_X': DataColumns.GYROSCOPE_X,
+    'GYROSCOPE_Y': DataColumns.GYROSCOPE_Y,
+    'GYROSCOPE_Z': DataColumns.GYROSCOPE_Z,
+}
 
 config = GaitConfig(step='gait', column_mapping=column_mapping)
 
@@ -391,19 +387,6 @@ df_gait.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -566,10 +549,6 @@ For classification, ParaDigMa uses so-called Classifier Packages which contain a
 
 
 ```python
-from importlib.resources import files
-from paradigma.classification import ClassifierPackage
-from paradigma.pipelines.gait_pipeline import detect_gait
-
 # Set the path to the classifier package
 classifier_package_filename = 'gait_detection_clf_package.pkl'
 full_path_to_classifier_package = (
@@ -600,8 +579,10 @@ n_predictions_non_gait = df_gait.loc[
 perc_predictions_non_gait = round(100 * n_predictions_non_gait / n_windows, 1)
 
 print(
-    f"Out of {n_windows} windows, {n_predictions_gait} ({perc_predictions_gait}%) \n"
-    f"were predicted as gait, and {n_predictions_non_gait} ({perc_predictions_non_gait}%) \n"
+    f"Out of {n_windows} windows, {n_predictions_gait} "
+    f"({perc_predictions_gait}%) \n"
+    f"were predicted as gait, and {n_predictions_non_gait} "
+    f"({perc_predictions_non_gait}%) \n"
     f"as non-gait."
 )
 
@@ -619,19 +600,6 @@ df_gait[[config.time_colname, DataColumns.PRED_GAIT_PROBA]].head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -677,9 +645,6 @@ The predicted probabilities (and optionally other features) can be stored and lo
 
 
 ```python
-import tsdf
-from paradigma.util import write_df_data
-
 # Set 'path_to_data' to the directory where you want to save the data
 metadata_time_store = tsdf.TSDFMetadata(
     metadata_time.get_plain_tsdf_dict_copy(),
@@ -725,19 +690,6 @@ df_gait.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -791,9 +743,6 @@ But, first, the gait predictions should be merged with the preprocessed time ser
 
 
 ```python
-from paradigma.constants import DataColumns
-from paradigma.util import merge_predictions_with_timestamps
-
 # Merge gait predictions into timeseries data
 if not any(df_gait[DataColumns.PRED_GAIT_PROBA] >= clf_package_detection.threshold):
     raise ValueError("No gait detected in the input data.")
@@ -819,8 +768,6 @@ df = df.loc[df[DataColumns.PRED_GAIT]==1].reset_index(drop=True)
 
 
 ```python
-from paradigma.pipelines.gait_pipeline import extract_arm_activity_features
-
 config = GaitConfig(step='arm_activity')
 
 df_arm = extract_arm_activity_features(
@@ -843,19 +790,6 @@ df_arm.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1018,9 +952,6 @@ This classification task is similar to gait detection, although it uses a differ
 
 
 ```python
-from paradigma.classification import ClassifierPackage
-from paradigma.pipelines.gait_pipeline import filter_gait
-
 # Set the path to the classifier package
 classifier_package_filename = 'gait_filtering_clf_package.pkl'
 full_path_to_classifier_package = (
@@ -1076,19 +1007,6 @@ df_arm[[config.time_colname, DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]].head
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1161,16 +1079,10 @@ df = merge_predictions_with_timestamps(
 df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
     df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= filt_threshold
 ).astype(int)
-
-# Filter the DataFrame to only include predicted gait (1)
-df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True)
 ```
 
 
 ```python
-from paradigma.pipelines.gait_pipeline import quantify_arm_swing
-import json
-
 # Set to True to quantify arm swing based on the filtered gait segments, and
 # False to quantify arm swing based on all gait segments
 filtered = True
@@ -1195,7 +1107,7 @@ print(
     f"and maximum {config.max_segment_gap_s} seconds gap between segments.\n"
 )
 print(
-    f"A total of {quantified_arm_swing['segment_nr'].nunique()} {dataset_used} "
+    f"A total of {quantified_arm_swing['gait_segment_nr'].nunique()} {dataset_used} "
     f"gait segments have been quantified."
 )
 
@@ -1214,10 +1126,12 @@ print(
     f"\nIndividual arm swings of the first gait segment of the "
     f" {dataset_used} dataset:"
 )
-quantified_arm_swing.loc[quantified_arm_swing['segment_nr'] == 1]
+quantified_arm_swing.loc[quantified_arm_swing['gait_segment_nr'] == 1]
 ```
 
     The arm swing quantification is based on the filtered gait segments.
+
+
 
     Gait segments are created of minimum 1.5 seconds and maximum 1.5 seconds gap between segments.
 
@@ -1227,11 +1141,11 @@ quantified_arm_swing.loc[quantified_arm_swing['segment_nr'] == 1]
     {
      "start_time_s": 2221.75,
      "end_time_s": 2230.74,
-     "duration_unfiltered_segment_s": 9.0,
+     "duration_unfiltered_segment_s": 12.75,
      "duration_filtered_segment_s": 9.0
     }
 
-    Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 9.0 seconds, which is at least as large as the filtered gait segment.
+    Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 12.75 seconds, which is at least as large as the filtered gait segment.
 
     Individual arm swings of the first gait segment of the  filtered dataset:
 
@@ -1240,24 +1154,11 @@ quantified_arm_swing.loc[quantified_arm_swing['segment_nr'] == 1]
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>segment_nr</th>
+      <th>gait_segment_nr</th>
       <th>range_of_motion</th>
       <th>peak_velocity</th>
     </tr>
@@ -1353,18 +1254,6 @@ If your data is also stored in multiple raw data segments, you can modify `raw_d
 
 
 ```python
-import pandas as pd
-from pathlib import Path
-from importlib.resources import files
-
-from paradigma.util import load_tsdf_dataframe, merge_predictions_with_timestamps
-from paradigma.config import IMUConfig, GaitConfig
-from paradigma.preprocessing import preprocess_imu_data
-from paradigma.pipelines.gait_pipeline import extract_gait_features, \
-    detect_gait,extract_arm_activity_features, filter_gait, quantify_arm_swing
-from paradigma.constants import DataColumns
-from paradigma.classification import ClassifierPackage
-
 # Set the path to where the prepared data is saved
 path_to_data =  Path('../../example_data/verily')
 path_to_prepared_data = path_to_data / 'imu'
@@ -1494,15 +1383,15 @@ for raw_data_segment_nr in raw_data_segments:
         min_segment_length_s=config.min_segment_length_s,
     )
 
-    # Since segments start at zero, and we are concatenating multiple segments,
-    # we need to update the segment numbers to avoid aggregating multiple
-    # segments with the same number
+    # Since gait segments start at zero, and we are concatenating multiple segments,
+    # we need to update the gait segment numbers to avoid aggregating multiple
+    # gait segments with the same number
     if len(list_quantified_arm_swing) == 0:
         max_gait_segment_nr = 0
     else:
-        max_gait_segment_nr = quantified_arm_swing['segment_nr'].max()
+        max_gait_segment_nr = quantified_arm_swing['gait_segment_nr'].max()
 
-    quantified_arm_swing['segment_nr'] += max_gait_segment_nr
+    quantified_arm_swing['gait_segment_nr'] += max_gait_segment_nr
     gait_segment_meta['per_segment'] = {
         k + max_gait_segment_nr: v for k, v in gait_segment_meta['per_segment'].items()
     }
@@ -1514,6 +1403,12 @@ for raw_data_segment_nr in raw_data_segments:
 quantified_arm_swing = pd.concat(list_quantified_arm_swing, ignore_index=True)
 ```
 
+    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+
+
+    Resampled: 7434685 -> 7388945 rows at 100.0 Hz
+
+
 ## Step 7: Aggregation
 Finally, the arm swing estimates can be aggregated across all gait segments.
 
@@ -1521,9 +1416,6 @@ Optionally, gait segments can be categorized into bins of specific length. Bins 
 
 
 ```python
-import numpy as np
-from paradigma.pipelines.gait_pipeline import aggregate_arm_swing_params
-
 segment_categories = [(0,10), (10,20), (20, np.inf), (0, np.inf)]
 
 arm_swing_aggregations = aggregate_arm_swing_params(

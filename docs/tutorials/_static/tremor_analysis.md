@@ -12,6 +12,30 @@ We then combine the output of the different segments for the final step:
 
 5. Compute aggregated tremor measures
 
+## Import required modules
+
+
+```python
+import datetime
+import json
+from importlib.resources import files
+from pathlib import Path
+
+import pandas as pd
+import pytz
+import tsdf
+
+from paradigma.config import IMUConfig, TremorConfig
+from paradigma.constants import DataColumns, DataUnits
+from paradigma.pipelines.tremor_pipeline import (
+    aggregate_tremor,
+    detect_tremor,
+    extract_tremor_features,
+)
+from paradigma.preprocessing import preprocess_imu_data
+from paradigma.util import load_tsdf_dataframe, select_days, select_hours, write_df_data
+```
+
 ## Load example data
 
 Here, we start by loading a single contiguous time series (segment), for which we continue running steps 1-3. [Below](#multiple_segments_cell) we show how to run these steps for multiple segments.
@@ -22,9 +46,6 @@ We use the internally developed `TSDF` ([documentation](https://biomarkersparkin
 
 
 ```python
-from pathlib import Path
-from paradigma.util import load_tsdf_dataframe
-
 # Set the path to where the prepared data is saved and load the data.
 # Note: the test data is stored in TSDF, but you can load your data in your own way
 path_to_data =  Path('../../example_data/verily')
@@ -44,19 +65,6 @@ df_data
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -194,10 +202,6 @@ IMU sensors collect data at a fixed sampling frequency, but the sampling rate is
 
 
 ```python
-from paradigma.config import IMUConfig
-from paradigma.constants import DataColumns
-from paradigma.preprocessing import preprocess_imu_data
-
 # Set column names: replace DataColumn.* with your actual column names.
 # It is only necessary to set the columns that are present in your data, and
 # only if they differ from the default names defined in DataColumns.
@@ -227,23 +231,13 @@ df_preprocessed_data
     The tolerance for checking contiguous timestamps is set to 0.030 seconds.
 
 
+    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+
+
 
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -345,9 +339,6 @@ The function [`extract_tremor_features`](https://biomarkersparkinson.github.io/p
 
 
 ```python
-from paradigma.config import TremorConfig
-from paradigma.pipelines.tremor_pipeline import extract_tremor_features
-
 config = TremorConfig()
 print(f'The window length is {config.window_length_s} seconds')
 
@@ -363,19 +354,6 @@ df_features
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -621,9 +599,6 @@ The function [`detect_tremor`](https://biomarkersparkinson.github.io/paradigma/a
 
 
 ```python
-from importlib.resources import files
-from paradigma.pipelines.tremor_pipeline import detect_tremor
-
 print(f'A threshold of {config.movement_threshold} deg\u00b2/s\u00b2 \
 is used to determine whether the arm is at rest or in stable posture.')
 
@@ -651,19 +626,6 @@ df_predictions[[
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -776,10 +738,6 @@ The predicted probabilities (and optionally other features) can be stored and lo
 
 
 ```python
-import tsdf
-from paradigma.util import write_df_data
-from paradigma.constants import DataUnits
-
 # Set 'path_to_data' to the directory where you want to save the data
 metadata_time_store = tsdf.TSDFMetadata(
     metadata_time.get_plain_tsdf_dict_copy(),
@@ -793,14 +751,21 @@ metadata_values_store = tsdf.TSDFMetadata(
 # Select the columns to be saved
 metadata_time_store.channels = [config.time_colname]
 metadata_values_store.channels = [
-    DataColumns.TREMOR_POWER, DataColumns.PRED_TREMOR_PROBA, DataColumns.PRED_TREMOR_LOGREG,
-    DataColumns.PRED_ARM_AT_REST, DataColumns.PRED_TREMOR_CHECKED
+    DataColumns.TREMOR_POWER,
+    DataColumns.PRED_TREMOR_PROBA,
+    DataColumns.PRED_TREMOR_LOGREG,
+    DataColumns.PRED_ARM_AT_REST,
+    DataColumns.PRED_TREMOR_CHECKED
 ]
 
 # Set the units
 metadata_time_store.units = ['Relative seconds']
 metadata_values_store.units = [
-    DataUnits.POWER_ROTATION, DataUnits.NONE, DataUnits.NONE, DataUnits.NONE, DataUnits.NONE
+    DataUnits.POWER_ROTATION,
+    DataUnits.NONE,
+    DataUnits.NONE,
+    DataUnits.NONE,
+    DataUnits.NONE
 ]
 metadata_time_store.data_type = float
 metadata_values_store.data_type = float
@@ -830,19 +795,6 @@ df_predictions.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -913,10 +865,6 @@ The tremor power of all predicted tremor windows (where `pred_tremor_checked` is
 
 
 ```python
-import pandas as pd
-import datetime
-import pytz
-
 df_quantification = df_predictions[[
     config.time_colname, DataColumns.PRED_ARM_AT_REST,
     DataColumns.PRED_TREMOR_CHECKED, DataColumns.TREMOR_POWER
@@ -937,8 +885,11 @@ start_time = (
 df_quantification[f'{config.time_colname}_dt'] = start_time + \
     pd.to_timedelta(df_quantification[config.time_colname], unit="s")
 df_quantification = df_quantification[[
-    config.time_colname, f'{config.time_colname}_dt',
-    DataColumns.PRED_ARM_AT_REST, DataColumns.PRED_TREMOR_CHECKED, DataColumns.TREMOR_POWER
+    config.time_colname,
+    f'{config.time_colname}_dt',
+    DataColumns.PRED_ARM_AT_REST,
+    DataColumns.PRED_TREMOR_CHECKED,
+    DataColumns.TREMOR_POWER
 ]]
 
 df_quantification
@@ -948,19 +899,6 @@ df_quantification
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1074,17 +1012,6 @@ If your data is also stored in multiple segments, you can modify `segments` in t
 
 
 ```python
-from pathlib import Path
-from importlib.resources import files
-import datetime
-import pytz
-import pandas as pd
-
-from paradigma.util import load_tsdf_dataframe
-from paradigma.config import IMUConfig, TremorConfig
-from paradigma.preprocessing import preprocess_imu_data
-from paradigma.pipelines.tremor_pipeline import extract_tremor_features, detect_tremor
-
 # Set the path to where the prepared data is saved
 path_to_data =  Path('../../example_data/verily')
 path_to_prepared_data = path_to_data / 'imu'
@@ -1111,7 +1038,8 @@ for segment_nr in segments:
     )
 
     # 1: Preprocess the data
-    # Change column names if necessary by creating parameter column_mapping (see previous cells for an example)
+    # Change column names if necessary by creating parameter
+    # column_mapping (see previous cells for an example)
     config = IMUConfig()
     df_preprocessed_data = preprocess_imu_data(
         df_data, config, sensor='gyroscope', watch_side='left'
@@ -1144,17 +1072,13 @@ for segment_nr in segments:
     )
     df_quantification[f'{config.time_colname}_dt'] = start_time + \
         pd.to_timedelta(df_quantification[config.time_colname], unit="s")
-    df_quantification = df_quantification[[
-        config.time_colname, f'{config.time_colname}_dt',
-        DataColumns.PRED_ARM_AT_REST, DataColumns.PRED_TREMOR_CHECKED, DataColumns.TREMOR_POWER
-    ]]
-
-    # Add the quantifications of the current segment to the list
-    df_quantification['segment_nr'] = segment_nr
-    list_df_quantifications.append(df_quantification)
-
-df_quantification = pd.concat(list_df_quantifications, ignore_index=True)
 ```
+
+    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+
+
+    Resampled: 7434685 -> 7388945 rows at 100.0 Hz
+
 
 ## Step 5: Compute aggregated tremor measures
 
@@ -1164,10 +1088,6 @@ The final step is to compute the amount of tremor time and tremor power with the
 
 
 ```python
-import json
-from paradigma.util import select_hours, select_days
-from paradigma.pipelines.tremor_pipeline import aggregate_tremor
-
 select_hours_start = '08:00' # you can specifiy the hours and minutes here
 select_hours_end = '22:00'
 min_hours_per_day = 10
