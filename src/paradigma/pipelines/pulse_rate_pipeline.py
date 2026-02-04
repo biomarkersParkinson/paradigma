@@ -522,10 +522,6 @@ def extract_accelerometer_feature(
 
     return pd.DataFrame(acc_power_ratio, columns=["acc_power_ratio"])
 
-    acc_power_ratio = extract_acc_power_feature(
-        d_freq["imu"], d_psd["imu"], d_freq["ppg"], d_psd["ppg"]
-    )
-
 
 def run_pulse_rate_pipeline(
     df_ppg_prepared: pd.DataFrame,

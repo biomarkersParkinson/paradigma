@@ -748,7 +748,6 @@ metadata_values_store = tsdf.TSDFMetadata(
     path_to_data
 )
 
-<<<<<<< HEAD
 # Select the columns to be saved
 metadata_time_store.channels = [config.time_colname]
 metadata_values_store.channels = [
@@ -768,31 +767,6 @@ metadata_values_store.units = [
     DataUnits.NONE,
     DataUnits.NONE
 ]
-=======
-<<<<<<< HEAD
-# Select the columns to be saved
-metadata_time_store.channels = ['time']
-<<<<<<< HEAD
-=======
-=======
-# Select the columns to be saved
-metadata_time_store.channels = [config.time_colname]
->>>>>>> 37f1c8fea7b90d0e387febafe838f2df6ab9dd47
->>>>>>> origin/main
-metadata_values_store.channels = ['tremor_power', 'pred_tremor_proba', 'pred_tremor_logreg', 'pred_arm_at_rest', 'pred_tremor_checked']
-
-# Set the units
-metadata_time_store.units = ['Relative seconds']
-<<<<<<< HEAD
-metadata_values_store.units = ['Unitless', 'Unitless', 'Unitless', 'Unitless', 'Unitless']
-=======
-<<<<<<< HEAD
-metadata_values_store.units = ['Unitless', 'Unitless', 'Unitless', 'Unitless', 'Unitless']
-=======
-metadata_values_store.units = ['Unitless', 'Unitless', 'Unitless', 'Unitless', 'Unitless']
->>>>>>> 37f1c8fea7b90d0e387febafe838f2df6ab9dd47
->>>>>>> origin/main
->>>>>>> 54db93f56fcce123e7a8ba6fc1f6cc5eb208f006
 metadata_time_store.data_type = float
 metadata_values_store.data_type = float
 
@@ -821,22 +795,6 @@ df_predictions.head()
 
 
 <div>
-<<<<<<< HEAD
-=======
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
->>>>>>> 54db93f56fcce123e7a8ba6fc1f6cc5eb208f006
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -907,7 +865,6 @@ The tremor power of all predicted tremor windows (where `pred_tremor_checked` is
 
 
 ```python
-<<<<<<< HEAD
 df_quantification = df_predictions[[
     config.time_colname, DataColumns.PRED_ARM_AT_REST,
     DataColumns.PRED_TREMOR_CHECKED, DataColumns.TREMOR_POWER
@@ -934,20 +891,6 @@ df_quantification = df_quantification[[
     DataColumns.PRED_TREMOR_CHECKED,
     DataColumns.TREMOR_POWER
 ]]
-=======
-import pandas as pd
-import datetime
-import pytz
-
-df_quantification = df_predictions[[config.time_colname, 'pred_arm_at_rest', 'pred_tremor_checked','tremor_power']].copy()
-df_quantification.loc[df_predictions['pred_tremor_checked'] == 0, 'tremor_power'] = None # tremor power of non-tremor windows is set to None
-
-# Create datetime column based on the start time of the segment
-start_time = datetime.datetime.strptime(metadata_time.start_iso8601, '%Y-%m-%dT%H:%M:%SZ')
-start_time = start_time.replace(tzinfo=pytz.timezone('UTC')).astimezone(pytz.timezone('CET')) # convert to correct timezone if necessary
-df_quantification[f'{config.time_colname}_dt'] = start_time + pd.to_timedelta(df_quantification[config.time_colname], unit="s")
-df_quantification = df_quantification[[config.time_colname, f'{config.time_colname}_dt', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power']]
->>>>>>> 54db93f56fcce123e7a8ba6fc1f6cc5eb208f006
 
 df_quantification
 ```
@@ -1069,20 +1012,6 @@ If your data is also stored in multiple segments, you can modify `segments` in t
 
 
 ```python
-<<<<<<< HEAD
-=======
-from pathlib import Path
-from importlib.resources import files
-import datetime
-import pytz
-import pandas as pd
-
-from paradigma.util import load_tsdf_dataframe
-from paradigma.config import IMUConfig, TremorConfig
-from paradigma.preprocessing import preprocess_imu_data
-from paradigma.pipelines.tremor_pipeline import extract_tremor_features, detect_tremor
-
->>>>>>> 54db93f56fcce123e7a8ba6fc1f6cc5eb208f006
 # Set the path to where the prepared data is saved
 path_to_data =  Path('../../example_data/verily')
 path_to_prepared_data = path_to_data / 'imu'
@@ -1109,12 +1038,8 @@ for segment_nr in segments:
     )
 
     # 1: Preprocess the data
-<<<<<<< HEAD
     # Change column names if necessary by creating parameter
     # column_mapping (see previous cells for an example)
-=======
-    # Change column names if necessary by creating parameter column_mapping (see previous cells for an example)
->>>>>>> 54db93f56fcce123e7a8ba6fc1f6cc5eb208f006
     config = IMUConfig()
     df_preprocessed_data = preprocess_imu_data(
         df_data, config, sensor='gyroscope', watch_side='left'
@@ -1128,7 +1053,6 @@ for segment_nr in segments:
     df_predictions = detect_tremor(df_features, config, full_path_to_classifier_package)
 
     # 4: Quantify tremor
-<<<<<<< HEAD
     df_quantification = df_predictions[[
         config.time_colname, DataColumns.PRED_ARM_AT_REST,
     DataColumns.PRED_TREMOR_CHECKED, DataColumns.TREMOR_POWER
@@ -1148,22 +1072,6 @@ for segment_nr in segments:
     )
     df_quantification[f'{config.time_colname}_dt'] = start_time + \
         pd.to_timedelta(df_quantification[config.time_colname], unit="s")
-=======
-    df_quantification = df_predictions[[config.time_colname, 'pred_arm_at_rest', 'pred_tremor_checked','tremor_power']].copy()
-    df_quantification.loc[df_predictions['pred_tremor_checked'] == 0, 'tremor_power'] = None
-
-    # Create datetime column based on the start time of the segment
-    start_time = datetime.datetime.strptime(metadata_time.start_iso8601, '%Y-%m-%dT%H:%M:%SZ')
-    start_time = start_time.replace(tzinfo=pytz.timezone('UTC')).astimezone(pytz.timezone('CET')) # convert to correct timezone if necessary
-    df_quantification[f'{config.time_colname}_dt'] = start_time + pd.to_timedelta(df_quantification[config.time_colname], unit="s")
-    df_quantification = df_quantification[[config.time_colname, f'{config.time_colname}_dt', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power']]
-
-    # Add the quantifications of the current segment to the list
-    df_quantification['segment_nr'] = segment_nr
-    list_df_quantifications.append(df_quantification)
-
-df_quantification = pd.concat(list_df_quantifications, ignore_index=True)
->>>>>>> 54db93f56fcce123e7a8ba6fc1f6cc5eb208f006
 ```
 
     Resampled: 3455331 -> 3433961 rows at 100.0 Hz
@@ -1208,7 +1116,6 @@ print(json.dumps(d_tremor_aggregates, indent=2))
 
     Before aggregation we select data collected between 08:00 and 22:00. We also select days with at least 10 hours of data.
     The following tremor power aggregates are derived: ['mode_binned', 'median', '90p'].
-<<<<<<< HEAD
     {
       "metadata": {
         "nr_valid_days": 1,
@@ -1222,12 +1129,3 @@ print(json.dumps(d_tremor_aggregates, indent=2))
         "90p_tremor_power": 1.3259483071516063
       }
     }
-=======
-    {'aggregated_tremor_measures': {'90p_tremor_power': 1.3259483071516063,
-                                    'median_tremor_power': 0.5143985314908104,
-                                    'modal_tremor_power': 0.3,
-                                    'perc_windows_tremor': 19.386769676484793},
-     'metadata': {'nr_valid_days': 1,
-                  'nr_windows_rest': 8284,
-                  'nr_windows_total': 12600}}
->>>>>>> 54db93f56fcce123e7a8ba6fc1f6cc5eb208f006
