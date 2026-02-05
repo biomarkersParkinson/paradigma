@@ -20,7 +20,6 @@ scikit-learn = ">=1.3.2,<1.6.1"
 tsdf = { git = "https://github.com/biomarkersParkinson/tsdf.git", branch = "main" }
 python-dateutil = "^2.9.0.post0"
 nbconvert = "^7.16.6"
-openmovement = { git = "https://github.com/digitalinteraction/openmovement-python.git", branch = "master" }
 pyarrow = "^22.0.0"
 avro = "^1.12.1"
 
