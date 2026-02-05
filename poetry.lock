@@ -2575,26 +2575,6 @@ files = [
 ]
 
 [[package]]
-name = "openmovement"
-version = "0.0.1"
-description = "Open Movement processing code"
-optional = false
-python-versions = ">=3.6"
-groups = ["main"]
-files = []
-develop = false
-
-[package.dependencies]
-numpy = "*"
-pandas = "*"
-
-[package.source]
-type = "git"
-url = "https://github.com/digitalinteraction/openmovement-python.git"
-reference = "master"
-resolved_reference = "087ac7b5a80b866c400d8021b7a2716d247fc034"
-
-[[package]]
 name = "overrides"
 version = "7.7.0"
 description = "A decorator to automatically detect mismatch when overriding a method."
@@ -4681,4 +4661,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "e3be9e1b9b5b419091f5e4ec4e9e4dd7c0ade8669c3a3ff2a62354a853d8be12"
+content-hash = "5be20c036d2e47a07189afb556d8c6fa1b67f07748b1df1dfe547c005ba2ea61"
