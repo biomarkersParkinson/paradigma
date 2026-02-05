@@ -22,3 +22,26 @@ This section contains step-by-step tutorials demonstrating how to use the ParaDi
 ---
 
 **New to ParaDigMa?** Start with [Pipeline Orchestrator](pipeline_orchestrator) for a complete end-to-end example, or begin with [Data Preparation](data_preparation) if you need help loading your own sensor data.
+
+### Running Tutorials in Jupyter
+
+If you want to run the tutorial notebooks in Jupyter Notebook or JupyterLab:
+
+**Option 1: Activate Poetry environment first (Recommended)**
+```bash
+poetry env activate
+jupyter lab
+```
+
+**Option 2: Register Poetry kernel with Jupyter (for VSC, PyCharm, etc.)**
+```bash
+# Register the Poetry environment as a Jupyter kernel
+poetry run python -m ipykernel install --user --name paradigma --display-name "Python (paradigma)"
+```
+
+After registering the kernel, select "Python (paradigma)" as the kernel when opening notebooks in your IDE or Jupyter interface.
+
+**Option 3: Use Poetry to run Jupyter directly**
+```bash
+poetry run jupyter lab
+```
