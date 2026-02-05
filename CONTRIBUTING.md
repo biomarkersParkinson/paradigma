@@ -32,6 +32,58 @@ Documentation contributions are always welcome! You can contribute to:
 * Docstrings: In Python modules
 * Articles or blog posts
 
+#### Docstring Style Guide
+
+ParaDigMa follows NumPy/Napoleon docstring conventions with these type annotation guidelines:
+
+**Function Signatures:**
+- Use PEP 604 syntax: `str | Path` instead of `Union[str, Path]`
+- Use `X | None` instead of `Optional[X]`
+- Example:
+  ```python
+  def load_data(
+      path: str | Path,
+      config: Config | None = None
+  ) -> pd.DataFrame:
+  ```
+
+**Parameter Docstrings:**
+- Use natural language for types, not Python type syntax
+- For union types: `str or Path` not `Union[str, Path]`
+- For optional parameters: Add `, optional` suffix
+- For lists: `list of str` not `List[str]`
+- For dicts: `dict` not `Dict[str, int]`
+
+**Examples:**
+```python
+def example_function(
+    data_path: str | Path,
+    columns: List[str] | None = None,
+    config: Config | None = None,
+) -> pd.DataFrame:
+    """
+    Load and process data.
+
+    Parameters
+    ----------
+    data_path : str or Path
+        Path to data directory
+    columns : list of str, optional
+        Column names to load
+    config : Config, optional
+        Configuration object
+
+    Returns
+    -------
+    pd.DataFrame
+        Processed data
+    """
+```
+
+**Return Type Documentation:**
+- Use simple descriptions: `dict` or `DataFrame` not `Dict[str, pd.DataFrame]`
+- Add details in the description text below
+
 #### Workflow for notebooks and docs:
 1. Run and export notebooks:
 
@@ -65,6 +117,41 @@ If you are proposing a feature:
 ## Get Started!
 
 Ready to contribute? Here's how to set up `paradigma` locally:
+
+### Prerequisites
+
+1. **Install git-lfs** (required for example data):
+
+   **Windows:**
+   ```bash
+   choco install git-lfs
+   # Or download from https://git-lfs.com/
+   ```
+
+   **Linux:**
+   ```bash
+   # Ubuntu/Debian
+   sudo apt-get install git-lfs
+
+   # Fedora/RHEL
+   sudo dnf install git-lfs
+
+   # Arch Linux
+   sudo pacman -S git-lfs
+   ```
+
+   **macOS:**
+   ```bash
+   brew install git-lfs
+   ```
+
+2. **Enable git-lfs:**
+   ```bash
+   git lfs install
+   ```
+
+### Clone and Install
+
 1. Clone the repository:
 
 ```bash
@@ -78,13 +165,40 @@ cd paradigma
 poetry install
 ```
 
-3. Create a new branch for your work:
+3. **Verify example data setup:**
+
+   Check that example data was downloaded correctly (not git-lfs pointers):
+
+   **Linux/macOS:**
+   ```bash
+   ls -lh example_data/verily/ppg/*.bin
+   # Should show file sizes (100KB - several MB), not ~130 bytes
+
+   head -n 1 example_data/verily/ppg/PPG_segment0001_meta.json
+   # Should show JSON like {"file_name": ..., not "version https://git-lfs.github.com/spec/v1"
+   ```
+
+   **Windows PowerShell:**
+   ```powershell
+   Get-ChildItem example_data/verily/ppg/*.bin | Select-Object Name, Length
+   # Should show file sizes (100KB - several MB), not ~130 bytes
+
+   Get-Content example_data/verily/ppg/PPG_segment0001_meta.json -Head 1
+   # Should show JSON, not "version https://git-lfs.github.com/spec/v1"
+   ```
+
+   **If files are git-lfs pointers:**
+   ```bash
+   git lfs pull
+   ```
+
+4. Create a new branch for your work:
 
 ```bash
 git checkout -b name-of-your-bugfix-or-feature
 ```
 
-4. Make your changes and run the pre-commit hooks:
+5. Make your changes and run the pre-commit hooks:
 
 ```bash
 pip install pre-commit
@@ -93,16 +207,23 @@ pre-commit run --all-files
 ```
 
 This ensures code formatting (`black`), import sorting (`isort`), stripping notebook outputs, and other checks.
-These pre-commit hooks also run for changed and staged files when committing.
+These pre-commit hooks also run for changed files when committing.
 
-5. If contributing to docs, build and serve them locally to verify:
+6. If contributing to docs, build and serve them locally to verify:
 
 ```bash
 poetry run build-docs
 poetry run serve-docs
 ```
 
-6. Commit your changes and open a pull request.
+`build-docs` accepts the following arguments to speed up development:
+- `--notebook <filename>` - Build only a specific notebook (e.g., `--notebook pipeline_orchestrator.ipynb`)
+- `--dev` - Skip execution of notebooks
+- `--no-nbconvert` - Skip conversion of notebooks to markdown
+
+These options are useful when iterating on documentation changes without rebuilding everything.
+
+7. Commit your changes and open a pull request.
 
 ## Pull Request Guidelines
 

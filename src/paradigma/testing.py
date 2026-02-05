@@ -1,7 +1,6 @@
 import json
 import os
 from pathlib import Path
-from typing import List
 
 import numpy as np
 import pandas as pd
@@ -95,7 +94,8 @@ def preprocess_ppg_data_io(
     imu_config: IMUConfig,
 ) -> None:
     """
-    Preprocess PPG and IMU data by resampling, filtering, and aligning the data segments.
+    Preprocess PPG and IMU data by resampling, filtering, and aligning the
+    data segments.
 
     Parameters
     ----------
@@ -520,13 +520,15 @@ def extract_signal_quality_features_io(
     Parameters
     ----------
     input_path : str | Path
-        The path to the directory containing the preprocessed PPG and accelerometer data.
+        The path to the directory containing the preprocessed PPG and
+        accelerometer data.
     output_path : str | Path
         The path to the directory where the extracted features will be saved.
     ppg_config: PulseRateConfig
         The configuration for the signal quality feature extraction of the ppg signal.
     acc_config: PulseRateConfig
-        The configuration for the signal quality feature extraction of the accelerometer signal.
+        The configuration for the signal quality feature extraction of the
+        accelerometer signal.
 
     Returns
     -------
@@ -589,23 +591,26 @@ def extract_signal_quality_features_io(
 def aggregate_pulse_rate_io(
     full_path_to_input: str | Path,
     full_path_to_output: str | Path,
-    aggregates: List[str] = ["mode", "99p"],
+    aggregates: list[str] = ["mode", "99p"],
 ) -> None:
     """
-    Extract pulse rate from the PPG signal and save the aggregated pulse rate estimates to a file.
+    Extract pulse rate from the PPG signal and save the aggregated pulse rate
+    estimates to a file.
 
     Parameters
     ----------
     input_path : str | Path
         The path to the directory containing the pulse rate estimates.
     output_path : str | Path
-        The path to the directory where the aggregated pulse rate estimates will be saved.
+        The path to the directory where the aggregated pulse rate estimates
+        will be saved.
     aggregates : List[str]
-        The list of aggregation methods to be used for the pulse rate estimates. The default is ['mode', '99p'].
+        The list of aggregation methods to be used for the pulse rate
+        estimates. The default is ['mode', '99p'].
     """
 
     # Load the pulse rate estimates
-    with open(full_path_to_input, "r") as f:
+    with open(full_path_to_input) as f:
         df_pr = json.load(f)
 
     # Aggregate the pulse rate estimates

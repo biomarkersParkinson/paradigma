@@ -1,6 +1,6 @@
 import pickle
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 from sklearn.base import BaseEstimator
@@ -10,9 +10,9 @@ from sklearn.preprocessing import StandardScaler
 class ClassifierPackage:
     def __init__(
         self,
-        classifier: Optional[BaseEstimator] = None,
-        threshold: Optional[float] = None,
-        scaler: Optional[Any] = None,
+        classifier: BaseEstimator | None = None,
+        threshold: float | None = None,
+        scaler: Any | None = None,
     ):
         """
         Initialize the ClassifierPackage with a classifier, threshold, and scaler.
@@ -30,13 +30,13 @@ class ClassifierPackage:
         self.threshold = threshold
         self.scaler = scaler
 
-    def transform_features(self, X) -> np.ndarray:
+    def transform_features(self, x) -> np.ndarray:
         """
         Transform the input features using the scaler.
 
         Parameters
         ----------
-        X : np.ndarray
+        x : np.ndarray
             The input features.
 
         Return
@@ -45,8 +45,8 @@ class ClassifierPackage:
             The transformed features.
         """
         if not self.scaler:
-            return X
-        return self.scaler.transform(X)
+            return x
+        return self.scaler.transform(x)
 
     def update_scaler(self, x_train: np.ndarray) -> None:
         """
@@ -60,13 +60,13 @@ class ClassifierPackage:
         scaler = StandardScaler()
         self.scaler = scaler.fit(x_train)
 
-    def predict_proba(self, X) -> float:
+    def predict_proba(self, x) -> float:
         """
         Make predictions using the classifier and apply the threshold.
 
         Parameters
         ----------
-        X : np.ndarray
+        x : np.ndarray
             The input features.
 
         Return
@@ -77,15 +77,15 @@ class ClassifierPackage:
         """
         if not self.classifier:
             raise ValueError("Classifier is not loaded.")
-        return self.classifier.predict_proba(X)[:, 1]
+        return self.classifier.predict_proba(x)[:, 1]
 
-    def predict(self, X) -> int:
+    def predict(self, x) -> int:
         """
         Make predictions using the classifier and apply the threshold.
 
         Parameters
         ----------
-        X : np.ndarray
+        x : np.ndarray
             The input features.
 
         Return
@@ -96,7 +96,7 @@ class ClassifierPackage:
         """
         if not self.classifier:
             raise ValueError("Classifier is not loaded.")
-        return int(self.predict_proba(X) >= self.threshold)
+        return int(self.predict_proba(x) >= self.threshold)
 
     def save(self, filepath: str | Path) -> None:
         """

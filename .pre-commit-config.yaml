@@ -19,13 +19,6 @@ repos:
         pass_filenames: true
         types: [python]
 
-  - repo: https://github.com/PyCQA/isort
-    rev: 6.1.0
-    hooks:
-      - id: isort
-        args: ["--profile", "black"]
-        types: [python]
-
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.0
     hooks:

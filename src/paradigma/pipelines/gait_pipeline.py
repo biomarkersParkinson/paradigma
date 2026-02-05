@@ -1,12 +1,14 @@
+import json
 import logging
-from typing import List, Tuple
+from importlib.resources import files
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from scipy.signal import periodogram
 
 from paradigma.classification import ClassifierPackage
-from paradigma.config import GaitConfig
+from paradigma.config import GaitConfig, IMUConfig
 from paradigma.constants import DataColumns
 from paradigma.feature_extraction import (
     compute_angle,
@@ -22,13 +24,14 @@ from paradigma.feature_extraction import (
     pca_transform_gyroscope,
     remove_moving_average_angle,
 )
+from paradigma.preprocessing import preprocess_imu_data
 from paradigma.segmenting import (
     WindowedDataExtractor,
     create_segments,
     discard_segments,
     tabulate_windows,
 )
-from paradigma.util import aggregate_parameter
+from paradigma.util import aggregate_parameter, merge_predictions_with_timestamps
 
 logger = logging.getLogger(__name__)
 
@@ -39,42 +42,54 @@ if not logger.hasHandlers():
 
 def extract_gait_features(df: pd.DataFrame, config: GaitConfig) -> pd.DataFrame:
     """
-    Extracts gait features from accelerometer and gravity sensor data in the input DataFrame by computing temporal and spectral features.
+    Extracts gait features from accelerometer and gravity sensor data in the
+    input DataFrame by computing temporal and spectral features.
 
     This function performs the following steps:
-    1. Groups sequences of timestamps into windows, using accelerometer and gravity data.
-    2. Computes temporal domain features such as mean and standard deviation for accelerometer and gravity data.
-    3. Transforms the signals from the temporal domain to the spectral domain using the Fast Fourier Transform (FFT).
+    1. Groups sequences of timestamps into windows, using accelerometer and
+       gravity data.
+    2. Computes temporal domain features such as mean and standard deviation
+       for accelerometer and gravity data.
+    3. Transforms the signals from the temporal domain to the spectral
+       domain using the Fast Fourier Transform (FFT).
     4. Computes spectral domain features for the accelerometer data.
     5. Combines both temporal and spectral features into a final DataFrame.
 
     Parameters
     ----------
     df : pd.DataFrame
-        The input DataFrame containing gait data, which includes time, accelerometer, and gravity sensor data. The data should be
+        The input DataFrame containing gait data, which includes time,
+        accelerometer, and gravity sensor data. The data should be
         structured with the necessary columns as specified in the `config`.
 
     onfig : GaitConfig
-        Configuration object containing parameters for feature extraction, including column names for time, accelerometer data, and
-        gravity data, as well as settings for windowing, and feature computation.
+        Configuration object containing parameters for feature extraction,
+        including column names for time, accelerometer data, and gravity
+        data, as well as settings for windowing, and feature computation.
 
     Returns
     -------
     pd.DataFrame
-        A DataFrame containing extracted gait features, including temporal and spectral domain features. The DataFrame will have
-        columns corresponding to time, statistical features of the accelerometer and gravity data, and spectral features of the
-        accelerometer data.
+        A DataFrame containing extracted gait features, including temporal
+        and spectral domain features. The DataFrame will have columns
+        corresponding to time, statistical features of the accelerometer and
+        gravity data, and spectral features of the accelerometer data.
 
     Notes
     -----
-    - This function groups the data into windows based on timestamps and applies Fast Fourier Transform to compute spectral features.
-    - The temporal features are extracted from the accelerometer and gravity data, and include statistics like mean and standard deviation.
-    - The input DataFrame must include columns as specified in the `config` object for proper feature extraction.
+    - This function groups the data into windows based on timestamps and
+      applies Fast Fourier Transform to compute spectral features.
+    - The temporal features are extracted from the accelerometer and gravity
+      data, and include statistics like mean and standard deviation.
+    - The input DataFrame must include columns as specified in the `config`
+      object for proper feature extraction.
 
     Raises
     ------
     ValueError
-        If the input DataFrame does not contain the required columns as specified in the configuration or if any step in the feature extraction fails.
+        If the input DataFrame does not contain the required columns as
+        specified in the configuration or if any step in the feature
+        extraction fails.
     """
     # Group sequences of timestamps into windows
     windowed_colnames = (
@@ -101,7 +116,8 @@ def extract_gait_features(df: pd.DataFrame, config: GaitConfig) -> pd.DataFrame:
 
     df_features = pd.DataFrame(start_time, columns=[config.time_colname])
 
-    # Compute statistics of the temporal domain signals (mean, std) for accelerometer and gravity
+    # Compute statistics of the temporal domain signals (mean, std) for
+    # accelerometer and gravity
     df_temporal_features = extract_temporal_domain_features(
         config=config,
         windowed_acc=windowed_acc,
@@ -112,7 +128,8 @@ def extract_gait_features(df: pd.DataFrame, config: GaitConfig) -> pd.DataFrame:
     # Combine temporal features with the start time
     df_features = pd.concat([df_features, df_temporal_features], axis=1)
 
-    # Transform the accelerometer data to the spectral domain using FFT and extract spectral features
+    # Transform the accelerometer data to the spectral domain using FFT and
+    # extract spectral features
     df_spectral_features = extract_spectral_domain_features(
         config=config, sensor="accelerometer", windowed_data=windowed_acc
     )
@@ -127,31 +144,40 @@ def detect_gait(
     df: pd.DataFrame, clf_package: ClassifierPackage, parallel: bool = False
 ) -> pd.Series:
     """
-    Detects gait activity in the input DataFrame using a pre-trained classifier and applies a threshold to classify results.
+    Detects gait activity in the input DataFrame using a pre-trained
+    classifier and applies a threshold to classify results.
 
     This function performs the following steps:
-    1. Loads the pre-trained classifier and scaling parameters from the specified directory.
-    2. Scales the relevant features in the input DataFrame (`df`) using the loaded scaling parameters.
-    3. Predicts the probability of gait activity for each sample in the DataFrame using the classifier.
-    4. Applies a threshold to the predicted probabilities to determine whether gait activity is present.
+    1. Loads the pre-trained classifier and scaling parameters from the
+       specified directory.
+    2. Scales the relevant features in the input DataFrame (`df`) using the
+       loaded scaling parameters.
+    3. Predicts the probability of gait activity for each sample in the
+       DataFrame using the classifier.
+    4. Applies a threshold to the predicted probabilities to determine
+       whether gait activity is present.
     5. Returns predicted probabilities
 
     Parameters
     ----------
     df : pd.DataFrame
-        The input DataFrame containing features extracted from gait data. It must include the necessary columns
-        as specified in the classifier's feature names.
+        The input DataFrame containing features extracted from gait data. It
+        must include the necessary columns as specified in the classifier's
+        feature names.
 
     clf_package : ClassifierPackage
-        The pre-trained classifier package containing the classifier, threshold, and scaler.
+        The pre-trained classifier package containing the classifier,
+        threshold, and scaler.
 
     parallel : bool, optional, default=False
-        If `True`, enables parallel processing during classification. If `False`, the classifier uses a single core.
+        If `True`, enables parallel processing during classification. If
+        `False`, the classifier uses a single core.
 
     Returns
     -------
     pd.Series
-        A Series containing the predicted probabilities of gait activity for each sample in the input DataFrame.
+        A Series containing the predicted probabilities of gait activity for
+        each sample in the input DataFrame.
     """
     # Set classifier
     clf = clf_package.classifier
@@ -165,11 +191,11 @@ def detect_gait(
     scaled_features = clf_package.transform_features(df.loc[:, feature_names_scaling])
 
     # Replace scaled features in a copy of the relevant features for prediction
-    X = df.loc[:, feature_names_predictions].copy()
-    X.loc[:, feature_names_scaling] = scaled_features
+    x_features = df.loc[:, feature_names_predictions].copy()
+    x_features.loc[:, feature_names_scaling] = scaled_features
 
     # Make prediction and add the probability of gait activity to the DataFrame
-    pred_gait_proba_series = clf_package.predict_proba(X)
+    pred_gait_proba_series = clf_package.predict_proba(x_features)
 
     return pred_gait_proba_series
 
@@ -181,38 +207,69 @@ def extract_arm_activity_features(
     """
     Extract features related to arm activity from a time-series DataFrame.
 
-    This function processes a DataFrame containing accelerometer, gravity, and gyroscope signals,
-    and extracts features related to arm activity by performing the following steps:
+    This function processes a DataFrame containing accelerometer, gravity,
+    and gyroscope signals, and extracts features related to arm activity by
+    performing the following steps:
     1. Computes the angle and velocity from gyroscope data.
     2. Filters the data to include only predicted gait segments.
-    3. Groups the data into segments based on consecutive timestamps and pre-specified gaps.
+    3. Groups the data into segments based on consecutive timestamps and
+       pre-specified gaps.
     4. Removes segments that do not meet predefined criteria.
     5. Creates fixed-length windows from the time series data.
-    6. Extracts angle-related features, temporal domain features, and spectral domain features.
+    6. Extracts angle-related features, temporal domain features, and
+       spectral domain features.
 
     Parameters
     ----------
     df: pd.DataFrame
-        The input DataFrame containing accelerometer, gravity, and gyroscope data of predicted gait.
+        The input DataFrame containing accelerometer, gravity, and
+        gyroscope data of predicted gait.
 
     config : ArmActivityFeatureExtractionConfig
-        Configuration object containing column names and parameters for feature extraction.
+        Configuration object containing column names and parameters
+        for feature extraction.
 
     Returns
     -------
     pd.DataFrame
-        A DataFrame containing the extracted arm activity features, including angle, velocity,
-        temporal, and spectral features.
+        A DataFrame containing the extracted arm activity features,
+        including angle, velocity, temporal, and spectral features.
     """
-    # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap
-    df[DataColumns.SEGMENT_NR] = create_segments(
-        time_array=df[DataColumns.TIME], max_segment_gap_s=config.max_segment_gap_s
-    )
+    # Group consecutive timestamps into segments, with new segments
+    # starting after a pre-specified gap. If data_segment_nr exists,
+    # create gait segments per data segment to preserve both
+    has_data_segments = DataColumns.DATA_SEGMENT_NR in df.columns
+
+    if has_data_segments:
+        df_list = []
+        gait_segment_offset = 0
+
+        for data_seg_nr in sorted(df[DataColumns.DATA_SEGMENT_NR].unique()):
+            df_seg = df[df[DataColumns.DATA_SEGMENT_NR] == data_seg_nr].copy()
+
+            # Create gait segments within this data segment
+            df_seg[DataColumns.GAIT_SEGMENT_NR] = create_segments(
+                time_array=df_seg[DataColumns.TIME].values,
+                max_segment_gap_s=config.max_segment_gap_s,
+            )
+
+            # Offset gait segment numbers to be unique across data segments
+            if gait_segment_offset > 0:
+                df_seg[DataColumns.GAIT_SEGMENT_NR] += gait_segment_offset
+            gait_segment_offset = df_seg[DataColumns.GAIT_SEGMENT_NR].max() + 1
+
+            df_list.append(df_seg)
+
+        df = pd.concat(df_list, ignore_index=True)
+    else:
+        df[DataColumns.GAIT_SEGMENT_NR] = create_segments(
+            time_array=df[DataColumns.TIME], max_segment_gap_s=config.max_segment_gap_s
+        )
 
     # Remove segments that do not meet predetermined criteria
     df = discard_segments(
         df=df,
-        segment_nr_colname=DataColumns.SEGMENT_NR,
+        segment_nr_colname=DataColumns.GAIT_SEGMENT_NR,
         min_segment_length_s=config.min_segment_length_s,
         fs=config.sampling_frequency,
         format="timestamps",
@@ -220,7 +277,7 @@ def extract_arm_activity_features(
 
     # Create windows of fixed length and step size from the time series per segment
     windowed_data = []
-    df_grouped = df.groupby(DataColumns.SEGMENT_NR)
+    df_grouped = df.groupby(DataColumns.GAIT_SEGMENT_NR)
     windowed_colnames = (
         [config.time_colname]
         + config.accelerometer_colnames
@@ -290,14 +347,16 @@ def filter_gait(
     df: pd.DataFrame, clf_package: ClassifierPackage, parallel: bool = False
 ) -> pd.Series:
     """
-    Filters gait data to identify windows with no other arm activity using a pre-trained classifier.
+    Filters gait data to identify windows with no other arm activity using
+    a pre-trained classifier.
 
     Parameters
     ----------
     df : pd.DataFrame
         The input DataFrame containing features extracted from gait data.
     clf_package: ClassifierPackage
-        The pre-trained classifier package containing the classifier, threshold, and scaler.
+        The pre-trained classifier package containing the classifier,
+        threshold, and scaler.
     parallel : bool, optional, default=False
         If `True`, enables parallel processing.
 
@@ -321,11 +380,11 @@ def filter_gait(
     scaled_features = clf_package.transform_features(df.loc[:, feature_names_scaling])
 
     # Replace scaled features in a copy of the relevant features for prediction
-    X = df.loc[:, feature_names_predictions].copy()
-    X.loc[:, feature_names_scaling] = scaled_features
+    x_features = df.loc[:, feature_names_predictions].copy()
+    x_features.loc[:, feature_names_scaling] = scaled_features
 
     # Make predictions
-    pred_no_other_arm_activity_proba_series = clf_package.predict_proba(X)
+    pred_no_other_arm_activity_proba_series = clf_package.predict_proba(x_features)
 
     return pred_no_other_arm_activity_proba_series
 
@@ -336,24 +395,27 @@ def quantify_arm_swing(
     filtered: bool = False,
     max_segment_gap_s: float = 1.5,
     min_segment_length_s: float = 1.5,
-) -> Tuple[dict[str, pd.DataFrame], dict]:
+) -> tuple[dict[str, pd.DataFrame], dict]:
     """
     Quantify arm swing parameters for segments of motion based on gyroscope data.
 
     Parameters
     ----------
     df : pd.DataFrame
-        A DataFrame containing the raw sensor data of predicted gait timestamps. Should include a column
-        for predicted no other arm activity based on a fitted threshold if filtered is True.
+        A DataFrame containing the raw sensor data of predicted gait
+        timestamps. Should include a column for predicted no other arm
+        activity based on a fitted threshold if filtered is True.
 
     fs : int
         The sampling frequency of the sensor data.
 
     filtered : bool, optional, default=True
-        If `True`, the gyroscope data is filtered to only include predicted no other arm activity.
+        If `True`, the gyroscope data is filtered to only include predicted
+        no other arm activity.
 
     max_segment_gap_s : float, optional, default=1.5
-        The maximum gap in seconds between consecutive timestamps to group them into segments.
+        The maximum gap in seconds between consecutive timestamps to group
+        them into segments.
 
     min_segment_length_s : float, optional, default=1.5
         The minimum length in seconds for a segment to be considered valid.
@@ -361,11 +423,11 @@ def quantify_arm_swing(
     Returns
     -------
     Tuple[pd.DataFrame, dict]
-        A tuple containing a dataframe with quantified arm swing parameters and a dictionary containing
-        metadata for each segment.
+        A tuple containing a dataframe with quantified arm swing parameters
+        and a dictionary containing metadata for each segment.
     """
-    # Group consecutive timestamps into segments, with new segments starting after a pre-specified gap.
-    # Segments are made based on predicted gait
+    # Group consecutive timestamps into segments, with new segments starting
+    # after a pre-specified gap. Segments are made based on predicted gait
     df["unfiltered_segment_nr"] = create_segments(
         time_array=df[DataColumns.TIME], max_segment_gap_s=max_segment_gap_s
     )
@@ -381,7 +443,8 @@ def quantify_arm_swing(
 
     if df.empty:
         raise ValueError(
-            "No segments found in the input data after discarding segments of invalid shape."
+            "No segments found in the input data after discarding segments "
+            "of invalid shape."
         )
 
     # Create dictionary of gait segment number and duration
@@ -414,7 +477,8 @@ def quantify_arm_swing(
 
         if df.empty:
             raise ValueError(
-                "No filtered gait segments found in the input data after discarding segments of invalid shape."
+                "No filtered gait segments found in the input data after "
+                "discarding segments of invalid shape."
             )
 
     grouping_colname = "filtered_segment_nr" if filtered else "unfiltered_segment_nr"
@@ -425,8 +489,8 @@ def quantify_arm_swing(
         "per_segment": {},
     }
 
-    # PCA is fitted on only predicted gait without other arm activity if filtered, otherwise
-    # it is fitted on the entire gyroscope data
+    # PCA is fitted on only predicted gait without other arm activity if
+    # filtered, otherwise it is fitted on the entire gyroscope data
     df[DataColumns.VELOCITY] = pca_transform_gyroscope(
         df=df,
         y_gyro_colname=DataColumns.GYROSCOPE_Y,
@@ -446,7 +510,8 @@ def quantify_arm_swing(
             gait_segment_duration_s = gait_segment_duration_dict[gait_segment_nr]
         except KeyError:
             logger.warning(
-                "Segment %s (filtered = %s) not found in gait segment duration dictionary. Skipping this segment.",
+                "Segment %s (filtered = %s) not found in gait segment "
+                "duration dictionary. Skipping this segment.",
                 gait_segment_nr,
                 filtered,
             )
@@ -471,8 +536,8 @@ def quantify_arm_swing(
         )
 
         segment_meta["per_segment"][segment_nr] = {
-            "start_time_s": time_array.min(),
-            "end_time_s": time_array.max(),
+            "start_time_s": float(time_array.min()),
+            "end_time_s": float(time_array.max()),
             "duration_unfiltered_segment_s": gait_segment_duration_s,
         }
 
@@ -497,7 +562,8 @@ def quantify_arm_swing(
                 except Exception as e:
                     # Handle the error, set RoM to NaN, and log the error
                     print(
-                        f"Error computing range of motion for segment {segment_nr}: {e}"
+                        f"Error computing range of motion for segment "
+                        f"{segment_nr}: {e}"
                     )
                     rom = np.array([np.nan])
 
@@ -509,17 +575,24 @@ def quantify_arm_swing(
                 except Exception as e:
                     # Handle the error, set pav to NaN, and log the error
                     print(
-                        f"Error computing peak angular velocity for segment {segment_nr}: {e}"
+                        f"Error computing peak angular velocity for segment "
+                        f"{segment_nr}: {e}"
                     )
                     pav = np.array([np.nan])
 
-                df_params_segment = pd.DataFrame(
-                    {
-                        DataColumns.SEGMENT_NR: segment_nr,
-                        DataColumns.RANGE_OF_MOTION: rom,
-                        DataColumns.PEAK_VELOCITY: pav,
-                    }
-                )
+                params_dict = {
+                    DataColumns.GAIT_SEGMENT_NR: segment_nr,
+                    DataColumns.RANGE_OF_MOTION: rom,
+                    DataColumns.PEAK_VELOCITY: pav,
+                }
+
+                # Add data_segment_nr if it exists in the input data
+                if DataColumns.DATA_SEGMENT_NR in group.columns:
+                    params_dict[DataColumns.DATA_SEGMENT_NR] = group[
+                        DataColumns.DATA_SEGMENT_NR
+                    ].iloc[0]
+
+                df_params_segment = pd.DataFrame(params_dict)
 
                 arm_swing_quantified.append(df_params_segment)
 
@@ -531,8 +604,8 @@ def quantify_arm_swing(
 def aggregate_arm_swing_params(
     df_arm_swing_params: pd.DataFrame,
     segment_meta: dict,
-    segment_cats: List[tuple],
-    aggregates: List[str] = ["median"],
+    segment_cats: list[tuple],
+    aggregates: list[str] = ["median"],
 ) -> dict:
     """
     Aggregate the quantification results for arm swing parameters.
@@ -546,14 +619,17 @@ def aggregate_arm_swing_params(
         A dictionary containing metadata for each segment.
 
     segment_cats : List[tuple]
-        A list of tuples defining the segment categories, where each tuple contains the lower and upper bounds for the segment duration.
+        A list of tuples defining the segment categories, where each tuple
+        contains the lower and upper bounds for the segment duration.
     aggregates : List[str], optional
-        A list of aggregation methods to apply to the quantification results.
+        A list of aggregation methods to apply to the quantification
+        results.
 
     Returns
     -------
     dict
-        A dictionary containing the aggregated quantification results for arm swing parameters.
+        A dictionary containing the aggregated quantification results for
+        arm swing parameters.
     """
     arm_swing_parameters = [DataColumns.RANGE_OF_MOTION, DataColumns.PEAK_VELOCITY]
 
@@ -568,7 +644,8 @@ def aggregate_arm_swing_params(
         ]
 
         if len(cat_segments) > 0:
-            # For each segment, use 'duration_filtered_segment_s' if present, else 'duration_unfiltered_segment_s'
+            # For each segment, use 'duration_filtered_segment_s' if present,
+            # else 'duration_unfiltered_segment_s'
             aggregated_results[segment_cat_str] = {
                 "duration_s": sum(
                     [
@@ -583,7 +660,7 @@ def aggregate_arm_swing_params(
             }
 
             df_arm_swing_params_cat = df_arm_swing_params.loc[
-                df_arm_swing_params[DataColumns.SEGMENT_NR].isin(cat_segments)
+                df_arm_swing_params[DataColumns.GAIT_SEGMENT_NR].isin(cat_segments)
             ]
 
             # Aggregate across all segments
@@ -593,10 +670,14 @@ def aggregate_arm_swing_params(
                 for aggregate in aggregates:
                     if aggregate in ["std", "cov"]:
                         per_segment_agg = []
-                        # If the aggregate is 'cov' (coefficient of variation), we also compute the mean and standard deviation per segment
+                        # If the aggregate is 'cov' (coefficient of variation),
+                        # we also compute the mean and standard deviation per
+                        # segment
                         segment_groups = dict(
                             tuple(
-                                df_arm_swing_params_cat.groupby(DataColumns.SEGMENT_NR)
+                                df_arm_swing_params_cat.groupby(
+                                    DataColumns.GAIT_SEGMENT_NR
+                                )
                             )
                         )
                         for segment_nr in cat_segments:
@@ -613,10 +694,14 @@ def aggregate_arm_swing_params(
                         per_segment_agg = per_segment_agg[~np.isnan(per_segment_agg)]
 
                         for segment_level_aggregate in aggregates_per_segment:
-                            aggregated_results[segment_cat_str][
-                                f"{segment_level_aggregate}_{aggregate}_{arm_swing_parameter}"
-                            ] = aggregate_parameter(
-                                per_segment_agg, segment_level_aggregate
+                            key = (
+                                f"{segment_level_aggregate}_{aggregate}_"
+                                f"{arm_swing_parameter}"
+                            )
+                            aggregated_results[segment_cat_str][key] = (
+                                aggregate_parameter(
+                                    per_segment_agg, segment_level_aggregate
+                                )
                             )
                     else:
                         aggregated_results[segment_cat_str][
@@ -638,7 +723,7 @@ def extract_temporal_domain_features(
     config,
     windowed_acc: np.ndarray,
     windowed_grav: np.ndarray,
-    grav_stats: List[str] = ["mean"],
+    grav_stats: list[str] = ["mean"],
 ) -> pd.DataFrame:
     """
     Compute temporal domain features for the accelerometer signal.
@@ -688,9 +773,10 @@ def extract_spectral_domain_features(
     """
     Compute spectral domain features for a sensor's data.
 
-    This function computes the periodogram, extracts power in specific frequency bands,
-    calculates the dominant frequency, and computes Mel-frequency cepstral coefficients (MFCCs)
-    for a given sensor's windowed data.
+    This function computes the periodogram, extracts power in specific
+    frequency bands, calculates the dominant frequency, and computes
+    Mel-frequency cepstral coefficients (MFCCs) for a given sensor's
+    windowed data.
 
     Parameters
     ----------
@@ -698,8 +784,8 @@ def extract_spectral_domain_features(
         A 2D numpy array where each row corresponds to a window of sensor data.
 
     config : object
-        Configuration object containing settings such as sampling frequency, window type,
-        frequency bands, and MFCC parameters.
+        Configuration object containing settings such as sampling frequency,
+        window type, frequency bands, and MFCC parameters.
 
     sensor : str
         The name of the sensor (e.g., 'accelerometer', 'gyroscope').
@@ -707,8 +793,9 @@ def extract_spectral_domain_features(
     Returns
     -------
     pd.DataFrame
-        A DataFrame containing the computed spectral features, with each row corresponding
-        to a window and each column representing a specific feature.
+        A DataFrame containing the computed spectral features, with each row
+        corresponding to a window and each column representing a specific
+        feature.
     """
     # Initialize a dictionary to hold the results
     feature_dict = {}
@@ -758,3 +845,307 @@ def extract_spectral_domain_features(
         feature_dict[colname] = mfccs[:, i]
 
     return pd.DataFrame(feature_dict)
+
+
+def run_gait_pipeline(
+    df_prepared: pd.DataFrame,
+    watch_side: str,
+    output_dir: str | Path,
+    imu_config: IMUConfig | None = None,
+    gait_config: GaitConfig | None = None,
+    arm_activity_config: GaitConfig | None = None,
+    store_intermediate: list[str] = [],
+    segment_number_offset: int = 0,
+    logging_level: int = logging.INFO,
+    custom_logger: logging.Logger | None = None,
+) -> tuple[pd.DataFrame, dict]:
+    """
+    Run the complete gait analysis pipeline on prepared data (steps 1-6).
+
+    This function implements the gait analysis workflow as described in the tutorials:
+    1. Preprocessing
+    2. Gait feature extraction
+    3. Gait detection
+    4. Arm activity feature extraction
+    5. Filtering gait
+    6. Arm swing quantification
+
+    Step 7 (aggregation) should be done after processing all segments.
+
+    Parameters
+    ----------
+    df_prepared : pd.DataFrame
+        Prepared IMU data with time, accelerometer, and gyroscope columns.
+        Should contain columns: time, accelerometer_x/y/z, gyroscope_x/y/z.
+        Will be preprocessed as step 1 of the pipeline.
+    watch_side : str
+        Side of the watch ('left' or 'right') to configure preprocessing accordingly.
+    output_dir : str or Path
+        Directory to save intermediate results (required)
+    imu_config : IMUConfig, optional
+        Configuration for IMU data preprocessing.
+        If None, uses default IMUConfig.
+    gait_config : GaitConfig, optional
+        Configuration for gait feature extraction and detection.
+        If None, uses default GaitConfig(step="gait").
+    arm_activity_config : GaitConfig, optional
+        Configuration for arm activity feature extraction and filtering.
+        If None, uses default GaitConfig(step="arm_activity").
+    store_intermediate : List[str]
+        Steps of which intermediate results should be stored:
+        - 'preprocessing': Store preprocessed data after step 1
+        - 'gait': Store gait features and predictions after step 3
+        - 'arm_activity': Store arm activity features and predictions after step 5
+        - 'quantification': Store arm swing quantification results after step 6
+        If empty, only returns the final quantified results.
+    segment_number_offset : int, optional, default=0
+        Offset to add to all segment numbers to avoid conflicts when concatenating
+        multiple data segments. Used for proper segment numbering across multiple files.
+    logging_level : int, default logging.INFO
+        Logging level using standard logging constants (logging.DEBUG, logging.INFO,
+        etc.)
+    custom_logger : logging.Logger, optional
+        Custom logger instance. If provided, logging_level is ignored.
+
+    Returns
+    -------
+    tuple[pd.DataFrame, dict]
+        A tuple containing:
+        - pd.DataFrame: Quantified arm swing parameters with the following columns:
+            - gait_segment_nr: Gait segment number within this data segment
+            - Various arm swing metrics (range of motion, peak angular velocity, etc.)
+            - Additional metadata columns
+        - dict: Gait segment metadata containing information about each detected
+        gait segment
+
+    Notes
+    -----
+    This function processes a single contiguous data segment. For multiple segments,
+    call this function for each segment, then use aggregate_arm_swing_params()
+    on the concatenated results.
+
+    The function follows the exact workflow from the gait analysis tutorial:
+    https://github.com/biomarkersParkinson/paradigma/blob/main/docs/
+    tutorials/gait_analysis.ipynb
+    """
+    # Setup logger
+    active_logger = custom_logger if custom_logger is not None else logger
+    if custom_logger is None:
+        active_logger.setLevel(logging_level)
+
+    # Set default configurations
+    if imu_config is None:
+        imu_config = IMUConfig()
+    if gait_config is None:
+        gait_config = GaitConfig(step="gait")
+    if arm_activity_config is None:
+        arm_activity_config = GaitConfig(step="arm_activity")
+
+    output_dir = Path(output_dir)
+
+    # Validate input data has required columns
+    required_columns = [
+        DataColumns.TIME,
+        DataColumns.ACCELEROMETER_X,
+        DataColumns.ACCELEROMETER_Y,
+        DataColumns.ACCELEROMETER_Z,
+        DataColumns.GYROSCOPE_X,
+        DataColumns.GYROSCOPE_Y,
+        DataColumns.GYROSCOPE_Z,
+    ]
+    missing_columns = [
+        col for col in required_columns if col not in df_prepared.columns
+    ]
+    if missing_columns:
+        raise ValueError(f"Missing required columns: {missing_columns}")
+
+    # Step 1: Preprocess data
+    active_logger.info("Step 1: Preprocessing IMU data")
+
+    df_preprocessed = preprocess_imu_data(
+        df=df_prepared,
+        config=imu_config,
+        sensor="both",
+        watch_side=watch_side,
+        verbose=1 if logging_level <= logging.INFO else 0,
+    )
+
+    if "preprocessing" in store_intermediate:
+        preprocessing_dir = output_dir / "preprocessing"
+        preprocessing_dir.mkdir(parents=True, exist_ok=True)
+        df_preprocessed.to_parquet(
+            preprocessing_dir / "preprocessed_data.parquet", index=False
+        )
+        active_logger.debug(
+            f"Saved preprocessed data to "
+            f"{preprocessing_dir / 'preprocessed_data.parquet'}"
+        )
+
+    # Step 2: Extract gait features
+    active_logger.info("Step 2: Extracting gait features")
+    df_gait = extract_gait_features(df_preprocessed, gait_config)
+
+    if "gait" in store_intermediate:
+        gait_dir = output_dir / "gait"
+        gait_dir.mkdir(parents=True, exist_ok=True)
+        df_gait.to_parquet(gait_dir / "gait_features.parquet", index=False)
+        active_logger.debug(
+            f"Saved gait features to {gait_dir / 'gait_features.parquet'}"
+        )
+
+    # Step 3: Detect gait
+    active_logger.info("Step 3: Detecting gait")
+    try:
+        classifier_path = files("paradigma.assets") / "gait_detection_clf_package.pkl"
+        classifier_package_gait = ClassifierPackage.load(classifier_path)
+    except Exception as e:
+        active_logger.error(f"Could not load gait detection classifier: {e}")
+        raise RuntimeError("Gait detection classifier not available")
+
+    gait_proba = detect_gait(df_gait, classifier_package_gait, parallel=False)
+    df_gait[DataColumns.PRED_GAIT_PROBA] = gait_proba
+
+    # Merge predictions back with timestamps
+    df_gait_with_time = merge_predictions_with_timestamps(
+        df_ts=df_preprocessed,
+        df_predictions=df_gait,
+        pred_proba_colname=DataColumns.PRED_GAIT_PROBA,
+        window_length_s=gait_config.window_length_s,
+        fs=gait_config.sampling_frequency,
+    )
+
+    # Add binary prediction column
+    df_gait_with_time[DataColumns.PRED_GAIT] = (
+        df_gait_with_time[DataColumns.PRED_GAIT_PROBA]
+        >= classifier_package_gait.threshold
+    ).astype(int)
+
+    if "gait" in store_intermediate:
+        gait_dir = output_dir / "gait"
+        gait_dir.mkdir(parents=True, exist_ok=True)
+        df_gait_with_time.to_parquet(gait_dir / "gait_predictions.parquet", index=False)
+        active_logger.info(
+            f"Saved gait predictions to {gait_dir / 'gait_predictions.parquet'}"
+        )
+
+    # Filter to only gait periods
+    df_gait_only = df_gait_with_time.loc[
+        df_gait_with_time[DataColumns.PRED_GAIT] == 1
+    ].reset_index(drop=True)
+
+    if len(df_gait_only) == 0:
+        active_logger.warning("No gait detected in this segment")
+        return pd.DataFrame(), {}
+
+    # Step 4: Extract arm activity features
+    active_logger.info("Step 4: Extracting arm activity features")
+    df_arm_activity = extract_arm_activity_features(df_gait_only, arm_activity_config)
+
+    if "arm_activity" in store_intermediate:
+        arm_activity_dir = output_dir / "arm_activity"
+        arm_activity_dir.mkdir(parents=True, exist_ok=True)
+        df_arm_activity.to_parquet(
+            arm_activity_dir / "arm_activity_features.parquet", index=False
+        )
+        active_logger.debug(
+            f"Saved arm activity features to "
+            f"{arm_activity_dir / 'arm_activity_features.parquet'}"
+        )
+
+    # Step 5: Filter gait (remove other arm activities)
+    active_logger.info("Step 5: Filtering gait")
+    try:
+        classifier_path = files("paradigma.assets") / "gait_filtering_clf_package.pkl"
+        classifier_package_arm_activity = ClassifierPackage.load(classifier_path)
+    except Exception as e:
+        active_logger.error(f"Could not load arm activity classifier: {e}")
+        raise RuntimeError("Arm activity classifier not available")
+
+    # Filter gait returns probabilities which we add to the arm activity features
+    arm_activity_probabilities = filter_gait(
+        df_arm_activity, classifier_package_arm_activity, parallel=False
+    )
+
+    df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] = (
+        arm_activity_probabilities
+    )
+
+    # Merge predictions back with timestamps
+    df_filtered = merge_predictions_with_timestamps(
+        df_ts=df_gait_only,
+        df_predictions=df_arm_activity,
+        pred_proba_colname=DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA,
+        window_length_s=arm_activity_config.window_length_s,
+        fs=arm_activity_config.sampling_frequency,
+    )
+
+    # Add binary prediction column
+    filt_threshold = classifier_package_arm_activity.threshold
+    df_filtered[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
+        df_filtered[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= filt_threshold
+    ).astype(int)
+
+    if "arm_activity" in store_intermediate:
+        arm_activity_dir = output_dir / "arm_activity"
+        arm_activity_dir.mkdir(parents=True, exist_ok=True)
+        df_filtered.to_parquet(arm_activity_dir / "filtered_gait.parquet", index=False)
+        active_logger.debug(
+            f"Saved filtered gait to {arm_activity_dir / 'filtered_gait.parquet'}"
+        )
+
+    if (
+        len(df_filtered.loc[df_filtered[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] == 1])
+        == 0
+    ):
+        active_logger.warning("No clean gait data remaining after filtering")
+        return pd.DataFrame(), {}
+
+    # Step 6: Quantify arm swing
+    active_logger.info("Step 6: Quantifying arm swing")
+    quantified_arm_swing, gait_segment_meta = quantify_arm_swing(
+        df=df_filtered,
+        fs=arm_activity_config.sampling_frequency,
+        filtered=True,
+        max_segment_gap_s=arm_activity_config.max_segment_gap_s,
+        min_segment_length_s=arm_activity_config.min_segment_length_s,
+    )
+
+    if "quantification" in store_intermediate:
+        quantification_dir = output_dir / "quantification"
+        quantification_dir.mkdir(parents=True, exist_ok=True)
+        quantified_arm_swing.to_parquet(
+            quantification_dir / "arm_swing_quantified.parquet", index=False
+        )
+
+        # Save gait segment metadata as JSON
+        with open(quantification_dir / "gait_segment_meta.json", "w") as f:
+            json.dump(gait_segment_meta, f, indent=2)
+
+        active_logger.debug(
+            f"Saved arm swing quantification to "
+            f"{quantification_dir / 'arm_swing_quantified.parquet'}"
+        )
+        active_logger.debug(
+            f"Saved gait segment metadata to "
+            f"{quantification_dir / 'gait_segment_meta.json'}"
+        )
+
+    active_logger.info(
+        f"Gait analysis pipeline completed. Found "
+        f"{len(quantified_arm_swing)} windows of gait "
+        f"without other arm activities."
+    )
+
+    # Apply segment number offset if specified (for multi-segment concatenation)
+    if segment_number_offset > 0 and len(quantified_arm_swing) > 0:
+        quantified_arm_swing = quantified_arm_swing.copy()
+        quantified_arm_swing["gait_segment_nr"] += segment_number_offset
+
+        # Also update the metadata with the new segment numbers
+        if gait_segment_meta and "per_segment" in gait_segment_meta:
+            updated_per_segment_meta = {}
+            for seg_id, meta in gait_segment_meta["per_segment"].items():
+                updated_per_segment_meta[seg_id + segment_number_offset] = meta
+            gait_segment_meta["per_segment"] = updated_per_segment_meta
+
+    return quantified_arm_swing, gait_segment_meta
