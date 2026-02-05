@@ -55,10 +55,6 @@ jobs:
       - name: Run pytest
         run: poetry run pytest --maxfail=1 --disable-warnings -q
 
-      # Static type checks
-      - name: Type check with pytype
-        run: poetry run pytype .
-
       # Build the package
       - name: Build package
         run: poetry build

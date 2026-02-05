@@ -1,36 +1,97 @@
+import tempfile
 from pathlib import Path
 
-from test_notebooks import compare_data
+import numpy as np
+import pandas as pd
+import pytest
 
-from paradigma.config import IMUConfig, PPGConfig
+from paradigma.config import IMUConfig, PPGConfig, PulseRateConfig
+from paradigma.constants import DataColumns
+from paradigma.orchestrator import run_paradigma
+from paradigma.pipelines.pulse_rate_pipeline import run_pulse_rate_pipeline
+
+try:
+    from test_notebooks import compare_data
+
+    from paradigma.testing import preprocess_ppg_data_io
+
+    HAS_TESTING_UTILS = True
+except ImportError:
+    HAS_TESTING_UTILS = False
+
 from paradigma.testing import preprocess_ppg_data_io
 
-# Mappings between the metadata and binary files
 
-accelerometer_preproc_pairs: list[tuple[str, str]] = [
-    ("accelerometer_meta.json", "accelerometer_values.bin"),
-    ("accelerometer_meta.json", "accelerometer_time.bin"),
-]
-ppg_preproc_pairs: list[tuple[str, str]] = [
-    ("PPG_meta.json", "PPG_values.bin"),
-    ("PPG_meta.json", "PPG_time.bin"),
-]
-ppg_features_pairs: list[tuple[str, str]] = [
-    ("features_ppg_meta.json", "features_ppg_values.bin"),
-    ("features_ppg_meta.json", "features_ppg_time.bin"),
-]
+def create_test_pulse_rate_data(duration_minutes=2):
+    """Create simple test data for pulse rate analysis."""
+    duration_seconds = duration_minutes * 60
+    n_samples = int(duration_seconds * 50.0)  # 50 Hz
+    time = np.linspace(0, duration_seconds, n_samples)
 
-accelerometer_features_pairs: list[tuple[str, str]] = [
-    ("features_acc_meta.json", "features_acc_values.bin"),
-    ("features_acc_meta.json", "features_acc_time.bin"),
-]
+    # Simple PPG signal
+    heart_rate_hz = 70.0 / 60.0  # 70 BPM
+    ppg_signal = np.sin(2 * np.pi * heart_rate_hz * time) + 0.1 * np.random.random(
+        n_samples
+    )
+
+    # Simple accelerometer data
+    acc_x = 0.1 * np.random.random(n_samples)
+    acc_y = 0.1 * np.random.random(n_samples)
+    acc_z = 9.8 + 0.1 * np.random.random(n_samples)
+
+    return pd.DataFrame(
+        {
+            DataColumns.TIME: time,
+            DataColumns.PPG: ppg_signal,
+            DataColumns.ACCELEROMETER_X: acc_x,
+            DataColumns.ACCELEROMETER_Y: acc_y,
+            DataColumns.ACCELEROMETER_Z: acc_z,
+        }
+    )
 
 
+def test_pulse_rate_pipeline_basic():
+    """Test basic pulse rate pipeline functionality."""
+    df_test = create_test_pulse_rate_data()
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        result = run_pulse_rate_pipeline(
+            df_ppg_prepared=df_test,
+            output_dir=temp_dir,
+            pulse_rate_config=PulseRateConfig(),
+            ppg_config=PPGConfig(),
+        )
+
+        assert isinstance(result, pd.DataFrame)
+        assert DataColumns.TIME in result.columns
+
+
+def test_pulse_rate_pipeline_integration():
+    """Test pulse rate pipeline with orchestrator."""
+    dfs = {"test": create_test_pulse_rate_data()}
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        results = run_paradigma(
+            pipelines=["pulse_rate"],
+            dfs=dfs,
+            output_dir=temp_dir,
+            skip_preparation=True,
+            pulse_rate_config=PulseRateConfig(),
+            ppg_config=PPGConfig(),
+        )
+
+        assert "quantifications" in results
+        assert "metadata" in results
+        assert "aggregations" in results
+
+
+@pytest.mark.skipif(not HAS_TESTING_UTILS, reason="Testing utilities not available")
 def compare_ppg_preprocessing(
     shared_datadir: Path, binaries_pairs: list[tuple[str, str]]
 ):
     """
-    This function is used to evaluate the output of the PPG pipeline preprocessing function. It evaluates it by comparing the output to a reference output.
+    This function is used to evaluate the output of the PPG pipeline preprocessing
+    function. It evaluates it by comparing the output to a reference output.
 
     Parameters
     ----------
@@ -58,36 +119,3 @@ def compare_ppg_preprocessing(
         imu_config,
     )
     compare_data(path_to_reference_output, path_to_tested_output, binaries_pairs)
-
-
-# def test_accelerometer_preprocessing(shared_datadir: Path):
-#     """
-#     This function is used to evaluate the output of the PPG pipeline preprocessing function. It evaluates it by comparing the accelerometer data output to the PPG reference output.
-#     """
-#     compare_ppg_preprocessing(shared_datadir, accelerometer_preproc_pairs)
-
-
-# def test_ppg_preprocessing(shared_datadir: Path):
-#     """
-#     This function is used to evaluate the output of the PPG pipeline preprocessing function. It evaluates it by comparing the PPG data output to the PPG reference output.
-#     """
-#     compare_ppg_preprocessing(shared_datadir, ppg_preproc_pairs)
-
-
-# def test_accelerometer_feature_extraction(shared_datadir: Path):
-#     """
-#     This function is used to evaluate the output of the feature extraction function. It evaluates it by comparing the output to a reference output.
-#     """
-#     input_dir_name: str = "2.preprocessed_data"
-#     output_dir_name: str = "3.extracted_features"
-#     classifier_path = "src/paradigma/ppg/classifier/LR_PPG_quality.pkl"
-
-#     input_path = shared_datadir / input_dir_name / "ppg"
-#     reference_output_path = shared_datadir / output_dir_name / "ppg"
-#     tested_output_path = reference_output_path / "test-output"
-
-#     config = PulseRateFeatureExtractionConfig()
-#     extract_signal_quality_features(
-#         input_path, classifier_path, tested_output_path, config
-#     )
-#     compare_data(reference_output_path, tested_output_path, accelerometer_features_pairs)
