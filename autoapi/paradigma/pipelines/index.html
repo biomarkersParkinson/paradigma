@@ -27,7 +27,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="paradigma.pipelines.gait_pipeline" href="gait_pipeline/index.html" />
-    <link rel="prev" title="paradigma.feature_extraction" href="../feature_extraction/index.html" /> 
+    <link rel="prev" title="paradigma.orchestrator" href="../orchestrator/index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -49,17 +49,13 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">User guides</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
@@ -72,18 +68,24 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html">paradigma</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="../classification/index.html">paradigma.classification</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../config/index.html">paradigma.config</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../constants/index.html">paradigma.constants</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../feature_extraction/index.html">paradigma.feature_extraction</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">paradigma.pipelines</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../preprocessing/index.html">paradigma.preprocessing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../segmenting/index.html">paradigma.segmenting</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../testing/index.html">paradigma.testing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../util/index.html">paradigma.util</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../classification/index.html">paradigma.classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../config/index.html">paradigma.config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../constants/index.html">paradigma.constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../feature_extraction/index.html">paradigma.feature_extraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../load/index.html">paradigma.load</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../orchestrator/index.html">paradigma.orchestrator</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">paradigma.pipelines</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="gait_pipeline/index.html">paradigma.pipelines.gait_pipeline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pulse_rate_pipeline/index.html">paradigma.pipelines.pulse_rate_pipeline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pulse_rate_utils/index.html">paradigma.pipelines.pulse_rate_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tremor_pipeline/index.html">paradigma.pipelines.tremor_pipeline</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../prepare_data/index.html">paradigma.prepare_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../preprocessing/index.html">paradigma.preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../segmenting/index.html">paradigma.segmenting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../testing/index.html">paradigma.testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../util/index.html">paradigma.util</a></li>
 </ul>
 </li>
 </ul>
@@ -135,7 +137,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../feature_extraction/index.html" class="btn btn-neutral float-left" title="paradigma.feature_extraction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../orchestrator/index.html" class="btn btn-neutral float-left" title="paradigma.orchestrator" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="gait_pipeline/index.html" class="btn btn-neutral float-right" title="paradigma.pipelines.gait_pipeline" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

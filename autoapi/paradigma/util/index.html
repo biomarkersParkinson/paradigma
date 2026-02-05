@@ -48,17 +48,13 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">User guides</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
@@ -71,18 +67,18 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html">paradigma</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="../classification/index.html">paradigma.classification</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../config/index.html">paradigma.config</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../constants/index.html">paradigma.constants</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../feature_extraction/index.html">paradigma.feature_extraction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../pipelines/index.html">paradigma.pipelines</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../preprocessing/index.html">paradigma.preprocessing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../segmenting/index.html">paradigma.segmenting</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../testing/index.html">paradigma.testing</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">paradigma.util</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="../classification/index.html">paradigma.classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../config/index.html">paradigma.config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../constants/index.html">paradigma.constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../feature_extraction/index.html">paradigma.feature_extraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../load/index.html">paradigma.load</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../orchestrator/index.html">paradigma.orchestrator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipelines/index.html">paradigma.pipelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../prepare_data/index.html">paradigma.prepare_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../preprocessing/index.html">paradigma.preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../segmenting/index.html">paradigma.segmenting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../testing/index.html">paradigma.testing</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">paradigma.util</a></li>
 </ul>
 </li>
 </ul>
@@ -122,7 +118,7 @@
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.deprecated" title="paradigma.util.deprecated"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deprecated</span></code></a>([reason])</p></td>
-<td><p>Decorator to mark functions as deprecated. It will show a warning when the function is used.</p></td>
+<td><p>Decorator to mark functions as deprecated. It will show a warning when the</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.parse_iso8601_to_datetime" title="paradigma.util.parse_iso8601_to_datetime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_iso8601_to_datetime</span></code></a>(date_str)</p></td>
 <td><p></p></td>
@@ -139,17 +135,17 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.write_df_data" title="paradigma.util.write_df_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_df_data</span></code></a>(metadata_time, metadata_values, ...)</p></td>
 <td><p>Write the Pandas DataFrame to binary files and store the metadata.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.read_metadata" title="paradigma.util.read_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_metadata</span></code></a>(→ Tuple[tsdf.TSDFMetadata, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.read_metadata" title="paradigma.util.read_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_metadata</span></code></a>(→ tuple[tsdf.TSDFMetadata, ...)</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.load_tsdf_dataframe" title="paradigma.util.load_tsdf_dataframe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_tsdf_dataframe</span></code></a>(path_to_data, prefix[, ...])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.load_metadata_list" title="paradigma.util.load_metadata_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_metadata_list</span></code></a>(→ List[tsdf.TSDFMetadata])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.load_metadata_list" title="paradigma.util.load_metadata_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_metadata_list</span></code></a>(→ list[tsdf.TSDFMetadata])</p></td>
 <td><p>Load the metadata objects from a metadata file according to the specified binaries.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.transform_time_array" title="paradigma.util.transform_time_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_time_array</span></code></a>(→ numpy.ndarray)</p></td>
-<td><p>Transforms the time array to relative time (when defined in delta time) and scales the values.</p></td>
+<td><p>Transforms the time array to relative time (when defined in delta time)</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.convert_units_accelerometer" title="paradigma.util.convert_units_accelerometer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_units_accelerometer</span></code></a>(→ numpy.ndarray)</p></td>
 <td><p>Convert acceleration data to g.</p></td>
@@ -164,7 +160,7 @@
 <td><p>Aggregate a parameter based on the specified method.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.util.merge_predictions_with_timestamps" title="paradigma.util.merge_predictions_with_timestamps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_predictions_with_timestamps</span></code></a>(→ pandas.DataFrame)</p></td>
-<td><p>Merges prediction probabilities with timestamps by expanding overlapping windows</p></td>
+<td><p>Merges prediction probabilities with timestamps by expanding overlapping</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#paradigma.util.select_hours" title="paradigma.util.select_hours"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_hours</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Select hours of interest from the data to include in the aggregation step.</p></td>
@@ -180,10 +176,12 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.util.deprecated">
 <span class="sig-prename descclassname"><span class="pre">paradigma.util.</span></span><span class="sig-name descname"><span class="pre">deprecated</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reason</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/util.html#deprecated"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.util.deprecated" title="Link to this definition"></a></dt>
-<dd><p>Decorator to mark functions as deprecated. It will show a warning when the function is used.</p>
+<dd><p>Decorator to mark functions as deprecated. It will show a warning when the
+function is used.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>reason</strong> (<em>str</em><em>, </em><em>optional</em>) – Additional message to explain why it is deprecated and what to use instead.</p>
+<dd class="field-odd"><p><strong>reason</strong> (<em>str</em><em>, </em><em>optional</em>) – Additional message to explain why it is deprecated and what to use
+instead.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -240,7 +238,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.util.read_metadata">
-<span class="sig-prename descclassname"><span class="pre">paradigma.util.</span></span><span class="sig-name descname"><span class="pre">read_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tsdf.TSDFMetadata</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tsdf.TSDFMetadata</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/paradigma/util.html#read_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.util.read_metadata" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">paradigma.util.</span></span><span class="sig-name descname"><span class="pre">read_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tsdf.TSDFMetadata</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tsdf.TSDFMetadata</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/paradigma/util.html#read_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.util.read_metadata" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -250,7 +248,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.util.load_metadata_list">
-<span class="sig-prename descclassname"><span class="pre">paradigma.util.</span></span><span class="sig-name descname"><span class="pre">load_metadata_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filenames</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">tsdf.TSDFMetadata</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/paradigma/util.html#load_metadata_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.util.load_metadata_list" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">paradigma.util.</span></span><span class="sig-name descname"><span class="pre">load_metadata_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filenames</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tsdf.TSDFMetadata</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/paradigma/util.html#load_metadata_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.util.load_metadata_list" title="Link to this definition"></a></dt>
 <dd><p>Load the metadata objects from a metadata file according to the specified binaries.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -266,13 +264,15 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.util.transform_time_array">
 <span class="sig-prename descclassname"><span class="pre">paradigma.util.</span></span><span class="sig-name descname"><span class="pre">transform_time_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_unit_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_unit_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/paradigma/util.html#transform_time_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.util.transform_time_array" title="Link to this definition"></a></dt>
-<dd><p>Transforms the time array to relative time (when defined in delta time) and scales the values.</p>
+<dd><p>Transforms the time array to relative time (when defined in delta time)
+and scales the values.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>time_array</strong> (<em>pd.Series</em>) – The time array to transform.</p></li>
 <li><p><strong>input_unit_type</strong> (<em>str</em>) – The time unit type of the input time array.</p></li>
-<li><p><strong>output_unit_type</strong> (<em>str</em>) – The time unit type of the output time array. ParaDigMa expects <cite>TimeUnit.RELATIVE_S</cite>.</p></li>
+<li><p><strong>output_unit_type</strong> (<em>str</em>) – The time unit type of the output time array. ParaDigMa expects
+<cite>TimeUnit.RELATIVE_S</cite>.</p></li>
 <li><p><strong>start_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The start time of the time array in UNIX seconds (default is 0.0)</p></li>
 </ul>
 </dd>
@@ -285,9 +285,13 @@
 </dl>
 <p class="rubric">Notes</p>
 <ul class="simple">
-<li><p>The function handles different time units (<cite>TimeUnit.RELATIVE_MS</cite>, <cite>TimeUnit.RELATIVE_S</cite>, <cite>TimeUnit.ABSOLUTE_MS</cite>, <cite>TimeUnit.ABSOLUTE_S</cite>, <cite>TimeUnit.DIFFERENCE_MS</cite>, <cite>TimeUnit.DIFFERENCE_S</cite>).</p></li>
-<li><p>The transformation allows for scaling of the time array, converting between time unit types (e.g., relative, absolute, or difference).</p></li>
-<li><p>When converting to <cite>TimeUnit.RELATIVE_MS</cite>, the function calculates the relative time starting from the provided or default start time.</p></li>
+<li><p>The function handles different time units (<cite>TimeUnit.RELATIVE_MS</cite>,
+<cite>TimeUnit.RELATIVE_S</cite>, <cite>TimeUnit.ABSOLUTE_MS</cite>, <cite>TimeUnit.ABSOLUTE_S</cite>,
+<cite>TimeUnit.DIFFERENCE_MS</cite>, <cite>TimeUnit.DIFFERENCE_S</cite>).</p></li>
+<li><p>The transformation allows for scaling of the time array, converting
+between time unit types (e.g., relative, absolute, or difference).</p></li>
+<li><p>When converting to <cite>TimeUnit.RELATIVE_MS</cite>, the function calculates the
+relative time starting from the provided or default start time.</p></li>
 </ul>
 </dd></dl>
 
@@ -362,7 +366,8 @@
 <li><p><strong>parameter</strong> (<em>np.ndarray</em>) – The parameter to aggregate.</p></li>
 <li><p><strong>aggregate</strong> (<em>str</em>) – The aggregation method to apply.</p></li>
 <li><p><strong>evaluation_points</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Should be specified if the mode is derived for a continuous parameter.
-Defines the evaluation points for the kernel density estimation function, from which the maximum is derived as the mode.</p></li>
+Defines the evaluation points for the kernel density estimation
+function, from which the maximum is derived as the mode.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -377,18 +382,22 @@ Defines the evaluation points for the kernel density estimation function, from w
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.util.merge_predictions_with_timestamps">
 <span class="sig-prename descclassname"><span class="pre">paradigma.util.</span></span><span class="sig-name descname"><span class="pre">merge_predictions_with_timestamps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_ts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_predictions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_proba_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_length_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../_modules/paradigma/util.html#merge_predictions_with_timestamps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.util.merge_predictions_with_timestamps" title="Link to this definition"></a></dt>
-<dd><p>Merges prediction probabilities with timestamps by expanding overlapping windows
-into individual timestamps and averaging probabilities per unique timestamp.</p>
+<dd><p>Merges prediction probabilities with timestamps by expanding overlapping
+windows into individual timestamps and averaging probabilities per unique
+timestamp.</p>
 <section id="parameters">
 <h3>Parameters:<a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
-<dl class="simple">
+<dl>
 <dt>df_ts<span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing timestamps to be merged with predictions.
 Must include the timestamp column specified in <cite>DataColumns.TIME</cite>.</p>
 </dd>
-<dt>df_predictions<span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing prediction windows with start times and probabilities.
-Must include:
+<dt>df_predictions<span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing prediction windows with start times and
+probabilities. Must include:
 - A column for window start times (defined by <cite>DataColumns.TIME</cite>).
-- A column for prediction probabilities (defined by <cite>DataColumns.PRED_GAIT_PROBA</cite>).</p>
+- A column for prediction probabilities (defined by</p>
+<blockquote>
+<div><p><cite>DataColumns.PRED_GAIT_PROBA</cite>).</p>
+</div></blockquote>
 </dd>
 <dt>pred_proba_colname<span class="classifier">str</span></dt><dd><p>The column name for the prediction probabilities in <cite>df_predictions</cite>.</p>
 </dd>
@@ -452,7 +461,8 @@ Must include:
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input data with column ‘time_dt’ in which the date is stored.</p></li>
-<li><p><strong>min_hours_per_day</strong> (<em>int</em>) – The minimum number of hours per day required for including the day in the aggregation step.</p></li>
+<li><p><strong>min_hours_per_day</strong> (<em>int</em>) – The minimum number of hours per day required for including the day
+in the aggregation step.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

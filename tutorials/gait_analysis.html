@@ -47,17 +47,13 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="_static/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">User guides</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
@@ -97,8 +93,8 @@
              
   <section id="gait-analysis">
 <h1>Gait analysis<a class="headerlink" href="#gait-analysis" title="Link to this heading"></a></h1>
-<p>This tutorial showcases the high-level functions composing the gait pipeline. Before following along, make sure all data preparation steps have been followed in the data preparation tutorial.</p>
-<p>In this tutorial, we use two days of data from a participant of the Personalized Parkinson Project to demonstrate the functionalities. Since <code class="docutils literal notranslate"><span class="pre">ParaDigMa</span></code> expects contiguous time series, the collected data was stored in two segments each with contiguous timestamps. Per segment, we load the data and perform the following steps:</p>
+<p>This tutorial showcases the high-level functions composing the gait pipeline. Before following along, make sure all data preparation steps have been followed in the <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/tutorials/_static/data_preparation.html">Data preparation tutorial</a>.</p>
+<p>In this tutorial, we use two days of data from a participant of the Personalized Parkinson Project to demonstrate the functionalities. Since ParaDigMa expects contiguous time series, the collected data was stored in two segments each with contiguous timestamps. Per segment, we load the data and perform the following steps:</p>
 <ol class="arabic simple">
 <li><p>Data preprocessing</p></li>
 <li><p>Gait feature extraction</p></li>
@@ -111,30 +107,63 @@
 <ol class="arabic simple" start="7">
 <li><p>Aggregation</p></li>
 </ol>
-<p>To run the complete gait pipeline, a prerequisite is to have both accelerometer and gyroscope data, although the first three steps can be completed using only accelerometer data.</p>
-<p>[!WARNING] The gait pipeline has been developed on data of the Gait Up Physilog 4, and is currently being validated on the Verily Study Watch. Different sensors and positions on the wrist may affect outcomes.</p>
+<p>To run the complete gait pipeline, a prerequisite is to have both accelerometer and gyroscope data.</p>
+<section id="import-required-modules">
+<h2>Import required modules<a class="headerlink" href="#import-required-modules" title="Link to this heading"></a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>import json
+from importlib.resources import files
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import tsdf
+
+from paradigma.classification import ClassifierPackage
+from paradigma.config import GaitConfig, IMUConfig
+from paradigma.constants import DataColumns
+from paradigma.pipelines.gait_pipeline import (
+    aggregate_arm_swing_params,
+    detect_gait,
+    extract_arm_activity_features,
+    extract_gait_features,
+    filter_gait,
+    quantify_arm_swing,
+)
+from paradigma.preprocessing import preprocess_imu_data
+from paradigma.util import (
+    load_tsdf_dataframe,
+    merge_predictions_with_timestamps,
+    write_df_data,
+)
+</pre></div>
+</div>
+</div>
+</div>
+</section>
 <section id="load-data">
 <h2>Load data<a class="headerlink" href="#load-data" title="Link to this heading"></a></h2>
 <p>Here, we start by loading a single contiguous time series (segment), for which we continue running steps 1-6. Below we show how to run these steps for multiple raw data segments.</p>
-<p>We use the interally developed <code class="docutils literal notranslate"><span class="pre">TSDF</span></code> (<a class="reference external" href="https://biomarkersparkinson.github.io/tsdf/">documentation</a>) to load and store data [<a class="reference external" href="https://arxiv.org/abs/2211.11294">1</a>]. Depending on the file extension of your time series data, examples of other Python functions for loading the data into memory include:</p>
+<p>We use the internally developed <code class="docutils literal notranslate"><span class="pre">TSDF</span></code> (<a class="reference external" href="https://biomarkersparkinson.github.io/tsdf/">documentation</a>) to load and store data [<a class="reference external" href="https://arxiv.org/abs/2211.11294">1</a>]. Depending on the file extension of your time series data, examples of other Python functions for loading the data into memory include:</p>
 <ul class="simple">
 <li><p><em>.csv</em>: <code class="docutils literal notranslate"><span class="pre">pandas.read_csv()</span></code> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html">documentation</a>)</p></li>
 <li><p><em>.json</em>: <code class="docutils literal notranslate"><span class="pre">json.load()</span></code> (<a class="reference external" href="https://docs.python.org/3/library/json.html#json.load">documentation</a>)</p></li>
 </ul>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from pathlib import Path
-from paradigma.util import load_tsdf_dataframe
-
-# Set the path to where the prepared data is saved and load the data.
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Set the path to where the prepared data is saved and load the data.
 # Note: the test data is stored in TSDF, but you can load your data in your own way
-path_to_data =  Path(&#39;../../example_data&#39;)
+path_to_data =  Path(&#39;../../example_data/verily&#39;)
 path_to_prepared_data = path_to_data / &#39;imu&#39;
 
-raw_data_segment_nr  = &#39;0001&#39; 
+raw_data_segment_nr  = &#39;0001&#39;
 
 # Load the data from the file
-df_imu, metadata_time, metadata_values = load_tsdf_dataframe(path_to_prepared_data, prefix=f&#39;IMU_segment{raw_data_segment_nr}&#39;)
+df_imu, metadata_time, metadata_values = load_tsdf_dataframe(
+    path_to_data=path_to_prepared_data,
+    prefix=f&#39;IMU_segment{raw_data_segment_nr}&#39;
+)
 
 df_imu
 </pre></div>
@@ -144,42 +173,31 @@ df_imu
 </section>
 <section id="step-1-preprocess-data">
 <h2>Step 1: Preprocess data<a class="headerlink" href="#step-1-preprocess-data" title="Link to this heading"></a></h2>
-<p>The single function <code class="docutils literal notranslate"><span class="pre">preprocess_imu_data</span></code> in the cell below runs all necessary preprocessing steps. It requires the loaded dataframe, a configuration object <code class="docutils literal notranslate"><span class="pre">config</span></code> specifying parameters used for preprocessing, and a selection of sensors. For the sensors, options include <code class="docutils literal notranslate"><span class="pre">'accelerometer'</span></code>, <code class="docutils literal notranslate"><span class="pre">'gyroscope'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'both'</span></code>.  If the difference between timestamps is larger than a specified tolerance (<code class="docutils literal notranslate"><span class="pre">config.tolerance</span></code>, in seconds), it will return an error that the timestamps are not contiguous. If you still want to process the data in this case, you can create segments from discontiguous samples using the function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/segmenting.py"><code class="docutils literal notranslate"><span class="pre">create_segments</span></code></a> and analyze these segments consecutively as shown in here.</p>
-<p>The function <code class="docutils literal notranslate"><span class="pre">preprocess_imu_data</span></code> processes the data as follows:</p>
+<p>The function <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.preprocess_imu_data"><code class="docutils literal notranslate"><span class="pre">preprocess_imu_data</span></code></a> in the cell below runs all necessary preprocessing steps. It requires the loaded dataframe, a configuration object <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/config/index.html"><code class="docutils literal notranslate"><span class="pre">config</span></code></a> specifying parameters used for preprocessing, and a selection of sensors. For the sensors, options include <code class="docutils literal notranslate"><span class="pre">'accelerometer'</span></code>, <code class="docutils literal notranslate"><span class="pre">'gyroscope'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'both'</span></code>.  If the difference between timestamps is larger than a specified tolerance (<code class="docutils literal notranslate"><span class="pre">config.tolerance</span></code>, in seconds), it will return an error that the timestamps are not contiguous. If you still want to process the data in this case, you can create segments from discontiguous samples using the function <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/segmenting/index.html#paradigma.segmenting.create_segments"><code class="docutils literal notranslate"><span class="pre">create_segments</span></code></a> and analyze these segments consecutively as shown in here.</p>
+<p>The function <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.preprocess_imu_data"><code class="docutils literal notranslate"><span class="pre">preprocess_imu_data</span></code></a> processes the data as follows:</p>
 <ol class="arabic simple">
 <li><p>Resample the data to ensure uniformly distributed sampling rate.</p></li>
 <li><p>Apply filtering to separate the gravity component from the accelerometer.</p></li>
 </ol>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from paradigma.config import IMUConfig
-from paradigma.constants import DataColumns
-from paradigma.preprocessing import preprocess_imu_data
-
-# Set column names: replace DataColumn.* with your actual column names. 
-# It is only necessary to set the columns that are present in your data, and
-# only if they differ from the default names defined in DataColumns.
-column_mapping = {
-    &#39;TIME&#39;: DataColumns.TIME,
-    &#39;ACCELEROMETER_X&#39;: DataColumns.ACCELEROMETER_X,
-    &#39;ACCELEROMETER_Y&#39;: DataColumns.ACCELEROMETER_Y,
-    &#39;ACCELEROMETER_Z&#39;: DataColumns.ACCELEROMETER_Z,
-    &#39;GYROSCOPE_X&#39;: DataColumns.GYROSCOPE_X,
-    &#39;GYROSCOPE_Y&#39;: DataColumns.GYROSCOPE_Y,
-    &#39;GYROSCOPE_Z&#39;: DataColumns.GYROSCOPE_Z,
-}
-
-config = IMUConfig(column_mapping)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>config = IMUConfig()
 
 df_preprocessed = preprocess_imu_data(
-    df=df_imu, 
+    df=df_imu,
     config=config,
     sensor=&#39;both&#39;,
     watch_side=&#39;left&#39;,
 )
 
-print(f&quot;The dataset of {df_preprocessed.shape[0] / config.sampling_frequency} seconds is automatically resampled to {config.resampling_frequency} Hz.&quot;)
-print(f&#39;The tolerance for checking contiguous timestamps is set to {config.tolerance:.3f} seconds.&#39;)
+print(
+    f&quot;The dataset of {df_preprocessed.shape[0] / config.sampling_frequency} seconds &quot;
+    f&quot;is automatically resampled to {config.resampling_frequency} Hz.&quot;
+)
+print(
+    f&quot;The tolerance for checking contiguous timestamps is set &quot;
+    f&quot;to {config.tolerance:.3f} seconds.&quot;
+)
 df_preprocessed.head()
 </pre></div>
 </div>
@@ -202,60 +220,85 @@ df_preprocessed.head()
 <li><p>Extract spectral features</p></li>
 <li><p>Combine both temporal and spectral features into a final dataframe</p></li>
 </ul>
-<p>These steps are encapsulated in <code class="docutils literal notranslate"><span class="pre">extract_gait_features</span></code> (documentation can be found <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/gait_pipeline.py">here</a>).</p>
+<p>These steps are encapsulated in <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/pipelines/gait_pipeline/index.html#paradigma.pipelines.gait_pipeline.extract_gait_features"><code class="docutils literal notranslate"><span class="pre">extract_gait_features</span></code></a>.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from paradigma.config import GaitConfig
-from paradigma.pipelines.gait_pipeline import extract_gait_features
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Set column names: replace DataColumn.* with your actual column names.
+# It is only necessary to set the columns that are present in your data, and
+# only if they differ from the default names defined in DataColumns.
+column_mapping = {
+    &#39;TIME&#39;: DataColumns.TIME,
+    &#39;ACCELEROMETER_X&#39;: DataColumns.ACCELEROMETER_X,
+    &#39;ACCELEROMETER_Y&#39;: DataColumns.ACCELEROMETER_Y,
+    &#39;ACCELEROMETER_Z&#39;: DataColumns.ACCELEROMETER_Z,
+    &#39;GYROSCOPE_X&#39;: DataColumns.GYROSCOPE_X,
+    &#39;GYROSCOPE_Y&#39;: DataColumns.GYROSCOPE_Y,
+    &#39;GYROSCOPE_Z&#39;: DataColumns.GYROSCOPE_Z,
+}
 
 config = GaitConfig(step=&#39;gait&#39;, column_mapping=column_mapping)
 
 df_gait = extract_gait_features(
-    df=df_preprocessed, 
+    df=df_preprocessed,
     config=config
 )
 
-print(f&quot;A total of {df_gait.shape[1]-1} features have been extracted from {df_gait.shape[0]} {config.window_length_s}-second windows with {config.window_length_s-config.window_step_length_s} seconds overlap.&quot;)
+print(
+    f&quot;A total of {df_gait.shape[1]-1} features have been extracted from &quot;
+    f&quot;{df_gait.shape[0]} {config.window_length_s}-second windows with &quot;
+    f&quot;{config.window_length_s-config.window_step_length_s} seconds overlap.&quot;
+)
 df_gait.head()
 </pre></div>
 </div>
 </div>
 </div>
-<p>Each row in this dataframe corresponds to a single window, with the window length and overlap set in the <code class="docutils literal notranslate"><span class="pre">config</span></code> object. Note that the <code class="docutils literal notranslate"><span class="pre">time</span></code> column has a 1-second interval instead of the 10-millisecond interval before, as it now represents the starting time of the window.</p>
+<p>Each row in this dataframe corresponds to a single window, with the window length and overlap set in the <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/config/index.html"><code class="docutils literal notranslate"><span class="pre">config</span></code></a> object. Note that the <code class="docutils literal notranslate"><span class="pre">time</span></code> column has a 1-second interval instead of the 10-millisecond interval before, as it now represents the starting time of the window.</p>
 </section>
 <section id="step-3-gait-detection">
 <h2>Step 3: Gait detection<a class="headerlink" href="#step-3-gait-detection" title="Link to this heading"></a></h2>
-<p>For classification, ParaDigMa uses so-called Classifier Packages which contain a classifier, classification threshold, and a feature scaler as attributes. The classifier is a <a class="reference external" href="https://scikit-learn.org/1.5/modules/generated/sklearn.ensemble.RandomForestClassifier.html">random forest</a> trained on a dataset of people with PD performing a wide range of activities in free-living conditions: <a class="reference external" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7584982/">The Parkinson&#64;Home Validation Study</a>. The classification threshold was set to limit the amount of false-positive predictions in the original study, i.e., to limit non-gait to be predicted as gait. The classification threshold can be changed by setting <code class="docutils literal notranslate"><span class="pre">clf_package.threshold</span></code> to a different float value. The feature scaler was similarly fitted on the original dataset, ensuring the features are within expected confined spaces to make reliable predictions.</p>
+<p>For classification, ParaDigMa uses so-called Classifier Packages which contain a classifier, classification threshold, and a feature scaler as attributes (<a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/classification/index.html#paradigma.classification.ClassifierPackage">documentation</a>). The classifier is a <a class="reference external" href="https://scikit-learn.org/1.5/modules/generated/sklearn.ensemble.RandomForestClassifier.html">random forest</a> trained on a dataset of people with PD performing a wide range of activities in free-living conditions: <a class="reference external" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7584982/">The Parkinson&#64;Home Validation Study</a>. The classification threshold was set to limit the amount of false-positive predictions in the original study, i.e., to limit non-gait to be predicted as gait. The classification threshold can be changed by setting <code class="docutils literal notranslate"><span class="pre">clf_package.threshold</span></code> to a different float value. The feature scaler was similarly fitted on the original dataset, ensuring the features are within expected confined spaces to make reliable predictions.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from importlib.resources import files
-from paradigma.classification import ClassifierPackage
-from paradigma.pipelines.gait_pipeline import detect_gait
-
-# Set the path to the classifier package
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Set the path to the classifier package
 classifier_package_filename = &#39;gait_detection_clf_package.pkl&#39;
-full_path_to_classifier_package = files(&#39;paradigma&#39;) / &#39;assets&#39; / classifier_package_filename
+full_path_to_classifier_package = (
+    files(&#39;paradigma&#39;)
+    / &#39;assets&#39;
+    / classifier_package_filename
+)
 
 # Load the classifier package
 clf_package_detection = ClassifierPackage.load(full_path_to_classifier_package)
+gait_threshold = clf_package_detection.threshold
 
-# Detecting gait returns the probability of gait for each window, which is concatenated to
-# the original dataframe
+# Detecting gait returns the probability of gait for each window, which is
+# concatenated to the original dataframe
 df_gait[DataColumns.PRED_GAIT_PROBA] = detect_gait(
     df=df_gait,
     clf_package=clf_package_detection
 )
 
 n_windows = df_gait.shape[0]
-n_predictions_gait = df_gait.loc[df_gait[DataColumns.PRED_GAIT_PROBA] &gt;= clf_package_detection.threshold].shape[0]
+n_predictions_gait = df_gait.loc[
+    df_gait[DataColumns.PRED_GAIT_PROBA] &gt;= gait_threshold
+].shape[0]
 perc_predictions_gait = round(100 * n_predictions_gait / n_windows, 1)
-n_predictions_non_gait = df_gait.loc[df_gait[DataColumns.PRED_GAIT_PROBA] &lt; clf_package_detection.threshold].shape[0]
+n_predictions_non_gait = df_gait.loc[
+    df_gait[DataColumns.PRED_GAIT_PROBA] &lt; gait_threshold
+].shape[0]
 perc_predictions_non_gait = round(100 * n_predictions_non_gait / n_windows, 1)
 
-print(f&quot;Out of {n_windows} windows, {n_predictions_gait} ({perc_predictions_gait}%) were predicted as gait, and {n_predictions_non_gait} ({perc_predictions_non_gait}%) as non-gait.&quot;)
+print(
+    f&quot;Out of {n_windows} windows, {n_predictions_gait} &quot;
+    f&quot;({perc_predictions_gait}%) \n&quot;
+    f&quot;were predicted as gait, and {n_predictions_non_gait} &quot;
+    f&quot;({perc_predictions_non_gait}%) \n&quot;
+    f&quot;as non-gait.&quot;
+)
 
-# Only the time and the predicted gait probability are shown, but the dataframe also contains
-# the extracted features
+# Only the time and the predicted gait probability are shown, but the
+# dataframe also contains the extracted features
 df_gait[[config.time_colname, DataColumns.PRED_GAIT_PROBA]].head()
 </pre></div>
 </div>
@@ -266,14 +309,17 @@ df_gait[[config.time_colname, DataColumns.PRED_GAIT_PROBA]].head()
 <p>The predicted probabilities (and optionally other features) can be stored and loaded in TSDF as demonstrated below.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>import tsdf
-from paradigma.util import write_df_data
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Set &#39;path_to_data&#39; to the directory where you want to save the data
+metadata_time_store = tsdf.TSDFMetadata(
+    metadata_time.get_plain_tsdf_dict_copy(),
+    path_to_data
+)
+metadata_values_store = tsdf.TSDFMetadata(
+    metadata_values.get_plain_tsdf_dict_copy(),
+    path_to_data
+)
 
-# Set &#39;path_to_data&#39; to the directory where you want to save the data
-metadata_time_store = tsdf.TSDFMetadata(metadata_time.get_plain_tsdf_dict_copy(), path_to_data)
-metadata_values_store = tsdf.TSDFMetadata(metadata_values.get_plain_tsdf_dict_copy(), path_to_data)
-
-# Select the columns to be saved 
+# Select the columns to be saved
 metadata_time_store.channels = [config.time_colname]
 metadata_values_store.channels = [DataColumns.PRED_GAIT_PROBA]
 
@@ -291,53 +337,56 @@ time_store_filename = meta_store_filename.replace(&#39;_meta.json&#39;, &#39;_ti
 metadata_values_store.file_name = values_store_filename
 metadata_time_store.file_name = time_store_filename
 
-write_df_data(metadata_time_store, metadata_values_store, path_to_data, meta_store_filename, df_gait)
+write_df_data(metadata_time_store, metadata_values_store, path_to_data,
+              meta_store_filename, df_gait)
 </pre></div>
 </div>
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>df_gait, _, _ = load_tsdf_dataframe(path_to_data, prefix=f&#39;segment{raw_data_segment_nr}&#39;)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>df_gait, _, _ = load_tsdf_dataframe(
+    path_to_data,
+    prefix=f&#39;segment{raw_data_segment_nr}&#39;
+)
 df_gait.head()
 </pre></div>
 </div>
 </div>
 </div>
-<p>Once again, the <code class="docutils literal notranslate"><span class="pre">time</span></code> column indicates the start time of the window. Therefore, it can be observed that probabilities are predicted of overlapping windows, and not of individual timestamps. The function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/util.py"><code class="docutils literal notranslate"><span class="pre">merge_timestamps_with_predictions</span></code></a> can be used to retrieve predicted probabilities per timestamp by aggregating the predicted probabilities of overlapping windows. This function is included in the next step.</p>
+<p>Once again, the <code class="docutils literal notranslate"><span class="pre">time</span></code> column indicates the start time of the window. Therefore, it can be observed that probabilities are predicted of overlapping windows, and not of individual timestamps. The function <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/util/index.html#paradigma.util.merge_predictions_with_timestamps"><code class="docutils literal notranslate"><span class="pre">merge_timestamps_with_predictions</span></code></a> can be used to retrieve predicted probabilities per timestamp by aggregating the predicted probabilities of overlapping windows. This function is included in the next step.</p>
 </section>
 </section>
 <section id="step-4-arm-activity-feature-extraction">
 <h2>Step 4: Arm activity feature extraction<a class="headerlink" href="#step-4-arm-activity-feature-extraction" title="Link to this heading"></a></h2>
-<p>The extraction of arm swing features is similar to the extraction of gait features, but we use a different window length and step length (<code class="docutils literal notranslate"><span class="pre">config.window_length_s</span></code>, <code class="docutils literal notranslate"><span class="pre">config.window_step_length_s</span></code>) to distinguish between gait segments with and without other arm activities. Therefore, the following steps are conducted sequentially by <code class="docutils literal notranslate"><span class="pre">extract_arm_activity_features</span></code>:</p>
+<p>The extraction of arm swing features is similar to the extraction of gait features, but we use a different window length and step length (<code class="docutils literal notranslate"><span class="pre">config.window_length_s</span></code>, <code class="docutils literal notranslate"><span class="pre">config.window_step_length_s</span></code>) to distinguish between gait segments with and without other arm activities. Therefore, the following steps are conducted sequentially by <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/pipelines/gait_pipeline/index.html#paradigma.pipelines.gait_pipeline.extract_arm_activity_features"><code class="docutils literal notranslate"><span class="pre">extract_arm_activity_features</span></code></a>:</p>
 <ul class="simple">
 <li><p>Start with the preprocessed data of step 1</p></li>
 <li><p>Merge the gait predictions into the preprocessed data</p></li>
 <li><p>Discard predicted non-gait activities</p></li>
 <li><p>Create windows of the time series data and extract features</p></li>
 </ul>
-<p>But, first, the gait predictions should be merged with the preprocessed time series data, such that individual timestamps have a corresponding probability of gait. The function <code class="docutils literal notranslate"><span class="pre">extract_arm_activity_features</span></code> expects a time series dataframe of predicted gait.</p>
+<p>But, first, the gait predictions should be merged with the preprocessed time series data, such that individual timestamps have a corresponding probability of gait. The function <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/pipelines/gait_pipeline/index.html#paradigma.pipelines.gait_pipeline.extract_arm_activity_features"><code class="docutils literal notranslate"><span class="pre">extract_arm_activity_features</span></code></a> expects a time series dataframe of predicted gait.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from paradigma.constants import DataColumns
-from paradigma.util import merge_predictions_with_timestamps
-
-# Merge gait predictions into timeseries data
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Merge gait predictions into timeseries data
 if not any(df_gait[DataColumns.PRED_GAIT_PROBA] &gt;= clf_package_detection.threshold):
     raise ValueError(&quot;No gait detected in the input data.&quot;)
 
 gait_preprocessing_config = GaitConfig(step=&#39;gait&#39;)
 
 df = merge_predictions_with_timestamps(
-    df_ts=df_preprocessed, 
-    df_predictions=df_gait, 
+    df_ts=df_preprocessed,
+    df_predictions=df_gait,
     pred_proba_colname=DataColumns.PRED_GAIT_PROBA,
     window_length_s=gait_preprocessing_config.window_length_s,
     fs=gait_preprocessing_config.sampling_frequency
 )
 
 # Add a column for predicted gait based on a fitted threshold
-df[DataColumns.PRED_GAIT] = (df[DataColumns.PRED_GAIT_PROBA] &gt;= clf_package_detection.threshold).astype(int)
+df[DataColumns.PRED_GAIT] = (
+    df[DataColumns.PRED_GAIT_PROBA] &gt;= clf_package_detection.threshold
+).astype(int)
 
 # Filter the DataFrame to only include predicted gait (1)
 df = df.loc[df[DataColumns.PRED_GAIT]==1].reset_index(drop=True)
@@ -347,17 +396,19 @@ df = df.loc[df[DataColumns.PRED_GAIT]==1].reset_index(drop=True)
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from paradigma.pipelines.gait_pipeline import extract_arm_activity_features
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>config = GaitConfig(step=&#39;arm_activity&#39;)
 
-config = GaitConfig(step=&#39;arm_activity&#39;)
-
-df_arm_activity = extract_arm_activity_features(
-    df=df, 
+df_arm = extract_arm_activity_features(
+    df=df,
     config=config,
 )
 
-print(f&quot;A total of {df_arm_activity.shape[1] - 1} features have been extracted from {df_arm_activity.shape[0]} {config.window_length_s}-second windows with {config.window_length_s - config.window_step_length_s} seconds overlap.&quot;)
-df_arm_activity.head()
+print(
+    f&quot;A total of {df_arm.shape[1] - 1} features have been extracted &quot;
+    f&quot;from {df_arm.shape[0]} {config.window_length_s}-second windows &quot;
+    f&quot;with {config.window_length_s - config.window_step_length_s} seconds overlap.&quot;
+)
+df_arm.head()
 </pre></div>
 </div>
 </div>
@@ -369,35 +420,52 @@ df_arm_activity.head()
 <p>This classification task is similar to gait detection, although it uses a different classification object. The trained classifier is a logistic regression, similarly trained on the dataset of the <a class="reference external" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7584982/">Parkinson&#64;Home Validation Study</a>. Filtering gait is the process of detecting and removing gait segments containing other arm activities. This is an important process since individuals entertain a wide array of arm activities during gait: having hands in pockets, holding a dog leash, or carrying a plate to the kitchen. We trained a classifier to detect these other arm activities during gait, enabling accurate estimations of the arm swing.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from paradigma.classification import ClassifierPackage
-from paradigma.pipelines.gait_pipeline import filter_gait
-
-# Set the path to the classifier package
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Set the path to the classifier package
 classifier_package_filename = &#39;gait_filtering_clf_package.pkl&#39;
-full_path_to_classifier_package = files(&#39;paradigma&#39;) / &#39;assets&#39; / classifier_package_filename
+full_path_to_classifier_package = (
+    files(&#39;paradigma&#39;)
+    / &#39;assets&#39;
+    / classifier_package_filename
+)
 
 # Load the classifier package
 clf_package_filtering = ClassifierPackage.load(full_path_to_classifier_package)
+filt_threshold = clf_package_filtering.threshold
 
-# Detecting no_other_arm_activity returns the probability of no_other_arm_activity for each window, which is concatenated to
+# Detecting no_other_arm_activity returns the probability of
+# no_other_arm_activity for each window, which is concatenated to
 # the original dataframe
-df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] = filter_gait(
-    df=df_arm_activity,
+df_arm[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] = filter_gait(
+    df=df_arm,
     clf_package=clf_package_filtering
 )
 
 
-n_windows = df_arm_activity.shape[0]
-n_predictions_no_other_arm_activity = df_arm_activity.loc[df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] &gt;= clf_package_filtering.threshold].shape[0]
-perc_predictions_no_other_arm_activity = round(100 * n_predictions_no_other_arm_activity / n_windows, 1)
-n_predictions_other_arm_activity = df_arm_activity.loc[df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] &lt; clf_package_filtering.threshold].shape[0]
-perc_predictions_other_arm_activity = round(100 * n_predictions_other_arm_activity / n_windows, 1)
+n_windows = df_arm.shape[0]
+n_pred_no_other_arm_act = df_arm.loc[
+    df_arm[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] &gt;= filt_threshold
+].shape[0]
+perc_no_other_arm_activity = round(
+    100 * n_pred_no_other_arm_act / n_windows,
+    1
+)
+n_pred_other_arm_act = df_arm.loc[
+    df_arm[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] &lt; filt_threshold
+].shape[0]
+perc_other_arm_activity = round(
+    100 * n_pred_other_arm_act / n_windows,
+    1
+)
 
-print(f&quot;Out of {n_windows} windows, {n_predictions_no_other_arm_activity} ({perc_predictions_no_other_arm_activity}%) were predicted as no_other_arm_activity, and {n_predictions_other_arm_activity} ({perc_predictions_other_arm_activity}%) as other_arm_activity.&quot;)
+print(
+    f&quot;Out of {n_windows} windows, {n_pred_no_other_arm_act} &quot;
+    f&quot;({perc_no_other_arm_activity}%) were predicted as no_other_arm_activity, &quot;
+    f&quot;and {n_pred_other_arm_act} ({perc_other_arm_activity}%) as other_arm_activity.&quot;
+)
 
-# Only the time and predicted probabilities are shown, but the dataframe also contains
-# the extracted features
-df_arm_activity[[config.time_colname, DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]].head()
+# Only the time and predicted probabilities are shown,
+# but the dataframe also contains the extracted features
+df_arm[[config.time_colname, DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]].head()
 </pre></div>
 </div>
 </div>
@@ -412,35 +480,35 @@ df_arm_activity[[config.time_colname, DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PRO
 <div class="cell_input docutils container">
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Merge arm activity predictions into timeseries data
 
-if not any(df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] &gt;= clf_package_filtering.threshold):
-    raise ValueError(&quot;No gait without other arm activities detected in the input data.&quot;)
+if not any(
+    df_arm[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] &gt;= filt_threshold
+):
+    raise ValueError(
+        &quot;No gait without other arm activities detected in the input data.&quot;
+    )
 
 config = GaitConfig(step=&#39;arm_activity&#39;)
 
 df = merge_predictions_with_timestamps(
-    df_ts=df_preprocessed, 
-    df_predictions=df_arm_activity, 
+    df_ts=df_preprocessed,
+    df_predictions=df_arm,
     pred_proba_colname=DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA,
     window_length_s=config.window_length_s,
     fs=config.sampling_frequency
 )
 
 # Add a column for predicted gait based on a fitted threshold
-df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] &gt;= clf_package_filtering.threshold).astype(int)
-
-# Filter the DataFrame to only include predicted gait (1)
-df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True)
+df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
+    df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] &gt;= filt_threshold
+).astype(int)
 </pre></div>
 </div>
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from paradigma.pipelines.gait_pipeline import quantify_arm_swing
-from pprint import pprint
-
-# Set to True to quantify arm swing based on the filtered gait segments, and False
-# to quantify arm swing based on all gait segments
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Set to True to quantify arm swing based on the filtered gait segments, and
+# False to quantify arm swing based on all gait segments
 filtered = True
 
 if filtered:
@@ -458,16 +526,31 @@ quantified_arm_swing, gait_segment_meta = quantify_arm_swing(
     min_segment_length_s=config.min_segment_length_s,
 )
 
-print(f&quot;Gait segments are created of minimum {config.min_segment_length_s} seconds and maximum {config.max_segment_gap_s} seconds gap between segments.\n&quot;)
-print(f&quot;A total of {quantified_arm_swing[&#39;segment_nr&#39;].nunique()} {dataset_used} gait segments have been quantified.&quot;)
+print(
+    f&quot;Gait segments are created of minimum {config.min_segment_length_s} seconds &quot;
+    f&quot;and maximum {config.max_segment_gap_s} seconds gap between segments.\n&quot;
+)
+print(
+    f&quot;A total of {quantified_arm_swing[&#39;gait_segment_nr&#39;].nunique()} {dataset_used} &quot;
+    f&quot;gait segments have been quantified.&quot;
+)
 
 print(&quot;\nMetadata of the first gait segment:&quot;)
-pprint(gait_segment_meta[&#39;per_segment&#39;][1])
+print(json.dumps(gait_segment_meta[&#39;per_segment&#39;][1], indent = 1))
 
-print(f&quot;\nOf this example, the filtered gait segment of {gait_segment_meta[&#39;per_segment&#39;][1][&#39;duration_filtered_segment_s&#39;]} seconds is part of an unfiltered segment of {gait_segment_meta[&#39;per_segment&#39;][1][&#39;duration_unfiltered_segment_s&#39;]} seconds, which is at least as large as the filtered gait segment.&quot;)
+filt_example_s = gait_segment_meta[&#39;per_segment&#39;][1][&#39;duration_filtered_segment_s&#39;]
+unfilt_example_s = gait_segment_meta[&#39;per_segment&#39;][1][&#39;duration_unfiltered_segment_s&#39;]
+print(
+    f&quot;\nOf this example, the filtered gait segment of {filt_example_s} seconds &quot;
+    f&quot;is part of an unfiltered segment of {unfilt_example_s} seconds, which is &quot;
+    f&quot;at least as large as the filtered gait segment.&quot;
+)
 
-print(f&quot;\nIndividual arm swings of the first gait segment of the {dataset_used} dataset:&quot;)
-quantified_arm_swing.loc[quantified_arm_swing[&#39;segment_nr&#39;] == 1]
+print(
+    f&quot;\nIndividual arm swings of the first gait segment of the &quot;
+    f&quot; {dataset_used} dataset:&quot;
+)
+quantified_arm_swing.loc[quantified_arm_swing[&#39;gait_segment_nr&#39;] == 1]
 </pre></div>
 </div>
 </div>
@@ -477,53 +560,53 @@ quantified_arm_swing.loc[quantified_arm_swing[&#39;segment_nr&#39;] == 1]
 <p>If your data is also stored in multiple raw data segments, you can modify <code class="docutils literal notranslate"><span class="pre">raw_data_segments</span></code> in the cell below to a list of the filenames of your respective segmented data.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>import pandas as pd
-from pathlib import Path
-from importlib.resources import files
-from pprint import pprint
-
-from paradigma.util import load_tsdf_dataframe, merge_predictions_with_timestamps
-from paradigma.config import IMUConfig, GaitConfig
-from paradigma.preprocessing import preprocess_imu_data
-from paradigma.pipelines.gait_pipeline import extract_gait_features, detect_gait,extract_arm_activity_features, filter_gait, quantify_arm_swing
-from paradigma.constants import DataColumns
-from paradigma.classification import ClassifierPackage
-
-# Set the path to where the prepared data is saved
-path_to_data =  Path(&#39;../../example_data&#39;)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Set the path to where the prepared data is saved
+path_to_data =  Path(&#39;../../example_data/verily&#39;)
 path_to_prepared_data = path_to_data / &#39;imu&#39;
 
 # Load the gait detection classifier package
 classifier_package_filename = &#39;gait_detection_clf_package.pkl&#39;
-full_path_to_classifier_package = files(&#39;paradigma&#39;) / &#39;assets&#39; / classifier_package_filename
+full_path_to_classifier_package = (
+    files(&#39;paradigma&#39;)
+    / &#39;assets&#39;
+    / classifier_package_filename
+)
 clf_package_detection = ClassifierPackage.load(full_path_to_classifier_package)
 
 # Load the gait filtering classifier package
 classifier_package_filename = &#39;gait_filtering_clf_package.pkl&#39;
-full_path_to_classifier_package = files(&#39;paradigma&#39;) / &#39;assets&#39; / classifier_package_filename
+full_path_to_classifier_package = (
+    files(&#39;paradigma&#39;)
+    / &#39;assets&#39;
+    / classifier_package_filename
+)
 clf_package_filtering = ClassifierPackage.load(full_path_to_classifier_package)
 
-# Set to True to quantify arm swing based on the filtered gait segments, and False
-# to quantify arm swing based on all gait segments
+# Set to True to quantify arm swing based on the filtered gait segments, and
+# False to quantify arm swing based on all gait segments
 filtered = True
 
-# Create a list to store all quantified arm swing segments 
+# Create a list to store all quantified arm swing segments
 list_quantified_arm_swing = []
-max_gait_segment_nr = 0 
+max_gait_segment_nr = 0
 
-raw_data_segments  = [&#39;0001&#39;, &#39;0002&#39;] # list with all available raw data segments
+raw_data_segments  = [&#39;0001&#39;, &#39;0002&#39;]  # list with all available raw data segments
 
 for raw_data_segment_nr in raw_data_segments:
-    
+
     # Load the data
-    df_imu, _, _ = load_tsdf_dataframe(path_to_prepared_data, prefix=f&#39;IMU_segment{raw_data_segment_nr}&#39;)
+    df_imu, _, _ = load_tsdf_dataframe(
+        path_to_prepared_data,
+        prefix=f&#39;IMU_segment{raw_data_segment_nr}&#39;
+    )
 
     # 1: Preprocess the data
-    # Change column names if necessary by creating parameter column_mapping (see previous cells for an example)
+    # Change column names if necessary by creating parameter column_mapping
+    # (see previous cells for an example)
     config = IMUConfig()
 
     df_preprocessed = preprocess_imu_data(
-        df=df_imu, 
+        df=df_imu,
         config=config,
         sensor=&#39;both&#39;,
         watch_side=&#39;left&#39;,
@@ -533,7 +616,7 @@ for raw_data_segment_nr in raw_data_segments:
     config = GaitConfig(step=&#39;gait&#39;)
 
     df_gait = extract_gait_features(
-        df=df_preprocessed, 
+        df=df_preprocessed,
         config=config
     )
 
@@ -544,25 +627,29 @@ for raw_data_segment_nr in raw_data_segments:
     )
 
     # Merge gait predictions into timeseries data
-    if not any(df_gait[DataColumns.PRED_GAIT_PROBA] &gt;= clf_package_detection.threshold):
+    if not any(
+        df_gait[DataColumns.PRED_GAIT_PROBA] &gt;= clf_package_detection.threshold
+    ):
         raise ValueError(&quot;No gait detected in the input data.&quot;)
-    
+
     df = merge_predictions_with_timestamps(
-        df_ts=df_preprocessed, 
-        df_predictions=df_gait, 
+        df_ts=df_preprocessed,
+        df_predictions=df_gait,
         pred_proba_colname=DataColumns.PRED_GAIT_PROBA,
         window_length_s=config.window_length_s,
         fs=config.sampling_frequency
     )
 
-    df[DataColumns.PRED_GAIT] = (df[DataColumns.PRED_GAIT_PROBA] &gt;= clf_package_detection.threshold).astype(int)
+    df[DataColumns.PRED_GAIT] = (
+        df[DataColumns.PRED_GAIT_PROBA] &gt;= clf_package_detection.threshold
+    ).astype(int)
     df = df.loc[df[DataColumns.PRED_GAIT]==1].reset_index(drop=True)
 
     # 4: Extract arm activity features
     config = GaitConfig(step=&#39;arm_activity&#39;)
 
     df_arm_activity = extract_arm_activity_features(
-        df=df, 
+        df=df,
         config=config,
     )
 
@@ -573,18 +660,24 @@ for raw_data_segment_nr in raw_data_segments:
     )
 
     # Merge arm activity predictions into timeseries data
-    if not any(df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] &gt;= clf_package_filtering.threshold):
-        raise ValueError(&quot;No gait without other arm activities detected in the input data.&quot;)
+    if not any(
+        df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] &gt;= filt_threshold
+    ):
+        raise ValueError(
+            &quot;No gait without other arm activities detected in the input data.&quot;
+        )
 
     df = merge_predictions_with_timestamps(
-        df_ts=df_preprocessed, 
-        df_predictions=df_arm_activity, 
+        df_ts=df_preprocessed,
+        df_predictions=df_arm_activity,
         pred_proba_colname=DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA,
         window_length_s=config.window_length_s,
         fs=config.sampling_frequency
     )
 
-    df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] &gt;= clf_package_filtering.threshold).astype(int)
+    df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
+        df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] &gt;= filt_threshold
+    ).astype(int)
     df = df.loc[df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY]==1].reset_index(drop=True)
 
     # 6: Quantify arm swing
@@ -596,11 +689,18 @@ for raw_data_segment_nr in raw_data_segments:
         min_segment_length_s=config.min_segment_length_s,
     )
 
-    # Since segments start at zero, and we are concatenating multiple segments, we need to
-    # update the segment numbers to avoid aggregating multiple segments with the same number.
-    max_gait_segment_nr = quantified_arm_swing[&#39;segment_nr&#39;].max() if len(list_quantified_arm_swing) == 0 else 0
-    quantified_arm_swing[&#39;segment_nr&#39;] += max_gait_segment_nr
-    gait_segment_meta[&#39;per_segment&#39;] = {k + max_gait_segment_nr: v for k, v in gait_segment_meta[&#39;per_segment&#39;].items()}
+    # Since gait segments start at zero, and we are concatenating multiple segments,
+    # we need to update the gait segment numbers to avoid aggregating multiple
+    # gait segments with the same number
+    if len(list_quantified_arm_swing) == 0:
+        max_gait_segment_nr = 0
+    else:
+        max_gait_segment_nr = quantified_arm_swing[&#39;gait_segment_nr&#39;].max()
+
+    quantified_arm_swing[&#39;gait_segment_nr&#39;] += max_gait_segment_nr
+    gait_segment_meta[&#39;per_segment&#39;] = {
+        k + max_gait_segment_nr: v for k, v in gait_segment_meta[&#39;per_segment&#39;].items()
+    }
 
     # Add the predictions of the current raw data segment to the list
     quantified_arm_swing[&#39;raw_data_segment_nr&#39;] = raw_data_segment_nr
@@ -616,13 +716,10 @@ quantified_arm_swing = pd.concat(list_quantified_arm_swing, ignore_index=True)
 <section id="step-7-aggregation">
 <h2>Step 7: Aggregation<a class="headerlink" href="#step-7-aggregation" title="Link to this heading"></a></h2>
 <p>Finally, the arm swing estimates can be aggregated across all gait segments.</p>
-<p>Optionally, gait segments can be categorized into bins of specific length. Bins are tuples <code class="docutils literal notranslate"><span class="pre">(a,</span> <span class="pre">b)</span></code> including <code class="docutils literal notranslate"><span class="pre">a</span></code> and excluding <code class="docutils literal notranslate"><span class="pre">b</span></code>, i.e., gait segments ≥ <code class="docutils literal notranslate"><span class="pre">a</span></code> seconds and &lt; <code class="docutils literal notranslate"><span class="pre">b</span></code> seconds. For example, to analyze gait segments of at least 20 seconds, the tuple <code class="docutils literal notranslate"><span class="pre">(20,</span> <span class="pre">np.inf)</span></code> can be used. In case you want to analyze all gait segments combined, use <code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">np.inf)</span></code>.</p>
+<p>Optionally, gait segments can be categorized into bins of specific length. Bins are tuples <em>(a, b)</em> including <em>a</em> and excluding <em>b</em>, i.e., gait segments <code class="docutils literal notranslate"><span class="pre">≥</span> <span class="pre">a</span></code> seconds and <code class="docutils literal notranslate"><span class="pre">&lt;</span> <span class="pre">b</span></code> seconds. For example, to analyze gait segments of at least 20 seconds, the tuple <code class="docutils literal notranslate"><span class="pre">(20,</span> <span class="pre">np.inf)</span></code> can be used. In case you want to analyze all gait segments combined, use <code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">np.inf)</span></code>.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>import numpy as np
-from paradigma.pipelines.gait_pipeline import aggregate_arm_swing_params
-
-segment_categories = [(0,10), (10,20), (20, np.inf), (0, np.inf)]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>segment_categories = [(0,10), (10,20), (20, np.inf), (0, np.inf)]
 
 arm_swing_aggregations = aggregate_arm_swing_params(
     df_arm_swing_params=quantified_arm_swing,
@@ -631,7 +728,7 @@ arm_swing_aggregations = aggregate_arm_swing_params(
     aggregates=[&#39;median&#39;, &#39;95p&#39;]
 )
 
-pprint(arm_swing_aggregations, sort_dicts=False)
+print(json.dumps(arm_swing_aggregations, indent=2))
 </pre></div>
 </div>
 </div>

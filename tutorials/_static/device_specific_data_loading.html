@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Device specific data loading &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Device specific data loading</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/tutorials/_static/device_specific_data_loading.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="device-specific-data-loading">
+<h1>Device specific data loading<a class="headerlink" href="#device-specific-data-loading" title="Link to this heading"></a></h1>
+<p>This tutorial demonstrates how to load sensor data of the following devices into memory:</p>
+<ul class="simple">
+<li><p>Axivity AX3 / AX6</p></li>
+<li><p>Empatica EmbracePlus</p></li>
+</ul>
+<p>Note that Paradigma requires further data preparation as outlined in <a class="reference internal" href="data_preparation.html"><span class="doc std std-doc">the data preparation tutorial</span></a>.</p>
+<section id="axivity">
+<h2>Axivity<a class="headerlink" href="#axivity" title="Link to this heading"></a></h2>
+<p>Axivity sensor data (AX3 &amp; AX6) are stored in <code class="docutils literal notranslate"><span class="pre">.CWA</span></code> format, which requires some preparation to be processable. In this tutorial, we showcase how to transform <code class="docutils literal notranslate"><span class="pre">.CWA</span></code> files into a workable format in Python using <code class="docutils literal notranslate"><span class="pre">openmovement</span></code>. More information on the <code class="docutils literal notranslate"><span class="pre">openmovement</span></code> package can be found on the <a class="reference external" href="https://github.com/openmovementproject/openmovement-python">Open Movement GitHub page</a>.</p>
+<p>For the <code class="docutils literal notranslate"><span class="pre">openmovement</span></code> package, make sure to install the <code class="docutils literal notranslate"><span class="pre">master</span></code> branch, as this branch contains the valid code for preparing <code class="docutils literal notranslate"><span class="pre">.CWA</span></code> data. This can for example be done using <code class="docutils literal notranslate"><span class="pre">pip</span></code> by running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/digitalinteraction/openmovement-python.git@master
+</pre></div>
+</div>
+<p>Or, when using Poetry, add the following line to the list of dependencies in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="n">openmovement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">git</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;https://github.com/digitalinteraction/openmovement-python.git&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">branch</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;master&quot;</span><span class="w"> </span><span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pprint</span><span class="w"> </span><span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openmovement.load</span><span class="w"> </span><span class="kn">import</span> <span class="n">CwaData</span>
+
+<span class="c1"># Load data</span>
+<span class="n">path_to_input_data</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../example_data/axivity/&#39;</span><span class="p">)</span>
+<span class="n">test_data_filename</span> <span class="o">=</span> <span class="s1">&#39;test_data.CWA&#39;</span>
+<span class="n">prepared_data_filename</span> <span class="o">=</span> <span class="s1">&#39;test_data.parquet&#39;</span>
+
+<span class="c1"># Note: Set include_gyro to False when using AX3 devices without gyroscope,</span>
+<span class="c1"># or when gyroscope data is not needed</span>
+<span class="k">with</span> <span class="n">CwaData</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="n">path_to_input_data</span> <span class="o">/</span> <span class="n">test_data_filename</span><span class="p">,</span>
+    <span class="n">include_gyro</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">include_temperature</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span> <span class="k">as</span> <span class="n">cwa_data</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Data format info:&quot;</span><span class="p">)</span>
+    <span class="n">pprint</span><span class="p">(</span><span class="n">cwa_data</span><span class="o">.</span><span class="n">data_format</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">cwa_data</span><span class="o">.</span><span class="n">get_samples</span><span class="p">()</span>  <span class="c1"># Load all samples into a DataFrame</span>
+
+<span class="c1"># Set time to start at 0 seconds</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;time_dt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Data format info:
+{&#39;accelAxis&#39;: 3,
+ &#39;accelRange&#39;: 8,
+ &#39;accelUnit&#39;: 4096,
+ &#39;battery&#39;: 3.955078125,
+ &#39;bytesPerAxis&#39;: 2,
+ &#39;bytesPerSample&#39;: 12,
+ &#39;channels&#39;: 6,
+ &#39;deviceFractional&#39;: 56510,
+ &#39;estimatedAfterLastSampleTime&#39;: 1763370002.7245483,
+ &#39;estimatedFirstSampleTime&#39;: 1763370002.3245482,
+ &#39;events&#39;: 1,
+ &#39;frequency&#39;: 100.0,
+ &#39;gyroAxis&#39;: 0,
+ &#39;gyroRange&#39;: 1000,
+ &#39;gyroUnit&#39;: 32.768,
+ &#39;light&#39;: 17,
+ &#39;numAxesBPS&#39;: 98,
+ &#39;rateCode&#39;: 74,
+ &#39;sampleCount&#39;: 40,
+ &#39;samplesPerSector&#39;: 40,
+ &#39;sequenceId&#39;: 0,
+ &#39;sessionId&#39;: 0,
+ &#39;temperature&#39;: 26.171875,
+ &#39;timestamp&#39;: 1763370002.7245483,
+ &#39;timestampOffset&#39;: 40,
+ &#39;timestampTime&#39;: &#39;2025-11-17 09:00:02.724&#39;}
+</pre></div>
+</div>
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>accel_x</th>
+      <th>accel_y</th>
+      <th>accel_z</th>
+      <th>gyro_x</th>
+      <th>gyro_y</th>
+      <th>gyro_z</th>
+      <th>time_dt</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000</td>
+      <td>0.837646</td>
+      <td>-0.139404</td>
+      <td>-0.514160</td>
+      <td>-5.981445</td>
+      <td>-1.312256</td>
+      <td>-10.620117</td>
+      <td>2025-11-17 09:00:02.324188160</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.010009</td>
+      <td>0.814453</td>
+      <td>-0.163086</td>
+      <td>-0.491699</td>
+      <td>-3.540039</td>
+      <td>-2.685547</td>
+      <td>-7.141113</td>
+      <td>2025-11-17 09:00:02.334197248</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.020018</td>
+      <td>0.805908</td>
+      <td>-0.148926</td>
+      <td>-0.484375</td>
+      <td>-1.251221</td>
+      <td>-6.530762</td>
+      <td>-6.439209</td>
+      <td>2025-11-17 09:00:02.344206336</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.030027</td>
+      <td>0.798096</td>
+      <td>-0.148926</td>
+      <td>-0.485107</td>
+      <td>0.183105</td>
+      <td>-11.138916</td>
+      <td>-4.852295</td>
+      <td>2025-11-17 09:00:02.354215168</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.040036</td>
+      <td>0.796143</td>
+      <td>-0.163574</td>
+      <td>-0.480957</td>
+      <td>2.777100</td>
+      <td>-16.235352</td>
+      <td>-3.112793</td>
+      <td>2025-11-17 09:00:02.364224256</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</section>
+<section id="empatica-embraceplus">
+<h2>Empatica EmbracePlus<a class="headerlink" href="#empatica-embraceplus" title="Link to this heading"></a></h2>
+<p>Empatica EmbracePlus sensor data is stored in Apache Avro (<code class="docutils literal notranslate"><span class="pre">.avro</span></code>) format. In short, Empatica automatically writes sensor data every 30 minutes to a cloud storage with the naming convention [participant_id]_[timestamp].avro. In this tutorial we will show how to read and prepare a single <code class="docutils literal notranslate"><span class="pre">.avro</span></code> file.</p>
+<p>For more detailed documentation on using this data format in Python, consider reading <a class="reference external" href="https://avro.apache.org/docs/">the official Apache Avro documentation</a>. Extensive documentation is available on how to read and write <code class="docutils literal notranslate"><span class="pre">.avro</span></code> files in Python <a class="reference external" href="https://avro.apache.org/docs/++version++/getting-started-python/">here</a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">avro.datafile</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataFileReader</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">avro.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatumReader</span>
+
+<span class="n">path_to_input_data</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../example_data/empatica/&#39;</span><span class="p">)</span>
+<span class="n">empatica_data_filename</span> <span class="o">=</span> <span class="s1">&#39;test_data.avro&#39;</span>
+
+<span class="c1">## Read Avro file</span>
+<span class="c1"># reader = DataFileReader(</span>
+<span class="c1">#     open(path_to_empatica_data / empatica_data_filename, &quot;rb&quot;),</span>
+<span class="c1">#     DatumReader()</span>
+<span class="c1"># )</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path_to_input_data</span> <span class="o">/</span> <span class="n">empatica_data_filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">reader</span> <span class="o">=</span> <span class="n">DataFileReader</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">DatumReader</span><span class="p">())</span>
+
+    <span class="n">schema</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">reader</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;avro.schema&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+    <span class="n">empatica_data</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
+
+<span class="n">accel_data</span> <span class="o">=</span> <span class="n">empatica_data</span><span class="p">[</span><span class="s1">&#39;rawData&#39;</span><span class="p">][</span><span class="s1">&#39;accelerometer&#39;</span><span class="p">]</span>
+
+<span class="c1"># The example data does not contain gyroscope data, but if it did,</span>
+<span class="c1"># you could access it like this:</span>
+<span class="c1"># gyro_data = empatica_data[&#39;rawData&#39;][&#39;gyroscope&#39;]</span>
+
+<span class="c1"># To convert accelerometer and gyroscope data into the correct format, we need to</span>
+<span class="c1"># check the Avro schema version. This converts accelerometer into g (9.81 m/s²) units,</span>
+<span class="c1"># and gyroscope into degrees per second (rad/s). More info on units and conversion</span>
+<span class="c1"># can be found in the schema object using: print(schema).</span>
+
+<span class="n">avro_version</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="n">empatica_data</span><span class="p">[</span><span class="s2">&quot;schemaVersion&quot;</span><span class="p">][</span><span class="s2">&quot;major&quot;</span><span class="p">]),</span>
+    <span class="p">(</span><span class="n">empatica_data</span><span class="p">[</span><span class="s2">&quot;schemaVersion&quot;</span><span class="p">][</span><span class="s2">&quot;minor&quot;</span><span class="p">]),</span>
+    <span class="p">(</span><span class="n">empatica_data</span><span class="p">[</span><span class="s2">&quot;schemaVersion&quot;</span><span class="p">][</span><span class="s2">&quot;patch&quot;</span><span class="p">]),</span>
+<span class="p">)</span>
+
+<span class="c1"># Due to changes in the Avro schema, conversion differs for versions</span>
+<span class="c1"># before and after 6.5.0</span>
+<span class="k">if</span> <span class="n">avro_version</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="n">physical_range</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">accel_data</span><span class="p">[</span><span class="s2">&quot;imuParams&quot;</span><span class="p">][</span><span class="s2">&quot;physicalMax&quot;</span><span class="p">]</span>
+        <span class="o">-</span> <span class="n">accel_data</span><span class="p">[</span><span class="s2">&quot;imuParams&quot;</span><span class="p">][</span><span class="s2">&quot;physicalMin&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">digital_range</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">accel_data</span><span class="p">[</span><span class="s2">&quot;imuParams&quot;</span><span class="p">][</span><span class="s2">&quot;digitalMax&quot;</span><span class="p">]</span>
+        <span class="o">-</span> <span class="n">accel_data</span><span class="p">[</span><span class="s2">&quot;imuParams&quot;</span><span class="p">][</span><span class="s2">&quot;digitalMin&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">accel_x</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span> <span class="o">*</span> <span class="n">physical_range</span> <span class="o">/</span> <span class="n">digital_range</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">accel_data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]]</span>
+    <span class="n">accel_y</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span> <span class="o">*</span> <span class="n">physical_range</span> <span class="o">/</span> <span class="n">digital_range</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">accel_data</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]]</span>
+    <span class="n">accel_z</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span> <span class="o">*</span> <span class="n">physical_range</span> <span class="o">/</span> <span class="n">digital_range</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">accel_data</span><span class="p">[</span><span class="s2">&quot;z&quot;</span><span class="p">]]</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">conversion_factor</span> <span class="o">=</span> <span class="n">accel_data</span><span class="p">[</span><span class="s2">&quot;imuParams&quot;</span><span class="p">][</span><span class="s2">&quot;conversionFactor&quot;</span><span class="p">]</span>
+    <span class="n">accel_x</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span> <span class="o">*</span> <span class="n">conversion_factor</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">accel_data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]]</span>
+    <span class="n">accel_y</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span> <span class="o">*</span> <span class="n">conversion_factor</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">accel_data</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]]</span>
+    <span class="n">accel_z</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span> <span class="o">*</span> <span class="n">conversion_factor</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">accel_data</span><span class="p">[</span><span class="s2">&quot;z&quot;</span><span class="p">]]</span>
+
+<span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">accel_data</span><span class="p">[</span><span class="s1">&#39;samplingFrequency&#39;</span><span class="p">]</span>
+<span class="n">nrows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">accel_x</span><span class="p">)</span>
+
+<span class="n">t_start</span> <span class="o">=</span> <span class="n">accel_data</span><span class="p">[</span><span class="s1">&#39;timestampStart&#39;</span><span class="p">]</span>
+<span class="n">t_array</span> <span class="o">=</span> <span class="p">[</span><span class="n">t_start</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1e6</span> <span class="o">/</span><span class="n">sampling_frequency</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrows</span><span class="p">)]</span>
+<span class="n">t_from_0_array</span> <span class="o">=</span> <span class="p">([(</span><span class="n">x</span> <span class="o">-</span> <span class="n">t_array</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mf">1e6</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">t_array</span><span class="p">])</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">t_from_0_array</span><span class="p">,</span>
+    <span class="s1">&#39;time_dt&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">t_array</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;us&#39;</span><span class="p">),</span>
+    <span class="s1">&#39;accel_x&#39;</span><span class="p">:</span> <span class="n">accel_x</span><span class="p">,</span>
+    <span class="s1">&#39;accel_y&#39;</span><span class="p">:</span> <span class="n">accel_y</span><span class="p">,</span>
+    <span class="s1">&#39;accel_z&#39;</span><span class="p">:</span> <span class="n">accel_z</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Data loaded from Avro file with </span><span class="si">{</span><span class="n">nrows</span><span class="si">}</span><span class="s2"> rows sampled &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;at </span><span class="si">{</span><span class="n">sampling_frequency</span><span class="si">}</span><span class="s2"> Hz.&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Start time: </span><span class="si">{</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">t_start</span><span class="p">,</span><span class="w"> </span><span class="n">unit</span><span class="o">=</span><span class="s1">&#39;us&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Data loaded from Avro file with 115904 rows sampled at 63.99989700317383 Hz.
+Start time: 2025-11-26 10:41:54.256034
+</pre></div>
+</div>
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>time_dt</th>
+      <th>accel_x</th>
+      <th>accel_y</th>
+      <th>accel_z</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000</td>
+      <td>2025-11-26 10:41:54.256034</td>
+      <td>-0.999424</td>
+      <td>-0.067832</td>
+      <td>0.197152</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.015625</td>
+      <td>2025-11-26 10:41:54.271659</td>
+      <td>-1.003328</td>
+      <td>-0.063440</td>
+      <td>0.187392</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.031250</td>
+      <td>2025-11-26 10:41:54.287284</td>
+      <td>-0.989664</td>
+      <td>-0.072712</td>
+      <td>0.184952</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.046875</td>
+      <td>2025-11-26 10:41:54.302909</td>
+      <td>-0.996008</td>
+      <td>-0.069784</td>
+      <td>0.176656</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.062500</td>
+      <td>2025-11-26 10:41:54.318534</td>
+      <td>-0.998936</td>
+      <td>-0.057584</td>
+      <td>0.183000</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, and Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -46,17 +46,13 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">User guides</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
@@ -98,7 +94,6 @@
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -197,7 +192,8 @@
     <span class="n">imu_config</span><span class="p">:</span> <span class="n">IMUConfig</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Preprocess PPG and IMU data by resampling, filtering, and aligning the data segments.</span>
+<span class="sd">    Preprocess PPG and IMU data by resampling, filtering, and aligning the</span>
+<span class="sd">    data segments.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -646,13 +642,15 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    input_path : str | Path</span>
-<span class="sd">        The path to the directory containing the preprocessed PPG and accelerometer data.</span>
+<span class="sd">        The path to the directory containing the preprocessed PPG and</span>
+<span class="sd">        accelerometer data.</span>
 <span class="sd">    output_path : str | Path</span>
 <span class="sd">        The path to the directory where the extracted features will be saved.</span>
 <span class="sd">    ppg_config: PulseRateConfig</span>
 <span class="sd">        The configuration for the signal quality feature extraction of the ppg signal.</span>
 <span class="sd">    acc_config: PulseRateConfig</span>
-<span class="sd">        The configuration for the signal quality feature extraction of the accelerometer signal.</span>
+<span class="sd">        The configuration for the signal quality feature extraction of the</span>
+<span class="sd">        accelerometer signal.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -718,23 +716,26 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">aggregate_pulse_rate_io</span><span class="p">(</span>
     <span class="n">full_path_to_input</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">full_path_to_output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
-    <span class="n">aggregates</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">,</span> <span class="s2">&quot;99p&quot;</span><span class="p">],</span>
+    <span class="n">aggregates</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">,</span> <span class="s2">&quot;99p&quot;</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Extract pulse rate from the PPG signal and save the aggregated pulse rate estimates to a file.</span>
+<span class="sd">    Extract pulse rate from the PPG signal and save the aggregated pulse rate</span>
+<span class="sd">    estimates to a file.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    input_path : str | Path</span>
 <span class="sd">        The path to the directory containing the pulse rate estimates.</span>
 <span class="sd">    output_path : str | Path</span>
-<span class="sd">        The path to the directory where the aggregated pulse rate estimates will be saved.</span>
+<span class="sd">        The path to the directory where the aggregated pulse rate estimates</span>
+<span class="sd">        will be saved.</span>
 <span class="sd">    aggregates : List[str]</span>
-<span class="sd">        The list of aggregation methods to be used for the pulse rate estimates. The default is [&#39;mode&#39;, &#39;99p&#39;].</span>
+<span class="sd">        The list of aggregation methods to be used for the pulse rate</span>
+<span class="sd">        estimates. The default is [&#39;mode&#39;, &#39;99p&#39;].</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Load the pulse rate estimates</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">full_path_to_input</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">full_path_to_input</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">df_pr</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
     <span class="c1"># Aggregate the pulse rate estimates</span>

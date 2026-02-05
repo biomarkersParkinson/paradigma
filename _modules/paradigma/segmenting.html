@@ -46,17 +46,13 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">User guides</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
@@ -95,9 +91,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for paradigma.segmenting</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span>
@@ -108,19 +102,21 @@
 <a class="viewcode-back" href="../../autoapi/paradigma/segmenting/index.html#paradigma.segmenting.tabulate_windows">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">tabulate_windows</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-    <span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">window_length_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">window_step_length_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Split the given DataFrame into overlapping windows of specified length and step size.</span>
+<span class="sd">    Split the given DataFrame into overlapping windows of specified length</span>
+<span class="sd">    and step size.</span>
 
-<span class="sd">    This function extracts windows of data from the specified columns of the DataFrame, based on</span>
-<span class="sd">    the window length and step size provided in the configuration. The windows are returned in</span>
-<span class="sd">    a 3D NumPy array, where the first dimension represents the window index, the second dimension</span>
-<span class="sd">    represents the time steps within the window, and the third dimension represents the columns</span>
-<span class="sd">    of the data.</span>
+<span class="sd">    This function extracts windows of data from the specified columns of the</span>
+<span class="sd">    DataFrame, based on the window length and step size provided in the</span>
+<span class="sd">    configuration. The windows are returned in a 3D NumPy array, where the</span>
+<span class="sd">    first dimension represents the window index, the second dimension</span>
+<span class="sd">    represents the time steps within the window, and the third dimension</span>
+<span class="sd">    represents the columns of the data.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -139,17 +135,22 @@
 <span class="sd">    -------</span>
 <span class="sd">    np.ndarray</span>
 <span class="sd">        A 3D NumPy array of shape (n_windows, window_size, n_columns), where:</span>
-<span class="sd">        - `n_windows` is the number of windows that can be formed from the data.</span>
-<span class="sd">        - `window_size` is the length of each window in terms of the number of time steps.</span>
-<span class="sd">        - `n_columns` is the number of columns in the input DataFrame specified by `columns`.</span>
+<span class="sd">        - `n_windows` is the number of windows that can be formed from the</span>
+<span class="sd">          data.</span>
+<span class="sd">        - `window_size` is the length of each window in terms of the number</span>
+<span class="sd">          of time steps.</span>
+<span class="sd">        - `n_columns` is the number of columns in the input DataFrame</span>
+<span class="sd">          specified by `columns`.</span>
 
-<span class="sd">        If the length of the data is shorter than the specified window size, an empty array is returned.</span>
+<span class="sd">        If the length of the data is shorter than the specified window size,</span>
+<span class="sd">        an empty array is returned.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
-<span class="sd">    This function uses `np.lib.stride_tricks.sliding_window_view` to generate sliding windows of data.</span>
-<span class="sd">    The step size is applied to extract windows at intervals.</span>
-<span class="sd">    If the data is insufficient for at least one window, an empty array will be returned.</span>
+<span class="sd">    This function uses `np.lib.stride_tricks.sliding_window_view` to</span>
+<span class="sd">    generate sliding windows of data. The step size is applied to extract</span>
+<span class="sd">    windows at intervals. If the data is insufficient for at least one</span>
+<span class="sd">    window, an empty array will be returned.</span>
 
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
@@ -186,7 +187,8 @@
 <a class="viewcode-back" href="../../autoapi/paradigma/segmenting/index.html#paradigma.segmenting.tabulate_windows_legacy">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">tabulate_windows_legacy</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">agg_func</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Efficiently creates a windowed dataframe from the input dataframe using vectorized operations.</span>
+<span class="sd">    Efficiently creates a windowed dataframe from the input dataframe using</span>
+<span class="sd">    vectorized operations.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -195,11 +197,13 @@
 <span class="sd">        - `window_length_s`: The number of seconds per window.</span>
 <span class="sd">        - `window_step_length_s`: The number of seconds to shift between windows.</span>
 <span class="sd">        - `sampling_frequency`: The sampling frequency in Hz.</span>
-<span class="sd">        - `single_value_colnames`: List of column names where a single value (e.g., mean) is needed.</span>
-<span class="sd">        - `list_value_colnames`: List of column names where all 600 values should be stored in a list.</span>
+<span class="sd">        - `single_value_colnames`: List of column names where a single value</span>
+<span class="sd">          (e.g., mean) is needed.</span>
+<span class="sd">        - `list_value_colnames`: List of column names where all 600 values</span>
+<span class="sd">          should be stored in a list.</span>
 <span class="sd">    agg_func : str or callable, optional</span>
-<span class="sd">        Aggregation function for single-value columns. Can be &#39;mean&#39;, &#39;first&#39;, or a custom callable.</span>
-<span class="sd">        Default is &#39;first&#39;.</span>
+<span class="sd">        Aggregation function for single-value columns. Can be &#39;mean&#39;,</span>
+<span class="sd">        &#39;first&#39;, or a custom callable. Default is &#39;first&#39;.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -224,7 +228,8 @@
     <span class="n">n_rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">window_length</span> <span class="o">&gt;</span> <span class="n">n_rows</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Window size (</span><span class="si">{</span><span class="n">window_length</span><span class="si">}</span><span class="s2">) cannot be greater than the number of rows (</span><span class="si">{</span><span class="n">n_rows</span><span class="si">}</span><span class="s2">) in the dataframe.&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Window size (</span><span class="si">{</span><span class="n">window_length</span><span class="si">}</span><span class="s2">) cannot be greater than the &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;number of rows (</span><span class="si">{</span><span class="n">n_rows</span><span class="si">}</span><span class="s2">) in the dataframe.&quot;</span>
         <span class="p">)</span>
 
     <span class="c1"># Create indices for window start positions</span>
@@ -272,7 +277,8 @@
     <span class="c1"># Convert result list into a DataFrame</span>
     <span class="n">windowed_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
-    <span class="c1"># Ensure the column order is as desired: window_nr, window_start, window_end, pre_or_post, and then the rest</span>
+    <span class="c1"># Ensure the column order is as desired: window_nr, window_start,</span>
+    <span class="c1"># window_end, pre_or_post, and then the rest</span>
     <span class="n">desired_order</span> <span class="o">=</span> <span class="p">(</span>
         <span class="p">[</span><span class="s2">&quot;window_nr&quot;</span><span class="p">,</span> <span class="s2">&quot;window_start&quot;</span><span class="p">,</span> <span class="s2">&quot;window_end&quot;</span><span class="p">]</span>
         <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">single_value_colnames</span>
@@ -296,7 +302,7 @@
     <span class="n">gap_exceeds</span> <span class="o">=</span> <span class="n">time_diff</span> <span class="o">&gt;</span> <span class="n">max_segment_gap_s</span>
 
     <span class="c1"># Create the segment number based on the cumulative sum of the gap_exceeds mask</span>
-    <span class="n">segments</span> <span class="o">=</span> <span class="n">gap_exceeds</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span>
+    <span class="n">segments</span> <span class="o">=</span> <span class="n">gap_exceeds</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
 
     <span class="k">return</span> <span class="n">segments</span></div>
 
@@ -337,7 +343,8 @@
 
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
-<span class="sd">    config = Config(min_segment_length_s=2, sampling_frequency=100, segment_nr_colname=&#39;segment&#39;)</span>
+<span class="sd">    config = Config(min_segment_length_s=2, sampling_frequency=100,</span>
+<span class="sd">                    segment_nr_colname=&#39;segment&#39;)</span>
 <span class="sd">    df = pd.DataFrame({</span>
 <span class="sd">        &#39;segment&#39;: [1, 1, 2, 2, 2],</span>
 <span class="sd">        &#39;time&#39;: [0, 1, 2, 3, 4]</span>
@@ -353,26 +360,26 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Minimum segment size in number of samples</span>
     <span class="k">if</span> <span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;timestamps&quot;</span><span class="p">:</span>
-        <span class="n">min_samples</span> <span class="o">=</span> <span class="n">min_segment_length_s</span> <span class="o">*</span> <span class="n">fs</span>
+        <span class="n">min_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">min_segment_length_s</span> <span class="o">*</span> <span class="n">fs</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;windows&quot;</span><span class="p">:</span>
-        <span class="n">min_samples</span> <span class="o">=</span> <span class="n">min_segment_length_s</span>
+        <span class="n">min_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">min_segment_length_s</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid format. Must be &#39;timestamps&#39; or &#39;windows&#39;.&quot;</span><span class="p">)</span>
 
-    <span class="c1"># Group by segment and filter out small segments in one step</span>
-    <span class="n">valid_segment_mask</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">segment_nr_colname</span><span class="p">)[</span><span class="n">segment_nr_colname</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;size&quot;</span><span class="p">)</span>
-        <span class="o">&gt;=</span> <span class="n">min_samples</span>
-    <span class="p">)</span>
+    <span class="c1"># Count samples per segment</span>
+    <span class="n">segment_counts</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">segment_nr_colname</span><span class="p">)</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
 
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">valid_segment_mask</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="c1"># Filter rows for valid segments (&gt;= min samples)</span>
+    <span class="n">counts_map</span> <span class="o">=</span> <span class="n">segment_counts</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">segment_nr_colname</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">counts_map</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_samples</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;All segments were removed.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;All segments were removed: no segment ≥ </span><span class="si">{</span><span class="n">min_samples</span><span class="si">}</span><span class="s2"> samples.&quot;</span>
+        <span class="p">)</span>
 
-    <span class="c1"># Reset segment numbers in a single step</span>
-    <span class="n">unique_segments</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">factorize</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">segment_nr_colname</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
-    <span class="n">df</span><span class="p">[</span><span class="n">segment_nr_colname</span><span class="p">]</span> <span class="o">=</span> <span class="n">unique_segments</span>
+    <span class="c1"># Reset segment numbers</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">segment_nr_colname</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">factorize</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">segment_nr_colname</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
 
     <span class="k">return</span> <span class="n">df</span></div>
 
@@ -424,7 +431,7 @@
         <span class="n">d_max_duration</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="o">*</span> <span class="n">fs</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d_max_duration</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
     <span class="c1"># Count rows per segment</span>
-    <span class="n">segment_sizes</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_NR</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="n">segment_sizes</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">GAIT_SEGMENT_NR</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
 
     <span class="c1"># Convert segment sizes to duration in seconds</span>
     <span class="k">if</span> <span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;windows&quot;</span><span class="p">:</span>
@@ -443,7 +450,10 @@
 
     <span class="c1"># Apply categorization to the DataFrame</span>
     <span class="k">return</span> <span class="p">(</span>
-        <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">SEGMENT_NR</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">segment_sizes</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">categorize</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">GAIT_SEGMENT_NR</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">segment_sizes</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">categorize</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">)</span>
     <span class="p">)</span></div>
 
 
@@ -468,7 +478,7 @@
 <span class="sd">        Returns a slice object for a range of consecutive column names.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">windowed_colnames</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">windowed_colnames</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the WindowedDataExtractor.</span>
 
@@ -514,7 +524,7 @@
 
 <div class="viewcode-block" id="WindowedDataExtractor.get_slice">
 <a class="viewcode-back" href="../../autoapi/paradigma/segmenting/index.html#paradigma.segmenting.WindowedDataExtractor.get_slice">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_slice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colnames</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">slice</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_slice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colnames</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">slice</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a slice object for a range of consecutive columns.</span>
 
@@ -531,7 +541,8 @@
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        ValueError</span>
-<span class="sd">            If one or more columns in `colnames` are not found in the `windowed_colnames` list.</span>
+<span class="sd">            If one or more columns in `colnames` are not found in the</span>
+<span class="sd">            `windowed_colnames` list.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_indices</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">colnames</span><span class="p">):</span>
             <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">colnames</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_indices</span><span class="p">]</span>

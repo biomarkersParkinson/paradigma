@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>paradigma.orchestrator &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">paradigma.orchestrator</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for paradigma.orchestrator</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">High-level pipeline orchestrator for ParaDigMa toolbox.</span>
+
+<span class="sd">This module provides the main entry point for running analysis pipelines:</span>
+
+<span class="sd">Main Function</span>
+<span class="sd">-------------</span>
+<span class="sd">- run_paradigma(): Complete pipeline from data loading/preparation</span>
+<span class="sd">  to aggregated results. Main entry point for end-to-end analysis</span>
+<span class="sd">  supporting multiple pipelines (gait, tremor, pulse_rate).</span>
+<span class="sd">  Can process raw data from disk or already-prepared DataFrames.</span>
+
+<span class="sd">The orchestrator coordinates:</span>
+<span class="sd">1. Data loading and preparation (unit conversion, resampling, orientation correction)</span>
+<span class="sd">2. Pipeline execution on single or multiple files (imports from pipeline modules)</span>
+<span class="sd">3. Result aggregation across files and segments</span>
+<span class="sd">4. Optional intermediate result storage</span>
+
+<span class="sd">Supports multi-file processing with automatic segment numbering and metadata tracking.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">GaitConfig</span><span class="p">,</span>
+    <span class="n">IMUConfig</span><span class="p">,</span>
+    <span class="n">PPGConfig</span><span class="p">,</span>
+    <span class="n">PulseRateConfig</span><span class="p">,</span>
+    <span class="n">TremorConfig</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span><span class="p">,</span> <span class="n">TimeUnit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.load</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_data_file_paths</span><span class="p">,</span>
+    <span class="n">load_single_data_file</span><span class="p">,</span>
+    <span class="n">save_prepared_data</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">aggregate_arm_swing_params</span><span class="p">,</span>
+    <span class="n">run_gait_pipeline</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.pulse_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">aggregate_pulse_rate</span><span class="p">,</span>
+    <span class="n">run_pulse_rate_pipeline</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.tremor_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_tremor</span><span class="p">,</span> <span class="n">run_tremor_pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.prepare_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">prepare_raw_data</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># Custom logging level for detailed info (between INFO=20 and DEBUG=10)</span>
+<span class="n">DETAILED_INFO</span> <span class="o">=</span> <span class="mi">15</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">addLevelName</span><span class="p">(</span><span class="n">DETAILED_INFO</span><span class="p">,</span> <span class="s2">&quot;DETAILED&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="run_paradigma">
+<a class="viewcode-back" href="../../autoapi/paradigma/orchestrator/index.html#paradigma.orchestrator.run_paradigma">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">run_paradigma</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dfs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">save_intermediate</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[],</span>
+    <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="s2">&quot;./output&quot;</span><span class="p">,</span>
+    <span class="n">skip_preparation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">pipelines</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">watch_side</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">accelerometer_units</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;g&quot;</span><span class="p">,</span>
+    <span class="n">gyroscope_units</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;deg/s&quot;</span><span class="p">,</span>
+    <span class="n">time_input_unit</span><span class="p">:</span> <span class="n">TimeUnit</span> <span class="o">=</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_S</span><span class="p">,</span>
+    <span class="n">target_frequency</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">100.0</span><span class="p">,</span>
+    <span class="n">column_mapping</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">device_orientation</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">],</span>
+    <span class="n">file_pattern</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">aggregates</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">segment_length_bins</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">split_by_gaps</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">max_gap_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">min_segment_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">imu_config</span><span class="p">:</span> <span class="n">IMUConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">ppg_config</span><span class="p">:</span> <span class="n">PPGConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">gait_config</span><span class="p">:</span> <span class="n">GaitConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">arm_activity_config</span><span class="p">:</span> <span class="n">GaitConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">tremor_config</span><span class="p">:</span> <span class="n">TremorConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">pulse_rate_config</span><span class="p">:</span> <span class="n">PulseRateConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">logging_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+    <span class="n">custom_logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Complete ParaDigMa analysis pipeline from data loading to aggregated results.</span>
+
+<span class="sd">    This is the main entry point for ParaDigMa analysis. It supports</span>
+<span class="sd">    multiple pipeline types:</span>
+<span class="sd">    - gait: Arm swing during gait analysis</span>
+<span class="sd">    - tremor: Tremor detection and quantification</span>
+<span class="sd">    - pulse_rate: Pulse rate estimation from PPG signals</span>
+
+<span class="sd">    The function:</span>
+<span class="sd">    1. Loads data files from the specified directory or uses provided DataFrame</span>
+<span class="sd">    2. Prepares raw data if needed (unit conversion, resampling, etc.)</span>
+<span class="sd">    3. Runs the specified pipeline on each data file</span>
+<span class="sd">    4. Aggregates results across all data files</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data_path : str or Path, optional</span>
+<span class="sd">        Path to directory containing data files.</span>
+<span class="sd">    dfs : DataFrame, list of DataFrames, or dict of DataFrames, optional</span>
+<span class="sd">        Dataframes used as input (bypasses data loading). Can be:</span>
+<span class="sd">        - Single DataFrame: Will be processed as one file with key &#39;df_1&#39;.</span>
+<span class="sd">        - List[DataFrame]: Multiple dataframes assigned IDs as &#39;df_1&#39;, &#39;df_2&#39;, etc.</span>
+<span class="sd">        - Dict[str, DataFrame]: Keys are file names, values are dataframes.</span>
+<span class="sd">        Note: The &#39;file_key&#39; column is only added to quantification results when</span>
+<span class="sd">        len(dfs) &gt; 1, allowing cleaner output for single-file processing.</span>
+<span class="sd">        See input_formats guide for details.</span>
+<span class="sd">    save_intermediate : list of str, default []</span>
+<span class="sd">        Which intermediate results to store. Valid values:</span>
+<span class="sd">        - &#39;preparation&#39;: Save prepared data</span>
+<span class="sd">        - &#39;preprocessing&#39;: Save preprocessed signals</span>
+<span class="sd">        - &#39;classification&#39;: Save classification results</span>
+<span class="sd">        - &#39;quantification&#39;: Save quantified measures</span>
+<span class="sd">        - &#39;aggregation&#39;: Save aggregated results</span>
+<span class="sd">        If empty, no files are saved (results are only returned).</span>
+<span class="sd">    output_dir : str or Path, default &#39;./output&#39;</span>
+<span class="sd">        Output directory for all results. Files are only saved if</span>
+<span class="sd">        save_intermediate is not empty.</span>
+<span class="sd">    skip_preparation : bool, default False</span>
+<span class="sd">        Whether data is already prepared. If False, data will be</span>
+<span class="sd">        prepared (unit conversion, resampling, etc.). If True,</span>
+<span class="sd">        assumes data is already in the required format.</span>
+<span class="sd">    pipelines : list of str or str, optional</span>
+<span class="sd">        Pipelines to run: &#39;gait&#39;, &#39;tremor&#39;, and/or &#39;pulse_rate&#39;.</span>
+<span class="sd">        If providing a list, currently only tremor and gait pipelines</span>
+<span class="sd">        can be run together.</span>
+<span class="sd">    watch_side : str, optional</span>
+<span class="sd">        Watch side: &#39;left&#39; or &#39;right&#39; (required for gait pipeline).</span>
+<span class="sd">    accelerometer_units : str, default &#39;m/s^2&#39;</span>
+<span class="sd">        Units for accelerometer data.</span>
+<span class="sd">    gyroscope_units : str, default &#39;deg/s&#39;</span>
+<span class="sd">        Units for gyroscope data.</span>
+<span class="sd">    time_input_unit : TimeUnit, default TimeUnit.RELATIVE_S</span>
+<span class="sd">        Input time unit type.</span>
+<span class="sd">    target_frequency : float, default 100.0</span>
+<span class="sd">        Target sampling frequency for resampling.</span>
+<span class="sd">    column_mapping : dict, optional</span>
+<span class="sd">        Custom column name mapping.</span>
+<span class="sd">    device_orientation : list of str, optional</span>
+<span class="sd">        Custom device orientation corrections.</span>
+<span class="sd">    file_pattern : str or list of str, optional</span>
+<span class="sd">        File pattern(s) to match when loading data (e.g., &#39;parquet&#39;, &#39;*.csv&#39;).</span>
+<span class="sd">    aggregates : list of str, optional</span>
+<span class="sd">        Aggregation methods for quantification.</span>
+<span class="sd">    segment_length_bins : list of str, optional</span>
+<span class="sd">        Duration bins for gait segment aggregation (gait pipeline only).</span>
+<span class="sd">        Example: [&#39;(0, 10)&#39;, &#39;(10, 20)&#39;] for segments 0-10s and 10-20s.</span>
+<span class="sd">    split_by_gaps : bool, default False</span>
+<span class="sd">        If True, automatically split non-contiguous data into segments</span>
+<span class="sd">        during preparation.</span>
+<span class="sd">        Adds &#39;data_segment_nr&#39; column to prepared data which is preserved</span>
+<span class="sd">        through pipeline.</span>
+<span class="sd">        Useful for handling data with gaps/interruptions.</span>
+<span class="sd">    max_gap_seconds : float, optional</span>
+<span class="sd">        Maximum gap (seconds) before starting new segment. Used when split_by_gaps=True.</span>
+<span class="sd">        Defaults to 1.5s.</span>
+<span class="sd">    min_segment_seconds : float, optional</span>
+<span class="sd">        Minimum segment length (seconds) to keep. Used when split_by_gaps=True.</span>
+<span class="sd">        Defaults to 1.5s.</span>
+<span class="sd">    imu_config : IMUConfig, optional</span>
+<span class="sd">        IMU preprocessing configuration.</span>
+<span class="sd">    ppg_config : PPGConfig, optional</span>
+<span class="sd">        PPG preprocessing configuration.</span>
+<span class="sd">    gait_config : GaitConfig, optional</span>
+<span class="sd">        Gait analysis configuration.</span>
+<span class="sd">    arm_activity_config : GaitConfig, optional</span>
+<span class="sd">        Arm activity analysis configuration.</span>
+<span class="sd">    tremor_config : TremorConfig, optional</span>
+<span class="sd">        Tremor analysis configuration.</span>
+<span class="sd">    pulse_rate_config : PulseRateConfig, optional</span>
+<span class="sd">        Pulse rate analysis configuration.</span>
+<span class="sd">    logging_level : int, default logging.INFO</span>
+<span class="sd">        Logging level using standard logging constants:</span>
+<span class="sd">        - logging.ERROR: Only errors</span>
+<span class="sd">        - logging.WARNING: Warnings and errors</span>
+<span class="sd">        - logging.INFO: Basic progress information (default)</span>
+<span class="sd">        - logging.DEBUG: Detailed debug information</span>
+<span class="sd">        Can also use DETAILED_INFO (15) for intermediate detail level.</span>
+<span class="sd">    custom_logger : logging.Logger, optional</span>
+<span class="sd">        Custom logger instance. If provided, logging_level is ignored.</span>
+<span class="sd">        Allows full control over logging configuration.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Complete analysis results with nested structure for multiple pipelines:</span>
+<span class="sd">        - &#39;quantifications&#39;: dict with pipeline names as keys and DataFrames as values</span>
+<span class="sd">        - &#39;aggregations&#39;: dict with pipeline names as keys and result dicts as values</span>
+<span class="sd">        - &#39;metadata&#39;: dict with pipeline names as keys and metadata dicts as values</span>
+<span class="sd">        - &#39;errors&#39;: list of dicts tracking any errors that occurred during processing.</span>
+<span class="sd">          Each error dict contains &#39;stage&#39;, &#39;error&#39;, and optionally &#39;file&#39; and</span>
+<span class="sd">          &#39;pipeline&#39;.</span>
+<span class="sd">          Empty list indicates successful processing of all files.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">data_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="n">dfs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Exactly one of data_path or dfs must be provided&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pipelines</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">pipelines</span> <span class="o">=</span> <span class="p">[</span><span class="n">pipelines</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pipelines</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="s2">&quot;pulse_rate&quot;</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Pulse rate pipeline cannot be run together with other pipelines&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;gait&quot;</span><span class="p">,</span> <span class="s2">&quot;tremor&quot;</span><span class="p">,</span> <span class="s2">&quot;pulse_rate&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;At least one unknown pipeline provided: </span><span class="si">{</span><span class="n">pipelines</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Supported pipelines: &#39;gait&#39;, &#39;tremor&#39;, &#39;pulse_rate&#39;&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Use custom logger if provided, otherwise use module logger</span>
+    <span class="n">active_logger</span> <span class="o">=</span> <span class="n">custom_logger</span> <span class="k">if</span> <span class="n">custom_logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">logger</span>
+
+    <span class="c1"># Get package logger for configuration (affects all paradigma.* modules)</span>
+    <span class="n">package_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;paradigma&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Configure package-wide logging level for all paradigma modules</span>
+    <span class="k">if</span> <span class="n">custom_logger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">package_logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging_level</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">data_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">data_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+        <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Applying ParaDigMa pipelines to </span><span class="si">{</span><span class="n">data_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Applying ParaDigMa pipelines to provided DataFrame&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Convert and create output directory</span>
+    <span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+    <span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Setup logging to file - add handler to package logger so ALL paradigma modules</span>
+    <span class="c1"># log to file</span>
+    <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">_%H%M&quot;</span><span class="p">)</span>
+    <span class="n">log_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;paradigma_run_</span><span class="si">{</span><span class="n">timestamp</span><span class="si">}</span><span class="s2">.log&quot;</span>
+    <span class="n">file_handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="n">log_file</span><span class="p">)</span>
+    <span class="n">file_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+    <span class="n">file_handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2"> - </span><span class="si">%(name)s</span><span class="s2"> - </span><span class="si">%(levelname)s</span><span class="s2"> - </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">package_logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">file_handler</span><span class="p">)</span>
+    <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Logging to </span><span class="si">{</span><span class="n">log_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Step 1: Get file paths or convert provided DataFrames</span>
+    <span class="n">file_paths</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Will hold list of file paths if loading from directory</span>
+    <span class="n">dfs_dict</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Will hold dict of DataFrames if provided directly</span>
+
+    <span class="k">if</span> <span class="n">data_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Step 1: Finding data files&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">file_paths</span> <span class="o">=</span> <span class="n">get_data_file_paths</span><span class="p">(</span>
+                <span class="n">data_path</span><span class="o">=</span><span class="n">data_path</span><span class="p">,</span> <span class="n">file_patterns</span><span class="o">=</span><span class="n">file_pattern</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">active_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to find data files: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">file_paths</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No data files found in </span><span class="si">{</span><span class="n">data_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Step 1: Using provided DataFrame(s) as input&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Convert provided dfs to dict format</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">dfs_dict</span> <span class="o">=</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;df_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">df</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">)}</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="n">dfs_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;df_1&quot;</span><span class="p">:</span> <span class="n">dfs</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dfs_dict</span> <span class="o">=</span> <span class="n">dfs</span>
+
+    <span class="c1"># Determine number of files to process</span>
+    <span class="n">num_files</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">file_paths</span><span class="p">)</span> <span class="k">if</span> <span class="n">file_paths</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">dfs_dict</span><span class="p">)</span>
+
+    <span class="c1"># Initialize results storage for each pipeline</span>
+    <span class="n">all_results</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;quantifications&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">p</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">},</span>
+        <span class="s2">&quot;aggregations&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">p</span><span class="p">:</span> <span class="p">{}</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">},</span>
+        <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">p</span><span class="p">:</span> <span class="p">{}</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">},</span>
+        <span class="s2">&quot;errors&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Steps 2-3: Process each file individually</span>
+    <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Steps 2-3: Processing </span><span class="si">{</span><span class="n">num_files</span><span class="si">}</span><span class="s2"> files individually&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Track maximum gait segment number across files for proper offset</span>
+    <span class="n">max_gait_segment_nr</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_files</span><span class="p">):</span>
+        <span class="c1"># Load one file at a time</span>
+        <span class="k">if</span> <span class="n">file_paths</span><span class="p">:</span>
+            <span class="n">file_path</span> <span class="o">=</span> <span class="n">file_paths</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing file </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">num_files</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">file_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">file_name</span><span class="p">,</span> <span class="n">df_raw</span> <span class="o">=</span> <span class="n">load_single_data_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Failed to load file </span><span class="si">{</span><span class="n">file_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">active_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+                <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;errors&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">file_path</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;stage&quot;</span><span class="p">:</span> <span class="s2">&quot;loading&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}</span>
+                <span class="p">)</span>
+                <span class="k">continue</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Using in-memory data</span>
+            <span class="n">file_name</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dfs_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">df_raw</span> <span class="o">=</span> <span class="n">dfs_dict</span><span class="p">[</span><span class="n">file_name</span><span class="p">]</span>
+            <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing DataFrame </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">num_files</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Step 2: Prepare data (if needed)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_preparation</span><span class="p">:</span>
+                <span class="n">active_logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">DETAILED_INFO</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Preparing data for </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                <span class="n">prepare_params</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;time_input_unit&quot;</span><span class="p">:</span> <span class="n">time_input_unit</span><span class="p">,</span>
+                    <span class="s2">&quot;resampling_frequency&quot;</span><span class="p">:</span> <span class="n">target_frequency</span><span class="p">,</span>
+                    <span class="s2">&quot;column_mapping&quot;</span><span class="p">:</span> <span class="n">column_mapping</span><span class="p">,</span>
+                    <span class="s2">&quot;auto_segment&quot;</span><span class="p">:</span> <span class="n">split_by_gaps</span><span class="p">,</span>
+                    <span class="s2">&quot;max_segment_gap_s&quot;</span><span class="p">:</span> <span class="n">max_gap_seconds</span><span class="p">,</span>
+                    <span class="s2">&quot;min_segment_length_s&quot;</span><span class="p">:</span> <span class="n">min_segment_seconds</span><span class="p">,</span>
+                <span class="p">}</span>
+
+                <span class="c1"># Add pipeline-specific preparation parameters</span>
+                <span class="k">if</span> <span class="s2">&quot;gait&quot;</span> <span class="ow">in</span> <span class="n">pipelines</span> <span class="ow">or</span> <span class="s2">&quot;tremor&quot;</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">:</span>
+                    <span class="n">prepare_params</span><span class="p">[</span><span class="s2">&quot;gyroscope_units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gyroscope_units</span>
+
+                <span class="k">if</span> <span class="s2">&quot;gait&quot;</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">:</span>
+                    <span class="n">prepare_params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;accelerometer_units&quot;</span><span class="p">:</span> <span class="n">accelerometer_units</span><span class="p">,</span>
+                            <span class="s2">&quot;device_orientation&quot;</span><span class="p">:</span> <span class="n">device_orientation</span><span class="p">,</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span>
+
+                <span class="n">df_prepared</span> <span class="o">=</span> <span class="n">prepare_raw_data</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df_raw</span><span class="p">,</span> <span class="o">**</span><span class="n">prepare_params</span><span class="p">)</span>
+
+                <span class="c1"># Save prepared data if requested</span>
+                <span class="k">if</span> <span class="s2">&quot;preparation&quot;</span> <span class="ow">in</span> <span class="n">save_intermediate</span><span class="p">:</span>
+                    <span class="n">prepared_dir</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;prepared_data&quot;</span>
+                    <span class="n">prepared_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">save_prepared_data</span><span class="p">(</span>
+                        <span class="n">df_prepared</span><span class="p">,</span>
+                        <span class="n">prepared_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">.parquet&quot;</span><span class="p">,</span>
+                    <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">df_prepared</span> <span class="o">=</span> <span class="n">df_raw</span>
+
+            <span class="c1"># Release raw data from memory</span>
+            <span class="k">del</span> <span class="n">df_raw</span>
+
+            <span class="c1"># Step 3: Run each pipeline on this single file</span>
+            <span class="n">store_intermediate_per_file</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">x</span>
+                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">save_intermediate</span>
+                <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;aggregation&quot;</span><span class="p">,</span> <span class="s2">&quot;quantification&quot;</span><span class="p">]</span>
+            <span class="p">]</span>
+
+            <span class="c1"># Create file-specific output directory</span>
+            <span class="n">file_output_dir</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;individual_files&quot;</span> <span class="o">/</span> <span class="n">file_name</span>
+
+            <span class="k">for</span> <span class="n">pipeline_name</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">:</span>
+                <span class="n">active_logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                    <span class="n">DETAILED_INFO</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Running </span><span class="si">{</span><span class="n">pipeline_name</span><span class="si">}</span><span class="s2"> pipeline on </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s2">&quot;gait&quot;</span><span class="p">:</span>
+                        <span class="n">quantification_data</span><span class="p">,</span> <span class="n">quantification_metadata</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="n">run_gait_pipeline</span><span class="p">(</span>
+                                <span class="n">df_prepared</span><span class="o">=</span><span class="n">df_prepared</span><span class="p">,</span>
+                                <span class="n">watch_side</span><span class="o">=</span><span class="n">watch_side</span><span class="p">,</span>
+                                <span class="n">imu_config</span><span class="o">=</span><span class="n">imu_config</span><span class="p">,</span>
+                                <span class="n">gait_config</span><span class="o">=</span><span class="n">gait_config</span><span class="p">,</span>
+                                <span class="n">arm_activity_config</span><span class="o">=</span><span class="n">arm_activity_config</span><span class="p">,</span>
+                                <span class="n">store_intermediate</span><span class="o">=</span><span class="n">store_intermediate_per_file</span><span class="p">,</span>
+                                <span class="n">output_dir</span><span class="o">=</span><span class="n">file_output_dir</span><span class="p">,</span>
+                                <span class="n">segment_number_offset</span><span class="o">=</span><span class="n">max_gait_segment_nr</span><span class="p">,</span>
+                                <span class="n">logging_level</span><span class="o">=</span><span class="n">logging_level</span><span class="p">,</span>
+                                <span class="n">custom_logger</span><span class="o">=</span><span class="n">active_logger</span><span class="p">,</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">quantification_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="c1"># Add file identifier if processing multiple files</span>
+                            <span class="n">quantification_data</span> <span class="o">=</span> <span class="n">quantification_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                            <span class="k">if</span> <span class="n">num_files</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                                <span class="n">quantification_data</span><span class="p">[</span><span class="s2">&quot;file_key&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_name</span>
+                            <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="n">quantification_data</span>
+                            <span class="p">)</span>
+
+                            <span class="c1"># Update max segment number for next file</span>
+                            <span class="n">max_gait_segment_nr</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+                                <span class="n">quantification_data</span><span class="p">[</span><span class="s2">&quot;gait_segment_nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+                            <span class="p">)</span>
+
+                        <span class="c1"># Store metadata and update offset even if no quantifications</span>
+                        <span class="k">if</span> <span class="p">(</span>
+                            <span class="n">quantification_metadata</span>
+                            <span class="ow">and</span> <span class="s2">&quot;per_segment&quot;</span> <span class="ow">in</span> <span class="n">quantification_metadata</span>
+                        <span class="p">):</span>
+                            <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                                <span class="n">quantification_metadata</span><span class="p">[</span><span class="s2">&quot;per_segment&quot;</span><span class="p">]</span>
+                            <span class="p">)</span>
+
+                            <span class="c1"># Update max segment number based on metadata to prevent</span>
+                            <span class="c1"># overwrites</span>
+                            <span class="k">if</span> <span class="n">quantification_metadata</span><span class="p">[</span><span class="s2">&quot;per_segment&quot;</span><span class="p">]:</span>
+                                <span class="n">max_segment_in_metadata</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+                                    <span class="n">quantification_metadata</span><span class="p">[</span><span class="s2">&quot;per_segment&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                                <span class="p">)</span>
+                                <span class="n">max_gait_segment_nr</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+                                    <span class="n">max_gait_segment_nr</span><span class="p">,</span> <span class="n">max_segment_in_metadata</span>
+                                <span class="p">)</span>
+
+                    <span class="k">elif</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s2">&quot;tremor&quot;</span><span class="p">:</span>
+                        <span class="n">quantification_data</span> <span class="o">=</span> <span class="n">run_tremor_pipeline</span><span class="p">(</span>
+                            <span class="n">df_prepared</span><span class="o">=</span><span class="n">df_prepared</span><span class="p">,</span>
+                            <span class="n">store_intermediate</span><span class="o">=</span><span class="n">store_intermediate_per_file</span><span class="p">,</span>
+                            <span class="n">output_dir</span><span class="o">=</span><span class="n">file_output_dir</span><span class="p">,</span>
+                            <span class="n">tremor_config</span><span class="o">=</span><span class="n">tremor_config</span><span class="p">,</span>
+                            <span class="n">imu_config</span><span class="o">=</span><span class="n">imu_config</span><span class="p">,</span>
+                            <span class="n">logging_level</span><span class="o">=</span><span class="n">logging_level</span><span class="p">,</span>
+                            <span class="n">custom_logger</span><span class="o">=</span><span class="n">active_logger</span><span class="p">,</span>
+                        <span class="p">)</span>
+
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">quantification_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">quantification_data</span> <span class="o">=</span> <span class="n">quantification_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                            <span class="k">if</span> <span class="n">num_files</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                                <span class="n">quantification_data</span><span class="p">[</span><span class="s2">&quot;file_key&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_name</span>
+                            <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="n">quantification_data</span>
+                            <span class="p">)</span>
+
+                    <span class="k">elif</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s2">&quot;pulse_rate&quot;</span><span class="p">:</span>
+                        <span class="n">quantification_data</span> <span class="o">=</span> <span class="n">run_pulse_rate_pipeline</span><span class="p">(</span>
+                            <span class="n">df_ppg_prepared</span><span class="o">=</span><span class="n">df_prepared</span><span class="p">,</span>
+                            <span class="n">store_intermediate</span><span class="o">=</span><span class="n">store_intermediate_per_file</span><span class="p">,</span>
+                            <span class="n">output_dir</span><span class="o">=</span><span class="n">file_output_dir</span><span class="p">,</span>
+                            <span class="n">pulse_rate_config</span><span class="o">=</span><span class="n">pulse_rate_config</span><span class="p">,</span>
+                            <span class="n">ppg_config</span><span class="o">=</span><span class="n">ppg_config</span><span class="p">,</span>
+                            <span class="n">logging_level</span><span class="o">=</span><span class="n">logging_level</span><span class="p">,</span>
+                            <span class="n">custom_logger</span><span class="o">=</span><span class="n">active_logger</span><span class="p">,</span>
+                        <span class="p">)</span>
+
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">quantification_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">quantification_data</span> <span class="o">=</span> <span class="n">quantification_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                            <span class="k">if</span> <span class="n">num_files</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                                <span class="n">quantification_data</span><span class="p">[</span><span class="s2">&quot;file_key&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_name</span>
+                            <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="n">quantification_data</span>
+                            <span class="p">)</span>
+
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">error_msg</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Failed to run </span><span class="si">{</span><span class="n">pipeline_name</span><span class="si">}</span><span class="s2"> pipeline on </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">active_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+                    <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;errors&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">file_name</span><span class="p">,</span>
+                            <span class="s2">&quot;pipeline&quot;</span><span class="p">:</span> <span class="n">pipeline_name</span><span class="p">,</span>
+                            <span class="s2">&quot;stage&quot;</span><span class="p">:</span> <span class="s2">&quot;pipeline_execution&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span>
+                    <span class="k">continue</span>
+
+            <span class="c1"># Release prepared data from memory</span>
+            <span class="k">del</span> <span class="n">df_prepared</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Failed to process file </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">active_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+            <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;errors&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;stage&quot;</span><span class="p">:</span> <span class="s2">&quot;preparation&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+
+    <span class="c1"># Step 4: Combine quantifications from all files</span>
+    <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Step 4: Combining quantifications from all files&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">pipeline_name</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">:</span>
+        <span class="c1"># Concatenate all quantifications for this pipeline</span>
+        <span class="k">if</span> <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]:</span>
+            <span class="n">combined_quantified</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+
+            <span class="n">num_files_processed</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">])</span>
+            <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">combined_quantified</span>
+
+            <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pipeline_name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">: Combined &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">combined_quantified</span><span class="p">)</span><span class="si">}</span><span class="s2"> windows from &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">num_files_processed</span><span class="si">}</span><span class="s2"> files&quot;</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Step 5: Perform aggregation on combined results FROM ALL FILES</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s2">&quot;gait&quot;</span> <span class="ow">and</span> <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]:</span>
+                    <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="s2">&quot;Step 5: Aggregating gait results across ALL files&quot;</span>
+                    <span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">segment_length_bins</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">gait_segment_categories</span> <span class="o">=</span> <span class="p">[</span>
+                            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+                            <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span>
+                            <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">),</span>
+                            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">),</span>
+                        <span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">gait_segment_categories</span> <span class="o">=</span> <span class="n">segment_length_bins</span>
+
+                    <span class="k">if</span> <span class="n">aggregates</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">agg_methods</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;median&quot;</span><span class="p">,</span> <span class="s2">&quot;95p&quot;</span><span class="p">,</span> <span class="s2">&quot;cov&quot;</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">agg_methods</span> <span class="o">=</span> <span class="n">aggregates</span>
+
+                    <span class="n">aggregations</span> <span class="o">=</span> <span class="n">aggregate_arm_swing_params</span><span class="p">(</span>
+                        <span class="n">df_arm_swing_params</span><span class="o">=</span><span class="n">combined_quantified</span><span class="p">,</span>
+                        <span class="n">segment_meta</span><span class="o">=</span><span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">],</span>
+                        <span class="n">segment_cats</span><span class="o">=</span><span class="n">gait_segment_categories</span><span class="p">,</span>
+                        <span class="n">aggregates</span><span class="o">=</span><span class="n">agg_methods</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;aggregations&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregations</span>
+                    <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Aggregation completed across &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">gait_segment_categories</span><span class="p">)</span><span class="si">}</span><span class="s2"> gait segment categories&quot;</span>
+                    <span class="p">)</span>
+
+                <span class="k">elif</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s2">&quot;tremor&quot;</span><span class="p">:</span>
+                    <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="s2">&quot;Step 5: Aggregating tremor results across ALL files&quot;</span>
+                    <span class="p">)</span>
+
+                    <span class="c1"># Work on a copy for tremor aggregation</span>
+                    <span class="n">tremor_data_for_aggregation</span> <span class="o">=</span> <span class="n">combined_quantified</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+                    <span class="c1"># Need to add datetime column for aggregate_tremor</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="s2">&quot;time_dt&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tremor_data_for_aggregation</span><span class="o">.</span><span class="n">columns</span>
+                        <span class="ow">and</span> <span class="s2">&quot;time&quot;</span> <span class="ow">in</span> <span class="n">tremor_data_for_aggregation</span><span class="o">.</span><span class="n">columns</span>
+                    <span class="p">):</span>
+                        <span class="n">tremor_data_for_aggregation</span><span class="p">[</span><span class="s2">&quot;time_dt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+                            <span class="n">tremor_data_for_aggregation</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span>
+                        <span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">tremor_config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">tremor_config</span> <span class="o">=</span> <span class="n">TremorConfig</span><span class="p">()</span>
+
+                    <span class="n">aggregation_output</span> <span class="o">=</span> <span class="n">aggregate_tremor</span><span class="p">(</span>
+                        <span class="n">tremor_data_for_aggregation</span><span class="p">,</span> <span class="n">tremor_config</span>
+                    <span class="p">)</span>
+                    <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;aggregations&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregation_output</span><span class="p">[</span>
+                        <span class="s2">&quot;aggregated_tremor_measures&quot;</span>
+                    <span class="p">]</span>
+                    <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregation_output</span><span class="p">[</span>
+                        <span class="s2">&quot;metadata&quot;</span>
+                    <span class="p">]</span>
+                    <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Tremor aggregation completed&quot;</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s2">&quot;pulse_rate&quot;</span><span class="p">:</span>
+                    <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="s2">&quot;Step 5: Aggregating pulse rate results across ALL files&quot;</span>
+                    <span class="p">)</span>
+
+                    <span class="n">pulse_rate_values</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">combined_quantified</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PULSE_RATE</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+                    <span class="p">)</span>
+
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pulse_rate_values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">aggregation_output</span> <span class="o">=</span> <span class="n">aggregate_pulse_rate</span><span class="p">(</span>
+                            <span class="n">pr_values</span><span class="o">=</span><span class="n">pulse_rate_values</span><span class="p">,</span>
+                            <span class="n">aggregates</span><span class="o">=</span><span class="n">aggregates</span> <span class="k">if</span> <span class="n">aggregates</span> <span class="k">else</span> <span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">,</span> <span class="s2">&quot;99p&quot;</span><span class="p">],</span>
+                        <span class="p">)</span>
+                        <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;aggregations&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregation_output</span><span class="p">[</span>
+                            <span class="s2">&quot;pr_aggregates&quot;</span>
+                        <span class="p">]</span>
+                        <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregation_output</span><span class="p">[</span>
+                            <span class="s2">&quot;metadata&quot;</span>
+                        <span class="p">]</span>
+                        <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Pulse rate aggregation completed with &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">pulse_rate_values</span><span class="p">)</span><span class="si">}</span><span class="s2"> valid estimates&quot;</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">active_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                            <span class="s2">&quot;No valid pulse rate estimates found for aggregation&quot;</span>
+                        <span class="p">)</span>
+
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Failed to aggregate </span><span class="si">{</span><span class="n">pipeline_name</span><span class="si">}</span><span class="s2"> results: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">active_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+                <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;errors&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span><span class="s2">&quot;pipeline&quot;</span><span class="p">:</span> <span class="n">pipeline_name</span><span class="p">,</span> <span class="s2">&quot;stage&quot;</span><span class="p">:</span> <span class="s2">&quot;aggregation&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}</span>
+                <span class="p">)</span>
+                <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;aggregations&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># No quantifications found for this pipeline</span>
+            <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+            <span class="n">active_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No quantified </span><span class="si">{</span><span class="n">pipeline_name</span><span class="si">}</span><span class="s2"> results found&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Save combined quantifications if requested</span>
+    <span class="k">if</span> <span class="s2">&quot;quantification&quot;</span> <span class="ow">in</span> <span class="n">save_intermediate</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">pipeline_name</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="n">quant_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;quantifications_</span><span class="si">{</span><span class="n">pipeline_name</span><span class="si">}</span><span class="s2">.parquet&quot;</span>
+                <span class="n">save_prepared_data</span><span class="p">(</span>
+                    <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">],</span>
+                    <span class="n">quant_file</span><span class="p">,</span>
+                <span class="p">)</span>
+
+    <span class="c1"># Save aggregations if requested</span>
+    <span class="k">if</span> <span class="s2">&quot;aggregation&quot;</span> <span class="ow">in</span> <span class="n">save_intermediate</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">pipeline_name</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;aggregations&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]:</span>
+                <span class="n">agg_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;aggregations_</span><span class="si">{</span><span class="n">pipeline_name</span><span class="si">}</span><span class="s2">.json&quot;</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">agg_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;aggregations&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">],</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved aggregations to </span><span class="si">{</span><span class="n">agg_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;errors&quot;</span><span class="p">]:</span>
+        <span class="n">active_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;ParaDigMa analysis completed with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">all_results</span><span class="p">[</span><span class="s1">&#39;errors&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2"> error(s)&quot;</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;ParaDigMa analysis completed successfully for all pipelines&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Log final summary for all pipelines</span>
+    <span class="k">for</span> <span class="n">pipeline_name</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">:</span>
+        <span class="n">quant_df</span> <span class="o">=</span> <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">quant_df</span><span class="o">.</span><span class="n">empty</span> <span class="ow">and</span> <span class="s2">&quot;file_key&quot;</span> <span class="ow">in</span> <span class="n">quant_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">successful_files</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">quant_df</span><span class="p">[</span><span class="s2">&quot;file_key&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+            <span class="n">active_logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                <span class="n">DETAILED_INFO</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pipeline_name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">: Files successfully &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;processed: </span><span class="si">{</span><span class="n">successful_files</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">quant_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="n">active_logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                <span class="n">DETAILED_INFO</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pipeline_name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">: Single file processed &quot;</span> <span class="sa">f</span><span class="s2">&quot;successfully&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">active_logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                <span class="n">DETAILED_INFO</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pipeline_name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">: No successful results&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Close file handler to release log file - remove from package logger</span>
+    <span class="n">package_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;paradigma&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="n">package_logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">[:]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">handler</span><span class="p">,</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">):</span>
+            <span class="n">handler</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">package_logger</span><span class="o">.</span><span class="n">removeHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">all_results</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, and Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

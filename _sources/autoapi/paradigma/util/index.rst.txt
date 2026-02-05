@@ -33,9 +33,11 @@ Module Contents
 
 .. py:function:: deprecated(reason: str = '')
 
-   Decorator to mark functions as deprecated. It will show a warning when the function is used.
+   Decorator to mark functions as deprecated. It will show a warning when the
+   function is used.
 
-   :param reason: Additional message to explain why it is deprecated and what to use instead.
+   :param reason: Additional message to explain why it is deprecated and what to use
+                  instead.
    :type reason: str, optional
 
 
@@ -79,11 +81,11 @@ Module Contents
    :type df: pd.DataFrame
 
 
-.. py:function:: read_metadata(input_path: str, meta_filename: str, time_filename: str, values_filename: str) -> Tuple[tsdf.TSDFMetadata, tsdf.TSDFMetadata]
+.. py:function:: read_metadata(input_path: str, meta_filename: str, time_filename: str, values_filename: str) -> tuple[tsdf.TSDFMetadata, tsdf.TSDFMetadata]
 
 .. py:function:: load_tsdf_dataframe(path_to_data, prefix, meta_suffix='meta.json', time_suffix='time.bin', values_suffix='values.bin')
 
-.. py:function:: load_metadata_list(dir_path: str, meta_filename: str, filenames: List[str]) -> List[tsdf.TSDFMetadata]
+.. py:function:: load_metadata_list(dir_path: str, meta_filename: str, filenames: list[str]) -> list[tsdf.TSDFMetadata]
 
    Load the metadata objects from a metadata file according to the specified binaries.
 
@@ -97,13 +99,15 @@ Module Contents
 
 .. py:function:: transform_time_array(time_array: pandas.Series, input_unit_type: str, output_unit_type: str, start_time: float = 0.0) -> numpy.ndarray
 
-   Transforms the time array to relative time (when defined in delta time) and scales the values.
+   Transforms the time array to relative time (when defined in delta time)
+   and scales the values.
 
    :param time_array: The time array to transform.
    :type time_array: pd.Series
    :param input_unit_type: The time unit type of the input time array.
    :type input_unit_type: str
-   :param output_unit_type: The time unit type of the output time array. ParaDigMa expects `TimeUnit.RELATIVE_S`.
+   :param output_unit_type: The time unit type of the output time array. ParaDigMa expects
+                            `TimeUnit.RELATIVE_S`.
    :type output_unit_type: str
    :param start_time: The start time of the time array in UNIX seconds (default is 0.0)
    :type start_time: float, optional
@@ -113,9 +117,13 @@ Module Contents
 
    .. rubric:: Notes
 
-   - The function handles different time units (`TimeUnit.RELATIVE_MS`, `TimeUnit.RELATIVE_S`, `TimeUnit.ABSOLUTE_MS`, `TimeUnit.ABSOLUTE_S`, `TimeUnit.DIFFERENCE_MS`, `TimeUnit.DIFFERENCE_S`).
-   - The transformation allows for scaling of the time array, converting between time unit types (e.g., relative, absolute, or difference).
-   - When converting to `TimeUnit.RELATIVE_MS`, the function calculates the relative time starting from the provided or default start time.
+   - The function handles different time units (`TimeUnit.RELATIVE_MS`,
+     `TimeUnit.RELATIVE_S`, `TimeUnit.ABSOLUTE_MS`, `TimeUnit.ABSOLUTE_S`,
+     `TimeUnit.DIFFERENCE_MS`, `TimeUnit.DIFFERENCE_S`).
+   - The transformation allows for scaling of the time array, converting
+     between time unit types (e.g., relative, absolute, or difference).
+   - When converting to `TimeUnit.RELATIVE_MS`, the function calculates the
+     relative time starting from the provided or default start time.
 
 
 .. py:function:: convert_units_accelerometer(data: numpy.ndarray, units: str) -> numpy.ndarray
@@ -159,7 +167,7 @@ Module Contents
    :rtype: pd.DataFrame
 
 
-.. py:function:: aggregate_parameter(parameter: numpy.ndarray, aggregate: str, evaluation_points: Optional[numpy.ndarray] = None) -> numpy.ndarray | int
+.. py:function:: aggregate_parameter(parameter: numpy.ndarray, aggregate: str, evaluation_points: numpy.ndarray | None = None) -> numpy.ndarray | int
 
    Aggregate a parameter based on the specified method.
 
@@ -168,7 +176,8 @@ Module Contents
    :param aggregate: The aggregation method to apply.
    :type aggregate: str
    :param evaluation_points: Should be specified if the mode is derived for a continuous parameter.
-                             Defines the evaluation points for the kernel density estimation function, from which the maximum is derived as the mode.
+                             Defines the evaluation points for the kernel density estimation
+                             function, from which the maximum is derived as the mode.
    :type evaluation_points: np.ndarray, optional
 
    :returns: The aggregated parameter.
@@ -177,8 +186,9 @@ Module Contents
 
 .. py:function:: merge_predictions_with_timestamps(df_ts: pandas.DataFrame, df_predictions: pandas.DataFrame, pred_proba_colname: str, window_length_s: float, fs: int) -> pandas.DataFrame
 
-   Merges prediction probabilities with timestamps by expanding overlapping windows
-   into individual timestamps and averaging probabilities per unique timestamp.
+   Merges prediction probabilities with timestamps by expanding overlapping
+   windows into individual timestamps and averaging probabilities per unique
+   timestamp.
 
    Parameters:
    ----------
@@ -187,10 +197,11 @@ Module Contents
        Must include the timestamp column specified in `DataColumns.TIME`.
 
    df_predictions : pd.DataFrame
-       DataFrame containing prediction windows with start times and probabilities.
-       Must include:
+       DataFrame containing prediction windows with start times and
+       probabilities. Must include:
        - A column for window start times (defined by `DataColumns.TIME`).
-       - A column for prediction probabilities (defined by `DataColumns.PRED_GAIT_PROBA`).
+       - A column for prediction probabilities (defined by
+         `DataColumns.PRED_GAIT_PROBA`).
 
    pred_proba_colname : str
        The column name for the prediction probabilities in `df_predictions`.
@@ -240,7 +251,8 @@ Module Contents
 
    :param df: Input data with column 'time_dt' in which the date is stored.
    :type df: pd.DataFrame
-   :param min_hours_per_day: The minimum number of hours per day required for including the day in the aggregation step.
+   :param min_hours_per_day: The minimum number of hours per day required for including the day
+                             in the aggregation step.
    :type min_hours_per_day: int
 
    :returns: The selected data.

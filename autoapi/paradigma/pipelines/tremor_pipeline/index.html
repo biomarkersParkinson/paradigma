@@ -26,7 +26,7 @@
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
-    <link rel="next" title="paradigma.preprocessing" href="../../preprocessing/index.html" />
+    <link rel="next" title="paradigma.prepare_data" href="../../prepare_data/index.html" />
     <link rel="prev" title="paradigma.pipelines.pulse_rate_utils" href="../pulse_rate_utils/index.html" /> 
 </head>
 
@@ -49,17 +49,13 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/_static/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">User guides</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
@@ -72,18 +68,24 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../../index.html">paradigma</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="../../index.html#submodules">Submodules</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="../../classification/index.html">paradigma.classification</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../config/index.html">paradigma.config</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../constants/index.html">paradigma.constants</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../feature_extraction/index.html">paradigma.feature_extraction</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="../index.html">paradigma.pipelines</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../preprocessing/index.html">paradigma.preprocessing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../segmenting/index.html">paradigma.segmenting</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../testing/index.html">paradigma.testing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../util/index.html">paradigma.util</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../classification/index.html">paradigma.classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../config/index.html">paradigma.config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../constants/index.html">paradigma.constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../feature_extraction/index.html">paradigma.feature_extraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../load/index.html">paradigma.load</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../orchestrator/index.html">paradigma.orchestrator</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html">paradigma.pipelines</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../gait_pipeline/index.html">paradigma.pipelines.gait_pipeline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../pulse_rate_pipeline/index.html">paradigma.pipelines.pulse_rate_pipeline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../pulse_rate_utils/index.html">paradigma.pipelines.pulse_rate_utils</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">paradigma.pipelines.tremor_pipeline</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../../prepare_data/index.html">paradigma.prepare_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../preprocessing/index.html">paradigma.preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../segmenting/index.html">paradigma.segmenting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../testing/index.html">paradigma.testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../util/index.html">paradigma.util</a></li>
 </ul>
 </li>
 </ul>
@@ -127,13 +129,16 @@
 <td><p>This function groups sequences of timestamps into windows and subsequently extracts</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#paradigma.pipelines.tremor_pipeline.detect_tremor" title="paradigma.pipelines.tremor_pipeline.detect_tremor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">detect_tremor</span></code></a>(→ pandas.DataFrame)</p></td>
-<td><p>Detects tremor in the input DataFrame using a pre-trained classifier and applies a threshold to the predicted probabilities.</p></td>
+<td><p>Detects tremor in the input DataFrame using a pre-trained classifier and</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.tremor_pipeline.aggregate_tremor" title="paradigma.pipelines.tremor_pipeline.aggregate_tremor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_tremor</span></code></a>(df, config)</p></td>
-<td><p>Quantifies the amount of tremor time and tremor power, aggregated over all windows in the input dataframe.</p></td>
+<td><p>Quantifies the amount of tremor time and tremor power, aggregated over</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#paradigma.pipelines.tremor_pipeline.extract_spectral_domain_features" title="paradigma.pipelines.tremor_pipeline.extract_spectral_domain_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_spectral_domain_features</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Compute spectral domain features from the gyroscope data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.tremor_pipeline.run_tremor_pipeline" title="paradigma.pipelines.tremor_pipeline.run_tremor_pipeline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_tremor_pipeline</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>High-level tremor analysis pipeline for a single segment.</p></td>
 </tr>
 </tbody>
 </table>
@@ -148,14 +153,17 @@ tremor features from windowed gyroscope data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The input DataFrame containing sensor data, which includes time and gyroscope data. The data should be
-structured with the necessary columns as specified in the <cite>config</cite>.</p></li>
-<li><p><strong>config</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.TremorConfig" title="paradigma.config.TremorConfig"><em>TremorConfig</em></a>) – Configuration object containing parameters for feature extraction, including column names for time, gyroscope data,
-as well as settings for windowing, and feature computation.</p></li>
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The input DataFrame containing sensor data, which includes time and
+gyroscope data. The data should be structured with the necessary
+columns as specified in the <cite>config</cite>.</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.TremorConfig" title="paradigma.config.TremorConfig"><em>TremorConfig</em></a>) – Configuration object containing parameters for feature extraction,
+including column names for time, gyroscope data, as well as settings
+for windowing, and feature computation.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A DataFrame containing extracted tremor features and a column corresponding to time.</p>
+<dd class="field-even"><p>A DataFrame containing extracted tremor features and a column
+corresponding to time.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pd.DataFrame</p>
@@ -164,11 +172,14 @@ as well as settings for windowing, and feature computation.</p></li>
 <p class="rubric">Notes</p>
 <ul class="simple">
 <li><p>This function groups the data into windows based on timestamps.</p></li>
-<li><p>The input DataFrame must include columns as specified in the <cite>config</cite> object for proper feature extraction.</p></li>
+<li><p>The input DataFrame must include columns as specified in the
+<cite>config</cite> object for proper feature extraction.</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ValueError</strong> – If the input DataFrame does not contain the required columns as specified in the configuration or if any step in the feature extraction fails.</p>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the input DataFrame does not contain the required columns as
+specified in the configuration or if any step in the feature
+extraction fails.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -176,30 +187,56 @@ as well as settings for windowing, and feature computation.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.pipelines.tremor_pipeline.detect_tremor">
 <span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.tremor_pipeline.</span></span><span class="sig-name descname"><span class="pre">detect_tremor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.TremorConfig" title="paradigma.config.TremorConfig"><span class="pre">paradigma.config.TremorConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_path_to_classifier_package</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/tremor_pipeline.html#detect_tremor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.tremor_pipeline.detect_tremor" title="Link to this definition"></a></dt>
-<dd><p>Detects tremor in the input DataFrame using a pre-trained classifier and applies a threshold to the predicted probabilities.</p>
+<dd><p>Detects tremor in the input DataFrame using a pre-trained classifier and
+applies a threshold to the predicted probabilities.</p>
 <p>This function performs the following steps:
-1. Loads the pre-trained classifier and scaling parameters from the provided directory.
-2. Scales the relevant features in the input DataFrame (<cite>df</cite>) using the loaded scaling parameters.
-3. Makes predictions using the classifier to estimate the probability of tremor.
-4. Applies a threshold to the predicted probabilities to classify whether tremor is detected or not.
-5. Checks for rest tremor by verifying the frequency of the peak and below tremor power.
-6. Adds the predicted probabilities and the classification result to the DataFrame.</p>
+1. Loads the pre-trained classifier and scaling parameters from the</p>
+<blockquote>
+<div><p>provided directory.</p>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>Scales the relevant features in the input DataFrame (<cite>df</cite>) using the
+loaded scaling parameters.</p></li>
+<li><p>Makes predictions using the classifier to estimate the probability of
+tremor.</p></li>
+<li><p>Applies a threshold to the predicted probabilities to classify whether
+tremor is detected or not.</p></li>
+<li><p>Checks for rest tremor by verifying the frequency of the peak and
+below tremor power.</p></li>
+<li><p>Adds the predicted probabilities and the classification result to the
+DataFrame.</p></li>
+</ol>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The input DataFrame containing extracted tremor features. The DataFrame must include
-the necessary columns as specified in the classifier’s feature names.</p></li>
-<li><p><strong>config</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.TremorConfig" title="paradigma.config.TremorConfig"><em>TremorConfig</em></a>) – Configuration object containing settings for tremor detection, including the frequency range for rest tremor.</p></li>
-<li><p><strong>full_path_to_classifier_package</strong> (<em>str</em><em> | </em><em>Path</em>) – The path to the directory containing the classifier file, threshold value, scaler parameters, and other necessary input
-files for tremor detection.</p></li>
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The input DataFrame containing extracted tremor features. The
+DataFrame must include the necessary columns as specified in the
+classifier’s feature names.</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.TremorConfig" title="paradigma.config.TremorConfig"><em>TremorConfig</em></a>) – Configuration object containing settings for tremor detection,
+including the frequency range for rest tremor.</p></li>
+<li><p><strong>full_path_to_classifier_package</strong> (<em>str</em><em> | </em><em>Path</em>) – The path to the directory containing the classifier file, threshold
+value, scaler parameters, and other necessary input files for tremor
+detection.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The input DataFrame (<cite>df</cite>) with two additional columns:
-- <cite>PRED_TREMOR_PROBA</cite>: Predicted probability of tremor based on the classifier.
-- <cite>PRED_TREMOR_LOGREG</cite>: Binary classification result (True for tremor, False for no tremor), based on the threshold applied to <cite>PRED_TREMOR_PROBA</cite>.
-- <cite>PRED_TREMOR_CHECKED</cite>: Binary classification result (True for tremor, False for no tremor), after performing extra checks for rest tremor on <cite>PRED_TREMOR_LOGREG</cite>.
-- <cite>PRED_ARM_AT_REST</cite>: Binary classification result (True for arm at rest or stable posture, False for significant arm movement), based on the power below tremor.</p>
+<dd class="field-even"><p><p>The input DataFrame (<cite>df</cite>) with two additional columns:
+- <cite>PRED_TREMOR_PROBA</cite>: Predicted probability of tremor based on the</p>
+<blockquote>
+<div><p>classifier.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p><cite>PRED_TREMOR_LOGREG</cite>: Binary classification result (True for tremor,
+False for no tremor), based on the threshold applied to
+<cite>PRED_TREMOR_PROBA</cite>.</p></li>
+<li><p><cite>PRED_TREMOR_CHECKED</cite>: Binary classification result (True for
+tremor, False for no tremor), after performing extra checks for
+rest tremor on <cite>PRED_TREMOR_LOGREG</cite>.</p></li>
+<li><p><cite>PRED_ARM_AT_REST</cite>: Binary classification result (True for arm at
+rest or stable posture, False for significant arm movement), based
+on the power below tremor.</p></li>
+</ul>
+</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pd.DataFrame</p>
@@ -207,13 +244,16 @@ files for tremor detection.</p></li>
 </dl>
 <p class="rubric">Notes</p>
 <ul class="simple">
-<li><p>The threshold used to classify tremor is loaded from a file and applied to the predicted probabilities.</p></li>
+<li><p>The threshold used to classify tremor is loaded from a file and
+applied to the predicted probabilities.</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>FileNotFoundError</strong> – If the classifier, scaler, or threshold files are not found at the specified paths.</p></li>
-<li><p><strong>ValueError</strong> – If the DataFrame does not contain the expected features for prediction or if the prediction fails.</p></li>
+<li><p><strong>FileNotFoundError</strong> – If the classifier, scaler, or threshold files are not found at the
+specified paths.</p></li>
+<li><p><strong>ValueError</strong> – If the DataFrame does not contain the expected features for
+prediction or if the prediction fails.</p></li>
 </ul>
 </dd>
 </dl>
@@ -222,21 +262,27 @@ files for tremor detection.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.pipelines.tremor_pipeline.aggregate_tremor">
 <span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.tremor_pipeline.</span></span><span class="sig-name descname"><span class="pre">aggregate_tremor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.TremorConfig" title="paradigma.config.TremorConfig"><span class="pre">paradigma.config.TremorConfig</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/tremor_pipeline.html#aggregate_tremor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.tremor_pipeline.aggregate_tremor" title="Link to this definition"></a></dt>
-<dd><p>Quantifies the amount of tremor time and tremor power, aggregated over all windows in the input dataframe.
-Tremor time is calculated as the number of the detected tremor windows, as percentage of the number of windows
-without significant non-tremor movement (at rest). For tremor power the following aggregates are derived:
-the median, mode and percentile of tremor power specified in the configuration object.</p>
+<dd><p>Quantifies the amount of tremor time and tremor power, aggregated over
+all windows in the input dataframe. Tremor time is calculated as the
+number of the detected tremor windows, as percentage of the number of
+windows without significant non-tremor movement (at rest). For tremor
+power the following aggregates are derived: the median, mode and
+percentile of tremor power specified in the configuration object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The input DataFrame containing the tremor predictions and computed tremor power.
-The DataFrame must also contain a datatime column (‘time_dt’).</p></li>
-<li><p><strong>config</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.TremorConfig" title="paradigma.config.TremorConfig"><em>TremorConfig</em></a>) – Configuration object containing the percentile for aggregating tremor power.</p></li>
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The input DataFrame containing the tremor predictions and computed
+tremor power. The DataFrame must also contain a datatime column
+(‘time_dt’).</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.TremorConfig" title="paradigma.config.TremorConfig"><em>TremorConfig</em></a>) – Configuration object containing the percentile for aggregating tremor
+power.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A dictionary with the aggregated tremor time and tremor power measures, as well as the number of valid days,
-the total number of windows, and the number of windows at rest available in the input dataframe.</p>
+<dd class="field-even"><p>A dictionary with the aggregated tremor time and tremor power
+measures, as well as the number of valid days, the total number of
+windows, and the number of windows at rest available in the input
+dataframe.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
@@ -244,29 +290,69 @@ the total number of windows, and the number of windows at rest available in the 
 </dl>
 <p class="rubric">Notes</p>
 <ul class="simple">
-<li><p>Tremor power is converted to log scale, after adding a constant of 1, so that zero tremor power</p></li>
+<li><p>Tremor power is converted to log scale, after adding a constant of
+1, so that zero tremor power corresponds to a value of 0 in log
+scale.</p></li>
+<li><p>The modal tremor power is computed based on gaussian kernel density
+estimation.</p></li>
 </ul>
-<p>corresponds to a value of 0 in log scale.
-- The modal tremor power is computed based on gaussian kernel density estimation.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.pipelines.tremor_pipeline.extract_spectral_domain_features">
 <span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.tremor_pipeline.</span></span><span class="sig-name descname"><span class="pre">extract_spectral_domain_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/tremor_pipeline.html#extract_spectral_domain_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.tremor_pipeline.extract_spectral_domain_features" title="Link to this definition"></a></dt>
 <dd><p>Compute spectral domain features from the gyroscope data.</p>
-<p>This function computes Mel-frequency cepstral coefficients (MFCCs), the frequency of the peak,
-the tremor power, and the below tremor power based on the total power spectral density of the windowed gyroscope data.</p>
+<p>This function computes Mel-frequency cepstral coefficients (MFCCs), the
+frequency of the peak, the tremor power, and the below tremor power
+based on the total power spectral density of the windowed gyroscope
+data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<em>numpy.ndarray</em>) – A 2D numpy array where each row corresponds to a window of gyroscope data.</p></li>
-<li><p><strong>config</strong> (<em>object</em>) – Configuration object containing settings such as sampling frequency, window type,
-and MFCC parameters.</p></li>
+<li><p><strong>config</strong> (<em>object</em>) – Configuration object containing settings such as sampling frequency,
+window type, and MFCC parameters.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The feature dataframe containing the extracted spectral features, including
-MFCCs, the frequency of the peak, the tremor power and below tremor power for each window.</p>
+<dd class="field-even"><p>The feature dataframe containing the extracted spectral features,
+including MFCCs, the frequency of the peak, the tremor power and
+below tremor power for each window.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.pipelines.tremor_pipeline.run_tremor_pipeline">
+<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.tremor_pipeline.</span></span><span class="sig-name descname"><span class="pre">run_tremor_pipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_prepared</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_intermediate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tremor_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.TremorConfig" title="paradigma.config.TremorConfig"><span class="pre">paradigma.config.TremorConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imu_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.IMUConfig" title="paradigma.config.IMUConfig"><span class="pre">paradigma.config.IMUConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logging_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">logging.INFO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logging.Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/tremor_pipeline.html#run_tremor_pipeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.tremor_pipeline.run_tremor_pipeline" title="Link to this definition"></a></dt>
+<dd><p>High-level tremor analysis pipeline for a single segment.</p>
+<p>This function implements the complete tremor analysis workflow from the
+tremor tutorial:
+1. Preprocess gyroscope data
+2. Extract tremor features
+3. Detect tremor
+4. Quantify tremor (select relevant columns)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df_prepared</strong> (<em>pd.DataFrame</em>) – Prepared sensor data with time and gyroscope columns</p></li>
+<li><p><strong>output_dir</strong> (<em>str</em><em> or </em><em>Path</em>) – Output directory for intermediate results (required)</p></li>
+<li><p><strong>store_intermediate</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>default</em><em> [</em><em>]</em>) – Which intermediate results to store</p></li>
+<li><p><strong>tremor_config</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.TremorConfig" title="paradigma.config.TremorConfig"><em>TremorConfig</em></a><em>, </em><em>optional</em>) – Tremor analysis configuration</p></li>
+<li><p><strong>imu_config</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.IMUConfig" title="paradigma.config.IMUConfig"><em>IMUConfig</em></a><em>, </em><em>optional</em>) – IMU preprocessing configuration</p></li>
+<li><p><strong>logging_level</strong> (<em>int</em><em>, </em><em>default logging.INFO</em>) – Logging level using standard logging constants</p></li>
+<li><p><strong>custom_logger</strong> (<em>logging.Logger</em><em>, </em><em>optional</em>) – Custom logger instance</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Quantified tremor data with columns:
+- time: timestamp
+- pred_arm_at_rest: arm at rest prediction
+- pred_tremor_checked: tremor detection result
+- tremor_power: tremor power measure</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pd.DataFrame</p>
@@ -282,7 +368,7 @@ MFCCs, the frequency of the peak, the tremor power and below tremor power for ea
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../pulse_rate_utils/index.html" class="btn btn-neutral float-left" title="paradigma.pipelines.pulse_rate_utils" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../../preprocessing/index.html" class="btn btn-neutral float-right" title="paradigma.preprocessing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../../prepare_data/index.html" class="btn btn-neutral float-right" title="paradigma.prepare_data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

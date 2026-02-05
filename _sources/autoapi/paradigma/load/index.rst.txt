@@ -1,0 +1,165 @@
+paradigma.load
+==============
+
+.. py:module:: paradigma.load
+
+.. autoapi-nested-parse::
+
+   Data loading module for ParaDigMa toolbox.
+
+   This module provides functions to load sensor data from various formats:
+   - Raw data: TSDF (.meta/.bin), Empatica (.avro), Axivity (.CWA)
+   - Prepared data: parquet, pickle, csv
+
+   Based on device_specific_data_loading tutorial.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   paradigma.load.logger
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   paradigma.load.load_tsdf_data
+   paradigma.load.load_empatica_data
+   paradigma.load.load_axivity_data
+   paradigma.load.load_prepared_data
+   paradigma.load.detect_file_format
+   paradigma.load.get_data_file_paths
+   paradigma.load.load_single_data_file
+   paradigma.load.load_data_files
+   paradigma.load.save_prepared_data
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: load_tsdf_data(data_path: str | pathlib.Path, prefix: str = 'IMU') -> tuple[pandas.DataFrame, dict, dict]
+
+   Load TSDF data from .meta and .bin files.
+
+   :param data_path: Path to directory containing TSDF files.
+   :type data_path: str or Path
+   :param prefix: Prefix for TSDF files (e.g., "IMU_segment0001").
+   :type prefix: str, default "IMU"
+
+   :returns: Tuple containing (DataFrame with loaded data, time metadata
+             dict, values metadata dict)
+   :rtype: tuple
+
+
+.. py:function:: load_empatica_data(file_path: str | pathlib.Path) -> pandas.DataFrame
+
+   Load Empatica .avro file.
+
+   :param file_path: Path to .avro file.
+   :type file_path: str or Path
+
+   :returns: DataFrame with columns: time, time_dt, accelerometer_x/y/z,
+             gyroscope_x/y/z (if available).
+   :rtype: pd.DataFrame
+
+
+.. py:function:: load_axivity_data(file_path: str | pathlib.Path) -> pandas.DataFrame
+
+   Load Axivity .CWA file.
+
+   :param file_path: Path to .CWA file.
+   :type file_path: str or Path
+
+   :returns: DataFrame with columns: time, time_dt, accelerometer_x/y/z,
+             gyroscope_x/y/z (if available).
+   :rtype: pd.DataFrame
+
+
+.. py:function:: load_prepared_data(file_path: str | pathlib.Path) -> pandas.DataFrame
+
+   Load prepared data from various formats (parquet, pickle, csv, json).
+   If json, expects TSDF format with corresponding .bin files.
+
+   :param file_path: Path to prepared data file.
+   :type file_path: str or Path
+
+   :returns: DataFrame with prepared data.
+   :rtype: pd.DataFrame
+
+
+.. py:function:: detect_file_format(file_path: str | pathlib.Path) -> str
+
+   Detect the format of a data file based on its extension.
+
+   :param file_path: Path to data file
+   :type file_path: str or Path
+
+   :returns: File format: 'json', 'empatica', 'axivity', 'prepared'
+   :rtype: str
+
+
+.. py:function:: get_data_file_paths(data_path: str | pathlib.Path, file_patterns: list[str] | str | None = None) -> list[pathlib.Path]
+
+   Get list of data file paths without loading them.
+
+   This function is useful for memory-efficient processing where you want to
+   load and process files one at a time instead of loading all at once.
+
+   :param data_path: Path to directory containing data files
+   :type data_path: str or Path
+   :param file_patterns: File extensions to consider (e.g. ["parquet", "csv", "cwa"]).
+                         If None, all supported formats are considered.
+   :type file_patterns: str or list of str, optional
+
+   :returns: List of file paths found in the directory
+   :rtype: list of Path
+
+
+.. py:function:: load_single_data_file(file_path: str | pathlib.Path) -> tuple[str, pandas.DataFrame]
+
+   Load a single data file with automatic format detection.
+
+   :param file_path: Path to data file
+   :type file_path: str or Path
+
+   :returns: Tuple of (file_key, DataFrame) where file_key is the file name without extension
+   :rtype: tuple
+
+
+.. py:function:: load_data_files(data_path: str | pathlib.Path, file_patterns: list[str] | None = None) -> dict[str, pandas.DataFrame]
+
+   Load all data files from a directory with automatic format detection.
+
+   Note: This function loads all files into memory at once. For large datasets,
+   consider using get_data_file_paths() and load_single_data_file() to process
+   files one at a time.
+
+   :param data_path: Path to directory containing data files
+   :type data_path: str or Path
+   :param file_patterns: File extensions to consider (e.g. ["parquet", "csv", "cwa"]).
+                         If None, all supported formats are considered.
+   :type file_patterns: str or list of str, optional
+
+   :returns: Dictionary mapping file names (without extension) to DataFrames
+   :rtype: dict
+
+
+.. py:function:: save_prepared_data(df: pandas.DataFrame, file_path: str | pathlib.Path, file_format: str = 'parquet') -> None
+
+   Save prepared data to file.
+
+   :param df: DataFrame to save
+   :type df: pd.DataFrame
+   :param file_path: Path for output file
+   :type file_path: str or Path
+   :param file_format: Output format: 'parquet', 'csv', 'pickle'
+   :type file_format: str, default 'parquet'
+
+

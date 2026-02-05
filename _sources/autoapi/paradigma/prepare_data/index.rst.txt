@@ -1,0 +1,157 @@
+paradigma.prepare_data
+======================
+
+.. py:module:: paradigma.prepare_data
+
+.. autoapi-nested-parse::
+
+   Data preparation module for ParaDigMa toolbox.
+
+   This module provides functions to prepare raw sensor data for analysis:
+   - Unit conversion (m/s² to g, rad/s to deg/s)
+   - Time column formatting
+   - Column name standardization
+   - Watch side orientation correction
+   - Resampling to 100 Hz
+
+   Based on data_preparation tutorial.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   paradigma.prepare_data.logger
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   paradigma.prepare_data.standardize_column_names
+   paradigma.prepare_data.convert_sensor_units
+   paradigma.prepare_data.prepare_time_column
+   paradigma.prepare_data.correct_watch_orientation
+   paradigma.prepare_data.validate_prepared_data
+   paradigma.prepare_data.prepare_raw_data
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: standardize_column_names(df: pandas.DataFrame, column_mapping: dict[str, str] | None = None) -> pandas.DataFrame
+
+   Standardize column names to ParaDigMa conventions.
+
+   :param df: Input DataFrame.
+   :type df: pd.DataFrame
+   :param column_mapping: Custom column mapping.
+   :type column_mapping: dict, optional
+
+   :returns: DataFrame with standardized column names.
+   :rtype: pd.DataFrame
+
+
+.. py:function:: convert_sensor_units(df: pandas.DataFrame, accelerometer_units: str = 'm/s^2', gyroscope_units: str = 'deg/s') -> pandas.DataFrame
+
+   Convert sensor units to ParaDigMa expected format (g for acceleration,
+   deg/s for gyroscope).
+
+   :param df: Input DataFrame with sensor data.
+   :type df: pd.DataFrame
+   :param accelerometer_units: Current units of accelerometer data.
+   :type accelerometer_units: str, default 'm/s^2'
+   :param gyroscope_units: Current units of gyroscope data.
+   :type gyroscope_units: str, default 'deg/s'
+
+   :returns: DataFrame with converted units.
+   :rtype: pd.DataFrame
+
+
+.. py:function:: prepare_time_column(df: pandas.DataFrame, time_column: str = DataColumns.TIME, input_unit_type: paradigma.constants.TimeUnit = TimeUnit.RELATIVE_S, output_unit_type: paradigma.constants.TimeUnit = TimeUnit.RELATIVE_S) -> pandas.DataFrame
+
+   Prepare time column to start from 0 seconds.
+
+   :param df: Input DataFrame.
+   :type df: pd.DataFrame
+   :param time_column: Name of time column.
+   :type time_column: str, default DataColumns.TIME
+   :param input_unit_type: Input time unit type.
+   :type input_unit_type: TimeUnit, default TimeUnit.RELATIVE_S
+   :param output_unit_type: Output time unit type.
+   :type output_unit_type: TimeUnit, default TimeUnit.RELATIVE_S
+
+   :returns: DataFrame with prepared time column.
+   :rtype: pd.DataFrame
+
+
+.. py:function:: correct_watch_orientation(df: pandas.DataFrame, device_orientation: list[str] | None = None, sensor: str = 'both') -> pandas.DataFrame
+
+   Apply custom device orientation mapping if provided.
+
+   Note: Watch-side inversion is handled separately during preprocessing
+   in the pipeline functions (preprocess_imu_data), not during data preparation.
+
+   :param df: Input DataFrame with sensor data
+   :type df: pd.DataFrame
+   :param device_orientation: Custom orientation correction multipliers for each axis.
+                              Maps device axes to standard [x, y, z] orientation.
+   :type device_orientation: list of str, optional
+   :param sensor: Sensor to correct ('accelerometer', 'gyroscope', or 'both').
+   :type sensor: str, optional
+
+   :returns: DataFrame with corrected device orientation (if custom mapping provided)
+   :rtype: pd.DataFrame
+
+
+.. py:function:: validate_prepared_data(df: pandas.DataFrame) -> dict[str, bool | str]
+
+   Validate that data is properly prepared for ParaDigMa analysis.
+
+   :param df: Prepared DataFrame
+   :type df: pd.DataFrame
+
+   :returns: Validation results with checks and error messages
+   :rtype: dict
+
+
+.. py:function:: prepare_raw_data(df: pandas.DataFrame, accelerometer_units: str = 'm/s^2', gyroscope_units: str = 'deg/s', time_input_unit: paradigma.constants.TimeUnit = TimeUnit.RELATIVE_S, resampling_frequency: float = 100.0, column_mapping: dict[str, str] | None = None, device_orientation: dict[str, int] | None = None, validate: bool = True, auto_segment: bool = False, max_segment_gap_s: float | None = None, min_segment_length_s: float | None = None) -> pandas.DataFrame
+
+   Complete data preparation pipeline for raw sensor data.
+
+   :param df: Raw sensor data
+   :type df: pd.DataFrame
+   :param accelerometer_units: Current units of accelerometer data
+   :type accelerometer_units: str, default 'm/s^2'
+   :param gyroscope_units: Current units of gyroscope data
+   :type gyroscope_units: str, default 'deg/s'
+   :param time_input_unit: Input time unit type
+   :type time_input_unit: TimeUnit, default TimeUnit.RELATIVE_S
+   :param resampling_frequency: Target sampling frequency in Hz
+   :type resampling_frequency: float, default 100.0
+   :param column_mapping: Custom column name mapping
+   :type column_mapping: Dict[str, str], optional
+   :param device_orientation: Custom orientation correction
+   :type device_orientation: Dict[str, int], optional
+   :param validate: Whether to validate the prepared data
+   :type validate: bool, default True
+   :param auto_segment: If True, automatically split non-contiguous data into segments.
+                        Adds 'data_segment_nr' column to output.
+   :type auto_segment: bool, default False
+   :param max_segment_gap_s: Maximum gap (seconds) before starting new segment. Used when auto_segment=True.
+                             Defaults to 1.5s.
+   :type max_segment_gap_s: float, optional
+   :param min_segment_length_s: Minimum segment length (seconds) to keep. Used when auto_segment=True.
+                                Defaults to 1.5s.
+   :type min_segment_length_s: float, optional
+
+   :returns: Prepared data ready for ParaDigMa analysis. If auto_segment=True and multiple
+             segments found, includes 'data_segment_nr' column.
+   :rtype: pd.DataFrame
+
+

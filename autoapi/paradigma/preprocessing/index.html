@@ -27,7 +27,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="paradigma.segmenting" href="../segmenting/index.html" />
-    <link rel="prev" title="paradigma.pipelines.tremor_pipeline" href="../pipelines/tremor_pipeline/index.html" /> 
+    <link rel="prev" title="paradigma.prepare_data" href="../prepare_data/index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -49,17 +49,13 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">User guides</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
@@ -72,18 +68,18 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html">paradigma</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="../classification/index.html">paradigma.classification</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../config/index.html">paradigma.config</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../constants/index.html">paradigma.constants</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../feature_extraction/index.html">paradigma.feature_extraction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../pipelines/index.html">paradigma.pipelines</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">paradigma.preprocessing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../segmenting/index.html">paradigma.segmenting</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../testing/index.html">paradigma.testing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../util/index.html">paradigma.util</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="../classification/index.html">paradigma.classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../config/index.html">paradigma.config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../constants/index.html">paradigma.constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../feature_extraction/index.html">paradigma.feature_extraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../load/index.html">paradigma.load</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../orchestrator/index.html">paradigma.orchestrator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipelines/index.html">paradigma.pipelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../prepare_data/index.html">paradigma.prepare_data</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">paradigma.preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../segmenting/index.html">paradigma.segmenting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../testing/index.html">paradigma.testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../util/index.html">paradigma.util</a></li>
 </ul>
 </li>
 </ul>
@@ -123,7 +119,7 @@
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.preprocessing.resample_data" title="paradigma.preprocessing.resample_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resample_data</span></code></a>(→ pandas.DataFrame)</p></td>
-<td><p>Resamples sensor data to a specified frequency using cubic interpolation.</p></td>
+<td><p>Unified resampling function with optional auto-segmentation for non-contiguous data.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#paradigma.preprocessing.butterworth_filter" title="paradigma.preprocessing.butterworth_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">butterworth_filter</span></code></a>(data, order, cutoff_frequency, ...)</p></td>
 <td><p>Applies a Butterworth filter to 1D or 2D sensor data.</p></td>
@@ -131,11 +127,11 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.preprocessing.preprocess_imu_data" title="paradigma.preprocessing.preprocess_imu_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocess_imu_data</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Preprocesses IMU data by resampling and applying filters.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.preprocessing.preprocess_ppg_data" title="paradigma.preprocessing.preprocess_ppg_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocess_ppg_data</span></code></a>(→ Tuple[pandas.DataFrame, ...)</p></td>
-<td><p>This function preprocesses PPG and accelerometer data by resampling, filtering and aligning the data segments of both sensors (if applicable).</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.preprocessing.preprocess_ppg_data" title="paradigma.preprocessing.preprocess_ppg_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocess_ppg_data</span></code></a>(→ tuple[pandas.DataFrame, ...)</p></td>
+<td><p>This function preprocesses PPG and accelerometer data by resampling,</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.preprocessing.extract_overlapping_segments" title="paradigma.preprocessing.extract_overlapping_segments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_overlapping_segments</span></code></a>(→ Tuple[pandas.DataFrame, ...)</p></td>
-<td><p>Extract DataFrames with overlapping data segments between accelerometer (from the IMU) and PPG datasets based on their timestamps.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.preprocessing.extract_overlapping_segments" title="paradigma.preprocessing.extract_overlapping_segments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_overlapping_segments</span></code></a>(→ tuple[pandas.DataFrame, ...)</p></td>
+<td><p>Extract DataFrames with overlapping data segments between accelerometer</p></td>
 </tr>
 </tbody>
 </table>
@@ -144,41 +140,83 @@
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.preprocessing.resample_data">
-<span class="sig-prename descclassname"><span class="pre">paradigma.preprocessing.</span></span><span class="sig-name descname"><span class="pre">resample_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values_column_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../_modules/paradigma/preprocessing.html#resample_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.preprocessing.resample_data" title="Link to this definition"></a></dt>
-<dd><p>Resamples sensor data to a specified frequency using cubic interpolation.</p>
+<span class="sig-prename descclassname"><span class="pre">paradigma.preprocessing.</span></span><span class="sig-name descname"><span class="pre">resample_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values_column_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate_contiguous</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_segment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_segment_gap_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_segment_length_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../_modules/paradigma/preprocessing.html#resample_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.preprocessing.resample_data" title="Link to this definition"></a></dt>
+<dd><p>Unified resampling function with optional auto-segmentation for non-contiguous data.</p>
+<p>This function supports:
+- Automatic frequency detection or explicit specification
+- Contiguity validation with configurable tolerance
+- Automatic segmentation of non-contiguous data
+- Preservation of non-numeric columns</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The input DataFrame containing the sensor data.</p></li>
-<li><p><strong>time_column</strong> (<em>str</em>) – The name of the column containing the time data.</p></li>
-<li><p><strong>values_column_names</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – A list of column names that should be resampled.</p></li>
-<li><p><strong>sampling_frequency</strong> (<em>int</em>) – The original sampling frequency of the data (in Hz).</p></li>
-<li><p><strong>resampling_frequency</strong> (<em>int</em>) – The frequency to which the data should be resampled (in Hz).</p></li>
-<li><p><strong>tolerance</strong> (<em>float</em><em>, </em><em>optional</em>) – The tolerance added to the expected difference when checking
-for contiguous timestamps. If not provided, it defaults to the tolerance specified in IMUConfig.</p></li>
+<li><p><strong>time_column</strong> (<em>str</em><em>, </em><em>default 'time'</em>) – The name of the column containing the time data.</p></li>
+<li><p><strong>values_column_names</strong> (<em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Column names to resample. If None, auto-detects all numeric columns except time.</p></li>
+<li><p><strong>sampling_frequency</strong> (<em>int</em><em>, </em><em>optional</em>) – Original sampling frequency (Hz). If None, auto-detected from data.</p></li>
+<li><p><strong>resampling_frequency</strong> (<em>int</em><em>, </em><em>optional</em>) – Target sampling frequency in Hz.</p></li>
+<li><p><strong>tolerance</strong> (<em>float</em><em>, </em><em>optional</em>) – Tolerance for contiguity checking (seconds). Defaults to IMUConfig tolerance.</p></li>
+<li><p><strong>validate_contiguous</strong> (<em>bool</em><em>, </em><em>default True</em>) – Whether to validate data contiguity. If False, gaps are silently interpolated.</p></li>
+<li><p><strong>auto_segment</strong> (<em>bool</em><em>, </em><em>default False</em>) – If True, automatically split non-contiguous data into segments and
+process each. Adds ‘data_segment_nr’ column to output. If False and
+data is non-contiguous with validate_contiguous=True, raises
+ValueError.</p></li>
+<li><p><strong>max_segment_gap_s</strong> (<em>float</em><em>, </em><em>optional</em>) – Maximum gap (seconds) before starting new segment. Used when auto_segment=True.
+Defaults to IMUConfig.max_segment_gap_s (1.5s).</p></li>
+<li><p><strong>min_segment_length_s</strong> (<em>float</em><em>, </em><em>optional</em>) – Minimum segment length (seconds) to keep. Used when auto_segment=True.
+Defaults to IMUConfig.min_segment_length_s (1.5s).</p></li>
+<li><p><strong>verbose</strong> (<em>int</em><em>, </em><em>default 1</em>) – Logging verbose: 0=errors only, 1=basic info, 2+=detailed info.
+Note: This function still uses verbose for backward compatibility
+with existing code that calls it directly.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A DataFrame with the resampled data, where each column contains resampled values.
-The time column will reflect the new resampling frequency.</p>
+<dd class="field-even"><p>Resampled DataFrame. If auto_segment=True and multiple segments found,
+includes ‘data_segment_nr’ column identifying each contiguous data segment.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pd.DataFrame</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If the time array is not strictly increasing.</p>
+<dd class="field-even"><p><strong>ValueError</strong> – <ul class="simple">
+<li><p>If time array is not strictly increasing</p></li>
+<li><p>If time array is not contiguous and validate_contiguous=True
+and auto_segment=False</p></li>
+<li><p>If no numeric columns found for resampling</p></li>
+<li><p>If all segments are discarded due to min_segment_length_s</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
 <ul class="simple">
-<li><p>Uses cubic interpolation for smooth resampling if there are enough points.</p></li>
-<li><p>If only two timestamps are available, it falls back to linear interpolation.</p></li>
+<li><p>Uses cubic interpolation for smooth resampling if there are enough points</p></li>
+<li><p>Falls back to linear interpolation if only 2-3 points available</p></li>
+<li><p>Non-numeric columns are preserved (first value copied to all rows)</p></li>
+<li><p>Backwards compatible with both old resample_data signatures</p></li>
 </ul>
+<p class="rubric">Examples</p>
+<p># Auto-detection mode
+df_resampled = resample_data(df, resampling_frequency=100)</p>
+<p># Explicit mode
+df_resampled = resample_data(</p>
+<blockquote>
+<div><p>df, time_column=’time’, values_column_names=[‘acc_x’, ‘acc_y’],
+sampling_frequency=128, resampling_frequency=100</p>
+</div></blockquote>
+<p>)</p>
+<p># Auto-segmentation mode
+df_segmented = resample_data(</p>
+<blockquote>
+<div><p>df, resampling_frequency=100, auto_segment=True,
+max_segment_gap_s=2.0, min_segment_length_s=3.0</p>
+</div></blockquote>
+<p>)</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.preprocessing.butterworth_filter">
-<span class="sig-prename descclassname"><span class="pre">paradigma.preprocessing.</span></span><span class="sig-name descname"><span class="pre">butterworth_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">passband</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/preprocessing.html#butterworth_filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.preprocessing.butterworth_filter" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">paradigma.preprocessing.</span></span><span class="sig-name descname"><span class="pre">butterworth_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">passband</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paradigma/preprocessing.html#butterworth_filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.preprocessing.butterworth_filter" title="Link to this definition"></a></dt>
 <dd><p>Applies a Butterworth filter to 1D or 2D sensor data.</p>
 <p>This function applies a low-pass, high-pass, or band-pass Butterworth filter to the
 input data. The filter is designed using the specified order, cutoff frequency,
@@ -189,14 +227,16 @@ and passband type. The function can handle both 1D and 2D data arrays.</p>
 <li><p><strong>data</strong> (<em>np.ndarray</em>) – The sensor data to be filtered. Can be 1D (e.g., a single signal) or 2D
 (e.g., multi-axis sensor data).</p></li>
 <li><p><strong>order</strong> (<em>int</em>) – The order of the Butterworth filter. Higher values result in a steeper roll-off.</p></li>
-<li><p><strong>cutoff_frequency</strong> (<em>float</em><em> or </em><em>List</em><em>[</em><em>float</em><em>]</em>) – The cutoff frequency (or frequencies) for the filter. For a low-pass or high-pass filter,
-this is a single float. For a band-pass filter, this should be a list of two floats,
-specifying the lower and upper cutoff frequencies.</p></li>
+<li><p><strong>cutoff_frequency</strong> (<em>float</em><em> or </em><em>list</em><em> of </em><em>float</em>) – The cutoff frequency (or frequencies) for the filter. For a low-pass
+or high-pass filter, this is a single float. For a band-pass filter,
+this should be a list of two floats, specifying the lower and upper
+cutoff frequencies.</p></li>
 <li><p><strong>passband</strong> (<em>str</em>) – The type of passband to apply. Options are:
 - ‘hp’ : high-pass filter
 - ‘lp’ : low-pass filter
 - ‘band’ : band-pass filter</p></li>
-<li><p><strong>sampling_frequency</strong> (<em>int</em>) – The sampling frequency of the data in Hz. This is used to normalize the cutoff frequency.</p></li>
+<li><p><strong>sampling_frequency</strong> (<em>int</em>) – The sampling frequency of the data in Hz. This is used to normalize
+the cutoff frequency.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -206,24 +246,27 @@ specifying the lower and upper cutoff frequencies.</p></li>
 <dd class="field-odd"><p>np.ndarray</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If the input data has more than two dimensions, or if an invalid passband is specified.</p>
+<dd class="field-even"><p><strong>ValueError</strong> – If the input data has more than two dimensions, or if an invalid
+passband is specified.</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>The function uses <cite>scipy.signal.butter</cite> to design the filter and <cite>scipy.signal.sosfiltfilt</cite>
-to apply it using second-order sections (SOS) to improve numerical stability.</p>
+<p>The function uses <cite>scipy.signal.butter</cite> to design the filter and
+<cite>scipy.signal.sosfiltfilt</cite> to apply it using second-order sections (SOS)
+to improve numerical stability.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.preprocessing.preprocess_imu_data">
-<span class="sig-prename descclassname"><span class="pre">paradigma.preprocessing.</span></span><span class="sig-name descname"><span class="pre">preprocess_imu_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../config/index.html#paradigma.config.IMUConfig" title="paradigma.config.IMUConfig"><span class="pre">paradigma.config.IMUConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">watch_side</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../_modules/paradigma/preprocessing.html#preprocess_imu_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.preprocessing.preprocess_imu_data" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">paradigma.preprocessing.</span></span><span class="sig-name descname"><span class="pre">preprocess_imu_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../config/index.html#paradigma.config.IMUConfig" title="paradigma.config.IMUConfig"><span class="pre">paradigma.config.IMUConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">watch_side</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../_modules/paradigma/preprocessing.html#preprocess_imu_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.preprocessing.preprocess_imu_data" title="Link to this definition"></a></dt>
 <dd><p>Preprocesses IMU data by resampling and applying filters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The DataFrame containing raw accelerometer and/or gyroscope data.</p></li>
-<li><p><strong>config</strong> (<a class="reference internal" href="../config/index.html#paradigma.config.IMUConfig" title="paradigma.config.IMUConfig"><em>IMUConfig</em></a>) – Configuration object containing various settings, such as time column name, accelerometer and/or gyroscope columns,
-filter settings, and sampling frequency.</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="../config/index.html#paradigma.config.IMUConfig" title="paradigma.config.IMUConfig"><em>IMUConfig</em></a>) – Configuration object containing various settings, such as time column
+name, accelerometer and/or gyroscope columns, filter settings, and
+sampling frequency.</p></li>
 <li><p><strong>sensor</strong> (<em>str</em>) – Name of the sensor data to be preprocessed. Must be one of:
 - “accelerometer”: Preprocess accelerometer data only.
 - “gyroscope”: Preprocess gyroscope data only.
@@ -231,12 +274,18 @@ filter settings, and sampling frequency.</p></li>
 <li><p><strong>watch_side</strong> (<em>str</em>) – The side of the watch where the data was collected. Must be one of:
 - “left”: Data was collected from the left wrist.
 - “right”: Data was collected from the right wrist.</p></li>
+<li><p><strong>verbose</strong> (<em>int</em><em>, </em><em>default 1</em>) – Logging verbose level: 0=errors only, 1=basic info, 2+=detailed info.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The preprocessed accelerometer and or gyroscope data with the following transformations:
+<dd class="field-even"><p><p>The preprocessed accelerometer and or gyroscope data with the
+following transformations:
 - Resampled data at the specified frequency.
-- Filtered accelerometer data with high-pass and low-pass filtering applied.</p>
+- Filtered accelerometer data with high-pass and low-pass filtering</p>
+<blockquote>
+<div><p>applied.</p>
+</div></blockquote>
+</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pd.DataFrame</p>
@@ -244,27 +293,36 @@ filter settings, and sampling frequency.</p></li>
 </dl>
 <p class="rubric">Notes</p>
 <ul class="simple">
-<li><p>The function applies Butterworth filters to accelerometer data, both high-pass and low-pass.</p></li>
+<li><p>The function applies Butterworth filters to accelerometer data, both
+high-pass and low-pass.</p></li>
 </ul>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.preprocessing.preprocess_ppg_data">
-<span class="sig-prename descclassname"><span class="pre">paradigma.preprocessing.</span></span><span class="sig-name descname"><span class="pre">preprocess_ppg_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_ppg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ppg_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../config/index.html#paradigma.config.PPGConfig" title="paradigma.config.PPGConfig"><span class="pre">paradigma.config.PPGConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time_ppg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_acc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imu_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../config/index.html#paradigma.config.IMUConfig" title="paradigma.config.IMUConfig"><span class="pre">paradigma.config.IMUConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time_imu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/paradigma/preprocessing.html#preprocess_ppg_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.preprocessing.preprocess_ppg_data" title="Link to this definition"></a></dt>
-<dd><p>This function preprocesses PPG and accelerometer data by resampling, filtering and aligning the data segments of both sensors (if applicable).
-Aligning is done using the extract_overlapping_segments function which is based on the provided start times of the PPG and IMU data and returns
-only the data points where both signals overlap in time. The remaining data points are discarded.
-After alignment, the function resamples the data to the specified frequency and applies Butterworth filters to both PPG and accelerometer data (if applicable).
-The output is two DataFrames: one for the preprocessed PPG data and another for the preprocessed accelerometer data (if provided, otherwise return is None).</p>
+<span class="sig-prename descclassname"><span class="pre">paradigma.preprocessing.</span></span><span class="sig-name descname"><span class="pre">preprocess_ppg_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_ppg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ppg_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../config/index.html#paradigma.config.PPGConfig" title="paradigma.config.PPGConfig"><span class="pre">paradigma.config.PPGConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time_ppg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_acc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imu_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../config/index.html#paradigma.config.IMUConfig" title="paradigma.config.IMUConfig"><span class="pre">paradigma.config.IMUConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time_imu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/paradigma/preprocessing.html#preprocess_ppg_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.preprocessing.preprocess_ppg_data" title="Link to this definition"></a></dt>
+<dd><p>This function preprocesses PPG and accelerometer data by resampling,
+filtering and aligning the data segments of both sensors (if applicable).
+Aligning is done using the extract_overlapping_segments function which is
+based on the provided start times of the PPG and IMU data and returns
+only the data points where both signals overlap in time. The remaining
+data points are discarded.
+After alignment, the function resamples the data to the specified
+frequency and applies Butterworth filters to both PPG and accelerometer
+data (if applicable).
+The output is two DataFrames: one for the preprocessed PPG data and
+another for the preprocessed accelerometer data (if provided, otherwise
+return is None).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df_ppg</strong> (<em>pd.DataFrame</em>) – DataFrame containing PPG data.</p></li>
-<li><p><strong>df_acc</strong> (<em>pd.DataFrame</em>) – DataFrame containing accelerometer from IMU data.</p></li>
 <li><p><strong>ppg_config</strong> (<em>PPGPreprocessingConfig</em>) – Configuration object for PPG preprocessing.</p></li>
-<li><p><strong>imu_config</strong> (<em>IMUPreprocessingConfig</em>) – Configuration object for IMU preprocessing.</p></li>
 <li><p><strong>start_time_ppg</strong> (<em>str</em>) – iso8601 formatted start time of the PPG data.</p></li>
+<li><p><strong>df_acc</strong> (<em>pd.DataFrame</em>) – DataFrame containing accelerometer from IMU data.</p></li>
+<li><p><strong>imu_config</strong> (<em>IMUPreprocessingConfig</em>) – Configuration object for IMU preprocessing.</p></li>
 <li><p><strong>start_time_imu</strong> (<em>str</em>) – iso8601 formatted start time of the IMU data.</p></li>
+<li><p><strong>verbose</strong> (<em>int</em><em>, </em><em>default 1</em>) – Logging verbose level: 0=errors only, 1=basic info, 2+=detailed info.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -276,14 +334,16 @@ The output is two DataFrames: one for the preprocessed PPG data and another for 
 <li><p>Filtered PPG data with bandpass filtering applied.</p></li>
 </ul>
 </div></blockquote>
-<ul class="simple">
-<li><dl class="simple">
-<dt>Preprocessed accelerometer data (if provided, otherwise return is None) with the following transformations:</dt><dd><ul>
+<ul>
+<li><p>Preprocessed accelerometer data (if provided, otherwise return is
+None) with the following transformations:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>Resampled data at the specified frequency.</p></li>
-<li><p>Filtered accelerometer data with high-pass and low-pass filtering applied.</p></li>
+<li><p>Filtered accelerometer data with high-pass and low-pass
+filtering applied.</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </li>
 </ul>
 </p>
@@ -294,15 +354,18 @@ The output is two DataFrames: one for the preprocessed PPG data and another for 
 </dl>
 <p class="rubric">Notes</p>
 <ul class="simple">
-<li><p>If accelerometer data or IMU configuration is not provided, the function only preprocesses PPG data.</p></li>
-<li><p>The function applies Butterworth filters to PPG and accelerometer (if applicable) data, both high-pass and low-pass.</p></li>
+<li><p>If accelerometer data or IMU configuration is not provided, the
+function only preprocesses PPG data.</p></li>
+<li><p>The function applies Butterworth filters to PPG and accelerometer
+(if applicable) data, both high-pass and low-pass.</p></li>
 </ul>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.preprocessing.extract_overlapping_segments">
-<span class="sig-prename descclassname"><span class="pre">paradigma.preprocessing.</span></span><span class="sig-name descname"><span class="pre">extract_overlapping_segments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_ppg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_acc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_colname_ppg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_colname_imu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time_ppg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time_acc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/paradigma/preprocessing.html#extract_overlapping_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.preprocessing.extract_overlapping_segments" title="Link to this definition"></a></dt>
-<dd><p>Extract DataFrames with overlapping data segments between accelerometer (from the IMU) and PPG datasets based on their timestamps.</p>
+<span class="sig-prename descclassname"><span class="pre">paradigma.preprocessing.</span></span><span class="sig-name descname"><span class="pre">extract_overlapping_segments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_ppg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_acc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_colname_ppg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_colname_imu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time_ppg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time_acc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/paradigma/preprocessing.html#extract_overlapping_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.preprocessing.extract_overlapping_segments" title="Link to this definition"></a></dt>
+<dd><p>Extract DataFrames with overlapping data segments between accelerometer
+(from the IMU) and PPG datasets based on their timestamps.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -315,7 +378,8 @@ The output is two DataFrames: one for the preprocessed PPG data and another for 
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>DataFrames containing the overlapping segments (time and values) of PPG and accelerometer data.</p>
+<dd class="field-even"><p>DataFrames containing the overlapping segments (time and values) of
+PPG and accelerometer data.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Tuple[pd.DataFrame, pd.DataFrame]</p>
@@ -330,7 +394,7 @@ The output is two DataFrames: one for the preprocessed PPG data and another for 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../pipelines/tremor_pipeline/index.html" class="btn btn-neutral float-left" title="paradigma.pipelines.tremor_pipeline" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../prepare_data/index.html" class="btn btn-neutral float-left" title="paradigma.prepare_data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../segmenting/index.html" class="btn btn-neutral float-right" title="paradigma.segmenting" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

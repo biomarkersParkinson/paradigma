@@ -46,17 +46,13 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">User guides</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
@@ -99,7 +95,6 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -115,12 +110,14 @@
 <a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.deprecated">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">deprecated</span><span class="p">(</span><span class="n">reason</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Decorator to mark functions as deprecated. It will show a warning when the function is used.</span>
+<span class="sd">    Decorator to mark functions as deprecated. It will show a warning when the</span>
+<span class="sd">    function is used.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    reason : str, optional</span>
-<span class="sd">        Additional message to explain why it is deprecated and what to use instead.</span>
+<span class="sd">        Additional message to explain why it is deprecated and what to use</span>
+<span class="sd">        instead.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
@@ -272,7 +269,7 @@
 <a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.read_metadata">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">read_metadata</span><span class="p">(</span>
     <span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">time_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values_filename</span><span class="p">:</span> <span class="nb">str</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">TSDFMetadata</span><span class="p">,</span> <span class="n">TSDFMetadata</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">TSDFMetadata</span><span class="p">,</span> <span class="n">TSDFMetadata</span><span class="p">]:</span>
     <span class="n">metadata_dict</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">load_metadata_from_path</span><span class="p">(</span>
         <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">)</span>
     <span class="p">)</span>
@@ -309,8 +306,8 @@
 <div class="viewcode-block" id="load_metadata_list">
 <a class="viewcode-back" href="../../autoapi/paradigma/util/index.html#paradigma.util.load_metadata_list">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_metadata_list</span><span class="p">(</span>
-    <span class="n">dir_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filenames</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">TSDFMetadata</span><span class="p">]:</span>
+    <span class="n">dir_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filenames</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">TSDFMetadata</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load the metadata objects from a metadata file according to the specified binaries.</span>
 
@@ -342,7 +339,8 @@
     <span class="n">start_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Transforms the time array to relative time (when defined in delta time) and scales the values.</span>
+<span class="sd">    Transforms the time array to relative time (when defined in delta time)</span>
+<span class="sd">    and scales the values.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -351,7 +349,8 @@
 <span class="sd">    input_unit_type : str</span>
 <span class="sd">        The time unit type of the input time array.</span>
 <span class="sd">    output_unit_type : str</span>
-<span class="sd">        The time unit type of the output time array. ParaDigMa expects `TimeUnit.RELATIVE_S`.</span>
+<span class="sd">        The time unit type of the output time array. ParaDigMa expects</span>
+<span class="sd">        `TimeUnit.RELATIVE_S`.</span>
 <span class="sd">    start_time : float, optional</span>
 <span class="sd">        The start time of the time array in UNIX seconds (default is 0.0)</span>
 
@@ -362,9 +361,13 @@
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
-<span class="sd">    - The function handles different time units (`TimeUnit.RELATIVE_MS`, `TimeUnit.RELATIVE_S`, `TimeUnit.ABSOLUTE_MS`, `TimeUnit.ABSOLUTE_S`, `TimeUnit.DIFFERENCE_MS`, `TimeUnit.DIFFERENCE_S`).</span>
-<span class="sd">    - The transformation allows for scaling of the time array, converting between time unit types (e.g., relative, absolute, or difference).</span>
-<span class="sd">    - When converting to `TimeUnit.RELATIVE_MS`, the function calculates the relative time starting from the provided or default start time.</span>
+<span class="sd">    - The function handles different time units (`TimeUnit.RELATIVE_MS`,</span>
+<span class="sd">      `TimeUnit.RELATIVE_S`, `TimeUnit.ABSOLUTE_MS`, `TimeUnit.ABSOLUTE_S`,</span>
+<span class="sd">      `TimeUnit.DIFFERENCE_MS`, `TimeUnit.DIFFERENCE_S`).</span>
+<span class="sd">    - The transformation allows for scaling of the time array, converting</span>
+<span class="sd">      between time unit types (e.g., relative, absolute, or difference).</span>
+<span class="sd">    - When converting to `TimeUnit.RELATIVE_MS`, the function calculates the</span>
+<span class="sd">      relative time starting from the provided or default start time.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">input_units</span> <span class="o">=</span> <span class="n">input_unit_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
     <span class="n">output_units</span> <span class="o">=</span> <span class="n">output_unit_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
@@ -385,7 +388,8 @@
         <span class="n">input_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_MS</span>
         <span class="ow">or</span> <span class="n">input_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_S</span>
     <span class="p">):</span>
-        <span class="c1"># Convert a series of differences into cumulative sum to reconstruct original time series.</span>
+        <span class="c1"># Convert a series of differences into cumulative sum to</span>
+        <span class="c1"># reconstruct original time series.</span>
         <span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">time_array</span><span class="p">))</span>
     <span class="k">elif</span> <span class="p">(</span>
         <span class="n">input_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_MS</span>
@@ -397,7 +401,8 @@
         <span class="c1"># Convert absolute time stamps into a time series relative to start_time.</span>
         <span class="n">time_array</span> <span class="o">=</span> <span class="n">time_array</span> <span class="o">-</span> <span class="n">start_time</span>
 
-    <span class="c1"># Transform the time array from `TimeUnit.RELATIVE_MS` to the specified time unit type</span>
+    <span class="c1"># Transform the time array from `TimeUnit.RELATIVE_MS` to the</span>
+    <span class="c1"># specified time unit type</span>
     <span class="k">if</span> <span class="p">(</span>
         <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_MS</span>
         <span class="ow">or</span> <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">ABSOLUTE_S</span>
@@ -408,7 +413,8 @@
         <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_MS</span>
         <span class="ow">or</span> <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">DIFFERENCE_S</span>
     <span class="p">):</span>
-        <span class="c1"># Creates a new array starting with 0, followed by the differences between consecutive elements.</span>
+        <span class="c1"># Creates a new array starting with 0, followed by the</span>
+        <span class="c1"># differences between consecutive elements.</span>
         <span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">start_time</span><span class="p">))</span>
     <span class="k">elif</span> <span class="p">(</span>
         <span class="n">output_unit_type</span> <span class="o">==</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_MS</span>
@@ -521,7 +527,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">aggregate_parameter</span><span class="p">(</span>
     <span class="n">parameter</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">aggregate</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">evaluation_points</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">evaluation_points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Aggregate a parameter based on the specified method.</span>
@@ -536,7 +542,8 @@
 
 <span class="sd">    evaluation_points : np.ndarray, optional</span>
 <span class="sd">        Should be specified if the mode is derived for a continuous parameter.</span>
-<span class="sd">        Defines the evaluation points for the kernel density estimation function, from which the maximum is derived as the mode.</span>
+<span class="sd">        Defines the evaluation points for the kernel density estimation</span>
+<span class="sd">        function, from which the maximum is derived as the mode.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -586,8 +593,9 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Merges prediction probabilities with timestamps by expanding overlapping windows</span>
-<span class="sd">    into individual timestamps and averaging probabilities per unique timestamp.</span>
+<span class="sd">    Merges prediction probabilities with timestamps by expanding overlapping</span>
+<span class="sd">    windows into individual timestamps and averaging probabilities per unique</span>
+<span class="sd">    timestamp.</span>
 
 <span class="sd">    Parameters:</span>
 <span class="sd">    ----------</span>
@@ -596,10 +604,11 @@
 <span class="sd">        Must include the timestamp column specified in `DataColumns.TIME`.</span>
 
 <span class="sd">    df_predictions : pd.DataFrame</span>
-<span class="sd">        DataFrame containing prediction windows with start times and probabilities.</span>
-<span class="sd">        Must include:</span>
+<span class="sd">        DataFrame containing prediction windows with start times and</span>
+<span class="sd">        probabilities. Must include:</span>
 <span class="sd">        - A column for window start times (defined by `DataColumns.TIME`).</span>
-<span class="sd">        - A column for prediction probabilities (defined by `DataColumns.PRED_GAIT_PROBA`).</span>
+<span class="sd">        - A column for prediction probabilities (defined by</span>
+<span class="sd">          `DataColumns.PRED_GAIT_PROBA`).</span>
 
 <span class="sd">    pred_proba_colname : str</span>
 <span class="sd">        The column name for the prediction probabilities in `df_predictions`.</span>
@@ -706,7 +715,8 @@
 <span class="sd">        Input data with column &#39;time_dt&#39; in which the date is stored.</span>
 
 <span class="sd">    min_hours_per_day: int</span>
-<span class="sd">        The minimum number of hours per day required for including the day in the aggregation step.</span>
+<span class="sd">        The minimum number of hours per day required for including the day</span>
+<span class="sd">        in the aggregation step.</span>
 
 
 <span class="sd">    Returns</span>

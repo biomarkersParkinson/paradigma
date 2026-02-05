@@ -45,7 +45,9 @@ Module Contents
 
    .. py:method:: set_filenames(prefix: str) -> None
 
-      Sets the filenames based on the prefix. This method is duplicated from `gaits_analysis_config.py`.
+      Sets the filenames based on the prefix.
+
+      This method is duplicated from `gaits_analysis_config.py`.
 
       :param prefix: The prefix for the filenames.
       :type prefix: str
@@ -83,33 +85,33 @@ Module Contents
 
 
    .. py:attribute:: accelerometer_colnames
-      :type:  List[str]
+      :type:  list[str]
       :value: []
 
 
 
    .. py:attribute:: gyroscope_colnames
-      :type:  List[str]
+      :type:  list[str]
       :value: []
 
 
 
    .. py:attribute:: gravity_colnames
-      :type:  List[str]
+      :type:  list[str]
       :value: []
 
 
 
    .. py:attribute:: d_channels_accelerometer
-      :type:  Dict[str, str]
+      :type:  dict[str, str]
 
 
    .. py:attribute:: d_channels_gyroscope
-      :type:  Dict[str, str]
+      :type:  dict[str, str]
 
 
    .. py:attribute:: d_channels_imu
-      :type:  Dict[str, str]
+      :type:  dict[str, str]
 
 
    .. py:attribute:: sampling_frequency
@@ -139,6 +141,16 @@ Module Contents
 
    .. py:attribute:: filter_order
       :value: 4
+
+
+
+   .. py:attribute:: max_segment_gap_s
+      :value: 1.5
+
+
+
+   .. py:attribute:: min_segment_length_s
+      :value: 1.5
 
 
 
@@ -227,7 +239,7 @@ Module Contents
 
 
    .. py:attribute:: d_frequency_bandwidths
-      :type:  Dict[str, List[float]]
+      :type:  dict[str, list[float]]
 
 
    .. py:attribute:: mfcc_low_frequency
@@ -267,7 +279,7 @@ Module Contents
 
 
    .. py:attribute:: d_channels_values
-      :type:  Dict[str, str]
+      :type:  dict[str, str]
 
 
 .. py:class:: TremorConfig(step: str | None = None)
@@ -387,7 +399,7 @@ Module Contents
 
 
    .. py:attribute:: aggregates_tremor_power
-      :type:  List[str]
+      :type:  list[str]
       :value: ['mode_binned', 'median', '90p']
 
 

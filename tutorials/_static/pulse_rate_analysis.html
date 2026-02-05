@@ -25,9 +25,7 @@
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
-    <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Config" href="../../guides/config.html" />
-    <link rel="prev" title="Tremor analysis" href="tremor_analysis.html" /> 
+    <link rel="search" title="Search" href="../../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -49,31 +47,13 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Pulse rate analysis</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#load-data">Load data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#step-1-preprocess-data">Step 1: Preprocess data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#step-2-extract-signal-quality-features">Step 2: Extract signal quality features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#step-3-signal-quality-classification">Step 3: Signal quality classification</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#store-as-tsdf">Store as TSDF</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#step-4-pulse-rate-estimation">Step 4: Pulse rate estimation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#run-steps-1-4-for-multiple-segments">Run steps 1 - 4 for multiple segments <a id='multiple_segments_cell'></a></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#step-5-pulse-rate-aggregation">Step 5: Pulse rate aggregation</a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">User guides</span></p>
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
@@ -125,20 +105,40 @@
 <ol class="arabic simple" start="5">
 <li><p>Pulse rate aggregation</p></li>
 </ol>
+<section id="import-required-modules">
+<h2>Import required modules<a class="headerlink" href="#import-required-modules" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tsdf</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassifierPackage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span><span class="p">,</span> <span class="n">PPGConfig</span><span class="p">,</span> <span class="n">PulseRateConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.pulse_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">aggregate_pulse_rate</span><span class="p">,</span>
+    <span class="n">estimate_pulse_rate</span><span class="p">,</span>
+    <span class="n">extract_signal_quality_features</span><span class="p">,</span>
+    <span class="n">signal_quality_classification</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_ppg_data</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span><span class="p">,</span> <span class="n">write_df_data</span>
+</pre></div>
+</div>
+</section>
 <section id="load-data">
 <h2>Load data<a class="headerlink" href="#load-data" title="Link to this heading"></a></h2>
 <p>This pipeline requires PPG data and can be enhanced with accelerometer data (optional). Here, we start by loading a single contiguous time series (segment), for which we continue running steps 1-4. Below we show how to run these steps for multiple segments. The channel <code class="docutils literal notranslate"><span class="pre">green</span></code> represents the values obtained with PPG using green light.</p>
-<p>In this example we use the interally developed <code class="docutils literal notranslate"><span class="pre">TSDF</span></code> (<a class="reference external" href="https://biomarkersparkinson.github.io/tsdf/">documentation</a>) to load and store data [<a class="reference external" href="https://arxiv.org/abs/2211.11294">1</a>]. However, we are aware that there are other common data formats. For example, the following functions can be used depending on the file extension of the data:</p>
+<p>In this example we use the internally developed <code class="docutils literal notranslate"><span class="pre">TSDF</span></code> (<a class="reference external" href="https://biomarkersparkinson.github.io/tsdf/">documentation</a>) to load and store data [<a class="reference external" href="https://arxiv.org/abs/2211.11294">1</a>]. However, we are aware that there are other common data formats. For example, the following functions can be used depending on the file extension of the data:</p>
 <ul class="simple">
 <li><p><em>.csv</em>: <code class="docutils literal notranslate"><span class="pre">pandas.read_csv()</span></code> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html">documentation</a>)</p></li>
 <li><p><em>.json</em>: <code class="docutils literal notranslate"><span class="pre">json.load()</span></code> (<a class="reference external" href="https://docs.python.org/3/library/json.html#json.load">documentation</a>)</p></li>
 </ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span>
-
-<span class="c1"># Set the path to where the prepared data is saved and load the data.</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set the path to where the prepared data is saved and load the data.</span>
 <span class="c1"># Note: the test data is stored in TSDF, but you can load your data in your own way</span>
-<span class="n">path_to_prepared_data</span> <span class="o">=</span>  <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../example_data&#39;</span><span class="p">)</span>
+<span class="n">path_to_prepared_data</span> <span class="o">=</span>  <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../example_data/verily&#39;</span><span class="p">)</span>
 
 <span class="n">ppg_prefix</span> <span class="o">=</span> <span class="s1">&#39;ppg&#39;</span>
 <span class="n">imu_prefix</span> <span class="o">=</span> <span class="s1">&#39;imu&#39;</span>
@@ -156,28 +156,14 @@
     <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
 <span class="p">)</span>
 
-<span class="n">time_col</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="c1"># define time column to keep</span>
-<span class="n">acc_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;accelerometer_x&#39;</span><span class="p">,</span> <span class="s1">&#39;accelerometer_y&#39;</span><span class="p">,</span> <span class="s1">&#39;accelerometer_z&#39;</span><span class="p">]</span> <span class="c1"># define accelerometer columns to keep</span>
+<span class="n">time_col</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
+<span class="n">acc_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;accelerometer_x&#39;</span><span class="p">,</span> <span class="s1">&#39;accelerometer_y&#39;</span><span class="p">,</span> <span class="s1">&#39;accelerometer_z&#39;</span><span class="p">]</span>
 <span class="n">df_acc</span> <span class="o">=</span> <span class="n">df_imu</span><span class="p">[</span><span class="n">time_col</span> <span class="o">+</span> <span class="n">acc_cols</span><span class="p">]</span>
 
 <span class="n">display</span><span class="p">(</span><span class="n">df_ppg</span><span class="p">,</span> <span class="n">df_acc</span><span class="p">)</span>
 </pre></div>
 </div>
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
-    vertical-align: top;
-}
-
-.dataframe thead th {
-    text-align: right;
-}
-</pre></div>
-</div>
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -247,20 +233,6 @@
 <p>1029375 rows × 2 columns</p>
 </div>
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
-    vertical-align: top;
-}
-
-.dataframe thead th {
-    text-align: right;
-}
-</pre></div>
-</div>
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -356,13 +328,9 @@
 </section>
 <section id="step-1-preprocess-data">
 <h2>Step 1: Preprocess data<a class="headerlink" href="#step-1-preprocess-data" title="Link to this heading"></a></h2>
-<p>The first step after loading the data is preprocessing using the <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_ppg_data">preprocess_ppg_data</a>. This begins by isolating segments containing both PPG and IMU data, discarding portions where one modality (e.g., PPG) extends beyond the other, such as when the PPG recording is longer than the accelerometer data. This functionality requires the starting times (<code class="docutils literal notranslate"><span class="pre">metadata_time_ppg.start_iso8601</span></code> and <code class="docutils literal notranslate"><span class="pre">metadata_time_imu.start_iso8601</span></code>) in iso8601 format as inputs. After this step, the preprocess_ppg_data function resamples the PPG and accelerometer data to uniformly distributed timestamps, addressing the fixed but non-uniform sampling rates of the sensors. After this, a bandpass Butterworth filter (4th-order, bandpass frequencies: 0.4–3.5 Hz) is applied to the PPG signal, while a high-pass Butterworth filter (4th-order, cut-off frequency: 0.2 Hz) is applied to the accelerometer data.</p>
+<p>The first step after loading the data is preprocessing using the <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.preprocess_ppg_data">preprocess_ppg_data</a>. This begins by isolating segments containing both PPG and IMU data, discarding portions where one modality (e.g., PPG) extends beyond the other, such as when the PPG recording is longer than the accelerometer data. This functionality requires the starting times (<code class="docutils literal notranslate"><span class="pre">metadata_time_ppg.start_iso8601</span></code> and <code class="docutils literal notranslate"><span class="pre">metadata_time_imu.start_iso8601</span></code>) in iso8601 format as inputs. After this step, the preprocess_ppg_data function resamples the PPG and accelerometer data to uniformly distributed timestamps, addressing the fixed but non-uniform sampling rates of the sensors. If the difference between timestamps is larger than a specified tolerance (<code class="docutils literal notranslate"><span class="pre">config.tolerance</span></code>, in seconds), it will return an error that the timestamps are not contiguous.  If you still want to process the data in this case, you can create segments from discontiguous samples using the function <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/segmenting/index.html#paradigma.segmenting.create_segments"><code class="docutils literal notranslate"><span class="pre">create_segments</span></code></a> and analyze these segments consecutively as shown in here. After resampling, a bandpass Butterworth filter (4th-order, bandpass frequencies: 0.4–3.5 Hz) is applied to the PPG signal, while a high-pass Butterworth filter (4th-order, cut-off frequency: 0.2 Hz) is applied to the accelerometer data.</p>
 <p>Note: the printed shapes are (rows, columns) with each row corresponding to a single data point and each column representing a data column (e.g.time). The number of rows of the overlapping segments of PPG and accelerometer are not the same due to sampling differences (other sensors and possibly other sampling frequencies).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PPGConfig</span><span class="p">,</span> <span class="n">IMUConfig</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_ppg_data</span>
-
-<span class="c1"># Set column names: replace DataColumn.* with your actual column names.</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set column names: replace DataColumn.* with your actual column names.</span>
 <span class="c1"># It is only necessary to set the columns that are present in your data, and</span>
 <span class="c1"># only if they differ from the default names defined in DataColumns.</span>
 <span class="n">imu_column_mapping</span> <span class="o">=</span> <span class="p">{</span>
@@ -380,8 +348,15 @@
 <span class="n">ppg_config</span> <span class="o">=</span> <span class="n">PPGConfig</span><span class="p">(</span><span class="n">column_mapping</span><span class="o">=</span><span class="n">ppg_column_mapping</span><span class="p">)</span>
 <span class="n">imu_config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">(</span><span class="n">column_mapping</span><span class="o">=</span><span class="n">imu_column_mapping</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The tolerance for checking contiguous timestamps is set to </span><span class="si">{</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">tolerance</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> seconds for PPG data and </span><span class="si">{</span><span class="n">imu_config</span><span class="o">.</span><span class="n">tolerance</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> seconds for accelerometer data.&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Original data shapes:</span><span class="se">\n</span><span class="s2">- PPG data: </span><span class="si">{</span><span class="n">df_ppg</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="se">\n</span><span class="s2">- Accelerometer data: </span><span class="si">{</span><span class="n">df_imu</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;The tolerance for checking contiguous timestamps is set to &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">tolerance</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> seconds for PPG data and &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">imu_config</span><span class="o">.</span><span class="n">tolerance</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> seconds for accelerometer data.&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Original data shapes:</span><span class="se">\n</span><span class="s2">- PPG data: </span><span class="si">{</span><span class="n">df_ppg</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;- Accelerometer data: </span><span class="si">{</span><span class="n">df_imu</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
 <span class="n">df_ppg_proc</span><span class="p">,</span> <span class="n">df_acc_proc</span> <span class="o">=</span> <span class="n">preprocess_ppg_data</span><span class="p">(</span>
     <span class="n">df_ppg</span><span class="o">=</span><span class="n">df_ppg</span><span class="p">,</span>
     <span class="n">ppg_config</span><span class="o">=</span><span class="n">ppg_config</span><span class="p">,</span>
@@ -391,7 +366,8 @@
     <span class="n">start_time_imu</span><span class="o">=</span><span class="n">metadata_time_imu</span><span class="o">.</span><span class="n">start_iso8601</span>  <span class="c1"># Optional</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Overlapping preprocessed data shapes:</span><span class="se">\n</span><span class="s2">- PPG data: </span><span class="si">{</span><span class="n">df_ppg_proc</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="se">\n</span><span class="s2">- Accelerometer data: </span><span class="si">{</span><span class="n">df_acc_proc</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Overlapping preprocessed data shapes:</span><span class="se">\n</span><span class="s2">- PPG data: </span><span class="si">{</span><span class="n">df_ppg_proc</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+      <span class="sa">f</span><span class="s2">&quot;- Accelerometer data: </span><span class="si">{</span><span class="n">df_acc_proc</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">display</span><span class="p">(</span><span class="n">df_ppg_proc</span><span class="p">,</span> <span class="n">df_acc_proc</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -401,26 +377,16 @@ Original data shapes:
 - Accelerometer data: (3455331, 7)
 
 
+Resampled: 3455331 -&gt; 3433961 rows at 100.0 Hz
+
+
+Resampled: 1029374 -&gt; 1030188 rows at 30.0 Hz
 Overlapping preprocessed data shapes:
 - PPG data: (1030188, 2)
 - Accelerometer data: (3433961, 4)
 </pre></div>
 </div>
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
-    vertical-align: top;
-}
-
-.dataframe thead th {
-    text-align: right;
-}
-</pre></div>
-</div>
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -490,20 +456,6 @@ Overlapping preprocessed data shapes:
 <p>1030188 rows × 2 columns</p>
 </div>
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
-    vertical-align: top;
-}
-
-.dataframe thead th {
-    text-align: right;
-}
-</pre></div>
-</div>
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -600,11 +552,8 @@ Overlapping preprocessed data shapes:
 <section id="step-2-extract-signal-quality-features">
 <h2>Step 2: Extract signal quality features<a class="headerlink" href="#step-2-extract-signal-quality-features" title="Link to this heading"></a></h2>
 <p>The preprocessed data is windowed into overlapping windows of length <code class="docutils literal notranslate"><span class="pre">ppg_config.window_length_s</span></code> with a window step of <code class="docutils literal notranslate"><span class="pre">ppg_config.window_step_length_s</span></code>. From the PPG windows, 10 time- and frequency domain features are extracted to assess PPG morphology. In case of using the accelerometer data (optional),  one relative power feature is calculated per window to assess periodic motion artifacts.</p>
-<p>The detailed steps are encapsulated in <code class="docutils literal notranslate"><span class="pre">extract_signal_quality_features</span></code> (documentation can be found <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=extract_signal_quality_features">here</a>).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PulseRateConfig</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.pulse_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_signal_quality_features</span>
-
-<span class="n">pulse_rate_ppg_config</span> <span class="o">=</span> <span class="n">PulseRateConfig</span><span class="p">(</span>
+<p>The detailed steps are encapsulated in <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.extract_signal_quality_features"><code class="docutils literal notranslate"><span class="pre">extract_signal_quality_features</span></code></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pulse_rate_ppg_config</span> <span class="o">=</span> <span class="n">PulseRateConfig</span><span class="p">(</span>
     <span class="n">sensor</span><span class="o">=</span><span class="s1">&#39;ppg&#39;</span><span class="p">,</span>
     <span class="n">ppg_sampling_frequency</span><span class="o">=</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
 <span class="p">)</span>
@@ -615,10 +564,13 @@ Overlapping preprocessed data shapes:
     <span class="n">accelerometer_colnames</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">accelerometer_colnames</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The default window length for the signal quality feature extraction is set to&quot;</span><span class="p">,</span> <span class="n">pulse_rate_ppg_config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">,</span> <span class="s2">&quot;seconds.&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The default step size for the signal quality feature extraction is set to&quot;</span><span class="p">,</span> <span class="n">pulse_rate_ppg_config</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="p">,</span> <span class="s2">&quot;seconds.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The default window length for the signal quality feature extraction is &quot;</span>
+      <span class="sa">f</span><span class="s2">&quot;set to </span><span class="si">{</span><span class="n">pulse_rate_ppg_config</span><span class="o">.</span><span class="n">window_length_s</span><span class="si">}</span><span class="s2"> seconds.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The default step size for the signal quality feature extraction is &quot;</span>
+      <span class="sa">f</span><span class="s2">&quot;set to </span><span class="si">{</span><span class="n">pulse_rate_ppg_config</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="si">}</span><span class="s2"> seconds.&quot;</span><span class="p">)</span>
 
-<span class="c1"># Remove optional arguments if you don&#39;t have accelerometer data (set to None or remove arguments)</span>
+<span class="c1"># Remove optional arguments if you don&#39;t have accelerometer data</span>
+<span class="c1"># (set to None or remove arguments)</span>
 <span class="n">df_features</span> <span class="o">=</span> <span class="n">extract_signal_quality_features</span><span class="p">(</span>
     <span class="n">df_ppg</span><span class="o">=</span><span class="n">df_ppg_proc</span><span class="p">,</span>
     <span class="n">df_acc</span><span class="o">=</span><span class="n">df_acc_proc</span><span class="p">,</span>
@@ -635,20 +587,6 @@ The default step size for the signal quality feature extraction is set to 1 seco
 </pre></div>
 </div>
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
-    vertical-align: top;
-}
-
-.dataframe thead th {
-    text-align: right;
-}
-</pre></div>
-</div>
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -842,26 +780,29 @@ The default step size for the signal quality feature extraction is set to 1 seco
 <h2>Step 3: Signal quality classification<a class="headerlink" href="#step-3-signal-quality-classification" title="Link to this heading"></a></h2>
 <p>A trained logistic classifier is used to predict PPG signal quality and returns the <code class="docutils literal notranslate"><span class="pre">pred_sqa_proba</span></code>, which is the posterior probability of a PPG window to look like the typical PPG morphology (higher probability indicates toward the typical PPG morphology).
 If accelerometer is used, the relative power feature from the accelerometer is compared to a threshold for periodic artifacts and therefore <code class="docutils literal notranslate"><span class="pre">pred_sqa_acc_label</span></code> is used to return a label indicating predicted periodic motion artifacts (label 0) or no periodic motion artifacts (label 1).</p>
-<p>The classification step is implemented in <code class="docutils literal notranslate"><span class="pre">signal_quality_classification</span></code> (documentation can be found <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=signal_quality_classification">here</a>).</p>
+<p>The classification step is implemented in <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.signal_quality_classification"><code class="docutils literal notranslate"><span class="pre">signal_quality_classification</span></code></a>.</p>
 <p><u><strong><em>Note on scale sensitivity</em></strong></u>
 The PPG sensor used for developing this pipeline records in arbitrary units. Some features are scale sensitive and require rescaling when applying the pipeline to other datasets or PPG sensors.
 In this pipeline, the logistic classifier for PPG morphology was trained on z-scored features, using the means (μ) and standard deviations (σ) from the Personalized Parkinson Project training set (documentation of the training set can be found in the Signal Quality Assessment section <a class="reference external" href="https://www.medrxiv.org/content/10.1101/2025.08.15.25333751v1.full-text">here</a>). These μ and σ values are stored in the <code class="docutils literal notranslate"><span class="pre">ppg_quality_classifier_package</span></code>. When applying the code to another dataset, users are advised to recalculate <strong><em>μ</em></strong> and <strong><em>σ</em></strong> for each feature on their (training) data and update the classifier package accordingly. Example code to recalculate the <strong><em>μ</em></strong> and <strong><em>σ</em></strong> can be found in the code cell below and in section 7.3.1. <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#standardization-or-mean-removal-and-variance-scaling">here</a>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassifierPackage</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.pulse_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">signal_quality_classification</span>
-
-<span class="n">config</span> <span class="o">=</span> <span class="n">PulseRateConfig</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">PulseRateConfig</span><span class="p">()</span>
 
 <span class="n">ppg_quality_classifier_package_filename</span> <span class="o">=</span> <span class="s1">&#39;ppg_quality_clf_package.pkl&#39;</span>
-<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;assets&#39;</span> <span class="o">/</span> <span class="n">ppg_quality_classifier_package_filename</span>
+<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span>
+    <span class="o">/</span> <span class="s1">&#39;assets&#39;</span>
+    <span class="o">/</span> <span class="n">ppg_quality_classifier_package_filename</span>
+<span class="p">)</span>
 
 <span class="c1"># Load the classifier package</span>
 <span class="n">clf_package</span> <span class="o">=</span> <span class="n">ClassifierPackage</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">full_path_to_classifier_package</span><span class="p">)</span>
 
-<span class="c1"># If you use a different sensor or dataset, you have to update the classifier package with the mu and sigma calculated on your training data.</span>
+<span class="c1"># If you use a different sensor or dataset, you have to update the classifier</span>
+<span class="c1"># package with the mu and sigma calculated on your training data.</span>
 <span class="c1"># Example code to recalculate the mean and std to update the clf_package:</span>
 <span class="c1"># import numpy as np</span>
-<span class="c1"># x_train = np.random.rand(100, 10) # create random x_train for demonstration purposes, 100 samples and 10 features</span>
+
+<span class="c1"># # create random x_train for demonstration purposes, 100 samples and 10 features</span>
+<span class="c1"># x_train = np.random.rand(100, 10)</span>
 <span class="c1"># clf_package.update_scaler(x_train)</span>
 
 <span class="n">df_sqa</span> <span class="o">=</span> <span class="n">signal_quality_classification</span><span class="p">(</span>
@@ -874,20 +815,6 @@ In this pipeline, the logistic classifier for PPG morphology was trained on z-sc
 </pre></div>
 </div>
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
-    vertical-align: top;
-}
-
-.dataframe thead th {
-    text-align: right;
-}
-</pre></div>
-</div>
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -971,12 +898,15 @@ In this pipeline, the logistic classifier for PPG morphology was trained on z-sc
 <section id="store-as-tsdf">
 <h3>Store as TSDF<a class="headerlink" href="#store-as-tsdf" title="Link to this heading"></a></h3>
 <p>The predicted probabilities (and optionally other features) can be stored and loaded in TSDF as demonstrated below.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tsdf</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_df_data</span>
-
-<span class="c1"># Set &#39;path_to_data&#39; to the directory where you want to save the data</span>
-<span class="n">metadata_time_store</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">TSDFMetadata</span><span class="p">(</span><span class="n">metadata_time_ppg</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">(),</span> <span class="n">path_to_prepared_data</span><span class="p">)</span>
-<span class="n">metadata_values_store</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">TSDFMetadata</span><span class="p">(</span><span class="n">metadata_values_ppg</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">(),</span> <span class="n">path_to_prepared_data</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set &#39;path_to_data&#39; to the directory where you want to save the data</span>
+<span class="n">metadata_time_store</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">TSDFMetadata</span><span class="p">(</span>
+    <span class="n">metadata_time_ppg</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">(),</span>
+    <span class="n">path_to_prepared_data</span>
+<span class="p">)</span>
+<span class="n">metadata_values_store</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">TSDFMetadata</span><span class="p">(</span>
+    <span class="n">metadata_values_ppg</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">(),</span>
+    <span class="n">path_to_prepared_data</span>
+<span class="p">)</span>
 
 <span class="c1"># Select the columns to be saved</span>
 <span class="n">metadata_time_store</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
@@ -996,28 +926,23 @@ In this pipeline, the logistic classifier for PPG morphology was trained on z-sc
 <span class="n">metadata_values_store</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="n">values_store_filename</span>
 <span class="n">metadata_time_store</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="n">time_store_filename</span>
 
-<span class="n">write_df_data</span><span class="p">(</span><span class="n">metadata_time_store</span><span class="p">,</span> <span class="n">metadata_values_store</span><span class="p">,</span> <span class="n">path_to_prepared_data</span><span class="p">,</span> <span class="n">meta_store_filename</span><span class="p">,</span> <span class="n">df_sqa</span><span class="p">)</span>
+<span class="n">write_df_data</span><span class="p">(</span>
+    <span class="n">metadata_time_store</span><span class="p">,</span>
+    <span class="n">metadata_values_store</span><span class="p">,</span>
+    <span class="n">path_to_prepared_data</span><span class="p">,</span>
+    <span class="n">meta_store_filename</span><span class="p">,</span>
+    <span class="n">df_sqa</span>
+<span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df_sqa</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_prepared_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df_sqa</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
+    <span class="n">path_to_prepared_data</span><span class="p">,</span>
+    <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="p">)</span>
 <span class="n">df_sqa</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
-    vertical-align: top;
-}
-
-.dataframe thead th {
-    text-align: right;
-}
-</pre></div>
-</div>
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1065,11 +990,12 @@ In this pipeline, the logistic classifier for PPG morphology was trained on z-sc
 </section>
 <section id="step-4-pulse-rate-estimation">
 <h2>Step 4: Pulse rate estimation<a class="headerlink" href="#step-4-pulse-rate-estimation" title="Link to this heading"></a></h2>
-<p>For pulse rate estimation, we extract segments of <code class="docutils literal notranslate"><span class="pre">config.tfd_length</span></code> using <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=estimate_pulse_rate">estimate_pulse_rate</a>. We calculate the smoothed-pseudo Wigner-Ville Distribution (SPWVD) to obtain the frequency content of the PPG signal over time. We extract for every timestamp in the SPWVD the frequency with the highest power. For every non-overlapping 2 s window we average the corresponding frequencies to obtain a pulse rate per window.</p>
+<p>For pulse rate estimation, we extract segments of <code class="docutils literal notranslate"><span class="pre">config.tfd_length</span></code> using <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.estimate_pulse_rate">estimate_pulse_rate</a>. We calculate the smoothed-pseudo Wigner-Ville Distribution (SPWVD) to obtain the frequency content of the PPG signal over time. We extract for every timestamp in the SPWVD the frequency with the highest power. For every non-overlapping 2 s window we average the corresponding frequencies to obtain a pulse rate per window.</p>
 <p>Note: for the test data we set the tfd_length to 10 s instead of the default of 30 s, because the small PPP test data doesn’t have 30 s of consecutive high-quality PPG data.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.pulse_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">estimate_pulse_rate</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The standard default minimal window length for the pulse rate extraction is set to&quot;</span><span class="p">,</span> <span class="n">pulse_rate_ppg_config</span><span class="o">.</span><span class="n">tfd_length</span><span class="p">,</span> <span class="s2">&quot;seconds.&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span>
+    <span class="s2">&quot;The standard default minimal window length for the pulse rate &quot;</span>
+    <span class="s2">&quot;extraction is set to&quot;</span><span class="p">,</span> <span class="n">pulse_rate_ppg_config</span><span class="o">.</span><span class="n">tfd_length</span><span class="p">,</span> <span class="s2">&quot;seconds.&quot;</span>
+<span class="p">)</span>
 
 <span class="n">df_pr</span> <span class="o">=</span> <span class="n">estimate_pulse_rate</span><span class="p">(</span>
     <span class="n">df_sqa</span><span class="o">=</span><span class="n">df_sqa</span><span class="p">,</span>
@@ -1084,20 +1010,6 @@ In this pipeline, the logistic classifier for PPG morphology was trained on z-sc
 </pre></div>
 </div>
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
-    vertical-align: top;
-}
-
-.dataframe thead th {
-    text-align: right;
-}
-</pre></div>
-</div>
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1169,24 +1081,19 @@ In this pipeline, the logistic classifier for PPG morphology was trained on z-sc
 <section id="run-steps-1-4-for-multiple-segments">
 <h3>Run steps 1 - 4 for multiple segments <a id='multiple_segments_cell'></a><a class="headerlink" href="#run-steps-1-4-for-multiple-segments" title="Link to this heading"></a></h3>
 <p>If your data is also stored in multiple segments, you can modify <code class="docutils literal notranslate"><span class="pre">segments</span></code> in the cell below to a list of the filenames of your respective segmented data.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PPGConfig</span><span class="p">,</span> <span class="n">IMUConfig</span><span class="p">,</span> <span class="n">PulseRateConfig</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_ppg_data</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.pulse_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_signal_quality_features</span><span class="p">,</span> <span class="n">signal_quality_classification</span><span class="p">,</span> <span class="n">estimate_pulse_rate</span>
-
-<span class="c1"># Set the path to where the prepared data is saved</span>
-<span class="n">path_to_prepared_data</span> <span class="o">=</span>  <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../example_data&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set the path to where the prepared data is saved</span>
+<span class="n">path_to_prepared_data</span> <span class="o">=</span>  <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../example_data/verily&#39;</span><span class="p">)</span>
 
 <span class="n">ppg_prefix</span> <span class="o">=</span> <span class="s1">&#39;ppg&#39;</span>
 <span class="n">imu_prefix</span> <span class="o">=</span> <span class="s1">&#39;imu&#39;</span>
 
 <span class="c1"># Set the path to the classifier package</span>
 <span class="n">ppg_quality_classifier_package_filename</span> <span class="o">=</span> <span class="s1">&#39;ppg_quality_clf_package.pkl&#39;</span>
-<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;assets&#39;</span> <span class="o">/</span> <span class="n">ppg_quality_classifier_package_filename</span>
+<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span>
+    <span class="o">/</span> <span class="s1">&#39;assets&#39;</span>
+    <span class="o">/</span> <span class="n">ppg_quality_classifier_package_filename</span>
+<span class="p">)</span>
 
 <span class="c1"># Create a list of dataframes to store the estimated pulse rates of all segments</span>
 <span class="n">list_df_pr</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1262,26 +1169,41 @@ In this pipeline, the logistic classifier for PPG morphology was trained on z-sc
 <span class="n">df_pr</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">list_df_pr</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Resampled: 3455331 -&gt; 3433961 rows at 100.0 Hz
+
+
+Resampled: 1029374 -&gt; 1030188 rows at 30.0 Hz
+
+
+Resampled: 7434685 -&gt; 7388945 rows at 100.0 Hz
+
+
+Resampled: 2214444 -&gt; 2216683 rows at 30.0 Hz
+</pre></div>
+</div>
 </section>
 </section>
 <section id="step-5-pulse-rate-aggregation">
 <h2>Step 5: Pulse rate aggregation<a class="headerlink" href="#step-5-pulse-rate-aggregation" title="Link to this heading"></a></h2>
-<p>The final step is to aggregate all 2 s pulse rate estimates using <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=aggregate_pulse_rate">aggregate_pulse_rate</a>. In the current example, the mode and 99th percentile are calculated. We hypothesize that the mode gives representation of the resting pulse rate while the 99th percentile indicates the maximum pulse rate. In Parkinson’s disease, we expect that these two measures could reflect autonomic (dys)functioning. The <code class="docutils literal notranslate"><span class="pre">nr_pr_est</span></code> in the metadata indicates based on how many 2 s windows these aggregates are determined.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pprint</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.pulse_rate_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_pulse_rate</span>
-
-<span class="n">pr_values</span> <span class="o">=</span> <span class="n">df_pr</span><span class="p">[</span><span class="s1">&#39;pulse_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<p>The final step is to aggregate all 2 s pulse rate estimates using <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.aggregate_pulse_rate">aggregate_pulse_rate</a>. In the current example, the mode and 99th percentile are calculated. We hypothesize that the mode gives representation of the resting pulse rate while the 99th percentile indicates the maximum pulse rate. In Parkinson’s disease, we expect that these two measures could reflect autonomic (dys)functioning. The <code class="docutils literal notranslate"><span class="pre">nr_pr_est</span></code> in the metadata indicates based on how many 2 s windows these aggregates are determined.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pr_values</span> <span class="o">=</span> <span class="n">df_pr</span><span class="p">[</span><span class="s1">&#39;pulse_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 <span class="n">df_pr_agg</span> <span class="o">=</span> <span class="n">aggregate_pulse_rate</span><span class="p">(</span>
     <span class="n">pr_values</span><span class="o">=</span><span class="n">pr_values</span><span class="p">,</span>
     <span class="n">aggregates</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">,</span> <span class="s1">&#39;99p&#39;</span><span class="p">]</span>
 <span class="p">)</span>
 
-<span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">df_pr_agg</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">df_pr_agg</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;metadata&#39;: {&#39;nr_pr_est&#39;: 8660},
- &#39;pr_aggregates&#39;: {&#39;99p_pulse_rate&#39;: 85.77263444520081,
-                   &#39;mode_pulse_rate&#39;: 63.59175662414131}}
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{
+  &quot;metadata&quot;: {
+    &quot;nr_pr_est&quot;: 8660
+  },
+  &quot;pr_aggregates&quot;: {
+    &quot;mode_pulse_rate&quot;: 63.59175662414131,
+    &quot;99p_pulse_rate&quot;: 85.77263444520081
+  }
+}
 </pre></div>
 </div>
 </section>
@@ -1290,10 +1212,7 @@ In this pipeline, the logistic classifier for PPG morphology was trained on z-sc
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="tremor_analysis.html" class="btn btn-neutral float-left" title="Tremor analysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../../guides/config.html" class="btn btn-neutral float-right" title="Config" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 

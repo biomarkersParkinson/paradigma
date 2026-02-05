@@ -78,9 +78,21 @@ Module Contents
 
 
 
+   .. py:attribute:: GAIT_SEGMENT_NR
+      :type:  str
+      :value: 'gait_segment_nr'
+
+
+
    .. py:attribute:: SEGMENT_NR
       :type:  str
-      :value: 'segment_nr'
+      :value: 'gait_segment_nr'
+
+
+
+   .. py:attribute:: DATA_SEGMENT_NR
+      :type:  str
+      :value: 'data_segment_nr'
 
 
 
@@ -183,6 +195,24 @@ Module Contents
    .. py:attribute:: PRED_ARM_AT_REST
       :type:  str
       :value: 'pred_arm_at_rest'
+
+
+
+   .. py:attribute:: TREMOR_POWER
+      :type:  str
+      :value: 'tremor_power'
+
+
+
+   .. py:attribute:: BELOW_TREMOR_POWER
+      :type:  str
+      :value: 'below_tremor_power'
+
+
+
+   .. py:attribute:: FREQ_PEAK
+      :type:  str
+      :value: 'freq_peak'
 
 
 
@@ -305,12 +335,20 @@ Module Contents
       The acceleration due to gravity is in g.
 
 
-   .. py:attribute:: POWER_SPECTRAL_DENSITY
+   .. py:attribute:: POWER_SPECTRAL_DENSITY_ACC
       :type:  str
       :value: 'g^2/Hz'
 
 
       The power spectral density is in g^2/Hz.
+
+
+   .. py:attribute:: POWER_ROTATION
+      :type:  str
+      :value: '(deg/s)^2'
+
+
+      The power is in "(deg/s)^2.
 
 
    .. py:attribute:: FREQUENCY

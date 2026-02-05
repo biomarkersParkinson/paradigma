@@ -27,15 +27,17 @@ Functions
 Module Contents
 ---------------
 
-.. py:function:: tabulate_windows(df: pandas.DataFrame, columns: List[str], window_length_s: float, window_step_length_s: float, fs: int) -> numpy.ndarray
+.. py:function:: tabulate_windows(df: pandas.DataFrame, columns: list[str], window_length_s: float, window_step_length_s: float, fs: int) -> numpy.ndarray
 
-   Split the given DataFrame into overlapping windows of specified length and step size.
+   Split the given DataFrame into overlapping windows of specified length
+   and step size.
 
-   This function extracts windows of data from the specified columns of the DataFrame, based on
-   the window length and step size provided in the configuration. The windows are returned in
-   a 3D NumPy array, where the first dimension represents the window index, the second dimension
-   represents the time steps within the window, and the third dimension represents the columns
-   of the data.
+   This function extracts windows of data from the specified columns of the
+   DataFrame, based on the window length and step size provided in the
+   configuration. The windows are returned in a 3D NumPy array, where the
+   first dimension represents the window index, the second dimension
+   represents the time steps within the window, and the third dimension
+   represents the columns of the data.
 
    :param df: The input DataFrame containing the data to be windowed.
    :type df: pd.DataFrame
@@ -49,18 +51,23 @@ Module Contents
    :type fs: int
 
    :returns: A 3D NumPy array of shape (n_windows, window_size, n_columns), where:
-             - `n_windows` is the number of windows that can be formed from the data.
-             - `window_size` is the length of each window in terms of the number of time steps.
-             - `n_columns` is the number of columns in the input DataFrame specified by `columns`.
+             - `n_windows` is the number of windows that can be formed from the
+               data.
+             - `window_size` is the length of each window in terms of the number
+               of time steps.
+             - `n_columns` is the number of columns in the input DataFrame
+               specified by `columns`.
 
-             If the length of the data is shorter than the specified window size, an empty array is returned.
+             If the length of the data is shorter than the specified window size,
+             an empty array is returned.
    :rtype: np.ndarray
 
    .. rubric:: Notes
 
-   This function uses `np.lib.stride_tricks.sliding_window_view` to generate sliding windows of data.
-   The step size is applied to extract windows at intervals.
-   If the data is insufficient for at least one window, an empty array will be returned.
+   This function uses `np.lib.stride_tricks.sliding_window_view` to
+   generate sliding windows of data. The step size is applied to extract
+   windows at intervals. If the data is insufficient for at least one
+   window, an empty array will be returned.
 
    .. rubric:: Example
 
@@ -72,17 +79,20 @@ Module Contents
 
 .. py:function:: tabulate_windows_legacy(config, df, agg_func='first')
 
-   Efficiently creates a windowed dataframe from the input dataframe using vectorized operations.
+   Efficiently creates a windowed dataframe from the input dataframe using
+   vectorized operations.
 
    :param config: A configuration object containing:
                   - `window_length_s`: The number of seconds per window.
                   - `window_step_length_s`: The number of seconds to shift between windows.
                   - `sampling_frequency`: The sampling frequency in Hz.
-                  - `single_value_colnames`: List of column names where a single value (e.g., mean) is needed.
-                  - `list_value_colnames`: List of column names where all 600 values should be stored in a list.
+                  - `single_value_colnames`: List of column names where a single value
+                    (e.g., mean) is needed.
+                  - `list_value_colnames`: List of column names where all 600 values
+                    should be stored in a list.
    :type config: object
-   :param agg_func: Aggregation function for single-value columns. Can be 'mean', 'first', or a custom callable.
-                    Default is 'first'.
+   :param agg_func: Aggregation function for single-value columns. Can be 'mean',
+                    'first', or a custom callable. Default is 'first'.
    :type agg_func: str or callable, optional
 
    :returns: A new DataFrame where each row corresponds to a window, containing:
@@ -119,7 +129,8 @@ Module Contents
 
    .. rubric:: Example
 
-   config = Config(min_segment_length_s=2, sampling_frequency=100, segment_nr_colname='segment')
+   config = Config(min_segment_length_s=2, sampling_frequency=100,
+                   segment_nr_colname='segment')
    df = pd.DataFrame({
        'segment': [1, 1, 2, 2, 2],
        'time': [0, 1, 2, 3, 4]
@@ -163,7 +174,7 @@ Module Contents
    :rtype: pd.Series
 
 
-.. py:class:: WindowedDataExtractor(windowed_colnames: List[str])
+.. py:class:: WindowedDataExtractor(windowed_colnames: list[str])
 
    A utility class for extracting specific column indices and slices
    from a list of windowed column names.
@@ -201,7 +212,7 @@ Module Contents
 
 
 
-   .. py:method:: get_slice(colnames: List[str]) -> slice
+   .. py:method:: get_slice(colnames: list[str]) -> slice
 
       Get a slice object for a range of consecutive columns.
 
@@ -211,7 +222,8 @@ Module Contents
       :returns: A slice object spanning the indices of the given columns.
       :rtype: slice
 
-      :raises ValueError: If one or more columns in `colnames` are not found in the `windowed_colnames` list.
+      :raises ValueError: If one or more columns in `colnames` are not found in the
+          `windowed_colnames` list.
 
 
 

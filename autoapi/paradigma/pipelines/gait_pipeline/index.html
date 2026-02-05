@@ -49,17 +49,13 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/_static/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">User guides</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
@@ -72,18 +68,24 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../../index.html">paradigma</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="../../index.html#submodules">Submodules</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="../../classification/index.html">paradigma.classification</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../config/index.html">paradigma.config</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../constants/index.html">paradigma.constants</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../feature_extraction/index.html">paradigma.feature_extraction</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="../index.html">paradigma.pipelines</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../preprocessing/index.html">paradigma.preprocessing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../segmenting/index.html">paradigma.segmenting</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../testing/index.html">paradigma.testing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../util/index.html">paradigma.util</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../classification/index.html">paradigma.classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../config/index.html">paradigma.config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../constants/index.html">paradigma.constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../feature_extraction/index.html">paradigma.feature_extraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../load/index.html">paradigma.load</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../orchestrator/index.html">paradigma.orchestrator</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html">paradigma.pipelines</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">paradigma.pipelines.gait_pipeline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../pulse_rate_pipeline/index.html">paradigma.pipelines.pulse_rate_pipeline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../pulse_rate_utils/index.html">paradigma.pipelines.pulse_rate_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tremor_pipeline/index.html">paradigma.pipelines.tremor_pipeline</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../../prepare_data/index.html">paradigma.prepare_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../preprocessing/index.html">paradigma.preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../segmenting/index.html">paradigma.segmenting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../testing/index.html">paradigma.testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../util/index.html">paradigma.util</a></li>
 </ul>
 </li>
 </ul>
@@ -134,18 +136,18 @@
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.extract_gait_features" title="paradigma.pipelines.gait_pipeline.extract_gait_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_gait_features</span></code></a>(→ pandas.DataFrame)</p></td>
-<td><p>Extracts gait features from accelerometer and gravity sensor data in the input DataFrame by computing temporal and spectral features.</p></td>
+<td><p>Extracts gait features from accelerometer and gravity sensor data in the</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.detect_gait" title="paradigma.pipelines.gait_pipeline.detect_gait"><code class="xref py py-obj docutils literal notranslate"><span class="pre">detect_gait</span></code></a>(→ pandas.Series)</p></td>
-<td><p>Detects gait activity in the input DataFrame using a pre-trained classifier and applies a threshold to classify results.</p></td>
+<td><p>Detects gait activity in the input DataFrame using a pre-trained</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.extract_arm_activity_features" title="paradigma.pipelines.gait_pipeline.extract_arm_activity_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_arm_activity_features</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Extract features related to arm activity from a time-series DataFrame.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.filter_gait" title="paradigma.pipelines.gait_pipeline.filter_gait"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_gait</span></code></a>(→ pandas.Series)</p></td>
-<td><p>Filters gait data to identify windows with no other arm activity using a pre-trained classifier.</p></td>
+<td><p>Filters gait data to identify windows with no other arm activity using</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.quantify_arm_swing" title="paradigma.pipelines.gait_pipeline.quantify_arm_swing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quantify_arm_swing</span></code></a>(→ Tuple[dict[str, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.quantify_arm_swing" title="paradigma.pipelines.gait_pipeline.quantify_arm_swing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quantify_arm_swing</span></code></a>(→ tuple[dict[str, ...)</p></td>
 <td><p>Quantify arm swing parameters for segments of motion based on gyroscope data.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.aggregate_arm_swing_params" title="paradigma.pipelines.gait_pipeline.aggregate_arm_swing_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_arm_swing_params</span></code></a>(→ dict)</p></td>
@@ -156,6 +158,9 @@
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.extract_spectral_domain_features" title="paradigma.pipelines.gait_pipeline.extract_spectral_domain_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_spectral_domain_features</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Compute spectral domain features for a sensor's data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.run_gait_pipeline" title="paradigma.pipelines.gait_pipeline.run_gait_pipeline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_gait_pipeline</span></code></a>(→ tuple[pandas.DataFrame, dict])</p></td>
+<td><p>Run the complete gait analysis pipeline on prepared data (steps 1-6).</p></td>
 </tr>
 </tbody>
 </table>
@@ -170,26 +175,37 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.pipelines.gait_pipeline.extract_gait_features">
 <span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.gait_pipeline.</span></span><span class="sig-name descname"><span class="pre">extract_gait_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.GaitConfig" title="paradigma.config.GaitConfig"><span class="pre">paradigma.config.GaitConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/gait_pipeline.html#extract_gait_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.gait_pipeline.extract_gait_features" title="Link to this definition"></a></dt>
-<dd><p>Extracts gait features from accelerometer and gravity sensor data in the input DataFrame by computing temporal and spectral features.</p>
+<dd><p>Extracts gait features from accelerometer and gravity sensor data in the
+input DataFrame by computing temporal and spectral features.</p>
 <p>This function performs the following steps:
-1. Groups sequences of timestamps into windows, using accelerometer and gravity data.
-2. Computes temporal domain features such as mean and standard deviation for accelerometer and gravity data.
-3. Transforms the signals from the temporal domain to the spectral domain using the Fast Fourier Transform (FFT).
-4. Computes spectral domain features for the accelerometer data.
-5. Combines both temporal and spectral features into a final DataFrame.</p>
+1. Groups sequences of timestamps into windows, using accelerometer and</p>
+<blockquote>
+<div><p>gravity data.</p>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>Computes temporal domain features such as mean and standard deviation
+for accelerometer and gravity data.</p></li>
+<li><p>Transforms the signals from the temporal domain to the spectral
+domain using the Fast Fourier Transform (FFT).</p></li>
+<li><p>Computes spectral domain features for the accelerometer data.</p></li>
+<li><p>Combines both temporal and spectral features into a final DataFrame.</p></li>
+</ol>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The input DataFrame containing gait data, which includes time, accelerometer, and gravity sensor data. The data should be
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The input DataFrame containing gait data, which includes time,
+accelerometer, and gravity sensor data. The data should be
 structured with the necessary columns as specified in the <cite>config</cite>.</p></li>
-<li><p><strong>onfig</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.GaitConfig" title="paradigma.config.GaitConfig"><em>GaitConfig</em></a>) – Configuration object containing parameters for feature extraction, including column names for time, accelerometer data, and
-gravity data, as well as settings for windowing, and feature computation.</p></li>
+<li><p><strong>onfig</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.GaitConfig" title="paradigma.config.GaitConfig"><em>GaitConfig</em></a>) – Configuration object containing parameters for feature extraction,
+including column names for time, accelerometer data, and gravity
+data, as well as settings for windowing, and feature computation.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A DataFrame containing extracted gait features, including temporal and spectral domain features. The DataFrame will have
-columns corresponding to time, statistical features of the accelerometer and gravity data, and spectral features of the
-accelerometer data.</p>
+<dd class="field-even"><p>A DataFrame containing extracted gait features, including temporal
+and spectral domain features. The DataFrame will have columns
+corresponding to time, statistical features of the accelerometer and
+gravity data, and spectral features of the accelerometer data.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pd.DataFrame</p>
@@ -197,13 +213,18 @@ accelerometer data.</p>
 </dl>
 <p class="rubric">Notes</p>
 <ul class="simple">
-<li><p>This function groups the data into windows based on timestamps and applies Fast Fourier Transform to compute spectral features.</p></li>
-<li><p>The temporal features are extracted from the accelerometer and gravity data, and include statistics like mean and standard deviation.</p></li>
-<li><p>The input DataFrame must include columns as specified in the <cite>config</cite> object for proper feature extraction.</p></li>
+<li><p>This function groups the data into windows based on timestamps and
+applies Fast Fourier Transform to compute spectral features.</p></li>
+<li><p>The temporal features are extracted from the accelerometer and gravity
+data, and include statistics like mean and standard deviation.</p></li>
+<li><p>The input DataFrame must include columns as specified in the <cite>config</cite>
+object for proper feature extraction.</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ValueError</strong> – If the input DataFrame does not contain the required columns as specified in the configuration or if any step in the feature extraction fails.</p>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the input DataFrame does not contain the required columns as
+specified in the configuration or if any step in the feature
+extraction fails.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -211,24 +232,37 @@ accelerometer data.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.pipelines.gait_pipeline.detect_gait">
 <span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.gait_pipeline.</span></span><span class="sig-name descname"><span class="pre">detect_gait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clf_package</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../classification/index.html#paradigma.classification.ClassifierPackage" title="paradigma.classification.ClassifierPackage"><span class="pre">paradigma.classification.ClassifierPackage</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/gait_pipeline.html#detect_gait"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.gait_pipeline.detect_gait" title="Link to this definition"></a></dt>
-<dd><p>Detects gait activity in the input DataFrame using a pre-trained classifier and applies a threshold to classify results.</p>
+<dd><p>Detects gait activity in the input DataFrame using a pre-trained
+classifier and applies a threshold to classify results.</p>
 <p>This function performs the following steps:
-1. Loads the pre-trained classifier and scaling parameters from the specified directory.
-2. Scales the relevant features in the input DataFrame (<cite>df</cite>) using the loaded scaling parameters.
-3. Predicts the probability of gait activity for each sample in the DataFrame using the classifier.
-4. Applies a threshold to the predicted probabilities to determine whether gait activity is present.
-5. Returns predicted probabilities</p>
+1. Loads the pre-trained classifier and scaling parameters from the</p>
+<blockquote>
+<div><p>specified directory.</p>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>Scales the relevant features in the input DataFrame (<cite>df</cite>) using the
+loaded scaling parameters.</p></li>
+<li><p>Predicts the probability of gait activity for each sample in the
+DataFrame using the classifier.</p></li>
+<li><p>Applies a threshold to the predicted probabilities to determine
+whether gait activity is present.</p></li>
+<li><p>Returns predicted probabilities</p></li>
+</ol>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The input DataFrame containing features extracted from gait data. It must include the necessary columns
-as specified in the classifier’s feature names.</p></li>
-<li><p><strong>clf_package</strong> (<a class="reference internal" href="../../classification/index.html#paradigma.classification.ClassifierPackage" title="paradigma.classification.ClassifierPackage"><em>ClassifierPackage</em></a>) – The pre-trained classifier package containing the classifier, threshold, and scaler.</p></li>
-<li><p><strong>parallel</strong> (<em>bool</em><em>, </em><em>optional</em><em>, </em><em>default=False</em>) – If <cite>True</cite>, enables parallel processing during classification. If <cite>False</cite>, the classifier uses a single core.</p></li>
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The input DataFrame containing features extracted from gait data. It
+must include the necessary columns as specified in the classifier’s
+feature names.</p></li>
+<li><p><strong>clf_package</strong> (<a class="reference internal" href="../../classification/index.html#paradigma.classification.ClassifierPackage" title="paradigma.classification.ClassifierPackage"><em>ClassifierPackage</em></a>) – The pre-trained classifier package containing the classifier,
+threshold, and scaler.</p></li>
+<li><p><strong>parallel</strong> (<em>bool</em><em>, </em><em>optional</em><em>, </em><em>default=False</em>) – If <cite>True</cite>, enables parallel processing during classification. If
+<cite>False</cite>, the classifier uses a single core.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A Series containing the predicted probabilities of gait activity for each sample in the input DataFrame.</p>
+<dd class="field-even"><p>A Series containing the predicted probabilities of gait activity for
+each sample in the input DataFrame.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pd.Series</p>
@@ -240,24 +274,33 @@ as specified in the classifier’s feature names.</p></li>
 <dt class="sig sig-object py" id="paradigma.pipelines.gait_pipeline.extract_arm_activity_features">
 <span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.gait_pipeline.</span></span><span class="sig-name descname"><span class="pre">extract_arm_activity_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.GaitConfig" title="paradigma.config.GaitConfig"><span class="pre">paradigma.config.GaitConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/gait_pipeline.html#extract_arm_activity_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.gait_pipeline.extract_arm_activity_features" title="Link to this definition"></a></dt>
 <dd><p>Extract features related to arm activity from a time-series DataFrame.</p>
-<p>This function processes a DataFrame containing accelerometer, gravity, and gyroscope signals,
-and extracts features related to arm activity by performing the following steps:
+<p>This function processes a DataFrame containing accelerometer, gravity,
+and gyroscope signals, and extracts features related to arm activity by
+performing the following steps:
 1. Computes the angle and velocity from gyroscope data.
 2. Filters the data to include only predicted gait segments.
-3. Groups the data into segments based on consecutive timestamps and pre-specified gaps.
-4. Removes segments that do not meet predefined criteria.
-5. Creates fixed-length windows from the time series data.
-6. Extracts angle-related features, temporal domain features, and spectral domain features.</p>
+3. Groups the data into segments based on consecutive timestamps and</p>
+<blockquote>
+<div><p>pre-specified gaps.</p>
+</div></blockquote>
+<ol class="arabic simple" start="4">
+<li><p>Removes segments that do not meet predefined criteria.</p></li>
+<li><p>Creates fixed-length windows from the time series data.</p></li>
+<li><p>Extracts angle-related features, temporal domain features, and
+spectral domain features.</p></li>
+</ol>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The input DataFrame containing accelerometer, gravity, and gyroscope data of predicted gait.</p></li>
-<li><p><strong>config</strong> (<em>ArmActivityFeatureExtractionConfig</em>) – Configuration object containing column names and parameters for feature extraction.</p></li>
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The input DataFrame containing accelerometer, gravity, and
+gyroscope data of predicted gait.</p></li>
+<li><p><strong>config</strong> (<em>ArmActivityFeatureExtractionConfig</em>) – Configuration object containing column names and parameters
+for feature extraction.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A DataFrame containing the extracted arm activity features, including angle, velocity,
-temporal, and spectral features.</p>
+<dd class="field-even"><p>A DataFrame containing the extracted arm activity features,
+including angle, velocity, temporal, and spectral features.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pd.DataFrame</p>
@@ -268,12 +311,14 @@ temporal, and spectral features.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.pipelines.gait_pipeline.filter_gait">
 <span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.gait_pipeline.</span></span><span class="sig-name descname"><span class="pre">filter_gait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clf_package</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../classification/index.html#paradigma.classification.ClassifierPackage" title="paradigma.classification.ClassifierPackage"><span class="pre">paradigma.classification.ClassifierPackage</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/gait_pipeline.html#filter_gait"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.gait_pipeline.filter_gait" title="Link to this definition"></a></dt>
-<dd><p>Filters gait data to identify windows with no other arm activity using a pre-trained classifier.</p>
+<dd><p>Filters gait data to identify windows with no other arm activity using
+a pre-trained classifier.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The input DataFrame containing features extracted from gait data.</p></li>
-<li><p><strong>clf_package</strong> (<a class="reference internal" href="../../classification/index.html#paradigma.classification.ClassifierPackage" title="paradigma.classification.ClassifierPackage"><em>ClassifierPackage</em></a>) – The pre-trained classifier package containing the classifier, threshold, and scaler.</p></li>
+<li><p><strong>clf_package</strong> (<a class="reference internal" href="../../classification/index.html#paradigma.classification.ClassifierPackage" title="paradigma.classification.ClassifierPackage"><em>ClassifierPackage</em></a>) – The pre-trained classifier package containing the classifier,
+threshold, and scaler.</p></li>
 <li><p><strong>parallel</strong> (<em>bool</em><em>, </em><em>optional</em><em>, </em><em>default=False</em>) – If <cite>True</cite>, enables parallel processing.</p></li>
 </ul>
 </dd>
@@ -288,22 +333,25 @@ temporal, and spectral features.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.pipelines.gait_pipeline.quantify_arm_swing">
-<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.gait_pipeline.</span></span><span class="sig-name descname"><span class="pre">quantify_arm_swing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtered</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_segment_gap_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_segment_length_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/gait_pipeline.html#quantify_arm_swing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.gait_pipeline.quantify_arm_swing" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.gait_pipeline.</span></span><span class="sig-name descname"><span class="pre">quantify_arm_swing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtered</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_segment_gap_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_segment_length_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/gait_pipeline.html#quantify_arm_swing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.gait_pipeline.quantify_arm_swing" title="Link to this definition"></a></dt>
 <dd><p>Quantify arm swing parameters for segments of motion based on gyroscope data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing the raw sensor data of predicted gait timestamps. Should include a column
-for predicted no other arm activity based on a fitted threshold if filtered is True.</p></li>
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing the raw sensor data of predicted gait
+timestamps. Should include a column for predicted no other arm
+activity based on a fitted threshold if filtered is True.</p></li>
 <li><p><strong>fs</strong> (<em>int</em>) – The sampling frequency of the sensor data.</p></li>
-<li><p><strong>filtered</strong> (<em>bool</em><em>, </em><em>optional</em><em>, </em><em>default=True</em>) – If <cite>True</cite>, the gyroscope data is filtered to only include predicted no other arm activity.</p></li>
-<li><p><strong>max_segment_gap_s</strong> (<em>float</em><em>, </em><em>optional</em><em>, </em><em>default=1.5</em>) – The maximum gap in seconds between consecutive timestamps to group them into segments.</p></li>
+<li><p><strong>filtered</strong> (<em>bool</em><em>, </em><em>optional</em><em>, </em><em>default=True</em>) – If <cite>True</cite>, the gyroscope data is filtered to only include predicted
+no other arm activity.</p></li>
+<li><p><strong>max_segment_gap_s</strong> (<em>float</em><em>, </em><em>optional</em><em>, </em><em>default=1.5</em>) – The maximum gap in seconds between consecutive timestamps to group
+them into segments.</p></li>
 <li><p><strong>min_segment_length_s</strong> (<em>float</em><em>, </em><em>optional</em><em>, </em><em>default=1.5</em>) – The minimum length in seconds for a segment to be considered valid.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A tuple containing a dataframe with quantified arm swing parameters and a dictionary containing
-metadata for each segment.</p>
+<dd class="field-even"><p>A tuple containing a dataframe with quantified arm swing parameters
+and a dictionary containing metadata for each segment.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Tuple[pd.DataFrame, dict]</p>
@@ -313,19 +361,22 @@ metadata for each segment.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.pipelines.gait_pipeline.aggregate_arm_swing_params">
-<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.gait_pipeline.</span></span><span class="sig-name descname"><span class="pre">aggregate_arm_swing_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_arm_swing_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_meta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_cats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['median']</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/gait_pipeline.html#aggregate_arm_swing_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.gait_pipeline.aggregate_arm_swing_params" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.gait_pipeline.</span></span><span class="sig-name descname"><span class="pre">aggregate_arm_swing_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_arm_swing_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_meta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_cats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['median']</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/gait_pipeline.html#aggregate_arm_swing_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.gait_pipeline.aggregate_arm_swing_params" title="Link to this definition"></a></dt>
 <dd><p>Aggregate the quantification results for arm swing parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df_arm_swing_params</strong> (<em>pd.DataFrame</em>) – A dataframe containing the arm swing parameters to be aggregated</p></li>
 <li><p><strong>segment_meta</strong> (<em>dict</em>) – A dictionary containing metadata for each segment.</p></li>
-<li><p><strong>segment_cats</strong> (<em>List</em><em>[</em><em>tuple</em><em>]</em>) – A list of tuples defining the segment categories, where each tuple contains the lower and upper bounds for the segment duration.</p></li>
-<li><p><strong>aggregates</strong> (<em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – A list of aggregation methods to apply to the quantification results.</p></li>
+<li><p><strong>segment_cats</strong> (<em>List</em><em>[</em><em>tuple</em><em>]</em>) – A list of tuples defining the segment categories, where each tuple
+contains the lower and upper bounds for the segment duration.</p></li>
+<li><p><strong>aggregates</strong> (<em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – A list of aggregation methods to apply to the quantification
+results.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A dictionary containing the aggregated quantification results for arm swing parameters.</p>
+<dd class="field-even"><p>A dictionary containing the aggregated quantification results for
+arm swing parameters.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
@@ -335,7 +386,7 @@ metadata for each segment.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.pipelines.gait_pipeline.extract_temporal_domain_features">
-<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.gait_pipeline.</span></span><span class="sig-name descname"><span class="pre">extract_temporal_domain_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">windowed_acc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">windowed_grav</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grav_stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['mean']</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/gait_pipeline.html#extract_temporal_domain_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.gait_pipeline.extract_temporal_domain_features" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.gait_pipeline.</span></span><span class="sig-name descname"><span class="pre">extract_temporal_domain_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">windowed_acc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">windowed_grav</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grav_stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['mean']</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/gait_pipeline.html#extract_temporal_domain_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.gait_pipeline.extract_temporal_domain_features" title="Link to this definition"></a></dt>
 <dd><p>Compute temporal domain features for the accelerometer signal.</p>
 <p>This function calculates various statistical features for the gravity signal
 and computes the standard deviation of the accelerometer’s Euclidean norm.</p>
@@ -364,26 +415,96 @@ to a window and each column representing a specific feature.</p>
 <dt class="sig sig-object py" id="paradigma.pipelines.gait_pipeline.extract_spectral_domain_features">
 <span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.gait_pipeline.</span></span><span class="sig-name descname"><span class="pre">extract_spectral_domain_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">windowed_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/gait_pipeline.html#extract_spectral_domain_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.gait_pipeline.extract_spectral_domain_features" title="Link to this definition"></a></dt>
 <dd><p>Compute spectral domain features for a sensor’s data.</p>
-<p>This function computes the periodogram, extracts power in specific frequency bands,
-calculates the dominant frequency, and computes Mel-frequency cepstral coefficients (MFCCs)
-for a given sensor’s windowed data.</p>
+<p>This function computes the periodogram, extracts power in specific
+frequency bands, calculates the dominant frequency, and computes
+Mel-frequency cepstral coefficients (MFCCs) for a given sensor’s
+windowed data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>windowed_data</strong> (<em>numpy.ndarray</em>) – A 2D numpy array where each row corresponds to a window of sensor data.</p></li>
-<li><p><strong>config</strong> (<em>object</em>) – Configuration object containing settings such as sampling frequency, window type,
-frequency bands, and MFCC parameters.</p></li>
+<li><p><strong>config</strong> (<em>object</em>) – Configuration object containing settings such as sampling frequency,
+window type, frequency bands, and MFCC parameters.</p></li>
 <li><p><strong>sensor</strong> (<em>str</em>) – The name of the sensor (e.g., ‘accelerometer’, ‘gyroscope’).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A DataFrame containing the computed spectral features, with each row corresponding
-to a window and each column representing a specific feature.</p>
+<dd class="field-even"><p>A DataFrame containing the computed spectral features, with each row
+corresponding to a window and each column representing a specific
+feature.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pd.DataFrame</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.pipelines.gait_pipeline.run_gait_pipeline">
+<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.gait_pipeline.</span></span><span class="sig-name descname"><span class="pre">run_gait_pipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_prepared</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">watch_side</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imu_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.IMUConfig" title="paradigma.config.IMUConfig"><span class="pre">paradigma.config.IMUConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gait_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.GaitConfig" title="paradigma.config.GaitConfig"><span class="pre">paradigma.config.GaitConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arm_activity_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.GaitConfig" title="paradigma.config.GaitConfig"><span class="pre">paradigma.config.GaitConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_intermediate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_number_offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logging_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">logging.INFO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logging.Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/gait_pipeline.html#run_gait_pipeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.gait_pipeline.run_gait_pipeline" title="Link to this definition"></a></dt>
+<dd><p>Run the complete gait analysis pipeline on prepared data (steps 1-6).</p>
+<p>This function implements the gait analysis workflow as described in the tutorials:
+1. Preprocessing
+2. Gait feature extraction
+3. Gait detection
+4. Arm activity feature extraction
+5. Filtering gait
+6. Arm swing quantification</p>
+<p>Step 7 (aggregation) should be done after processing all segments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df_prepared</strong> (<em>pd.DataFrame</em>) – Prepared IMU data with time, accelerometer, and gyroscope columns.
+Should contain columns: time, accelerometer_x/y/z, gyroscope_x/y/z.
+Will be preprocessed as step 1 of the pipeline.</p></li>
+<li><p><strong>watch_side</strong> (<em>str</em>) – Side of the watch (‘left’ or ‘right’) to configure preprocessing accordingly.</p></li>
+<li><p><strong>output_dir</strong> (<em>str</em><em> or </em><em>Path</em>) – Directory to save intermediate results (required)</p></li>
+<li><p><strong>imu_config</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.IMUConfig" title="paradigma.config.IMUConfig"><em>IMUConfig</em></a><em>, </em><em>optional</em>) – Configuration for IMU data preprocessing.
+If None, uses default IMUConfig.</p></li>
+<li><p><strong>gait_config</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.GaitConfig" title="paradigma.config.GaitConfig"><em>GaitConfig</em></a><em>, </em><em>optional</em>) – Configuration for gait feature extraction and detection.
+If None, uses default GaitConfig(step=”gait”).</p></li>
+<li><p><strong>arm_activity_config</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.GaitConfig" title="paradigma.config.GaitConfig"><em>GaitConfig</em></a><em>, </em><em>optional</em>) – Configuration for arm activity feature extraction and filtering.
+If None, uses default GaitConfig(step=”arm_activity”).</p></li>
+<li><p><strong>store_intermediate</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – Steps of which intermediate results should be stored:
+- ‘preprocessing’: Store preprocessed data after step 1
+- ‘gait’: Store gait features and predictions after step 3
+- ‘arm_activity’: Store arm activity features and predictions after step 5
+- ‘quantification’: Store arm swing quantification results after step 6
+If empty, only returns the final quantified results.</p></li>
+<li><p><strong>segment_number_offset</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default=0</em>) – Offset to add to all segment numbers to avoid conflicts when concatenating
+multiple data segments. Used for proper segment numbering across multiple files.</p></li>
+<li><p><strong>logging_level</strong> (<em>int</em><em>, </em><em>default logging.INFO</em>) – Logging level using standard logging constants (logging.DEBUG, logging.INFO,
+etc.)</p></li>
+<li><p><strong>custom_logger</strong> (<em>logging.Logger</em><em>, </em><em>optional</em>) – Custom logger instance. If provided, logging_level is ignored.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>A tuple containing:
+- pd.DataFrame: Quantified arm swing parameters with the following columns:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>gait_segment_nr: Gait segment number within this data segment</p></li>
+<li><p>Various arm swing metrics (range of motion, peak angular velocity, etc.)</p></li>
+<li><p>Additional metadata columns</p></li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><p>dict: Gait segment metadata containing information about each detected</p></li>
+</ul>
+<p>gait segment</p>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[pd.DataFrame, dict]</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function processes a single contiguous data segment. For multiple segments,
+call this function for each segment, then use aggregate_arm_swing_params()
+on the concatenated results.</p>
+<p>The function follows the exact workflow from the gait analysis tutorial:
+<a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/docs/">https://github.com/biomarkersParkinson/paradigma/blob/main/docs/</a>
+tutorials/gait_analysis.ipynb</p>
 </dd></dl>
 
 </section>

@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ParaDigMa Pipeline Orchestrator Tutorial &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ParaDigMa Pipeline Orchestrator Tutorial</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/tutorials/_static/pipeline_orchestrator.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="paradigma-pipeline-orchestrator-tutorial">
+<h1>ParaDigMa Pipeline Orchestrator Tutorial<a class="headerlink" href="#paradigma-pipeline-orchestrator-tutorial" title="Link to this heading"></a></h1>
+<p>This tutorial demonstrates how to use the <strong>pipeline orchestrator</strong> <code class="docutils literal notranslate"><span class="pre">run_paradigma()</span></code>, which serves as the main entry point for running ParaDigMa analysis pipelines. The orchestrator coordinates multiple analysis steps and can process different formats of sensor data.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">run_paradigma()</span></code> function is called an <em>orchestrator</em> because it coordinates multiple analysis steps depending on the user input. It can process:</p>
+<ul class="simple">
+<li><p><strong>Gait analysis</strong>: Arm swing quantification from IMU data</p></li>
+<li><p><strong>Tremor analysis</strong>: Tremor detection and quantification from gyroscope data</p></li>
+<li><p><strong>Pulse rate estimation</strong>: Pulse rate analysis from PPG data</p></li>
+</ul>
+<section id="key-features">
+<h3>Key Features<a class="headerlink" href="#key-features" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Multi-pipeline support</strong>: Run multiple analyses simultaneously</p></li>
+<li><p><strong>Flexible data input</strong>: Works with both prepared and raw sensor data</p></li>
+<li><p><strong>Multiple data formats</strong>: Supports Verily, Axivity, Empatica, and custom formats</p></li>
+<li><p><strong>Robust processing</strong>: Automatic data preparation and error handling</p></li>
+</ul>
+</section>
+<section id="data-requirements">
+<h3>Data Requirements<a class="headerlink" href="#data-requirements" title="Link to this heading"></a></h3>
+<p>The orchestrator accepts either:</p>
+<ol class="arabic simple">
+<li><p><strong>Prepared data</strong>: Prepared according to the <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/tutorials/data_preparation.html">Data preparation tutorial</a></p></li>
+<li><p><strong>Raw data</strong>: Automatically processed (note: this feature has a limited scope)</p></li>
+</ol>
+<p>Let’s explore different usage scenarios with examples.</p>
+</section>
+</section>
+<section id="import-required-modules">
+<h2>Import required modules<a class="headerlink" href="#import-required-modules" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeUnit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.load</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_data_files</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.orchestrator</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_paradigma</span>
+</pre></div>
+</div>
+</section>
+<section id="single-pipeline-with-prepared-data">
+<h2>1. Single pipeline with prepared data<a class="headerlink" href="#single-pipeline-with-prepared-data" title="Link to this heading"></a></h2>
+<p>Let’s start with a simple example using prepared PPG data for pulse rate analysis.</p>
+<p>The function <code class="docutils literal notranslate"><span class="pre">load_data_files</span></code> attempts to load data of any or multiple of the following formats:
+‘parquet’, ‘csv’, ‘pkl’, ‘pickle’, ‘json’, ‘avro’, ‘cwa’. You can load the data in your preferred
+ways, but note that the output should be of format <code class="docutils literal notranslate"><span class="pre">Dict[str,</span> <span class="pre">pd.DataFrame]</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s1">&#39;file_1&#39;</span><span class="p">:</span> <span class="n">df_1</span><span class="p">,</span>
+    <span class="s1">&#39;file_2&#39;</span><span class="p">:</span> <span class="n">df_2</span><span class="p">,</span>
+    <span class="o">...</span><span class="p">,</span>
+    <span class="s1">&#39;file_n&#39;</span><span class="p">:</span> <span class="n">df_n</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Alternatively, you can provide:</p>
+<ul class="simple">
+<li><p>A <strong>single DataFrame</strong>: Will be processed with key <code class="docutils literal notranslate"><span class="pre">'df_1'</span></code></p></li>
+<li><p>A <strong>list of DataFrames</strong>: Each will get keys like <code class="docutils literal notranslate"><span class="pre">'df_1'</span></code>, <code class="docutils literal notranslate"><span class="pre">'df_2'</span></code>, etc.</p></li>
+</ul>
+<p>This means ParaDigMa can run multiple files in sequence. This is useful when you have multiple files
+spanning a week, and you want aggregations to be computed across all files.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">path_to_ppg_data</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../example_data/verily/ppg&#39;</span><span class="p">)</span>
+
+<span class="n">dfs_ppg</span> <span class="o">=</span> <span class="n">load_data_files</span><span class="p">(</span>
+    <span class="n">data_path</span><span class="o">=</span><span class="n">path_to_ppg_data</span><span class="p">,</span>
+    <span class="n">file_patterns</span><span class="o">=</span><span class="s1">&#39;json&#39;</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dfs_ppg</span><span class="p">)</span><span class="si">}</span><span class="s2"> PPG files:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">dfs_ppg</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">dfs_ppg</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s2"> samples, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s2"> columns&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">First 5 rows of </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">dfs_ppg</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+<span class="n">dfs_ppg</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">dfs_ppg</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>INFO: Found 2 data files in ..\..\example_data\verily\ppg
+
+
+INFO: Loading TSDF data from ..\..\example_data\verily\ppg with prefix &#39;PPG_segment0001&#39;
+
+
+INFO: Loaded TSDF data: 1029375 rows, 2 columns
+
+
+INFO: Loading TSDF data from ..\..\example_data\verily\ppg with prefix &#39;PPG_segment0002&#39;
+
+
+INFO: Loaded TSDF data: 2214450 rows, 2 columns
+
+
+INFO: Successfully loaded 2 files
+
+
+Loaded 2 PPG files:
+  - PPG_segment0001: 1029375 samples, 2 columns
+  - PPG_segment0002: 2214450 samples, 2 columns
+
+First 5 rows of PPG_segment0001:
+</pre></div>
+</div>
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>green</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0000</td>
+      <td>262316</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.0334</td>
+      <td>262320</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.0668</td>
+      <td>262446</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.1002</td>
+      <td>262770</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.1336</td>
+      <td>262623</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<section id="output-control">
+<h3>Output Control<a class="headerlink" href="#output-control" title="Link to this heading"></a></h3>
+<p>When running ParaDigMa, you can control where results are saved and what intermediate results to store:</p>
+<p><strong>Output Directory:</strong></p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">&quot;./output&quot;</span></code></p></li>
+<li><p>Custom: Specify your own path like <code class="docutils literal notranslate"><span class="pre">output_dir=&quot;./my_results&quot;</span></code></p></li>
+<li><p>No storage: Files are only saved if <code class="docutils literal notranslate"><span class="pre">save_intermediate</span></code> is not empty</p></li>
+</ul>
+<p><strong>Store Intermediate Results:</strong></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">save_intermediate</span></code> parameter accepts a list of strings:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">save_intermediate</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;preprocessing&#39;</span><span class="p">,</span> <span class="s1">&#39;quantification&#39;</span><span class="p">,</span> <span class="s1">&#39;aggregation&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Valid options are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'preparation'</span></code>: Save prepared data</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'preprocessing'</span></code>: Save preprocessed signals</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'classification'</span></code>: Save classification results</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'quantification'</span></code>: Save quantified measures</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'aggregation'</span></code>: Save aggregated results</p></li>
+</ul>
+<p>If <code class="docutils literal notranslate"><span class="pre">save_intermediate=[]</span></code> (empty list), <strong>no files are saved</strong> - results are only returned in memory.</p>
+<p>Also, set the correct units of the <code class="docutils literal notranslate"><span class="pre">time</span></code> column. For all options, please check <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/constants/index.html#paradigma.constants.TimeUnit">the API reference</a>.</p>
+</section>
+<section id="logging-control">
+<h3>Logging Control<a class="headerlink" href="#logging-control" title="Link to this heading"></a></h3>
+<p>ParaDigMa uses Python’s standard <code class="docutils literal notranslate"><span class="pre">logging</span></code> module to provide progress updates and diagnostics. You can control the verbosity level and optionally provide a custom logger for advanced use cases.</p>
+<p><strong>Basic Logging Levels:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="c1"># Default - shows progress and important information</span>
+<span class="n">run_paradigma</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">logging_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+<span class="c1"># Detailed - shows additional processing details</span>
+<span class="n">run_paradigma</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">logging_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+
+<span class="c1"># Quiet - only warnings and errors</span>
+<span class="n">run_paradigma</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">logging_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+
+<span class="c1"># Silent - only errors</span>
+<span class="n">run_paradigma</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">logging_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Custom Logger (Advanced):</strong></p>
+<p>For full control over logging (custom formatting, multiple handlers, etc.), provide your own logger:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create custom logger with your configuration</span>
+<span class="n">custom_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;my_analysis&#39;</span><span class="p">)</span>
+<span class="n">custom_logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+<span class="n">custom_logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>  <span class="c1"># Add your handlers</span>
+
+<span class="c1"># Pass it to run_paradigma</span>
+<span class="n">run_paradigma</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">custom_logger</span><span class="o">=</span><span class="n">custom_logger</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When a custom logger is provided, the <code class="docutils literal notranslate"><span class="pre">logging_level</span></code> parameter is ignored.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline</span> <span class="o">=</span> <span class="s1">&#39;pulse_rate&#39;</span>
+
+<span class="c1"># Example 1: Using default output directory with storage</span>
+<span class="n">results_single_pipeline</span> <span class="o">=</span> <span class="n">run_paradigma</span><span class="p">(</span>
+    <span class="n">dfs</span><span class="o">=</span><span class="n">dfs_ppg</span><span class="p">,</span>
+    <span class="n">pipelines</span><span class="o">=</span><span class="n">pipeline</span><span class="p">,</span>
+    <span class="n">skip_preparation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">time_input_unit</span><span class="o">=</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_S</span><span class="p">,</span>
+    <span class="n">save_intermediate</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;quantification&#39;</span><span class="p">,</span> <span class="s1">&#39;aggregation&#39;</span><span class="p">],</span>  <span class="c1"># Files saved to ./output</span>
+    <span class="n">logging_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span>  <span class="c1"># Only show warnings and errors</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">results_single_pipeline</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="n">pipeline</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">results_single_pipeline</span><span class="p">[</span><span class="s1">&#39;aggregations&#39;</span><span class="p">][</span><span class="n">pipeline</span><span class="p">])</span>
+<span class="n">results_single_pipeline</span><span class="p">[</span><span class="s1">&#39;quantifications&#39;</span><span class="p">][</span><span class="n">pipeline</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;nr_pr_est&#39;: 8684}
+{&#39;mode_pulse_rate&#39;: np.float64(63.59175662414131), &#39;99p_pulse_rate&#39;: np.float64(85.77263444520081)}
+</pre></div>
+</div>
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>pulse_rate</th>
+      <th>file_key</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>47.0</td>
+      <td>80.372915</td>
+      <td>PPG_segment0001</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>49.0</td>
+      <td>79.769382</td>
+      <td>PPG_segment0001</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>51.0</td>
+      <td>79.136408</td>
+      <td>PPG_segment0001</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>53.0</td>
+      <td>78.606477</td>
+      <td>PPG_segment0001</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>55.0</td>
+      <td>77.870461</td>
+      <td>PPG_segment0001</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example 2: No file storage - results only in memory</span>
+<span class="n">results_no_storage</span> <span class="o">=</span> <span class="n">run_paradigma</span><span class="p">(</span>
+    <span class="n">dfs</span><span class="o">=</span><span class="n">dfs_ppg</span><span class="p">,</span>
+    <span class="n">pipelines</span><span class="o">=</span><span class="n">pipeline</span><span class="p">,</span>
+    <span class="n">skip_preparation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">time_input_unit</span><span class="o">=</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_S</span><span class="p">,</span>
+    <span class="n">save_intermediate</span><span class="o">=</span><span class="p">[],</span>  <span class="c1"># No files saved</span>
+    <span class="n">logging_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span>  <span class="c1"># Only show warnings and errors</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Results returned without file storage:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Quantifications: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">results_no_storage</span><span class="p">[</span><span class="s1">&#39;quantifications&#39;</span><span class="p">][</span><span class="n">pipeline</span><span class="p">])</span><span class="si">}</span><span class="s2"> rows&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Aggregations: </span><span class="si">{</span><span class="n">results_no_storage</span><span class="p">[</span><span class="s1">&#39;aggregations&#39;</span><span class="p">][</span><span class="n">pipeline</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Results returned without file storage:
+  Quantifications: 8684 rows
+  Aggregations: {&#39;mode_pulse_rate&#39;: np.float64(63.59175662414131), &#39;99p_pulse_rate&#39;: np.float64(85.77263444520081)}
+</pre></div>
+</div>
+</section>
+<section id="example-no-file-storage">
+<h3>Example: No File Storage<a class="headerlink" href="#example-no-file-storage" title="Link to this heading"></a></h3>
+<p>If you only want to work with results in memory without saving any files, use an empty <code class="docutils literal notranslate"><span class="pre">save_intermediate</span></code> list:</p>
+<p>Note that <code class="docutils literal notranslate"><span class="pre">run_paradigma</span></code> currently does not accept accelerometer data as a supplement to the pulse
+rate pipeline for signal quality analysis. If you want to do these analyses, please check out the
+<a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a>
+tutorial for more info.</p>
+</section>
+</section>
+<section id="multi-pipeline-with-prepared-data">
+<h2>2. Multi-pipeline with prepared data<a class="headerlink" href="#multi-pipeline-with-prepared-data" title="Link to this heading"></a></h2>
+<p>One of the key features of the orchestrator is the ability to run multiple analysis pipelines simultaneously on the same data. This is more efficient than running them separately.</p>
+<section id="results-structure">
+<h3>Results Structure<a class="headerlink" href="#results-structure" title="Link to this heading"></a></h3>
+<p>The multi-pipeline orchestrator returns a nested structure that organizes results by pipeline:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s1">&#39;quantifications&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;gait&#39;</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span>      <span class="c1"># Gait segment-level quantifications</span>
+        <span class="s1">&#39;tremor&#39;</span><span class="p">:</span> <span class="n">DataFrame</span>     <span class="c1"># Tremor window-level quantifications</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;aggregations&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;gait&#39;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">},</span>         <span class="c1"># Aggregated gait metrics</span>
+        <span class="s1">&#39;tremor&#39;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>        <span class="c1"># Aggregated tremor metrics</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;gait&#39;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">},</span>         <span class="c1"># Gait analysis metadata</span>
+        <span class="s1">&#39;tremor&#39;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>        <span class="c1"># Tremor analysis metadata</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;errors&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span>            <span class="c1"># List of errors encountered (empty if successful)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">errors</span></code> list tracks any failures during processing. Each error contains:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">stage</span></code>: Where the error occurred (loading, preparation, pipeline_execution, aggregation)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">error</span></code>: Error message</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">file</span></code>: Filename (if file-specific)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pipeline</span></code>: Pipeline name (if pipeline-specific)</p></li>
+</ul>
+<p>Check for errors after processing:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;errors&#39;</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;errors&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2"> error(s) occurred&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;errors&#39;</span><span class="p">]:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">error</span><span class="p">[</span><span class="s1">&#39;stage&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">error</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load prepared IMU data</span>
+<span class="n">path_to_imu_data</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../example_data/verily/imu&#39;</span><span class="p">)</span>
+
+<span class="n">dfs_imu</span> <span class="o">=</span> <span class="n">load_data_files</span><span class="p">(</span>
+    <span class="n">data_path</span><span class="o">=</span><span class="n">path_to_imu_data</span><span class="p">,</span>
+    <span class="n">file_patterns</span><span class="o">=</span><span class="s1">&#39;json&#39;</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dfs_imu</span><span class="p">)</span><span class="si">}</span><span class="s2"> IMU files:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">dfs_imu</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">dfs_imu</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s2"> samples, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s2"> columns&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">First 5 rows of </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">dfs_imu</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+<span class="n">dfs_imu</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">dfs_imu</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Loaded 2 IMU files:
+  - IMU_segment0001: 3455331 samples, 7 columns
+  - IMU_segment0002: 7434685 samples, 7 columns
+
+First 5 rows of IMU_segment0001:
+</pre></div>
+</div>
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>accelerometer_x</th>
+      <th>accelerometer_y</th>
+      <th>accelerometer_z</th>
+      <th>gyroscope_x</th>
+      <th>gyroscope_y</th>
+      <th>gyroscope_z</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000</td>
+      <td>-0.474641</td>
+      <td>-0.379426</td>
+      <td>0.770335</td>
+      <td>0.000000</td>
+      <td>1.402439</td>
+      <td>0.243902</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.009933</td>
+      <td>-0.472727</td>
+      <td>-0.378947</td>
+      <td>0.765072</td>
+      <td>0.426829</td>
+      <td>0.670732</td>
+      <td>-0.121951</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.019867</td>
+      <td>-0.471770</td>
+      <td>-0.375598</td>
+      <td>0.766986</td>
+      <td>1.158537</td>
+      <td>-0.060976</td>
+      <td>-0.304878</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.029800</td>
+      <td>-0.472727</td>
+      <td>-0.375598</td>
+      <td>0.770335</td>
+      <td>1.158537</td>
+      <td>-0.548780</td>
+      <td>-0.548780</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.039733</td>
+      <td>-0.475120</td>
+      <td>-0.379426</td>
+      <td>0.772249</td>
+      <td>0.670732</td>
+      <td>-0.609756</td>
+      <td>-0.731707</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run gait and tremor analysis on the prepared data</span>
+<span class="c1"># Using custom output directory</span>
+<span class="n">results_multi_pipeline</span> <span class="o">=</span> <span class="n">run_paradigma</span><span class="p">(</span>
+    <span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;./output_multi&#39;</span><span class="p">),</span>
+    <span class="n">dfs</span><span class="o">=</span><span class="n">dfs_imu</span><span class="p">,</span>                        <span class="c1"># Pre-loaded data</span>
+    <span class="n">skip_preparation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>              <span class="c1"># Data is already prepared</span>
+    <span class="n">pipelines</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gait&#39;</span><span class="p">,</span> <span class="s1">&#39;tremor&#39;</span><span class="p">],</span>       <span class="c1"># Multiple pipelines (list format)</span>
+    <span class="n">watch_side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span>                  <span class="c1"># Required for gait analysis</span>
+    <span class="n">save_intermediate</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;quantification&#39;</span><span class="p">],</span>  <span class="c1"># Store quantifications only</span>
+    <span class="n">logging_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span>  <span class="c1"># Only show warnings and errors</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Explore the results structure</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Detailed Results Analysis:&quot;</span><span class="p">)</span>
+
+<span class="c1"># Gait results</span>
+<span class="n">arm_swing_quantified</span> <span class="o">=</span> <span class="n">results_multi_pipeline</span><span class="p">[</span><span class="s1">&#39;quantifications&#39;</span><span class="p">][</span><span class="s1">&#39;gait&#39;</span><span class="p">]</span>
+<span class="n">arm_swing_aggregates</span> <span class="o">=</span> <span class="n">results_multi_pipeline</span><span class="p">[</span><span class="s1">&#39;aggregations&#39;</span><span class="p">][</span><span class="s1">&#39;gait&#39;</span><span class="p">]</span>
+<span class="n">arm_swing_meta</span> <span class="o">=</span> <span class="n">results_multi_pipeline</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;gait&#39;</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Arm swing quantification (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">arm_swing_quantified</span><span class="p">)</span><span class="si">}</span><span class="s2"> windows):&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;   Columns: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">arm_swing_quantified</span><span class="o">.</span><span class="n">columns</span><span class="p">[:</span><span class="mi">5</span><span class="p">])</span><span class="si">}</span><span class="s2">... &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">arm_swing_quantified</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s2"> total)&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Files: </span><span class="si">{</span><span class="n">arm_swing_quantified</span><span class="p">[</span><span class="s1">&#39;file_key&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Arm swing aggregation (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">arm_swing_aggregates</span><span class="p">)</span><span class="si">}</span><span class="s2"> time ranges):&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Gait segment categories: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">arm_swing_aggregates</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Aggregates: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">arm_swing_aggregates</span><span class="p">[</span><span class="s1">&#39;0_10&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Metadata first gait segment: </span><span class="si">{</span><span class="n">arm_swing_meta</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Tremor results</span>
+<span class="n">tremor_quantified</span> <span class="o">=</span> <span class="n">results_multi_pipeline</span><span class="p">[</span><span class="s1">&#39;quantifications&#39;</span><span class="p">][</span><span class="s1">&#39;tremor&#39;</span><span class="p">]</span>
+<span class="n">tremor_aggregates</span> <span class="o">=</span> <span class="n">results_multi_pipeline</span><span class="p">[</span><span class="s1">&#39;aggregations&#39;</span><span class="p">][</span><span class="s1">&#39;tremor&#39;</span><span class="p">]</span>
+<span class="n">tremor_meta</span> <span class="o">=</span> <span class="n">results_multi_pipeline</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;tremor&#39;</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Tremor quantification (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">tremor_quantified</span><span class="p">)</span><span class="si">}</span><span class="s2"> windows):&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;   Columns: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">tremor_quantified</span><span class="o">.</span><span class="n">columns</span><span class="p">[:</span><span class="mi">5</span><span class="p">])</span><span class="si">}</span><span class="s2">... &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">tremor_quantified</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s2"> total)&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Files: </span><span class="si">{</span><span class="n">tremor_quantified</span><span class="p">[</span><span class="s1">&#39;file_key&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Tremor aggregation (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">tremor_aggregates</span><span class="p">)</span><span class="si">}</span><span class="s2"> time ranges):&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Aggregates: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">tremor_aggregates</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Metadata first tremor segment: </span><span class="si">{</span><span class="n">tremor_meta</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Detailed Results Analysis:
+
+Arm swing quantification (5299 windows):
+   Columns: [&#39;gait_segment_nr&#39;, &#39;range_of_motion&#39;, &#39;peak_velocity&#39;, &#39;file_key&#39;]... (4 total)
+   Files: [&#39;IMU_segment0001&#39; &#39;IMU_segment0002&#39;]
+
+Arm swing aggregation (4 time ranges):
+   Gait segment categories: [&#39;0_10&#39;, &#39;10_20&#39;, &#39;20_inf&#39;, &#39;0_inf&#39;]
+   Aggregates: [&#39;duration_s&#39;, &#39;median_range_of_motion&#39;, &#39;95p_range_of_motion&#39;, &#39;median_cov_range_of_motion&#39;, &#39;mean_cov_range_of_motion&#39;, &#39;median_peak_velocity&#39;, &#39;95p_peak_velocity&#39;, &#39;median_cov_peak_velocity&#39;, &#39;mean_cov_peak_velocity&#39;]
+   Metadata first gait segment: {&#39;start_time_s&#39;: 2221.75, &#39;end_time_s&#39;: 2230.74, &#39;duration_unfiltered_segment_s&#39;: 12.75, &#39;duration_filtered_segment_s&#39;: 9.0}
+
+Tremor quantification (27056 windows):
+   Columns: [&#39;time&#39;, &#39;pred_arm_at_rest&#39;, &#39;pred_tremor_checked&#39;, &#39;tremor_power&#39;, &#39;file_key&#39;]... (5 total)
+   Files: [&#39;IMU_segment0001&#39; &#39;IMU_segment0002&#39;]
+
+Tremor aggregation (4 time ranges):
+   Aggregates: [&#39;perc_windows_tremor&#39;, &#39;median_tremor_power&#39;, &#39;modal_tremor_power&#39;, &#39;90p_tremor_power&#39;]
+   Metadata first tremor segment: {&#39;nr_valid_days&#39;: 1, &#39;nr_windows_total&#39;: 27056, &#39;nr_windows_rest&#39;: 18766}
+</pre></div>
+</div>
+</section>
+</section>
+<section id="raw-data-processing">
+<h2>3. Raw Data Processing<a class="headerlink" href="#raw-data-processing" title="Link to this heading"></a></h2>
+<p>The orchestrator can also process raw sensor data automatically. This includes data preparation steps like format standardization, unit conversion, and orientation correction. Note that this feature has been developed on limited data examples, and therefore may not function as expected on newly observed data.</p>
+<section id="column-mapping-for-custom-data-formats">
+<h3>Column Mapping for Custom Data Formats<a class="headerlink" href="#column-mapping-for-custom-data-formats" title="Link to this heading"></a></h3>
+<p>If your raw data uses different column names than ParaDigMa’s standard naming convention, use the <code class="docutils literal notranslate"><span class="pre">column_mapping</span></code> parameter to map your column names to the expected ones.</p>
+<p><strong>Standard ParaDigMa column names:</strong></p>
+<ul class="simple">
+<li><p><strong>Required for all pipelines:</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">time</span></code>: Timestamp column</p></li>
+</ul>
+</li>
+<li><p><strong>For IMU pipelines (gait, tremor):</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">accelerometer_x</span></code>, <code class="docutils literal notranslate"><span class="pre">accelerometer_y</span></code>, <code class="docutils literal notranslate"><span class="pre">accelerometer_z</span></code>: Accelerometer axes</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gyroscope_x</span></code>, <code class="docutils literal notranslate"><span class="pre">gyroscope_y</span></code>, <code class="docutils literal notranslate"><span class="pre">gyroscope_z</span></code>: Gyroscope axes</p></li>
+</ul>
+</li>
+<li><p><strong>For PPG pipeline (pulse_rate):</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">ppg</span></code>: PPG signal</p></li>
+</ul>
+</li>
+</ul>
+<p><strong>Example mapping:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">column_mapping</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="s1">&#39;time&#39;</span><span class="p">,</span>                      <span class="c1"># Your &#39;timestamp&#39; column → ParaDigMa &#39;time&#39; column</span>
+    <span class="s1">&#39;acceleration_x&#39;</span><span class="p">:</span> <span class="s1">&#39;accelerometer_x&#39;</span><span class="p">,</span>      <span class="c1"># Your &#39;acceleration&#39; columns → ParaDigMa &#39;accelerometer&#39; columns&#39;</span>
+    <span class="s1">&#39;acceleration_y&#39;</span><span class="p">:</span> <span class="s1">&#39;accelerometer_y&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;acceleration_z&#39;</span><span class="p">:</span> <span class="s1">&#39;accelerometer_z&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;rotation_x&#39;</span><span class="p">:</span> <span class="s1">&#39;gyroscope_x&#39;</span><span class="p">,</span>              <span class="c1"># Your &#39;rotation&#39; columns → ParaDigMa &#39;gyroscope&#39; columns</span>
+    <span class="s1">&#39;rotation_y&#39;</span><span class="p">:</span> <span class="s1">&#39;gyroscope_y&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;rotation_z&#39;</span><span class="p">:</span> <span class="s1">&#39;gyroscope_z&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">path_to_raw_data</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../example_data/axivity&#39;</span><span class="p">)</span>
+
+<span class="n">device_orientation</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-x&quot;</span><span class="p">,</span> <span class="s2">&quot;-y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">]</span>      <span class="c1"># Sensor was worn upside-down</span>
+<span class="n">pipeline</span> <span class="o">=</span> <span class="s1">&#39;gait&#39;</span>
+
+<span class="c1"># Working with raw data - this requires data preparation</span>
+<span class="c1"># Using custom output directory</span>
+<span class="n">results_end_to_end</span> <span class="o">=</span> <span class="n">run_paradigma</span><span class="p">(</span>
+    <span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;./output_raw&#39;</span><span class="p">),</span>
+    <span class="n">data_path</span><span class="o">=</span><span class="n">path_to_raw_data</span><span class="p">,</span>             <span class="c1"># Point to data folder</span>
+    <span class="n">skip_preparation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>                 <span class="c1"># ParaDigMa will prepare the data</span>
+    <span class="n">pipelines</span><span class="o">=</span><span class="n">pipeline</span><span class="p">,</span>
+    <span class="n">watch_side</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+    <span class="n">time_input_unit</span><span class="o">=</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_S</span><span class="p">,</span>    <span class="c1"># Specify time unit for raw data</span>
+    <span class="n">accelerometer_units</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">,</span>
+    <span class="n">gyroscope_units</span><span class="o">=</span><span class="s1">&#39;deg/s&#39;</span><span class="p">,</span>
+    <span class="n">target_frequency</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span>
+    <span class="n">device_orientation</span><span class="o">=</span><span class="n">device_orientation</span><span class="p">,</span>
+    <span class="n">save_intermediate</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;aggregation&#39;</span><span class="p">],</span>      <span class="c1"># Only save aggregations</span>
+    <span class="n">logging_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>  <span class="c1"># Only show warnings and errors</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Metadata:</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">results_end_to_end</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="n">pipeline</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Aggregations:</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">results_end_to_end</span><span class="p">[</span><span class="s1">&#39;aggregations&#39;</span><span class="p">][</span><span class="n">pipeline</span><span class="p">],</span><span class="w"> </span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Quantifications (first 5 rows; each row represents a single arm swing):&quot;</span><span class="p">)</span>
+<span class="n">results_end_to_end</span><span class="p">[</span><span class="s1">&#39;quantifications&#39;</span><span class="p">][</span><span class="n">pipeline</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Resampled: 36400 -&gt; 36433 rows at 100.0 Hz
+
+
+
+Metadata:
+{
+  &quot;start_time_s&quot;: 124.5,
+  &quot;end_time_s&quot;: 127.49,
+  &quot;duration_unfiltered_segment_s&quot;: 124.5,
+  &quot;duration_filtered_segment_s&quot;: 3.0
+}
+
+Aggregations:
+{
+  &quot;0_10&quot;: {
+    &quot;duration_s&quot;: 0
+  },
+  &quot;10_20&quot;: {
+    &quot;duration_s&quot;: 0
+  },
+  &quot;20_inf&quot;: {
+    &quot;duration_s&quot;: 18.0,
+    &quot;median_range_of_motion&quot;: 7.182233339196239,
+    &quot;95p_range_of_motion&quot;: 27.529007915195255,
+    &quot;median_cov_range_of_motion&quot;: 0.19564530259481105,
+    &quot;mean_cov_range_of_motion&quot;: 0.2725453668861871,
+    &quot;median_peak_velocity&quot;: 52.92434205521389,
+    &quot;95p_peak_velocity&quot;: 258.93016146092725,
+    &quot;median_cov_peak_velocity&quot;: 0.23137490496592453,
+    &quot;mean_cov_peak_velocity&quot;: 0.2872492141424207
+  },
+  &quot;0_inf&quot;: {
+    &quot;duration_s&quot;: 18.0,
+    &quot;median_range_of_motion&quot;: 7.182233339196239,
+    &quot;95p_range_of_motion&quot;: 27.529007915195255,
+    &quot;median_cov_range_of_motion&quot;: 0.19564530259481105,
+    &quot;mean_cov_range_of_motion&quot;: 0.2725453668861871,
+    &quot;median_peak_velocity&quot;: 52.92434205521389,
+    &quot;95p_peak_velocity&quot;: 258.93016146092725,
+    &quot;median_cov_peak_velocity&quot;: 0.23137490496592453,
+    &quot;mean_cov_peak_velocity&quot;: 0.2872492141424207
+  }
+}
+
+Quantifications (first 5 rows; each row represents a single arm swing):
+</pre></div>
+</div>
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>gait_segment_nr</th>
+      <th>range_of_motion</th>
+      <th>peak_velocity</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>17.182270</td>
+      <td>136.030218</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>22.832489</td>
+      <td>181.524445</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1</td>
+      <td>23.181810</td>
+      <td>283.032602</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1</td>
+      <td>29.694767</td>
+      <td>253.460914</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+      <td>29.392093</td>
+      <td>221.580715</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="auto-segmentation-for-non-contiguous-data">
+<h2>4. Auto-Segmentation for Non-Contiguous Data<a class="headerlink" href="#auto-segmentation-for-non-contiguous-data" title="Link to this heading"></a></h2>
+<p>When working with sensor data, you may encounter gaps or interruptions in the recording (e.g., battery died, device removed, multiple recording sessions). The orchestrator can automatically detect these gaps and split the data into contiguous segments for processing.</p>
+<section id="when-to-use-auto-segmentation">
+<h3>When to Use Auto-Segmentation<a class="headerlink" href="#when-to-use-auto-segmentation" title="Link to this heading"></a></h3>
+<p>Use <code class="docutils literal notranslate"><span class="pre">split_by_gaps=True</span></code> when:</p>
+<ul class="simple">
+<li><p>Your data has recording interruptions or gaps</p></li>
+<li><p>You’re getting “Time array is not contiguous” errors</p></li>
+<li><p>You want to process multiple recording sessions in one file</p></li>
+<li><p>Data spans multiple days with breaks</p></li>
+</ul>
+</section>
+<section id="understanding-data-segments-vs-gait-segments">
+<h3>Understanding Data Segments vs Gait Segments<a class="headerlink" href="#understanding-data-segments-vs-gait-segments" title="Link to this heading"></a></h3>
+<p>Important distinction:</p>
+<ul class="simple">
+<li><p><strong>Data segments (<code class="docutils literal notranslate"><span class="pre">data_segment_nr</span></code>)</strong>: Contiguous recording chunks separated by temporal gaps</p>
+<ul>
+<li><p>Created during data preparation</p></li>
+<li><p>Example: 4 segments if recording had 3 interruptions</p></li>
+</ul>
+</li>
+<li><p><strong>Gait segments (<code class="docutils literal notranslate"><span class="pre">gait_segment_nr</span></code>)</strong>: Detected gait bouts within the data</p>
+<ul>
+<li><p>Created during gait pipeline analysis</p></li>
+<li><p>Example: 52 gait bouts detected across all data segments</p></li>
+<li><p>Only applicable to gait analysis</p></li>
+</ul>
+</li>
+</ul>
+<p>The orchestrator will:</p>
+<ol class="arabic simple">
+<li><p>Detect gaps larger than <code class="docutils literal notranslate"><span class="pre">max_gap_seconds</span></code> (default: 1.5 seconds)</p></li>
+<li><p>Split data into contiguous data segments</p></li>
+<li><p>Discard segments shorter than <code class="docutils literal notranslate"><span class="pre">min_segment_seconds</span></code> (default: 1.5 seconds)</p></li>
+<li><p>Add a <code class="docutils literal notranslate"><span class="pre">data_segment_nr</span></code> column to track which recording chunk each data point belongs to</p></li>
+<li><p>Process each data segment independently through the pipeline</p></li>
+<li><p>Combine results with <code class="docutils literal notranslate"><span class="pre">gait_segment_nr</span></code> for detected gait bouts (gait pipeline only)</p></li>
+</ol>
+</section>
+<section id="example-gait-up-physilog-data-with-gaps">
+<h3>Example: Gait-up Physilog Data with Gaps<a class="headerlink" href="#example-gait-up-physilog-data-with-gaps" title="Link to this heading"></a></h3>
+<p>This example uses data from a Gait-up Physilog 4 device with 3 large gaps (up to ~20 minutes). The data is already in Parquet format with standard column names, but timestamps are non-contiguous.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load Gait-up Physilog data with non-contiguous timestamps</span>
+<span class="n">path_to_physilog_data</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../example_data/gait_up_physilog&#39;</span><span class="p">)</span>
+
+<span class="n">dfs_physilog</span> <span class="o">=</span> <span class="n">load_data_files</span><span class="p">(</span>
+    <span class="n">data_path</span><span class="o">=</span><span class="n">path_to_physilog_data</span><span class="p">,</span>
+    <span class="n">file_patterns</span><span class="o">=</span><span class="s1">&#39;parquet&#39;</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dfs_physilog</span><span class="p">)</span><span class="si">}</span><span class="s2"> Gait-up Physilog file(s):&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">filename</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">dfs_physilog</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s2"> samples, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s2"> columns&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    Time range: </span><span class="si">{</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">s to </span><span class="si">{</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    Duration: </span><span class="si">{</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Check for gaps</span>
+    <span class="n">time_diffs</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+    <span class="n">large_gaps</span> <span class="o">=</span> <span class="n">time_diffs</span><span class="p">[</span><span class="n">time_diffs</span> <span class="o">&gt;</span> <span class="mf">1.0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">large_gaps</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Contains </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">large_gaps</span><span class="p">)</span><span class="si">}</span><span class="s2"> gap(s) &gt; 1s &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(largest: </span><span class="si">{</span><span class="n">large_gaps</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">s)&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Check for NaN values (common in real-world data)</span>
+    <span class="n">nan_counts</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">nan_counts</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Contains </span><span class="si">{</span><span class="n">nan_counts</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">}</span><span class="s2"> NaN values&quot;</span><span class="p">)</span>
+
+<span class="c1"># Clean DataFrames with NaN values (after iteration to avoid SettingWithCopyWarning)</span>
+<span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">dfs_physilog</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">dfs_physilog</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span>
+    <span class="n">df_clean</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_clean</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Dropping </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">df_clean</span><span class="p">)</span><span class="si">}</span><span class="s2"> rows with NaN values &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;from file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="n">dfs_physilog</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_clean</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Loaded 1 Gait-up Physilog file(s):
+  - test_file: 876535 samples, 7 columns
+    Time range: 0.0s to 10026.1s
+    Duration: 10026.1s
+Contains 3 gap(s) &gt; 1s (largest: 1243.6s)
+Contains 30 NaN values
+Dropping 10 rows with NaN values from file test_file
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example: Processing non-contiguous data with auto-segmentation</span>
+<span class="c1"># Data already has standard column names and units, but needs segmentation</span>
+
+<span class="n">results_with_segmentation</span> <span class="o">=</span> <span class="n">run_paradigma</span><span class="p">(</span>
+    <span class="n">dfs</span><span class="o">=</span><span class="n">dfs_physilog</span><span class="p">,</span>                     <span class="c1"># Pre-loaded data dictionary</span>
+    <span class="n">skip_preparation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>               <span class="c1"># Need preparation to add data_segment_nr</span>
+    <span class="n">pipelines</span><span class="o">=</span><span class="s1">&#39;gait&#39;</span><span class="p">,</span>
+    <span class="n">watch_side</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+    <span class="n">time_input_unit</span><span class="o">=</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_S</span><span class="p">,</span>
+    <span class="c1"># Auto-segmentation parameters</span>
+    <span class="n">split_by_gaps</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>                   <span class="c1"># Enable automatic segmentation</span>
+    <span class="n">max_gap_seconds</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>                  <span class="c1"># Gaps &gt; 1s create new data segment</span>
+    <span class="n">min_segment_seconds</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>              <span class="c1"># Keep only data segments &gt;= 2s</span>
+    <span class="n">save_intermediate</span><span class="o">=</span><span class="p">[],</span>                 <span class="c1"># No file storage for demo</span>
+    <span class="n">logging_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>  <span class="c1"># Only show warnings and errors</span>
+<span class="p">)</span>
+
+<span class="n">gait_results</span> <span class="o">=</span> <span class="n">results_with_segmentation</span><span class="p">[</span><span class="s1">&#39;quantifications&#39;</span><span class="p">][</span><span class="s1">&#39;gait&#39;</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Total arm swings quantified: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">gait_results</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of gait segments: </span><span class="si">{</span><span class="n">gait_results</span><span class="p">[</span><span class="s1">&#39;gait_segment_nr&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="s1">&#39;data_segment_nr&#39;</span> <span class="ow">in</span> <span class="n">gait_results</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of data segments: </span><span class="si">{</span><span class="n">gait_results</span><span class="p">[</span><span class="s1">&#39;data_segment_nr&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Columns in output: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">gait_results</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">gait_results</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Non-contiguous data detected. Auto-segmenting...
+
+
+Created 4 segments: 1713.3s, 1588.3s, 2243.5s, 3220.3s
+
+
+WARNING: Time column has irregular sampling
+
+
+Resampled: 876525 -&gt; 876535 rows at 100.0 Hz
+
+
+
+Total arm swings quantified: 1834
+Number of gait segments: 47
+
+Columns in output: [&#39;gait_segment_nr&#39;, &#39;range_of_motion&#39;, &#39;peak_velocity&#39;]
+</pre></div>
+</div>
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>gait_segment_nr</th>
+      <th>range_of_motion</th>
+      <th>peak_velocity</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>14.394159</td>
+      <td>40.731020</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>13.593113</td>
+      <td>21.522583</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>20.881968</td>
+      <td>102.620567</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2</td>
+      <td>16.711927</td>
+      <td>48.794681</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2</td>
+      <td>6.565145</td>
+      <td>26.096350</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, and Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

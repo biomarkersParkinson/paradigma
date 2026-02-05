@@ -46,17 +46,13 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/_static/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/_static/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">User guides</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
@@ -192,6 +188,8 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataColumns.BELOW_TREMOR_POWER">BELOW_TREMOR_POWER (paradigma.constants.DataColumns attribute)</a>
+</li>
       <li><a href="autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.biased_autocorrelation">biased_autocorrelation() (in module paradigma.feature_extraction)</a>
 </li>
       <li><a href="autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.butterworth_filter">butterworth_filter() (in module paradigma.preprocessing)</a>
@@ -228,10 +226,10 @@
 </li>
       <li><a href="autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_peak_angular_velocity">compute_peak_angular_velocity() (in module paradigma.feature_extraction)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_power_in_bandwidth">compute_power_in_bandwidth() (in module paradigma.feature_extraction)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_range_of_motion">compute_range_of_motion() (in module paradigma.feature_extraction)</a>
 </li>
       <li><a href="autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_relative_power">compute_relative_power() (in module paradigma.feature_extraction)</a>
@@ -248,9 +246,13 @@
 </li>
       <li><a href="autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_total_power">compute_total_power() (in module paradigma.feature_extraction)</a>
 </li>
+      <li><a href="autoapi/paradigma/prepare_data/index.html#paradigma.prepare_data.convert_sensor_units">convert_sensor_units() (in module paradigma.prepare_data)</a>
+</li>
       <li><a href="autoapi/paradigma/util/index.html#paradigma.util.convert_units_accelerometer">convert_units_accelerometer() (in module paradigma.util)</a>
 </li>
       <li><a href="autoapi/paradigma/util/index.html#paradigma.util.convert_units_gyroscope">convert_units_gyroscope() (in module paradigma.util)</a>
+</li>
+      <li><a href="autoapi/paradigma/prepare_data/index.html#paradigma.prepare_data.correct_watch_orientation">correct_watch_orientation() (in module paradigma.prepare_data)</a>
 </li>
       <li><a href="autoapi/paradigma/segmenting/index.html#paradigma.segmenting.create_segments">create_segments() (in module paradigma.segmenting)</a>
 </li>
@@ -272,13 +274,19 @@
 </li>
       <li><a href="autoapi/paradigma/config/index.html#paradigma.config.GaitConfig.d_frequency_bandwidths">d_frequency_bandwidths (paradigma.config.GaitConfig attribute)</a>
 </li>
+      <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataColumns.DATA_SEGMENT_NR">DATA_SEGMENT_NR (paradigma.constants.DataColumns attribute)</a>
+</li>
       <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataColumns">DataColumns (class in paradigma.constants)</a>
 </li>
       <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataUnits">DataUnits (class in paradigma.constants)</a>
 </li>
+      <li><a href="autoapi/paradigma/util/index.html#paradigma.util.deprecated">deprecated() (in module paradigma.util)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="autoapi/paradigma/util/index.html#paradigma.util.deprecated">deprecated() (in module paradigma.util)</a>
+      <li><a href="autoapi/paradigma/orchestrator/index.html#paradigma.orchestrator.DETAILED_INFO">DETAILED_INFO (in module paradigma.orchestrator)</a>
+</li>
+      <li><a href="autoapi/paradigma/load/index.html#paradigma.load.detect_file_format">detect_file_format() (in module paradigma.load)</a>
 </li>
       <li><a href="autoapi/paradigma/pipelines/gait_pipeline/index.html#paradigma.pipelines.gait_pipeline.detect_gait">detect_gait() (in module paradigma.pipelines.gait_pipeline)</a>
 </li>
@@ -396,6 +404,8 @@
 </li>
       <li><a href="autoapi/paradigma/config/index.html#paradigma.config.PulseRateConfig.freq_bin_resolution">freq_bin_resolution (paradigma.config.PulseRateConfig attribute)</a>
 </li>
+      <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataColumns.FREQ_PEAK">FREQ_PEAK (paradigma.constants.DataColumns attribute)</a>
+</li>
       <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataUnits.FREQUENCY">FREQUENCY (paradigma.constants.DataUnits attribute)</a>
 </li>
   </ul></td>
@@ -404,6 +414,8 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataColumns.GAIT_SEGMENT_NR">GAIT_SEGMENT_NR (paradigma.constants.DataColumns attribute)</a>
+</li>
       <li><a href="autoapi/paradigma/config/index.html#paradigma.config.GaitConfig">GaitConfig (class in paradigma.config)</a>
 </li>
       <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#paradigma.pipelines.pulse_rate_utils.TimeFreqDistr.gen_analytic">gen_analytic() (paradigma.pipelines.pulse_rate_utils.TimeFreqDistr method)</a>
@@ -414,6 +426,8 @@
 </li>
       <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#paradigma.pipelines.pulse_rate_utils.TimeFreqDistr.get_analytic_signal">get_analytic_signal() (paradigma.pipelines.pulse_rate_utils.TimeFreqDistr method)</a>
 </li>
+      <li><a href="autoapi/paradigma/load/index.html#paradigma.load.get_data_file_paths">get_data_file_paths() (in module paradigma.load)</a>
+</li>
       <li><a href="autoapi/paradigma/util/index.html#paradigma.util.get_end_iso8601">get_end_iso8601() (in module paradigma.util)</a>
 </li>
       <li><a href="autoapi/paradigma/segmenting/index.html#id1">get_index() (paradigma.segmenting.WindowedDataExtractor method)</a>, <a href="autoapi/paradigma/segmenting/index.html#paradigma.segmenting.WindowedDataExtractor.get_index">[1]</a>
@@ -422,10 +436,10 @@
 </li>
       <li><a href="autoapi/paradigma/segmenting/index.html#id2">get_slice() (paradigma.segmenting.WindowedDataExtractor method)</a>, <a href="autoapi/paradigma/segmenting/index.html#paradigma.segmenting.WindowedDataExtractor.get_slice">[1]</a>
 </li>
-      <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#paradigma.pipelines.pulse_rate_utils.TimeFreqDistr.get_win">get_win() (paradigma.pipelines.pulse_rate_utils.TimeFreqDistr method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#paradigma.pipelines.pulse_rate_utils.TimeFreqDistr.get_win">get_win() (paradigma.pipelines.pulse_rate_utils.TimeFreqDistr method)</a>
+</li>
       <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#paradigma.pipelines.pulse_rate_utils.TimeFreqDistr.get_window">get_window() (paradigma.pipelines.pulse_rate_utils.TimeFreqDistr method)</a>
 </li>
       <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataColumns.GRAV_ACCELEROMETER_X">GRAV_ACCELEROMETER_X (paradigma.constants.DataColumns attribute)</a>
@@ -476,14 +490,34 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/paradigma/classification/index.html#paradigma.classification.ClassifierPackage.load">load() (paradigma.classification.ClassifierPackage class method)</a>
 </li>
+      <li><a href="autoapi/paradigma/load/index.html#paradigma.load.load_axivity_data">load_axivity_data() (in module paradigma.load)</a>
+</li>
+      <li><a href="autoapi/paradigma/load/index.html#paradigma.load.load_data_files">load_data_files() (in module paradigma.load)</a>
+</li>
+      <li><a href="autoapi/paradigma/load/index.html#paradigma.load.load_empatica_data">load_empatica_data() (in module paradigma.load)</a>
+</li>
       <li><a href="autoapi/paradigma/util/index.html#paradigma.util.load_metadata_list">load_metadata_list() (in module paradigma.util)</a>
 </li>
-      <li><a href="autoapi/paradigma/util/index.html#paradigma.util.load_tsdf_dataframe">load_tsdf_dataframe() (in module paradigma.util)</a>
+      <li><a href="autoapi/paradigma/load/index.html#paradigma.load.load_prepared_data">load_prepared_data() (in module paradigma.load)</a>
+</li>
+      <li><a href="autoapi/paradigma/load/index.html#paradigma.load.load_single_data_file">load_single_data_file() (in module paradigma.load)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="autoapi/paradigma/pipelines/gait_pipeline/index.html#paradigma.pipelines.gait_pipeline.logger">logger (in module paradigma.pipelines.gait_pipeline)</a>
+      <li><a href="autoapi/paradigma/load/index.html#paradigma.load.load_tsdf_data">load_tsdf_data() (in module paradigma.load)</a>
 </li>
+      <li><a href="autoapi/paradigma/util/index.html#paradigma.util.load_tsdf_dataframe">load_tsdf_dataframe() (in module paradigma.util)</a>
+</li>
+      <li><a href="autoapi/paradigma/load/index.html#paradigma.load.logger">logger (in module paradigma.load)</a>
+
+      <ul>
+        <li><a href="autoapi/paradigma/orchestrator/index.html#paradigma.orchestrator.logger">(in module paradigma.orchestrator)</a>
+</li>
+        <li><a href="autoapi/paradigma/pipelines/gait_pipeline/index.html#paradigma.pipelines.gait_pipeline.logger">(in module paradigma.pipelines.gait_pipeline)</a>
+</li>
+        <li><a href="autoapi/paradigma/prepare_data/index.html#paradigma.prepare_data.logger">(in module paradigma.prepare_data)</a>
+</li>
+      </ul></li>
       <li><a href="autoapi/paradigma/config/index.html#paradigma.config.IMUConfig.lower_cutoff_frequency">lower_cutoff_frequency (paradigma.config.IMUConfig attribute)</a>
 
       <ul>
@@ -497,7 +531,11 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/paradigma/config/index.html#paradigma.config.GaitConfig.max_segment_gap_s">max_segment_gap_s (paradigma.config.GaitConfig attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/paradigma/config/index.html#paradigma.config.IMUConfig.max_segment_gap_s">(paradigma.config.IMUConfig attribute)</a>
 </li>
+      </ul></li>
       <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataColumns.MEAN">MEAN (paradigma.constants.DataColumns attribute)</a>
 </li>
       <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataColumns.MEDIAN">MEDIAN (paradigma.constants.DataColumns attribute)</a>
@@ -517,7 +555,11 @@
       <li><a href="autoapi/paradigma/config/index.html#paradigma.config.GaitConfig.mfcc_n_dct_filters">mfcc_n_dct_filters (paradigma.config.GaitConfig attribute)</a>
 </li>
       <li><a href="autoapi/paradigma/config/index.html#paradigma.config.GaitConfig.min_segment_length_s">min_segment_length_s (paradigma.config.GaitConfig attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/paradigma/config/index.html#paradigma.config.IMUConfig.min_segment_length_s">(paradigma.config.IMUConfig attribute)</a>
 </li>
+      </ul></li>
       <li>
     module
 
@@ -532,6 +574,10 @@
 </li>
         <li><a href="autoapi/paradigma/feature_extraction/index.html#module-paradigma.feature_extraction">paradigma.feature_extraction</a>
 </li>
+        <li><a href="autoapi/paradigma/load/index.html#module-paradigma.load">paradigma.load</a>
+</li>
+        <li><a href="autoapi/paradigma/orchestrator/index.html#module-paradigma.orchestrator">paradigma.orchestrator</a>
+</li>
         <li><a href="autoapi/paradigma/pipelines/index.html#module-paradigma.pipelines">paradigma.pipelines</a>
 </li>
         <li><a href="autoapi/paradigma/pipelines/gait_pipeline/index.html#module-paradigma.pipelines.gait_pipeline">paradigma.pipelines.gait_pipeline</a>
@@ -541,6 +587,8 @@
         <li><a href="autoapi/paradigma/pipelines/pulse_rate_utils/index.html#module-paradigma.pipelines.pulse_rate_utils">paradigma.pipelines.pulse_rate_utils</a>
 </li>
         <li><a href="autoapi/paradigma/pipelines/tremor_pipeline/index.html#module-paradigma.pipelines.tremor_pipeline">paradigma.pipelines.tremor_pipeline</a>
+</li>
+        <li><a href="autoapi/paradigma/prepare_data/index.html#module-paradigma.prepare_data">paradigma.prepare_data</a>
 </li>
         <li><a href="autoapi/paradigma/preprocessing/index.html#module-paradigma.preprocessing">paradigma.preprocessing</a>
 </li>
@@ -625,6 +673,20 @@
 </li>
       </ul></li>
       <li>
+    paradigma.load
+
+      <ul>
+        <li><a href="autoapi/paradigma/load/index.html#module-paradigma.load">module</a>
+</li>
+      </ul></li>
+      <li>
+    paradigma.orchestrator
+
+      <ul>
+        <li><a href="autoapi/paradigma/orchestrator/index.html#module-paradigma.orchestrator">module</a>
+</li>
+      </ul></li>
+      <li>
     paradigma.pipelines
 
       <ul>
@@ -660,6 +722,13 @@
 </li>
       </ul></li>
       <li>
+    paradigma.prepare_data
+
+      <ul>
+        <li><a href="autoapi/paradigma/prepare_data/index.html#module-paradigma.prepare_data">module</a>
+</li>
+      </ul></li>
+      <li>
     paradigma.preprocessing
 
       <ul>
@@ -680,6 +749,8 @@
         <li><a href="autoapi/paradigma/testing/index.html#module-paradigma.testing">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     paradigma.util
 
@@ -687,8 +758,6 @@
         <li><a href="autoapi/paradigma/util/index.html#module-paradigma.util">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/paradigma/util/index.html#paradigma.util.parse_iso8601_to_datetime">parse_iso8601_to_datetime() (in module paradigma.util)</a>
 </li>
       <li><a href="autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.pca_transform_gyroscope">pca_transform_gyroscope() (in module paradigma.feature_extraction)</a>
@@ -697,7 +766,9 @@
 </li>
       <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataColumns.POWER_RATIO">POWER_RATIO (paradigma.constants.DataColumns attribute)</a>
 </li>
-      <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataUnits.POWER_SPECTRAL_DENSITY">POWER_SPECTRAL_DENSITY (paradigma.constants.DataUnits attribute)</a>
+      <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataUnits.POWER_ROTATION">POWER_ROTATION (paradigma.constants.DataUnits attribute)</a>
+</li>
+      <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataUnits.POWER_SPECTRAL_DENSITY_ACC">POWER_SPECTRAL_DENSITY_ACC (paradigma.constants.DataUnits attribute)</a>
 </li>
       <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataColumns.PPG">PPG (paradigma.constants.DataColumns attribute)</a>
 </li>
@@ -732,6 +803,10 @@
       <li><a href="autoapi/paradigma/classification/index.html#paradigma.classification.ClassifierPackage.predict">predict() (paradigma.classification.ClassifierPackage method)</a>
 </li>
       <li><a href="autoapi/paradigma/classification/index.html#paradigma.classification.ClassifierPackage.predict_proba">predict_proba() (paradigma.classification.ClassifierPackage method)</a>
+</li>
+      <li><a href="autoapi/paradigma/prepare_data/index.html#paradigma.prepare_data.prepare_raw_data">prepare_raw_data() (in module paradigma.prepare_data)</a>
+</li>
+      <li><a href="autoapi/paradigma/prepare_data/index.html#paradigma.prepare_data.prepare_time_column">prepare_time_column() (in module paradigma.prepare_data)</a>
 </li>
       <li><a href="autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.preprocess_imu_data">preprocess_imu_data() (in module paradigma.preprocessing)</a>
 </li>
@@ -769,12 +844,12 @@
 </li>
       <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.TimeUnit.RELATIVE_S">RELATIVE_S (paradigma.constants.TimeUnit attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.remove_moving_average_angle">remove_moving_average_angle() (in module paradigma.feature_extraction)</a>
 </li>
       <li><a href="autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.resample_data">resample_data() (in module paradigma.preprocessing)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/paradigma/config/index.html#paradigma.config.IMUConfig.resampling_frequency">resampling_frequency (paradigma.config.IMUConfig attribute)</a>
 
       <ul>
@@ -784,6 +859,14 @@
       <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataUnits.ROTATION">ROTATION (paradigma.constants.DataUnits attribute)</a>
 </li>
       <li><a href="autoapi/paradigma/config/index.html#paradigma.config.IMUConfig.rotation_units">rotation_units (paradigma.config.IMUConfig attribute)</a>
+</li>
+      <li><a href="autoapi/paradigma/pipelines/gait_pipeline/index.html#paradigma.pipelines.gait_pipeline.run_gait_pipeline">run_gait_pipeline() (in module paradigma.pipelines.gait_pipeline)</a>
+</li>
+      <li><a href="autoapi/paradigma/orchestrator/index.html#paradigma.orchestrator.run_paradigma">run_paradigma() (in module paradigma.orchestrator)</a>
+</li>
+      <li><a href="autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.run_pulse_rate_pipeline">run_pulse_rate_pipeline() (in module paradigma.pipelines.pulse_rate_pipeline)</a>
+</li>
+      <li><a href="autoapi/paradigma/pipelines/tremor_pipeline/index.html#paradigma.pipelines.tremor_pipeline.run_tremor_pipeline">run_tremor_pipeline() (in module paradigma.pipelines.tremor_pipeline)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -798,6 +881,8 @@
 </li>
       </ul></li>
       <li><a href="autoapi/paradigma/classification/index.html#paradigma.classification.ClassifierPackage.save">save() (paradigma.classification.ClassifierPackage method)</a>
+</li>
+      <li><a href="autoapi/paradigma/load/index.html#paradigma.load.save_prepared_data">save_prepared_data() (in module paradigma.load)</a>
 </li>
       <li><a href="autoapi/paradigma/classification/index.html#paradigma.classification.ClassifierPackage.scaler">scaler (paradigma.classification.ClassifierPackage attribute)</a>
 </li>
@@ -841,6 +926,8 @@
 </li>
       <li><a href="autoapi/paradigma/config/index.html#paradigma.config.GaitConfig.spectrum_low_frequency">spectrum_low_frequency (paradigma.config.GaitConfig attribute)</a>
 </li>
+      <li><a href="autoapi/paradigma/prepare_data/index.html#paradigma.prepare_data.standardize_column_names">standardize_column_names() (in module paradigma.prepare_data)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -883,6 +970,8 @@
 </li>
       <li><a href="autoapi/paradigma/util/index.html#paradigma.util.transform_time_array">transform_time_array() (in module paradigma.util)</a>
 </li>
+      <li><a href="autoapi/paradigma/constants/index.html#paradigma.constants.DataColumns.TREMOR_POWER">TREMOR_POWER (paradigma.constants.DataColumns attribute)</a>
+</li>
       <li><a href="autoapi/paradigma/config/index.html#paradigma.config.TremorConfig">TremorConfig (class in paradigma.config)</a>
 </li>
   </ul></td>
@@ -909,6 +998,8 @@
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/paradigma/prepare_data/index.html#paradigma.prepare_data.validate_prepared_data">validate_prepared_data() (in module paradigma.prepare_data)</a>
+</li>
       <li><a href="autoapi/paradigma/config/index.html#paradigma.config.BaseConfig.values_filename">values_filename (paradigma.config.BaseConfig attribute)</a>
 </li>
   </ul></td>

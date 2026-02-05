@@ -46,17 +46,13 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">User guides</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
@@ -95,9 +91,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for paradigma.feature_extraction</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.integrate</span><span class="w"> </span><span class="kn">import</span> <span class="n">cumulative_trapezoid</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_peaks</span><span class="p">,</span> <span class="n">windows</span>
@@ -142,7 +136,8 @@
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
-<span class="sd">        If the specified `statistic` is not supported or if the input data has an invalid shape.</span>
+<span class="sd">        If the specified `statistic` is not supported or if the input data</span>
+<span class="sd">        has an invalid shape.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">statistic</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span>
         <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
@@ -226,13 +221,14 @@
     <span class="n">fmax</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">include_max</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">spectral_resolution</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="n">cumulative_sum_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;trapz&quot;</span><span class="p">,</span>
+    <span class="n">cumulative_sum_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;trapezoid&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the logarithmic power within specified frequency bands for each sensor axis.</span>
 
-<span class="sd">    This function integrates the power spectral density (PSD) over user-defined frequency</span>
-<span class="sd">    bands and computes the logarithm of the resulting power for each axis of the sensor.</span>
+<span class="sd">    This function integrates the power spectral density (PSD) over</span>
+<span class="sd">    user-defined frequency bands and computes the logarithm of the</span>
+<span class="sd">    resulting power for each axis of the sensor.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -240,8 +236,9 @@
 <span class="sd">        A 1D array of shape (n_frequencies,) containing the frequencies corresponding</span>
 <span class="sd">        to the PSD values.</span>
 <span class="sd">    psd : np.ndarray</span>
-<span class="sd">        A 2D array of shape (n_windows, n_frequencies) or 3D array of shape (n_windows, n_frequencies, n_axes)</span>
-<span class="sd">        representing the power spectral density (PSD) of the sensor data.</span>
+<span class="sd">        A 2D array of shape (n_windows, n_frequencies) or 3D array of shape</span>
+<span class="sd">        (n_windows, n_frequencies, n_axes) representing the power spectral</span>
+<span class="sd">        density (PSD) of the sensor data.</span>
 <span class="sd">    fmin : float</span>
 <span class="sd">        The lower bound of the frequency band in Hz.</span>
 <span class="sd">    fmax : float</span>
@@ -251,9 +248,10 @@
 <span class="sd">    spectral_resolution : float, optional</span>
 <span class="sd">        The spectral resolution of the PSD in Hz (default: 1).</span>
 <span class="sd">    cumulative_sum_method : str, optional</span>
-<span class="sd">        The method used to integrate the PSD over the frequency band. Supported values are:</span>
-<span class="sd">        - &#39;trapz&#39;: Trapezoidal rule.</span>
-<span class="sd">        - &#39;sum&#39;: Simple summation (default: &#39;trapz&#39;).</span>
+<span class="sd">        The method used to integrate the PSD over the frequency band</span>
+<span class="sd">        (default: &#39;trapezoid&#39;). Supported values are:</span>
+<span class="sd">        - &#39;trapezoid&#39;: Trapezoidal rule.</span>
+<span class="sd">        - &#39;sum&#39;: Simple summation.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -273,14 +271,14 @@
     <span class="k">elif</span> <span class="n">psd</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
         <span class="n">masked_psd</span> <span class="o">=</span> <span class="n">psd</span><span class="p">[:,</span> <span class="n">band_mask</span><span class="p">,</span> <span class="p">:]</span>
 
-    <span class="k">if</span> <span class="n">cumulative_sum_method</span> <span class="o">==</span> <span class="s2">&quot;trapz&quot;</span><span class="p">:</span>
-        <span class="n">band_power</span> <span class="o">=</span> <span class="n">spectral_resolution</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span>
+    <span class="k">if</span> <span class="n">cumulative_sum_method</span> <span class="o">==</span> <span class="s2">&quot;trapezoid&quot;</span><span class="p">:</span>
+        <span class="n">band_power</span> <span class="o">=</span> <span class="n">spectral_resolution</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">trapezoid</span><span class="p">(</span>
             <span class="n">masked_psd</span><span class="p">,</span> <span class="n">freqs</span><span class="p">[</span><span class="n">band_mask</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
         <span class="p">)</span>
     <span class="k">elif</span> <span class="n">cumulative_sum_method</span> <span class="o">==</span> <span class="s2">&quot;sum&quot;</span><span class="p">:</span>
         <span class="n">band_power</span> <span class="o">=</span> <span class="n">spectral_resolution</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">masked_psd</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;cumulative_sum_method must be &#39;trapz&#39; or &#39;sum&#39;.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;cumulative_sum_method must be &#39;trapezoid&#39; or &#39;sum&#39;.&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">band_power</span></div>
 
@@ -290,7 +288,8 @@
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_total_power">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_total_power</span><span class="p">(</span><span class="n">psd</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compute the total power by summing the power spectral density (PSD) across frequency bins.</span>
+<span class="sd">    Compute the total power by summing the power spectral density (PSD)</span>
+<span class="sd">    across frequency bins.</span>
 
 <span class="sd">    This function calculates the total power for each window and each sensor axis by</span>
 <span class="sd">    summing the PSD values across all frequency bins.</span>
@@ -320,7 +319,10 @@
     <span class="n">fmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span>
     <span class="n">spectral_resolution</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.25</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the tremor power (1.25 Hz around the peak within the tremor frequency band)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the tremor power.</span>
+
+<span class="sd">    Tremor power is 1.25 Hz around the peak within the tremor</span>
+<span class="sd">    frequency band.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -368,10 +370,12 @@
     <span class="n">fmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compute the dominant frequency within a specified frequency range for each window and sensor axis.</span>
+<span class="sd">    Compute the dominant frequency within a specified frequency range for</span>
+<span class="sd">    each window and sensor axis.</span>
 
-<span class="sd">    The dominant frequency is defined as the frequency corresponding to the maximum power in the</span>
-<span class="sd">    power spectral density (PSD) within the specified range.</span>
+<span class="sd">    The dominant frequency is defined as the frequency corresponding to the</span>
+<span class="sd">    maximum power in the power spectral density (PSD) within the specified</span>
+<span class="sd">    range.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -389,10 +393,10 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    np.ndarray</span>
-<span class="sd">        - If `psd` is 2D: A 1D array of shape (n_windows,) containing the dominant frequency</span>
-<span class="sd">          for each window.</span>
-<span class="sd">        - If `psd` is 3D: A 2D array of shape (n_windows, n_axes) containing the dominant</span>
-<span class="sd">          frequency for each window and each axis.</span>
+<span class="sd">        - If `psd` is 2D: A 1D array of shape (n_windows,) containing the</span>
+<span class="sd">          dominant frequency for each window.</span>
+<span class="sd">        - If `psd` is 3D: A 2D array of shape (n_windows, n_axes) containing</span>
+<span class="sd">          the dominant frequency for each window and each axis.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
@@ -400,7 +404,8 @@
 <span class="sd">        If `fmin` or `fmax` is outside the bounds of the `freqs` array.</span>
 <span class="sd">        If `psd` is not a 2D or 3D array.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Set default values for fmin and fmax to the minimum and maximum frequencies if not provided</span>
+    <span class="c1"># Set default values for fmin and fmax to the minimum and maximum</span>
+    <span class="c1"># frequencies if not provided</span>
     <span class="k">if</span> <span class="n">fmin</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">fmin</span> <span class="o">=</span> <span class="n">freqs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">fmax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -448,7 +453,8 @@
     <span class="n">fmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">include_max</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract the frequency of the peak in the power spectral density within the specified frequency band.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract the frequency of the peak in the power spectral density</span>
+<span class="sd">    within the specified frequency band.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -457,9 +463,11 @@
 <span class="sd">    psd: pd.Series</span>
 <span class="sd">        The total power spectral density of the gyroscope signal</span>
 <span class="sd">    fmin: float</span>
-<span class="sd">        The lower bound of the frequency band in Hz (default: None). If not provided, the minimum frequency is used.</span>
+<span class="sd">        The lower bound of the frequency band in Hz (default: None).</span>
+<span class="sd">        If not provided, the minimum frequency is used.</span>
 <span class="sd">    fmax: float</span>
-<span class="sd">        The upper bound of the frequency band in Hz (default: None). If not provided, the maximum frequency is used.</span>
+<span class="sd">        The upper bound of the frequency band in Hz (default: None).</span>
+<span class="sd">        If not provided, the maximum frequency is used.</span>
 <span class="sd">    include_max: bool</span>
 <span class="sd">        Whether to include the maximum frequency in the search range (default: True)</span>
 
@@ -493,7 +501,8 @@
     <span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">psd</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">PulseRateConfig</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calculate relative power within the dominant frequency band in the physiological range (0.75 - 3 Hz).</span>
+<span class="sd">    Calculate relative power within the dominant frequency band in the</span>
+<span class="sd">    physiological range (0.75 - 3 Hz).</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -502,17 +511,19 @@
 <span class="sd">    psd: np.ndarray</span>
 <span class="sd">        The power spectral density of the signal.</span>
 <span class="sd">    config: PulseRateConfig</span>
-<span class="sd">        The configuration object containing the parameters for the feature extraction. The following</span>
-<span class="sd">        attributes are used:</span>
+<span class="sd">        The configuration object containing the parameters for the feature</span>
+<span class="sd">        extraction. The following attributes are used:</span>
 <span class="sd">        - freq_band_physio: tuple</span>
 <span class="sd">            The frequency band for physiological pulse rate (default: (0.75, 3)).</span>
 <span class="sd">        - bandwidth: float</span>
-<span class="sd">            The bandwidth around the peak frequency to consider for relative power calculation (default: 0.5).</span>
+<span class="sd">            The bandwidth around the peak frequency to consider for</span>
+<span class="sd">            relative power calculation (default: 0.5).</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    list</span>
-<span class="sd">        The relative power within the dominant frequency band in the physiological range (0.75 - 3 Hz).</span>
+<span class="sd">        The relative power within the dominant frequency band in the</span>
+<span class="sd">        physiological range (0.75 - 3 Hz).</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">hr_range_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">freqs</span> <span class="o">&gt;=</span> <span class="n">config</span><span class="o">.</span><span class="n">freq_band_physio</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span>
@@ -530,7 +541,7 @@
         <span class="k">for</span> <span class="n">peak_freq</span> <span class="ow">in</span> <span class="n">peak_freqs</span>
     <span class="p">]</span>
     <span class="n">rel_power</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">psd</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">idx</span><span class="p">],</span> <span class="n">freqs</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">psd</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:],</span> <span class="n">freqs</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">trapezoid</span><span class="p">(</span><span class="n">psd</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">idx</span><span class="p">],</span> <span class="n">freqs</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">trapezoid</span><span class="p">(</span><span class="n">psd</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:],</span> <span class="n">freqs</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dom_band_idx</span><span class="p">)</span>
     <span class="p">]</span>
     <span class="k">return</span> <span class="n">rel_power</span></div>
@@ -575,11 +586,13 @@
     <span class="n">rounding_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;floor&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Generate Mel Frequency Cepstral Coefficients (MFCCs) from the total power spectral density or spectrogram of the signal.</span>
+<span class="sd">    Generate Mel Frequency Cepstral Coefficients (MFCCs) from the total</span>
+<span class="sd">    power spectral density or spectrogram of the signal.</span>
 
 <span class="sd">    MFCCs are commonly used features in signal processing for tasks like audio and</span>
 <span class="sd">    vibration analysis. In this version, we adjusted the MFFCs to the human activity</span>
-<span class="sd">    range according to: https://www.sciencedirect.com/science/article/abs/pii/S016516841500331X#f0050.</span>
+<span class="sd">    range according to:</span>
+<span class="sd">    https://www.sciencedirect.com/science/article/abs/pii/S016516841500331X#f0050</span>
 <span class="sd">    This function calculates MFCCs by applying a filterbank</span>
 <span class="sd">    (in either the mel scale or linear scale) to the total power of the signal,</span>
 <span class="sd">    followed by a Discrete Cosine Transform (DCT) to obtain coefficients.</span>
@@ -587,11 +600,11 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    total_power_array : np.ndarray</span>
-<span class="sd">        2D array of shape (n_windows, n_frequencies) containing the total power</span>
-<span class="sd">        of the signal for each window.</span>
+<span class="sd">        2D array of shape (n_windows, n_frequencies) containing the total</span>
+<span class="sd">        power of the signal for each window.</span>
 <span class="sd">        OR</span>
-<span class="sd">        3D array of shape (n_windows, n_frequencies, n_segments) containing the total spectrogram</span>
-<span class="sd">        of the signal for each window.</span>
+<span class="sd">        3D array of shape (n_windows, n_frequencies, n_segments) containing</span>
+<span class="sd">        the total spectrogram of the signal for each window.</span>
 <span class="sd">    config : object</span>
 <span class="sd">        Configuration object containing the following attributes:</span>
 <span class="sd">        - window_length_s : int</span>
@@ -607,14 +620,16 @@
 <span class="sd">        - mfcc_n_coefficients : int</span>
 <span class="sd">            Number of coefficients to extract (default: 12).</span>
 <span class="sd">    total_power_type : str, optional</span>
-<span class="sd">        The type of the total power array. Supported values are &#39;psd&#39; and &#39;spectrogram&#39; (default: &#39;psd&#39;).</span>
+<span class="sd">        The type of the total power array. Supported values are &#39;psd&#39; and</span>
+<span class="sd">        &#39;spectrogram&#39; (default: &#39;psd&#39;).</span>
 <span class="sd">    mel_scale : bool, optional</span>
 <span class="sd">        Whether to use the mel scale for the filterbank (default: True).</span>
 <span class="sd">    multiplication_factor : float, optional</span>
-<span class="sd">        Multiplication factor for the Mel scale conversion (default: 1). For tremor, the recommended</span>
-<span class="sd">        value is 1. For gait, this is 4.</span>
+<span class="sd">        Multiplication factor for the Mel scale conversion (default: 1).</span>
+<span class="sd">        For tremor, the recommended value is 1. For gait, this is 4.</span>
 <span class="sd">    rounding_method : str, optional</span>
-<span class="sd">        The method used to round the filter points. Supported values are &#39;round&#39; and &#39;floor&#39; (default: &#39;floor&#39;).</span>
+<span class="sd">        The method used to round the filter points. Supported values are</span>
+<span class="sd">        &#39;round&#39; and &#39;floor&#39; (default: &#39;floor&#39;).</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -727,8 +742,8 @@
 <span class="sd">    x : np.ndarray</span>
 <span class="sd">        Linear frequency values to be converted to the Mel scale.</span>
 <span class="sd">    multiplication_factor : float, optional</span>
-<span class="sd">        Multiplication factor for the Mel scale conversion (default: 1). For tremor, the recommended</span>
-<span class="sd">        value is 1. For gait, this is 4.</span>
+<span class="sd">        Multiplication factor for the Mel scale conversion (default: 1).</span>
+<span class="sd">        For tremor, the recommended value is 1. For gait, this is 4.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -748,7 +763,8 @@
 <span class="sd">    Maps values from the Mel scale back to linear frequencies.</span>
 
 <span class="sd">    This function performs the inverse transformation of the Mel scale,</span>
-<span class="sd">    converting perceptual frequency values to their corresponding linear frequency values.</span>
+<span class="sd">    converting perceptual frequency values to their corresponding linear</span>
+<span class="sd">    frequency values.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -810,7 +826,8 @@
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_angle">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_angle</span><span class="p">(</span><span class="n">time_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">velocity_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compute the angle from the angular velocity using cumulative trapezoidal integration.</span>
+<span class="sd">    Compute the angle from the angular velocity using cumulative</span>
+<span class="sd">    trapezoidal integration.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -822,7 +839,8 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    np.ndarray</span>
-<span class="sd">        The estimated angle based on the cumulative trapezoidal integration of the angular velocity.</span>
+<span class="sd">        The estimated angle based on the cumulative trapezoidal integration</span>
+<span class="sd">        of the angular velocity.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Perform integration and apply absolute value</span>
     <span class="n">angle_array</span> <span class="o">=</span> <span class="n">cumulative_trapezoid</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">velocity_array</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">time_array</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -865,7 +883,7 @@
     <span class="n">angle_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">sampling_frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">max_frequency_activity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.75</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extract extrema (minima and maxima) indices from the angle array.</span>
 
@@ -957,7 +975,7 @@
 <div class="viewcode-block" id="compute_range_of_motion">
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_range_of_motion">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_range_of_motion</span><span class="p">(</span>
-    <span class="n">angle_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">extrema_indices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">angle_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">extrema_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the range of motion of a time series based on the angle extrema.</span>
@@ -998,7 +1016,7 @@
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_peak_angular_velocity">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_peak_angular_velocity</span><span class="p">(</span>
     <span class="n">velocity_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">angle_extrema_indices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">angle_extrema_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the peak angular velocity of a time series based on the angle extrema.</span>
@@ -1043,10 +1061,10 @@
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_forward_backward_peak_angular_velocity">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_forward_backward_peak_angular_velocity</span><span class="p">(</span>
     <span class="n">velocity_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">angle_extrema_indices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
-    <span class="n">minima_indices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
-    <span class="n">maxima_indices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="n">angle_extrema_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">minima_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">maxima_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the peak angular velocity of a time series based on the angle extrema.</span>
 
@@ -1064,7 +1082,8 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    Tuple[np.ndarray, np.ndarray]</span>
-<span class="sd">        A tuple containing the forward and backward peak angular velocities for minima and maxima.</span>
+<span class="sd">        A tuple containing the forward and backward peak angular velocities</span>
+<span class="sd">        for minima and maxima.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">angle_extrema_indices</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span>
         <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">angle_extrema_indices</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">velocity_array</span><span class="p">)</span>
@@ -1091,7 +1110,8 @@
         <span class="n">next_peak_idx</span> <span class="o">=</span> <span class="n">angle_extrema_indices</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
         <span class="n">segment</span> <span class="o">=</span> <span class="n">velocity_array</span><span class="p">[</span><span class="n">current_peak_idx</span><span class="p">:</span><span class="n">next_peak_idx</span><span class="p">]</span>
 
-        <span class="c1"># Check if the current peak is a minimum or maximum and calculate peak velocity accordingly</span>
+        <span class="c1"># Check if the current peak is a minimum or maximum and</span>
+        <span class="c1"># calculate peak velocity accordingly</span>
         <span class="k">if</span> <span class="n">current_peak_idx</span> <span class="ow">in</span> <span class="n">minima_indices</span><span class="p">:</span>
             <span class="n">forward_pav</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">segment</span><span class="p">)))</span>
         <span class="k">elif</span> <span class="n">current_peak_idx</span> <span class="ow">in</span> <span class="n">maxima_indices</span><span class="p">:</span>
@@ -1134,8 +1154,14 @@
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.compute_auto_correlation">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_auto_correlation</span><span class="p">(</span><span class="n">ppg_windowed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compute the biased autocorrelation of the PPG signal. The autocorrelation is computed up to 3 seconds. The highest peak value is selected as the autocorrelation value. If no peaks are found, the value is set to 0.</span>
-<span class="sd">    The biased autocorrelation is computed using the biased_autocorrelation function. It differs from the unbiased autocorrelation in that the normalization factor is the length of the original signal, and boundary effects are considered. This results in a smoother autocorrelation function.</span>
+<span class="sd">    Compute the biased autocorrelation of the PPG signal. The autocorrelation</span>
+<span class="sd">    is computed up to 3 seconds. The highest peak value is selected as the</span>
+<span class="sd">    autocorrelation value. If no peaks are found, the value is set to 0.</span>
+<span class="sd">    The biased autocorrelation is computed using the biased_autocorrelation</span>
+<span class="sd">    function. It differs from the unbiased autocorrelation in that the</span>
+<span class="sd">    normalization factor is the length of the original signal, and boundary</span>
+<span class="sd">    effects are considered. This results in a smoother autocorrelation</span>
+<span class="sd">    function.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -1150,18 +1176,16 @@
 <span class="sd">        The autocorrelation of the PPG signal.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">auto_correlations</span> <span class="o">=</span> <span class="n">biased_autocorrelation</span><span class="p">(</span>
-        <span class="n">ppg_windowed</span><span class="p">,</span> <span class="n">fs</span> <span class="o">*</span> <span class="mi">3</span>
-    <span class="p">)</span>  <span class="c1"># compute the biased autocorrelation of the PPG signal up to 3 seconds</span>
-    <span class="n">peaks</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">find_peaks</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">auto_correlations</span>
-    <span class="p">]</span>  <span class="c1"># find the peaks of the autocorrelation</span>
+    <span class="c1"># Compute the biased autocorrelation of the PPG signal up to 3 seconds</span>
+    <span class="n">auto_correlations</span> <span class="o">=</span> <span class="n">biased_autocorrelation</span><span class="p">(</span><span class="n">ppg_windowed</span><span class="p">,</span> <span class="n">fs</span> <span class="o">*</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="c1"># Find the peaks of the autocorrelation</span>
+    <span class="n">peaks</span> <span class="o">=</span> <span class="p">[</span><span class="n">find_peaks</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">auto_correlations</span><span class="p">]</span>
+    <span class="c1"># Sort the peak values in descending order</span>
     <span class="n">sorted_peak_values</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">auto_correlations</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">indices</span><span class="p">])[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">indices</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">peaks</span><span class="p">)</span>
-    <span class="p">]</span>  <span class="c1"># sort the peak values in descending order</span>
-    <span class="n">auto_correlations</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sorted_peak_values</span>
-    <span class="p">]</span>  <span class="c1"># get the highest peak value if there are any peaks, otherwise set to 0</span>
+    <span class="p">]</span>
+    <span class="c1"># Get the highest peak value if there are any peaks, otherwise set to 0</span>
+    <span class="n">auto_correlations</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sorted_peak_values</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">auto_correlations</span><span class="p">)</span></div>
 
@@ -1171,8 +1195,9 @@
 <a class="viewcode-back" href="../../autoapi/paradigma/feature_extraction/index.html#paradigma.feature_extraction.biased_autocorrelation">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">biased_autocorrelation</span><span class="p">(</span><span class="n">ppg_windowed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">max_lag</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compute the biased autocorrelation of a signal (similar to matlabs autocorr function), where the normalization factor</span>
-<span class="sd">    is the length of the original signal, and boundary effects are considered.</span>
+<span class="sd">    Compute the biased autocorrelation of a signal (similar to matlab&#39;s</span>
+<span class="sd">    autocorr function), where the normalization factor is the length of the</span>
+<span class="sd">    original signal, and boundary effects are considered.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -1190,15 +1215,17 @@
     <span class="n">zero_mean_ppg</span> <span class="o">=</span> <span class="n">ppg_windowed</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
         <span class="n">ppg_windowed</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>  <span class="c1"># Remove the mean of the signal to make it zero-mean</span>
-    <span class="n">N</span> <span class="o">=</span> <span class="n">zero_mean_ppg</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">n_samples</span> <span class="o">=</span> <span class="n">zero_mean_ppg</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">autocorr_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">zero_mean_ppg</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">max_lag</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
 
     <span class="k">for</span> <span class="n">lag</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_lag</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
         <span class="c1"># Compute autocorrelation for current lag</span>
-        <span class="n">overlapping_points</span> <span class="o">=</span> <span class="n">zero_mean_ppg</span><span class="p">[:,</span> <span class="p">:</span> <span class="n">N</span> <span class="o">-</span> <span class="n">lag</span><span class="p">]</span> <span class="o">*</span> <span class="n">zero_mean_ppg</span><span class="p">[:,</span> <span class="n">lag</span><span class="p">:]</span>
+        <span class="n">overlapping_points</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">zero_mean_ppg</span><span class="p">[:,</span> <span class="p">:</span> <span class="n">n_samples</span> <span class="o">-</span> <span class="n">lag</span><span class="p">]</span> <span class="o">*</span> <span class="n">zero_mean_ppg</span><span class="p">[:,</span> <span class="n">lag</span><span class="p">:]</span>
+        <span class="p">)</span>
         <span class="n">autocorr_values</span><span class="p">[:,</span> <span class="n">lag</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">overlapping_points</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">N</span>
-        <span class="p">)</span>  <span class="c1"># Divide by N (biased normalization)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">overlapping_points</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_samples</span>
+        <span class="p">)</span>  <span class="c1"># Divide by n_samples (biased normalization)</span>
 
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">autocorr_values</span> <span class="o">/</span> <span class="n">autocorr_values</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>

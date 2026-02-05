@@ -47,17 +47,13 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="_static/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">User guides</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
@@ -109,41 +105,65 @@
 <ol class="arabic simple" start="5">
 <li><p>Pulse rate aggregation</p></li>
 </ol>
+<section id="import-required-modules">
+<h2>Import required modules<a class="headerlink" href="#import-required-modules" title="Link to this heading"></a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>import json
+from importlib.resources import files
+from pathlib import Path
+
+import pandas as pd
+import tsdf
+
+from paradigma.classification import ClassifierPackage
+from paradigma.config import IMUConfig, PPGConfig, PulseRateConfig
+from paradigma.constants import DataColumns
+from paradigma.pipelines.pulse_rate_pipeline import (
+    aggregate_pulse_rate,
+    estimate_pulse_rate,
+    extract_signal_quality_features,
+    signal_quality_classification,
+)
+from paradigma.preprocessing import preprocess_ppg_data
+from paradigma.util import load_tsdf_dataframe, write_df_data
+</pre></div>
+</div>
+</div>
+</div>
+</section>
 <section id="load-data">
 <h2>Load data<a class="headerlink" href="#load-data" title="Link to this heading"></a></h2>
 <p>This pipeline requires PPG data and can be enhanced with accelerometer data (optional). Here, we start by loading a single contiguous time series (segment), for which we continue running steps 1-4. Below we show how to run these steps for multiple segments. The channel <code class="docutils literal notranslate"><span class="pre">green</span></code> represents the values obtained with PPG using green light.</p>
-<p>In this example we use the interally developed <code class="docutils literal notranslate"><span class="pre">TSDF</span></code> (<a class="reference external" href="https://biomarkersparkinson.github.io/tsdf/">documentation</a>) to load and store data [<a class="reference external" href="https://arxiv.org/abs/2211.11294">1</a>]. However, we are aware that there are other common data formats. For example, the following functions can be used depending on the file extension of the data:</p>
+<p>In this example we use the internally developed <code class="docutils literal notranslate"><span class="pre">TSDF</span></code> (<a class="reference external" href="https://biomarkersparkinson.github.io/tsdf/">documentation</a>) to load and store data [<a class="reference external" href="https://arxiv.org/abs/2211.11294">1</a>]. However, we are aware that there are other common data formats. For example, the following functions can be used depending on the file extension of the data:</p>
 <ul class="simple">
 <li><p><em>.csv</em>: <code class="docutils literal notranslate"><span class="pre">pandas.read_csv()</span></code> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html">documentation</a>)</p></li>
 <li><p><em>.json</em>: <code class="docutils literal notranslate"><span class="pre">json.load()</span></code> (<a class="reference external" href="https://docs.python.org/3/library/json.html#json.load">documentation</a>)</p></li>
 </ul>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from pathlib import Path
-from paradigma.util import load_tsdf_dataframe
-
-# Set the path to where the prepared data is saved and load the data.
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Set the path to where the prepared data is saved and load the data.
 # Note: the test data is stored in TSDF, but you can load your data in your own way
-path_to_prepared_data =  Path(&#39;../../example_data&#39;)
+path_to_prepared_data =  Path(&#39;../../example_data/verily&#39;)
 
 ppg_prefix = &#39;ppg&#39;
 imu_prefix = &#39;imu&#39;
 
-segment_nr = &#39;0001&#39; 
+segment_nr = &#39;0001&#39;
 
 df_ppg, metadata_time_ppg, metadata_values_ppg = load_tsdf_dataframe(
-    path_to_data=path_to_prepared_data / ppg_prefix, 
+    path_to_data=path_to_prepared_data / ppg_prefix,
     prefix=f&#39;PPG_segment{segment_nr}&#39;
 )
 
 # Only relevant if you have IMU data available
 df_imu, metadata_time_imu, metadata_values_imu = load_tsdf_dataframe(
-    path_to_data=path_to_prepared_data / imu_prefix, 
+    path_to_data=path_to_prepared_data / imu_prefix,
     prefix=f&#39;IMU_segment{segment_nr}&#39;
 )
 
-time_col = [&#39;time&#39;] # define time column to keep
-acc_cols = [&#39;accelerometer_x&#39;, &#39;accelerometer_y&#39;, &#39;accelerometer_z&#39;] # define accelerometer columns to keep
+time_col = [&#39;time&#39;]
+acc_cols = [&#39;accelerometer_x&#39;, &#39;accelerometer_y&#39;, &#39;accelerometer_z&#39;]
 df_acc = df_imu[time_col + acc_cols]
 
 display(df_ppg, df_acc)
@@ -154,15 +174,11 @@ display(df_ppg, df_acc)
 </section>
 <section id="step-1-preprocess-data">
 <h2>Step 1: Preprocess data<a class="headerlink" href="#step-1-preprocess-data" title="Link to this heading"></a></h2>
-<p>The first step after loading the data is preprocessing using the <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_ppg_data">preprocess_ppg_data</a>. This begins by isolating segments containing both PPG and IMU data, discarding portions where one modality (e.g., PPG) extends beyond the other, such as when the PPG recording is longer than the accelerometer data. This functionality requires the starting times (<code class="docutils literal notranslate"><span class="pre">metadata_time_ppg.start_iso8601</span></code> and <code class="docutils literal notranslate"><span class="pre">metadata_time_imu.start_iso8601</span></code>) in iso8601 format as inputs. After this step, the preprocess_ppg_data function resamples the PPG and accelerometer data to uniformly distributed timestamps, addressing the fixed but non-uniform sampling rates of the sensors. After this, a bandpass Butterworth filter (4th-order, bandpass frequencies: 0.4–3.5 Hz) is applied to the PPG signal, while a high-pass Butterworth filter (4th-order, cut-off frequency: 0.2 Hz) is applied to the accelerometer data.</p>
+<p>The first step after loading the data is preprocessing using the <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.preprocess_ppg_data">preprocess_ppg_data</a>. This begins by isolating segments containing both PPG and IMU data, discarding portions where one modality (e.g., PPG) extends beyond the other, such as when the PPG recording is longer than the accelerometer data. This functionality requires the starting times (<code class="docutils literal notranslate"><span class="pre">metadata_time_ppg.start_iso8601</span></code> and <code class="docutils literal notranslate"><span class="pre">metadata_time_imu.start_iso8601</span></code>) in iso8601 format as inputs. After this step, the preprocess_ppg_data function resamples the PPG and accelerometer data to uniformly distributed timestamps, addressing the fixed but non-uniform sampling rates of the sensors. If the difference between timestamps is larger than a specified tolerance (<code class="docutils literal notranslate"><span class="pre">config.tolerance</span></code>, in seconds), it will return an error that the timestamps are not contiguous.  If you still want to process the data in this case, you can create segments from discontiguous samples using the function <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/segmenting/index.html#paradigma.segmenting.create_segments"><code class="docutils literal notranslate"><span class="pre">create_segments</span></code></a> and analyze these segments consecutively as shown in here. After resampling, a bandpass Butterworth filter (4th-order, bandpass frequencies: 0.4–3.5 Hz) is applied to the PPG signal, while a high-pass Butterworth filter (4th-order, cut-off frequency: 0.2 Hz) is applied to the accelerometer data.</p>
 <p>Note: the printed shapes are (rows, columns) with each row corresponding to a single data point and each column representing a data column (e.g.time). The number of rows of the overlapping segments of PPG and accelerometer are not the same due to sampling differences (other sensors and possibly other sampling frequencies).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from paradigma.config import PPGConfig, IMUConfig
-from paradigma.constants import DataColumns
-from paradigma.preprocessing import preprocess_ppg_data
-
-# Set column names: replace DataColumn.* with your actual column names. 
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Set column names: replace DataColumn.* with your actual column names.
 # It is only necessary to set the columns that are present in your data, and
 # only if they differ from the default names defined in DataColumns.
 imu_column_mapping = {
@@ -180,8 +196,15 @@ ppg_column_mapping = {
 ppg_config = PPGConfig(column_mapping=ppg_column_mapping)
 imu_config = IMUConfig(column_mapping=imu_column_mapping)
 
-print(f&#39;The tolerance for checking contiguous timestamps is set to {ppg_config.tolerance:.3f} seconds for PPG data and {imu_config.tolerance:.3f} seconds for accelerometer data.&#39;)
-print(f&quot;Original data shapes:\n- PPG data: {df_ppg.shape}\n- Accelerometer data: {df_imu.shape}&quot;)
+print(
+    f&quot;The tolerance for checking contiguous timestamps is set to &quot;
+    f&quot;{ppg_config.tolerance:.3f} seconds for PPG data and &quot;
+    f&quot;{imu_config.tolerance:.3f} seconds for accelerometer data.&quot;
+)
+print(
+    f&quot;Original data shapes:\n- PPG data: {df_ppg.shape}\n&quot;
+    f&quot;- Accelerometer data: {df_imu.shape}&quot;
+)
 df_ppg_proc, df_acc_proc = preprocess_ppg_data(
     df_ppg=df_ppg,
     ppg_config=ppg_config,
@@ -191,7 +214,8 @@ df_ppg_proc, df_acc_proc = preprocess_ppg_data(
     start_time_imu=metadata_time_imu.start_iso8601  # Optional
 )
 
-print(f&quot;Overlapping preprocessed data shapes:\n- PPG data: {df_ppg_proc.shape}\n- Accelerometer data: {df_acc_proc.shape}&quot;)
+print(f&quot;Overlapping preprocessed data shapes:\n- PPG data: {df_ppg_proc.shape}\n&quot;
+      f&quot;- Accelerometer data: {df_acc_proc.shape}&quot;)
 display(df_ppg_proc, df_acc_proc)
 </pre></div>
 </div>
@@ -201,14 +225,11 @@ display(df_ppg_proc, df_acc_proc)
 <section id="step-2-extract-signal-quality-features">
 <h2>Step 2: Extract signal quality features<a class="headerlink" href="#step-2-extract-signal-quality-features" title="Link to this heading"></a></h2>
 <p>The preprocessed data is windowed into overlapping windows of length <code class="docutils literal notranslate"><span class="pre">ppg_config.window_length_s</span></code> with a window step of <code class="docutils literal notranslate"><span class="pre">ppg_config.window_step_length_s</span></code>. From the PPG windows, 10 time- and frequency domain features are extracted to assess PPG morphology. In case of using the accelerometer data (optional),  one relative power feature is calculated per window to assess periodic motion artifacts.</p>
-<p>The detailed steps are encapsulated in <code class="docutils literal notranslate"><span class="pre">extract_signal_quality_features</span></code> (documentation can be found <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=extract_signal_quality_features">here</a>).</p>
+<p>The detailed steps are encapsulated in <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.extract_signal_quality_features"><code class="docutils literal notranslate"><span class="pre">extract_signal_quality_features</span></code></a>.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from paradigma.config import PulseRateConfig
-from paradigma.pipelines.pulse_rate_pipeline import extract_signal_quality_features
-
-pulse_rate_ppg_config = PulseRateConfig(
-    sensor=&#39;ppg&#39;, 
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>pulse_rate_ppg_config = PulseRateConfig(
+    sensor=&#39;ppg&#39;,
     ppg_sampling_frequency=ppg_config.sampling_frequency,
 )
 
@@ -218,10 +239,13 @@ pulse_rate_acc_config = PulseRateConfig(
     accelerometer_colnames=imu_config.accelerometer_colnames,
 )
 
-print(&quot;The default window length for the signal quality feature extraction is set to&quot;, pulse_rate_ppg_config.window_length_s, &quot;seconds.&quot;)
-print(&quot;The default step size for the signal quality feature extraction is set to&quot;, pulse_rate_ppg_config.window_step_length_s, &quot;seconds.&quot;)
+print(&quot;The default window length for the signal quality feature extraction is &quot;
+      f&quot;set to {pulse_rate_ppg_config.window_length_s} seconds.&quot;)
+print(&quot;The default step size for the signal quality feature extraction is &quot;
+      f&quot;set to {pulse_rate_ppg_config.window_step_length_s} seconds.&quot;)
 
-# Remove optional arguments if you don&#39;t have accelerometer data (set to None or remove arguments)
+# Remove optional arguments if you don&#39;t have accelerometer data
+# (set to None or remove arguments)
 df_features = extract_signal_quality_features(
     df_ppg=df_ppg_proc,
     df_acc=df_acc_proc,
@@ -239,29 +263,32 @@ display(df_features)
 <h2>Step 3: Signal quality classification<a class="headerlink" href="#step-3-signal-quality-classification" title="Link to this heading"></a></h2>
 <p>A trained logistic classifier is used to predict PPG signal quality and returns the <code class="docutils literal notranslate"><span class="pre">pred_sqa_proba</span></code>, which is the posterior probability of a PPG window to look like the typical PPG morphology (higher probability indicates toward the typical PPG morphology).<br />
 If accelerometer is used, the relative power feature from the accelerometer is compared to a threshold for periodic artifacts and therefore <code class="docutils literal notranslate"><span class="pre">pred_sqa_acc_label</span></code> is used to return a label indicating predicted periodic motion artifacts (label 0) or no periodic motion artifacts (label 1).</p>
-<p>The classification step is implemented in <code class="docutils literal notranslate"><span class="pre">signal_quality_classification</span></code> (documentation can be found <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=signal_quality_classification">here</a>).</p>
+<p>The classification step is implemented in <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.signal_quality_classification"><code class="docutils literal notranslate"><span class="pre">signal_quality_classification</span></code></a>.</p>
 <p><u><strong><em>Note on scale sensitivity</em></strong></u><br />
 The PPG sensor used for developing this pipeline records in arbitrary units. Some features are scale sensitive and require rescaling when applying the pipeline to other datasets or PPG sensors.<br />
 In this pipeline, the logistic classifier for PPG morphology was trained on z-scored features, using the means (μ) and standard deviations (σ) from the Personalized Parkinson Project training set (documentation of the training set can be found in the Signal Quality Assessment section <a class="reference external" href="https://www.medrxiv.org/content/10.1101/2025.08.15.25333751v1.full-text">here</a>). These μ and σ values are stored in the <code class="docutils literal notranslate"><span class="pre">ppg_quality_classifier_package</span></code>. When applying the code to another dataset, users are advised to recalculate <strong><em>μ</em></strong> and <strong><em>σ</em></strong> for each feature on their (training) data and update the classifier package accordingly. Example code to recalculate the <strong><em>μ</em></strong> and <strong><em>σ</em></strong> can be found in the code cell below and in section 7.3.1. <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#standardization-or-mean-removal-and-variance-scaling">here</a>.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from importlib.resources import files
-from paradigma.classification import ClassifierPackage
-from paradigma.pipelines.pulse_rate_pipeline import signal_quality_classification
-
-config = PulseRateConfig()
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>config = PulseRateConfig()
 
 ppg_quality_classifier_package_filename = &#39;ppg_quality_clf_package.pkl&#39;
-full_path_to_classifier_package = files(&#39;paradigma&#39;) / &#39;assets&#39; / ppg_quality_classifier_package_filename
+full_path_to_classifier_package = (
+    files(&#39;paradigma&#39;)
+    / &#39;assets&#39;
+    / ppg_quality_classifier_package_filename
+)
 
 # Load the classifier package
 clf_package = ClassifierPackage.load(full_path_to_classifier_package)
 
-# If you use a different sensor or dataset, you have to update the classifier package with the mu and sigma calculated on your training data.
+# If you use a different sensor or dataset, you have to update the classifier
+# package with the mu and sigma calculated on your training data.
 # Example code to recalculate the mean and std to update the clf_package:
 # import numpy as np
-# x_train = np.random.rand(100, 10) # create random x_train for demonstration purposes, 100 samples and 10 features
-# clf_package.update_scaler(x_train) 
+
+# # create random x_train for demonstration purposes, 100 samples and 10 features
+# x_train = np.random.rand(100, 10)
+# clf_package.update_scaler(x_train)
 
 df_sqa = signal_quality_classification(
     df=df_features,
@@ -279,14 +306,17 @@ df_sqa
 <p>The predicted probabilities (and optionally other features) can be stored and loaded in TSDF as demonstrated below.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>import tsdf
-from paradigma.util import write_df_data
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Set &#39;path_to_data&#39; to the directory where you want to save the data
+metadata_time_store = tsdf.TSDFMetadata(
+    metadata_time_ppg.get_plain_tsdf_dict_copy(),
+    path_to_prepared_data
+)
+metadata_values_store = tsdf.TSDFMetadata(
+    metadata_values_ppg.get_plain_tsdf_dict_copy(),
+    path_to_prepared_data
+)
 
-# Set &#39;path_to_data&#39; to the directory where you want to save the data
-metadata_time_store = tsdf.TSDFMetadata(metadata_time_ppg.get_plain_tsdf_dict_copy(), path_to_prepared_data)
-metadata_values_store = tsdf.TSDFMetadata(metadata_values_ppg.get_plain_tsdf_dict_copy(), path_to_prepared_data)
-
-# Select the columns to be saved 
+# Select the columns to be saved
 metadata_time_store.channels = [&#39;time&#39;]
 metadata_values_store.channels = [&#39;pred_sqa_proba&#39;, &#39;pred_sqa_acc_label&#39;]
 
@@ -304,14 +334,23 @@ time_store_filename = meta_store_filename.replace(&#39;_meta.json&#39;, &#39;_ti
 metadata_values_store.file_name = values_store_filename
 metadata_time_store.file_name = time_store_filename
 
-write_df_data(metadata_time_store, metadata_values_store, path_to_prepared_data, meta_store_filename, df_sqa)
+write_df_data(
+    metadata_time_store,
+    metadata_values_store,
+    path_to_prepared_data,
+    meta_store_filename,
+    df_sqa
+)
 </pre></div>
 </div>
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>df_sqa, _, _ = load_tsdf_dataframe(path_to_prepared_data, prefix=f&#39;segment{segment_nr}&#39;)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>df_sqa, _, _ = load_tsdf_dataframe(
+    path_to_prepared_data,
+    prefix=f&#39;segment{segment_nr}&#39;
+)
 df_sqa.head()
 </pre></div>
 </div>
@@ -321,17 +360,18 @@ df_sqa.head()
 </section>
 <section id="step-4-pulse-rate-estimation">
 <h2>Step 4: Pulse rate estimation<a class="headerlink" href="#step-4-pulse-rate-estimation" title="Link to this heading"></a></h2>
-<p>For pulse rate estimation, we extract segments of <code class="docutils literal notranslate"><span class="pre">config.tfd_length</span></code> using <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=estimate_pulse_rate">estimate_pulse_rate</a>. We calculate the smoothed-pseudo Wigner-Ville Distribution (SPWVD) to obtain the frequency content of the PPG signal over time. We extract for every timestamp in the SPWVD the frequency with the highest power. For every non-overlapping 2 s window we average the corresponding frequencies to obtain a pulse rate per window.</p>
+<p>For pulse rate estimation, we extract segments of <code class="docutils literal notranslate"><span class="pre">config.tfd_length</span></code> using <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.estimate_pulse_rate">estimate_pulse_rate</a>. We calculate the smoothed-pseudo Wigner-Ville Distribution (SPWVD) to obtain the frequency content of the PPG signal over time. We extract for every timestamp in the SPWVD the frequency with the highest power. For every non-overlapping 2 s window we average the corresponding frequencies to obtain a pulse rate per window.</p>
 <p>Note: for the test data we set the tfd_length to 10 s instead of the default of 30 s, because the small PPP test data doesn’t have 30 s of consecutive high-quality PPG data.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from paradigma.pipelines.pulse_rate_pipeline import estimate_pulse_rate
-
-print(&quot;The standard default minimal window length for the pulse rate extraction is set to&quot;, pulse_rate_ppg_config.tfd_length, &quot;seconds.&quot;)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>print(
+    &quot;The standard default minimal window length for the pulse rate &quot;
+    &quot;extraction is set to&quot;, pulse_rate_ppg_config.tfd_length, &quot;seconds.&quot;
+)
 
 df_pr = estimate_pulse_rate(
-    df_sqa=df_sqa, 
-    df_ppg_preprocessed=df_ppg_proc, 
+    df_sqa=df_sqa,
+    df_ppg_preprocessed=df_ppg_proc,
     config=pulse_rate_ppg_config
 )
 
@@ -345,24 +385,19 @@ df_pr
 <p>If your data is also stored in multiple segments, you can modify <code class="docutils literal notranslate"><span class="pre">segments</span></code> in the cell below to a list of the filenames of your respective segmented data.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>import pandas as pd
-from pathlib import Path
-from importlib.resources import files
-
-from paradigma.util import load_tsdf_dataframe
-from paradigma.config import PPGConfig, IMUConfig, PulseRateConfig
-from paradigma.preprocessing import preprocess_ppg_data
-from paradigma.pipelines.pulse_rate_pipeline import extract_signal_quality_features, signal_quality_classification, estimate_pulse_rate
-
-# Set the path to where the prepared data is saved
-path_to_prepared_data =  Path(&#39;../../example_data&#39;)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Set the path to where the prepared data is saved
+path_to_prepared_data =  Path(&#39;../../example_data/verily&#39;)
 
 ppg_prefix = &#39;ppg&#39;
 imu_prefix = &#39;imu&#39;
 
 # Set the path to the classifier package
 ppg_quality_classifier_package_filename = &#39;ppg_quality_clf_package.pkl&#39;
-full_path_to_classifier_package = files(&#39;paradigma&#39;) / &#39;assets&#39; / ppg_quality_classifier_package_filename
+full_path_to_classifier_package = (
+    files(&#39;paradigma&#39;)
+    / &#39;assets&#39;
+    / ppg_quality_classifier_package_filename
+)
 
 # Create a list of dataframes to store the estimated pulse rates of all segments
 list_df_pr = []
@@ -370,15 +405,15 @@ list_df_pr = []
 segments = [&#39;0001&#39;, &#39;0002&#39;] # list with all available segments
 
 for segment_nr in segments:
-    
+
     # Load the data
     df_ppg, metadata_time_ppg, _ = load_tsdf_dataframe(
-        path_to_data=path_to_prepared_data / ppg_prefix, 
+        path_to_data=path_to_prepared_data / ppg_prefix,
         prefix=f&#39;PPG_segment{segment_nr}&#39;
     )
     df_imu, metadata_time_imu, _ = load_tsdf_dataframe(
-        path_to_data=path_to_prepared_data / imu_prefix, 
-        prefix=f&#39;IMU_segment{segment_nr}&#39;   
+        path_to_data=path_to_prepared_data / imu_prefix,
+        prefix=f&#39;IMU_segment{segment_nr}&#39;
     )
 
     # Drop the gyroscope columns from the IMU data
@@ -391,10 +426,10 @@ for segment_nr in segments:
     imu_config = IMUConfig()
 
     df_ppg_proc, df_acc_proc = preprocess_ppg_data(
-        df_ppg=df_ppg, 
-        df_acc=df_acc, 
-        ppg_config=ppg_config, 
-        imu_config=imu_config, 
+        df_ppg=df_ppg,
+        df_acc=df_acc,
+        ppg_config=ppg_config,
+        imu_config=imu_config,
         start_time_ppg=metadata_time_ppg.start_iso8601,
         start_time_imu=metadata_time_imu.start_iso8601
     )
@@ -413,21 +448,21 @@ for segment_nr in segments:
     df_features = extract_signal_quality_features(
         df_ppg=df_ppg_proc,
         df_acc=df_acc_proc,
-        ppg_config=ppg_config, 
-        acc_config=acc_config, 
+        ppg_config=ppg_config,
+        acc_config=acc_config,
     )
-    
+
     # 3: Signal quality classification
     df_sqa = signal_quality_classification(
-        df=df_features, 
-        config=ppg_config, 
+        df=df_features,
+        config=ppg_config,
         clf_package=clf_package
     )
 
     # 4: Estimate pulse rate
     df_pr = estimate_pulse_rate(
-        df_sqa=df_sqa, 
-        df_ppg_preprocessed=df_ppg_proc, 
+        df_sqa=df_sqa,
+        df_ppg_preprocessed=df_ppg_proc,
         config=ppg_config
     )
 
@@ -444,19 +479,16 @@ df_pr = pd.concat(list_df_pr, ignore_index=True)
 </section>
 <section id="step-5-pulse-rate-aggregation">
 <h2>Step 5: Pulse rate aggregation<a class="headerlink" href="#step-5-pulse-rate-aggregation" title="Link to this heading"></a></h2>
-<p>The final step is to aggregate all 2 s pulse rate estimates using <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/pulse_rate_pipeline.py#:~:text=aggregate_pulse_rate">aggregate_pulse_rate</a>. In the current example, the mode and 99th percentile are calculated. We hypothesize that the mode gives representation of the resting pulse rate while the 99th percentile indicates the maximum pulse rate. In Parkinson’s disease, we expect that these two measures could reflect autonomic (dys)functioning. The <code class="docutils literal notranslate"><span class="pre">nr_pr_est</span></code> in the metadata indicates based on how many 2 s windows these aggregates are determined.</p>
+<p>The final step is to aggregate all 2 s pulse rate estimates using <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.aggregate_pulse_rate">aggregate_pulse_rate</a>. In the current example, the mode and 99th percentile are calculated. We hypothesize that the mode gives representation of the resting pulse rate while the 99th percentile indicates the maximum pulse rate. In Parkinson’s disease, we expect that these two measures could reflect autonomic (dys)functioning. The <code class="docutils literal notranslate"><span class="pre">nr_pr_est</span></code> in the metadata indicates based on how many 2 s windows these aggregates are determined.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>import pprint
-from paradigma.pipelines.pulse_rate_pipeline import aggregate_pulse_rate
-
-pr_values = df_pr[&#39;pulse_rate&#39;].values
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>pr_values = df_pr[&#39;pulse_rate&#39;].values
 df_pr_agg = aggregate_pulse_rate(
-    pr_values=pr_values, 
+    pr_values=pr_values,
     aggregates = [&#39;mode&#39;, &#39;99p&#39;]
 )
 
-pprint.pprint(df_pr_agg)
+print(json.dumps(df_pr_agg, indent=2))
 </pre></div>
 </div>
 </div>

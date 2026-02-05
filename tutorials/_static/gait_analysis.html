@@ -25,9 +25,7 @@
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
-    <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Tremor analysis" href="tremor_analysis.html" />
-    <link rel="prev" title="Data preparation" href="data_preparation.html" /> 
+    <link rel="search" title="Search" href="../../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -49,33 +47,13 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Gait analysis</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#load-data">Load data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#step-1-preprocess-data">Step 1: Preprocess data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#step-2-extract-gait-features">Step 2: Extract gait features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#step-3-gait-detection">Step 3: Gait detection</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#store-as-tsdf">Store as TSDF</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#step-4-arm-activity-feature-extraction">Step 4: Arm activity feature extraction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#step-5-filtering-gait">Step 5: Filtering gait</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#step-6-arm-swing-quantification">Step 6: Arm swing quantification</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#run-steps-1-6-for-the-all-raw-data-segment-s">Run steps 1-6 for the all raw data segment(s) <a id='multiple_segments_cell'></a></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#step-7-aggregation">Step 7: Aggregation</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pulse_rate_analysis.html">Pulse rate analysis</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">User guides</span></p>
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
@@ -115,8 +93,8 @@
              
   <section id="gait-analysis">
 <h1>Gait analysis<a class="headerlink" href="#gait-analysis" title="Link to this heading"></a></h1>
-<p>This tutorial showcases the high-level functions composing the gait pipeline. Before following along, make sure all data preparation steps have been followed in the data preparation tutorial.</p>
-<p>In this tutorial, we use two days of data from a participant of the Personalized Parkinson Project to demonstrate the functionalities. Since <code class="docutils literal notranslate"><span class="pre">ParaDigMa</span></code> expects contiguous time series, the collected data was stored in two segments each with contiguous timestamps. Per segment, we load the data and perform the following steps:</p>
+<p>This tutorial showcases the high-level functions composing the gait pipeline. Before following along, make sure all data preparation steps have been followed in the <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/tutorials/_static/data_preparation.html">Data preparation tutorial</a>.</p>
+<p>In this tutorial, we use two days of data from a participant of the Personalized Parkinson Project to demonstrate the functionalities. Since ParaDigMa expects contiguous time series, the collected data was stored in two segments each with contiguous timestamps. Per segment, we load the data and perform the following steps:</p>
 <ol class="arabic simple">
 <li><p>Data preprocessing</p></li>
 <li><p>Gait feature extraction</p></li>
@@ -129,47 +107,62 @@
 <ol class="arabic simple" start="7">
 <li><p>Aggregation</p></li>
 </ol>
-<p>To run the complete gait pipeline, a prerequisite is to have both accelerometer and gyroscope data, although the first three steps can be completed using only accelerometer data.</p>
-<p>[!WARNING] The gait pipeline has been developed on data of the Gait Up Physilog 4, and is currently being validated on the Verily Study Watch. Different sensors and positions on the wrist may affect outcomes.</p>
+<p>To run the complete gait pipeline, a prerequisite is to have both accelerometer and gyroscope data.</p>
+<section id="import-required-modules">
+<h2>Import required modules<a class="headerlink" href="#import-required-modules" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tsdf</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassifierPackage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">GaitConfig</span><span class="p">,</span> <span class="n">IMUConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">aggregate_arm_swing_params</span><span class="p">,</span>
+    <span class="n">detect_gait</span><span class="p">,</span>
+    <span class="n">extract_arm_activity_features</span><span class="p">,</span>
+    <span class="n">extract_gait_features</span><span class="p">,</span>
+    <span class="n">filter_gait</span><span class="p">,</span>
+    <span class="n">quantify_arm_swing</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_imu_data</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">load_tsdf_dataframe</span><span class="p">,</span>
+    <span class="n">merge_predictions_with_timestamps</span><span class="p">,</span>
+    <span class="n">write_df_data</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
 <section id="load-data">
 <h2>Load data<a class="headerlink" href="#load-data" title="Link to this heading"></a></h2>
 <p>Here, we start by loading a single contiguous time series (segment), for which we continue running steps 1-6. Below we show how to run these steps for multiple raw data segments.</p>
-<p>We use the interally developed <code class="docutils literal notranslate"><span class="pre">TSDF</span></code> (<a class="reference external" href="https://biomarkersparkinson.github.io/tsdf/">documentation</a>) to load and store data [<a class="reference external" href="https://arxiv.org/abs/2211.11294">1</a>]. Depending on the file extension of your time series data, examples of other Python functions for loading the data into memory include:</p>
+<p>We use the internally developed <code class="docutils literal notranslate"><span class="pre">TSDF</span></code> (<a class="reference external" href="https://biomarkersparkinson.github.io/tsdf/">documentation</a>) to load and store data [<a class="reference external" href="https://arxiv.org/abs/2211.11294">1</a>]. Depending on the file extension of your time series data, examples of other Python functions for loading the data into memory include:</p>
 <ul class="simple">
 <li><p><em>.csv</em>: <code class="docutils literal notranslate"><span class="pre">pandas.read_csv()</span></code> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html">documentation</a>)</p></li>
 <li><p><em>.json</em>: <code class="docutils literal notranslate"><span class="pre">json.load()</span></code> (<a class="reference external" href="https://docs.python.org/3/library/json.html#json.load">documentation</a>)</p></li>
 </ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span>
-
-<span class="c1"># Set the path to where the prepared data is saved and load the data.</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set the path to where the prepared data is saved and load the data.</span>
 <span class="c1"># Note: the test data is stored in TSDF, but you can load your data in your own way</span>
-<span class="n">path_to_data</span> <span class="o">=</span>  <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../example_data&#39;</span><span class="p">)</span>
+<span class="n">path_to_data</span> <span class="o">=</span>  <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../example_data/verily&#39;</span><span class="p">)</span>
 <span class="n">path_to_prepared_data</span> <span class="o">=</span> <span class="n">path_to_data</span> <span class="o">/</span> <span class="s1">&#39;imu&#39;</span>
 
 <span class="n">raw_data_segment_nr</span>  <span class="o">=</span> <span class="s1">&#39;0001&#39;</span>
 
 <span class="c1"># Load the data from the file</span>
-<span class="n">df_imu</span><span class="p">,</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_prepared_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">raw_data_segment_nr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">df_imu</span><span class="p">,</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
+    <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_prepared_data</span><span class="p">,</span>
+    <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">raw_data_segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="p">)</span>
 
 <span class="n">df_imu</span>
 </pre></div>
 </div>
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
-    vertical-align: top;
-}
-
-.dataframe thead th {
-    text-align: right;
-}
-</pre></div>
-</div>
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -301,30 +294,13 @@
 </section>
 <section id="step-1-preprocess-data">
 <h2>Step 1: Preprocess data<a class="headerlink" href="#step-1-preprocess-data" title="Link to this heading"></a></h2>
-<p>The single function <code class="docutils literal notranslate"><span class="pre">preprocess_imu_data</span></code> in the cell below runs all necessary preprocessing steps. It requires the loaded dataframe, a configuration object <code class="docutils literal notranslate"><span class="pre">config</span></code> specifying parameters used for preprocessing, and a selection of sensors. For the sensors, options include <code class="docutils literal notranslate"><span class="pre">'accelerometer'</span></code>, <code class="docutils literal notranslate"><span class="pre">'gyroscope'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'both'</span></code>.  If the difference between timestamps is larger than a specified tolerance (<code class="docutils literal notranslate"><span class="pre">config.tolerance</span></code>, in seconds), it will return an error that the timestamps are not contiguous. If you still want to process the data in this case, you can create segments from discontiguous samples using the function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/segmenting.py"><code class="docutils literal notranslate"><span class="pre">create_segments</span></code></a> and analyze these segments consecutively as shown in here.</p>
-<p>The function <code class="docutils literal notranslate"><span class="pre">preprocess_imu_data</span></code> processes the data as follows:</p>
+<p>The function <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.preprocess_imu_data"><code class="docutils literal notranslate"><span class="pre">preprocess_imu_data</span></code></a> in the cell below runs all necessary preprocessing steps. It requires the loaded dataframe, a configuration object <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/config/index.html"><code class="docutils literal notranslate"><span class="pre">config</span></code></a> specifying parameters used for preprocessing, and a selection of sensors. For the sensors, options include <code class="docutils literal notranslate"><span class="pre">'accelerometer'</span></code>, <code class="docutils literal notranslate"><span class="pre">'gyroscope'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'both'</span></code>.  If the difference between timestamps is larger than a specified tolerance (<code class="docutils literal notranslate"><span class="pre">config.tolerance</span></code>, in seconds), it will return an error that the timestamps are not contiguous. If you still want to process the data in this case, you can create segments from discontiguous samples using the function <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/segmenting/index.html#paradigma.segmenting.create_segments"><code class="docutils literal notranslate"><span class="pre">create_segments</span></code></a> and analyze these segments consecutively as shown in here.</p>
+<p>The function <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.preprocess_imu_data"><code class="docutils literal notranslate"><span class="pre">preprocess_imu_data</span></code></a> processes the data as follows:</p>
 <ol class="arabic simple">
 <li><p>Resample the data to ensure uniformly distributed sampling rate.</p></li>
 <li><p>Apply filtering to separate the gravity component from the accelerometer.</p></li>
 </ol>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_imu_data</span>
-
-<span class="c1"># Set column names: replace DataColumn.* with your actual column names.</span>
-<span class="c1"># It is only necessary to set the columns that are present in your data, and</span>
-<span class="c1"># only if they differ from the default names defined in DataColumns.</span>
-<span class="n">column_mapping</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;TIME&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span>
-    <span class="s1">&#39;ACCELEROMETER_X&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">,</span>
-    <span class="s1">&#39;ACCELEROMETER_Y&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Y</span><span class="p">,</span>
-    <span class="s1">&#39;ACCELEROMETER_Z&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Z</span><span class="p">,</span>
-    <span class="s1">&#39;GYROSCOPE_X&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_X</span><span class="p">,</span>
-    <span class="s1">&#39;GYROSCOPE_Y&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Y</span><span class="p">,</span>
-    <span class="s1">&#39;GYROSCOPE_Z&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Z</span><span class="p">,</span>
-<span class="p">}</span>
-
-<span class="n">config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">(</span><span class="n">column_mapping</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span>
 
 <span class="n">df_preprocessed</span> <span class="o">=</span> <span class="n">preprocess_imu_data</span><span class="p">(</span>
     <span class="n">df</span><span class="o">=</span><span class="n">df_imu</span><span class="p">,</span>
@@ -333,30 +309,25 @@
     <span class="n">watch_side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The dataset of </span><span class="si">{</span><span class="n">df_preprocessed</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="si">}</span><span class="s2"> seconds is automatically resampled to </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">resampling_frequency</span><span class="si">}</span><span class="s2"> Hz.&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The tolerance for checking contiguous timestamps is set to </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">tolerance</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> seconds.&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;The dataset of </span><span class="si">{</span><span class="n">df_preprocessed</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="si">}</span><span class="s2"> seconds &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;is automatically resampled to </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">resampling_frequency</span><span class="si">}</span><span class="s2"> Hz.&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;The tolerance for checking contiguous timestamps is set &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;to </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">tolerance</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> seconds.&quot;</span>
+<span class="p">)</span>
 <span class="n">df_preprocessed</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>The dataset of 34339.61 seconds is automatically resampled to 100 Hz.
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Resampled: 3455331 -&gt; 3433961 rows at 100.0 Hz
+
+
+The dataset of 34339.61 seconds is automatically resampled to 100 Hz.
 The tolerance for checking contiguous timestamps is set to 0.030 seconds.
 </pre></div>
 </div>
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
-    vertical-align: top;
-}
-
-.dataframe thead th {
-    text-align: right;
-}
-</pre></div>
-</div>
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -459,9 +430,19 @@ The tolerance for checking contiguous timestamps is set to 0.030 seconds.
 <li><p>Extract spectral features</p></li>
 <li><p>Combine both temporal and spectral features into a final dataframe</p></li>
 </ul>
-<p>These steps are encapsulated in <code class="docutils literal notranslate"><span class="pre">extract_gait_features</span></code> (documentation can be found <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/gait_pipeline.py">here</a>).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">GaitConfig</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_gait_features</span>
+<p>These steps are encapsulated in <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/pipelines/gait_pipeline/index.html#paradigma.pipelines.gait_pipeline.extract_gait_features"><code class="docutils literal notranslate"><span class="pre">extract_gait_features</span></code></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set column names: replace DataColumn.* with your actual column names.</span>
+<span class="c1"># It is only necessary to set the columns that are present in your data, and</span>
+<span class="c1"># only if they differ from the default names defined in DataColumns.</span>
+<span class="n">column_mapping</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;TIME&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span>
+    <span class="s1">&#39;ACCELEROMETER_X&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_X</span><span class="p">,</span>
+    <span class="s1">&#39;ACCELEROMETER_Y&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Y</span><span class="p">,</span>
+    <span class="s1">&#39;ACCELEROMETER_Z&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">ACCELEROMETER_Z</span><span class="p">,</span>
+    <span class="s1">&#39;GYROSCOPE_X&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_X</span><span class="p">,</span>
+    <span class="s1">&#39;GYROSCOPE_Y&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Y</span><span class="p">,</span>
+    <span class="s1">&#39;GYROSCOPE_Z&#39;</span><span class="p">:</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GYROSCOPE_Z</span><span class="p">,</span>
+<span class="p">}</span>
 
 <span class="n">config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;gait&#39;</span><span class="p">,</span> <span class="n">column_mapping</span><span class="o">=</span><span class="n">column_mapping</span><span class="p">)</span>
 
@@ -470,7 +451,11 @@ The tolerance for checking contiguous timestamps is set to 0.030 seconds.
     <span class="n">config</span><span class="o">=</span><span class="n">config</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A total of </span><span class="si">{</span><span class="n">df_gait</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="si">}</span><span class="s2"> features have been extracted from </span><span class="si">{</span><span class="n">df_gait</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="si">}</span><span class="s2">-second windows with </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="o">-</span><span class="n">config</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="si">}</span><span class="s2"> seconds overlap.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;A total of </span><span class="si">{</span><span class="n">df_gait</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="si">}</span><span class="s2"> features have been extracted from &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">df_gait</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="si">}</span><span class="s2">-second windows with &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="o">-</span><span class="n">config</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="si">}</span><span class="s2"> seconds overlap.&quot;</span>
+<span class="p">)</span>
 <span class="n">df_gait</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -478,20 +463,6 @@ The tolerance for checking contiguous timestamps is set to 0.030 seconds.
 </pre></div>
 </div>
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
-    vertical-align: top;
-}
-
-.dataframe thead th {
-    text-align: right;
-}
-</pre></div>
-</div>
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -644,60 +615,59 @@ The tolerance for checking contiguous timestamps is set to 0.030 seconds.
 </table>
 <p>5 rows × 35 columns</p>
 </div>
-<p>Each row in this dataframe corresponds to a single window, with the window length and overlap set in the <code class="docutils literal notranslate"><span class="pre">config</span></code> object. Note that the <code class="docutils literal notranslate"><span class="pre">time</span></code> column has a 1-second interval instead of the 10-millisecond interval before, as it now represents the starting time of the window.</p>
+<p>Each row in this dataframe corresponds to a single window, with the window length and overlap set in the <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/config/index.html"><code class="docutils literal notranslate"><span class="pre">config</span></code></a> object. Note that the <code class="docutils literal notranslate"><span class="pre">time</span></code> column has a 1-second interval instead of the 10-millisecond interval before, as it now represents the starting time of the window.</p>
 </section>
 <section id="step-3-gait-detection">
 <h2>Step 3: Gait detection<a class="headerlink" href="#step-3-gait-detection" title="Link to this heading"></a></h2>
-<p>For classification, ParaDigMa uses so-called Classifier Packages which contain a classifier, classification threshold, and a feature scaler as attributes. The classifier is a <a class="reference external" href="https://scikit-learn.org/1.5/modules/generated/sklearn.ensemble.RandomForestClassifier.html">random forest</a> trained on a dataset of people with PD performing a wide range of activities in free-living conditions: <a class="reference external" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7584982/">The Parkinson&#64;Home Validation Study</a>. The classification threshold was set to limit the amount of false-positive predictions in the original study, i.e., to limit non-gait to be predicted as gait. The classification threshold can be changed by setting <code class="docutils literal notranslate"><span class="pre">clf_package.threshold</span></code> to a different float value. The feature scaler was similarly fitted on the original dataset, ensuring the features are within expected confined spaces to make reliable predictions.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassifierPackage</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">detect_gait</span>
-
-<span class="c1"># Set the path to the classifier package</span>
+<p>For classification, ParaDigMa uses so-called Classifier Packages which contain a classifier, classification threshold, and a feature scaler as attributes (<a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/classification/index.html#paradigma.classification.ClassifierPackage">documentation</a>). The classifier is a <a class="reference external" href="https://scikit-learn.org/1.5/modules/generated/sklearn.ensemble.RandomForestClassifier.html">random forest</a> trained on a dataset of people with PD performing a wide range of activities in free-living conditions: <a class="reference external" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7584982/">The Parkinson&#64;Home Validation Study</a>. The classification threshold was set to limit the amount of false-positive predictions in the original study, i.e., to limit non-gait to be predicted as gait. The classification threshold can be changed by setting <code class="docutils literal notranslate"><span class="pre">clf_package.threshold</span></code> to a different float value. The feature scaler was similarly fitted on the original dataset, ensuring the features are within expected confined spaces to make reliable predictions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set the path to the classifier package</span>
 <span class="n">classifier_package_filename</span> <span class="o">=</span> <span class="s1">&#39;gait_detection_clf_package.pkl&#39;</span>
-<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;assets&#39;</span> <span class="o">/</span> <span class="n">classifier_package_filename</span>
+<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span>
+    <span class="o">/</span> <span class="s1">&#39;assets&#39;</span>
+    <span class="o">/</span> <span class="n">classifier_package_filename</span>
+<span class="p">)</span>
 
 <span class="c1"># Load the classifier package</span>
 <span class="n">clf_package_detection</span> <span class="o">=</span> <span class="n">ClassifierPackage</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">full_path_to_classifier_package</span><span class="p">)</span>
+<span class="n">gait_threshold</span> <span class="o">=</span> <span class="n">clf_package_detection</span><span class="o">.</span><span class="n">threshold</span>
 
-<span class="c1"># Detecting gait returns the probability of gait for each window, which is concatenated to</span>
-<span class="c1"># the original dataframe</span>
+<span class="c1"># Detecting gait returns the probability of gait for each window, which is</span>
+<span class="c1"># concatenated to the original dataframe</span>
 <span class="n">df_gait</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">=</span> <span class="n">detect_gait</span><span class="p">(</span>
     <span class="n">df</span><span class="o">=</span><span class="n">df_gait</span><span class="p">,</span>
     <span class="n">clf_package</span><span class="o">=</span><span class="n">clf_package_detection</span>
 <span class="p">)</span>
 
 <span class="n">n_windows</span> <span class="o">=</span> <span class="n">df_gait</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">n_predictions_gait</span> <span class="o">=</span> <span class="n">df_gait</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_gait</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_detection</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">n_predictions_gait</span> <span class="o">=</span> <span class="n">df_gait</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+    <span class="n">df_gait</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">gait_threshold</span>
+<span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">perc_predictions_gait</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">n_predictions_gait</span> <span class="o">/</span> <span class="n">n_windows</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">n_predictions_non_gait</span> <span class="o">=</span> <span class="n">df_gait</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_gait</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">clf_package_detection</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">n_predictions_non_gait</span> <span class="o">=</span> <span class="n">df_gait</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+    <span class="n">df_gait</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">gait_threshold</span>
+<span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">perc_predictions_non_gait</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">n_predictions_non_gait</span> <span class="o">/</span> <span class="n">n_windows</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Out of </span><span class="si">{</span><span class="n">n_windows</span><span class="si">}</span><span class="s2"> windows, </span><span class="si">{</span><span class="n">n_predictions_gait</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">perc_predictions_gait</span><span class="si">}</span><span class="s2">%) were predicted as gait, and </span><span class="si">{</span><span class="n">n_predictions_non_gait</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">perc_predictions_non_gait</span><span class="si">}</span><span class="s2">%) as non-gait.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Out of </span><span class="si">{</span><span class="n">n_windows</span><span class="si">}</span><span class="s2"> windows, </span><span class="si">{</span><span class="n">n_predictions_gait</span><span class="si">}</span><span class="s2"> &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">perc_predictions_gait</span><span class="si">}</span><span class="s2">%) </span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;were predicted as gait, and </span><span class="si">{</span><span class="n">n_predictions_non_gait</span><span class="si">}</span><span class="s2"> &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">perc_predictions_non_gait</span><span class="si">}</span><span class="s2">%) </span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;as non-gait.&quot;</span>
+<span class="p">)</span>
 
-<span class="c1"># Only the time and the predicted gait probability are shown, but the dataframe also contains</span>
-<span class="c1"># the extracted features</span>
+<span class="c1"># Only the time and the predicted gait probability are shown, but the</span>
+<span class="c1"># dataframe also contains the extracted features</span>
 <span class="n">df_gait</span><span class="p">[[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Out of 34334 windows, 2753 (8.0%) were predicted as gait, and 31581 (92.0%) as non-gait.
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Out of 34334 windows, 2753 (8.0%)
+were predicted as gait, and 31581 (92.0%)
+as non-gait.
 </pre></div>
 </div>
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
-    vertical-align: top;
-}
-
-.dataframe thead th {
-    text-align: right;
-}
-</pre></div>
-</div>
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -738,12 +708,15 @@ The tolerance for checking contiguous timestamps is set to 0.030 seconds.
 <section id="store-as-tsdf">
 <h3>Store as TSDF<a class="headerlink" href="#store-as-tsdf" title="Link to this heading"></a></h3>
 <p>The predicted probabilities (and optionally other features) can be stored and loaded in TSDF as demonstrated below.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tsdf</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_df_data</span>
-
-<span class="c1"># Set &#39;path_to_data&#39; to the directory where you want to save the data</span>
-<span class="n">metadata_time_store</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">TSDFMetadata</span><span class="p">(</span><span class="n">metadata_time</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">(),</span> <span class="n">path_to_data</span><span class="p">)</span>
-<span class="n">metadata_values_store</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">TSDFMetadata</span><span class="p">(</span><span class="n">metadata_values</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">(),</span> <span class="n">path_to_data</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set &#39;path_to_data&#39; to the directory where you want to save the data</span>
+<span class="n">metadata_time_store</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">TSDFMetadata</span><span class="p">(</span>
+    <span class="n">metadata_time</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">(),</span>
+    <span class="n">path_to_data</span>
+<span class="p">)</span>
+<span class="n">metadata_values_store</span> <span class="o">=</span> <span class="n">tsdf</span><span class="o">.</span><span class="n">TSDFMetadata</span><span class="p">(</span>
+    <span class="n">metadata_values</span><span class="o">.</span><span class="n">get_plain_tsdf_dict_copy</span><span class="p">(),</span>
+    <span class="n">path_to_data</span>
+<span class="p">)</span>
 
 <span class="c1"># Select the columns to be saved</span>
 <span class="n">metadata_time_store</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">]</span>
@@ -763,28 +736,18 @@ The tolerance for checking contiguous timestamps is set to 0.030 seconds.
 <span class="n">metadata_values_store</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="n">values_store_filename</span>
 <span class="n">metadata_time_store</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="n">time_store_filename</span>
 
-<span class="n">write_df_data</span><span class="p">(</span><span class="n">metadata_time_store</span><span class="p">,</span> <span class="n">metadata_values_store</span><span class="p">,</span> <span class="n">path_to_data</span><span class="p">,</span> <span class="n">meta_store_filename</span><span class="p">,</span> <span class="n">df_gait</span><span class="p">)</span>
+<span class="n">write_df_data</span><span class="p">(</span><span class="n">metadata_time_store</span><span class="p">,</span> <span class="n">metadata_values_store</span><span class="p">,</span> <span class="n">path_to_data</span><span class="p">,</span>
+              <span class="n">meta_store_filename</span><span class="p">,</span> <span class="n">df_gait</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df_gait</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;segment</span><span class="si">{</span><span class="n">raw_data_segment_nr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df_gait</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
+    <span class="n">path_to_data</span><span class="p">,</span>
+    <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;segment</span><span class="si">{</span><span class="n">raw_data_segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="p">)</span>
 <span class="n">df_gait</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
-    vertical-align: top;
-}
-
-.dataframe thead th {
-    text-align: right;
-}
-</pre></div>
-</div>
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -822,23 +785,20 @@ The tolerance for checking contiguous timestamps is set to 0.030 seconds.
   </tbody>
 </table>
 </div>
-<p>Once again, the <code class="docutils literal notranslate"><span class="pre">time</span></code> column indicates the start time of the window. Therefore, it can be observed that probabilities are predicted of overlapping windows, and not of individual timestamps. The function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/util.py"><code class="docutils literal notranslate"><span class="pre">merge_timestamps_with_predictions</span></code></a> can be used to retrieve predicted probabilities per timestamp by aggregating the predicted probabilities of overlapping windows. This function is included in the next step.</p>
+<p>Once again, the <code class="docutils literal notranslate"><span class="pre">time</span></code> column indicates the start time of the window. Therefore, it can be observed that probabilities are predicted of overlapping windows, and not of individual timestamps. The function <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/util/index.html#paradigma.util.merge_predictions_with_timestamps"><code class="docutils literal notranslate"><span class="pre">merge_timestamps_with_predictions</span></code></a> can be used to retrieve predicted probabilities per timestamp by aggregating the predicted probabilities of overlapping windows. This function is included in the next step.</p>
 </section>
 </section>
 <section id="step-4-arm-activity-feature-extraction">
 <h2>Step 4: Arm activity feature extraction<a class="headerlink" href="#step-4-arm-activity-feature-extraction" title="Link to this heading"></a></h2>
-<p>The extraction of arm swing features is similar to the extraction of gait features, but we use a different window length and step length (<code class="docutils literal notranslate"><span class="pre">config.window_length_s</span></code>, <code class="docutils literal notranslate"><span class="pre">config.window_step_length_s</span></code>) to distinguish between gait segments with and without other arm activities. Therefore, the following steps are conducted sequentially by <code class="docutils literal notranslate"><span class="pre">extract_arm_activity_features</span></code>:</p>
+<p>The extraction of arm swing features is similar to the extraction of gait features, but we use a different window length and step length (<code class="docutils literal notranslate"><span class="pre">config.window_length_s</span></code>, <code class="docutils literal notranslate"><span class="pre">config.window_step_length_s</span></code>) to distinguish between gait segments with and without other arm activities. Therefore, the following steps are conducted sequentially by <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/pipelines/gait_pipeline/index.html#paradigma.pipelines.gait_pipeline.extract_arm_activity_features"><code class="docutils literal notranslate"><span class="pre">extract_arm_activity_features</span></code></a>:</p>
 <ul class="simple">
 <li><p>Start with the preprocessed data of step 1</p></li>
 <li><p>Merge the gait predictions into the preprocessed data</p></li>
 <li><p>Discard predicted non-gait activities</p></li>
 <li><p>Create windows of the time series data and extract features</p></li>
 </ul>
-<p>But, first, the gait predictions should be merged with the preprocessed time series data, such that individual timestamps have a corresponding probability of gait. The function <code class="docutils literal notranslate"><span class="pre">extract_arm_activity_features</span></code> expects a time series dataframe of predicted gait.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">merge_predictions_with_timestamps</span>
-
-<span class="c1"># Merge gait predictions into timeseries data</span>
+<p>But, first, the gait predictions should be merged with the preprocessed time series data, such that individual timestamps have a corresponding probability of gait. The function <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/pipelines/gait_pipeline/index.html#paradigma.pipelines.gait_pipeline.extract_arm_activity_features"><code class="docutils literal notranslate"><span class="pre">extract_arm_activity_features</span></code></a> expects a time series dataframe of predicted gait.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Merge gait predictions into timeseries data</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">df_gait</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_detection</span><span class="o">.</span><span class="n">threshold</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No gait detected in the input data.&quot;</span><span class="p">)</span>
 
@@ -853,63 +813,33 @@ The tolerance for checking contiguous timestamps is set to 0.030 seconds.
 <span class="p">)</span>
 
 <span class="c1"># Add a column for predicted gait based on a fitted threshold</span>
-<span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_detection</span><span class="o">.</span><span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_detection</span><span class="o">.</span><span class="n">threshold</span>
+<span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 
 <span class="c1"># Filter the DataFrame to only include predicted gait (1)</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_arm_activity_features</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;arm_activity&#39;</span><span class="p">)</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;arm_activity&#39;</span><span class="p">)</span>
-
-<span class="n">df_arm_activity</span> <span class="o">=</span> <span class="n">extract_arm_activity_features</span><span class="p">(</span>
+<span class="n">df_arm</span> <span class="o">=</span> <span class="n">extract_arm_activity_features</span><span class="p">(</span>
     <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
     <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A total of </span><span class="si">{</span><span class="n">df_arm_activity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> features have been extracted from </span><span class="si">{</span><span class="n">df_arm_activity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="si">}</span><span class="s2">-second windows with </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="si">}</span><span class="s2"> seconds overlap.&quot;</span><span class="p">)</span>
-<span class="n">df_arm_activity</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;A total of </span><span class="si">{</span><span class="n">df_arm</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> features have been extracted &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;from </span><span class="si">{</span><span class="n">df_arm</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="si">}</span><span class="s2">-second windows &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;with </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">window_step_length_s</span><span class="si">}</span><span class="s2"> seconds overlap.&quot;</span>
+<span class="p">)</span>
+<span class="n">df_arm</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>A total of 61 features have been extracted from 2749 3-second windows with 2.25 seconds overlap.
 </pre></div>
 </div>
-<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
-<p>=======
-&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
-<p>=======</p>
-<blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><p>37f1c8fea7b90d0e387febafe838f2df6ab9dd47
-origin/main</p>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
-    vertical-align: top;
-}
-
-.dataframe thead th {
-    text-align: right;
-}
-</pre></div>
-</div>
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1067,55 +997,58 @@ origin/main</p>
 <section id="step-5-filtering-gait">
 <h2>Step 5: Filtering gait<a class="headerlink" href="#step-5-filtering-gait" title="Link to this heading"></a></h2>
 <p>This classification task is similar to gait detection, although it uses a different classification object. The trained classifier is a logistic regression, similarly trained on the dataset of the <a class="reference external" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7584982/">Parkinson&#64;Home Validation Study</a>. Filtering gait is the process of detecting and removing gait segments containing other arm activities. This is an important process since individuals entertain a wide array of arm activities during gait: having hands in pockets, holding a dog leash, or carrying a plate to the kitchen. We trained a classifier to detect these other arm activities during gait, enabling accurate estimations of the arm swing.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassifierPackage</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">filter_gait</span>
-
-<span class="c1"># Set the path to the classifier package</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set the path to the classifier package</span>
 <span class="n">classifier_package_filename</span> <span class="o">=</span> <span class="s1">&#39;gait_filtering_clf_package.pkl&#39;</span>
-<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;assets&#39;</span> <span class="o">/</span> <span class="n">classifier_package_filename</span>
+<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span>
+    <span class="o">/</span> <span class="s1">&#39;assets&#39;</span>
+    <span class="o">/</span> <span class="n">classifier_package_filename</span>
+<span class="p">)</span>
 
 <span class="c1"># Load the classifier package</span>
 <span class="n">clf_package_filtering</span> <span class="o">=</span> <span class="n">ClassifierPackage</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">full_path_to_classifier_package</span><span class="p">)</span>
+<span class="n">filt_threshold</span> <span class="o">=</span> <span class="n">clf_package_filtering</span><span class="o">.</span><span class="n">threshold</span>
 
-<span class="c1"># Detecting no_other_arm_activity returns the probability of no_other_arm_activity for each window, which is concatenated to</span>
+<span class="c1"># Detecting no_other_arm_activity returns the probability of</span>
+<span class="c1"># no_other_arm_activity for each window, which is concatenated to</span>
 <span class="c1"># the original dataframe</span>
-<span class="n">df_arm_activity</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">=</span> <span class="n">filter_gait</span><span class="p">(</span>
-    <span class="n">df</span><span class="o">=</span><span class="n">df_arm_activity</span><span class="p">,</span>
+<span class="n">df_arm</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">=</span> <span class="n">filter_gait</span><span class="p">(</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df_arm</span><span class="p">,</span>
     <span class="n">clf_package</span><span class="o">=</span><span class="n">clf_package_filtering</span>
 <span class="p">)</span>
 
 
-<span class="n">n_windows</span> <span class="o">=</span> <span class="n">df_arm_activity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">n_predictions_no_other_arm_activity</span> <span class="o">=</span> <span class="n">df_arm_activity</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_arm_activity</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_filtering</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">perc_predictions_no_other_arm_activity</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">n_predictions_no_other_arm_activity</span> <span class="o">/</span> <span class="n">n_windows</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">n_predictions_other_arm_activity</span> <span class="o">=</span> <span class="n">df_arm_activity</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_arm_activity</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">clf_package_filtering</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">perc_predictions_other_arm_activity</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">n_predictions_other_arm_activity</span> <span class="o">/</span> <span class="n">n_windows</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">n_windows</span> <span class="o">=</span> <span class="n">df_arm</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">n_pred_no_other_arm_act</span> <span class="o">=</span> <span class="n">df_arm</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+    <span class="n">df_arm</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">filt_threshold</span>
+<span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">perc_no_other_arm_activity</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span>
+    <span class="mi">100</span> <span class="o">*</span> <span class="n">n_pred_no_other_arm_act</span> <span class="o">/</span> <span class="n">n_windows</span><span class="p">,</span>
+    <span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">n_pred_other_arm_act</span> <span class="o">=</span> <span class="n">df_arm</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+    <span class="n">df_arm</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">filt_threshold</span>
+<span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">perc_other_arm_activity</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span>
+    <span class="mi">100</span> <span class="o">*</span> <span class="n">n_pred_other_arm_act</span> <span class="o">/</span> <span class="n">n_windows</span><span class="p">,</span>
+    <span class="mi">1</span>
+<span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Out of </span><span class="si">{</span><span class="n">n_windows</span><span class="si">}</span><span class="s2"> windows, </span><span class="si">{</span><span class="n">n_predictions_no_other_arm_activity</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">perc_predictions_no_other_arm_activity</span><span class="si">}</span><span class="s2">%) were predicted as no_other_arm_activity, and </span><span class="si">{</span><span class="n">n_predictions_other_arm_activity</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">perc_predictions_other_arm_activity</span><span class="si">}</span><span class="s2">%) as other_arm_activity.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Out of </span><span class="si">{</span><span class="n">n_windows</span><span class="si">}</span><span class="s2"> windows, </span><span class="si">{</span><span class="n">n_pred_no_other_arm_act</span><span class="si">}</span><span class="s2"> &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">perc_no_other_arm_activity</span><span class="si">}</span><span class="s2">%) were predicted as no_other_arm_activity, &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;and </span><span class="si">{</span><span class="n">n_pred_other_arm_act</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">perc_other_arm_activity</span><span class="si">}</span><span class="s2">%) as other_arm_activity.&quot;</span>
+<span class="p">)</span>
 
-<span class="c1"># Only the time and predicted probabilities are shown, but the dataframe also contains</span>
-<span class="c1"># the extracted features</span>
-<span class="n">df_arm_activity</span><span class="p">[[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="c1"># Only the time and predicted probabilities are shown,</span>
+<span class="c1"># but the dataframe also contains the extracted features</span>
+<span class="n">df_arm</span><span class="p">[[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">,</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Out of 2749 windows, 916 (33.3%) were predicted as no_other_arm_activity, and 1833 (66.7%) as other_arm_activity.
 </pre></div>
 </div>
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
-    vertical-align: top;
-}
-
-.dataframe thead th {
-    text-align: right;
-}
-</pre></div>
-</div>
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1161,31 +1094,31 @@ origin/main</p>
 <p>But, first, similar to the step of extracting arm activity features, the predictions of the previous step should be merged with the preprocessed time series data.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Merge arm activity predictions into timeseries data</span>
 
-<span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">df_arm_activity</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_filtering</span><span class="o">.</span><span class="n">threshold</span><span class="p">):</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No gait without other arm activities detected in the input data.&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
+    <span class="n">df_arm</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">filt_threshold</span>
+<span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="s2">&quot;No gait without other arm activities detected in the input data.&quot;</span>
+    <span class="p">)</span>
 
 <span class="n">config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;arm_activity&#39;</span><span class="p">)</span>
 
 <span class="n">df</span> <span class="o">=</span> <span class="n">merge_predictions_with_timestamps</span><span class="p">(</span>
     <span class="n">df_ts</span><span class="o">=</span><span class="n">df_preprocessed</span><span class="p">,</span>
-    <span class="n">df_predictions</span><span class="o">=</span><span class="n">df_arm_activity</span><span class="p">,</span>
+    <span class="n">df_predictions</span><span class="o">=</span><span class="n">df_arm</span><span class="p">,</span>
     <span class="n">pred_proba_colname</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">,</span>
     <span class="n">window_length_s</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">window_length_s</span><span class="p">,</span>
     <span class="n">fs</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span>
 <span class="p">)</span>
 
 <span class="c1"># Add a column for predicted gait based on a fitted threshold</span>
-<span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_filtering</span><span class="o">.</span><span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-
-<span class="c1"># Filter the DataFrame to only include predicted gait (1)</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">filt_threshold</span>
+<span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">quantify_arm_swing</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pprint</span><span class="w"> </span><span class="kn">import</span> <span class="n">pprint</span>
-
-<span class="c1"># Set to True to quantify arm swing based on the filtered gait segments, and False</span>
-<span class="c1"># to quantify arm swing based on all gait segments</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set to True to quantify arm swing based on the filtered gait segments, and</span>
+<span class="c1"># False to quantify arm swing based on all gait segments</span>
 <span class="n">filtered</span> <span class="o">=</span> <span class="kc">True</span>
 
 <span class="k">if</span> <span class="n">filtered</span><span class="p">:</span>
@@ -1203,16 +1136,31 @@ origin/main</p>
     <span class="n">min_segment_length_s</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">min_segment_length_s</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Gait segments are created of minimum </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">min_segment_length_s</span><span class="si">}</span><span class="s2"> seconds and maximum </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">max_segment_gap_s</span><span class="si">}</span><span class="s2"> seconds gap between segments.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A total of </span><span class="si">{</span><span class="n">quantified_arm_swing</span><span class="p">[</span><span class="s1">&#39;segment_nr&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">dataset_used</span><span class="si">}</span><span class="s2"> gait segments have been quantified.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Gait segments are created of minimum </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">min_segment_length_s</span><span class="si">}</span><span class="s2"> seconds &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;and maximum </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">max_segment_gap_s</span><span class="si">}</span><span class="s2"> seconds gap between segments.</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;A total of </span><span class="si">{</span><span class="n">quantified_arm_swing</span><span class="p">[</span><span class="s1">&#39;gait_segment_nr&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">dataset_used</span><span class="si">}</span><span class="s2"> &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;gait segments have been quantified.&quot;</span>
+<span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Metadata of the first gait segment:&quot;</span><span class="p">)</span>
-<span class="n">pprint</span><span class="p">(</span><span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">indent</span> <span class="o">=</span> <span class="mi">1</span><span class="p">))</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Of this example, the filtered gait segment of </span><span class="si">{</span><span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;duration_filtered_segment_s&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> seconds is part of an unfiltered segment of </span><span class="si">{</span><span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;duration_unfiltered_segment_s&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> seconds, which is at least as large as the filtered gait segment.&quot;</span><span class="p">)</span>
+<span class="n">filt_example_s</span> <span class="o">=</span> <span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;duration_filtered_segment_s&#39;</span><span class="p">]</span>
+<span class="n">unfilt_example_s</span> <span class="o">=</span> <span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;duration_unfiltered_segment_s&#39;</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Of this example, the filtered gait segment of </span><span class="si">{</span><span class="n">filt_example_s</span><span class="si">}</span><span class="s2"> seconds &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;is part of an unfiltered segment of </span><span class="si">{</span><span class="n">unfilt_example_s</span><span class="si">}</span><span class="s2"> seconds, which is &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;at least as large as the filtered gait segment.&quot;</span>
+<span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Individual arm swings of the first gait segment of the </span><span class="si">{</span><span class="n">dataset_used</span><span class="si">}</span><span class="s2"> dataset:&quot;</span><span class="p">)</span>
-<span class="n">quantified_arm_swing</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">quantified_arm_swing</span><span class="p">[</span><span class="s1">&#39;segment_nr&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Individual arm swings of the first gait segment of the &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">dataset_used</span><span class="si">}</span><span class="s2"> dataset:&quot;</span>
+<span class="p">)</span>
+<span class="n">quantified_arm_swing</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">quantified_arm_swing</span><span class="p">[</span><span class="s1">&#39;gait_segment_nr&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
 </pre></div>
 </div>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>The arm swing quantification is based on the filtered gait segments.
@@ -1222,62 +1170,24 @@ Gait segments are created of minimum 1.5 seconds and maximum 1.5 seconds gap bet
 A total of 84 filtered gait segments have been quantified.
 
 Metadata of the first gait segment:
-{&#39;duration_filtered_segment_s&#39;: 9.0,
- &#39;duration_unfiltered_segment_s&#39;: 9.0,
- &#39;end_time_s&#39;: 2230.74,
- &#39;start_time_s&#39;: 2221.75}
-</pre></div>
-</div>
-<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 9.0 seconds, which is at least as large as the filtered gait segment.
-</pre></div>
-</div>
-<p>=======
-&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 9.0 seconds, which is at least as large as the filtered gait segment.
-</pre></div>
-</div>
-<p>=======</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 9.0 seconds, which is at least as large as the filtered gait segment.
-</pre></div>
-</div>
-<blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><p>37f1c8fea7b90d0e387febafe838f2df6ab9dd47
-origin/main
-Individual arm swings of the first gait segment of the filtered dataset:</p>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.dataframe tbody tr th {
-    vertical-align: top;
+{
+ &quot;start_time_s&quot;: 2221.75,
+ &quot;end_time_s&quot;: 2230.74,
+ &quot;duration_unfiltered_segment_s&quot;: 12.75,
+ &quot;duration_filtered_segment_s&quot;: 9.0
 }
 
-.dataframe thead th {
-    text-align: right;
-}
+Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 12.75 seconds, which is at least as large as the filtered gait segment.
+
+Individual arm swings of the first gait segment of the  filtered dataset:
 </pre></div>
 </div>
-</style>
+<div>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>segment_nr</th>
+      <th>gait_segment_nr</th>
       <th>range_of_motion</th>
       <th>peak_velocity</th>
     </tr>
@@ -1367,49 +1277,49 @@ Individual arm swings of the first gait segment of the filtered dataset:</p>
 <section id="run-steps-1-6-for-the-all-raw-data-segment-s">
 <h3>Run steps 1-6 for the all raw data segment(s) <a id='multiple_segments_cell'></a><a class="headerlink" href="#run-steps-1-6-for-the-all-raw-data-segment-s" title="Link to this heading"></a></h3>
 <p>If your data is also stored in multiple raw data segments, you can modify <code class="docutils literal notranslate"><span class="pre">raw_data_segments</span></code> in the cell below to a list of the filenames of your respective segmented data.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pprint</span><span class="w"> </span><span class="kn">import</span> <span class="n">pprint</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span><span class="p">,</span> <span class="n">merge_predictions_with_timestamps</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span><span class="p">,</span> <span class="n">GaitConfig</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_imu_data</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_gait_features</span><span class="p">,</span> <span class="n">detect_gait</span><span class="p">,</span><span class="n">extract_arm_activity_features</span><span class="p">,</span> <span class="n">filter_gait</span><span class="p">,</span> <span class="n">quantify_arm_swing</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassifierPackage</span>
-
-<span class="c1"># Set the path to where the prepared data is saved</span>
-<span class="n">path_to_data</span> <span class="o">=</span>  <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../example_data&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set the path to where the prepared data is saved</span>
+<span class="n">path_to_data</span> <span class="o">=</span>  <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../example_data/verily&#39;</span><span class="p">)</span>
 <span class="n">path_to_prepared_data</span> <span class="o">=</span> <span class="n">path_to_data</span> <span class="o">/</span> <span class="s1">&#39;imu&#39;</span>
 
 <span class="c1"># Load the gait detection classifier package</span>
 <span class="n">classifier_package_filename</span> <span class="o">=</span> <span class="s1">&#39;gait_detection_clf_package.pkl&#39;</span>
-<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;assets&#39;</span> <span class="o">/</span> <span class="n">classifier_package_filename</span>
+<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span>
+    <span class="o">/</span> <span class="s1">&#39;assets&#39;</span>
+    <span class="o">/</span> <span class="n">classifier_package_filename</span>
+<span class="p">)</span>
 <span class="n">clf_package_detection</span> <span class="o">=</span> <span class="n">ClassifierPackage</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">full_path_to_classifier_package</span><span class="p">)</span>
 
 <span class="c1"># Load the gait filtering classifier package</span>
 <span class="n">classifier_package_filename</span> <span class="o">=</span> <span class="s1">&#39;gait_filtering_clf_package.pkl&#39;</span>
-<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;assets&#39;</span> <span class="o">/</span> <span class="n">classifier_package_filename</span>
+<span class="n">full_path_to_classifier_package</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">files</span><span class="p">(</span><span class="s1">&#39;paradigma&#39;</span><span class="p">)</span>
+    <span class="o">/</span> <span class="s1">&#39;assets&#39;</span>
+    <span class="o">/</span> <span class="n">classifier_package_filename</span>
+<span class="p">)</span>
 <span class="n">clf_package_filtering</span> <span class="o">=</span> <span class="n">ClassifierPackage</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">full_path_to_classifier_package</span><span class="p">)</span>
 
-<span class="c1"># Set to True to quantify arm swing based on the filtered gait segments, and False</span>
-<span class="c1"># to quantify arm swing based on all gait segments</span>
+<span class="c1"># Set to True to quantify arm swing based on the filtered gait segments, and</span>
+<span class="c1"># False to quantify arm swing based on all gait segments</span>
 <span class="n">filtered</span> <span class="o">=</span> <span class="kc">True</span>
 
 <span class="c1"># Create a list to store all quantified arm swing segments</span>
 <span class="n">list_quantified_arm_swing</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">max_gait_segment_nr</span> <span class="o">=</span> <span class="mi">0</span>
 
-<span class="n">raw_data_segments</span>  <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;0001&#39;</span><span class="p">,</span> <span class="s1">&#39;0002&#39;</span><span class="p">]</span> <span class="c1"># list with all available raw data segments</span>
+<span class="n">raw_data_segments</span>  <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;0001&#39;</span><span class="p">,</span> <span class="s1">&#39;0002&#39;</span><span class="p">]</span>  <span class="c1"># list with all available raw data segments</span>
 
 <span class="k">for</span> <span class="n">raw_data_segment_nr</span> <span class="ow">in</span> <span class="n">raw_data_segments</span><span class="p">:</span>
 
     <span class="c1"># Load the data</span>
-    <span class="n">df_imu</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span><span class="n">path_to_prepared_data</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">raw_data_segment_nr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">df_imu</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
+        <span class="n">path_to_prepared_data</span><span class="p">,</span>
+        <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">raw_data_segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="p">)</span>
 
     <span class="c1"># 1: Preprocess the data</span>
-    <span class="c1"># Change column names if necessary by creating parameter column_mapping (see previous cells for an example)</span>
+    <span class="c1"># Change column names if necessary by creating parameter column_mapping</span>
+    <span class="c1"># (see previous cells for an example)</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span>
 
     <span class="n">df_preprocessed</span> <span class="o">=</span> <span class="n">preprocess_imu_data</span><span class="p">(</span>
@@ -1434,7 +1344,9 @@ Individual arm swings of the first gait segment of the filtered dataset:</p>
     <span class="p">)</span>
 
     <span class="c1"># Merge gait predictions into timeseries data</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">df_gait</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_detection</span><span class="o">.</span><span class="n">threshold</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
+        <span class="n">df_gait</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_detection</span><span class="o">.</span><span class="n">threshold</span>
+    <span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No gait detected in the input data.&quot;</span><span class="p">)</span>
 
     <span class="n">df</span> <span class="o">=</span> <span class="n">merge_predictions_with_timestamps</span><span class="p">(</span>
@@ -1445,7 +1357,9 @@ Individual arm swings of the first gait segment of the filtered dataset:</p>
         <span class="n">fs</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span>
     <span class="p">)</span>
 
-    <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_detection</span><span class="o">.</span><span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_detection</span><span class="o">.</span><span class="n">threshold</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_GAIT</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># 4: Extract arm activity features</span>
@@ -1463,8 +1377,12 @@ Individual arm swings of the first gait segment of the filtered dataset:</p>
     <span class="p">)</span>
 
     <span class="c1"># Merge arm activity predictions into timeseries data</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">df_arm_activity</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_filtering</span><span class="o">.</span><span class="n">threshold</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No gait without other arm activities detected in the input data.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
+        <span class="n">df_arm_activity</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">filt_threshold</span>
+    <span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;No gait without other arm activities detected in the input data.&quot;</span>
+        <span class="p">)</span>
 
     <span class="n">df</span> <span class="o">=</span> <span class="n">merge_predictions_with_timestamps</span><span class="p">(</span>
         <span class="n">df_ts</span><span class="o">=</span><span class="n">df_preprocessed</span><span class="p">,</span>
@@ -1474,7 +1392,9 @@ Individual arm swings of the first gait segment of the filtered dataset:</p>
         <span class="n">fs</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span>
     <span class="p">)</span>
 
-    <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">clf_package_filtering</span><span class="o">.</span><span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">filt_threshold</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># 6: Quantify arm swing</span>
@@ -1486,11 +1406,18 @@ Individual arm swings of the first gait segment of the filtered dataset:</p>
         <span class="n">min_segment_length_s</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">min_segment_length_s</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="c1"># Since segments start at zero, and we are concatenating multiple segments, we need to</span>
-    <span class="c1"># update the segment numbers to avoid aggregating multiple segments with the same number.</span>
-    <span class="n">max_gait_segment_nr</span> <span class="o">=</span> <span class="n">quantified_arm_swing</span><span class="p">[</span><span class="s1">&#39;segment_nr&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_quantified_arm_swing</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
-    <span class="n">quantified_arm_swing</span><span class="p">[</span><span class="s1">&#39;segment_nr&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">max_gait_segment_nr</span>
-    <span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span> <span class="o">+</span> <span class="n">max_gait_segment_nr</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="c1"># Since gait segments start at zero, and we are concatenating multiple segments,</span>
+    <span class="c1"># we need to update the gait segment numbers to avoid aggregating multiple</span>
+    <span class="c1"># gait segments with the same number</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_quantified_arm_swing</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">max_gait_segment_nr</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">max_gait_segment_nr</span> <span class="o">=</span> <span class="n">quantified_arm_swing</span><span class="p">[</span><span class="s1">&#39;gait_segment_nr&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+    <span class="n">quantified_arm_swing</span><span class="p">[</span><span class="s1">&#39;gait_segment_nr&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">max_gait_segment_nr</span>
+    <span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">k</span> <span class="o">+</span> <span class="n">max_gait_segment_nr</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">gait_segment_meta</span><span class="p">[</span><span class="s1">&#39;per_segment&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">}</span>
 
     <span class="c1"># Add the predictions of the current raw data segment to the list</span>
     <span class="n">quantified_arm_swing</span><span class="p">[</span><span class="s1">&#39;raw_data_segment_nr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw_data_segment_nr</span>
@@ -1499,18 +1426,19 @@ Individual arm swings of the first gait segment of the filtered dataset:</p>
 <span class="n">quantified_arm_swing</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">list_quantified_arm_swing</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Resampled: 3455331 -&gt; 3433961 rows at 100.0 Hz
+
+
+Resampled: 7434685 -&gt; 7388945 rows at 100.0 Hz
+</pre></div>
+</div>
 </section>
 </section>
 <section id="step-7-aggregation">
 <h2>Step 7: Aggregation<a class="headerlink" href="#step-7-aggregation" title="Link to this heading"></a></h2>
 <p>Finally, the arm swing estimates can be aggregated across all gait segments.</p>
-<p>Optionally, gait segments can be categorized into bins of specific length. Bins are tuples <code class="docutils literal notranslate"><span class="pre">(a,</span> <span class="pre">b)</span></code> including $a$ and excluding $b$, i.e., gait segments $\geq a$ seconds and $&lt; b$ seconds. For example, to analyze gait segments of at least 20 seconds, the tuple <code class="docutils literal notranslate"><span class="pre">(20,</span> <span class="pre">np.inf)</span></code> can be used. In case you want to analyze all gait segments combined, use <code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">np.inf)</span></code>.</p>
-<p>Optionally, gait segments can be categorized into bins of specific length. Bins are tuples <code class="docutils literal notranslate"><span class="pre">(a,</span> <span class="pre">b)</span></code> including $a$ and excluding $b$, i.e., gait segments $\geq a$ seconds and $&lt; b$ seconds. For example, to analyze gait segments of at least 20 seconds, the tuple <code class="docutils literal notranslate"><span class="pre">(20,</span> <span class="pre">np.inf)</span></code> can be used. In case you want to analyze all gait segments combined, use <code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">np.inf)</span></code>.</p>
-<p>Optionally, gait segments can be categorized into bins of specific length. Bins are tuples <code class="docutils literal notranslate"><span class="pre">(a,</span> <span class="pre">b)</span></code> including <code class="docutils literal notranslate"><span class="pre">a</span></code> and excluding <code class="docutils literal notranslate"><span class="pre">b</span></code>, i.e., gait segments ≥ <code class="docutils literal notranslate"><span class="pre">a</span></code> seconds and &lt; <code class="docutils literal notranslate"><span class="pre">b</span></code> seconds. For example, to analyze gait segments of at least 20 seconds, the tuple <code class="docutils literal notranslate"><span class="pre">(20,</span> <span class="pre">np.inf)</span></code> can be used. In case you want to analyze all gait segments combined, use <code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">np.inf)</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines.gait_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_arm_swing_params</span>
-
-<span class="n">segment_categories</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">),</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)]</span>
+<p>Optionally, gait segments can be categorized into bins of specific length. Bins are tuples <em>(a, b)</em> including <em>a</em> and excluding <em>b</em>, i.e., gait segments <code class="docutils literal notranslate"><span class="pre">≥</span> <span class="pre">a</span></code> seconds and <code class="docutils literal notranslate"><span class="pre">&lt;</span> <span class="pre">b</span></code> seconds. For example, to analyze gait segments of at least 20 seconds, the tuple <code class="docutils literal notranslate"><span class="pre">(20,</span> <span class="pre">np.inf)</span></code> can be used. In case you want to analyze all gait segments combined, use <code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">np.inf)</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">segment_categories</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">),</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)]</span>
 
 <span class="n">arm_swing_aggregations</span> <span class="o">=</span> <span class="n">aggregate_arm_swing_params</span><span class="p">(</span>
     <span class="n">df_arm_swing_params</span><span class="o">=</span><span class="n">quantified_arm_swing</span><span class="p">,</span>
@@ -1519,99 +1447,49 @@ Individual arm swings of the first gait segment of the filtered dataset:</p>
     <span class="n">aggregates</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;median&#39;</span><span class="p">,</span> <span class="s1">&#39;95p&#39;</span><span class="p">]</span>
 <span class="p">)</span>
 
-<span class="n">pprint</span><span class="p">(</span><span class="n">arm_swing_aggregations</span><span class="p">,</span> <span class="n">sort_dicts</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">arm_swing_aggregations</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;0_10&#39;: {&#39;duration_s&#39;: 341.25,
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{
+  &quot;0_10&quot;: {
+    &quot;duration_s&quot;: 341.25,
+    &quot;median_range_of_motion&quot;: 10.265043828684437,
+    &quot;95p_range_of_motion&quot;: 33.23162448765661,
+    &quot;median_peak_velocity&quot;: 52.98458323096141,
+    &quot;95p_peak_velocity&quot;: 168.65258802439874
+  },
+  &quot;10_20&quot;: {
+    &quot;duration_s&quot;: 60.75,
+    &quot;median_range_of_motion&quot;: 21.05381778480308,
+    &quot;95p_range_of_motion&quot;: 45.617438049991144,
+    &quot;median_peak_velocity&quot;: 117.7375878000595,
+    &quot;95p_peak_velocity&quot;: 228.8853651528709
+  },
+  &quot;20_inf&quot;: {
+    &quot;duration_s&quot;: 1905.75,
+    &quot;median_range_of_motion&quot;: 25.56899710571253,
+    &quot;95p_range_of_motion&quot;: 43.59181429894547,
+    &quot;median_peak_velocity&quot;: 127.40063801636731,
+    &quot;95p_peak_velocity&quot;: 217.64806342438817
+  },
+  &quot;0_inf&quot;: {
+    &quot;duration_s&quot;: 2307.75,
+    &quot;median_range_of_motion&quot;: 24.07131352109043,
+    &quot;95p_range_of_motion&quot;: 43.06891252479739,
+    &quot;median_peak_velocity&quot;: 120.43812492382015,
+    &quot;95p_peak_velocity&quot;: 215.76855388647215
+  }
+}
 </pre></div>
 </div>
-</section>
-</section>
-<section id="head">
-<h1>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD<a class="headerlink" href="#head" title="Link to this heading"></a></h1>
-<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
-<blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><p>origin/main
-‘median_range_of_motion’: 15.10889561336818,
-‘95p_range_of_motion’: 52.27598270995837,
-‘median_peak_velocity’: 74.63996138215876,
-‘95p_peak_velocity’: 230.71389576502395},
-‘10_20’: {‘duration_s’: 60.75,
-‘median_range_of_motion’: 15.781087457927846,
-‘95p_range_of_motion’: 45.165400467519284,
-‘median_peak_velocity’: 86.83257977334742,
-‘95p_peak_velocity’: 219.97254034894718},
-‘20_inf’: {‘duration_s’: 1905.75,
-‘median_range_of_motion’: 25.289651009660467,
-‘95p_range_of_motion’: 43.74907398039543,
-‘median_peak_velocity’: 125.9443142903539,
-‘95p_peak_velocity’: 217.80854223601995},
-‘0_inf’: {‘duration_s’: 2307.75,
-‘median_range_of_motion’: 23.100608971051322,
-‘95p_range_of_motion’: 45.92600123148869,
-‘median_peak_velocity’: 116.50364930684765,
-‘95p_peak_velocity’: 219.2008357820751}}
-&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-<p>=======</p>
-<p>=======
-‘median_range_of_motion’: 10.103916338101575,
-‘95p_range_of_motion’: 32.90613405134026,
-‘median_peak_velocity’: 51.71109278600136,
-‘95p_peak_velocity’: 163.04675036294768},
-‘10_20’: {‘duration_s’: 60.75,
-‘median_range_of_motion’: 21.05381778480308,
-‘95p_range_of_motion’: 45.617438049991144,
-‘median_peak_velocity’: 117.7375878000595,
-‘95p_peak_velocity’: 228.8853651528709},
-‘20_inf’: {‘duration_s’: 1905.75,
-‘median_range_of_motion’: 25.56899710571253,
-‘95p_range_of_motion’: 43.59181429894547,
-‘median_peak_velocity’: 127.40063801636731,
-‘95p_peak_velocity’: 217.64806342438817},
-‘0_inf’: {‘duration_s’: 2307.75,
-‘median_range_of_motion’: 23.88140114870256,
-‘95p_range_of_motion’: 43.047421805408675,
-‘median_peak_velocity’: 119.68741253971183,
-‘95p_peak_velocity’: 215.24611069202754}}</p>
-<blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><p>37f1c8fea7b90d0e387febafe838f2df6ab9dd47
-origin/main</p>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
 <p>The output of the aggregation step contains the aggregated arm swing parameters per gait segment category. Additionally, the total time in seconds <code class="docutils literal notranslate"><span class="pre">time_s</span></code> is added to inform based on how much data the aggregations were created.</p>
+</section>
 </section>
 
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="data_preparation.html" class="btn btn-neutral float-left" title="Data preparation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="tremor_analysis.html" class="btn btn-neutral float-right" title="Tremor analysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 

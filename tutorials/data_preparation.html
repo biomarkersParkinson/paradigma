@@ -47,17 +47,13 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="_static/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">User guides</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
@@ -108,20 +104,36 @@
 </ul>
 </li>
 </ul>
-<p>The final dataframe should be resampled to 100 Hz, have the correct units for the sensor columns, and the correct format for the time column. Also note that the <em>gait</em> pipeline expects a specific orientation of sensor axes, as explained in <a class="reference internal" href="../guides/coordinate_system.html"><span class="std std-doc">Coordinate system</span></a>.</p>
-<section id="load-data">
-<h2>Load data<a class="headerlink" href="#load-data" title="Link to this heading"></a></h2>
-<p>This example uses data of the <a class="reference external" href="https://pubmed.ncbi.nlm.nih.gov/31315608/">Personalized Parkinson Project</a>, which is stored in Time Series Data Format (TSDF). Inertial Measurements Units (IMU) and photoplethysmography (PPG) data are sampled at a different sampling frequency and therefore stored separately. Note that ParaDigMa works independent of data storage format; it only requires a <code class="docutils literal notranslate"><span class="pre">pandas</span></code> dataframe as input.</p>
+<p>The final dataframe should be resampled to 100 Hz, have the correct units for the sensor columns, and the correct format for the time column. Also note that the <em>gait</em> pipeline expects a specific orientation of sensor axes, as explained in <a class="reference internal" href="../guides/coordinate_system.html"><span class="doc std std-doc">Coordinate system</span></a>.</p>
+<section id="import-required-modules">
+<h2>Import required modules<a class="headerlink" href="#import-required-modules" title="Link to this heading"></a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from pathlib import Path
-from paradigma.util import load_tsdf_dataframe
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>import os
+from pathlib import Path
 
-path_to_raw_data = Path(&#39;../../tests/data/data_preparation_tutorial&#39;)
+from paradigma.constants import TimeUnit
+from paradigma.util import (
+    convert_units_accelerometer,
+    convert_units_gyroscope,
+    load_tsdf_dataframe,
+    transform_time_array,
+)
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="load-data">
+<h2>Load data<a class="headerlink" href="#load-data" title="Link to this heading"></a></h2>
+<p>This example uses data of the <a class="reference external" href="https://pubmed.ncbi.nlm.nih.gov/31315608/">Personalized Parkinson Project</a>, which is stored in Time Series Data Format (<code class="docutils literal notranslate"><span class="pre">TSDF</span></code>). Inertial Measurements Units (IMU) and photoplethysmography (PPG) data are sampled at a different sampling frequency and therefore stored separately. Note that ParaDigMa works independent of data storage format; it only requires a <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> as input.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>path_to_raw_data = Path(&#39;../../tests/data/data_preparation_tutorial&#39;)
 path_to_imu_data = path_to_raw_data / &#39;imu&#39;
 
 df_imu, imu_time, imu_values = load_tsdf_dataframe(
-    path_to_data=path_to_imu_data, 
+    path_to_data=path_to_imu_data,
     prefix=&#39;IMU&#39;
 )
 
@@ -132,13 +144,10 @@ df_imu.head()
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>import os
-from paradigma.util import load_tsdf_dataframe
-
-path_to_ppg_data = os.path.join(path_to_raw_data, &#39;ppg&#39;)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>path_to_ppg_data = os.path.join(path_to_raw_data, &#39;ppg&#39;)
 
 df_ppg, ppg_time, ppg_values = load_tsdf_dataframe(
-    path_to_data=path_to_ppg_data, 
+    path_to_data=path_to_ppg_data,
     prefix=&#39;PPG&#39;
 )
 
@@ -153,7 +162,7 @@ df_ppg.head()
 <h2>Prepare dataframe<a class="headerlink" href="#prepare-dataframe" title="Link to this heading"></a></h2>
 <section id="set-column-names">
 <h3>Set column names<a class="headerlink" href="#set-column-names" title="Link to this heading"></a></h3>
-<p>You are free to choose column names, although we recommend using the column names set in ParaDigMa for convenience in subsequent data processing steps. These are accessible through the class <code class="docutils literal notranslate"><span class="pre">DataColumns</span></code>, which can be imported from <code class="docutils literal notranslate"><span class="pre">paradigma.constants</span></code>. For example, we recommend setting <code class="docutils literal notranslate"><span class="pre">acc_x_colname</span></code> to <code class="docutils literal notranslate"><span class="pre">DataColumns.ACCELEROMETER_X</span></code>. Again, this is not strictly necessary for future steps.</p>
+<p>You are free to choose column names, although we recommend using the column names set in ParaDigMa for convenience in subsequent data processing steps. These are accessible through the class <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/constants/index.html#paradigma.constants.DataColumns"><code class="docutils literal notranslate"><span class="pre">DataColumns</span></code></a>, which can be imported from <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/constants/index.html"><code class="docutils literal notranslate"><span class="pre">paradigma.constants</span></code></a>. For example, we recommend setting <code class="docutils literal notranslate"><span class="pre">acc_x_colname</span></code> to <code class="docutils literal notranslate"><span class="pre">DataColumns.ACCELEROMETER_X</span></code>. Again, this is not strictly necessary for future steps.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>time_colname = &#39;time&#39;  # DataColumns.TIME
@@ -176,9 +185,7 @@ ppg_colname = &#39;green&#39;  # DataColumns.PPG
 <p>ParaDigMa expects acceleration to be measured in g, and rotation in deg/s. Units can be converted conveniently using ParaDigMa functionalities.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from paradigma.util import convert_units_accelerometer, convert_units_gyroscope
-
-# Set to units of the sampled data
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Set to units of the sampled data
 accelerometer_units = &#39;m/s^2&#39;
 gyroscope_units = &#39;deg/s&#39;
 
@@ -190,8 +197,14 @@ accelerometer_data = df_imu[accelerometer_columns].values
 gyroscope_data = df_imu[gyroscope_columns].values
 
 # Convert units to expected format
-df_imu[accelerometer_columns] = convert_units_accelerometer(accelerometer_data, accelerometer_units)
-df_imu[gyroscope_columns] = convert_units_gyroscope(gyroscope_data, gyroscope_units)
+df_imu[accelerometer_columns] = convert_units_accelerometer(
+    data=accelerometer_data,
+    units=accelerometer_units
+)
+df_imu[gyroscope_columns] = convert_units_gyroscope(
+    data=gyroscope_data,
+    units=gyroscope_units
+)
 
 df_imu.head()
 </pre></div>
@@ -201,11 +214,12 @@ df_imu.head()
 </section>
 <section id="account-for-watch-side">
 <h3>Account for watch side<a class="headerlink" href="#account-for-watch-side" title="Link to this heading"></a></h3>
-<p>For the Gait &amp; Arm Swing pipeline, it is essential to ensure correct sensor axes orientation. For more information please read <a class="reference internal" href="../guides/coordinate_system.html"><span class="std std-doc">Coordinate System</span></a> and set the axes of the data accordingly.</p>
+<p>For the Gait &amp; Arm Swing pipeline, it is essential to ensure correct sensor axes orientation. For more information please read <a class="reference internal" href="../guides/coordinate_system.html"><span class="doc std std-doc">Coordinate System</span></a> and set the axes of the data accordingly.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Change the orientation of the sensor according to the documented coordinate system. The following
-# changes are specific to the used sensor and its orientation relative to predefined coordinate system.
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Change the orientation of the sensor according to the documented coordinate system.
+# The following changes are specific to the used sensor and its orientation
+# relative to predefined coordinate system.
 df_imu[acc_y_colname] *= -1
 df_imu[acc_z_colname] *= -1
 df_imu[gyr_y_colname] *= -1
@@ -219,15 +233,12 @@ df_imu.head()
 </section>
 <section id="change-time-column">
 <h3>Change time column<a class="headerlink" href="#change-time-column" title="Link to this heading"></a></h3>
-<p>ParaDigMa expects the data to be in seconds relative to the first row, which should be equal to 0. The toolbox has the built-in function <code class="docutils literal notranslate"><span class="pre">transform_time_array</span></code> to help users transform their time column to the correct format if the timestamps have been sampled in delta time between timestamps. In the near future, the functionalities for transforming other types (e.g., datetime format) shall be provided.</p>
+<p>ParaDigMa expects the data to be in seconds relative to the first row, which should be equal to 0. The toolbox has the built-in function <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/util/index.html#paradigma.util.transform_time_array"><code class="docutils literal notranslate"><span class="pre">transform_time_array</span></code></a> to help users transform their time column to the correct format if the timestamps have been sampled in delta time between timestamps. In the near future, the functionalities for transforming other types (e.g., datetime format) shall be provided.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from paradigma.constants import TimeUnit
-from paradigma.util import transform_time_array
-
-df_imu[time_colname] = transform_time_array(
-    time_array=df_imu[time_colname], 
-    input_unit_type=TimeUnit.DIFFERENCE_MS, 
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>df_imu[time_colname] = transform_time_array(
+    time_array=df_imu[time_colname],
+    input_unit_type=TimeUnit.DIFFERENCE_MS,
     output_unit_type=TimeUnit.RELATIVE_S,
 )
 
@@ -238,12 +249,9 @@ df_imu.head()
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from paradigma.constants import TimeUnit
-from paradigma.util import transform_time_array
-
-df_ppg[time_colname] = transform_time_array(
-    time_array=df_ppg[time_colname], 
-    input_unit_type=TimeUnit.DIFFERENCE_MS, 
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>df_ppg[time_colname] = transform_time_array(
+    time_array=df_ppg[time_colname],
+    input_unit_type=TimeUnit.DIFFERENCE_MS,
     output_unit_type=TimeUnit.RELATIVE_S,
 )
 
@@ -253,6 +261,64 @@ df_ppg.head()
 </div>
 </div>
 <p>These dataframes are ready to be processed by ParaDigMa.</p>
+</section>
+</section>
+<section id="note-on-non-contiguous-data">
+<h2>Note on Non-Contiguous Data<a class="headerlink" href="#note-on-non-contiguous-data" title="Link to this heading"></a></h2>
+<p>If your data has gaps or interruptions (e.g., battery died, device removed, multiple recording sessions), you have two options:</p>
+<section id="option-1-auto-segmentation-recommended">
+<h3>Option 1: Auto-segmentation (Recommended)<a class="headerlink" href="#option-1-auto-segmentation-recommended" title="Link to this heading"></a></h3>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">split_by_gaps=True</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">run_paradigma()</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.orchestrator</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_paradigma</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">run_paradigma</span><span class="p">(</span>
+    <span class="n">dfs</span><span class="o">=</span><span class="n">df_prepared</span><span class="p">,</span>
+    <span class="n">pipelines</span><span class="o">=</span><span class="s1">&#39;gait&#39;</span><span class="p">,</span>
+    <span class="n">watch_side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span>
+    <span class="n">split_by_gaps</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>             <span class="c1"># Automatically handle gaps</span>
+    <span class="n">max_gap_seconds</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>            <span class="c1"># Split on gaps &gt; 1.5s</span>
+    <span class="n">min_segment_seconds</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>        <span class="c1"># Discard segments &lt; 2s</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>This will:</p>
+<ul class="simple">
+<li><p>Automatically detect and split data at gaps larger than <code class="docutils literal notranslate"><span class="pre">max_gap_seconds</span></code></p></li>
+<li><p>Discard segments shorter than <code class="docutils literal notranslate"><span class="pre">min_segment_seconds</span></code></p></li>
+<li><p>Process each contiguous segment independently</p></li>
+<li><p>Add a <code class="docutils literal notranslate"><span class="pre">data_segment_nr</span></code> column to track recording chunks</p></li>
+</ul>
+</section>
+<section id="option-2-manual-segmentation">
+<h3>Option 2: Manual segmentation<a class="headerlink" href="#option-2-manual-segmentation" title="Link to this heading"></a></h3>
+<p>Create segments yourself using functions from <a class="reference download internal" download="" href="../_downloads/cb20967773053f16d9849c6fb63e4159/segmenting.py"><span class="xref download myst">segmenting.py</span></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.segmenting</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_segments</span><span class="p">,</span> <span class="n">discard_segments</span>
+
+<span class="c1"># Create segments based on time gaps</span>
+<span class="n">df_prepared</span><span class="p">[</span><span class="s1">&#39;data_segment_nr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">create_segments</span><span class="p">(</span>
+    <span class="n">time_array</span><span class="o">=</span><span class="n">df_prepared</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+    <span class="n">max_segment_gap_s</span><span class="o">=</span><span class="mf">1.5</span>
+<span class="p">)</span>
+
+<span class="c1"># Optionally discard short segments</span>
+<span class="n">df_prepared</span> <span class="o">=</span> <span class="n">discard_segments</span><span class="p">(</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df_prepared</span><span class="p">,</span>
+    <span class="n">segment_nr_colname</span><span class="o">=</span><span class="s1">&#39;data_segment_nr&#39;</span><span class="p">,</span>
+    <span class="n">min_segment_length_s</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+    <span class="n">fs</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>  <span class="c1"># sampling frequency</span>
+    <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;timestamps&#39;</span>
+<span class="p">)</span>
+
+<span class="c1"># Then run paradigma normally (split_by_gaps=False)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">run_paradigma</span><span class="p">(</span>
+    <span class="n">dfs</span><span class="o">=</span><span class="n">df_prepared</span><span class="p">,</span>
+    <span class="n">pipelines</span><span class="o">=</span><span class="s1">&#39;gait&#39;</span><span class="p">,</span>
+    <span class="n">watch_side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span>
+    <span class="n">split_by_gaps</span><span class="o">=</span><span class="kc">False</span>  <span class="c1"># Data already segmented</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>For more details and examples, see the <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/tutorials/pipeline_orchestrator.html#auto-segmentation-for-non-contiguous-data">Pipeline Orchestrator Tutorial</a>.</p>
 </section>
 </section>
 </section>

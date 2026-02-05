@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sensor Data Requirements &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a31c8b26" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Supported Devices" href="supported_devices.html" />
+    <link rel="prev" title="Installation Guide" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Sensor Data Requirements</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/guides/sensor_requirements.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="sensor-data-requirements">
+<h1>Sensor Data Requirements<a class="headerlink" href="#sensor-data-requirements" title="Link to this heading"></a></h1>
+<p>ParaDigMa is designed for analysis of wrist-worn sensor data collected during passive monitoring in persons with Parkinson’s disease. This guide specifies the sensor and data requirements for each pipeline.</p>
+<section id="general-requirements">
+<h2>General Requirements<a class="headerlink" href="#general-requirements" title="Link to this heading"></a></h2>
+<p>All pipelines require data from a wrist-worn sensor with:</p>
+<ul class="simple">
+<li><p><strong>Sensor Position</strong>: Either wrist (left or right)</p></li>
+<li><p><strong>Population</strong>: Persons with Parkinson’s disease</p></li>
+<li><p><strong>Data Quality</strong>: Strictly increasing timestamps</p></li>
+<li><p><strong>Orientation</strong>: Standardized coordinate system (see <a class="reference internal" href="coordinate_system.html"><span class="std std-doc">Coordinate System Guide</span></a>)</p></li>
+</ul>
+</section>
+<section id="pipeline-specific-requirements">
+<h2>Pipeline-Specific Requirements<a class="headerlink" href="#pipeline-specific-requirements" title="Link to this heading"></a></h2>
+<section id="arm-swing-during-gait">
+<h3>Arm Swing during Gait<a class="headerlink" href="#arm-swing-during-gait" title="Link to this heading"></a></h3>
+<section id="sensor-specifications">
+<h4>Sensor Specifications<a class="headerlink" href="#sensor-specifications" title="Link to this heading"></a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Specification</p></th>
+<th class="head"><p>Minimum Requirement</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Accelerometer</strong></p></td>
+<td><p>Sampling rate ≥ 100 Hz<br>Range ≥ ± 4 g</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Gyroscope</strong></p></td>
+<td><p>Sampling rate ≥ 100 Hz<br>Range ≥ ± 1000 degrees/sec</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="physical-units">
+<h4>Physical Units<a class="headerlink" href="#physical-units" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><strong>Accelerometer</strong>: <code class="docutils literal notranslate"><span class="pre">g</span></code> (gravitational force)</p></li>
+<li><p><strong>Gyroscope</strong>: <code class="docutils literal notranslate"><span class="pre">deg/s</span></code> (degrees per second)</p></li>
+</ul>
+<blockquote>
+<div><p>ParaDigMa has functionalities for converting <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/util/index.html#paradigma.util.convert_units_accelerometer">accelerometer</a> and <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/util/index.html#paradigma.util.convert_units_gyroscope">gyroscope</a> in other units (e.g., <code class="docutils literal notranslate"><span class="pre">m/s^2</span></code>, <code class="docutils literal notranslate"><span class="pre">rad/s</span></code>) to these standard units. This can also be setup when using <code class="docutils literal notranslate"><span class="pre">run_paradigma</span></code>.</p>
+</div></blockquote>
+</section>
+<section id="data-compliance">
+<h4>Data Compliance<a class="headerlink" href="#data-compliance" title="Link to this heading"></a></h4>
+<p>For reliable weekly measures:</p>
+<ul class="simple">
+<li><p><strong>Minimum 3 compliant days</strong> with ≥10 hours of data between 8 am and 10 pm</p></li>
+<li><p><strong>At least 2 minutes</strong> of arm swing activity per week</p></li>
+</ul>
+</section>
+<section id="population-constraints">
+<h4>Population Constraints<a class="headerlink" href="#population-constraints" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>No walking aid usage</p></li>
+<li><p>No severe dyskinesia in the watch-sided arm</p></li>
+</ul>
+</section>
+<section id="required-parameters">
+<h4>Required Parameters<a class="headerlink" href="#required-parameters" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">watch_side</span></code>: Must specify <code class="docutils literal notranslate"><span class="pre">'left'</span></code> or <code class="docutils literal notranslate"><span class="pre">'right'</span></code></p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="tremor">
+<h3>Tremor<a class="headerlink" href="#tremor" title="Link to this heading"></a></h3>
+<section id="id1">
+<h4>Sensor Specifications<a class="headerlink" href="#id1" title="Link to this heading"></a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Specification</p></th>
+<th class="head"><p>Minimum Requirement</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Gyroscope</strong></p></td>
+<td><p>Sampling rate ≥ 100 Hz<br>Range ≥ ± 1000 degrees/sec</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id2">
+<h4>Physical Units<a class="headerlink" href="#id2" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><strong>Gyroscope</strong>: <code class="docutils literal notranslate"><span class="pre">deg/s</span></code> (degrees per second)</p></li>
+</ul>
+<blockquote>
+<div><p>ParaDigMa has functionalities for converting <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/util/index.html#paradigma.util.convert_units_gyroscope">gyroscope</a> in other units (e.g., <code class="docutils literal notranslate"><span class="pre">rad/s</span></code>) to these standard units. This can also be setup when using <code class="docutils literal notranslate"><span class="pre">run_paradigma</span></code>.</p>
+</div></blockquote>
+</section>
+<section id="id3">
+<h4>Data Compliance<a class="headerlink" href="#id3" title="Link to this heading"></a></h4>
+<p>For reliable weekly measures:</p>
+<ul class="simple">
+<li><p><strong>Minimum 3 compliant days</strong> with ≥10 hours of data between 8 am and 10 pm</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="pulse-rate">
+<h3>Pulse Rate<a class="headerlink" href="#pulse-rate" title="Link to this heading"></a></h3>
+<section id="id4">
+<h4>Sensor Specifications<a class="headerlink" href="#id4" title="Link to this heading"></a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Specification</p></th>
+<th class="head"><p>Minimum Requirement</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>PPG (Photoplethysmography)</strong></p></td>
+<td><p>Sampling rate ≥ 30 Hz<br>Green LED wavelength</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Accelerometer</strong> (optional)</p></td>
+<td><p>Sampling rate ≥ 100 Hz<br>Range ≥ ± 4 g<br><em>(for motion artifact detection)</em></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id5">
+<h4>Physical Units<a class="headerlink" href="#id5" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><strong>PPG</strong>: Blood volume pulse in arbitrary units (device-dependent)</p></li>
+<li><p><strong>Accelerometer</strong>: <code class="docutils literal notranslate"><span class="pre">g</span></code> (gravitational force) - if used for motion detection</p></li>
+</ul>
+</section>
+<section id="id6">
+<h4>Data Compliance<a class="headerlink" href="#id6" title="Link to this heading"></a></h4>
+<p>For reliable weekly measures:</p>
+<ul class="simple">
+<li><p><strong>Minimum 12 hours</strong> of data per day on average</p></li>
+</ul>
+</section>
+<section id="id7">
+<h4>Population Constraints<a class="headerlink" href="#id7" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>No cardiac rhythm disorders (e.g., atrial fibrillation, atrial flutter)</p></li>
+</ul>
+</section>
+<section id="important-notes">
+<h4>Important Notes<a class="headerlink" href="#important-notes" title="Link to this heading"></a></h4>
+<blockquote>
+<div><p><strong>Device-Specific Adaptation</strong>: The PPG processing pipeline is currently validated with the blood volume pulse (BVP) signal from the Verily Study Watch. To use PPG data from other devices, see the <a class="reference internal" href="#../tutorials/_static/pulse_rate_analysis.html#step-3-signal-quality-classification"><span class="xref myst">Pulse Rate Analysis Tutorial</span></a> for signal adaptation guidance.</p>
+</div></blockquote>
+<blockquote>
+<div><p><strong>Cannot Combine with Other Pipelines</strong>: The pulse rate pipeline requires different sensor data (PPG) than gait/tremor (IMU) and must be run separately.</p>
+</div></blockquote>
+</section>
+</section>
+</section>
+<hr class="docutils" />
+<section id="multi-pipeline-processing">
+<h2>Multi-Pipeline Processing<a class="headerlink" href="#multi-pipeline-processing" title="Link to this heading"></a></h2>
+<p>ParaDigMa supports running compatible pipelines together:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.orchestrator</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_paradigma</span>
+
+<span class="c1"># Gait and tremor can run together (both use IMU data)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">run_paradigma</span><span class="p">(</span>
+    <span class="n">dfs</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+    <span class="n">pipelines</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gait&#39;</span><span class="p">,</span> <span class="s1">&#39;tremor&#39;</span><span class="p">],</span>
+    <span class="n">watch_side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<section id="pipeline-compatibility-matrix">
+<h3>Pipeline Compatibility Matrix<a class="headerlink" href="#pipeline-compatibility-matrix" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Pipeline Combination</p></th>
+<th class="head text-center"><p>Compatible</p></th>
+<th class="head"><p>Reason</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Gait + Tremor</p></td>
+<td class="text-center"><p>✓</p></td>
+<td><p>Both use IMU sensors (accelerometer + gyroscope)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Gait + Pulse Rate</p></td>
+<td class="text-center"><p>✗</p></td>
+<td><p>Different sensor types (IMU vs PPG)</p></td>
+</tr>
+<tr class="row-even"><td><p>Tremor + Pulse Rate</p></td>
+<td class="text-center"><p>✗</p></td>
+<td><p>Different sensor types (IMU vs PPG)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Gait + Tremor + Pulse Rate</p></td>
+<td class="text-center"><p>✗</p></td>
+<td><p>Cannot mix IMU and PPG pipelines</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<hr class="docutils" />
+<section id="important-notes-on-validation">
+<h2>Important Notes on Validation<a class="headerlink" href="#important-notes-on-validation" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>[!NOTE]
+The specifications above represent <strong>minimally validated requirements</strong>. For example, while ParaDigMa works with accelerometer and gyroscope data sampled at 50 Hz, the effect on processing accuracy has not been empirically validated. <strong>Higher sampling rates and sensor ranges generally improve accuracy.</strong></p>
+</div></blockquote>
+<hr class="docutils" />
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="supported_devices.html" class="btn btn-neutral float-right" title="Supported Devices" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, and Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -46,17 +46,13 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">User guides</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
@@ -114,7 +110,9 @@
     <span class="n">GYROSCOPE_Z</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gyroscope_z&quot;</span>
     <span class="n">PPG</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;green&quot;</span>
     <span class="n">TIME</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;time&quot;</span>
-    <span class="n">SEGMENT_NR</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;segment_nr&quot;</span>
+    <span class="n">GAIT_SEGMENT_NR</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gait_segment_nr&quot;</span>
+    <span class="n">SEGMENT_NR</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gait_segment_nr&quot;</span>  <span class="c1"># Deprecated: Use GAIT_SEGMENT_NR instead</span>
+    <span class="n">DATA_SEGMENT_NR</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data_segment_nr&quot;</span>
     <span class="n">SEGMENT_CAT</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;segment_category&quot;</span>
 
     <span class="c1"># Gait</span>
@@ -136,6 +134,9 @@
     <span class="n">PRED_TREMOR_LOGREG</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pred_tremor_logreg&quot;</span>
     <span class="n">PRED_TREMOR_CHECKED</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pred_tremor_checked&quot;</span>
     <span class="n">PRED_ARM_AT_REST</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pred_arm_at_rest&quot;</span>
+    <span class="n">TREMOR_POWER</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;tremor_power&quot;</span>
+    <span class="n">BELOW_TREMOR_POWER</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;below_tremor_power&quot;</span>
+    <span class="n">FREQ_PEAK</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;freq_peak&quot;</span>
 
     <span class="c1"># Constants for PPG features</span>
     <span class="n">VARIANCE</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;variance&quot;</span>
@@ -180,8 +181,11 @@
     <span class="n">GRAVITY</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;g&quot;</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; The acceleration due to gravity is in g. &quot;&quot;&quot;</span>
 
-    <span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;g^2/Hz&quot;</span>
+    <span class="n">POWER_SPECTRAL_DENSITY_ACC</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;g^2/Hz&quot;</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; The power spectral density is in g^2/Hz. &quot;&quot;&quot;</span>
+
+    <span class="n">POWER_ROTATION</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;(deg/s)^2&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; The power is in &quot;(deg/s)^2. &quot;&quot;&quot;</span>
 
     <span class="n">FREQUENCY</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Hz&quot;</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; The frequency is in Hz. &quot;&quot;&quot;</span>

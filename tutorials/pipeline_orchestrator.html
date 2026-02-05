@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ParaDigMa Pipeline Orchestrator Tutorial &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a31c8b26" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/config.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ParaDigMa Pipeline Orchestrator Tutorial</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/pipeline_orchestrator.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="paradigma-pipeline-orchestrator-tutorial">
+<h1>ParaDigMa Pipeline Orchestrator Tutorial<a class="headerlink" href="#paradigma-pipeline-orchestrator-tutorial" title="Link to this heading"></a></h1>
+<p>This tutorial demonstrates how to use the <strong>pipeline orchestrator</strong> <code class="docutils literal notranslate"><span class="pre">run_paradigma()</span></code>, which serves as the main entry point for running ParaDigMa analysis pipelines. The orchestrator coordinates multiple analysis steps and can process different formats of sensor data.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">run_paradigma()</span></code> function is called an <em>orchestrator</em> because it coordinates multiple analysis steps depending on the user input. It can process:</p>
+<ul class="simple">
+<li><p><strong>Gait analysis</strong>: Arm swing quantification from IMU data</p></li>
+<li><p><strong>Tremor analysis</strong>: Tremor detection and quantification from gyroscope data</p></li>
+<li><p><strong>Pulse rate estimation</strong>: Pulse rate analysis from PPG data</p></li>
+</ul>
+<section id="key-features">
+<h3>Key Features<a class="headerlink" href="#key-features" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Multi-pipeline support</strong>: Run multiple analyses simultaneously</p></li>
+<li><p><strong>Flexible data input</strong>: Works with both prepared and raw sensor data</p></li>
+<li><p><strong>Multiple data formats</strong>: Supports Verily, Axivity, Empatica, and custom formats</p></li>
+<li><p><strong>Robust processing</strong>: Automatic data preparation and error handling</p></li>
+</ul>
+</section>
+<section id="data-requirements">
+<h3>Data Requirements<a class="headerlink" href="#data-requirements" title="Link to this heading"></a></h3>
+<p>The orchestrator accepts either:</p>
+<ol class="arabic simple">
+<li><p><strong>Prepared data</strong>: Prepared according to the <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/tutorials/data_preparation.html">Data preparation tutorial</a></p></li>
+<li><p><strong>Raw data</strong>: Automatically processed (note: this feature has a limited scope)</p></li>
+</ol>
+<p>Let’s explore different usage scenarios with examples.</p>
+</section>
+</section>
+<section id="import-required-modules">
+<h2>Import required modules<a class="headerlink" href="#import-required-modules" title="Link to this heading"></a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>import json
+import logging
+from pathlib import Path
+
+from paradigma.constants import TimeUnit
+from paradigma.load import load_data_files
+from paradigma.orchestrator import run_paradigma
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="single-pipeline-with-prepared-data">
+<h2>1. Single pipeline with prepared data<a class="headerlink" href="#single-pipeline-with-prepared-data" title="Link to this heading"></a></h2>
+<p>Let’s start with a simple example using prepared PPG data for pulse rate analysis.</p>
+<p>The function <code class="docutils literal notranslate"><span class="pre">load_data_files</span></code> attempts to load data of any or multiple of the following formats:
+‘parquet’, ‘csv’, ‘pkl’, ‘pickle’, ‘json’, ‘avro’, ‘cwa’. You can load the data in your preferred
+ways, but note that the output should be of format <code class="docutils literal notranslate"><span class="pre">Dict[str,</span> <span class="pre">pd.DataFrame]</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s1">&#39;file_1&#39;</span><span class="p">:</span> <span class="n">df_1</span><span class="p">,</span> 
+    <span class="s1">&#39;file_2&#39;</span><span class="p">:</span> <span class="n">df_2</span><span class="p">,</span> 
+    <span class="o">...</span><span class="p">,</span> 
+    <span class="s1">&#39;file_n&#39;</span><span class="p">:</span> <span class="n">df_n</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Alternatively, you can provide:</p>
+<ul class="simple">
+<li><p>A <strong>single DataFrame</strong>: Will be processed with key <code class="docutils literal notranslate"><span class="pre">'df_1'</span></code></p></li>
+<li><p>A <strong>list of DataFrames</strong>: Each will get keys like <code class="docutils literal notranslate"><span class="pre">'df_1'</span></code>, <code class="docutils literal notranslate"><span class="pre">'df_2'</span></code>, etc.</p></li>
+</ul>
+<p>This means ParaDigMa can run multiple files in sequence. This is useful when you have multiple files
+spanning a week, and you want aggregations to be computed across all files.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>path_to_ppg_data = Path(&#39;../../example_data/verily/ppg&#39;)
+
+dfs_ppg = load_data_files(
+    data_path=path_to_ppg_data,
+    file_patterns=&#39;json&#39;
+)
+
+print(f&quot;Loaded {len(dfs_ppg)} PPG files:&quot;)
+for filename in dfs_ppg.keys():
+    df = dfs_ppg[filename]
+    print(f&quot;  - {filename}: {len(df)} samples, {len(df.columns)} columns&quot;)
+
+print(f&quot;\nFirst 5 rows of {list(dfs_ppg.keys())[0]}:&quot;)
+dfs_ppg[list(dfs_ppg.keys())[0]].head()
+</pre></div>
+</div>
+</div>
+</div>
+<section id="output-control">
+<h3>Output Control<a class="headerlink" href="#output-control" title="Link to this heading"></a></h3>
+<p>When running ParaDigMa, you can control where results are saved and what intermediate results to store:</p>
+<p><strong>Output Directory:</strong></p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">&quot;./output&quot;</span></code></p></li>
+<li><p>Custom: Specify your own path like <code class="docutils literal notranslate"><span class="pre">output_dir=&quot;./my_results&quot;</span></code></p></li>
+<li><p>No storage: Files are only saved if <code class="docutils literal notranslate"><span class="pre">save_intermediate</span></code> is not empty</p></li>
+</ul>
+<p><strong>Store Intermediate Results:</strong></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">save_intermediate</span></code> parameter accepts a list of strings:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">save_intermediate</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;preprocessing&#39;</span><span class="p">,</span> <span class="s1">&#39;quantification&#39;</span><span class="p">,</span> <span class="s1">&#39;aggregation&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Valid options are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'preparation'</span></code>: Save prepared data</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'preprocessing'</span></code>: Save preprocessed signals</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'classification'</span></code>: Save classification results</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'quantification'</span></code>: Save quantified measures</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'aggregation'</span></code>: Save aggregated results</p></li>
+</ul>
+<p>If <code class="docutils literal notranslate"><span class="pre">save_intermediate=[]</span></code> (empty list), <strong>no files are saved</strong> - results are only returned in memory.</p>
+<p>Also, set the correct units of the <code class="docutils literal notranslate"><span class="pre">time</span></code> column. For all options, please check <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/constants/index.html#paradigma.constants.TimeUnit">the API reference</a>.</p>
+</section>
+<section id="logging-control">
+<h3>Logging Control<a class="headerlink" href="#logging-control" title="Link to this heading"></a></h3>
+<p>ParaDigMa uses Python’s standard <code class="docutils literal notranslate"><span class="pre">logging</span></code> module to provide progress updates and diagnostics. You can control the verbosity level and optionally provide a custom logger for advanced use cases.</p>
+<p><strong>Basic Logging Levels:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="c1"># Default - shows progress and important information</span>
+<span class="n">run_paradigma</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">logging_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+<span class="c1"># Detailed - shows additional processing details  </span>
+<span class="n">run_paradigma</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">logging_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+
+<span class="c1"># Quiet - only warnings and errors</span>
+<span class="n">run_paradigma</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">logging_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+
+<span class="c1"># Silent - only errors</span>
+<span class="n">run_paradigma</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">logging_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Custom Logger (Advanced):</strong></p>
+<p>For full control over logging (custom formatting, multiple handlers, etc.), provide your own logger:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create custom logger with your configuration</span>
+<span class="n">custom_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;my_analysis&#39;</span><span class="p">)</span>
+<span class="n">custom_logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+<span class="n">custom_logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>  <span class="c1"># Add your handlers</span>
+
+<span class="c1"># Pass it to run_paradigma</span>
+<span class="n">run_paradigma</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">custom_logger</span><span class="o">=</span><span class="n">custom_logger</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When a custom logger is provided, the <code class="docutils literal notranslate"><span class="pre">logging_level</span></code> parameter is ignored.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>pipeline = &#39;pulse_rate&#39;
+
+# Example 1: Using default output directory with storage
+results_single_pipeline = run_paradigma(
+    dfs=dfs_ppg,
+    pipelines=pipeline,
+    skip_preparation=True,
+    time_input_unit=TimeUnit.RELATIVE_S,
+    save_intermediate=[&#39;quantification&#39;, &#39;aggregation&#39;],  # Files saved to ./output
+    logging_level=logging.WARNING  # Only show warnings and errors
+)
+
+print(results_single_pipeline[&#39;metadata&#39;][pipeline])
+print(results_single_pipeline[&#39;aggregations&#39;][pipeline])
+results_single_pipeline[&#39;quantifications&#39;][pipeline].head()
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Example 2: No file storage - results only in memory
+results_no_storage = run_paradigma(
+    dfs=dfs_ppg,
+    pipelines=pipeline,
+    skip_preparation=True,
+    time_input_unit=TimeUnit.RELATIVE_S,
+    save_intermediate=[],  # No files saved
+    logging_level=logging.WARNING  # Only show warnings and errors
+)
+
+print(&quot;Results returned without file storage:&quot;)
+print(f&quot;  Quantifications: {len(results_no_storage[&#39;quantifications&#39;][pipeline])} rows&quot;)
+print(f&quot;  Aggregations: {results_no_storage[&#39;aggregations&#39;][pipeline]}&quot;)
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="example-no-file-storage">
+<h3>Example: No File Storage<a class="headerlink" href="#example-no-file-storage" title="Link to this heading"></a></h3>
+<p>If you only want to work with results in memory without saving any files, use an empty <code class="docutils literal notranslate"><span class="pre">save_intermediate</span></code> list:</p>
+<p>Note that <code class="docutils literal notranslate"><span class="pre">run_paradigma</span></code> currently does not accept accelerometer data as a supplement to the pulse
+rate pipeline for signal quality analysis. If you want to do these analyses, please check out the
+<a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a>
+tutorial for more info.</p>
+</section>
+</section>
+<section id="multi-pipeline-with-prepared-data">
+<h2>2. Multi-pipeline with prepared data<a class="headerlink" href="#multi-pipeline-with-prepared-data" title="Link to this heading"></a></h2>
+<p>One of the key features of the orchestrator is the ability to run multiple analysis pipelines simultaneously on the same data. This is more efficient than running them separately.</p>
+<section id="results-structure">
+<h3>Results Structure<a class="headerlink" href="#results-structure" title="Link to this heading"></a></h3>
+<p>The multi-pipeline orchestrator returns a nested structure that organizes results by pipeline:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s1">&#39;quantifications&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;gait&#39;</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span>      <span class="c1"># Gait segment-level quantifications</span>
+        <span class="s1">&#39;tremor&#39;</span><span class="p">:</span> <span class="n">DataFrame</span>     <span class="c1"># Tremor window-level quantifications</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;aggregations&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;gait&#39;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">},</span>         <span class="c1"># Aggregated gait metrics</span>
+        <span class="s1">&#39;tremor&#39;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>        <span class="c1"># Aggregated tremor metrics  </span>
+    <span class="p">},</span>
+    <span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;gait&#39;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">},</span>         <span class="c1"># Gait analysis metadata</span>
+        <span class="s1">&#39;tremor&#39;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>        <span class="c1"># Tremor analysis metadata</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;errors&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span>            <span class="c1"># List of errors encountered (empty if successful)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">errors</span></code> list tracks any failures during processing. Each error contains:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">stage</span></code>: Where the error occurred (loading, preparation, pipeline_execution, aggregation)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">error</span></code>: Error message</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">file</span></code>: Filename (if file-specific)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pipeline</span></code>: Pipeline name (if pipeline-specific)</p></li>
+</ul>
+<p>Check for errors after processing:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;errors&#39;</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;errors&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2"> error(s) occurred&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;errors&#39;</span><span class="p">]:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">error</span><span class="p">[</span><span class="s1">&#39;stage&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">error</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Load prepared IMU data
+path_to_imu_data = Path(&#39;../../example_data/verily/imu&#39;)
+
+dfs_imu = load_data_files(
+    data_path=path_to_imu_data,
+    file_patterns=&#39;json&#39;
+)
+
+print(f&quot;Loaded {len(dfs_imu)} IMU files:&quot;)
+for filename in dfs_imu.keys():
+    df = dfs_imu[filename]
+    print(f&quot;  - {filename}: {len(df)} samples, {len(df.columns)} columns&quot;)
+
+print(f&quot;\nFirst 5 rows of {list(dfs_imu.keys())[0]}:&quot;)
+dfs_imu[list(dfs_imu.keys())[0]].head()
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Run gait and tremor analysis on the prepared data
+# Using custom output directory
+results_multi_pipeline = run_paradigma(
+    output_dir=Path(&#39;./output_multi&#39;),
+    dfs=dfs_imu,                        # Pre-loaded data
+    skip_preparation=True,              # Data is already prepared
+    pipelines=[&#39;gait&#39;, &#39;tremor&#39;],       # Multiple pipelines (list format)
+    watch_side=&#39;left&#39;,                  # Required for gait analysis
+    save_intermediate=[&#39;quantification&#39;],  # Store quantifications only
+    logging_level=logging.WARNING  # Only show warnings and errors
+)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Explore the results structure
+print(&quot;Detailed Results Analysis:&quot;)
+
+# Gait results
+arm_swing_quantified = results_multi_pipeline[&#39;quantifications&#39;][&#39;gait&#39;]
+arm_swing_aggregates = results_multi_pipeline[&#39;aggregations&#39;][&#39;gait&#39;]
+arm_swing_meta = results_multi_pipeline[&#39;metadata&#39;][&#39;gait&#39;]
+print(f&quot;\nArm swing quantification ({len(arm_swing_quantified)} windows):&quot;)
+print(
+    f&quot;   Columns: {list(arm_swing_quantified.columns[:5])}... &quot;
+    f&quot;({len(arm_swing_quantified.columns)} total)&quot;
+)
+print(f&quot;   Files: {arm_swing_quantified[&#39;file_key&#39;].unique()}&quot;)
+
+print(f&quot;\nArm swing aggregation ({len(arm_swing_aggregates)} time ranges):&quot;)
+print(f&quot;   Gait segment categories: {list(arm_swing_aggregates.keys())}&quot;)
+print(f&quot;   Aggregates: {list(arm_swing_aggregates[&#39;0_10&#39;].keys())}&quot;)
+print(f&quot;   Metadata first gait segment: {arm_swing_meta[1]}&quot;)
+
+# Tremor results
+tremor_quantified = results_multi_pipeline[&#39;quantifications&#39;][&#39;tremor&#39;]
+tremor_aggregates = results_multi_pipeline[&#39;aggregations&#39;][&#39;tremor&#39;]
+tremor_meta = results_multi_pipeline[&#39;metadata&#39;][&#39;tremor&#39;]
+print(f&quot;\nTremor quantification ({len(tremor_quantified)} windows):&quot;)
+print(
+    f&quot;   Columns: {list(tremor_quantified.columns[:5])}... &quot;
+    f&quot;({len(tremor_quantified.columns)} total)&quot;
+)
+print(f&quot;   Files: {tremor_quantified[&#39;file_key&#39;].unique()}&quot;)
+
+print(f&quot;\nTremor aggregation ({len(tremor_aggregates)} time ranges):&quot;)
+print(f&quot;   Aggregates: {list(tremor_aggregates.keys())}&quot;)
+print(f&quot;   Metadata first tremor segment: {tremor_meta}&quot;)
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="raw-data-processing">
+<h2>3. Raw Data Processing<a class="headerlink" href="#raw-data-processing" title="Link to this heading"></a></h2>
+<p>The orchestrator can also process raw sensor data automatically. This includes data preparation steps like format standardization, unit conversion, and orientation correction. Note that this feature has been developed on limited data examples, and therefore may not function as expected on newly observed data.</p>
+<section id="column-mapping-for-custom-data-formats">
+<h3>Column Mapping for Custom Data Formats<a class="headerlink" href="#column-mapping-for-custom-data-formats" title="Link to this heading"></a></h3>
+<p>If your raw data uses different column names than ParaDigMa’s standard naming convention, use the <code class="docutils literal notranslate"><span class="pre">column_mapping</span></code> parameter to map your column names to the expected ones.</p>
+<p><strong>Standard ParaDigMa column names:</strong></p>
+<ul class="simple">
+<li><p><strong>Required for all pipelines:</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">time</span></code>: Timestamp column</p></li>
+</ul>
+</li>
+<li><p><strong>For IMU pipelines (gait, tremor):</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">accelerometer_x</span></code>, <code class="docutils literal notranslate"><span class="pre">accelerometer_y</span></code>, <code class="docutils literal notranslate"><span class="pre">accelerometer_z</span></code>: Accelerometer axes</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gyroscope_x</span></code>, <code class="docutils literal notranslate"><span class="pre">gyroscope_y</span></code>, <code class="docutils literal notranslate"><span class="pre">gyroscope_z</span></code>: Gyroscope axes</p></li>
+</ul>
+</li>
+<li><p><strong>For PPG pipeline (pulse_rate):</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">ppg</span></code>: PPG signal</p></li>
+</ul>
+</li>
+</ul>
+<p><strong>Example mapping:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">column_mapping</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="s1">&#39;time&#39;</span><span class="p">,</span>                      <span class="c1"># Your &#39;timestamp&#39; column → ParaDigMa &#39;time&#39; column</span>
+    <span class="s1">&#39;acceleration_x&#39;</span><span class="p">:</span> <span class="s1">&#39;accelerometer_x&#39;</span><span class="p">,</span>      <span class="c1"># Your &#39;acceleration&#39; columns → ParaDigMa &#39;accelerometer&#39; columns&#39;</span>
+    <span class="s1">&#39;acceleration_y&#39;</span><span class="p">:</span> <span class="s1">&#39;accelerometer_y&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;acceleration_z&#39;</span><span class="p">:</span> <span class="s1">&#39;accelerometer_z&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;rotation_x&#39;</span><span class="p">:</span> <span class="s1">&#39;gyroscope_x&#39;</span><span class="p">,</span>              <span class="c1"># Your &#39;rotation&#39; columns → ParaDigMa &#39;gyroscope&#39; columns</span>
+    <span class="s1">&#39;rotation_y&#39;</span><span class="p">:</span> <span class="s1">&#39;gyroscope_y&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;rotation_z&#39;</span><span class="p">:</span> <span class="s1">&#39;gyroscope_z&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>path_to_raw_data = Path(&#39;../../example_data/axivity&#39;)
+
+device_orientation = [&quot;-x&quot;, &quot;-y&quot;, &quot;z&quot;]      # Sensor was worn upside-down
+pipeline = &#39;gait&#39;
+
+# Working with raw data - this requires data preparation
+# Using custom output directory
+results_end_to_end = run_paradigma(
+    output_dir=Path(&#39;./output_raw&#39;),
+    data_path=path_to_raw_data,             # Point to data folder
+    skip_preparation=False,                 # ParaDigMa will prepare the data
+    pipelines=pipeline,
+    watch_side=&quot;left&quot;,
+    time_input_unit=TimeUnit.RELATIVE_S,    # Specify time unit for raw data
+    accelerometer_units=&#39;g&#39;,
+    gyroscope_units=&#39;deg/s&#39;,
+    target_frequency=100.0,
+    device_orientation=device_orientation,
+    save_intermediate=[&#39;aggregation&#39;],      # Only save aggregations
+    logging_level=logging.WARNING,  # Only show warnings and errors
+)
+
+print(
+    f&quot;\nMetadata:\n&quot;
+    f&quot;{json.dumps(results_end_to_end[&#39;metadata&#39;][pipeline][1], indent=2)}&quot;
+)
+print(
+    f&quot;\nAggregations:\n&quot;
+    f&quot;{json.dumps(results_end_to_end[&#39;aggregations&#39;][pipeline], indent=2)}&quot;
+)
+print(&quot;\nQuantifications (first 5 rows; each row represents a single arm swing):&quot;)
+results_end_to_end[&#39;quantifications&#39;][pipeline].head()
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="auto-segmentation-for-non-contiguous-data">
+<h2>4. Auto-Segmentation for Non-Contiguous Data<a class="headerlink" href="#auto-segmentation-for-non-contiguous-data" title="Link to this heading"></a></h2>
+<p>When working with sensor data, you may encounter gaps or interruptions in the recording (e.g., battery died, device removed, multiple recording sessions). The orchestrator can automatically detect these gaps and split the data into contiguous segments for processing.</p>
+<section id="when-to-use-auto-segmentation">
+<h3>When to Use Auto-Segmentation<a class="headerlink" href="#when-to-use-auto-segmentation" title="Link to this heading"></a></h3>
+<p>Use <code class="docutils literal notranslate"><span class="pre">split_by_gaps=True</span></code> when:</p>
+<ul class="simple">
+<li><p>Your data has recording interruptions or gaps</p></li>
+<li><p>You’re getting “Time array is not contiguous” errors</p></li>
+<li><p>You want to process multiple recording sessions in one file</p></li>
+<li><p>Data spans multiple days with breaks</p></li>
+</ul>
+</section>
+<section id="understanding-data-segments-vs-gait-segments">
+<h3>Understanding Data Segments vs Gait Segments<a class="headerlink" href="#understanding-data-segments-vs-gait-segments" title="Link to this heading"></a></h3>
+<p>Important distinction:</p>
+<ul class="simple">
+<li><p><strong>Data segments (<code class="docutils literal notranslate"><span class="pre">data_segment_nr</span></code>)</strong>: Contiguous recording chunks separated by temporal gaps</p>
+<ul>
+<li><p>Created during data preparation</p></li>
+<li><p>Example: 4 segments if recording had 3 interruptions</p></li>
+</ul>
+</li>
+<li><p><strong>Gait segments (<code class="docutils literal notranslate"><span class="pre">gait_segment_nr</span></code>)</strong>: Detected gait bouts within the data</p>
+<ul>
+<li><p>Created during gait pipeline analysis</p></li>
+<li><p>Example: 52 gait bouts detected across all data segments</p></li>
+<li><p>Only applicable to gait analysis</p></li>
+</ul>
+</li>
+</ul>
+<p>The orchestrator will:</p>
+<ol class="arabic simple">
+<li><p>Detect gaps larger than <code class="docutils literal notranslate"><span class="pre">max_gap_seconds</span></code> (default: 1.5 seconds)</p></li>
+<li><p>Split data into contiguous data segments</p></li>
+<li><p>Discard segments shorter than <code class="docutils literal notranslate"><span class="pre">min_segment_seconds</span></code> (default: 1.5 seconds)</p></li>
+<li><p>Add a <code class="docutils literal notranslate"><span class="pre">data_segment_nr</span></code> column to track which recording chunk each data point belongs to</p></li>
+<li><p>Process each data segment independently through the pipeline</p></li>
+<li><p>Combine results with <code class="docutils literal notranslate"><span class="pre">gait_segment_nr</span></code> for detected gait bouts (gait pipeline only)</p></li>
+</ol>
+</section>
+<section id="example-gait-up-physilog-data-with-gaps">
+<h3>Example: Gait-up Physilog Data with Gaps<a class="headerlink" href="#example-gait-up-physilog-data-with-gaps" title="Link to this heading"></a></h3>
+<p>This example uses data from a Gait-up Physilog 4 device with 3 large gaps (up to ~20 minutes). The data is already in Parquet format with standard column names, but timestamps are non-contiguous.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Load Gait-up Physilog data with non-contiguous timestamps
+path_to_physilog_data = Path(&#39;../../example_data/gait_up_physilog&#39;)
+
+dfs_physilog = load_data_files(
+    data_path=path_to_physilog_data,
+    file_patterns=&#39;parquet&#39;
+)
+
+print(f&quot;Loaded {len(dfs_physilog)} Gait-up Physilog file(s):&quot;)
+for filename, df in dfs_physilog.items():
+    print(f&quot;  - {filename}: {len(df)} samples, {len(df.columns)} columns&quot;)
+    print(f&quot;    Time range: {df[&#39;time&#39;].min():.1f}s to {df[&#39;time&#39;].max():.1f}s&quot;)
+    print(f&quot;    Duration: {(df[&#39;time&#39;].max() - df[&#39;time&#39;].min()):.1f}s&quot;)
+
+    # Check for gaps
+    time_diffs = df[&#39;time&#39;].diff().dropna()
+    large_gaps = time_diffs[time_diffs &gt; 1.0]
+    if len(large_gaps) &gt; 0:
+        print(
+            f&quot;Contains {len(large_gaps)} gap(s) &gt; 1s &quot;
+            f&quot;(largest: {large_gaps.max():.1f}s)&quot;
+        )
+
+    # Check for NaN values (common in real-world data)
+    nan_counts = df.isnull().sum()
+    if nan_counts.sum() &gt; 0:
+        print(f&quot;Contains {nan_counts.sum()} NaN values&quot;)
+
+# Clean DataFrames with NaN values (after iteration to avoid SettingWithCopyWarning)
+for filename in list(dfs_physilog.keys()):
+    df = dfs_physilog[filename]
+    df_clean = df.dropna().reset_index(drop=True)
+    if len(df_clean) &lt; len(df):
+        print(
+            f&quot;Dropping {len(df) - len(df_clean)} rows with NaN values &quot;
+            f&quot;from file {filename}&quot;
+        )
+    dfs_physilog[filename] = df_clean
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Example: Processing non-contiguous data with auto-segmentation
+# Data already has standard column names and units, but needs segmentation
+
+results_with_segmentation = run_paradigma(
+    dfs=dfs_physilog,                     # Pre-loaded data dictionary
+    skip_preparation=False,               # Need preparation to add data_segment_nr
+    pipelines=&#39;gait&#39;,
+    watch_side=&quot;left&quot;,
+    time_input_unit=TimeUnit.RELATIVE_S,
+    # Auto-segmentation parameters
+    split_by_gaps=True,                   # Enable automatic segmentation
+    max_gap_seconds=1.0,                  # Gaps &gt; 1s create new data segment
+    min_segment_seconds=2.0,              # Keep only data segments &gt;= 2s
+    save_intermediate=[],                 # No file storage for demo
+    logging_level=logging.WARNING,  # Only show warnings and errors
+)
+
+gait_results = results_with_segmentation[&#39;quantifications&#39;][&#39;gait&#39;]
+
+print(f&quot;\nTotal arm swings quantified: {len(gait_results)}&quot;)
+print(f&quot;Number of gait segments: {gait_results[&#39;gait_segment_nr&#39;].nunique()}&quot;)
+if &#39;data_segment_nr&#39; in gait_results.columns:
+    print(f&quot;Number of data segments: {gait_results[&#39;data_segment_nr&#39;].nunique()}&quot;)
+print(f&quot;\nColumns in output: {list(gait_results.columns)}&quot;)
+gait_results.head()
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, and Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

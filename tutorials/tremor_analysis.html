@@ -47,17 +47,13 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="_static/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">User guides</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
@@ -109,27 +105,54 @@
 <ol class="arabic simple" start="5">
 <li><p>Compute aggregated tremor measures</p></li>
 </ol>
+<section id="import-required-modules">
+<h2>Import required modules<a class="headerlink" href="#import-required-modules" title="Link to this heading"></a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>import datetime
+import json
+from importlib.resources import files
+from pathlib import Path
+
+import pandas as pd
+import pytz
+import tsdf
+
+from paradigma.config import IMUConfig, TremorConfig
+from paradigma.constants import DataColumns, DataUnits
+from paradigma.pipelines.tremor_pipeline import (
+    aggregate_tremor,
+    detect_tremor,
+    extract_tremor_features,
+)
+from paradigma.preprocessing import preprocess_imu_data
+from paradigma.util import load_tsdf_dataframe, select_days, select_hours, write_df_data
+</pre></div>
+</div>
+</div>
+</div>
+</section>
 <section id="load-example-data">
 <h2>Load example data<a class="headerlink" href="#load-example-data" title="Link to this heading"></a></h2>
 <p>Here, we start by loading a single contiguous time series (segment), for which we continue running steps 1-3. Below we show how to run these steps for multiple segments.</p>
-<p>We use the interally developed <code class="docutils literal notranslate"><span class="pre">TSDF</span></code> (<a class="reference external" href="https://biomarkersparkinson.github.io/tsdf/">documentation</a>) to load and store data [<a class="reference external" href="https://arxiv.org/abs/2211.11294">1</a>]. Depending on the file extension of your time series data, examples of other Python functions for loading the data into memory include:</p>
+<p>We use the internally developed <code class="docutils literal notranslate"><span class="pre">TSDF</span></code> (<a class="reference external" href="https://biomarkersparkinson.github.io/tsdf/">documentation</a>) to load and store data [<a class="reference external" href="https://arxiv.org/abs/2211.11294">1</a>]. Depending on the file extension of your time series data, examples of other Python functions for loading the data into memory include:</p>
 <ul class="simple">
 <li><p><em>.csv</em>: <code class="docutils literal notranslate"><span class="pre">pandas.read_csv()</span></code> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html">documentation</a>)</p></li>
 <li><p><em>.json</em>: <code class="docutils literal notranslate"><span class="pre">json.load()</span></code> (<a class="reference external" href="https://docs.python.org/3/library/json.html#json.load">documentation</a>)</p></li>
 </ul>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from pathlib import Path
-from paradigma.util import load_tsdf_dataframe
-
-# Set the path to where the prepared data is saved and load the data.
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Set the path to where the prepared data is saved and load the data.
 # Note: the test data is stored in TSDF, but you can load your data in your own way
-path_to_data =  Path(&#39;../../example_data&#39;)
+path_to_data =  Path(&#39;../../example_data/verily&#39;)
 path_to_prepared_data = path_to_data / &#39;imu&#39;
 
-segment_nr  = &#39;0001&#39; 
+segment_nr  = &#39;0001&#39;
 
-df_data, metadata_time, metadata_values = load_tsdf_dataframe(path_to_prepared_data, prefix=f&#39;IMU_segment{segment_nr}&#39;)
+df_data, metadata_time, metadata_values = load_tsdf_dataframe(
+    path_to_prepared_data,
+    prefix=f&#39;IMU_segment{segment_nr}&#39;
+)
 
 df_data
 </pre></div>
@@ -139,14 +162,10 @@ df_data
 </section>
 <section id="step-1-preprocess-data">
 <h2>Step 1: Preprocess data<a class="headerlink" href="#step-1-preprocess-data" title="Link to this heading"></a></h2>
-<p>IMU sensors collect data at a fixed sampling frequency, but the sampling rate is not uniform, causing variation in time differences between timestamps. The <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/preprocessing.py#:~:text=preprocess_imu_data">preprocess_imu_data</a> function therefore resamples the timestamps to be uniformly distributed, and then interpolates IMU values at these new timestamps using the original timestamps and corresponding IMU values. If the difference between timestamps is larger than a specified tolerance (<code class="docutils literal notranslate"><span class="pre">config.tolerance</span></code>, in seconds), it will return an error that the timestamps are not contiguous.  If you still want to process the data in this case, you can create segments from discontiguous samples using the function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/segmenting.py"><code class="docutils literal notranslate"><span class="pre">create_segments</span></code></a> and analyze these segments consecutively as shown in here. By setting <code class="docutils literal notranslate"><span class="pre">sensor</span></code> to ‘gyroscope’, only gyroscope data is preprocessed and the accelerometer data is removed from the dataframe. Also a <code class="docutils literal notranslate"><span class="pre">watch_side</span></code> should be provided, although for the tremor analysis it does not matter whether this is the correct side since the tremor features are not influenced by the gyroscope axes orientation.</p>
+<p>IMU sensors collect data at a fixed sampling frequency, but the sampling rate is not uniform, causing variation in time differences between timestamps. The <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.preprocess_imu_data">preprocess_imu_data</a> function therefore resamples the timestamps to be uniformly distributed, and then interpolates IMU values at these new timestamps using the original timestamps and corresponding IMU values. If the difference between timestamps is larger than a specified tolerance (<code class="docutils literal notranslate"><span class="pre">config.tolerance</span></code>, in seconds), it will return an error that the timestamps are not contiguous.  If you still want to process the data in this case, you can create segments from discontiguous samples using the function <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/segmenting/index.html#paradigma.segmenting.create_segments"><code class="docutils literal notranslate"><span class="pre">create_segments</span></code></a> and analyze these segments consecutively as shown in here. By setting <code class="docutils literal notranslate"><span class="pre">sensor</span></code> to ‘gyroscope’, only gyroscope data is preprocessed and the accelerometer data is removed from the dataframe. Also a <code class="docutils literal notranslate"><span class="pre">watch_side</span></code> should be provided, although for the tremor analysis it does not matter whether this is the correct side since the tremor features are not influenced by the gyroscope axes orientation.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from paradigma.config import IMUConfig
-from paradigma.constants import DataColumns
-from paradigma.preprocessing import preprocess_imu_data
-
-# Set column names: replace DataColumn.* with your actual column names. 
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Set column names: replace DataColumn.* with your actual column names.
 # It is only necessary to set the columns that are present in your data, and
 # only if they differ from the default names defined in DataColumns.
 column_mapping = {
@@ -160,10 +179,13 @@ column_mapping = {
 }
 
 config = IMUConfig(column_mapping)
-print(f&#39;The data is resampled to {config.resampling_frequency} Hz.&#39;)
-print(f&#39;The tolerance for checking contiguous timestamps is set to {config.tolerance:.3f} seconds.&#39;)
+print(f&quot;The data is resampled to {config.resampling_frequency} Hz.&quot;)
+print(f&quot;The tolerance for checking contiguous timestamps is &quot;
+      f&quot;set to {config.tolerance:.3f} seconds.&quot;)
 
-df_preprocessed_data = preprocess_imu_data(df_data, config, sensor=&#39;gyroscope&#39;, watch_side=&#39;left&#39;)
+df_preprocessed_data = preprocess_imu_data(
+    df_data, config, sensor=&#39;gyroscope&#39;, watch_side=&#39;left&#39;
+)
 
 df_preprocessed_data
 </pre></div>
@@ -173,13 +195,10 @@ df_preprocessed_data
 </section>
 <section id="step-2-extract-tremor-features">
 <h2>Step 2: Extract tremor features<a class="headerlink" href="#step-2-extract-tremor-features" title="Link to this heading"></a></h2>
-<p>The function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/tremor_pipeline.py#:~:text=extract_tremor_features"><code class="docutils literal notranslate"><span class="pre">extract_tremor_features</span></code></a> extracts windows from the preprocessed gyroscope data using non-overlapping windows of length <code class="docutils literal notranslate"><span class="pre">config.window_length_s</span></code>. Next, from these windows the tremor features are extracted: 12 mel-frequency cepstral coefficients (MFCCs), frequency of the peak in the power spectral density, power below tremor (0.5 - 3 Hz), and power around the tremor peak. The latter is not used for tremor detection, but stored for tremor quantification in Step 4.</p>
+<p>The function <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/pipelines/tremor_pipeline/index.html#paradigma.pipelines.tremor_pipeline.extract_tremor_features"><code class="docutils literal notranslate"><span class="pre">extract_tremor_features</span></code></a> extracts windows from the preprocessed gyroscope data using non-overlapping windows of length <code class="docutils literal notranslate"><span class="pre">config.window_length_s</span></code>. Next, from these windows the tremor features are extracted: 12 mel-frequency cepstral coefficients (MFCCs), frequency of the peak in the power spectral density, power below tremor (0.5 - 3 Hz), and power around the tremor peak. The latter is not used for tremor detection, but stored for tremor quantification in Step 4.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from paradigma.config import TremorConfig
-from paradigma.pipelines.tremor_pipeline import extract_tremor_features
-
-config = TremorConfig(step=&#39;features&#39;)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>config = TremorConfig()
 print(f&#39;The window length is {config.window_length_s} seconds&#39;)
 
 df_features = extract_tremor_features(df_preprocessed_data, config)
@@ -192,23 +211,27 @@ df_features
 </section>
 <section id="step-3-detect-tremor">
 <h2>Step 3: Detect tremor<a class="headerlink" href="#step-3-detect-tremor" title="Link to this heading"></a></h2>
-<p>The function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/tremor_pipeline.py#:~:text=detect_tremor"><code class="docutils literal notranslate"><span class="pre">detect_tremor</span></code></a> uses a pretrained logistic regression classifier to predict the tremor probability (<code class="docutils literal notranslate"><span class="pre">pred_tremor_proba</span></code>) for each window, based on the MFCCs. Using the prespecified threshold, a tremor label of 0 (no tremor) or 1 (tremor) is assigned (<code class="docutils literal notranslate"><span class="pre">pred_tremor_logreg</span></code>). Furthermore, the detected tremor windows are checked for rest tremor in two ways. First, the frequency of the peak should be between 3-7 Hz. Second, we want to exclude windows with significant arm movements. We consider a window to have significant arm movement if <code class="docutils literal notranslate"><span class="pre">below_tremor_power</span></code> exceeds <code class="docutils literal notranslate"><span class="pre">config.movement_threshold</span></code>. The final tremor label is saved in <code class="docutils literal notranslate"><span class="pre">pred_tremor_checked</span></code>. A label for predicted arm at rest (<code class="docutils literal notranslate"><span class="pre">pred_arm_at_rest</span></code>, which is 1 when at rest and 0 when not at rest) was also saved, to control for the amount of arm movement during the observed time period when aggregating the amount of tremor time in Step 4 (if a person is moving their arm, they cannot have rest tremor).</p>
+<p>The function <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/pipelines/tremor_pipeline/index.html#paradigma.pipelines.tremor_pipeline.detect_tremor"><code class="docutils literal notranslate"><span class="pre">detect_tremor</span></code></a> uses a pretrained logistic regression classifier to predict the tremor probability (<code class="docutils literal notranslate"><span class="pre">pred_tremor_proba</span></code>) for each window, based on the MFCCs. Using the prespecified threshold, a tremor label of 0 (no tremor) or 1 (tremor) is assigned (<code class="docutils literal notranslate"><span class="pre">pred_tremor_logreg</span></code>). Furthermore, the detected tremor windows are checked for rest tremor in two ways. First, the frequency of the peak should be between 3-7 Hz. Second, we want to exclude windows with significant arm movements. We consider a window to have significant arm movement if <code class="docutils literal notranslate"><span class="pre">below_tremor_power</span></code> exceeds <code class="docutils literal notranslate"><span class="pre">config.movement_threshold</span></code>. The final tremor label is saved in <code class="docutils literal notranslate"><span class="pre">pred_tremor_checked</span></code>. A label for predicted arm at rest (<code class="docutils literal notranslate"><span class="pre">pred_arm_at_rest</span></code>, which is 1 when at rest and 0 when not at rest) was also saved, to control for the amount of arm movement during the observed time period when aggregating the amount of tremor time in Step 4 (if a person is moving their arm, they cannot have rest tremor).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from importlib.resources import files
-from paradigma.pipelines.tremor_pipeline import detect_tremor
-
-print(f&#39;A threshold of {config.movement_threshold} deg\u00b2/s\u00b2 \
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>print(f&#39;A threshold of {config.movement_threshold} deg\u00b2/s\u00b2 \
 is used to determine whether the arm is at rest or in stable posture.&#39;)
 
 # Load the pre-trained logistic regression classifier
 tremor_detection_classifier_package_filename = &#39;tremor_detection_clf_package.pkl&#39;
-full_path_to_classifier_package = files(&#39;paradigma&#39;) / &#39;assets&#39; / tremor_detection_classifier_package_filename
+full_path_to_classifier_package = (
+    files(&#39;paradigma&#39;)
+    / &#39;assets&#39;
+    / tremor_detection_classifier_package_filename
+)
 
 # Use the logistic regression classifier to detect tremor and check for rest tremor
 df_predictions = detect_tremor(df_features, config, full_path_to_classifier_package)
 
-df_predictions[[config.time_colname, &#39;pred_tremor_proba&#39;, &#39;pred_tremor_logreg&#39;, &#39;pred_arm_at_rest&#39;, &#39;pred_tremor_checked&#39;]]
+df_predictions[[
+    config.time_colname, DataColumns.PRED_TREMOR_PROBA, DataColumns.PRED_TREMOR_LOGREG,
+    DataColumns.PRED_ARM_AT_REST, DataColumns.PRED_TREMOR_CHECKED
+]]
 </pre></div>
 </div>
 </div>
@@ -218,20 +241,35 @@ df_predictions[[config.time_colname, &#39;pred_tremor_proba&#39;, &#39;pred_trem
 <p>The predicted probabilities (and optionally other features) can be stored and loaded in TSDF as demonstrated below.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>import tsdf
-from paradigma.util import write_df_data
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Set &#39;path_to_data&#39; to the directory where you want to save the data
+metadata_time_store = tsdf.TSDFMetadata(
+    metadata_time.get_plain_tsdf_dict_copy(),
+    path_to_data
+)
+metadata_values_store = tsdf.TSDFMetadata(
+    metadata_values.get_plain_tsdf_dict_copy(),
+    path_to_data
+)
 
-# Set &#39;path_to_data&#39; to the directory where you want to save the data
-metadata_time_store = tsdf.TSDFMetadata(metadata_time.get_plain_tsdf_dict_copy(), path_to_data)
-metadata_values_store = tsdf.TSDFMetadata(metadata_values.get_plain_tsdf_dict_copy(), path_to_data)
-
-# Select the columns to be saved 
+# Select the columns to be saved
 metadata_time_store.channels = [config.time_colname]
-metadata_values_store.channels = [&#39;tremor_power&#39;, &#39;pred_tremor_proba&#39;, &#39;pred_tremor_logreg&#39;, &#39;pred_arm_at_rest&#39;, &#39;pred_tremor_checked&#39;]
+metadata_values_store.channels = [
+    DataColumns.TREMOR_POWER,
+    DataColumns.PRED_TREMOR_PROBA,
+    DataColumns.PRED_TREMOR_LOGREG,
+    DataColumns.PRED_ARM_AT_REST,
+    DataColumns.PRED_TREMOR_CHECKED
+]
 
 # Set the units
 metadata_time_store.units = [&#39;Relative seconds&#39;]
-metadata_values_store.units = [&#39;Unitless&#39;, &#39;Unitless&#39;, &#39;Unitless&#39;, &#39;Unitless&#39;, &#39;Unitless&#39;]  
+metadata_values_store.units = [
+    DataUnits.POWER_ROTATION,
+    DataUnits.NONE,
+    DataUnits.NONE,
+    DataUnits.NONE,
+    DataUnits.NONE
+]
 metadata_time_store.data_type = float
 metadata_values_store.data_type = float
 
@@ -243,14 +281,18 @@ time_store_filename = meta_store_filename.replace(&#39;_meta.json&#39;, &#39;_ti
 metadata_values_store.file_name = values_store_filename
 metadata_time_store.file_name = time_store_filename
 
-write_df_data(metadata_time_store, metadata_values_store, path_to_data, meta_store_filename, df_predictions)
+write_df_data(metadata_time_store, metadata_values_store,
+              path_to_data, meta_store_filename, df_predictions)
 </pre></div>
 </div>
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>df_predictions, _, _ = load_tsdf_dataframe(path_to_data, prefix=f&#39;segment{segment_nr}&#39;)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>df_predictions, _, _ = load_tsdf_dataframe(
+    path_to_data,
+    prefix=f&#39;segment{segment_nr}&#39;
+)
 df_predictions.head()
 </pre></div>
 </div>
@@ -263,18 +305,32 @@ df_predictions.head()
 <p>The tremor power of all predicted tremor windows (where <code class="docutils literal notranslate"><span class="pre">pred_tremor_checked</span></code> is 1) is used for tremor quantification. A datetime column is also added, providing necessary information before aggregating over specified hours in Step 5.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>import pandas as pd
-import datetime
-import pytz
-
-df_quantification = df_predictions[[config.time_colname, &#39;pred_arm_at_rest&#39;, &#39;pred_tremor_checked&#39;,&#39;tremor_power&#39;]].copy()
-df_quantification.loc[df_predictions[&#39;pred_tremor_checked&#39;] == 0, &#39;tremor_power&#39;] = None # tremor power of non-tremor windows is set to None
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>df_quantification = df_predictions[[
+    config.time_colname, DataColumns.PRED_ARM_AT_REST,
+    DataColumns.PRED_TREMOR_CHECKED, DataColumns.TREMOR_POWER
+]].copy()
+df_quantification.loc[
+    df_predictions[DataColumns.PRED_TREMOR_CHECKED] == 0, DataColumns.TREMOR_POWER
+] = None # tremor power of non-tremor windows is set to None
 
 # Create datetime column based on the start time of the segment
-start_time = datetime.datetime.strptime(metadata_time.start_iso8601, &#39;%Y-%m-%dT%H:%M:%SZ&#39;)
-start_time = start_time.replace(tzinfo=pytz.timezone(&#39;UTC&#39;)).astimezone(pytz.timezone(&#39;CET&#39;)) # convert to correct timezone if necessary
-df_quantification[f&#39;{config.time_colname}_dt&#39;] = start_time + pd.to_timedelta(df_quantification[config.time_colname], unit=&quot;s&quot;) 
-df_quantification = df_quantification[[config.time_colname, f&#39;{config.time_colname}_dt&#39;, &#39;pred_arm_at_rest&#39;, &#39;pred_tremor_checked&#39;, &#39;tremor_power&#39;]]
+start_time = datetime.datetime.strptime(
+    metadata_time.start_iso8601, &#39;%Y-%m-%dT%H:%M:%SZ&#39;
+)
+start_time = (
+    start_time
+    .replace(tzinfo=pytz.timezone(&#39;UTC&#39;))
+    .astimezone(pytz.timezone(&#39;CET&#39;)) # convert to correct timezone if necessary
+)
+df_quantification[f&#39;{config.time_colname}_dt&#39;] = start_time + \
+    pd.to_timedelta(df_quantification[config.time_colname], unit=&quot;s&quot;)
+df_quantification = df_quantification[[
+    config.time_colname,
+    f&#39;{config.time_colname}_dt&#39;,
+    DataColumns.PRED_ARM_AT_REST,
+    DataColumns.PRED_TREMOR_CHECKED,
+    DataColumns.TREMOR_POWER
+]]
 
 df_quantification
 </pre></div>
@@ -286,24 +342,17 @@ df_quantification
 <p>If your data is also stored in multiple segments, you can modify <code class="docutils literal notranslate"><span class="pre">segments</span></code> in the cell below to a list of the filenames of your respective segmented data.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from pathlib import Path
-from importlib.resources import files
-import datetime
-import pytz
-import pandas as pd
-
-from paradigma.util import load_tsdf_dataframe
-from paradigma.config import IMUConfig, TremorConfig
-from paradigma.preprocessing import preprocess_imu_data
-from paradigma.pipelines.tremor_pipeline import extract_tremor_features, detect_tremor
-
-# Set the path to where the prepared data is saved
-path_to_data =  Path(&#39;../../example_data&#39;)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Set the path to where the prepared data is saved
+path_to_data =  Path(&#39;../../example_data/verily&#39;)
 path_to_prepared_data = path_to_data / &#39;imu&#39;
 
 # Load the pre-trained logistic regression classifier
 tremor_detection_classifier_package_filename = &#39;tremor_detection_clf_package.pkl&#39;
-full_path_to_classifier_package = files(&#39;paradigma&#39;) / &#39;assets&#39; / tremor_detection_classifier_package_filename
+full_path_to_classifier_package = (
+    files(&#39;paradigma&#39;)
+    / &#39;assets&#39;
+    / tremor_detection_classifier_package_filename
+)
 
 # Create a list of dataframes to store the quantifications of all segments
 list_df_quantifications = []
@@ -311,37 +360,48 @@ list_df_quantifications = []
 segments  = [&#39;0001&#39;,&#39;0002&#39;] # list with all  available segments
 
 for segment_nr in segments:
-    
+
     # Load the data
-    df_data, metadata_time, _ = load_tsdf_dataframe(path_to_prepared_data, prefix=&#39;IMU_segment&#39;+segment_nr)
+    df_data, metadata_time, _ = load_tsdf_dataframe(
+        path_to_prepared_data,
+        prefix=&#39;IMU_segment&#39;+segment_nr
+    )
 
     # 1: Preprocess the data
-    # Change column names if necessary by creating parameter column_mapping (see previous cells for an example)
+    # Change column names if necessary by creating parameter
+    # column_mapping (see previous cells for an example)
     config = IMUConfig()
-    df_preprocessed_data = preprocess_imu_data(df_data, config, sensor=&#39;gyroscope&#39;, watch_side=&#39;left&#39;)
+    df_preprocessed_data = preprocess_imu_data(
+        df_data, config, sensor=&#39;gyroscope&#39;, watch_side=&#39;left&#39;
+    )
 
     # 2: Extract features
-    config = TremorConfig(step=&#39;features&#39;)
+    config = TremorConfig()
     df_features = extract_tremor_features(df_preprocessed_data, config)
 
     # 3: Detect tremor
     df_predictions = detect_tremor(df_features, config, full_path_to_classifier_package)
 
     # 4: Quantify tremor
-    df_quantification = df_predictions[[config.time_colname, &#39;pred_arm_at_rest&#39;, &#39;pred_tremor_checked&#39;,&#39;tremor_power&#39;]].copy()
-    df_quantification.loc[df_predictions[&#39;pred_tremor_checked&#39;] == 0, &#39;tremor_power&#39;] = None
+    df_quantification = df_predictions[[
+        config.time_colname, DataColumns.PRED_ARM_AT_REST,
+    DataColumns.PRED_TREMOR_CHECKED, DataColumns.TREMOR_POWER
+    ]].copy()
+    df_quantification.loc[
+        df_predictions[DataColumns.PRED_TREMOR_CHECKED] == 0, DataColumns.TREMOR_POWER
+    ] = None
 
     # Create datetime column based on the start time of the segment
-    start_time = datetime.datetime.strptime(metadata_time.start_iso8601, &#39;%Y-%m-%dT%H:%M:%SZ&#39;)
-    start_time = start_time.replace(tzinfo=pytz.timezone(&#39;UTC&#39;)).astimezone(pytz.timezone(&#39;CET&#39;)) # convert to correct timezone if necessary
-    df_quantification[f&#39;{config.time_colname}_dt&#39;] = start_time + pd.to_timedelta(df_quantification[config.time_colname], unit=&quot;s&quot;) 
-    df_quantification = df_quantification[[config.time_colname, f&#39;{config.time_colname}_dt&#39;, &#39;pred_arm_at_rest&#39;, &#39;pred_tremor_checked&#39;, &#39;tremor_power&#39;]]
-
-    # Add the quantifications of the current segment to the list
-    df_quantification[&#39;segment_nr&#39;] = segment_nr
-    list_df_quantifications.append(df_quantification)
-
-df_quantification = pd.concat(list_df_quantifications, ignore_index=True)
+    start_time = datetime.datetime.strptime(
+        metadata_time.start_iso8601, &#39;%Y-%m-%dT%H:%M:%SZ&#39;
+    )
+    start_time = (
+        start_time
+        .replace(tzinfo=pytz.timezone(&#39;UTC&#39;))
+        .astimezone(pytz.timezone(&#39;CET&#39;)) # convert to correct timezone if necessary
+    )
+    df_quantification[f&#39;{config.time_colname}_dt&#39;] = start_time + \
+        pd.to_timedelta(df_quantification[config.time_colname], unit=&quot;s&quot;)
 </pre></div>
 </div>
 </div>
@@ -350,27 +410,28 @@ df_quantification = pd.concat(list_df_quantifications, ignore_index=True)
 </section>
 <section id="step-5-compute-aggregated-tremor-measures">
 <h2>Step 5: Compute aggregated tremor measures<a class="headerlink" href="#step-5-compute-aggregated-tremor-measures" title="Link to this heading"></a></h2>
-<p>The final step is to compute the amount of tremor time and tremor power with the function <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/blob/main/src/paradigma/pipelines/tremor_pipeline.py#:~:text=aggregate_tremor"><code class="docutils literal notranslate"><span class="pre">aggregate_tremor</span></code></a>, which aggregates over all windows in the input dataframe. Depending on the size of the input dateframe, you could select the hours and days (both optional) that you want to include in this analysis. In this case we use data collected between 8 am and 10 pm (specified as <code class="docutils literal notranslate"><span class="pre">select_hours_start</span></code> and <code class="docutils literal notranslate"><span class="pre">select_hours_end</span></code>), and days with at least 10 hours of data (<code class="docutils literal notranslate"><span class="pre">min_hours_per_day</span></code>) based on. Based on the selected data, we compute aggregated measures for tremor time and tremor power:</p>
+<p>The final step is to compute the amount of tremor time and tremor power with the function <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/pipelines/tremor_pipeline/index.html#paradigma.pipelines.tremor_pipeline.aggregate_tremor"><code class="docutils literal notranslate"><span class="pre">aggregate_tremor</span></code></a>, which aggregates over all windows in the input dataframe. Depending on the size of the input dateframe, you could select the hours and days (both optional) that you want to include in this analysis. In this case we use data collected between 8 am and 10 pm (specified as <code class="docutils literal notranslate"><span class="pre">select_hours_start</span></code> and <code class="docutils literal notranslate"><span class="pre">select_hours_end</span></code>), and days with at least 10 hours of data (<code class="docutils literal notranslate"><span class="pre">min_hours_per_day</span></code>) based on. Based on the selected data, we compute aggregated measures for tremor time and tremor power:</p>
 <ul class="simple">
 <li><p>Tremor time is calculated as the number of detected tremor windows, as percentage of the number of windows while the arm is at rest or in stable posture (when <code class="docutils literal notranslate"><span class="pre">below_tremor_power</span></code> does not exceed <code class="docutils literal notranslate"><span class="pre">config.movement_threshold</span></code>). This way the tremor time is controlled for the amount of time the arm is at rest or in stable posture, when rest tremor and re-emergent tremor could occur.</p></li>
 <li><p>For tremor power the following aggregates are derived: the mode, median and 90th percentile of tremor power (specified in <code class="docutils literal notranslate"><span class="pre">config.aggregates_tremor_power</span></code>). The median and modal tremor power reflect the typical tremor severity, whereas the 90th percentile reflects the maximal tremor severity within the observed timeframe. The modal tremor power is computed as the peak in the probability density function of tremor power, which is evaluated at the points specified in <code class="docutils literal notranslate"><span class="pre">config.evaluation_points_tremor_power</span></code> (300 points between 0 and 6 log tremor power). The aggregated tremor measures and metadata are stored in a json file.</p></li>
 </ul>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>import pprint
-from paradigma.util import select_hours, select_days
-from paradigma.pipelines.tremor_pipeline import aggregate_tremor
-
-select_hours_start = &#39;08:00&#39; # you can specifiy the hours and minutes here
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>select_hours_start = &#39;08:00&#39; # you can specifiy the hours and minutes here
 select_hours_end = &#39;22:00&#39;
 min_hours_per_day = 10
 
-print(f&#39;Before aggregation we select data collected between {select_hours_start} \
-and {select_hours_end}. We also select days with at least {min_hours_per_day} hours of data.&#39;)
-print(f&#39;The following tremor power aggregates are derived: {config.aggregates_tremor_power}.&#39;)
+print(
+    f&quot;Before aggregation we select data collected between {select_hours_start} &quot;
+    f&quot;and {select_hours_end}. We also select days with at &quot;
+    f&quot;least {min_hours_per_day} hours of data. \nThe following tremor power &quot;
+    f&quot;aggregates are derived: {config.aggregates_tremor_power}.&quot;
+)
 
 # Select the hours that should be included in the analysis
-df_quantification = select_hours(df_quantification, select_hours_start, select_hours_end)
+df_quantification = select_hours(
+    df_quantification, select_hours_start, select_hours_end
+)
 
 # Remove days with less than the specified minimum amount of hours
 df_quantification = select_days(df_quantification, min_hours_per_day)
@@ -379,7 +440,7 @@ df_quantification = select_days(df_quantification, min_hours_per_day)
 config = TremorConfig()
 d_tremor_aggregates = aggregate_tremor(df = df_quantification, config = config)
 
-pprint.pprint(d_tremor_aggregates)
+print(json.dumps(d_tremor_aggregates, indent=2))
 </pre></div>
 </div>
 </div>

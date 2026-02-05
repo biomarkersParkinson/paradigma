@@ -13,6 +13,7 @@ Functions
    paradigma.pipelines.tremor_pipeline.detect_tremor
    paradigma.pipelines.tremor_pipeline.aggregate_tremor
    paradigma.pipelines.tremor_pipeline.extract_spectral_domain_features
+   paradigma.pipelines.tremor_pipeline.run_tremor_pipeline
 
 
 Module Contents
@@ -23,99 +24,170 @@ Module Contents
    This function groups sequences of timestamps into windows and subsequently extracts
    tremor features from windowed gyroscope data.
 
-   :param df: The input DataFrame containing sensor data, which includes time and gyroscope data. The data should be
-              structured with the necessary columns as specified in the `config`.
+   :param df: The input DataFrame containing sensor data, which includes time and
+              gyroscope data. The data should be structured with the necessary
+              columns as specified in the `config`.
    :type df: pd.DataFrame
-   :param config: Configuration object containing parameters for feature extraction, including column names for time, gyroscope data,
-                  as well as settings for windowing, and feature computation.
+   :param config: Configuration object containing parameters for feature extraction,
+                  including column names for time, gyroscope data, as well as settings
+                  for windowing, and feature computation.
    :type config: TremorConfig
 
-   :returns: A DataFrame containing extracted tremor features and a column corresponding to time.
+   :returns: A DataFrame containing extracted tremor features and a column
+             corresponding to time.
    :rtype: pd.DataFrame
 
    .. rubric:: Notes
 
    - This function groups the data into windows based on timestamps.
-   - The input DataFrame must include columns as specified in the `config` object for proper feature extraction.
+   - The input DataFrame must include columns as specified in the
+     `config` object for proper feature extraction.
 
-   :raises ValueError: If the input DataFrame does not contain the required columns as specified in the configuration or if any step in the feature extraction fails.
+   :raises ValueError: If the input DataFrame does not contain the required columns as
+       specified in the configuration or if any step in the feature
+       extraction fails.
 
 
 .. py:function:: detect_tremor(df: pandas.DataFrame, config: paradigma.config.TremorConfig, full_path_to_classifier_package: str | pathlib.Path) -> pandas.DataFrame
 
-   Detects tremor in the input DataFrame using a pre-trained classifier and applies a threshold to the predicted probabilities.
+   Detects tremor in the input DataFrame using a pre-trained classifier and
+   applies a threshold to the predicted probabilities.
 
    This function performs the following steps:
-   1. Loads the pre-trained classifier and scaling parameters from the provided directory.
-   2. Scales the relevant features in the input DataFrame (`df`) using the loaded scaling parameters.
-   3. Makes predictions using the classifier to estimate the probability of tremor.
-   4. Applies a threshold to the predicted probabilities to classify whether tremor is detected or not.
-   5. Checks for rest tremor by verifying the frequency of the peak and below tremor power.
-   6. Adds the predicted probabilities and the classification result to the DataFrame.
+   1. Loads the pre-trained classifier and scaling parameters from the
+      provided directory.
+   2. Scales the relevant features in the input DataFrame (`df`) using the
+      loaded scaling parameters.
+   3. Makes predictions using the classifier to estimate the probability of
+      tremor.
+   4. Applies a threshold to the predicted probabilities to classify whether
+      tremor is detected or not.
+   5. Checks for rest tremor by verifying the frequency of the peak and
+      below tremor power.
+   6. Adds the predicted probabilities and the classification result to the
+      DataFrame.
 
-   :param df: The input DataFrame containing extracted tremor features. The DataFrame must include
-              the necessary columns as specified in the classifier's feature names.
+   :param df: The input DataFrame containing extracted tremor features. The
+              DataFrame must include the necessary columns as specified in the
+              classifier's feature names.
    :type df: pd.DataFrame
-   :param config: Configuration object containing settings for tremor detection, including the frequency range for rest tremor.
+   :param config: Configuration object containing settings for tremor detection,
+                  including the frequency range for rest tremor.
    :type config: TremorConfig
-   :param full_path_to_classifier_package: The path to the directory containing the classifier file, threshold value, scaler parameters, and other necessary input
-                                           files for tremor detection.
+   :param full_path_to_classifier_package: The path to the directory containing the classifier file, threshold
+                                           value, scaler parameters, and other necessary input files for tremor
+                                           detection.
    :type full_path_to_classifier_package: str | Path
 
    :returns: The input DataFrame (`df`) with two additional columns:
-             - `PRED_TREMOR_PROBA`: Predicted probability of tremor based on the classifier.
-             - `PRED_TREMOR_LOGREG`: Binary classification result (True for tremor, False for no tremor), based on the threshold applied to `PRED_TREMOR_PROBA`.
-             - `PRED_TREMOR_CHECKED`: Binary classification result (True for tremor, False for no tremor), after performing extra checks for rest tremor on `PRED_TREMOR_LOGREG`.
-             - `PRED_ARM_AT_REST`: Binary classification result (True for arm at rest or stable posture, False for significant arm movement), based on the power below tremor.
+             - `PRED_TREMOR_PROBA`: Predicted probability of tremor based on the
+               classifier.
+             - `PRED_TREMOR_LOGREG`: Binary classification result (True for tremor,
+               False for no tremor), based on the threshold applied to
+               `PRED_TREMOR_PROBA`.
+             - `PRED_TREMOR_CHECKED`: Binary classification result (True for
+               tremor, False for no tremor), after performing extra checks for
+               rest tremor on `PRED_TREMOR_LOGREG`.
+             - `PRED_ARM_AT_REST`: Binary classification result (True for arm at
+               rest or stable posture, False for significant arm movement), based
+               on the power below tremor.
    :rtype: pd.DataFrame
 
    .. rubric:: Notes
 
-   - The threshold used to classify tremor is loaded from a file and applied to the predicted probabilities.
+   - The threshold used to classify tremor is loaded from a file and
+     applied to the predicted probabilities.
 
-   :raises FileNotFoundError: If the classifier, scaler, or threshold files are not found at the specified paths.
-   :raises ValueError: If the DataFrame does not contain the expected features for prediction or if the prediction fails.
+   :raises FileNotFoundError: If the classifier, scaler, or threshold files are not found at the
+       specified paths.
+   :raises ValueError: If the DataFrame does not contain the expected features for
+       prediction or if the prediction fails.
 
 
 .. py:function:: aggregate_tremor(df: pandas.DataFrame, config: paradigma.config.TremorConfig)
 
-   Quantifies the amount of tremor time and tremor power, aggregated over all windows in the input dataframe.
-   Tremor time is calculated as the number of the detected tremor windows, as percentage of the number of windows
-   without significant non-tremor movement (at rest). For tremor power the following aggregates are derived:
-   the median, mode and percentile of tremor power specified in the configuration object.
+   Quantifies the amount of tremor time and tremor power, aggregated over
+   all windows in the input dataframe. Tremor time is calculated as the
+   number of the detected tremor windows, as percentage of the number of
+   windows without significant non-tremor movement (at rest). For tremor
+   power the following aggregates are derived: the median, mode and
+   percentile of tremor power specified in the configuration object.
 
-   :param df: The input DataFrame containing the tremor predictions and computed tremor power.
-              The DataFrame must also contain a datatime column ('time_dt').
+   :param df: The input DataFrame containing the tremor predictions and computed
+              tremor power. The DataFrame must also contain a datatime column
+              ('time_dt').
    :type df: pd.DataFrame
-   :param config: Configuration object containing the percentile for aggregating tremor power.
+   :param config: Configuration object containing the percentile for aggregating tremor
+                  power.
    :type config: TremorConfig
 
-   :returns: A dictionary with the aggregated tremor time and tremor power measures, as well as the number of valid days,
-             the total number of windows, and the number of windows at rest available in the input dataframe.
+   :returns: A dictionary with the aggregated tremor time and tremor power
+             measures, as well as the number of valid days, the total number of
+             windows, and the number of windows at rest available in the input
+             dataframe.
    :rtype: dict
 
    .. rubric:: Notes
 
-   - Tremor power is converted to log scale, after adding a constant of 1, so that zero tremor power
-   corresponds to a value of 0 in log scale.
-   - The modal tremor power is computed based on gaussian kernel density estimation.
+   - Tremor power is converted to log scale, after adding a constant of
+     1, so that zero tremor power corresponds to a value of 0 in log
+     scale.
+   - The modal tremor power is computed based on gaussian kernel density
+     estimation.
 
 
 .. py:function:: extract_spectral_domain_features(data: numpy.ndarray, config) -> pandas.DataFrame
 
    Compute spectral domain features from the gyroscope data.
 
-   This function computes Mel-frequency cepstral coefficients (MFCCs), the frequency of the peak,
-   the tremor power, and the below tremor power based on the total power spectral density of the windowed gyroscope data.
+   This function computes Mel-frequency cepstral coefficients (MFCCs), the
+   frequency of the peak, the tremor power, and the below tremor power
+   based on the total power spectral density of the windowed gyroscope
+   data.
 
    :param data: A 2D numpy array where each row corresponds to a window of gyroscope data.
    :type data: numpy.ndarray
-   :param config: Configuration object containing settings such as sampling frequency, window type,
-                  and MFCC parameters.
+   :param config: Configuration object containing settings such as sampling frequency,
+                  window type, and MFCC parameters.
    :type config: object
 
-   :returns: The feature dataframe containing the extracted spectral features, including
-             MFCCs, the frequency of the peak, the tremor power and below tremor power for each window.
+   :returns: The feature dataframe containing the extracted spectral features,
+             including MFCCs, the frequency of the peak, the tremor power and
+             below tremor power for each window.
+   :rtype: pd.DataFrame
+
+
+.. py:function:: run_tremor_pipeline(df_prepared: pandas.DataFrame, output_dir: str | pathlib.Path, store_intermediate: list[str] = [], tremor_config: paradigma.config.TremorConfig | None = None, imu_config: paradigma.config.IMUConfig | None = None, logging_level: int = logging.INFO, custom_logger: logging.Logger | None = None) -> pandas.DataFrame
+
+   High-level tremor analysis pipeline for a single segment.
+
+   This function implements the complete tremor analysis workflow from the
+   tremor tutorial:
+   1. Preprocess gyroscope data
+   2. Extract tremor features
+   3. Detect tremor
+   4. Quantify tremor (select relevant columns)
+
+   :param df_prepared: Prepared sensor data with time and gyroscope columns
+   :type df_prepared: pd.DataFrame
+   :param output_dir: Output directory for intermediate results (required)
+   :type output_dir: str or Path
+   :param store_intermediate: Which intermediate results to store
+   :type store_intermediate: list of str, default []
+   :param tremor_config: Tremor analysis configuration
+   :type tremor_config: TremorConfig, optional
+   :param imu_config: IMU preprocessing configuration
+   :type imu_config: IMUConfig, optional
+   :param logging_level: Logging level using standard logging constants
+   :type logging_level: int, default logging.INFO
+   :param custom_logger: Custom logger instance
+   :type custom_logger: logging.Logger, optional
+
+   :returns: Quantified tremor data with columns:
+             - time: timestamp
+             - pred_arm_at_rest: arm at rest prediction
+             - pred_tremor_checked: tremor detection result
+             - tremor_power: tremor power measure
    :rtype: pd.DataFrame
 
 

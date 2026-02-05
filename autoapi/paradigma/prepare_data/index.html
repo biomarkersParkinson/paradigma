@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>paradigma.prepare_data &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=a31c8b26" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="paradigma.preprocessing" href="../preprocessing/index.html" />
+    <link rel="prev" title="paradigma.pipelines.tremor_pipeline" href="../pipelines/tremor_pipeline/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/config.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">paradigma</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../classification/index.html">paradigma.classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../config/index.html">paradigma.config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../constants/index.html">paradigma.constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../feature_extraction/index.html">paradigma.feature_extraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../load/index.html">paradigma.load</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../orchestrator/index.html">paradigma.orchestrator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipelines/index.html">paradigma.pipelines</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">paradigma.prepare_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../preprocessing/index.html">paradigma.preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../segmenting/index.html">paradigma.segmenting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../testing/index.html">paradigma.testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../util/index.html">paradigma.util</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">paradigma</a></li>
+      <li class="breadcrumb-item active">paradigma.prepare_data</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/paradigma/prepare_data/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-paradigma.prepare_data">
+<span id="paradigma-prepare-data"></span><h1>paradigma.prepare_data<a class="headerlink" href="#module-paradigma.prepare_data" title="Link to this heading"></a></h1>
+<p>Data preparation module for ParaDigMa toolbox.</p>
+<p>This module provides functions to prepare raw sensor data for analysis:
+- Unit conversion (m/s² to g, rad/s to deg/s)
+- Time column formatting
+- Column name standardization
+- Watch side orientation correction
+- Resampling to 100 Hz</p>
+<p>Based on data_preparation tutorial.</p>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.prepare_data.logger" title="paradigma.prepare_data.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.prepare_data.standardize_column_names" title="paradigma.prepare_data.standardize_column_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">standardize_column_names</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Standardize column names to ParaDigMa conventions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.prepare_data.convert_sensor_units" title="paradigma.prepare_data.convert_sensor_units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_sensor_units</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Convert sensor units to ParaDigMa expected format (g for acceleration,</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.prepare_data.prepare_time_column" title="paradigma.prepare_data.prepare_time_column"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prepare_time_column</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Prepare time column to start from 0 seconds.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.prepare_data.correct_watch_orientation" title="paradigma.prepare_data.correct_watch_orientation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">correct_watch_orientation</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Apply custom device orientation mapping if provided.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.prepare_data.validate_prepared_data" title="paradigma.prepare_data.validate_prepared_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_prepared_data</span></code></a>(→ dict[str, bool | str])</p></td>
+<td><p>Validate that data is properly prepared for ParaDigMa analysis.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.prepare_data.prepare_raw_data" title="paradigma.prepare_data.prepare_raw_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prepare_raw_data</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Complete data preparation pipeline for raw sensor data.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="paradigma.prepare_data.logger">
+<span class="sig-prename descclassname"><span class="pre">paradigma.prepare_data.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#paradigma.prepare_data.logger" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.prepare_data.standardize_column_names">
+<span class="sig-prename descclassname"><span class="pre">paradigma.prepare_data.</span></span><span class="sig-name descname"><span class="pre">standardize_column_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../_modules/paradigma/prepare_data.html#standardize_column_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.prepare_data.standardize_column_names" title="Link to this definition"></a></dt>
+<dd><p>Standardize column names to ParaDigMa conventions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input DataFrame.</p></li>
+<li><p><strong>column_mapping</strong> (<em>dict</em><em>, </em><em>optional</em>) – Custom column mapping.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame with standardized column names.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.prepare_data.convert_sensor_units">
+<span class="sig-prename descclassname"><span class="pre">paradigma.prepare_data.</span></span><span class="sig-name descname"><span class="pre">convert_sensor_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accelerometer_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'m/s^2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gyroscope_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'deg/s'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../_modules/paradigma/prepare_data.html#convert_sensor_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.prepare_data.convert_sensor_units" title="Link to this definition"></a></dt>
+<dd><p>Convert sensor units to ParaDigMa expected format (g for acceleration,
+deg/s for gyroscope).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input DataFrame with sensor data.</p></li>
+<li><p><strong>accelerometer_units</strong> (<em>str</em><em>, </em><em>default 'm/s^2'</em>) – Current units of accelerometer data.</p></li>
+<li><p><strong>gyroscope_units</strong> (<em>str</em><em>, </em><em>default 'deg/s'</em>) – Current units of gyroscope data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame with converted units.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.prepare_data.prepare_time_column">
+<span class="sig-prename descclassname"><span class="pre">paradigma.prepare_data.</span></span><span class="sig-name descname"><span class="pre">prepare_time_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">DataColumns.TIME</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_unit_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../constants/index.html#paradigma.constants.TimeUnit" title="paradigma.constants.TimeUnit"><span class="pre">paradigma.constants.TimeUnit</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">TimeUnit.RELATIVE_S</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_unit_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../constants/index.html#paradigma.constants.TimeUnit" title="paradigma.constants.TimeUnit"><span class="pre">paradigma.constants.TimeUnit</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">TimeUnit.RELATIVE_S</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../_modules/paradigma/prepare_data.html#prepare_time_column"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.prepare_data.prepare_time_column" title="Link to this definition"></a></dt>
+<dd><p>Prepare time column to start from 0 seconds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input DataFrame.</p></li>
+<li><p><strong>time_column</strong> (<em>str</em><em>, </em><em>default DataColumns.TIME</em>) – Name of time column.</p></li>
+<li><p><strong>input_unit_type</strong> (<a class="reference internal" href="../constants/index.html#paradigma.constants.TimeUnit" title="paradigma.constants.TimeUnit"><em>TimeUnit</em></a><em>, </em><em>default TimeUnit.RELATIVE_S</em>) – Input time unit type.</p></li>
+<li><p><strong>output_unit_type</strong> (<a class="reference internal" href="../constants/index.html#paradigma.constants.TimeUnit" title="paradigma.constants.TimeUnit"><em>TimeUnit</em></a><em>, </em><em>default TimeUnit.RELATIVE_S</em>) – Output time unit type.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame with prepared time column.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.prepare_data.correct_watch_orientation">
+<span class="sig-prename descclassname"><span class="pre">paradigma.prepare_data.</span></span><span class="sig-name descname"><span class="pre">correct_watch_orientation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_orientation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'both'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../_modules/paradigma/prepare_data.html#correct_watch_orientation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.prepare_data.correct_watch_orientation" title="Link to this definition"></a></dt>
+<dd><p>Apply custom device orientation mapping if provided.</p>
+<p>Note: Watch-side inversion is handled separately during preprocessing
+in the pipeline functions (preprocess_imu_data), not during data preparation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input DataFrame with sensor data</p></li>
+<li><p><strong>device_orientation</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Custom orientation correction multipliers for each axis.
+Maps device axes to standard [x, y, z] orientation.</p></li>
+<li><p><strong>sensor</strong> (<em>str</em><em>, </em><em>optional</em>) – Sensor to correct (‘accelerometer’, ‘gyroscope’, or ‘both’).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame with corrected device orientation (if custom mapping provided)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.prepare_data.validate_prepared_data">
+<span class="sig-prename descclassname"><span class="pre">paradigma.prepare_data.</span></span><span class="sig-name descname"><span class="pre">validate_prepared_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/paradigma/prepare_data.html#validate_prepared_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.prepare_data.validate_prepared_data" title="Link to this definition"></a></dt>
+<dd><p>Validate that data is properly prepared for ParaDigMa analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>df</strong> (<em>pd.DataFrame</em>) – Prepared DataFrame</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Validation results with checks and error messages</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.prepare_data.prepare_raw_data">
+<span class="sig-prename descclassname"><span class="pre">paradigma.prepare_data.</span></span><span class="sig-name descname"><span class="pre">prepare_raw_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accelerometer_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'m/s^2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gyroscope_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'deg/s'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_input_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../constants/index.html#paradigma.constants.TimeUnit" title="paradigma.constants.TimeUnit"><span class="pre">paradigma.constants.TimeUnit</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">TimeUnit.RELATIVE_S</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resampling_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_orientation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_segment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_segment_gap_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_segment_length_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../_modules/paradigma/prepare_data.html#prepare_raw_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.prepare_data.prepare_raw_data" title="Link to this definition"></a></dt>
+<dd><p>Complete data preparation pipeline for raw sensor data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Raw sensor data</p></li>
+<li><p><strong>accelerometer_units</strong> (<em>str</em><em>, </em><em>default 'm/s^2'</em>) – Current units of accelerometer data</p></li>
+<li><p><strong>gyroscope_units</strong> (<em>str</em><em>, </em><em>default 'deg/s'</em>) – Current units of gyroscope data</p></li>
+<li><p><strong>time_input_unit</strong> (<a class="reference internal" href="../constants/index.html#paradigma.constants.TimeUnit" title="paradigma.constants.TimeUnit"><em>TimeUnit</em></a><em>, </em><em>default TimeUnit.RELATIVE_S</em>) – Input time unit type</p></li>
+<li><p><strong>resampling_frequency</strong> (<em>float</em><em>, </em><em>default 100.0</em>) – Target sampling frequency in Hz</p></li>
+<li><p><strong>column_mapping</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Custom column name mapping</p></li>
+<li><p><strong>device_orientation</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>int</em><em>]</em><em>, </em><em>optional</em>) – Custom orientation correction</p></li>
+<li><p><strong>validate</strong> (<em>bool</em><em>, </em><em>default True</em>) – Whether to validate the prepared data</p></li>
+<li><p><strong>auto_segment</strong> (<em>bool</em><em>, </em><em>default False</em>) – If True, automatically split non-contiguous data into segments.
+Adds ‘data_segment_nr’ column to output.</p></li>
+<li><p><strong>max_segment_gap_s</strong> (<em>float</em><em>, </em><em>optional</em>) – Maximum gap (seconds) before starting new segment. Used when auto_segment=True.
+Defaults to 1.5s.</p></li>
+<li><p><strong>min_segment_length_s</strong> (<em>float</em><em>, </em><em>optional</em>) – Minimum segment length (seconds) to keep. Used when auto_segment=True.
+Defaults to 1.5s.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Prepared data ready for ParaDigMa analysis. If auto_segment=True and multiple
+segments found, includes ‘data_segment_nr’ column.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../pipelines/tremor_pipeline/index.html" class="btn btn-neutral float-left" title="paradigma.pipelines.tremor_pipeline" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../preprocessing/index.html" class="btn btn-neutral float-right" title="paradigma.preprocessing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, and Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

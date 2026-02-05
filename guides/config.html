@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Config &mdash; paradigma  documentation</title>
+  <title>Configuration Guide &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
@@ -27,7 +27,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Coordinate System" href="coordinate_system.html" />
-    <link rel="prev" title="Pulse rate analysis" href="../tutorials/_static/pulse_rate_analysis.html" /> 
+    <link rel="prev" title="Supported Devices" href="supported_devices.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -49,24 +49,13 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/_static/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/_static/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">User guides</span></p>
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Config</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#config-classes">Config classes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#sensor-configs">Sensor configs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#domain-configs">Domain configs</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
@@ -94,7 +83,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Config</li>
+      <li class="breadcrumb-item active">Configuration Guide</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/guides/config.md.txt" rel="nofollow"> View page source</a>
       </li>
@@ -104,20 +93,91 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="config">
-<h1>Config<a class="headerlink" href="#config" title="Link to this heading"></a></h1>
-<p>Throughout the ParaDigMa toolbox we use configuration objects <code class="docutils literal notranslate"><span class="pre">Config</span></code> to specificy parameters used as input of processes. All configuration classes care defined in <code class="docutils literal notranslate"><span class="pre">config.py</span></code>, and can be imported using <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">paradigma.config</span> <span class="pre">import</span> <span class="pre">X</span></code>.  The configuration classes frequently use static column names defined in <code class="docutils literal notranslate"><span class="pre">constants.py</span></code> to ensure robustness and consistency.</p>
-<section id="config-classes">
-<h2>Config classes<a class="headerlink" href="#config-classes" title="Link to this heading"></a></h2>
-<p>The config classes are defined either for sensors (IMU, PPG) or for domains (gait, heart rate, tremor).</p>
-<section id="sensor-configs">
-<h3>Sensor configs<a class="headerlink" href="#sensor-configs" title="Link to this heading"></a></h3>
-<p>There are two sensor config classes: <code class="docutils literal notranslate"><span class="pre">IMUConfig</span></code> and <code class="docutils literal notranslate"><span class="pre">PPGConfig</span></code>.</p>
+  <section id="configuration-guide">
+<h1>Configuration Guide<a class="headerlink" href="#configuration-guide" title="Link to this heading"></a></h1>
+<p>Throughout the ParaDigMa toolbox, configuration objects are used to specify parameters for pipeline processes. All configuration classes are defined in <code class="docutils literal notranslate"><span class="pre">config.py</span></code> and can be imported using <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">paradigma.config</span> <span class="pre">import</span> <span class="pre">X</span></code>.</p>
+<p>Configuration classes use static column names defined in <code class="docutils literal notranslate"><span class="pre">constants.py</span></code> to ensure robustness and consistency across the codebase.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>Configuration classes are organized into two categories:</p>
+<ul class="simple">
+<li><p><strong>Sensor Configurations</strong>: For sensors (IMU, PPG)</p></li>
+<li><p><strong>Domain Configurations</strong>: For analysis pipelines (gait, tremor, pulse rate)</p></li>
+</ul>
 </section>
-<section id="domain-configs">
-<h3>Domain configs<a class="headerlink" href="#domain-configs" title="Link to this heading"></a></h3>
-<p>For the latter category, config classes can further be distinguished by the processing steps displayed <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma">here</a>.</p>
+<section id="sensor-configurations">
+<h2>Sensor Configurations<a class="headerlink" href="#sensor-configurations" title="Link to this heading"></a></h2>
+<section id="imuconfig">
+<h3>IMUConfig<a class="headerlink" href="#imuconfig" title="Link to this heading"></a></h3>
+<p>Configuration for inertial measurement unit (IMU) sensors (accelerometer + gyroscope):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span>
+
+<span class="n">imu_config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span>
+<span class="n">imu_config</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="mi">100</span>
+</pre></div>
+</div>
 </section>
+</section>
+<section id="parameters">
+<h2><strong>Parameters</strong><a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
+<section id="ppgconfig">
+<h3>PPGConfig<a class="headerlink" href="#ppgconfig" title="Link to this heading"></a></h3>
+<p>Configuration for photoplethysmography (PPG) sensors:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PPGConfig</span>
+
+<span class="n">ppg_config</span> <span class="o">=</span> <span class="n">PPGConfig</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="domain-configurations">
+<h2>Domain Configurations<a class="headerlink" href="#domain-configurations" title="Link to this heading"></a></h2>
+<p>Domain configurations are defined for each analysis pipeline and correspond to processing steps:</p>
+<ol class="arabic simple">
+<li><p><strong>Preprocessing</strong>: Raw signal preparation</p></li>
+<li><p><strong>Feature Extraction</strong>: Window-based feature computation</p></li>
+<li><p><strong>Classification</strong>: Segment detection (e.g., gait segments)</p></li>
+<li><p><strong>Quantification</strong>: Measure extraction from segments</p></li>
+<li><p><strong>Aggregation</strong>: Time-period aggregation (e.g., weekly)</p></li>
+</ol>
+<section id="using-domain-configs">
+<h3>Using Domain Configs<a class="headerlink" href="#using-domain-configs" title="Link to this heading"></a></h3>
+<p>Each domain (gait, tremor, pulse rate) has configuration classes for its specific processing steps. See the <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/index.html">API Reference</a> for complete documentation of available configurations.</p>
+<p>Example with gait analysis:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span><span class="p">,</span> <span class="n">GaitConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_paradigma</span>
+
+<span class="n">imu_config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span>
+<span class="n">imu_config</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">gait_config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">()</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">run_paradigma</span><span class="p">(</span>
+    <span class="n">dfs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="n">df</span><span class="p">},</span>
+    <span class="n">pipelines</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gait&#39;</span><span class="p">],</span>
+    <span class="n">imu_config</span><span class="o">=</span><span class="n">imu_config</span><span class="p">,</span>
+    <span class="n">gait_config</span><span class="o">=</span><span class="n">gait_config</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Validation</strong>: Ensure your sensor <code class="docutils literal notranslate"><span class="pre">sampling_frequency</span></code> matches your actual data</p></li>
+<li><p><strong>Column Names</strong>: Verify that your DataFrame column names match the configuration</p></li>
+<li><p><strong>Units</strong>: Confirm that sensor data is in correct physical units (see <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/guides/sensor_requirements.html">Sensor Requirements</a>)</p></li>
+<li><p><strong>Documentation</strong>: Document any custom configurations in your analysis code</p></li>
+</ol>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/guides/sensor_requirements.html">Sensor Requirements</a> - Detailed sensor specifications</p></li>
+<li><p><a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/guides/coordinate_system.html">Coordinate System Guide</a> - IMU axis alignment</p></li>
+<li><p><a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/config.html">API Reference</a> - Complete configuration API</p></li>
+<li><p><a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/tutorials/data_preparation.html">Data Preparation Tutorial</a> - Data preparation steps</p></li>
+</ul>
 </section>
 </section>
 
@@ -125,7 +185,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../tutorials/_static/pulse_rate_analysis.html" class="btn btn-neutral float-left" title="Pulse rate analysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="supported_devices.html" class="btn btn-neutral float-left" title="Supported Devices" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="coordinate_system.html" class="btn btn-neutral float-right" title="Coordinate System" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

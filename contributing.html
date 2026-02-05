@@ -49,38 +49,18 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/_static/data_preparation.html">Data preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/_static/gait_analysis.html">Gait analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/_static/gait_analysis.html#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/_static/tremor_analysis.html">Tremor analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/_static/pulse_rate_analysis.html">Pulse rate analysis</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">User guides</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="guides/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Contributing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#types-of-contributions">Types of Contributions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#report-bugs">Report Bugs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fix-bugs">Fix Bugs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#implement-features">Implement Features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#write-documentation">Write Documentation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#workflow-for-notebooks-and-docs">Workflow for notebooks and docs:</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#submit-feedback">Submit Feedback</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#get-started">Get Started!</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pull-request-guidelines">Pull Request Guidelines</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#code-of-conduct">Code of Conduct</a></li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
 </ul>
@@ -148,6 +128,61 @@ Anything tagged with <code class="docutils literal notranslate"><span class="pre
 <li><p>Docstrings: In Python modules</p></li>
 <li><p>Articles or blog posts</p></li>
 </ul>
+<section id="docstring-style-guide">
+<h4>Docstring Style Guide<a class="headerlink" href="#docstring-style-guide" title="Link to this heading"></a></h4>
+<p>ParaDigMa follows NumPy/Napoleon docstring conventions with these type annotation guidelines:</p>
+<p><strong>Function Signatures:</strong></p>
+<ul>
+<li><p>Use PEP 604 syntax: <code class="docutils literal notranslate"><span class="pre">str</span> <span class="pre">|</span> <span class="pre">Path</span></code> instead of <code class="docutils literal notranslate"><span class="pre">Union[str,</span> <span class="pre">Path]</span></code></p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">X</span> <span class="pre">|</span> <span class="pre">None</span></code> instead of <code class="docutils literal notranslate"><span class="pre">Optional[X]</span></code></p></li>
+<li><p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">load_data</span><span class="p">(</span>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Config</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p><strong>Parameter Docstrings:</strong></p>
+<ul class="simple">
+<li><p>Use natural language for types, not Python type syntax</p></li>
+<li><p>For union types: <code class="docutils literal notranslate"><span class="pre">str</span> <span class="pre">or</span> <span class="pre">Path</span></code> not <code class="docutils literal notranslate"><span class="pre">Union[str,</span> <span class="pre">Path]</span></code></p></li>
+<li><p>For optional parameters: Add <code class="docutils literal notranslate"><span class="pre">,</span> <span class="pre">optional</span></code> suffix</p></li>
+<li><p>For lists: <code class="docutils literal notranslate"><span class="pre">list</span> <span class="pre">of</span> <span class="pre">str</span></code> not <code class="docutils literal notranslate"><span class="pre">List[str]</span></code></p></li>
+<li><p>For dicts: <code class="docutils literal notranslate"><span class="pre">dict</span></code> not <code class="docutils literal notranslate"><span class="pre">Dict[str,</span> <span class="pre">int]</span></code></p></li>
+</ul>
+<p><strong>Examples:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">example_function</span><span class="p">(</span>
+    <span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Config</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load and process data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data_path : str or Path</span>
+<span class="sd">        Path to data directory</span>
+<span class="sd">    columns : list of str, optional</span>
+<span class="sd">        Column names to load</span>
+<span class="sd">    config : Config, optional</span>
+<span class="sd">        Configuration object</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Processed data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p><strong>Return Type Documentation:</strong></p>
+<ul class="simple">
+<li><p>Use simple descriptions: <code class="docutils literal notranslate"><span class="pre">dict</span></code> or <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> not <code class="docutils literal notranslate"><span class="pre">Dict[str,</span> <span class="pre">pd.DataFrame]</span></code></p></li>
+<li><p>Add details in the description text below</p></li>
+</ul>
+</section>
 <section id="workflow-for-notebooks-and-docs">
 <h4>Workflow for notebooks and docs:<a class="headerlink" href="#workflow-for-notebooks-and-docs" title="Link to this heading"></a></h4>
 <ol class="arabic simple">
@@ -186,6 +221,40 @@ are welcome!</p></li>
 <section id="get-started">
 <h2>Get Started!<a class="headerlink" href="#get-started" title="Link to this heading"></a></h2>
 <p>Ready to contribute? Here’s how to set up <code class="docutils literal notranslate"><span class="pre">paradigma</span></code> locally:</p>
+<section id="prerequisites">
+<h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p><strong>Install git-lfs</strong> (required for example data):</p>
+<p><strong>Windows:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>choco<span class="w"> </span>install<span class="w"> </span>git-lfs
+<span class="c1"># Or download from https://git-lfs.com/</span>
+</pre></div>
+</div>
+<p><strong>Linux:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Ubuntu/Debian</span>
+sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>git-lfs
+
+<span class="c1"># Fedora/RHEL</span>
+sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>git-lfs
+
+<span class="c1"># Arch Linux</span>
+sudo<span class="w"> </span>pacman<span class="w"> </span>-S<span class="w"> </span>git-lfs
+</pre></div>
+</div>
+<p><strong>macOS:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>brew<span class="w"> </span>install<span class="w"> </span>git-lfs
+</pre></div>
+</div>
+</li>
+<li><p><strong>Enable git-lfs:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>lfs<span class="w"> </span>install
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="clone-and-install">
+<h3>Clone and Install<a class="headerlink" href="#clone-and-install" title="Link to this heading"></a></h3>
 <ol class="arabic simple">
 <li><p>Clone the repository:</p></li>
 </ol>
@@ -199,13 +268,36 @@ are welcome!</p></li>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>poetry<span class="w"> </span>install
 </pre></div>
 </div>
-<ol class="arabic simple" start="3">
+<ol class="arabic" start="3">
+<li><p><strong>Verify example data setup:</strong></p>
+<p>Check that example data was downloaded correctly (not git-lfs pointers):</p>
+<p><strong>Linux/macOS:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ls<span class="w"> </span>-lh<span class="w"> </span>example_data/verily/ppg/*.bin
+<span class="c1"># Should show file sizes (100KB - several MB), not ~130 bytes</span>
+
+head<span class="w"> </span>-n<span class="w"> </span><span class="m">1</span><span class="w"> </span>example_data/verily/ppg/PPG_segment0001_meta.json
+<span class="c1"># Should show JSON like {&quot;file_name&quot;: ..., not &quot;version https://git-lfs.github.com/spec/v1&quot;</span>
+</pre></div>
+</div>
+<p><strong>Windows PowerShell:</strong></p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="nb">Get-ChildItem</span> <span class="n">example_data</span><span class="p">/</span><span class="n">verily</span><span class="p">/</span><span class="n">ppg</span><span class="p">/*.</span><span class="n">bin</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Length</span>
+<span class="c"># Should show file sizes (100KB - several MB), not ~130 bytes</span>
+
+<span class="nb">Get-Content</span> <span class="n">example_data</span><span class="p">/</span><span class="n">verily</span><span class="p">/</span><span class="n">ppg</span><span class="p">/</span><span class="n">PPG_segment0001_meta</span><span class="p">.</span><span class="n">json</span> <span class="n">-Head</span> <span class="n">1</span>
+<span class="c"># Should show JSON, not &quot;version https://git-lfs.github.com/spec/v1&quot;</span>
+</pre></div>
+</div>
+<p><strong>If files are git-lfs pointers:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>lfs<span class="w"> </span>pull
+</pre></div>
+</div>
+</li>
 <li><p>Create a new branch for your work:</p></li>
 </ol>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>name-of-your-bugfix-or-feature
 </pre></div>
 </div>
-<ol class="arabic simple" start="4">
+<ol class="arabic simple" start="5">
 <li><p>Make your changes and run the pre-commit hooks:</p></li>
 </ol>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pre-commit
@@ -214,17 +306,25 @@ pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
 </pre></div>
 </div>
 <p>This ensures code formatting (<code class="docutils literal notranslate"><span class="pre">black</span></code>), import sorting (<code class="docutils literal notranslate"><span class="pre">isort</span></code>), stripping notebook outputs, and other checks.
-These pre-commit hooks also run for changed and staged files when committing.</p>
-<ol class="arabic simple" start="5">
+These pre-commit hooks also run for changed files when committing.</p>
+<ol class="arabic simple" start="6">
 <li><p>If contributing to docs, build and serve them locally to verify:</p></li>
 </ol>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>poetry<span class="w"> </span>run<span class="w"> </span>build-docs
 poetry<span class="w"> </span>run<span class="w"> </span>serve-docs
 </pre></div>
 </div>
-<ol class="arabic simple" start="6">
+<p><code class="docutils literal notranslate"><span class="pre">build-docs</span></code> accepts the following arguments to speed up development:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--notebook</span> <span class="pre">&lt;filename&gt;</span></code> - Build only a specific notebook (e.g., <code class="docutils literal notranslate"><span class="pre">--notebook</span> <span class="pre">pipeline_orchestrator.ipynb</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--dev</span></code> - Skip execution of notebooks</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--no-nbconvert</span></code> - Skip conversion of notebooks to markdown</p></li>
+</ul>
+<p>These options are useful when iterating on documentation changes without rebuilding everything.</p>
+<ol class="arabic simple" start="7">
 <li><p>Commit your changes and open a pull request.</p></li>
 </ol>
+</section>
 </section>
 <section id="pull-request-guidelines">
 <h2>Pull Request Guidelines<a class="headerlink" href="#pull-request-guidelines" title="Link to this heading"></a></h2>

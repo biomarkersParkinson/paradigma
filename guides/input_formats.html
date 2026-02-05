@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Input Formats Guide &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a31c8b26" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Data Input Formats Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/guides/input_formats.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="data-input-formats-guide">
+<h1>Data Input Formats Guide<a class="headerlink" href="#data-input-formats-guide" title="Link to this heading"></a></h1>
+<p>ParaDigMa’s <code class="docutils literal notranslate"><span class="pre">run_paradigma()</span></code> function supports multiple flexible input formats for providing data to the analysis pipeline.</p>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
+<p>Before using ParaDigMa, ensure your data meets the requirements:</p>
+<ul class="simple">
+<li><p><strong>Sensor requirements</strong>: See <a class="reference internal" href="sensor_requirements.html"><span class="std std-doc">Sensor Requirements</span></a></p></li>
+<li><p><strong>Device compatibility</strong>: See <a class="reference internal" href="supported_devices.html"><span class="std std-doc">Supported Devices</span></a></p></li>
+<li><p><strong>Data format</strong>: Pandas DataFrame with required columns (see below)</p></li>
+</ul>
+</section>
+<section id="input-format-options">
+<h2>Input Format Options<a class="headerlink" href="#input-format-options" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">dfs</span></code> parameter accepts three input formats:</p>
+<section id="single-dataframe">
+<h3>1. Single DataFrame<a class="headerlink" href="#single-dataframe" title="Link to this heading"></a></h3>
+<p>Use when you have a single prepared DataFrame to analyze:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.orchestrator</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_paradigma</span>
+
+<span class="c1"># Load your data</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">&#39;data.parquet&#39;</span><span class="p">)</span>
+
+<span class="c1"># Process with a single DataFrame</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">run_paradigma</span><span class="p">(</span>
+    <span class="n">dfs</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>  <span class="c1"># Single DataFrame</span>
+    <span class="n">pipelines</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gait&#39;</span><span class="p">],</span>
+    <span class="n">watch_side</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span>  <span class="c1"># Required for gait pipeline</span>
+    <span class="n">save_intermediate</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;aggregation&#39;</span><span class="p">]</span>  <span class="c1"># Saves to ./output by default</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The DataFrame is automatically assigned the identifier <code class="docutils literal notranslate"><span class="pre">'df_1'</span></code> internally.</p>
+</section>
+<section id="list-of-dataframes">
+<h3>2. List of DataFrames<a class="headerlink" href="#list-of-dataframes" title="Link to this heading"></a></h3>
+<p>Use when you have multiple DataFrames that should be automatically assigned sequential IDs:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load multiple data segments</span>
+<span class="n">df1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">&#39;morning_session.parquet&#39;</span><span class="p">)</span>
+<span class="n">df2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">&#39;afternoon_session.parquet&#39;</span><span class="p">)</span>
+<span class="n">df3</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">&#39;evening_session.parquet&#39;</span><span class="p">)</span>
+
+<span class="c1"># Process as list - automatically assigned to &#39;df_1&#39;, &#39;df_2&#39;, &#39;df_3&#39;</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">run_paradigma</span><span class="p">(</span>
+    <span class="n">dfs</span><span class="o">=</span><span class="p">[</span><span class="n">df1</span><span class="p">,</span> <span class="n">df2</span><span class="p">,</span> <span class="n">df3</span><span class="p">],</span>
+    <span class="n">pipelines</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gait&#39;</span><span class="p">],</span>
+    <span class="n">watch_side</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span>
+    <span class="n">save_intermediate</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;quantification&#39;</span><span class="p">,</span> <span class="s1">&#39;aggregation&#39;</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Benefits:</strong></p>
+<ul class="simple">
+<li><p>Automatic segment ID assignment</p></li>
+<li><p>Each DataFrame processed independently before aggregation</p></li>
+<li><p>Aggregation performed across all input DataFrames</p></li>
+</ul>
+</section>
+<section id="dictionary-of-dataframes">
+<h3>3. Dictionary of DataFrames<a class="headerlink" href="#dictionary-of-dataframes" title="Link to this heading"></a></h3>
+<p>Use when you need custom identifiers for your data segments:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create dictionary with custom segment identifiers</span>
+<span class="n">dfs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;patient_001_morning&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">&#39;session1.parquet&#39;</span><span class="p">),</span>
+    <span class="s1">&#39;patient_001_evening&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">&#39;session2.parquet&#39;</span><span class="p">),</span>
+    <span class="s1">&#39;patient_002_morning&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">&#39;session3.parquet&#39;</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="c1"># Process with custom segment identifiers</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">run_paradigma</span><span class="p">(</span>
+    <span class="n">dfs</span><span class="o">=</span><span class="n">dfs</span><span class="p">,</span>
+    <span class="n">pipelines</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gait&#39;</span><span class="p">],</span>
+    <span class="n">watch_side</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span>
+    <span class="n">save_intermediate</span><span class="o">=</span><span class="p">[]</span>  <span class="c1"># No files saved - results only in memory</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Benefits:</strong></p>
+<ul class="simple">
+<li><p>Custom segment identifiers in output</p></li>
+<li><p>Improved traceability of data sources</p></li>
+<li><p>Useful for multi-patient or multi-session datasets</p></li>
+</ul>
+</section>
+</section>
+<section id="loading-data-from-disk">
+<h2>Loading Data from Disk<a class="headerlink" href="#loading-data-from-disk" title="Link to this heading"></a></h2>
+<p>To automatically load data files from a directory:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.orchestrator</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_paradigma</span>
+
+<span class="c1"># Load all files from a directory</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">run_paradigma</span><span class="p">(</span>
+    <span class="n">data_path</span><span class="o">=</span><span class="s1">&#39;./data/patient_001/&#39;</span><span class="p">,</span>
+    <span class="n">pipelines</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gait&#39;</span><span class="p">],</span>
+    <span class="n">watch_side</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span>
+    <span class="n">file_pattern</span><span class="o">=</span><span class="s1">&#39;*.parquet&#39;</span><span class="p">,</span>  <span class="c1"># Optional: filter by pattern</span>
+    <span class="n">save_intermediate</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;aggregation&#39;</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Supported file formats:</strong></p>
+<ul class="simple">
+<li><p>Pandas: <code class="docutils literal notranslate"><span class="pre">.parquet</span></code>, <code class="docutils literal notranslate"><span class="pre">.csv</span></code>, <code class="docutils literal notranslate"><span class="pre">.pkl</span></code>, <code class="docutils literal notranslate"><span class="pre">.pickle</span></code></p></li>
+<li><p>TSDF: <code class="docutils literal notranslate"><span class="pre">.meta</span></code> + <code class="docutils literal notranslate"><span class="pre">.bin</span></code> pairs</p></li>
+<li><p>Device-specific: <code class="docutils literal notranslate"><span class="pre">.avro</span></code> (Empatica), <code class="docutils literal notranslate"><span class="pre">.cwa</span></code> (Axivity)</p></li>
+</ul>
+<p>See <a class="reference internal" href="supported_devices.html"><span class="std std-doc">Supported Devices</span></a> for device-specific loading examples.</p>
+</section>
+<section id="required-dataframe-columns">
+<h2>Required DataFrame Columns<a class="headerlink" href="#required-dataframe-columns" title="Link to this heading"></a></h2>
+<p>Your DataFrame must contain the following columns depending on the pipeline:</p>
+<section id="for-gait-and-tremor-pipelines">
+<h3>For Gait and Tremor Pipelines<a class="headerlink" href="#for-gait-and-tremor-pipelines" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Required columns</span>
+<span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;accelerometer_x&#39;</span><span class="p">,</span> <span class="s1">&#39;accelerometer_y&#39;</span><span class="p">,</span> <span class="s1">&#39;accelerometer_z&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;gyroscope_x&#39;</span><span class="p">,</span> <span class="s1">&#39;gyroscope_y&#39;</span><span class="p">,</span> <span class="s1">&#39;gyroscope_z&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">time</span></code>: Timestamp (float seconds or datetime)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">accelerometer_x</span></code>, <code class="docutils literal notranslate"><span class="pre">accelerometer_y</span></code>, <code class="docutils literal notranslate"><span class="pre">accelerometer_z</span></code>: Accelerometer data</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gyroscope_x</span></code>, <code class="docutils literal notranslate"><span class="pre">gyroscope_y</span></code>, <code class="docutils literal notranslate"><span class="pre">gyroscope_z</span></code>: Gyroscope data</p></li>
+</ul>
+</section>
+<section id="for-pulse-rate-pipeline">
+<h3>For Pulse Rate Pipeline<a class="headerlink" href="#for-pulse-rate-pipeline" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Required columns</span>
+<span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;ppg&#39;</span><span class="p">]</span>  <span class="c1"># Accelerometer optional</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">time</span></code>: Timestamp (float seconds or datetime)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ppg</span></code>: PPG/BVP signal</p></li>
+</ul>
+</section>
+<section id="custom-column-names">
+<h3>Custom Column Names<a class="headerlink" href="#custom-column-names" title="Link to this heading"></a></h3>
+<p>If your data uses different column names, rename the columns or use <code class="docutils literal notranslate"><span class="pre">column_mapping</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">run_paradigma</span><span class="p">(</span>
+    <span class="n">dfs</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+    <span class="n">pipelines</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gait&#39;</span><span class="p">],</span>
+    <span class="n">watch_side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span>
+    <span class="n">column_mapping</span><span class="o">=</span><span class="p">{</span>
+        <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="s1">&#39;time&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;acc_x&#39;</span><span class="p">:</span> <span class="s1">&#39;accelerometer_x&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;acc_y&#39;</span><span class="p">:</span> <span class="s1">&#39;accelerometer_y&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;acc_z&#39;</span><span class="p">:</span> <span class="s1">&#39;accelerometer_z&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;gyr_x&#39;</span><span class="p">:</span> <span class="s1">&#39;gyroscope_x&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;gyr_y&#39;</span><span class="p">:</span> <span class="s1">&#39;gyroscope_y&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;gyr_z&#39;</span><span class="p">:</span> <span class="s1">&#39;gyroscope_z&#39;</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="data-preparation-parameters">
+<h2>Data Preparation Parameters<a class="headerlink" href="#data-preparation-parameters" title="Link to this heading"></a></h2>
+<p>If your data needs preparation (unit conversion, resampling, etc.), ParaDigMa can handle it automatically:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">run_paradigma</span><span class="p">(</span>
+    <span class="n">dfs</span><span class="o">=</span><span class="n">df_raw</span><span class="p">,</span>
+    <span class="n">pipelines</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gait&#39;</span><span class="p">],</span>
+    <span class="n">watch_side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span>
+    <span class="n">skip_preparation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># Default: perform preparation</span>
+
+    <span class="c1"># Unit conversion</span>
+    <span class="n">accelerometer_units</span><span class="o">=</span><span class="s1">&#39;m/s^2&#39;</span><span class="p">,</span>  <span class="c1"># Auto-converts to &#39;g&#39;</span>
+    <span class="n">gyroscope_units</span><span class="o">=</span><span class="s1">&#39;rad/s&#39;</span><span class="p">,</span>      <span class="c1"># Auto-converts to &#39;deg/s&#39;</span>
+
+    <span class="c1"># Resampling</span>
+    <span class="n">target_frequency</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span>
+
+    <span class="c1"># Time handling</span>
+    <span class="n">time_input_unit</span><span class="o">=</span><span class="s1">&#39;relative_s&#39;</span><span class="p">,</span>  <span class="c1"># Or &#39;absolute_datetime&#39;</span>
+
+    <span class="c1"># Orientation correction</span>
+    <span class="n">device_orientation</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">],</span>
+
+    <span class="c1"># Segmentation for non-contiguous data</span>
+    <span class="n">split_by_gaps</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">max_gap_seconds</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+    <span class="n">min_segment_seconds</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>If your data is already prepared (correct units, sampling rate, column names), skip preparation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">run_paradigma</span><span class="p">(</span>
+    <span class="n">dfs</span><span class="o">=</span><span class="n">df_prepared</span><span class="p">,</span>
+    <span class="n">pipelines</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gait&#39;</span><span class="p">,</span> <span class="s1">&#39;tremor&#39;</span><span class="p">],</span>
+    <span class="n">watch_side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span>
+    <span class="n">skip_preparation</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="output-control">
+<h2>Output Control<a class="headerlink" href="#output-control" title="Link to this heading"></a></h2>
+<section id="output-directory">
+<h3>Output Directory<a class="headerlink" href="#output-directory" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">run_paradigma</span><span class="p">(</span>
+    <span class="n">dfs</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+    <span class="n">pipelines</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gait&#39;</span><span class="p">],</span>
+    <span class="n">watch_side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="o">=</span><span class="s1">&#39;./results&#39;</span><span class="p">,</span>  <span class="c1"># Custom output directory (default: &#39;./output&#39;)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="saving-intermediate-results">
+<h3>Saving Intermediate Results<a class="headerlink" href="#saving-intermediate-results" title="Link to this heading"></a></h3>
+<p>Control which intermediate steps are saved to disk:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">run_paradigma</span><span class="p">(</span>
+    <span class="n">dfs</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+    <span class="n">pipelines</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gait&#39;</span><span class="p">],</span>
+    <span class="n">watch_side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span>
+    <span class="n">save_intermediate</span><span class="o">=</span><span class="p">[</span>
+        <span class="s1">&#39;preparation&#39;</span><span class="p">,</span>      <span class="c1"># Prepared data</span>
+        <span class="s1">&#39;preprocessing&#39;</span><span class="p">,</span>    <span class="c1"># Preprocessed data</span>
+        <span class="s1">&#39;classification&#39;</span><span class="p">,</span>   <span class="c1"># Gait/tremor bout classifications</span>
+        <span class="s1">&#39;quantification&#39;</span><span class="p">,</span>   <span class="c1"># Segment-level measures</span>
+        <span class="s1">&#39;aggregation&#39;</span>       <span class="c1"># Aggregated measures</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>To keep results only in memory without saving files:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">run_paradigma</span><span class="p">(</span>
+    <span class="n">dfs</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+    <span class="n">pipelines</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gait&#39;</span><span class="p">],</span>
+    <span class="n">watch_side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span>
+    <span class="n">save_intermediate</span><span class="o">=</span><span class="p">[]</span>  <span class="c1"># No files saved</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="results-structure">
+<h2>Results Structure<a class="headerlink" href="#results-structure" title="Link to this heading"></a></h2>
+<p>Regardless of input format, results are returned in the same structure:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;quantifications&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;gait&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>    <span class="c1"># Segment-level gait measures</span>
+        <span class="s1">&#39;tremor&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>  <span class="c1"># Segment-level tremor measures</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;aggregations&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;gait&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>            <span class="c1"># Time-period aggregated gait measures</span>
+        <span class="s1">&#39;tremor&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>          <span class="c1"># Time-period aggregated tremor measures</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>            <span class="c1"># Analysis metadata</span>
+    <span class="s1">&#39;errors&#39;</span><span class="p">:</span> <span class="nb">list</span>               <span class="c1"># List of errors (empty if successful)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<section id="error-tracking">
+<h3>Error Tracking<a class="headerlink" href="#error-tracking" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">errors</span></code> list contains any errors encountered during processing. Always check this after running:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;errors&#39;</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;errors&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2"> error(s) occurred&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;errors&#39;</span><span class="p">]:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Stage: </span><span class="si">{</span><span class="n">error</span><span class="p">[</span><span class="s1">&#39;stage&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Error: </span><span class="si">{</span><span class="n">error</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;file&#39;</span> <span class="ow">in</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  File: </span><span class="si">{</span><span class="n">error</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Each error dict contains:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">stage</span></code>: Where the error occurred (loading, preparation, pipeline_execution, aggregation)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">error</span></code>: Error message</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">file</span></code>: Filename (if file-specific, optional)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pipeline</span></code>: Pipeline name (if pipeline-specific, optional)</p></li>
+</ul>
+</section>
+<section id="file-key-column">
+<h3>File Key Column<a class="headerlink" href="#file-key-column" title="Link to this heading"></a></h3>
+<p>When processing multiple files, the <code class="docutils literal notranslate"><span class="pre">quantifications</span></code> DataFrame includes a <code class="docutils literal notranslate"><span class="pre">file_key</span></code> column:</p>
+<ul class="simple">
+<li><p><strong>Single DataFrame input</strong>: No <code class="docutils literal notranslate"><span class="pre">file_key</span></code> column</p></li>
+<li><p><strong>List input (2+ files)</strong>: <code class="docutils literal notranslate"><span class="pre">'df_1'</span></code>, <code class="docutils literal notranslate"><span class="pre">'df_2'</span></code>, etc.</p></li>
+<li><p><strong>Dict input (2+ files)</strong>: Custom keys you provided</p></li>
+</ul>
+<p>This preserves traceability while keeping single-file results concise.</p>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Single DataFrame</strong>: Use for single files or pre-aggregated data</p></li>
+<li><p><strong>List of DataFrames</strong>: Use when you don’t need specific naming</p></li>
+<li><p><strong>Dictionary of DataFrames</strong>: Use when segment identifiers are important for traceability</p></li>
+<li><p><strong>Check <code class="docutils literal notranslate"><span class="pre">file_key</span></code> column</strong>: Trace results back to input segments in multi-file processing</p></li>
+<li><p><strong>Skip preparation</strong>: Set <code class="docutils literal notranslate"><span class="pre">skip_preparation=True</span></code> if data is already standardized</p></li>
+<li><p><strong>Save selectively</strong>: Only save intermediate results you need to reduce disk usage</p></li>
+</ol>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="sensor_requirements.html"><span class="std std-doc">Sensor Requirements</span></a> - What sensor specs are needed</p></li>
+<li><p><a class="reference internal" href="supported_devices.html"><span class="std std-doc">Supported Devices</span></a> - Device-specific loading examples</p></li>
+<li><p><a class="reference internal" href="#../tutorials/data_preparation.html"><span class="xref myst">Data Preparation Tutorial</span></a> - Step-by-step preparation guide</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, and Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

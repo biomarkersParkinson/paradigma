@@ -1,0 +1,166 @@
+paradigma.orchestrator
+======================
+
+.. py:module:: paradigma.orchestrator
+
+.. autoapi-nested-parse::
+
+   High-level pipeline orchestrator for ParaDigMa toolbox.
+
+   This module provides the main entry point for running analysis pipelines:
+
+   Main Function
+   -------------
+   - run_paradigma(): Complete pipeline from data loading/preparation
+     to aggregated results. Main entry point for end-to-end analysis
+     supporting multiple pipelines (gait, tremor, pulse_rate).
+     Can process raw data from disk or already-prepared DataFrames.
+
+   The orchestrator coordinates:
+   1. Data loading and preparation (unit conversion, resampling, orientation correction)
+   2. Pipeline execution on single or multiple files (imports from pipeline modules)
+   3. Result aggregation across files and segments
+   4. Optional intermediate result storage
+
+   Supports multi-file processing with automatic segment numbering and metadata tracking.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   paradigma.orchestrator.logger
+   paradigma.orchestrator.DETAILED_INFO
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   paradigma.orchestrator.run_paradigma
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: DETAILED_INFO
+   :value: 15
+
+
+.. py:function:: run_paradigma(*, data_path: str | pathlib.Path | None = None, dfs: pandas.DataFrame | list[pandas.DataFrame] | dict[str, pandas.DataFrame] | None = None, save_intermediate: list[str] = [], output_dir: str | pathlib.Path = './output', skip_preparation: bool = False, pipelines: list[str] | str | None = None, watch_side: str | None = None, accelerometer_units: str = 'g', gyroscope_units: str = 'deg/s', time_input_unit: paradigma.constants.TimeUnit = TimeUnit.RELATIVE_S, target_frequency: float = 100.0, column_mapping: dict[str, str] | None = None, device_orientation: list[str] | None = ['x', 'y', 'z'], file_pattern: str | list[str] | None = None, aggregates: list[str] | None = None, segment_length_bins: list[str] | None = None, split_by_gaps: bool = False, max_gap_seconds: float | None = None, min_segment_seconds: float | None = None, imu_config: paradigma.config.IMUConfig | None = None, ppg_config: paradigma.config.PPGConfig | None = None, gait_config: paradigma.config.GaitConfig | None = None, arm_activity_config: paradigma.config.GaitConfig | None = None, tremor_config: paradigma.config.TremorConfig | None = None, pulse_rate_config: paradigma.config.PulseRateConfig | None = None, logging_level: int = logging.INFO, custom_logger: logging.Logger | None = None) -> dict[str, pandas.DataFrame | dict]
+
+   Complete ParaDigMa analysis pipeline from data loading to aggregated results.
+
+   This is the main entry point for ParaDigMa analysis. It supports
+   multiple pipeline types:
+   - gait: Arm swing during gait analysis
+   - tremor: Tremor detection and quantification
+   - pulse_rate: Pulse rate estimation from PPG signals
+
+   The function:
+   1. Loads data files from the specified directory or uses provided DataFrame
+   2. Prepares raw data if needed (unit conversion, resampling, etc.)
+   3. Runs the specified pipeline on each data file
+   4. Aggregates results across all data files
+
+   :param data_path: Path to directory containing data files.
+   :type data_path: str or Path, optional
+   :param dfs: Dataframes used as input (bypasses data loading). Can be:
+               - Single DataFrame: Will be processed as one file with key 'df_1'.
+               - List[DataFrame]: Multiple dataframes assigned IDs as 'df_1', 'df_2', etc.
+               - Dict[str, DataFrame]: Keys are file names, values are dataframes.
+               Note: The 'file_key' column is only added to quantification results when
+               len(dfs) > 1, allowing cleaner output for single-file processing.
+               See input_formats guide for details.
+   :type dfs: DataFrame, list of DataFrames, or dict of DataFrames, optional
+   :param save_intermediate: Which intermediate results to store. Valid values:
+                             - 'preparation': Save prepared data
+                             - 'preprocessing': Save preprocessed signals
+                             - 'classification': Save classification results
+                             - 'quantification': Save quantified measures
+                             - 'aggregation': Save aggregated results
+                             If empty, no files are saved (results are only returned).
+   :type save_intermediate: list of str, default []
+   :param output_dir: Output directory for all results. Files are only saved if
+                      save_intermediate is not empty.
+   :type output_dir: str or Path, default './output'
+   :param skip_preparation: Whether data is already prepared. If False, data will be
+                            prepared (unit conversion, resampling, etc.). If True,
+                            assumes data is already in the required format.
+   :type skip_preparation: bool, default False
+   :param pipelines: Pipelines to run: 'gait', 'tremor', and/or 'pulse_rate'.
+                     If providing a list, currently only tremor and gait pipelines
+                     can be run together.
+   :type pipelines: list of str or str, optional
+   :param watch_side: Watch side: 'left' or 'right' (required for gait pipeline).
+   :type watch_side: str, optional
+   :param accelerometer_units: Units for accelerometer data.
+   :type accelerometer_units: str, default 'm/s^2'
+   :param gyroscope_units: Units for gyroscope data.
+   :type gyroscope_units: str, default 'deg/s'
+   :param time_input_unit: Input time unit type.
+   :type time_input_unit: TimeUnit, default TimeUnit.RELATIVE_S
+   :param target_frequency: Target sampling frequency for resampling.
+   :type target_frequency: float, default 100.0
+   :param column_mapping: Custom column name mapping.
+   :type column_mapping: dict, optional
+   :param device_orientation: Custom device orientation corrections.
+   :type device_orientation: list of str, optional
+   :param file_pattern: File pattern(s) to match when loading data (e.g., 'parquet', '*.csv').
+   :type file_pattern: str or list of str, optional
+   :param aggregates: Aggregation methods for quantification.
+   :type aggregates: list of str, optional
+   :param segment_length_bins: Duration bins for gait segment aggregation (gait pipeline only).
+                               Example: ['(0, 10)', '(10, 20)'] for segments 0-10s and 10-20s.
+   :type segment_length_bins: list of str, optional
+   :param split_by_gaps: If True, automatically split non-contiguous data into segments
+                         during preparation.
+                         Adds 'data_segment_nr' column to prepared data which is preserved
+                         through pipeline.
+                         Useful for handling data with gaps/interruptions.
+   :type split_by_gaps: bool, default False
+   :param max_gap_seconds: Maximum gap (seconds) before starting new segment. Used when split_by_gaps=True.
+                           Defaults to 1.5s.
+   :type max_gap_seconds: float, optional
+   :param min_segment_seconds: Minimum segment length (seconds) to keep. Used when split_by_gaps=True.
+                               Defaults to 1.5s.
+   :type min_segment_seconds: float, optional
+   :param imu_config: IMU preprocessing configuration.
+   :type imu_config: IMUConfig, optional
+   :param ppg_config: PPG preprocessing configuration.
+   :type ppg_config: PPGConfig, optional
+   :param gait_config: Gait analysis configuration.
+   :type gait_config: GaitConfig, optional
+   :param arm_activity_config: Arm activity analysis configuration.
+   :type arm_activity_config: GaitConfig, optional
+   :param tremor_config: Tremor analysis configuration.
+   :type tremor_config: TremorConfig, optional
+   :param pulse_rate_config: Pulse rate analysis configuration.
+   :type pulse_rate_config: PulseRateConfig, optional
+   :param logging_level: Logging level using standard logging constants:
+                         - logging.ERROR: Only errors
+                         - logging.WARNING: Warnings and errors
+                         - logging.INFO: Basic progress information (default)
+                         - logging.DEBUG: Detailed debug information
+                         Can also use DETAILED_INFO (15) for intermediate detail level.
+   :type logging_level: int, default logging.INFO
+   :param custom_logger: Custom logger instance. If provided, logging_level is ignored.
+                         Allows full control over logging configuration.
+   :type custom_logger: logging.Logger, optional
+
+   :returns: Complete analysis results with nested structure for multiple pipelines:
+             - 'quantifications': dict with pipeline names as keys and DataFrames as values
+             - 'aggregations': dict with pipeline names as keys and result dicts as values
+             - 'metadata': dict with pipeline names as keys and metadata dicts as values
+             - 'errors': list of dicts tracking any errors that occurred during processing.
+               Each error dict contains 'stage', 'error', and optionally 'file' and
+               'pipeline'.
+               Empty list indicates successful processing of all files.
+   :rtype: dict
+
+

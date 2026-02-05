@@ -15,7 +15,7 @@ Classes
 Module Contents
 ---------------
 
-.. py:class:: ClassifierPackage(classifier: Optional[sklearn.base.BaseEstimator] = None, threshold: Optional[float] = None, scaler: Optional[Any] = None)
+.. py:class:: ClassifierPackage(classifier: sklearn.base.BaseEstimator | None = None, threshold: float | None = None, scaler: Any | None = None)
 
    .. py:attribute:: classifier
       :value: None
@@ -32,12 +32,12 @@ Module Contents
 
 
 
-   .. py:method:: transform_features(X) -> numpy.ndarray
+   .. py:method:: transform_features(x) -> numpy.ndarray
 
       Transform the input features using the scaler.
 
-      :param X: The input features.
-      :type X: np.ndarray
+      :param x: The input features.
+      :type x: np.ndarray
 
       :returns: The transformed features.
       :rtype: np.ndarray
@@ -53,24 +53,24 @@ Module Contents
 
 
 
-   .. py:method:: predict_proba(X) -> float
+   .. py:method:: predict_proba(x) -> float
 
       Make predictions using the classifier and apply the threshold.
 
-      :param X: The input features.
-      :type X: np.ndarray
+      :param x: The input features.
+      :type x: np.ndarray
 
       :returns: The predicted probability.
       :rtype: float
 
 
 
-   .. py:method:: predict(X) -> int
+   .. py:method:: predict(x) -> int
 
       Make predictions using the classifier and apply the threshold.
 
-      :param X: The input features.
-      :type X: np.ndarray
+      :param x: The input features.
+      :type x: np.ndarray
 
       :returns: The predicted class.
       :rtype: int

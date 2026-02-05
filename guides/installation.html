@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Installation Guide &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a31c8b26" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Sensor Data Requirements" href="sensor_requirements.html" />
+    <link rel="prev" title="Tutorials" href="../tutorials/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Installation Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/guides/installation.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="installation-guide">
+<h1>Installation Guide<a class="headerlink" href="#installation-guide" title="Link to this heading"></a></h1>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Python 3.11 or higher</strong> is required</p></li>
+<li><p>pip (Python package installer)</p></li>
+</ul>
+</section>
+<section id="standard-installation">
+<h2>Standard Installation<a class="headerlink" href="#standard-installation" title="Link to this heading"></a></h2>
+<p>Install ParaDigMa from PyPI using pip:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>paradigma
+</pre></div>
+</div>
+<p>This installs the latest stable release with all required dependencies.</p>
+</section>
+<section id="development-installation">
+<h2>Development Installation<a class="headerlink" href="#development-installation" title="Link to this heading"></a></h2>
+<p>For development or to run the tutorial notebooks with example data, you need to:</p>
+<ol class="arabic simple">
+<li><p>Install git-lfs</p></li>
+<li><p>Clone the repository</p></li>
+<li><p>Install in development mode</p></li>
+</ol>
+<section id="step-1-install-git-lfs">
+<h3>Step 1: Install git-lfs<a class="headerlink" href="#step-1-install-git-lfs" title="Link to this heading"></a></h3>
+<p>ParaDigMa uses Git Large File Storage (git-lfs) for example data files. Install it <strong>before cloning</strong>.</p>
+<p><strong>Windows</strong></p>
+<p>Using Chocolatey:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>choco<span class="w"> </span>install<span class="w"> </span>git-lfs
+</pre></div>
+</div>
+<p>Or download the installer from https://git-lfs.com/</p>
+<p><strong>Linux</strong></p>
+<p>Ubuntu/Debian:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>git-lfs
+</pre></div>
+</div>
+<p>Fedora/RHEL:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>git-lfs
+</pre></div>
+</div>
+<p>Arch Linux:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>pacman<span class="w"> </span>-S<span class="w"> </span>git-lfs
+</pre></div>
+</div>
+<p><strong>macOS</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>brew<span class="w"> </span>install<span class="w"> </span>git-lfs
+</pre></div>
+</div>
+<p><strong>Enable git-lfs (all platforms)</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>lfs<span class="w"> </span>install
+</pre></div>
+</div>
+</section>
+<section id="step-2-clone-repository">
+<h3>Step 2: Clone Repository<a class="headerlink" href="#step-2-clone-repository" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/biomarkersParkinson/paradigma.git
+<span class="nb">cd</span><span class="w"> </span>paradigma
+</pre></div>
+</div>
+<p><strong>If you already cloned without git-lfs:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>lfs<span class="w"> </span>install
+git<span class="w"> </span>lfs<span class="w"> </span>pull
+</pre></div>
+</div>
+</section>
+<section id="step-3-install-dependencies">
+<h3>Step 3: Install Dependencies<a class="headerlink" href="#step-3-install-dependencies" title="Link to this heading"></a></h3>
+<p>Using pip:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
+</pre></div>
+</div>
+<p>Using Poetry:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>poetry<span class="w"> </span>install
+</pre></div>
+</div>
+</section>
+</section>
+<section id="verify-installation">
+<h2>Verify Installation<a class="headerlink" href="#verify-installation" title="Link to this heading"></a></h2>
+<p>After installation, verify that ParaDigMa is installed correctly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">paradigma</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">paradigma</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="installation-from-source">
+<h2>Installation from Source<a class="headerlink" href="#installation-from-source" title="Link to this heading"></a></h2>
+<p>For development or to use the latest development version, clone the repository and install in editable mode:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/biomarkersParkinson/paradigma.git
+<span class="nb">cd</span><span class="w"> </span>paradigma
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">[dev]</span></code> extra includes development dependencies such as testing tools and linting utilities.</p>
+</section>
+<section id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading"></a></h2>
+<p>ParaDigMa requires the following core dependencies:</p>
+<ul class="simple">
+<li><p>numpy</p></li>
+<li><p>pandas</p></li>
+<li><p>scipy</p></li>
+<li><p>scikit-learn</p></li>
+<li><p>pyyaml</p></li>
+</ul>
+<p>Optional dependencies for specific data format support:</p>
+<ul class="simple">
+<li><p>pyarrow</p></li>
+<li><p>pytz</p></li>
+</ul>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<section id="jsondecodeerror-in-tutorials">
+<h3>JSONDecodeError in Tutorials<a class="headerlink" href="#jsondecodeerror-in-tutorials" title="Link to this heading"></a></h3>
+<p><strong>Symptom:</strong> When running tutorials, you see:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">JSONDecodeError</span><span class="p">:</span> <span class="n">Expecting</span> <span class="n">value</span><span class="p">:</span> <span class="n">line</span> <span class="mi">1</span> <span class="n">column</span> <span class="mi">1</span> <span class="p">(</span><span class="n">char</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Cause:</strong> Example data files are git-lfs pointer files instead of actual data.</p>
+<p><strong>Solution:</strong></p>
+<ol class="arabic">
+<li><p>Install git-lfs (see Step 1 in Development Installation above)</p></li>
+<li><p>Pull the actual data files:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>lfs<span class="w"> </span>install
+git<span class="w"> </span>lfs<span class="w"> </span>pull
+</pre></div>
+</div>
+</li>
+<li><p>Verify files are real data (not pointers):</p>
+<p><strong>Linux/macOS:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ls<span class="w"> </span>-lh<span class="w"> </span>example_data/verily/ppg/PPG_segment0001_meta.json
+<span class="c1"># Should show ~886 bytes, not ~130 bytes</span>
+
+head<span class="w"> </span>-n<span class="w"> </span><span class="m">1</span><span class="w"> </span>example_data/verily/ppg/PPG_segment0001_meta.json
+<span class="c1"># Should show JSON like {&quot;file_name&quot;: ..., not &quot;version https://git-lfs.github.com/spec/v1&quot;</span>
+</pre></div>
+</div>
+<p><strong>Windows PowerShell:</strong></p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="nb">Get-Item</span> <span class="n">example_data</span><span class="p">/</span><span class="n">verily</span><span class="p">/</span><span class="n">ppg</span><span class="p">/</span><span class="n">PPG_segment0001_meta</span><span class="p">.</span><span class="n">json</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">Length</span>
+<span class="c"># Should show ~886 bytes, not ~130 bytes</span>
+
+<span class="nb">Get-Content</span> <span class="n">example_data</span><span class="p">/</span><span class="n">verily</span><span class="p">/</span><span class="n">ppg</span><span class="p">/</span><span class="n">PPG_segment0001_meta</span><span class="p">.</span><span class="n">json</span> <span class="n">-Head</span> <span class="n">1</span>
+<span class="c"># Should show JSON, not &quot;version https://git-lfs.github.com/spec/v1&quot;</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<p><strong>Still having issues?</strong></p>
+<p>Check if git-lfs is properly configured:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>lfs<span class="w"> </span>env
+git<span class="w"> </span>lfs<span class="w"> </span>ls-files
+</pre></div>
+</div>
+<p>The second command should list the binary data files being tracked by LFS.</p>
+</section>
+<section id="python-version-error">
+<h3>Python Version Error<a class="headerlink" href="#python-version-error" title="Link to this heading"></a></h3>
+<p>If you encounter an error like <code class="docutils literal notranslate"><span class="pre">Python</span> <span class="pre">3.11</span> <span class="pre">or</span> <span class="pre">higher</span> <span class="pre">is</span> <span class="pre">required</span></code>, ensure you have the correct Python version:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>--version
+</pre></div>
+</div>
+<p>If you have multiple Python versions installed, specify Python 3.11+:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3.11<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>paradigma
+</pre></div>
+</div>
+</section>
+<section id="import-errors">
+<h3>Import Errors<a class="headerlink" href="#import-errors" title="Link to this heading"></a></h3>
+<p>If you get import errors after installation, try upgrading pip and reinstalling:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>pip
+pip<span class="w"> </span>install<span class="w"> </span>--force-reinstall<span class="w"> </span>paradigma
+</pre></div>
+</div>
+</section>
+<section id="dependency-conflicts">
+<h3>Dependency Conflicts<a class="headerlink" href="#dependency-conflicts" title="Link to this heading"></a></h3>
+<p>If there are dependency conflicts with your existing environment, consider creating a fresh virtual environment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>paradigma_env
+<span class="nb">source</span><span class="w"> </span>paradigma_env/bin/activate<span class="w">  </span><span class="c1"># On Windows: paradigma_env\Scripts\activate</span>
+pip<span class="w"> </span>install<span class="w"> </span>paradigma
+</pre></div>
+</div>
+</section>
+</section>
+<section id="virtual-environments-recommended">
+<h2>Virtual Environments (Recommended)<a class="headerlink" href="#virtual-environments-recommended" title="Link to this heading"></a></h2>
+<p>Using a virtual environment is recommended to avoid dependency conflicts:</p>
+<section id="using-venv">
+<h3>Using venv<a class="headerlink" href="#using-venv" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create virtual environment</span>
+python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>paradigma_env
+
+<span class="c1"># Activate it</span>
+<span class="nb">source</span><span class="w"> </span>paradigma_env/bin/activate<span class="w">  </span><span class="c1"># On Windows: paradigma_env\Scripts\activate</span>
+
+<span class="c1"># Install ParaDigMa</span>
+pip<span class="w"> </span>install<span class="w"> </span>paradigma
+</pre></div>
+</div>
+</section>
+<section id="using-conda">
+<h3>Using conda<a class="headerlink" href="#using-conda" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create conda environment</span>
+conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>paradigma<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.11
+
+<span class="c1"># Activate it</span>
+conda<span class="w"> </span>activate<span class="w"> </span>paradigma
+
+<span class="c1"># Install ParaDigMa</span>
+pip<span class="w"> </span>install<span class="w"> </span>paradigma
+</pre></div>
+</div>
+</section>
+</section>
+<section id="getting-help">
+<h2>Getting Help<a class="headerlink" href="#getting-help" title="Link to this heading"></a></h2>
+<p>If you encounter issues during installation:</p>
+<ol class="arabic simple">
+<li><p>Search existing <a class="reference external" href="https://github.com/biomarkersParkinson/paradigma/issues">GitHub Issues</a></p></li>
+<li><p>Open a new issue with:</p>
+<ul class="simple">
+<li><p>Python version (<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">--version</span></code>)</p></li>
+<li><p>Error message (full traceback)</p></li>
+<li><p>Operating system</p></li>
+<li><p>Installation method used</p></li>
+</ul>
+</li>
+</ol>
+<p>Contact: paradigma&#64;radboudumc.nl</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../tutorials/index.html" class="btn btn-neutral float-left" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sensor_requirements.html" class="btn btn-neutral float-right" title="Sensor Data Requirements" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, and Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

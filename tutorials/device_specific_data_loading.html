@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Device specific data loading &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a31c8b26" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/config.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Device specific data loading</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/device_specific_data_loading.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="device-specific-data-loading">
+<h1>Device specific data loading<a class="headerlink" href="#device-specific-data-loading" title="Link to this heading"></a></h1>
+<p>This tutorial demonstrates how to load sensor data of the following devices into memory:</p>
+<ul class="simple">
+<li><p>Axivity AX3 / AX6</p></li>
+<li><p>Empatica EmbracePlus</p></li>
+</ul>
+<p>Note that Paradigma requires further data preparation as outlined in <a class="reference internal" href="data_preparation.html"><span class="doc std std-doc">the data preparation tutorial</span></a>.</p>
+<section id="axivity">
+<h2>Axivity<a class="headerlink" href="#axivity" title="Link to this heading"></a></h2>
+<p>Axivity sensor data (AX3 &amp; AX6) are stored in <code class="docutils literal notranslate"><span class="pre">.CWA</span></code> format, which requires some preparation to be processable. In this tutorial, we showcase how to transform <code class="docutils literal notranslate"><span class="pre">.CWA</span></code> files into a workable format in Python using <code class="docutils literal notranslate"><span class="pre">openmovement</span></code>. More information on the <code class="docutils literal notranslate"><span class="pre">openmovement</span></code> package can be found on the <a class="reference external" href="https://github.com/openmovementproject/openmovement-python">Open Movement GitHub page</a>.</p>
+<p>For the <code class="docutils literal notranslate"><span class="pre">openmovement</span></code> package, make sure to install the <code class="docutils literal notranslate"><span class="pre">master</span></code> branch, as this branch contains the valid code for preparing <code class="docutils literal notranslate"><span class="pre">.CWA</span></code> data. This can for example be done using <code class="docutils literal notranslate"><span class="pre">pip</span></code> by running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/digitalinteraction/openmovement-python.git@master
+</pre></div>
+</div>
+<p>Or, when using Poetry, add the following line to the list of dependencies in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="n">openmovement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">git</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;https://github.com/digitalinteraction/openmovement-python.git&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">branch</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;master&quot;</span><span class="w"> </span><span class="p">}</span>
+</pre></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from pathlib import Path
+from pprint import pprint
+
+import pandas as pd
+from openmovement.load import CwaData
+
+# Load data
+path_to_input_data = Path(&#39;../../example_data/axivity/&#39;)
+test_data_filename = &#39;test_data.CWA&#39;
+prepared_data_filename = &#39;test_data.parquet&#39;
+
+# Note: Set include_gyro to False when using AX3 devices without gyroscope,
+# or when gyroscope data is not needed
+with CwaData(
+    filename=path_to_input_data / test_data_filename,
+    include_gyro=True,
+    include_temperature=False
+) as cwa_data:
+    print(&quot;Data format info:&quot;)
+    pprint(cwa_data.data_format)
+
+    df = cwa_data.get_samples()  # Load all samples into a DataFrame
+
+# Set time to start at 0 seconds
+df[&#39;time_dt&#39;] = df[&#39;time&#39;].copy()
+df[&#39;time&#39;] = (df[&#39;time&#39;] - df[&#39;time&#39;].iloc[0]).dt.total_seconds()
+
+df.head()
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="empatica-embraceplus">
+<h2>Empatica EmbracePlus<a class="headerlink" href="#empatica-embraceplus" title="Link to this heading"></a></h2>
+<p>Empatica EmbracePlus sensor data is stored in Apache Avro (<code class="docutils literal notranslate"><span class="pre">.avro</span></code>) format. In short, Empatica automatically writes sensor data every 30 minutes to a cloud storage with the naming convention [participant_id]_[timestamp].avro. In this tutorial we will show how to read and prepare a single <code class="docutils literal notranslate"><span class="pre">.avro</span></code> file.</p>
+<p>For more detailed documentation on using this data format in Python, consider reading <a class="reference external" href="https://avro.apache.org/docs/">the official Apache Avro documentation</a>. Extensive documentation is available on how to read and write <code class="docutils literal notranslate"><span class="pre">.avro</span></code> files in Python <a class="reference external" href="https://avro.apache.org/docs/++version++/getting-started-python/">here</a>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>import json
+from pathlib import Path
+
+from avro.datafile import DataFileReader
+from avro.io import DatumReader
+
+path_to_input_data = Path(&#39;../../example_data/empatica/&#39;)
+empatica_data_filename = &#39;test_data.avro&#39;
+
+## Read Avro file
+# reader = DataFileReader(
+#     open(path_to_empatica_data / empatica_data_filename, &quot;rb&quot;),
+#     DatumReader()
+# )
+with open(path_to_input_data / empatica_data_filename, &quot;rb&quot;) as f:
+    reader = DataFileReader(f, DatumReader())
+
+    schema = json.loads(reader.meta.get(&quot;avro.schema&quot;).decode(&quot;utf-8&quot;))
+    empatica_data = next(reader)
+
+accel_data = empatica_data[&#39;rawData&#39;][&#39;accelerometer&#39;]
+
+# The example data does not contain gyroscope data, but if it did,
+# you could access it like this:
+# gyro_data = empatica_data[&#39;rawData&#39;][&#39;gyroscope&#39;]
+
+# To convert accelerometer and gyroscope data into the correct format, we need to
+# check the Avro schema version. This converts accelerometer into g (9.81 m/s²) units,
+# and gyroscope into degrees per second (rad/s). More info on units and conversion
+# can be found in the schema object using: print(schema).
+
+avro_version = (
+    (empatica_data[&quot;schemaVersion&quot;][&quot;major&quot;]),
+    (empatica_data[&quot;schemaVersion&quot;][&quot;minor&quot;]),
+    (empatica_data[&quot;schemaVersion&quot;][&quot;patch&quot;]),
+)
+
+# Due to changes in the Avro schema, conversion differs for versions
+# before and after 6.5.0
+if avro_version &lt; (6, 5, 0):
+    physical_range = (
+        accel_data[&quot;imuParams&quot;][&quot;physicalMax&quot;]
+        - accel_data[&quot;imuParams&quot;][&quot;physicalMin&quot;]
+    )
+    digital_range = (
+        accel_data[&quot;imuParams&quot;][&quot;digitalMax&quot;]
+        - accel_data[&quot;imuParams&quot;][&quot;digitalMin&quot;]
+    )
+    accel_x = [val * physical_range / digital_range for val in accel_data[&quot;x&quot;]]
+    accel_y = [val * physical_range / digital_range for val in accel_data[&quot;y&quot;]]
+    accel_z = [val * physical_range / digital_range for val in accel_data[&quot;z&quot;]]
+else:
+    conversion_factor = accel_data[&quot;imuParams&quot;][&quot;conversionFactor&quot;]
+    accel_x = [val * conversion_factor for val in accel_data[&quot;x&quot;]]
+    accel_y = [val * conversion_factor for val in accel_data[&quot;y&quot;]]
+    accel_z = [val * conversion_factor for val in accel_data[&quot;z&quot;]]
+
+sampling_frequency = accel_data[&#39;samplingFrequency&#39;]
+nrows = len(accel_x)
+
+t_start = accel_data[&#39;timestampStart&#39;]
+t_array = [t_start + i * (1e6 /sampling_frequency) for i in range(nrows)]
+t_from_0_array = ([(x - t_array[0]) / 1e6 for x in t_array])
+
+df = pd.DataFrame({
+    &#39;time&#39;: t_from_0_array,
+    &#39;time_dt&#39;: pd.to_datetime(t_array, unit=&#39;us&#39;),
+    &#39;accel_x&#39;: accel_x,
+    &#39;accel_y&#39;: accel_y,
+    &#39;accel_z&#39;: accel_z,
+})
+
+print(
+    f&quot;Data loaded from Avro file with {nrows} rows sampled &quot;
+    f&quot;at {sampling_frequency} Hz.&quot;
+)
+print(f&quot;Start time: {pd.to_datetime(t_start, unit=&#39;us&#39;)}&quot;)
+
+df.head()
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, and Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

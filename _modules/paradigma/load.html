@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>paradigma.load &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">paradigma.load</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for paradigma.load</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Data loading module for ParaDigMa toolbox.</span>
+
+<span class="sd">This module provides functions to load sensor data from various formats:</span>
+<span class="sd">- Raw data: TSDF (.meta/.bin), Empatica (.avro), Axivity (.CWA)</span>
+<span class="sd">- Prepared data: parquet, pickle, csv</span>
+
+<span class="sd">Based on device_specific_data_loading tutorial.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">avro.datafile</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataFileReader</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">avro.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatumReader</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_tsdf_dataframe</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="load_tsdf_data">
+<a class="viewcode-back" href="../../autoapi/paradigma/load/index.html#paradigma.load.load_tsdf_data">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_tsdf_data</span><span class="p">(</span>
+    <span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;IMU&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load TSDF data from .meta and .bin files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data_path : str or Path</span>
+<span class="sd">        Path to directory containing TSDF files.</span>
+<span class="sd">    prefix : str, default &quot;IMU&quot;</span>
+<span class="sd">        Prefix for TSDF files (e.g., &quot;IMU_segment0001&quot;).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple</span>
+<span class="sd">        Tuple containing (DataFrame with loaded data, time metadata</span>
+<span class="sd">        dict, values metadata dict)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading TSDF data from </span><span class="si">{</span><span class="n">data_path</span><span class="si">}</span><span class="s2"> with prefix &#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+    <span class="n">df</span><span class="p">,</span> <span class="n">time_meta</span><span class="p">,</span> <span class="n">values_meta</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
+        <span class="n">path_to_data</span><span class="o">=</span><span class="n">data_path</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span>
+    <span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded TSDF data: </span><span class="si">{</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> rows, </span><span class="si">{</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> columns&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">time_meta</span><span class="p">,</span> <span class="n">values_meta</span></div>
+
+
+
+<div class="viewcode-block" id="load_empatica_data">
+<a class="viewcode-back" href="../../autoapi/paradigma/load/index.html#paradigma.load.load_empatica_data">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_empatica_data</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load Empatica .avro file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file_path : str or Path</span>
+<span class="sd">        Path to .avro file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        DataFrame with columns: time, time_dt, accelerometer_x/y/z,</span>
+<span class="sd">        gyroscope_x/y/z (if available).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading Empatica data from </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">reader</span> <span class="o">=</span> <span class="n">DataFileReader</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">DatumReader</span><span class="p">())</span>
+        <span class="n">empatica_data</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
+
+    <span class="n">accel_data</span> <span class="o">=</span> <span class="n">empatica_data</span><span class="p">[</span><span class="s2">&quot;rawData&quot;</span><span class="p">][</span><span class="s2">&quot;accelerometer&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Check for gyroscope data</span>
+    <span class="n">gyro_data</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="s2">&quot;gyroscope&quot;</span> <span class="ow">in</span> <span class="n">empatica_data</span><span class="p">[</span><span class="s2">&quot;rawData&quot;</span><span class="p">]</span>
+        <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">empatica_data</span><span class="p">[</span><span class="s2">&quot;rawData&quot;</span><span class="p">][</span><span class="s2">&quot;gyroscope&quot;</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="p">):</span>
+        <span class="n">gyro_data</span> <span class="o">=</span> <span class="n">empatica_data</span><span class="p">[</span><span class="s2">&quot;rawData&quot;</span><span class="p">][</span><span class="s2">&quot;gyroscope&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Gyroscope data not found in Empatica file.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Check Avro schema version for conversion</span>
+    <span class="n">avro_version</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">empatica_data</span><span class="p">[</span><span class="s2">&quot;schemaVersion&quot;</span><span class="p">][</span><span class="s2">&quot;major&quot;</span><span class="p">],</span>
+        <span class="n">empatica_data</span><span class="p">[</span><span class="s2">&quot;schemaVersion&quot;</span><span class="p">][</span><span class="s2">&quot;minor&quot;</span><span class="p">],</span>
+        <span class="n">empatica_data</span><span class="p">[</span><span class="s2">&quot;schemaVersion&quot;</span><span class="p">][</span><span class="s2">&quot;patch&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Convert accelerometer data based on schema version</span>
+    <span class="k">if</span> <span class="n">avro_version</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="n">physical_range</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">accel_data</span><span class="p">[</span><span class="s2">&quot;imuParams&quot;</span><span class="p">][</span><span class="s2">&quot;physicalMax&quot;</span><span class="p">]</span>
+            <span class="o">-</span> <span class="n">accel_data</span><span class="p">[</span><span class="s2">&quot;imuParams&quot;</span><span class="p">][</span><span class="s2">&quot;physicalMin&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">digital_range</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">accel_data</span><span class="p">[</span><span class="s2">&quot;imuParams&quot;</span><span class="p">][</span><span class="s2">&quot;digitalMax&quot;</span><span class="p">]</span>
+            <span class="o">-</span> <span class="n">accel_data</span><span class="p">[</span><span class="s2">&quot;imuParams&quot;</span><span class="p">][</span><span class="s2">&quot;digitalMin&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">conversion_factor</span> <span class="o">=</span> <span class="n">physical_range</span> <span class="o">/</span> <span class="n">digital_range</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">conversion_factor</span> <span class="o">=</span> <span class="n">accel_data</span><span class="p">[</span><span class="s2">&quot;imuParams&quot;</span><span class="p">][</span><span class="s2">&quot;conversionFactor&quot;</span><span class="p">]</span>
+
+    <span class="n">accel_x</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span> <span class="o">*</span> <span class="n">conversion_factor</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">accel_data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]]</span>
+    <span class="n">accel_y</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span> <span class="o">*</span> <span class="n">conversion_factor</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">accel_data</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]]</span>
+    <span class="n">accel_z</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span> <span class="o">*</span> <span class="n">conversion_factor</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">accel_data</span><span class="p">[</span><span class="s2">&quot;z&quot;</span><span class="p">]]</span>
+
+    <span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">accel_data</span><span class="p">[</span><span class="s2">&quot;samplingFrequency&quot;</span><span class="p">]</span>
+    <span class="n">nrows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">accel_x</span><span class="p">)</span>
+
+    <span class="c1"># Create time arrays</span>
+    <span class="n">t_start</span> <span class="o">=</span> <span class="n">accel_data</span><span class="p">[</span><span class="s2">&quot;timestampStart&quot;</span><span class="p">]</span>
+    <span class="n">t_array</span> <span class="o">=</span> <span class="p">[</span><span class="n">t_start</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1e6</span> <span class="o">/</span> <span class="n">sampling_frequency</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrows</span><span class="p">)]</span>
+    <span class="n">t_from_0_array</span> <span class="o">=</span> <span class="p">[(</span><span class="n">x</span> <span class="o">-</span> <span class="n">t_array</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mf">1e6</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">t_array</span><span class="p">]</span>
+
+    <span class="c1"># Build DataFrame</span>
+    <span class="n">df_data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">t_from_0_array</span><span class="p">,</span>
+        <span class="s2">&quot;time_dt&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">t_array</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;us&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;accelerometer_x&quot;</span><span class="p">:</span> <span class="n">accel_x</span><span class="p">,</span>
+        <span class="s2">&quot;accelerometer_y&quot;</span><span class="p">:</span> <span class="n">accel_y</span><span class="p">,</span>
+        <span class="s2">&quot;accelerometer_z&quot;</span><span class="p">:</span> <span class="n">accel_z</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Add gyroscope data if available</span>
+    <span class="k">if</span> <span class="n">gyro_data</span><span class="p">:</span>
+        <span class="c1"># Apply same conversion to gyroscope</span>
+        <span class="n">gyro_x</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span> <span class="o">*</span> <span class="n">conversion_factor</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">gyro_data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]]</span>
+        <span class="n">gyro_y</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span> <span class="o">*</span> <span class="n">conversion_factor</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">gyro_data</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]]</span>
+        <span class="n">gyro_z</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span> <span class="o">*</span> <span class="n">conversion_factor</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">gyro_data</span><span class="p">[</span><span class="s2">&quot;z&quot;</span><span class="p">]]</span>
+
+        <span class="n">df_data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;gyroscope_x&quot;</span><span class="p">:</span> <span class="n">gyro_x</span><span class="p">,</span>
+                <span class="s2">&quot;gyroscope_y&quot;</span><span class="p">:</span> <span class="n">gyro_y</span><span class="p">,</span>
+                <span class="s2">&quot;gyroscope_z&quot;</span><span class="p">:</span> <span class="n">gyro_z</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df_data</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded Empatica data: </span><span class="si">{</span><span class="n">nrows</span><span class="si">}</span><span class="s2"> rows at </span><span class="si">{</span><span class="n">sampling_frequency</span><span class="si">}</span><span class="s2"> Hz&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Start time: </span><span class="si">{</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">t_start</span><span class="p">,</span><span class="w"> </span><span class="n">unit</span><span class="o">=</span><span class="s1">&#39;us&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Columns: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="load_axivity_data">
+<a class="viewcode-back" href="../../autoapi/paradigma/load/index.html#paradigma.load.load_axivity_data">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_axivity_data</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load Axivity .CWA file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file_path : str or Path</span>
+<span class="sd">        Path to .CWA file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        DataFrame with columns: time, time_dt, accelerometer_x/y/z,</span>
+<span class="sd">        gyroscope_x/y/z (if available).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">openmovement.load</span><span class="w"> </span><span class="kn">import</span> <span class="n">CwaData</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+            <span class="s2">&quot;openmovement package required for Axivity data loading. &quot;</span>
+            <span class="s2">&quot;Install with: pip install git+https://github.com/digitalinteraction/openmovement-python.git@master&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading Axivity data from </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">CwaData</span><span class="p">(</span>
+        <span class="n">filename</span><span class="o">=</span><span class="n">file_path</span><span class="p">,</span>
+        <span class="n">include_gyro</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Set to False for AX3 devices without gyroscope</span>
+        <span class="n">include_temperature</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">cwa_data</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Data format info: </span><span class="si">{</span><span class="n">cwa_data</span><span class="o">.</span><span class="n">data_format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">cwa_data</span><span class="o">.</span><span class="n">get_samples</span><span class="p">()</span>
+
+    <span class="c1"># Set time to start at 0 seconds</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;time_dt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+
+    <span class="c1"># Standardize column names</span>
+    <span class="n">column_mapping</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="s2">&quot;accel_x&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">column_mapping</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;accel_x&quot;</span><span class="p">:</span> <span class="s2">&quot;accelerometer_x&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;accel_y&quot;</span><span class="p">:</span> <span class="s2">&quot;accelerometer_y&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;accel_z&quot;</span><span class="p">:</span> <span class="s2">&quot;accelerometer_z&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;gyro_x&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">column_mapping</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;gyro_x&quot;</span><span class="p">:</span> <span class="s2">&quot;gyroscope_x&quot;</span><span class="p">,</span> <span class="s2">&quot;gyro_y&quot;</span><span class="p">:</span> <span class="s2">&quot;gyroscope_y&quot;</span><span class="p">,</span> <span class="s2">&quot;gyro_z&quot;</span><span class="p">:</span> <span class="s2">&quot;gyroscope_z&quot;</span><span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">column_mapping</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded Axivity data: </span><span class="si">{</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> rows, </span><span class="si">{</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> columns&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Columns: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="load_prepared_data">
+<a class="viewcode-back" href="../../autoapi/paradigma/load/index.html#paradigma.load.load_prepared_data">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_prepared_data</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load prepared data from various formats (parquet, pickle, csv, json).</span>
+<span class="sd">    If json, expects TSDF format with corresponding .bin files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file_path : str or Path</span>
+<span class="sd">        Path to prepared data file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        DataFrame with prepared data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading prepared data from </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">file_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File not found: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Determine file format and load accordingly</span>
+    <span class="n">suffix</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.parquet&quot;</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.csv&quot;</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;.pkl&quot;</span><span class="p">,</span> <span class="s2">&quot;.pickle&quot;</span><span class="p">]:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.json&quot;</span><span class="p">:</span>
+        <span class="c1"># Load TSDF from JSON and corresponding .bin files</span>
+        <span class="n">df</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
+            <span class="n">path_to_data</span><span class="o">=</span><span class="n">file_path</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">prefix</span><span class="o">=</span><span class="n">file_path</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_meta&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Unsupported file format: </span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Supported: .parquet, .csv, .pkl, .pickle&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded </span><span class="si">{</span><span class="n">file_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> rows, </span><span class="si">{</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> columns&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Columns: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="detect_file_format">
+<a class="viewcode-back" href="../../autoapi/paradigma/load/index.html#paradigma.load.detect_file_format">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">detect_file_format</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Detect the format of a data file based on its extension.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file_path : str or Path</span>
+<span class="sd">        Path to data file</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        File format: &#39;json&#39;, &#39;empatica&#39;, &#39;axivity&#39;, &#39;prepared&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="n">suffix</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.json&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;tsdf&quot;</span>
+    <span class="k">elif</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.avro&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;empatica&quot;</span>
+    <span class="k">elif</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.cwa&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;axivity&quot;</span>
+    <span class="k">elif</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;.parquet&quot;</span><span class="p">,</span> <span class="s2">&quot;.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;.pkl&quot;</span><span class="p">,</span> <span class="s2">&quot;.pickle&quot;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="s2">&quot;prepared&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown file format: </span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_data_file_paths">
+<a class="viewcode-back" href="../../autoapi/paradigma/load/index.html#paradigma.load.get_data_file_paths">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_data_file_paths</span><span class="p">(</span>
+    <span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">file_patterns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get list of data file paths without loading them.</span>
+
+<span class="sd">    This function is useful for memory-efficient processing where you want to</span>
+<span class="sd">    load and process files one at a time instead of loading all at once.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data_path : str or Path</span>
+<span class="sd">        Path to directory containing data files</span>
+<span class="sd">    file_patterns : str or list of str, optional</span>
+<span class="sd">        File extensions to consider (e.g. [&quot;parquet&quot;, &quot;csv&quot;, &quot;cwa&quot;]).</span>
+<span class="sd">        If None, all supported formats are considered.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of Path</span>
+<span class="sd">        List of file paths found in the directory</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">data_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Directory not found: </span><span class="si">{</span><span class="n">data_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">valid_file_patterns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;parquet&quot;</span><span class="p">,</span> <span class="s2">&quot;csv&quot;</span><span class="p">,</span> <span class="s2">&quot;pkl&quot;</span><span class="p">,</span> <span class="s2">&quot;pickle&quot;</span><span class="p">,</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="s2">&quot;avro&quot;</span><span class="p">,</span> <span class="s2">&quot;cwa&quot;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">file_patterns</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">file_patterns</span> <span class="o">=</span> <span class="n">valid_file_patterns</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file_patterns</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">file_patterns</span> <span class="o">=</span> <span class="p">[</span><span class="n">file_patterns</span><span class="p">]</span>
+
+    <span class="c1"># Collect candidate files</span>
+    <span class="n">all_files</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">f</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">data_path</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="ow">and</span> <span class="n">f</span><span class="o">.</span><span class="n">suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">file_patterns</span>
+    <span class="p">]</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">all_files</span><span class="p">)</span><span class="si">}</span><span class="s2"> data files in </span><span class="si">{</span><span class="n">data_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">all_files</span></div>
+
+
+
+<div class="viewcode-block" id="load_single_data_file">
+<a class="viewcode-back" href="../../autoapi/paradigma/load/index.html#paradigma.load.load_single_data_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_single_data_file</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load a single data file with automatic format detection.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file_path : str or Path</span>
+<span class="sd">        Path to data file</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple</span>
+<span class="sd">        Tuple of (file_key, DataFrame) where file_key is the file name without extension</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">file_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File not found: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">file_format</span> <span class="o">=</span> <span class="n">detect_file_format</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;tsdf&quot;</span><span class="p">:</span>
+            <span class="c1"># For TSDF, load based on .meta file and infer prefix</span>
+            <span class="k">if</span> <span class="n">file_path</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;.json&quot;</span><span class="p">:</span>
+                <span class="n">prefix</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_meta&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">df</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_data</span><span class="p">(</span><span class="n">file_path</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">prefix</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">df</span>
+
+        <span class="k">elif</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;empatica&quot;</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">load_empatica_data</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">file_path</span><span class="o">.</span><span class="n">stem</span><span class="p">,</span> <span class="n">df</span>
+
+        <span class="k">elif</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;axivity&quot;</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">load_axivity_data</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">file_path</span><span class="o">.</span><span class="n">stem</span><span class="p">,</span> <span class="n">df</span>
+
+        <span class="k">elif</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;prepared&quot;</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">load_prepared_data</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_meta&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">df</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown file format for </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to load </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span></div>
+
+
+
+<div class="viewcode-block" id="load_data_files">
+<a class="viewcode-back" href="../../autoapi/paradigma/load/index.html#paradigma.load.load_data_files">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_data_files</span><span class="p">(</span>
+    <span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">file_patterns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load all data files from a directory with automatic format detection.</span>
+
+<span class="sd">    Note: This function loads all files into memory at once. For large datasets,</span>
+<span class="sd">    consider using get_data_file_paths() and load_single_data_file() to process</span>
+<span class="sd">    files one at a time.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data_path : str or Path</span>
+<span class="sd">        Path to directory containing data files</span>
+<span class="sd">    file_patterns : str or list of str, optional</span>
+<span class="sd">        File extensions to consider (e.g. [&quot;parquet&quot;, &quot;csv&quot;, &quot;cwa&quot;]).</span>
+<span class="sd">        If None, all supported formats are considered.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Dictionary mapping file names (without extension) to DataFrames</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get all file paths</span>
+    <span class="n">all_files</span> <span class="o">=</span> <span class="n">get_data_file_paths</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">file_patterns</span><span class="p">)</span>
+
+    <span class="n">loaded_files</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Load each file</span>
+    <span class="k">for</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="n">all_files</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">file_key</span><span class="p">,</span> <span class="n">df</span> <span class="o">=</span> <span class="n">load_single_data_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="n">loaded_files</span><span class="p">[</span><span class="n">file_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to load </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">loaded_files</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No data files were loaded.&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Successfully loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">loaded_files</span><span class="p">)</span><span class="si">}</span><span class="s2"> files&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">loaded_files</span></div>
+
+
+
+<div class="viewcode-block" id="save_prepared_data">
+<a class="viewcode-back" href="../../autoapi/paradigma/load/index.html#paradigma.load.save_prepared_data">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">save_prepared_data</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">file_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;parquet&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save prepared data to file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        DataFrame to save</span>
+<span class="sd">    file_path : str or Path</span>
+<span class="sd">        Path for output file</span>
+<span class="sd">    file_format : str, default &#39;parquet&#39;</span>
+<span class="sd">        Output format: &#39;parquet&#39;, &#39;csv&#39;, &#39;pickle&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+
+    <span class="c1"># Ensure directory exists</span>
+    <span class="n">file_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;parquet&quot;</span><span class="p">:</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;csv&quot;</span><span class="p">:</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;pickle&quot;</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported file_format: </span><span class="si">{</span><span class="n">file_format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved prepared data to </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, and Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

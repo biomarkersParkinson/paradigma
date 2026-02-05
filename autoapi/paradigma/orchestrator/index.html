@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>paradigma.orchestrator &mdash; paradigma  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=a31c8b26" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=a31c8b26" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="paradigma.pipelines" href="../pipelines/index.html" />
+    <link rel="prev" title="paradigma.load" href="../load/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            paradigma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/config.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/coordinate_system.html">Coordinate System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">paradigma</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../classification/index.html">paradigma.classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../config/index.html">paradigma.config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../constants/index.html">paradigma.constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../feature_extraction/index.html">paradigma.feature_extraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../load/index.html">paradigma.load</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">paradigma.orchestrator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipelines/index.html">paradigma.pipelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../prepare_data/index.html">paradigma.prepare_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../preprocessing/index.html">paradigma.preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../segmenting/index.html">paradigma.segmenting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../testing/index.html">paradigma.testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../util/index.html">paradigma.util</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">paradigma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">paradigma</a></li>
+      <li class="breadcrumb-item active">paradigma.orchestrator</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/paradigma/orchestrator/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-paradigma.orchestrator">
+<span id="paradigma-orchestrator"></span><h1>paradigma.orchestrator<a class="headerlink" href="#module-paradigma.orchestrator" title="Link to this heading"></a></h1>
+<p>High-level pipeline orchestrator for ParaDigMa toolbox.</p>
+<p>This module provides the main entry point for running analysis pipelines:</p>
+<section id="main-function">
+<h2>Main Function<a class="headerlink" href="#main-function" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>run_paradigma(): Complete pipeline from data loading/preparation
+to aggregated results. Main entry point for end-to-end analysis
+supporting multiple pipelines (gait, tremor, pulse_rate).
+Can process raw data from disk or already-prepared DataFrames.</p></li>
+</ul>
+<p>The orchestrator coordinates:
+1. Data loading and preparation (unit conversion, resampling, orientation correction)
+2. Pipeline execution on single or multiple files (imports from pipeline modules)
+3. Result aggregation across files and segments
+4. Optional intermediate result storage</p>
+<p>Supports multi-file processing with automatic segment numbering and metadata tracking.</p>
+</section>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.orchestrator.logger" title="paradigma.orchestrator.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.orchestrator.DETAILED_INFO" title="paradigma.orchestrator.DETAILED_INFO"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DETAILED_INFO</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.orchestrator.run_paradigma" title="paradigma.orchestrator.run_paradigma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_paradigma</span></code></a>(→ dict[str, pandas.DataFrame | dict])</p></td>
+<td><p>Complete ParaDigMa analysis pipeline from data loading to aggregated results.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="paradigma.orchestrator.logger">
+<span class="sig-prename descclassname"><span class="pre">paradigma.orchestrator.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#paradigma.orchestrator.logger" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="paradigma.orchestrator.DETAILED_INFO">
+<span class="sig-prename descclassname"><span class="pre">paradigma.orchestrator.</span></span><span class="sig-name descname"><span class="pre">DETAILED_INFO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">15</span></em><a class="headerlink" href="#paradigma.orchestrator.DETAILED_INFO" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.orchestrator.run_paradigma">
+<span class="sig-prename descclassname"><span class="pre">paradigma.orchestrator.</span></span><span class="sig-name descname"><span class="pre">run_paradigma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pathlib.Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dfs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_intermediate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'./output'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_preparation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipelines</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">watch_side</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accelerometer_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'g'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gyroscope_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'deg/s'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_input_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../constants/index.html#paradigma.constants.TimeUnit" title="paradigma.constants.TimeUnit"><span class="pre">paradigma.constants.TimeUnit</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">TimeUnit.RELATIVE_S</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_orientation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['x',</span> <span class="pre">'y',</span> <span class="pre">'z']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_pattern</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_length_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_by_gaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_gap_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_segment_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imu_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../config/index.html#paradigma.config.IMUConfig" title="paradigma.config.IMUConfig"><span class="pre">paradigma.config.IMUConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ppg_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../config/index.html#paradigma.config.PPGConfig" title="paradigma.config.PPGConfig"><span class="pre">paradigma.config.PPGConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gait_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../config/index.html#paradigma.config.GaitConfig" title="paradigma.config.GaitConfig"><span class="pre">paradigma.config.GaitConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arm_activity_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../config/index.html#paradigma.config.GaitConfig" title="paradigma.config.GaitConfig"><span class="pre">paradigma.config.GaitConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tremor_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../config/index.html#paradigma.config.TremorConfig" title="paradigma.config.TremorConfig"><span class="pre">paradigma.config.TremorConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_rate_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../config/index.html#paradigma.config.PulseRateConfig" title="paradigma.config.PulseRateConfig"><span class="pre">paradigma.config.PulseRateConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logging_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">logging.INFO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logging.Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/paradigma/orchestrator.html#run_paradigma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.orchestrator.run_paradigma" title="Link to this definition"></a></dt>
+<dd><p>Complete ParaDigMa analysis pipeline from data loading to aggregated results.</p>
+<p>This is the main entry point for ParaDigMa analysis. It supports
+multiple pipeline types:
+- gait: Arm swing during gait analysis
+- tremor: Tremor detection and quantification
+- pulse_rate: Pulse rate estimation from PPG signals</p>
+<p>The function:
+1. Loads data files from the specified directory or uses provided DataFrame
+2. Prepares raw data if needed (unit conversion, resampling, etc.)
+3. Runs the specified pipeline on each data file
+4. Aggregates results across all data files</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_path</strong> (<em>str</em><em> or </em><em>Path</em><em>, </em><em>optional</em>) – Path to directory containing data files.</p></li>
+<li><p><strong>dfs</strong> (<em>DataFrame</em><em>, </em><em>list</em><em> of </em><em>DataFrames</em><em>, or </em><em>dict</em><em> of </em><em>DataFrames</em><em>, </em><em>optional</em>) – Dataframes used as input (bypasses data loading). Can be:
+- Single DataFrame: Will be processed as one file with key ‘df_1’.
+- List[DataFrame]: Multiple dataframes assigned IDs as ‘df_1’, ‘df_2’, etc.
+- Dict[str, DataFrame]: Keys are file names, values are dataframes.
+Note: The ‘file_key’ column is only added to quantification results when
+len(dfs) &gt; 1, allowing cleaner output for single-file processing.
+See input_formats guide for details.</p></li>
+<li><p><strong>save_intermediate</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>default</em><em> [</em><em>]</em>) – Which intermediate results to store. Valid values:
+- ‘preparation’: Save prepared data
+- ‘preprocessing’: Save preprocessed signals
+- ‘classification’: Save classification results
+- ‘quantification’: Save quantified measures
+- ‘aggregation’: Save aggregated results
+If empty, no files are saved (results are only returned).</p></li>
+<li><p><strong>output_dir</strong> (<em>str</em><em> or </em><em>Path</em><em>, </em><em>default './output'</em>) – Output directory for all results. Files are only saved if
+save_intermediate is not empty.</p></li>
+<li><p><strong>skip_preparation</strong> (<em>bool</em><em>, </em><em>default False</em>) – Whether data is already prepared. If False, data will be
+prepared (unit conversion, resampling, etc.). If True,
+assumes data is already in the required format.</p></li>
+<li><p><strong>pipelines</strong> (<em>list</em><em> of </em><em>str</em><em> or </em><em>str</em><em>, </em><em>optional</em>) – Pipelines to run: ‘gait’, ‘tremor’, and/or ‘pulse_rate’.
+If providing a list, currently only tremor and gait pipelines
+can be run together.</p></li>
+<li><p><strong>watch_side</strong> (<em>str</em><em>, </em><em>optional</em>) – Watch side: ‘left’ or ‘right’ (required for gait pipeline).</p></li>
+<li><p><strong>accelerometer_units</strong> (<em>str</em><em>, </em><em>default 'm/s^2'</em>) – Units for accelerometer data.</p></li>
+<li><p><strong>gyroscope_units</strong> (<em>str</em><em>, </em><em>default 'deg/s'</em>) – Units for gyroscope data.</p></li>
+<li><p><strong>time_input_unit</strong> (<a class="reference internal" href="../constants/index.html#paradigma.constants.TimeUnit" title="paradigma.constants.TimeUnit"><em>TimeUnit</em></a><em>, </em><em>default TimeUnit.RELATIVE_S</em>) – Input time unit type.</p></li>
+<li><p><strong>target_frequency</strong> (<em>float</em><em>, </em><em>default 100.0</em>) – Target sampling frequency for resampling.</p></li>
+<li><p><strong>column_mapping</strong> (<em>dict</em><em>, </em><em>optional</em>) – Custom column name mapping.</p></li>
+<li><p><strong>device_orientation</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Custom device orientation corrections.</p></li>
+<li><p><strong>file_pattern</strong> (<em>str</em><em> or </em><em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – File pattern(s) to match when loading data (e.g., ‘parquet’, ‘<a href="#id1"><span class="problematic" id="id2">*</span></a>.csv’).</p></li>
+<li><p><strong>aggregates</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Aggregation methods for quantification.</p></li>
+<li><p><strong>segment_length_bins</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Duration bins for gait segment aggregation (gait pipeline only).
+Example: [‘(0, 10)’, ‘(10, 20)’] for segments 0-10s and 10-20s.</p></li>
+<li><p><strong>split_by_gaps</strong> (<em>bool</em><em>, </em><em>default False</em>) – If True, automatically split non-contiguous data into segments
+during preparation.
+Adds ‘data_segment_nr’ column to prepared data which is preserved
+through pipeline.
+Useful for handling data with gaps/interruptions.</p></li>
+<li><p><strong>max_gap_seconds</strong> (<em>float</em><em>, </em><em>optional</em>) – Maximum gap (seconds) before starting new segment. Used when split_by_gaps=True.
+Defaults to 1.5s.</p></li>
+<li><p><strong>min_segment_seconds</strong> (<em>float</em><em>, </em><em>optional</em>) – Minimum segment length (seconds) to keep. Used when split_by_gaps=True.
+Defaults to 1.5s.</p></li>
+<li><p><strong>imu_config</strong> (<a class="reference internal" href="../config/index.html#paradigma.config.IMUConfig" title="paradigma.config.IMUConfig"><em>IMUConfig</em></a><em>, </em><em>optional</em>) – IMU preprocessing configuration.</p></li>
+<li><p><strong>ppg_config</strong> (<a class="reference internal" href="../config/index.html#paradigma.config.PPGConfig" title="paradigma.config.PPGConfig"><em>PPGConfig</em></a><em>, </em><em>optional</em>) – PPG preprocessing configuration.</p></li>
+<li><p><strong>gait_config</strong> (<a class="reference internal" href="../config/index.html#paradigma.config.GaitConfig" title="paradigma.config.GaitConfig"><em>GaitConfig</em></a><em>, </em><em>optional</em>) – Gait analysis configuration.</p></li>
+<li><p><strong>arm_activity_config</strong> (<a class="reference internal" href="../config/index.html#paradigma.config.GaitConfig" title="paradigma.config.GaitConfig"><em>GaitConfig</em></a><em>, </em><em>optional</em>) – Arm activity analysis configuration.</p></li>
+<li><p><strong>tremor_config</strong> (<a class="reference internal" href="../config/index.html#paradigma.config.TremorConfig" title="paradigma.config.TremorConfig"><em>TremorConfig</em></a><em>, </em><em>optional</em>) – Tremor analysis configuration.</p></li>
+<li><p><strong>pulse_rate_config</strong> (<a class="reference internal" href="../config/index.html#paradigma.config.PulseRateConfig" title="paradigma.config.PulseRateConfig"><em>PulseRateConfig</em></a><em>, </em><em>optional</em>) – Pulse rate analysis configuration.</p></li>
+<li><p><strong>logging_level</strong> (<em>int</em><em>, </em><em>default logging.INFO</em>) – Logging level using standard logging constants:
+- logging.ERROR: Only errors
+- logging.WARNING: Warnings and errors
+- logging.INFO: Basic progress information (default)
+- logging.DEBUG: Detailed debug information
+Can also use DETAILED_INFO (15) for intermediate detail level.</p></li>
+<li><p><strong>custom_logger</strong> (<em>logging.Logger</em><em>, </em><em>optional</em>) – Custom logger instance. If provided, logging_level is ignored.
+Allows full control over logging configuration.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>Complete analysis results with nested structure for multiple pipelines:
+- ‘quantifications’: dict with pipeline names as keys and DataFrames as values
+- ‘aggregations’: dict with pipeline names as keys and result dicts as values
+- ‘metadata’: dict with pipeline names as keys and metadata dicts as values
+- ‘errors’: list of dicts tracking any errors that occurred during processing.</p>
+<blockquote>
+<div><p>Each error dict contains ‘stage’, ‘error’, and optionally ‘file’ and
+‘pipeline’.
+Empty list indicates successful processing of all files.</p>
+</div></blockquote>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../load/index.html" class="btn btn-neutral float-left" title="paradigma.load" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../pipelines/index.html" class="btn btn-neutral float-right" title="paradigma.pipelines" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, and Luc Evers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
