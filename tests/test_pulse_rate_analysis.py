@@ -19,8 +19,6 @@ try:
 except ImportError:
     HAS_TESTING_UTILS = False
 
-from paradigma.testing import preprocess_ppg_data_io
-
 
 def create_test_pulse_rate_data(duration_minutes=2):
     """Create simple test data for pulse rate analysis."""
