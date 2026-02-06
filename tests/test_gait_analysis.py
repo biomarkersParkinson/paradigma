@@ -102,8 +102,21 @@ def test_gait_pipeline_basic():
 
         assert isinstance(result, tuple)
         assert len(result) == 2
-        assert isinstance(result[0], pd.DataFrame)  # Gait results DataFrame
-        assert isinstance(result[1], dict)  # Gait metadata dictionary
+
+        # First element should be a dict with 'filtered' and
+        # 'unfiltered' quantifications
+        assert isinstance(result[0], dict)
+        assert "filtered" in result[0]
+        assert "unfiltered" in result[0]
+        assert isinstance(result[0]["filtered"], pd.DataFrame)
+        assert isinstance(result[0]["unfiltered"], pd.DataFrame)
+
+        # Second element should be a dict with 'filtered' and 'unfiltered' metadata
+        assert isinstance(result[1], dict)
+        assert "filtered" in result[1]
+        assert "unfiltered" in result[1]
+        assert isinstance(result[1]["filtered"], dict)
+        assert isinstance(result[1]["unfiltered"], dict)
 
 
 def test_gait_pipeline_integration():

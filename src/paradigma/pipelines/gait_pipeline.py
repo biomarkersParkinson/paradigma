@@ -909,14 +909,19 @@ def run_gait_pipeline(
 
     Returns
     -------
-    tuple[pd.DataFrame, dict]
-        A tuple containing:
-        - pd.DataFrame: Quantified arm swing parameters with the following columns:
+    tuple[dict[str, pd.DataFrame], dict[str, dict]]
+        A tuple containing two dictionaries:
+        - First dict contains quantified arm swing parameters with keys:
+            - 'filtered': DataFrame with arm swings from clean gait only
+            - 'unfiltered': DataFrame with arm swings from all gait
+          Each DataFrame has columns:
             - gait_segment_nr: Gait segment number within this data segment
             - Various arm swing metrics (range of motion, peak angular velocity, etc.)
             - Additional metadata columns
-        - dict: Gait segment metadata containing information about each detected
-        gait segment
+        - Second dict contains gait segment metadata with keys:
+            - 'filtered': Metadata for filtered quantification
+            - 'unfiltered': Metadata for unfiltered quantification
+          Each metadata dict contains information about each detected gait segment
 
     Notes
     -----
@@ -1035,7 +1040,10 @@ def run_gait_pipeline(
 
     if len(df_gait_only) == 0:
         active_logger.warning("No gait detected in this segment")
-        return pd.DataFrame(), {}
+        return {"filtered": pd.DataFrame(), "unfiltered": pd.DataFrame()}, {
+            "filtered": {},
+            "unfiltered": {},
+        }
 
     # Step 4: Extract arm activity features
     active_logger.info("Step 4: Extracting arm activity features")
@@ -1098,14 +1106,27 @@ def run_gait_pipeline(
         == 0
     ):
         active_logger.warning("No clean gait data remaining after filtering")
-        return pd.DataFrame(), {}
+        return {"filtered": pd.DataFrame(), "unfiltered": pd.DataFrame()}, {
+            "filtered": {},
+            "unfiltered": {},
+        }
 
-    # Step 6: Quantify arm swing
-    active_logger.info("Step 6: Quantifying arm swing")
-    quantified_arm_swing, gait_segment_meta = quantify_arm_swing(
+    # Step 6a: Quantify arm swing (unfiltered - all gait)
+    active_logger.info("Step 6a: Quantifying arm swing (unfiltered)")
+    quantified_arm_swing_unfiltered, gait_segment_meta_unfiltered = quantify_arm_swing(
         df=df_filtered,
         fs=arm_activity_config.sampling_frequency,
-        filtered=True,
+        filtered=False,  # Quantify all gait
+        max_segment_gap_s=arm_activity_config.max_segment_gap_s,
+        min_segment_length_s=arm_activity_config.min_segment_length_s,
+    )
+
+    # Step 6b: Quantify arm swing (filtered - clean gait only)
+    active_logger.info("Step 6b: Quantifying arm swing (filtered)")
+    quantified_arm_swing_filtered, gait_segment_meta_filtered = quantify_arm_swing(
+        df=df_filtered,
+        fs=arm_activity_config.sampling_frequency,
+        filtered=True,  # Quantify clean gait only
         max_segment_gap_s=arm_activity_config.max_segment_gap_s,
         min_segment_length_s=arm_activity_config.min_segment_length_s,
     )
@@ -1113,39 +1134,68 @@ def run_gait_pipeline(
     if "quantification" in store_intermediate:
         quantification_dir = output_dir / "quantification"
         quantification_dir.mkdir(parents=True, exist_ok=True)
-        quantified_arm_swing.to_parquet(
-            quantification_dir / "arm_swing_quantified.parquet", index=False
-        )
 
-        # Save gait segment metadata as JSON
-        with open(quantification_dir / "gait_segment_meta.json", "w") as f:
-            json.dump(gait_segment_meta, f, indent=2)
+        # Save unfiltered quantification
+        quantified_arm_swing_unfiltered.to_parquet(
+            quantification_dir / "arm_swing_quantified_unfiltered.parquet", index=False
+        )
+        with open(quantification_dir / "gait_segment_meta_unfiltered.json", "w") as f:
+            json.dump(gait_segment_meta_unfiltered, f, indent=2)
+
+        # Save filtered quantification
+        quantified_arm_swing_filtered.to_parquet(
+            quantification_dir / "arm_swing_quantified_filtered.parquet", index=False
+        )
+        with open(quantification_dir / "gait_segment_meta_filtered.json", "w") as f:
+            json.dump(gait_segment_meta_filtered, f, indent=2)
 
         active_logger.debug(
-            f"Saved arm swing quantification to "
-            f"{quantification_dir / 'arm_swing_quantified.parquet'}"
+            f"Saved unfiltered quantification to "
+            f"{quantification_dir / 'arm_swing_quantified_unfiltered.parquet'}"
         )
         active_logger.debug(
-            f"Saved gait segment metadata to "
-            f"{quantification_dir / 'gait_segment_meta.json'}"
+            f"Saved filtered quantification to "
+            f"{quantification_dir / 'arm_swing_quantified_filtered.parquet'}"
         )
 
     active_logger.info(
         f"Gait analysis pipeline completed. Found "
-        f"{len(quantified_arm_swing)} windows of gait "
-        f"without other arm activities."
+        f"{len(quantified_arm_swing_unfiltered)} unfiltered arm swings and "
+        f"{len(quantified_arm_swing_filtered)} filtered arm swings."
     )
 
     # Apply segment number offset if specified (for multi-segment concatenation)
-    if segment_number_offset > 0 and len(quantified_arm_swing) > 0:
-        quantified_arm_swing = quantified_arm_swing.copy()
-        quantified_arm_swing["gait_segment_nr"] += segment_number_offset
+    if segment_number_offset > 0:
+        if len(quantified_arm_swing_unfiltered) > 0:
+            quantified_arm_swing_unfiltered = quantified_arm_swing_unfiltered.copy()
+            quantified_arm_swing_unfiltered["gait_segment_nr"] += segment_number_offset
 
-        # Also update the metadata with the new segment numbers
-        if gait_segment_meta and "per_segment" in gait_segment_meta:
-            updated_per_segment_meta = {}
-            for seg_id, meta in gait_segment_meta["per_segment"].items():
-                updated_per_segment_meta[seg_id + segment_number_offset] = meta
-            gait_segment_meta["per_segment"] = updated_per_segment_meta
+            if (
+                gait_segment_meta_unfiltered
+                and "per_segment" in gait_segment_meta_unfiltered
+            ):
+                updated_per_segment_meta = {}
+                for seg_id, meta in gait_segment_meta_unfiltered["per_segment"].items():
+                    updated_per_segment_meta[seg_id + segment_number_offset] = meta
+                gait_segment_meta_unfiltered["per_segment"] = updated_per_segment_meta
 
-    return quantified_arm_swing, gait_segment_meta
+        if len(quantified_arm_swing_filtered) > 0:
+            quantified_arm_swing_filtered = quantified_arm_swing_filtered.copy()
+            quantified_arm_swing_filtered["gait_segment_nr"] += segment_number_offset
+
+            if (
+                gait_segment_meta_filtered
+                and "per_segment" in gait_segment_meta_filtered
+            ):
+                updated_per_segment_meta = {}
+                for seg_id, meta in gait_segment_meta_filtered["per_segment"].items():
+                    updated_per_segment_meta[seg_id + segment_number_offset] = meta
+                gait_segment_meta_filtered["per_segment"] = updated_per_segment_meta
+
+    return {
+        "filtered": quantified_arm_swing_filtered,
+        "unfiltered": quantified_arm_swing_unfiltered,
+    }, {
+        "filtered": gait_segment_meta_filtered,
+        "unfiltered": gait_segment_meta_unfiltered,
+    }
