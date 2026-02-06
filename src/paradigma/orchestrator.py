@@ -635,6 +635,24 @@ def run_paradigma(
                     "unfiltered": {},
                 }
 
+                # Convert segment_length_bins to segment_cats (list of tuples)
+                if segment_length_bins is None:
+                    segment_cats = [(0, 20), (20, float("inf"))]
+                else:
+                    # Parse string format like ['(0, 10)', '(10, 20)'] to tuples
+                    segment_cats = []
+                    for bin_str in segment_length_bins:
+                        # Remove parentheses and split
+                        bin_str = bin_str.strip("()")
+                        parts = bin_str.split(",")
+                        lower = float(parts[0].strip())
+                        upper = (
+                            float("inf")
+                            if parts[1].strip() == "inf"
+                            else float(parts[1].strip())
+                        )
+                        segment_cats.append((lower, upper))
+
                 # Aggregate filtered gait quantifications
                 if not all_results["quantifications"][pipeline_name]["filtered"].empty:
                     active_logger.info(
@@ -642,6 +660,8 @@ def run_paradigma(
                     )
                     aggregation_output = aggregate_arm_swing_params(
                         all_results["quantifications"][pipeline_name]["filtered"],
+                        segment_meta=all_results["metadata"][pipeline_name]["filtered"],
+                        segment_cats=segment_cats,
                         aggregates=aggregates if aggregates else ["mean", "std"],
                     )
                     all_results["aggregations"][pipeline_name]["filtered"] = (
@@ -671,6 +691,10 @@ def run_paradigma(
                     )
                     aggregation_output = aggregate_arm_swing_params(
                         all_results["quantifications"][pipeline_name]["unfiltered"],
+                        segment_meta=all_results["metadata"][pipeline_name][
+                            "unfiltered"
+                        ],
+                        segment_cats=segment_cats,
                         aggregates=aggregates if aggregates else ["mean", "std"],
                     )
                     all_results["aggregations"][pipeline_name]["unfiltered"] = (
