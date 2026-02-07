@@ -23,6 +23,7 @@ guides/coordinate_system.md
 
 contributing.md
 conduct.md
+changelog.md
 license.md
 ```
 

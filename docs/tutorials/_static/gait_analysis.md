@@ -1048,7 +1048,20 @@ df_arm[[config.time_colname, DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]].head
 
 
 ## Step 6: Arm swing quantification
-The next step is to extract arm swing estimates from the predicted gait segments without other arm activities. Arm swing estimates can be calculated for both filtered and unfiltered gait, with the latter being predicted gait including all arm activities. Specifically, the range of motion (`'range_of_motion'`) and peak angular velocity (`'peak_velocity'`) are extracted.
+
+**Important:** As of version 1.1.0, `quantify_arm_swing()` now returns **two dictionaries** instead of a DataFrame and dict:
+- First dict: quantified arm swing parameters with keys `'filtered'` and `'unfiltered'`
+  - `'filtered'`: DataFrame with arm swings from clean gait only (no other arm activities)
+  - `'unfiltered'`: DataFrame with arm swings from all gait segments
+- Second dict: gait segment metadata with keys `'filtered'` and `'unfiltered'`
+
+This allows analysis of arm swing with and without filtering for other arm activities.
+
+The next step is to extract arm swing estimates from the predicted gait segments. The `filtered` parameter is now deprecated but still functional for backward compatibility:
+- When `filtered=True`: Returns results in the old format (single DataFrame for filtered gait)
+- When using the new format: Both filtered and unfiltered results are returned together
+
+Specifically, the range of motion (`'range_of_motion'`) and peak angular velocity (`'peak_velocity'`) are extracted.
 
 This step creates gait segments based on consecutively predicted gait windows. A new gait segment is created if the gap between consecutive gait predictions exceeds `config.max_segment_gap_s`. Furthermore, a gait segment is considered valid if it is of at minimum length `config.min_segment_length_s`.
 
@@ -1083,6 +1096,11 @@ df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
 
 
 ```python
+# Note: The filtered parameter is maintained for backward compatibility
+# When filtered=True, returns the old format (single DataFrame)
+# In the new format (without filtered param),
+# both filtered and unfiltered are returned
+
 # Set to True to quantify arm swing based on the filtered gait segments, and
 # False to quantify arm swing based on all gait segments
 filtered = True
@@ -1101,6 +1119,13 @@ quantified_arm_swing, gait_segment_meta = quantify_arm_swing(
     max_segment_gap_s=config.max_segment_gap_s,
     min_segment_length_s=config.min_segment_length_s,
 )
+
+# Note: When using the new return structure (dicts with
+# 'filtered' and 'unfiltered' keys), you would access:
+# quantified_arm_swing['filtered'],
+# quantified_arm_swing['unfiltered']
+# and gait_segment_meta['filtered'],
+# gait_segment_meta['unfiltered']
 
 print(
     f"Gait segments are created of minimum {config.min_segment_length_s} seconds "

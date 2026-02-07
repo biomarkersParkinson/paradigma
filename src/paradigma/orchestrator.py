@@ -662,14 +662,13 @@ def run_paradigma(
                         all_results["quantifications"][pipeline_name]["filtered"],
                         segment_meta=all_results["metadata"][pipeline_name]["filtered"],
                         segment_cats=segment_cats,
-                        aggregates=aggregates if aggregates else ["mean", "std"],
+                        aggregates=(
+                            aggregates if aggregates else ["median", "95p", "cov"]
+                        ),
                     )
-                    all_results["aggregations"][pipeline_name]["filtered"] = (
-                        aggregation_output["aggregates"]
-                    )
-                    all_results["metadata"][pipeline_name]["filtered"] = (
-                        aggregation_output["metadata"]
-                    )
+                    all_results["aggregations"][pipeline_name][
+                        "filtered"
+                    ] = aggregation_output
                     filtered_count = len(
                         all_results["quantifications"][pipeline_name]["filtered"]
                     )
@@ -695,14 +694,13 @@ def run_paradigma(
                             "unfiltered"
                         ],
                         segment_cats=segment_cats,
-                        aggregates=aggregates if aggregates else ["mean", "std"],
+                        aggregates=(
+                            aggregates if aggregates else ["median", "95p", "cov"]
+                        ),
                     )
-                    all_results["aggregations"][pipeline_name]["unfiltered"] = (
-                        aggregation_output["aggregates"]
-                    )
-                    all_results["metadata"][pipeline_name]["unfiltered"] = (
-                        aggregation_output["metadata"]
-                    )
+                    all_results["aggregations"][pipeline_name][
+                        "unfiltered"
+                    ] = aggregation_output
                     unfiltered_count = len(
                         all_results["quantifications"][pipeline_name]["unfiltered"]
                     )

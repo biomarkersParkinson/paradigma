@@ -495,7 +495,12 @@ def preprocess_imu_data(
 
         values_colnames += config.gravity_colnames
 
-    df = df[[config.time_colname, *values_colnames]]
+    # Preserve data_segment_nr column if it exists (needed for split_by_gaps)
+    columns_to_keep = [config.time_colname, *values_colnames]
+    if "data_segment_nr" in df.columns:
+        columns_to_keep.append("data_segment_nr")
+
+    df = df[columns_to_keep]
 
     return df
 

@@ -76,9 +76,11 @@ results = run_paradigma(
 )
 
 # Access results (nested by pipeline)
-gait_measures = results['quantifications']['gait']
+# For gait, results are nested by filtered/unfiltered
+gait_filtered = results['quantifications']['gait']['filtered']
+gait_unfiltered = results['quantifications']['gait']['unfiltered']
 tremor_measures = results['quantifications']['tremor']
-gait_aggregates = results['aggregations']['gait']
+gait_aggregates = results['aggregations']['gait']  # Contains 'filtered' and 'unfiltered' keys
 tremor_aggregates = results['aggregations']['tremor']
 
 # Check for errors

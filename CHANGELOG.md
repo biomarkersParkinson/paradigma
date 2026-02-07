@@ -10,12 +10,13 @@
 - **Centralized Loading**: Added `load.py` to centralize data loading capabilities across all pipelines.
 - **High-Level Pipeline Functions**: Added `run_gait_pipeline()`, `run_tremor_pipeline()`, and `run_pulse_rate_pipeline()` for simplified pipeline execution.
 - **Segment Distinction**: Added `GAIT_SEGMENT_NR` and `DATA_SEGMENT_NR` constants to distinguish between temporal gaps and gait bouts. `SEGMENT_NR` kept as deprecated alias for backward compatibility.
+- **Unfiltered Gait Quantification**: Modified gait pipeline to return both filtered (clean gait only, without other arm activities) and unfiltered (all gait) quantifications. This allows analysis of arm swing with and without filtering for other arm activities, providing more comprehensive gait assessment options.
 - **Test Data**: Added Physilog Gait-Up test data to LFS.
 
 ### Improvements
 - **Logging System**: Replaced `verbose` parameter with standard Python logging using `logging_level` and `custom_logger` parameters across all pipeline functions for better control and traceability.
-- **Data Segment Preservation**: Modified `quantify_arm_swing()` to preserve `data_segment_nr` when present in input data.
-- **Bug Fixes**: Fixed NaN propagation in resampling by interpolating NaN values before resampling (scipy cannot handle NaN in non-contiguous data).
+- **Data Segment Preservation**: Modified `quantify_arm_swing()`, `preprocess_imu_data()`, and aggregation functions to preserve `data_segment_nr` column throughout the pipeline when using `split_by_gaps=True` for non-contiguous data processing.
+- **Bug Fixes**: Fixed NaN propagation in resampling by interpolating NaN values before resampling (scipy cannot handle NaN in non-contiguous data). Fixed metadata structure mismatch in gait aggregation that caused zero duration values when using `split_by_gaps=True`.
 
 ### Documentation
 - **New Tutorials**: Added `pipeline_orchestrator.ipynb` tutorial demonstrating end-to-end processing with logging control examples.
