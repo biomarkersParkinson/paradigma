@@ -1096,11 +1096,6 @@ df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
 
 
 ```python
-# Note: The filtered parameter is maintained for backward compatibility
-# When filtered=True, returns the old format (single DataFrame)
-# In the new format (without filtered param),
-# both filtered and unfiltered are returned
-
 # Set to True to quantify arm swing based on the filtered gait segments, and
 # False to quantify arm swing based on all gait segments
 filtered = True
@@ -1119,13 +1114,6 @@ quantified_arm_swing, gait_segment_meta = quantify_arm_swing(
     max_segment_gap_s=config.max_segment_gap_s,
     min_segment_length_s=config.min_segment_length_s,
 )
-
-# Note: When using the new return structure (dicts with
-# 'filtered' and 'unfiltered' keys), you would access:
-# quantified_arm_swing['filtered'],
-# quantified_arm_swing['unfiltered']
-# and gait_segment_meta['filtered'],
-# gait_segment_meta['unfiltered']
 
 print(
     f"Gait segments are created of minimum {config.min_segment_length_s} seconds "
@@ -1155,6 +1143,8 @@ quantified_arm_swing.loc[quantified_arm_swing['gait_segment_nr'] == 1]
 ```
 
     The arm swing quantification is based on the filtered gait segments.
+
+
 
     Gait segments are created of minimum 1.5 seconds and maximum 1.5 seconds gap between segments.
 
@@ -1307,7 +1297,7 @@ filtered = True
 list_quantified_arm_swing = []
 max_gait_segment_nr = 0
 
-raw_data_segments  = ['0001', '0002']  # list with all available raw data segments
+raw_data_segments  = ['0001']  # list with all available raw data segments
 
 for raw_data_segment_nr in raw_data_segments:
 
@@ -1429,9 +1419,6 @@ quantified_arm_swing = pd.concat(list_quantified_arm_swing, ignore_index=True)
     Resampled: 3455331 -> 3433961 rows at 100.0 Hz
 
 
-    Resampled: 7434685 -> 7388945 rows at 100.0 Hz
-
-
 ## Step 7: Aggregation
 Finally, the arm swing estimates can be aggregated across all gait segments.
 
@@ -1453,32 +1440,32 @@ print(json.dumps(arm_swing_aggregations, indent=2))
 
     {
       "0_10": {
-        "duration_s": 341.25,
-        "median_range_of_motion": 10.265043828684437,
-        "95p_range_of_motion": 33.23162448765661,
-        "median_peak_velocity": 52.98458323096141,
-        "95p_peak_velocity": 168.65258802439874
+        "duration_s": 379.5,
+        "median_range_of_motion": 11.781191233196722,
+        "95p_range_of_motion": 40.53201409103202,
+        "median_peak_velocity": 58.566197027859204,
+        "95p_peak_velocity": 182.7177098350067
       },
       "10_20": {
-        "duration_s": 60.75,
-        "median_range_of_motion": 21.05381778480308,
-        "95p_range_of_motion": 45.617438049991144,
-        "median_peak_velocity": 117.7375878000595,
-        "95p_peak_velocity": 228.8853651528709
+        "duration_s": 67.5,
+        "median_range_of_motion": 15.10889561336818,
+        "95p_range_of_motion": 54.96940806547923,
+        "median_peak_velocity": 71.19981331102237,
+        "95p_peak_velocity": 228.84234804496018
       },
       "20_inf": {
-        "duration_s": 1905.75,
-        "median_range_of_motion": 25.56899710571253,
-        "95p_range_of_motion": 43.59181429894547,
-        "median_peak_velocity": 127.40063801636731,
-        "95p_peak_velocity": 217.64806342438817
+        "duration_s": 285.75,
+        "median_range_of_motion": 29.273886230725473,
+        "95p_range_of_motion": 56.74815032228555,
+        "median_peak_velocity": 143.92113449093603,
+        "95p_peak_velocity": 259.4270842914848
       },
       "0_inf": {
-        "duration_s": 2307.75,
-        "median_range_of_motion": 24.07131352109043,
-        "95p_range_of_motion": 43.06891252479739,
-        "median_peak_velocity": 120.43812492382015,
-        "95p_peak_velocity": 215.76855388647215
+        "duration_s": 732.75,
+        "median_range_of_motion": 17.767386841988397,
+        "95p_range_of_motion": 53.93423076026392,
+        "median_peak_velocity": 91.83493870082003,
+        "95p_peak_velocity": 243.42317337529113
       }
     }
 

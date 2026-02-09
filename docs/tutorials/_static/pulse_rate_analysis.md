@@ -1061,7 +1061,7 @@ full_path_to_classifier_package = (
 # Create a list of dataframes to store the estimated pulse rates of all segments
 list_df_pr = []
 
-segments = ['0001', '0002'] # list with all available segments
+segments = ['0001'] # list with all available segments
 
 for segment_nr in segments:
 
@@ -1138,12 +1138,6 @@ df_pr = pd.concat(list_df_pr, ignore_index=True)
     Resampled: 1029374 -> 1030188 rows at 30.0 Hz
 
 
-    Resampled: 7434685 -> 7388945 rows at 100.0 Hz
-
-
-    Resampled: 2214444 -> 2216683 rows at 30.0 Hz
-
-
 ## Step 5: Pulse rate aggregation
 
 The final step is to aggregate all 2 s pulse rate estimates using [aggregate_pulse_rate](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/pipelines/pulse_rate_pipeline/index.html#paradigma.pipelines.pulse_rate_pipeline.aggregate_pulse_rate). In the current example, the mode and 99th percentile are calculated. We hypothesize that the mode gives representation of the resting pulse rate while the 99th percentile indicates the maximum pulse rate. In Parkinson's disease, we expect that these two measures could reflect autonomic (dys)functioning. The `nr_pr_est` in the metadata indicates based on how many 2 s windows these aggregates are determined.
@@ -1161,10 +1155,10 @@ print(json.dumps(df_pr_agg, indent=2))
 
     {
       "metadata": {
-        "nr_pr_est": 8660
+        "nr_pr_est": 806
       },
       "pr_aggregates": {
-        "mode_pulse_rate": 63.59175662414131,
-        "99p_pulse_rate": 85.77263444520081
+        "mode_pulse_rate": 81.25613346418058,
+        "99p_pulse_rate": 87.65865011636926
       }
     }

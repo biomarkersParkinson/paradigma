@@ -1027,7 +1027,7 @@ full_path_to_classifier_package = (
 # Create a list of dataframes to store the quantifications of all segments
 list_df_quantifications = []
 
-segments  = ['0001','0002'] # list with all  available segments
+segments  = ['0001', '0002'] # list with all  available segments
 
 for segment_nr in segments:
 

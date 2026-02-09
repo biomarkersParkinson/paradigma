@@ -238,7 +238,7 @@ ignored.
 ```python
 pipeline = 'pulse_rate'
 
-# Example 1: Using default output directory with storage
+# Example: Using default output directory with storage
 results_single_pipeline = run_paradigma(
     dfs=dfs_ppg,
     pipelines=pipeline,
@@ -307,31 +307,6 @@ results_single_pipeline['quantifications'][pipeline].head()
 </div>
 
 
-
-
-```python
-# Example 2: No file storage - results only in memory
-results_no_storage = run_paradigma(
-    dfs=dfs_ppg,
-    pipelines=pipeline,
-    skip_preparation=True,
-    time_input_unit=TimeUnit.RELATIVE_S,
-    save_intermediate=[],  # No files saved
-    logging_level=logging.WARNING  # Only show warnings and errors
-)
-
-print("Results returned without file storage:")
-quantifications = results_no_storage['quantifications'][pipeline]
-print(f"  Quantifications: {len(quantifications)} rows")
-print(f"  Aggregations: {results_no_storage['aggregations'][pipeline]}")
-```
-
-    Results returned without file storage:
-      Quantifications: 8684 rows
-      Aggregations: {'mode_pulse_rate': np.float64(63.59175662414131), '99p_pulse_rate': np.float64(85.77263444520081)}
-
-
-### Example: No File Storage
 
 If you only want to work with results in memory without saving any files,
 use an empty `save_intermediate` list:
@@ -938,8 +913,6 @@ filtered_df.head()
 ```
 
     Non-contiguous data detected. Auto-segmenting...
-
-
     Created 4 segments: 1713.3s, 1588.3s, 2243.5s, 3220.3s
 
 
