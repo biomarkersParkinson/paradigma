@@ -332,7 +332,6 @@ results by pipeline:
 {
     'quantifications': {
         'gait': {
-            # Clean gait only (no other arm activities)
             'filtered': DataFrame,
             'unfiltered': DataFrame   # All gait segments
         },
@@ -491,7 +490,7 @@ results_multi_pipeline = run_paradigma(
     watch_side='left',                  # Required for gait analysis
     # Store quantifications only
     save_intermediate=['quantification'],
-    logging_level=logging.WARNING  # Only show warnings and errors
+    logging_level=logging.WARNING       # Only show warnings and errors
 )
 ```
 
@@ -508,7 +507,7 @@ gait_metadata = results_multi_pipeline['metadata']['gait']
 # Access filtered gait results (clean gait without other arm activities)
 arm_swing_quantified_filtered = gait_quantifications['filtered']
 n_windows = len(arm_swing_quantified_filtered)
-print(f"\nFiltered arm swing quantification ({n_windows} windows):")
+print(f"\nFiltered arm swing quantification ({n_windows} swings):")
 print(
     f"   Columns: {list(arm_swing_quantified_filtered.columns[:5])}... "
     f"({len(arm_swing_quantified_filtered.columns)} total)"
@@ -520,7 +519,7 @@ if 'file_key' in arm_swing_quantified_filtered.columns:
 # Access unfiltered gait results (all gait)
 arm_swing_quantified_unfiltered = gait_quantifications['unfiltered']
 n_unfiltered = len(arm_swing_quantified_unfiltered)
-print(f"\nUnfiltered arm swing quantification ({n_unfiltered} windows):")
+print(f"\nUnfiltered arm swing quantification ({n_unfiltered} swings'):")
 
 print("\nFiltered gait aggregation:")
 categories = list(gait_aggregates['filtered'].keys())
@@ -529,9 +528,6 @@ if '0_10' in gait_aggregates['filtered']:
     agg_keys = list(gait_aggregates['filtered']['0_10'].keys())
     print(f"   Aggregates for 0-10s segments: {agg_keys}")
 
-print("\nMetadata structure:")
-metadata_keys = list(gait_metadata['filtered'].keys())
-print(f"   Filtered metadata keys: {metadata_keys}")
 has_segments = (
     'per_segment' in gait_metadata['filtered']
     and gait_metadata['filtered']['per_segment']
@@ -541,7 +537,7 @@ if has_segments:
     first_seg_meta = gait_metadata['filtered']['per_segment'][first_segment]
     print(f"   First filtered gait segment: {first_seg_meta}")
 
-# Tremor results (unchanged structure)
+# Tremor results
 tremor_quantified = results_multi_pipeline['quantifications']['tremor']
 tremor_aggregates = results_multi_pipeline['aggregations']['tremor']
 tremor_meta = results_multi_pipeline['metadata']['tremor']
@@ -560,17 +556,14 @@ print(f"   Metadata: {tremor_meta}")
 
     Detailed Results Analysis:
 
-    Filtered arm swing quantification (5299 windows):
+    Filtered arm swing quantification (5299 swings):
        Columns: ['gait_segment_nr', 'range_of_motion', 'peak_velocity', 'file_key']... (4 total)
        Files: ['IMU_segment0001' 'IMU_segment0002']
 
-    Unfiltered arm swing quantification (11950 windows):
+    Unfiltered arm swing quantification (11950 swings'):
 
     Filtered gait aggregation:
        Gait segment categories: ['0_20', '20_inf']
-
-    Metadata structure:
-       Filtered metadata keys: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175]
 
     Tremor quantification (27056 windows):
        Columns: ['time', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power', 'file_key']... (5 total)
@@ -634,17 +627,17 @@ pipeline = 'gait'
 # Using custom output directory
 results_end_to_end = run_paradigma(
     output_dir=Path('./output_raw'),
-    data_path=path_to_raw_data,  # Point to data folder
-    skip_preparation=False,  # ParaDigMa will prepare the data
+    data_path=path_to_raw_data,             # Point to data folder
+    skip_preparation=False,                 # ParaDigMa will prepare the data
     pipelines=pipeline,
     watch_side="left",
-    time_input_unit=TimeUnit.RELATIVE_S,  # Specify time unit
+    time_input_unit=TimeUnit.RELATIVE_S,    # Specify time unit
     accelerometer_units='g',
     gyroscope_units='deg/s',
     target_frequency=100.0,
     device_orientation=device_orientation,
-    save_intermediate=['aggregation'],  # Only save aggregations
-    logging_level=logging.WARNING,  # Only show warnings and errors
+    save_intermediate=['aggregation'],      # Only save aggregations
+    logging_level=logging.WARNING,          # Only show warnings and errors
 )
 
 # Access filtered gait metadata (clean gait without other arm activities)
@@ -669,7 +662,7 @@ unfiltered_agg = results_end_to_end['aggregations'][pipeline]['unfiltered']
 print("\nUnfiltered Gait Aggregations:")
 print(json.dumps(unfiltered_agg, indent=2))
 
-print("\nFiltered Quantifications (first 5 rows; clean gait only):")
+print("\nQuantifications (first 5 rows; each row represents a single arm swing):")
 results_end_to_end['quantifications'][pipeline]['filtered'].head()
 ```
 
@@ -721,7 +714,7 @@ results_end_to_end['quantifications'][pipeline]['filtered'].head()
       }
     }
 
-    Filtered Quantifications (first 5 rows; clean gait only):
+    Quantifications (first 5 rows; each row represents a single arm swing):
 
 
 
@@ -875,7 +868,11 @@ for filename in list(dfs_physilog.keys()):
         Duration: 10026.1s
     Contains 3 gap(s) > 1s (largest: 1243.6s)
     Contains 30 NaN values
+
+
     Dropping 10 rows with NaN values from file test_file
+
+
 
 
 

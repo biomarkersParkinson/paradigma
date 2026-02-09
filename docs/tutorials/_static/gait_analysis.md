@@ -1048,18 +1048,7 @@ df_arm[[config.time_colname, DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]].head
 
 
 ## Step 6: Arm swing quantification
-
-**Important:** As of version 1.1.0, `quantify_arm_swing()` now returns **two dictionaries** instead of a DataFrame and dict:
-- First dict: quantified arm swing parameters with keys `'filtered'` and `'unfiltered'`
-  - `'filtered'`: DataFrame with arm swings from clean gait only (no other arm activities)
-  - `'unfiltered'`: DataFrame with arm swings from all gait segments
-- Second dict: gait segment metadata with keys `'filtered'` and `'unfiltered'`
-
-This allows analysis of arm swing with and without filtering for other arm activities.
-
-The next step is to extract arm swing estimates from the predicted gait segments. The `filtered` parameter is now deprecated but still functional for backward compatibility:
-- When `filtered=True`: Returns results in the old format (single DataFrame for filtered gait)
-- When using the new format: Both filtered and unfiltered results are returned together
+The next step is to extract arm swing estimates from the predicted gait segments without other arm activities. Arm swing estimates can be calculated for both filtered and unfiltered gait, with the latter being predicted gait including all arm activities.
 
 Specifically, the range of motion (`'range_of_motion'`) and peak angular velocity (`'peak_velocity'`) are extracted.
 
