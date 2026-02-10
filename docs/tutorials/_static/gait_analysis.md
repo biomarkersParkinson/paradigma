@@ -1048,7 +1048,7 @@ df_arm[[config.time_colname, DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]].head
 
 
 ## Step 6: Arm swing quantification
-he next step is to extract arm swing estimates from the predicted gait segments. Arm swing estimates can be calculated for both **filtered** gait (clean gait without other arm activities) and **unfiltered** gait (all predicted gait segments including other arm activities).
+The next step is to extract arm swing estimates from the predicted gait segments. Arm swing estimates can be calculated for both **filtered** gait (clean gait without other arm activities) and **unfiltered** gait (all predicted gait segments including other arm activities).
 
 **Important:** As of version 1.1.0, the high-level gait pipeline functions (such as `run_gait_pipeline()` and `run_paradigma()`) return arm swing results in a **nested** structure with separate entries for filtered and unfiltered gait:
 - Quantified arm swing parameters are exposed under keys `'filtered'` and `'unfiltered'`
@@ -1294,7 +1294,7 @@ filtered = True
 list_quantified_arm_swing = []
 max_gait_segment_nr = 0
 
-raw_data_segments  = ['0001']  # list with all available raw data segments
+raw_data_segments  = ['0001']  # list of raw data segments to process in this example
 
 for raw_data_segment_nr in raw_data_segments:
 

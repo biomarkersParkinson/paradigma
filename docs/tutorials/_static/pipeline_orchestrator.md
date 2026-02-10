@@ -519,7 +519,7 @@ if 'file_key' in arm_swing_quantified_filtered.columns:
 # Access unfiltered gait results (all gait)
 arm_swing_quantified_unfiltered = gait_quantifications['unfiltered']
 n_unfiltered = len(arm_swing_quantified_unfiltered)
-print(f"\nUnfiltered arm swing quantification ({n_unfiltered} swings'):")
+print(f"\nUnfiltered arm swing quantification ({n_unfiltered} 'swings'):")
 
 print("\nFiltered gait aggregation:")
 categories = list(gait_aggregates['filtered'].keys())
@@ -560,7 +560,7 @@ print(f"   Metadata: {tremor_meta}")
        Columns: ['gait_segment_nr', 'range_of_motion', 'peak_velocity', 'file_key']... (4 total)
        Files: ['IMU_segment0001' 'IMU_segment0002']
 
-    Unfiltered arm swing quantification (11950 swings'):
+    Unfiltered arm swing quantification (11950 'swings'):
 
     Filtered gait aggregation:
        Gait segment categories: ['0_20', '20_inf']

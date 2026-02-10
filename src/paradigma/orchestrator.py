@@ -287,7 +287,10 @@ def run_paradigma(
             p: [] if p != "gait" else {"filtered": [], "unfiltered": []}
             for p in pipelines
         },
-        "aggregations": {p: {} for p in pipelines},
+        "aggregations": {
+            p: {} if p != "gait" else {"filtered": {}, "unfiltered": {}}
+            for p in pipelines
+        },
         "metadata": {
             p: {} if p != "gait" else {"filtered": {}, "unfiltered": {}}
             for p in pipelines
@@ -298,8 +301,10 @@ def run_paradigma(
     # Steps 2-3: Process each file individually
     active_logger.info(f"Steps 2-3: Processing {num_files} files individually")
 
-    # Track maximum gait segment number across files for proper offset
-    max_gait_segment_nr = 0
+    # Track maximum gait segment numbers separately for filtered and unfiltered
+    # since they have independent numbering schemes
+    max_gait_segment_nr_filtered = 0
+    max_gait_segment_nr_unfiltered = 0
 
     for i in range(num_files):
         # Load one file at a time
@@ -380,6 +385,7 @@ def run_paradigma(
 
                 try:
                     if pipeline_name == "gait":
+                        # Pass separate offsets for filtered and unfiltered
                         quantifications_dict, metadata_dict = run_gait_pipeline(
                             df_prepared=df_prepared,
                             watch_side=watch_side,
@@ -388,7 +394,12 @@ def run_paradigma(
                             arm_activity_config=arm_activity_config,
                             store_intermediate=store_intermediate_per_file,
                             output_dir=file_output_dir,
-                            segment_number_offset=max_gait_segment_nr,
+                            segment_number_offset_filtered=(
+                                max_gait_segment_nr_filtered
+                            ),
+                            segment_number_offset_unfiltered=(
+                                max_gait_segment_nr_unfiltered
+                            ),
                             logging_level=logging_level,
                             custom_logger=active_logger,
                         )
@@ -407,10 +418,17 @@ def run_paradigma(
                                     quant_type
                                 ].append(quantification_data)
 
-                                # Update max segment number for next file (use filtered)
+                                # Update max segment number for next file
+                                current_max = int(
+                                    quantification_data["gait_segment_nr"].max()
+                                )
                                 if quant_type == "filtered":
-                                    max_gait_segment_nr = int(
-                                        quantification_data["gait_segment_nr"].max()
+                                    max_gait_segment_nr_filtered = max(
+                                        max_gait_segment_nr_filtered, current_max
+                                    )
+                                else:  # unfiltered
+                                    max_gait_segment_nr_unfiltered = max(
+                                        max_gait_segment_nr_unfiltered, current_max
                                     )
 
                             # Store metadata and update offset even if
@@ -423,18 +441,22 @@ def run_paradigma(
                                     quant_type
                                 ].update(quantification_metadata["per_segment"])
 
-                                # Update max segment number based on metadata to prevent
-                                # overwrites (use filtered)
-                                if (
-                                    quant_type == "filtered"
-                                    and quantification_metadata["per_segment"]
-                                ):
+                                # Update max segment number based on metadata to
+                                # prevent overwrites
+                                if quantification_metadata["per_segment"]:
                                     max_segment_in_metadata = max(
                                         quantification_metadata["per_segment"].keys()
                                     )
-                                    max_gait_segment_nr = max(
-                                        max_gait_segment_nr, max_segment_in_metadata
-                                    )
+                                    if quant_type == "filtered":
+                                        max_gait_segment_nr_filtered = max(
+                                            max_gait_segment_nr_filtered,
+                                            max_segment_in_metadata,
+                                        )
+                                    else:  # unfiltered
+                                        max_gait_segment_nr_unfiltered = max(
+                                            max_gait_segment_nr_unfiltered,
+                                            max_segment_in_metadata,
+                                        )
 
                     elif pipeline_name == "tremor":
                         quantification_data = run_tremor_pipeline(
