@@ -859,10 +859,11 @@ def run_gait_pipeline(
     gait_config: GaitConfig | None = None,
     arm_activity_config: GaitConfig | None = None,
     store_intermediate: list[str] = [],
-    segment_number_offset: int = 0,
+    segment_number_offset_filtered: int = 0,
+    segment_number_offset_unfiltered: int = 0,
     logging_level: int = logging.INFO,
     custom_logger: logging.Logger | None = None,
-) -> tuple[pd.DataFrame, dict]:
+) -> tuple[dict[str, pd.DataFrame], dict[str, dict]]:
     """
     Run the complete gait analysis pipeline on prepared data (steps 1-6).
 
@@ -1122,24 +1123,51 @@ def run_gait_pipeline(
         == 0
     ):
         active_logger.warning("No clean gait data remaining after filtering")
-        # Return empty filtered results but keep unfiltered results
-        return {
-            "filtered": pd.DataFrame(),
-            "unfiltered": quantified_arm_swing_unfiltered,
-        }, {
-            "filtered": {},
-            "unfiltered": gait_segment_meta_unfiltered,
-        }
+        # Set empty filtered results but continue to save/offset logic
+        quantified_arm_swing_filtered = pd.DataFrame()
+        gait_segment_meta_filtered = {}
+    else:
+        # Step 6b: Quantify arm swing (filtered - clean gait only)
+        active_logger.info("Step 6b: Quantifying arm swing (filtered)")
+        quantified_arm_swing_filtered, gait_segment_meta_filtered = quantify_arm_swing(
+            df=df_filtered,
+            fs=arm_activity_config.sampling_frequency,
+            filtered=True,  # Quantify clean gait only
+            max_segment_gap_s=arm_activity_config.max_segment_gap_s,
+            min_segment_length_s=arm_activity_config.min_segment_length_s,
+        )
 
-    # Step 6b: Quantify arm swing (filtered - clean gait only)
-    active_logger.info("Step 6b: Quantifying arm swing (filtered)")
-    quantified_arm_swing_filtered, gait_segment_meta_filtered = quantify_arm_swing(
-        df=df_filtered,
-        fs=arm_activity_config.sampling_frequency,
-        filtered=True,  # Quantify clean gait only
-        max_segment_gap_s=arm_activity_config.max_segment_gap_s,
-        min_segment_length_s=arm_activity_config.min_segment_length_s,
-    )
+    # Apply segment number offsets for multi-file processing
+    if (
+        segment_number_offset_unfiltered > 0
+        and len(quantified_arm_swing_unfiltered) > 0
+    ):
+        quantified_arm_swing_unfiltered = quantified_arm_swing_unfiltered.copy()
+        quantified_arm_swing_unfiltered[
+            "gait_segment_nr"
+        ] += segment_number_offset_unfiltered
+
+        if (
+            gait_segment_meta_unfiltered
+            and "per_segment" in gait_segment_meta_unfiltered
+        ):
+            updated_per_segment_meta = {}
+            for seg_id, meta in gait_segment_meta_unfiltered["per_segment"].items():
+                new_seg_id = seg_id + segment_number_offset_unfiltered
+                updated_per_segment_meta[new_seg_id] = meta
+            gait_segment_meta_unfiltered["per_segment"] = updated_per_segment_meta
+
+    if segment_number_offset_filtered > 0 and len(quantified_arm_swing_filtered) > 0:
+        quantified_arm_swing_filtered = quantified_arm_swing_filtered.copy()
+        quantified_arm_swing_filtered[
+            "gait_segment_nr"
+        ] += segment_number_offset_filtered
+
+        if gait_segment_meta_filtered and "per_segment" in gait_segment_meta_filtered:
+            updated_per_segment_meta = {}
+            for seg_id, meta in gait_segment_meta_filtered["per_segment"].items():
+                updated_per_segment_meta[seg_id + segment_number_offset_filtered] = meta
+            gait_segment_meta_filtered["per_segment"] = updated_per_segment_meta
 
     if "quantification" in store_intermediate:
         quantification_dir = output_dir / "quantification"
@@ -1173,34 +1201,6 @@ def run_gait_pipeline(
         f"{len(quantified_arm_swing_unfiltered)} unfiltered arm swings and "
         f"{len(quantified_arm_swing_filtered)} filtered arm swings."
     )
-
-    # Apply segment number offset if specified (for multi-segment concatenation)
-    if segment_number_offset > 0:
-        if len(quantified_arm_swing_unfiltered) > 0:
-            quantified_arm_swing_unfiltered = quantified_arm_swing_unfiltered.copy()
-            quantified_arm_swing_unfiltered["gait_segment_nr"] += segment_number_offset
-
-            if (
-                gait_segment_meta_unfiltered
-                and "per_segment" in gait_segment_meta_unfiltered
-            ):
-                updated_per_segment_meta = {}
-                for seg_id, meta in gait_segment_meta_unfiltered["per_segment"].items():
-                    updated_per_segment_meta[seg_id + segment_number_offset] = meta
-                gait_segment_meta_unfiltered["per_segment"] = updated_per_segment_meta
-
-        if len(quantified_arm_swing_filtered) > 0:
-            quantified_arm_swing_filtered = quantified_arm_swing_filtered.copy()
-            quantified_arm_swing_filtered["gait_segment_nr"] += segment_number_offset
-
-            if (
-                gait_segment_meta_filtered
-                and "per_segment" in gait_segment_meta_filtered
-            ):
-                updated_per_segment_meta = {}
-                for seg_id, meta in gait_segment_meta_filtered["per_segment"].items():
-                    updated_per_segment_meta[seg_id + segment_number_offset] = meta
-                gait_segment_meta_filtered["per_segment"] = updated_per_segment_meta
 
     return {
         "filtered": quantified_arm_swing_filtered,
