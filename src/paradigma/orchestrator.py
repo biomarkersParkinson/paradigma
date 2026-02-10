@@ -526,7 +526,8 @@ def run_paradigma(
                         f"{num_files_processed} files"
                     )
                 else:
-                    # Normalize empty lists to DataFrames to avoid AttributeError on .empty
+                    # Normalize empty lists to DataFrames to avoid AttributeError on
+                    # .empty
                     all_results["quantifications"][pipeline_name][
                         quant_type
                     ] = pd.DataFrame()
@@ -658,7 +659,10 @@ def run_paradigma(
                             lower_val, upper_val = bin_def
                             lower = float(lower_val)
                             # Allow 'inf' as string, or float('inf') / np.inf / etc.
-                            if isinstance(upper_val, str) and upper_val.strip() == "inf":
+                            if (
+                                isinstance(upper_val, str)
+                                and upper_val.strip() == "inf"
+                            ):
                                 upper = float("inf")
                             else:
                                 upper = float(upper_val)
