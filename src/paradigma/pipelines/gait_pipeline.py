@@ -1133,7 +1133,10 @@ def run_gait_pipeline(
         active_logger.warning("No clean gait data remaining after filtering")
         # Set empty filtered results but continue to save/offset logic
         quantified_arm_swing_filtered = pd.DataFrame()
-        gait_segment_meta_filtered = {}
+        gait_segment_meta_filtered = {
+            "all": {},
+            "per_segment": {},
+        }
     else:
         # Step 6b: Quantify arm swing (filtered - clean gait only)
         active_logger.info("Step 6b: Quantifying arm swing (filtered)")
