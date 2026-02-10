@@ -395,7 +395,7 @@ def quantify_arm_swing(
     filtered: bool = False,
     max_segment_gap_s: float = 1.5,
     min_segment_length_s: float = 1.5,
-) -> tuple[dict[str, pd.DataFrame], dict]:
+) -> tuple[pd.DataFrame, dict]:
     """
     Quantify arm swing parameters for segments of motion based on gyroscope data.
 
@@ -858,7 +858,7 @@ def run_gait_pipeline(
     imu_config: IMUConfig | None = None,
     gait_config: GaitConfig | None = None,
     arm_activity_config: GaitConfig | None = None,
-    store_intermediate: list[str] = [],
+    store_intermediate: list[str] | None = None,
     segment_number_offset_filtered: int = 0,
     segment_number_offset_unfiltered: int = 0,
     logging_level: int = logging.INFO,
@@ -896,16 +896,21 @@ def run_gait_pipeline(
     arm_activity_config : GaitConfig, optional
         Configuration for arm activity feature extraction and filtering.
         If None, uses default GaitConfig(step="arm_activity").
-    store_intermediate : List[str]
+    store_intermediate : list[str], optional
         Steps of which intermediate results should be stored:
         - 'preprocessing': Store preprocessed data after step 1
         - 'gait': Store gait features and predictions after step 3
         - 'arm_activity': Store arm activity features and predictions after step 5
         - 'quantification': Store arm swing quantification results after step 6
         If empty, only returns the final quantified results.
-    segment_number_offset : int, optional, default=0
-        Offset to add to all segment numbers to avoid conflicts when concatenating
-        multiple data segments. Used for proper segment numbering across multiple files.
+    segment_number_offset_filtered : int, optional, default=0
+        Offset to add to filtered segment numbers to avoid conflicts when
+        concatenating multiple data segments. Used for proper segment numbering
+        across multiple files.
+    segment_number_offset_unfiltered : int, optional, default=0
+        Offset to add to unfiltered segment numbers to avoid conflicts when
+        concatenating multiple data segments. Used for proper segment numbering
+        across multiple files.
     logging_level : int, default logging.INFO
         Logging level using standard logging constants (logging.DEBUG, logging.INFO,
         etc.)
@@ -942,6 +947,9 @@ def run_gait_pipeline(
     active_logger = custom_logger if custom_logger is not None else logger
     if custom_logger is None:
         active_logger.setLevel(logging_level)
+
+    if store_intermediate is None:
+        store_intermediate = []
 
     # Set default configurations
     if imu_config is None:
@@ -1144,7 +1152,7 @@ def run_gait_pipeline(
     ):
         quantified_arm_swing_unfiltered = quantified_arm_swing_unfiltered.copy()
         quantified_arm_swing_unfiltered[
-            "gait_segment_nr"
+            DataColumns.GAIT_SEGMENT_NR
         ] += segment_number_offset_unfiltered
 
         if (
@@ -1160,7 +1168,7 @@ def run_gait_pipeline(
     if segment_number_offset_filtered > 0 and len(quantified_arm_swing_filtered) > 0:
         quantified_arm_swing_filtered = quantified_arm_swing_filtered.copy()
         quantified_arm_swing_filtered[
-            "gait_segment_nr"
+            DataColumns.GAIT_SEGMENT_NR
         ] += segment_number_offset_filtered
 
         if gait_segment_meta_filtered and "per_segment" in gait_segment_meta_filtered:

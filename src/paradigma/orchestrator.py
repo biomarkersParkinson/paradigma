@@ -75,7 +75,7 @@ def run_paradigma(
     device_orientation: list[str] | None = ["x", "y", "z"],
     file_pattern: str | list[str] | None = None,
     aggregates: list[str] | None = None,
-    segment_length_bins: list[str] | None = None,
+    segment_length_bins: list[tuple[float, float] | list[float] | str] | None = None,
     split_by_gaps: bool = False,
     max_gap_seconds: float | None = None,
     min_segment_seconds: float | None = None,
@@ -152,9 +152,10 @@ def run_paradigma(
         File pattern(s) to match when loading data (e.g., 'parquet', '*.csv').
     aggregates : list of str, optional
         Aggregation methods for quantification.
-    segment_length_bins : list of str, optional
+    segment_length_bins : list of str or list of tuple/list, optional
         Duration bins for gait segment aggregation (gait pipeline only).
-        Example: ['(0, 10)', '(10, 20)'] for segments 0-10s and 10-20s.
+        Accepts either string bins like ['(0, 10)', '(10, 20)'] or 2-element
+        tuples/lists like [(0, 10), (10, 20)] for segments 0-10s and 10-20s.
     split_by_gaps : bool, default False
         If True, automatically split non-contiguous data into segments
         during preparation.
@@ -420,7 +421,9 @@ def run_paradigma(
 
                                 # Update max segment number for next file
                                 current_max = int(
-                                    quantification_data["gait_segment_nr"].max()
+                                    quantification_data[
+                                        DataColumns.GAIT_SEGMENT_NR
+                                    ].max()
                                 )
                                 if quant_type == "filtered":
                                     max_gait_segment_nr_filtered = max(
