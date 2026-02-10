@@ -525,6 +525,12 @@ def run_paradigma(
                         f"{len(combined_quantified)} windows from "
                         f"{num_files_processed} files"
                     )
+                else:
+                    # Normalize empty lists to DataFrames to avoid AttributeError on
+                    # .empty
+                    all_results["quantifications"][pipeline_name][
+                        quant_type
+                    ] = pd.DataFrame()
         else:
             # Concatenate all quantifications for non-gait pipelines
             if all_results["quantifications"][pipeline_name]:
@@ -639,19 +645,49 @@ def run_paradigma(
                 if segment_length_bins is None:
                     segment_cats = [(0, 20), (20, float("inf"))]
                 else:
-                    # Parse string format like ['(0, 10)', '(10, 20)'] to tuples
+                    # Support both string format ['(0, 10)', '(10, 20)'] and
+                    # tuple/list format [(0, 10), (10, 20)]
                     segment_cats = []
-                    for bin_str in segment_length_bins:
-                        # Remove parentheses and split
-                        bin_str = bin_str.strip("()")
-                        parts = bin_str.split(",")
-                        lower = float(parts[0].strip())
-                        upper = (
-                            float("inf")
-                            if parts[1].strip() == "inf"
-                            else float(parts[1].strip())
-                        )
-                        segment_cats.append((lower, upper))
+                    for bin_def in segment_length_bins:
+                        # Case 1: already provided as tuple/list
+                        if isinstance(bin_def, (tuple, list)):
+                            if len(bin_def) != 2:
+                                raise ValueError(
+                                    f"segment_length_bins entries as tuple/list must "
+                                    f"have length 2, got {len(bin_def)}: {bin_def!r}"
+                                )
+                            lower_val, upper_val = bin_def
+                            lower = float(lower_val)
+                            # Allow 'inf' as string, or float('inf') / np.inf / etc.
+                            if (
+                                isinstance(upper_val, str)
+                                and upper_val.strip() == "inf"
+                            ):
+                                upper = float("inf")
+                            else:
+                                upper = float(upper_val)
+                            segment_cats.append((lower, upper))
+                        # Case 2: string that needs parsing
+                        elif isinstance(bin_def, str):
+                            bin_str = bin_def.strip("()")
+                            parts = bin_str.split(",")
+                            if len(parts) != 2:
+                                raise ValueError(
+                                    f"Invalid segment length bin string: {bin_def!r}"
+                                )
+                            lower = float(parts[0].strip())
+                            upper_part = parts[1].strip()
+                            upper = (
+                                float("inf")
+                                if upper_part == "inf"
+                                else float(upper_part)
+                            )
+                            segment_cats.append((lower, upper))
+                        else:
+                            raise TypeError(
+                                "segment_length_bins entries must be strings or "
+                                f"2-element tuples/lists, got {type(bin_def).__name__}"
+                            )
 
                 # Aggregate filtered gait quantifications
                 if not all_results["quantifications"][pipeline_name]["filtered"].empty:

@@ -868,11 +868,7 @@ for filename in list(dfs_physilog.keys()):
         Duration: 10026.1s
     Contains 3 gap(s) > 1s (largest: 1243.6s)
     Contains 30 NaN values
-
-
     Dropping 10 rows with NaN values from file test_file
-
-
 
 
 
@@ -910,6 +906,8 @@ filtered_df.head()
 ```
 
     Non-contiguous data detected. Auto-segmenting...
+
+
     Created 4 segments: 1713.3s, 1588.3s, 2243.5s, 3220.3s
 
 

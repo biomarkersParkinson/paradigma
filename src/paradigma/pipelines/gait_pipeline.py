@@ -596,7 +596,11 @@ def quantify_arm_swing(
 
                 arm_swing_quantified.append(df_params_segment)
 
-    arm_swing_quantified = pd.concat(arm_swing_quantified, ignore_index=True)
+    if not arm_swing_quantified:
+        # No valid arm swing segments found, return empty DataFrame
+        arm_swing_quantified = pd.DataFrame()
+    else:
+        arm_swing_quantified = pd.concat(arm_swing_quantified, ignore_index=True)
 
     return arm_swing_quantified, segment_meta
 
@@ -1101,17 +1105,8 @@ def run_gait_pipeline(
             f"Saved filtered gait to {arm_activity_dir / 'filtered_gait.parquet'}"
         )
 
-    if (
-        len(df_filtered.loc[df_filtered[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] == 1])
-        == 0
-    ):
-        active_logger.warning("No clean gait data remaining after filtering")
-        return {"filtered": pd.DataFrame(), "unfiltered": pd.DataFrame()}, {
-            "filtered": {},
-            "unfiltered": {},
-        }
-
     # Step 6a: Quantify arm swing (unfiltered - all gait)
+    # Always compute unfiltered quantification, even if there's no clean gait
     active_logger.info("Step 6a: Quantifying arm swing (unfiltered)")
     quantified_arm_swing_unfiltered, gait_segment_meta_unfiltered = quantify_arm_swing(
         df=df_filtered,
@@ -1120,6 +1115,21 @@ def run_gait_pipeline(
         max_segment_gap_s=arm_activity_config.max_segment_gap_s,
         min_segment_length_s=arm_activity_config.min_segment_length_s,
     )
+
+    # Check if there's clean gait for filtered quantification
+    if (
+        len(df_filtered.loc[df_filtered[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] == 1])
+        == 0
+    ):
+        active_logger.warning("No clean gait data remaining after filtering")
+        # Return empty filtered results but keep unfiltered results
+        return {
+            "filtered": pd.DataFrame(),
+            "unfiltered": quantified_arm_swing_unfiltered,
+        }, {
+            "filtered": {},
+            "unfiltered": gait_segment_meta_unfiltered,
+        }
 
     # Step 6b: Quantify arm swing (filtered - clean gait only)
     active_logger.info("Step 6b: Quantifying arm swing (filtered)")
