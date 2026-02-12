@@ -524,9 +524,9 @@ print(f"\nUnfiltered arm swing quantification ({n_unfiltered} 'swings'):")
 print("\nFiltered gait aggregation:")
 categories = list(gait_aggregates['filtered'].keys())
 print(f"   Gait segment categories: {categories}")
-if '0_10' in gait_aggregates['filtered']:
-    agg_keys = list(gait_aggregates['filtered']['0_10'].keys())
-    print(f"   Aggregates for 0-10s segments: {agg_keys}")
+if '0_20' in gait_aggregates['filtered']:
+    agg_keys = list(gait_aggregates['filtered']['0_20'].keys())
+    print(f"   Aggregates for 0-20s segments: {agg_keys}")
 
 has_segments = (
     'per_segment' in gait_metadata['filtered']
@@ -564,6 +564,7 @@ print(f"   Metadata: {tremor_meta}")
 
     Filtered gait aggregation:
        Gait segment categories: ['0_20', '20_inf']
+       Aggregates for 0-20s segments: ['duration_s', 'median_range_of_motion', '95p_range_of_motion', 'median_cov_range_of_motion', 'mean_cov_range_of_motion', 'median_peak_velocity', '95p_peak_velocity', 'median_cov_peak_velocity', 'mean_cov_peak_velocity']
 
     Tremor quantification (27056 windows):
        Columns: ['time', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power', 'file_key']... (5 total)

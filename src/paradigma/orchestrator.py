@@ -58,6 +58,16 @@ DETAILED_INFO = 15
 logging.addLevelName(DETAILED_INFO, "DETAILED")
 
 
+def _empty_gait_quantification_df() -> pd.DataFrame:
+    return pd.DataFrame(
+        columns=[
+            DataColumns.GAIT_SEGMENT_NR,
+            DataColumns.RANGE_OF_MOTION,
+            DataColumns.PEAK_VELOCITY,
+        ]
+    )
+
+
 def run_paradigma(
     *,
     data_path: str | Path | None = None,
@@ -195,9 +205,15 @@ def run_paradigma(
     -------
     dict
         Complete analysis results with nested structure for multiple pipelines:
-        - 'quantifications': dict with pipeline names as keys and DataFrames as values
-        - 'aggregations': dict with pipeline names as keys and result dicts as values
-        - 'metadata': dict with pipeline names as keys and metadata dicts as values
+                - 'quantifications': dict with pipeline names as keys and DataFrames
+                    as values. For gait, values are nested dicts with 'filtered' and
+                    'unfiltered' DataFrames.
+                - 'aggregations': dict with pipeline names as keys and result dicts
+                    as values. For gait, values are nested dicts with 'filtered' and
+                    'unfiltered' aggregation dictionaries.
+                - 'metadata': dict with pipeline names as keys and metadata dicts
+                    as values. For gait, values are nested dicts with 'filtered' and
+                    'unfiltered' metadata dictionaries.
         - 'errors': list of dicts tracking any errors that occurred during processing.
           Each error dict contains 'stage', 'error', and optionally 'file' and
           'pipeline'.
@@ -555,7 +571,7 @@ def run_paradigma(
                     # .empty
                     all_results["quantifications"][pipeline_name][
                         quant_type
-                    ] = pd.DataFrame()
+                    ] = _empty_gait_quantification_df()
         else:
             # Concatenate all quantifications for non-gait pipelines
             if all_results["quantifications"][pipeline_name]:
@@ -780,7 +796,13 @@ def run_paradigma(
             all_results["errors"].append(
                 {"pipeline": pipeline_name, "stage": "aggregation", "error": str(e)}
             )
-            all_results["aggregations"][pipeline_name] = {}
+            if pipeline_name == "gait":
+                all_results["aggregations"][pipeline_name] = {
+                    "filtered": {},
+                    "unfiltered": {},
+                }
+            else:
+                all_results["aggregations"][pipeline_name] = {}
 
     # Save combined quantifications if requested
     if "quantification" in save_intermediate:

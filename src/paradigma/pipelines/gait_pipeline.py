@@ -40,6 +40,17 @@ if not logger.hasHandlers():
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
+def _empty_arm_swing_df(df: pd.DataFrame) -> pd.DataFrame:
+    expected_columns = [
+        DataColumns.GAIT_SEGMENT_NR,
+        DataColumns.RANGE_OF_MOTION,
+        DataColumns.PEAK_VELOCITY,
+    ]
+    if DataColumns.DATA_SEGMENT_NR in df.columns:
+        expected_columns.append(DataColumns.DATA_SEGMENT_NR)
+    return pd.DataFrame(columns=expected_columns)
+
+
 def extract_gait_features(df: pd.DataFrame, config: GaitConfig) -> pd.DataFrame:
     """
     Extracts gait features from accelerometer and gravity sensor data in the
@@ -409,7 +420,7 @@ def quantify_arm_swing(
     fs : int
         The sampling frequency of the sensor data.
 
-    filtered : bool, optional, default=True
+    filtered : bool, optional, default=False
         If `True`, the gyroscope data is filtered to only include predicted
         no other arm activity.
 
@@ -598,7 +609,7 @@ def quantify_arm_swing(
 
     if not arm_swing_quantified:
         # No valid arm swing segments found, return empty DataFrame
-        arm_swing_quantified = pd.DataFrame()
+        arm_swing_quantified = _empty_arm_swing_df(df)
     else:
         arm_swing_quantified = pd.concat(arm_swing_quantified, ignore_index=True)
 
@@ -1053,9 +1064,13 @@ def run_gait_pipeline(
 
     if len(df_gait_only) == 0:
         active_logger.warning("No gait detected in this segment")
-        return {"filtered": pd.DataFrame(), "unfiltered": pd.DataFrame()}, {
-            "filtered": {},
-            "unfiltered": {},
+        empty_df_filtered = _empty_arm_swing_df(df_prepared)
+        empty_df_unfiltered = _empty_arm_swing_df(df_prepared)
+        empty_meta_filtered = {"all": {"duration_s": 0}, "per_segment": {}}
+        empty_meta_unfiltered = {"all": {"duration_s": 0}, "per_segment": {}}
+        return {"filtered": empty_df_filtered, "unfiltered": empty_df_unfiltered}, {
+            "filtered": empty_meta_filtered,
+            "unfiltered": empty_meta_unfiltered,
         }
 
     # Step 4: Extract arm activity features
@@ -1117,13 +1132,27 @@ def run_gait_pipeline(
     # Step 6a: Quantify arm swing (unfiltered - all gait)
     # Always compute unfiltered quantification, even if there's no clean gait
     active_logger.info("Step 6a: Quantifying arm swing (unfiltered)")
-    quantified_arm_swing_unfiltered, gait_segment_meta_unfiltered = quantify_arm_swing(
-        df=df_filtered,
-        fs=arm_activity_config.sampling_frequency,
-        filtered=False,  # Quantify all gait
-        max_segment_gap_s=arm_activity_config.max_segment_gap_s,
-        min_segment_length_s=arm_activity_config.min_segment_length_s,
-    )
+    try:
+        quantified_arm_swing_unfiltered, gait_segment_meta_unfiltered = (
+            quantify_arm_swing(
+                df=df_filtered,
+                fs=arm_activity_config.sampling_frequency,
+                filtered=False,  # Quantify all gait
+                max_segment_gap_s=arm_activity_config.max_segment_gap_s,
+                min_segment_length_s=arm_activity_config.min_segment_length_s,
+            )
+        )
+    except ValueError as exc:
+        active_logger.warning(
+            "Arm swing quantification (unfiltered) failed (%s). "
+            "Returning empty unfiltered arm swing results.",
+            exc,
+        )
+        quantified_arm_swing_unfiltered = _empty_arm_swing_df(df_filtered)
+        gait_segment_meta_unfiltered = {
+            "all": {"duration_s": 0},
+            "per_segment": {},
+        }
 
     # Check if there's clean gait for filtered quantification
     if (
@@ -1132,9 +1161,9 @@ def run_gait_pipeline(
     ):
         active_logger.warning("No clean gait data remaining after filtering")
         # Set empty filtered results but continue to save/offset logic
-        quantified_arm_swing_filtered = pd.DataFrame()
+        quantified_arm_swing_filtered = _empty_arm_swing_df(df_filtered)
         gait_segment_meta_filtered = {
-            "all": {},
+            "all": {"duration_s": 0},
             "per_segment": {},
         }
     else:
@@ -1149,18 +1178,17 @@ def run_gait_pipeline(
         )
 
     # Apply segment number offsets for multi-file processing
-    if (
-        segment_number_offset_unfiltered > 0
-        and len(quantified_arm_swing_unfiltered) > 0
-    ):
-        quantified_arm_swing_unfiltered = quantified_arm_swing_unfiltered.copy()
-        quantified_arm_swing_unfiltered[
-            DataColumns.GAIT_SEGMENT_NR
-        ] += segment_number_offset_unfiltered
+    if segment_number_offset_unfiltered > 0:
+        if DataColumns.GAIT_SEGMENT_NR in quantified_arm_swing_unfiltered.columns:
+            quantified_arm_swing_unfiltered = quantified_arm_swing_unfiltered.copy()
+            quantified_arm_swing_unfiltered[
+                DataColumns.GAIT_SEGMENT_NR
+            ] += segment_number_offset_unfiltered
 
         if (
             gait_segment_meta_unfiltered
             and "per_segment" in gait_segment_meta_unfiltered
+            and gait_segment_meta_unfiltered["per_segment"]
         ):
             updated_per_segment_meta = {}
             for seg_id, meta in gait_segment_meta_unfiltered["per_segment"].items():
@@ -1168,13 +1196,18 @@ def run_gait_pipeline(
                 updated_per_segment_meta[new_seg_id] = meta
             gait_segment_meta_unfiltered["per_segment"] = updated_per_segment_meta
 
-    if segment_number_offset_filtered > 0 and len(quantified_arm_swing_filtered) > 0:
-        quantified_arm_swing_filtered = quantified_arm_swing_filtered.copy()
-        quantified_arm_swing_filtered[
-            DataColumns.GAIT_SEGMENT_NR
-        ] += segment_number_offset_filtered
+    if segment_number_offset_filtered > 0:
+        if DataColumns.GAIT_SEGMENT_NR in quantified_arm_swing_filtered.columns:
+            quantified_arm_swing_filtered = quantified_arm_swing_filtered.copy()
+            quantified_arm_swing_filtered[
+                DataColumns.GAIT_SEGMENT_NR
+            ] += segment_number_offset_filtered
 
-        if gait_segment_meta_filtered and "per_segment" in gait_segment_meta_filtered:
+        if (
+            gait_segment_meta_filtered
+            and "per_segment" in gait_segment_meta_filtered
+            and gait_segment_meta_filtered["per_segment"]
+        ):
             updated_per_segment_meta = {}
             for seg_id, meta in gait_segment_meta_filtered["per_segment"].items():
                 updated_per_segment_meta[seg_id + segment_number_offset_filtered] = meta
