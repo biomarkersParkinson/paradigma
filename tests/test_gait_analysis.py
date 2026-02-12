@@ -5,10 +5,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
+import paradigma.pipelines.gait_pipeline as gait_pipeline
 from paradigma.config import GaitConfig, IMUConfig
 from paradigma.constants import DataColumns
 from paradigma.orchestrator import run_paradigma
-from paradigma.pipelines.gait_pipeline import run_gait_pipeline
 
 try:
     from test_notebooks import compare_data
@@ -91,7 +91,7 @@ def test_gait_pipeline_basic():
     df_test = create_test_gait_data()
 
     with tempfile.TemporaryDirectory() as temp_dir:
-        result = run_gait_pipeline(
+        result = gait_pipeline.run_gait_pipeline(
             df_prepared=df_test,
             watch_side="right",
             output_dir=temp_dir,
@@ -206,8 +206,6 @@ def test_multi_file_unfiltered_only_offsets(monkeypatch):
             },
         }
 
-    import paradigma.pipelines.gait_pipeline as gait_pipeline
-
     monkeypatch.setattr(gait_pipeline.ClassifierPackage, "load", fake_load)
     monkeypatch.setattr(gait_pipeline, "detect_gait", fake_detect_gait)
     monkeypatch.setattr(gait_pipeline, "filter_gait", fake_filter_gait)
@@ -221,7 +219,7 @@ def test_multi_file_unfiltered_only_offsets(monkeypatch):
     with tempfile.TemporaryDirectory() as temp_dir:
         per_file_counts = []
         for df in dfs.values():
-            _, meta = run_gait_pipeline(
+            _, meta = gait_pipeline.run_gait_pipeline(
                 df_prepared=df,
                 watch_side="right",
                 output_dir=temp_dir,
