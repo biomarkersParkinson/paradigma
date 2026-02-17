@@ -40,7 +40,7 @@ class IMUConfig(BaseConfig):
 
     def __init__(self, column_mapping: dict[str, str] | None = None) -> None:
         super().__init__()
-        self.set_filenames("IMU")
+        self.set_filenames("imu")
 
         self.acceleration_units = DataUnits.ACCELERATION
         self.rotation_units = DataUnits.ROTATION
@@ -106,7 +106,7 @@ class PPGConfig(BaseConfig):
     def __init__(self, column_mapping: dict[str, str] | None = None) -> None:
         super().__init__()
 
-        self.set_filenames("PPG")
+        self.set_filenames("ppg")
 
         # Generate a default mapping or override with user-provided mapping
         default_mapping = asdict(DataColumns())
