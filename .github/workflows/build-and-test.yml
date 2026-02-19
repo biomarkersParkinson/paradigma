@@ -21,13 +21,10 @@ jobs:
       version: ${{ steps.get_version.outputs.version }}
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Git LFS Pull
+      - name: Checkout code and LFS files
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           lfs: true
 
       - name: Set up Python ${{ matrix.python-version }}
