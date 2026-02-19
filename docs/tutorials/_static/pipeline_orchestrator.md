@@ -95,13 +95,13 @@ dfs_ppg[list(dfs_ppg.keys())[0]].head()
     INFO: Found 2 data files in ..\..\example_data\verily\ppg
 
 
-    INFO: Loading TSDF data from ..\..\example_data\verily\ppg with prefix 'PPG_segment0001'
+    INFO: Loading TSDF data from ..\..\example_data\verily\ppg with prefix 'ppg_segment0001'
 
 
     INFO: Loaded TSDF data: 1029375 rows, 2 columns
 
 
-    INFO: Loading TSDF data from ..\..\example_data\verily\ppg with prefix 'PPG_segment0002'
+    INFO: Loading TSDF data from ..\..\example_data\verily\ppg with prefix 'ppg_segment0002'
 
 
     INFO: Loaded TSDF data: 2214450 rows, 2 columns
@@ -111,10 +111,10 @@ dfs_ppg[list(dfs_ppg.keys())[0]].head()
 
 
     Loaded 2 PPG files:
-      - PPG_segment0001: 1029375 samples, 2 columns
-      - PPG_segment0002: 2214450 samples, 2 columns
+      - ppg_segment0001: 1029375 samples, 2 columns
+      - ppg_segment0002: 2214450 samples, 2 columns
 
-    First 5 rows of PPG_segment0001:
+    First 5 rows of ppg_segment0001:
 
 
 
@@ -276,31 +276,31 @@ results_single_pipeline['quantifications'][pipeline].head()
       <th>0</th>
       <td>47.0</td>
       <td>80.372915</td>
-      <td>PPG_segment0001</td>
+      <td>ppg_segment0001</td>
     </tr>
     <tr>
       <th>1</th>
       <td>49.0</td>
       <td>79.769382</td>
-      <td>PPG_segment0001</td>
+      <td>ppg_segment0001</td>
     </tr>
     <tr>
       <th>2</th>
       <td>51.0</td>
       <td>79.136408</td>
-      <td>PPG_segment0001</td>
+      <td>ppg_segment0001</td>
     </tr>
     <tr>
       <th>3</th>
       <td>53.0</td>
       <td>78.606477</td>
-      <td>PPG_segment0001</td>
+      <td>ppg_segment0001</td>
     </tr>
     <tr>
       <th>4</th>
       <td>55.0</td>
       <td>77.870461</td>
-      <td>PPG_segment0001</td>
+      <td>ppg_segment0001</td>
     </tr>
   </tbody>
 </table>
@@ -397,10 +397,10 @@ dfs_imu[list(dfs_imu.keys())[0]].head()
 ```
 
     Loaded 2 IMU files:
-      - IMU_segment0001: 3455331 samples, 7 columns
-      - IMU_segment0002: 7434685 samples, 7 columns
+      - imu_segment0001: 3455331 samples, 7 columns
+      - imu_segment0002: 7434685 samples, 7 columns
 
-    First 5 rows of IMU_segment0001:
+    First 5 rows of imu_segment0001:
 
 
 
@@ -558,7 +558,7 @@ print(f"   Metadata: {tremor_meta}")
 
     Filtered arm swing quantification (5299 swings):
        Columns: ['gait_segment_nr', 'range_of_motion', 'peak_velocity', 'file_key']... (4 total)
-       Files: ['IMU_segment0001' 'IMU_segment0002']
+       Files: ['imu_segment0001' 'imu_segment0002']
 
     Unfiltered arm swing quantification (11950 'swings'):
 
@@ -568,7 +568,7 @@ print(f"   Metadata: {tremor_meta}")
 
     Tremor quantification (27056 windows):
        Columns: ['time', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power', 'file_key']... (5 total)
-       Files: ['IMU_segment0001' 'IMU_segment0002']
+       Files: ['imu_segment0001' 'imu_segment0002']
 
     Tremor aggregation (4 time ranges):
        Aggregates: ['perc_windows_tremor', 'median_tremor_power', 'modal_tremor_power', '90p_tremor_power']

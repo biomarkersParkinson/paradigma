@@ -14,7 +14,7 @@
     "rows": 19338,
     "sensors": [
         {
-            "file_name": "PPG_time.bin",
+            "file_name": "ppg_time.bin",
             "channels": [
                 "time"
             ],
@@ -23,7 +23,7 @@
             ]
         },
         {
-            "file_name": "PPG_values.bin",
+            "file_name": "ppg_values.bin",
             "channels": [
                 "green"
             ],

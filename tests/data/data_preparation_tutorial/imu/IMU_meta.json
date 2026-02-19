@@ -14,7 +14,7 @@
             "scale_factors": [
                 1
             ],
-            "file_name": "IMU_time.bin",
+            "file_name": "imu_time.bin",
             "channels": [
                 "time"
             ],
@@ -24,7 +24,7 @@
             "bits": 32
         },
         {
-            "file_name": "IMU_values.bin",
+            "file_name": "imu_values.bin",
             "channels": [
                 "accelerometer_x",
                 "accelerometer_y",

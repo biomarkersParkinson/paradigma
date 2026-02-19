@@ -65,7 +65,7 @@ raw_data_segment_nr  = '0001'
 # Load the data from the file
 df_imu, metadata_time, metadata_values = load_tsdf_dataframe(
     path_to_data=path_to_prepared_data,
-    prefix=f'IMU_segment{raw_data_segment_nr}'
+    prefix=f'imu_segment{raw_data_segment_nr}'
 )
 
 df_imu
@@ -1300,7 +1300,7 @@ for raw_data_segment_nr in raw_data_segments:
     # Load the data
     df_imu, _, _ = load_tsdf_dataframe(
         path_to_prepared_data,
-        prefix=f'IMU_segment{raw_data_segment_nr}'
+        prefix=f'imu_segment{raw_data_segment_nr}'
     )
 
     # 1: Preprocess the data

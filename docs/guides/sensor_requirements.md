@@ -95,7 +95,7 @@ For reliable weekly measures:
 
 #### Important Notes
 
-> **Device-Specific Adaptation**: The PPG processing pipeline is currently validated with the blood volume pulse (BVP) signal from the Verily Study Watch. To use PPG data from other devices, see the [Pulse Rate Analysis Tutorial](../tutorials/_static/pulse_rate_analysis.html#step-3-signal-quality-classification) for signal adaptation guidance.
+> **Device-Specific Adaptation**: The PPG processing pipeline is currently validated with the blood volume pulse (BVP) signal from the Verily Study Watch. To use PPG data from other devices, see the [Pulse Rate Analysis Tutorial](https://biomarkersparkinson.github.io/paradigma/tutorials/_static/pulse_rate_analysis.html#step-3-signal-quality-classification) for signal adaptation guidance.
 
 > **Cannot Combine with Other Pipelines**: The pulse rate pipeline requires different sensor data (PPG) than gait/tremor (IMU) and must be run separately.
 
@@ -130,6 +130,6 @@ results = run_paradigma(
 ## Important Notes on Validation
 
 > [!NOTE]
-> The specifications above represent **minimally validated requirements**. For example, while ParaDigMa works with accelerometer and gyroscope data sampled at 50 Hz, the effect on processing accuracy has not been empirically validated. **Higher sampling rates and sensor ranges generally improve accuracy.**
+> The specifications above represent **minimally validated requirements**. For example, while ParaDigMa works with accelerometer and gyroscope data sampled at 50 Hz, the effect on processing accuracy has not been empirically validated.
 
 ---

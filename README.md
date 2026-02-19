@@ -122,11 +122,10 @@ ParaDigMa can best be understood by categorizing the sequential processes:
 
 - **[Tutorials](https://biomarkersparkinson.github.io/paradigma/tutorials/index.html)** - Step-by-step usage examples
 - **[Installation Guide](https://biomarkersparkinson.github.io/paradigma/guides/installation.html)** - Setup and troubleshooting
-- **[Sensor Requirements](https://biomarkersparkinson.github.io/paradigma/guides/sensor_requirements.html)** - Data specifications and compliance
+- **[Sensor Data Requirements](https://biomarkersparkinson.github.io/paradigma/guides/sensor_requirements.html)** - Data specifications and compliance
 - **[Supported Devices](https://biomarkersparkinson.github.io/paradigma/guides/supported_devices.html)** - Validated hardware
 - **[Input Formats Guide](https://biomarkersparkinson.github.io/paradigma/guides/input_formats.html)** - Input format options and data loading
 - **[Configuration Guide](https://biomarkersparkinson.github.io/paradigma/guides/config.html)** - Pipeline configuration
-- **[Scientific Validation](https://biomarkersparkinson.github.io/paradigma/guides/validation.html)** - Validation studies and publications
 - **[API Reference](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/index.html)** - Complete API documentation
 
 ### Sensor Requirements & Supported Devices
@@ -155,15 +154,19 @@ For other issues, check our [issue tracker](https://github.com/biomarkersParkins
 
 ## Scientific Validation
 
-ParaDigMa pipelines are validated in peer-reviewed publications:
+The following publications contain details and validation of the pipelines:
 
-| Pipeline | Publication |
-|----------|-------------|
-| **Arm swing during gait** | Post et al. (2025, 2026) |
-| **Tremor** | Timmermans et al. (2025a, 2025b) |
-| **Pulse rate** | Veldkamp et al. (2025) |
+**Arm swing during gait**
+* [Post, E. et al. (2025) - Quantifying arm swing in Parkinson's disease: a method account for arm activities during free-living gait](https://doi.org/10.1186/s12984-025-01578-z)
+* [Post, E. et al. (2026) - (Pre-print) Longitudinal progression of digital arm swing measures during free-living gait in early Parkinson's disease](https://doi.org/10.64898/2026.01.06.26343500)
 
-See the [validation guide](https://biomarkersparkinson.github.io/paradigma/guides/validation.html) for full publication details.
+**Tremor**
+* [Timmermans, N.A. et al. (2025) - A generalizable and open-source algorithm for real-life monitoring of tremor in Parkinson's disease](https://doi.org/10.1038/s41531-025-01056-2)
+* [Timmermans, N.A. et al. (2025) - (Pre-print) Progression of daily-life tremor measures in early Parkinson disease: a longitudinal continuous monitoring study](https://www.medrxiv.org/content/10.64898/2025.12.23.25342892v1)
+
+**Pulse rate**
+* [Veldkamp, K.I. et al. (2025) - Heart rate monitoring using wrist photoplethysmography in Parkinson disease: feasibility and relation with autonomic dysfunction](https://doi.org/10.1101/2025.08.15.25333751)
+
 
 ## Contributing
 

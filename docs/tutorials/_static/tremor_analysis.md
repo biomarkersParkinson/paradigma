@@ -55,7 +55,7 @@ segment_nr  = '0001'
 
 df_data, metadata_time, metadata_values = load_tsdf_dataframe(
     path_to_prepared_data,
-    prefix=f'IMU_segment{segment_nr}'
+    prefix=f'imu_segment{segment_nr}'
 )
 
 df_data
@@ -1034,7 +1034,7 @@ for segment_nr in segments:
     # Load the data
     df_data, metadata_time, _ = load_tsdf_dataframe(
         path_to_prepared_data,
-        prefix='IMU_segment'+segment_nr
+        prefix='imu_segment'+segment_nr
     )
 
     # 1: Preprocess the data

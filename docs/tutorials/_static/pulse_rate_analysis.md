@@ -58,13 +58,13 @@ segment_nr = '0001'
 
 df_ppg, metadata_time_ppg, metadata_values_ppg = load_tsdf_dataframe(
     path_to_data=path_to_prepared_data / ppg_prefix,
-    prefix=f'PPG_segment{segment_nr}'
+    prefix=f'ppg_segment{segment_nr}'
 )
 
 # Only relevant if you have IMU data available
 df_imu, metadata_time_imu, metadata_values_imu = load_tsdf_dataframe(
     path_to_data=path_to_prepared_data / imu_prefix,
-    prefix=f'IMU_segment{segment_nr}'
+    prefix=f'imu_segment{segment_nr}'
 )
 
 time_col = ['time']
@@ -1068,11 +1068,11 @@ for segment_nr in segments:
     # Load the data
     df_ppg, metadata_time_ppg, _ = load_tsdf_dataframe(
         path_to_data=path_to_prepared_data / ppg_prefix,
-        prefix=f'PPG_segment{segment_nr}'
+        prefix=f'ppg_segment{segment_nr}'
     )
     df_imu, metadata_time_imu, _ = load_tsdf_dataframe(
         path_to_data=path_to_prepared_data / imu_prefix,
-        prefix=f'IMU_segment{segment_nr}'
+        prefix=f'imu_segment{segment_nr}'
     )
 
     # Drop the gyroscope columns from the IMU data
