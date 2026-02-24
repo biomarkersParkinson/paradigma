@@ -386,7 +386,6 @@ def prepare_raw_data(
         auto_segment=auto_segment,
         max_segment_gap_s=max_segment_gap_s,
         min_segment_length_s=min_segment_length_s,
-        verbose=1 if logger.level <= logging.INFO else 0,
     )
 
     # Step 6: Validate prepared data

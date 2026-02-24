@@ -58,13 +58,13 @@ segment_nr = '0001'
 
 df_ppg, metadata_time_ppg, metadata_values_ppg = load_tsdf_dataframe(
     path_to_data=path_to_prepared_data / ppg_prefix,
-    prefix=f'PPG_segment{segment_nr}'
+    prefix=f'ppg_segment{segment_nr}'
 )
 
 # Only relevant if you have IMU data available
 df_imu, metadata_time_imu, metadata_values_imu = load_tsdf_dataframe(
     path_to_data=path_to_prepared_data / imu_prefix,
-    prefix=f'IMU_segment{segment_nr}'
+    prefix=f'imu_segment{segment_nr}'
 )
 
 time_col = ['time']
@@ -297,10 +297,12 @@ display(df_ppg_proc, df_acc_proc)
     - Accelerometer data: (3455331, 7)
 
 
-    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+    INFO: Resampled: 3455331 -> 3433961 rows at 100.0 Hz
 
 
-    Resampled: 1029374 -> 1030188 rows at 30.0 Hz
+    INFO: Resampled: 1029374 -> 1030188 rows at 30.0 Hz
+
+
     Overlapping preprocessed data shapes:
     - PPG data: (1030188, 2)
     - Accelerometer data: (3433961, 4)
@@ -1061,18 +1063,18 @@ full_path_to_classifier_package = (
 # Create a list of dataframes to store the estimated pulse rates of all segments
 list_df_pr = []
 
-segments = ['0001', '0002'] # list with all available segments
+segments = ['0001'] # list with all available segments
 
 for segment_nr in segments:
 
     # Load the data
     df_ppg, metadata_time_ppg, _ = load_tsdf_dataframe(
         path_to_data=path_to_prepared_data / ppg_prefix,
-        prefix=f'PPG_segment{segment_nr}'
+        prefix=f'ppg_segment{segment_nr}'
     )
     df_imu, metadata_time_imu, _ = load_tsdf_dataframe(
         path_to_data=path_to_prepared_data / imu_prefix,
-        prefix=f'IMU_segment{segment_nr}'
+        prefix=f'imu_segment{segment_nr}'
     )
 
     # Drop the gyroscope columns from the IMU data
@@ -1132,16 +1134,10 @@ for segment_nr in segments:
 df_pr = pd.concat(list_df_pr, ignore_index=True)
 ```
 
-    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+    INFO: Resampled: 3455331 -> 3433961 rows at 100.0 Hz
 
 
-    Resampled: 1029374 -> 1030188 rows at 30.0 Hz
-
-
-    Resampled: 7434685 -> 7388945 rows at 100.0 Hz
-
-
-    Resampled: 2214444 -> 2216683 rows at 30.0 Hz
+    INFO: Resampled: 1029374 -> 1030188 rows at 30.0 Hz
 
 
 ## Step 5: Pulse rate aggregation
@@ -1161,10 +1157,10 @@ print(json.dumps(df_pr_agg, indent=2))
 
     {
       "metadata": {
-        "nr_pr_est": 8660
+        "nr_pr_est": 806
       },
       "pr_aggregates": {
-        "mode_pulse_rate": 63.59175662414131,
-        "99p_pulse_rate": 85.77263444520081
+        "mode_pulse_rate": 81.25613346418058,
+        "99p_pulse_rate": 87.65865011636926
       }
     }

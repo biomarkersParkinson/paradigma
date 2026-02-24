@@ -496,7 +496,6 @@ def run_tremor_pipeline(
         imu_config,
         sensor="gyroscope",
         watch_side="left",  # Watch side is unimportant for tremor detection
-        verbose=1 if logging_level <= logging.INFO else 0,
     )
 
     if "preprocessing" in store_intermediate:

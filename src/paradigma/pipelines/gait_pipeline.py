@@ -40,6 +40,17 @@ if not logger.hasHandlers():
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
+def _empty_arm_swing_df(df: pd.DataFrame) -> pd.DataFrame:
+    expected_columns = [
+        DataColumns.GAIT_SEGMENT_NR,
+        DataColumns.RANGE_OF_MOTION,
+        DataColumns.PEAK_VELOCITY,
+    ]
+    if DataColumns.DATA_SEGMENT_NR in df.columns:
+        expected_columns.append(DataColumns.DATA_SEGMENT_NR)
+    return pd.DataFrame(columns=expected_columns)
+
+
 def extract_gait_features(df: pd.DataFrame, config: GaitConfig) -> pd.DataFrame:
     """
     Extracts gait features from accelerometer and gravity sensor data in the
@@ -392,10 +403,10 @@ def filter_gait(
 def quantify_arm_swing(
     df: pd.DataFrame,
     fs: int,
-    filtered: bool = False,
+    filtered: bool = True,
     max_segment_gap_s: float = 1.5,
     min_segment_length_s: float = 1.5,
-) -> tuple[dict[str, pd.DataFrame], dict]:
+) -> tuple[pd.DataFrame, dict]:
     """
     Quantify arm swing parameters for segments of motion based on gyroscope data.
 
@@ -596,7 +607,11 @@ def quantify_arm_swing(
 
                 arm_swing_quantified.append(df_params_segment)
 
-    arm_swing_quantified = pd.concat(arm_swing_quantified, ignore_index=True)
+    if not arm_swing_quantified:
+        # No valid arm swing segments found, return empty DataFrame
+        arm_swing_quantified = _empty_arm_swing_df(df)
+    else:
+        arm_swing_quantified = pd.concat(arm_swing_quantified, ignore_index=True)
 
     return arm_swing_quantified, segment_meta
 
@@ -784,8 +799,8 @@ def extract_spectral_domain_features(
         A 2D numpy array where each row corresponds to a window of sensor data.
 
     config : object
-        Configuration object containing settings such as sampling frequency,
-        window type, frequency bands, and MFCC parameters.
+        Configuration object containing settings such as window type,
+        sampling frequency, frequency bands, and MFCC parameters.
 
     sensor : str
         The name of the sensor (e.g., 'accelerometer', 'gyroscope').
@@ -854,11 +869,12 @@ def run_gait_pipeline(
     imu_config: IMUConfig | None = None,
     gait_config: GaitConfig | None = None,
     arm_activity_config: GaitConfig | None = None,
-    store_intermediate: list[str] = [],
-    segment_number_offset: int = 0,
+    store_intermediate: list[str] | None = None,
+    segment_number_offset_filtered: int = 0,
+    segment_number_offset_unfiltered: int = 0,
     logging_level: int = logging.INFO,
     custom_logger: logging.Logger | None = None,
-) -> tuple[pd.DataFrame, dict]:
+) -> tuple[dict[str, pd.DataFrame], dict[str, dict]]:
     """
     Run the complete gait analysis pipeline on prepared data (steps 1-6).
 
@@ -891,16 +907,21 @@ def run_gait_pipeline(
     arm_activity_config : GaitConfig, optional
         Configuration for arm activity feature extraction and filtering.
         If None, uses default GaitConfig(step="arm_activity").
-    store_intermediate : List[str]
+    store_intermediate : list[str], optional
         Steps of which intermediate results should be stored:
         - 'preprocessing': Store preprocessed data after step 1
         - 'gait': Store gait features and predictions after step 3
         - 'arm_activity': Store arm activity features and predictions after step 5
         - 'quantification': Store arm swing quantification results after step 6
         If empty, only returns the final quantified results.
-    segment_number_offset : int, optional, default=0
-        Offset to add to all segment numbers to avoid conflicts when concatenating
-        multiple data segments. Used for proper segment numbering across multiple files.
+    segment_number_offset_filtered : int, optional, default=0
+        Offset to add to filtered segment numbers to avoid conflicts when
+        concatenating multiple data segments. Used for proper segment numbering
+        across multiple files.
+    segment_number_offset_unfiltered : int, optional, default=0
+        Offset to add to unfiltered segment numbers to avoid conflicts when
+        concatenating multiple data segments. Used for proper segment numbering
+        across multiple files.
     logging_level : int, default logging.INFO
         Logging level using standard logging constants (logging.DEBUG, logging.INFO,
         etc.)
@@ -909,14 +930,19 @@ def run_gait_pipeline(
 
     Returns
     -------
-    tuple[pd.DataFrame, dict]
-        A tuple containing:
-        - pd.DataFrame: Quantified arm swing parameters with the following columns:
+    tuple[dict[str, pd.DataFrame], dict[str, dict]]
+        A tuple containing two dictionaries:
+        - First dict contains quantified arm swing parameters with keys:
+            - 'filtered': DataFrame with arm swings from clean gait only
+            - 'unfiltered': DataFrame with arm swings from all gait
+          Each DataFrame has columns:
             - gait_segment_nr: Gait segment number within this data segment
             - Various arm swing metrics (range of motion, peak angular velocity, etc.)
             - Additional metadata columns
-        - dict: Gait segment metadata containing information about each detected
-        gait segment
+        - Second dict contains gait segment metadata with keys:
+            - 'filtered': Metadata for filtered quantification
+            - 'unfiltered': Metadata for unfiltered quantification
+          Each metadata dict contains information about each detected gait segment
 
     Notes
     -----
@@ -932,6 +958,9 @@ def run_gait_pipeline(
     active_logger = custom_logger if custom_logger is not None else logger
     if custom_logger is None:
         active_logger.setLevel(logging_level)
+
+    if store_intermediate is None:
+        store_intermediate = []
 
     # Set default configurations
     if imu_config is None:
@@ -967,7 +996,6 @@ def run_gait_pipeline(
         config=imu_config,
         sensor="both",
         watch_side=watch_side,
-        verbose=1 if logging_level <= logging.INFO else 0,
     )
 
     if "preprocessing" in store_intermediate:
@@ -1035,7 +1063,14 @@ def run_gait_pipeline(
 
     if len(df_gait_only) == 0:
         active_logger.warning("No gait detected in this segment")
-        return pd.DataFrame(), {}
+        empty_df_filtered = _empty_arm_swing_df(df_prepared)
+        empty_df_unfiltered = _empty_arm_swing_df(df_prepared)
+        empty_meta_filtered = {"all": {"duration_s": 0}, "per_segment": {}}
+        empty_meta_unfiltered = {"all": {"duration_s": 0}, "per_segment": {}}
+        return {"filtered": empty_df_filtered, "unfiltered": empty_df_unfiltered}, {
+            "filtered": empty_meta_filtered,
+            "unfiltered": empty_meta_unfiltered,
+        }
 
     # Step 4: Extract arm activity features
     active_logger.info("Step 4: Extracting arm activity features")
@@ -1071,7 +1106,7 @@ def run_gait_pipeline(
     )
 
     # Merge predictions back with timestamps
-    df_filtered = merge_predictions_with_timestamps(
+    df_arm_activity = merge_predictions_with_timestamps(
         df_ts=df_gait_only,
         df_predictions=df_arm_activity,
         pred_proba_colname=DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA,
@@ -1081,71 +1116,145 @@ def run_gait_pipeline(
 
     # Add binary prediction column
     filt_threshold = classifier_package_arm_activity.threshold
-    df_filtered[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
-        df_filtered[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= filt_threshold
+    df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
+        df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= filt_threshold
     ).astype(int)
 
     if "arm_activity" in store_intermediate:
         arm_activity_dir = output_dir / "arm_activity"
         arm_activity_dir.mkdir(parents=True, exist_ok=True)
-        df_filtered.to_parquet(arm_activity_dir / "filtered_gait.parquet", index=False)
+        df_arm_activity.to_parquet(
+            arm_activity_dir / "filtered_gait.parquet", index=False
+        )
         active_logger.debug(
             f"Saved filtered gait to {arm_activity_dir / 'filtered_gait.parquet'}"
         )
 
+    # Step 6a: Quantify arm swing (unfiltered - all gait)
+    # Always compute unfiltered quantification, even if there's no clean gait
+    active_logger.info("Step 6a: Quantifying arm swing (unfiltered)")
+    try:
+        quantified_arm_swing_unfiltered, gait_segment_meta_unfiltered = (
+            quantify_arm_swing(
+                df=df_arm_activity,
+                fs=arm_activity_config.sampling_frequency,
+                filtered=False,  # Quantify all gait
+                max_segment_gap_s=arm_activity_config.max_segment_gap_s,
+                min_segment_length_s=arm_activity_config.min_segment_length_s,
+            )
+        )
+    except ValueError as exc:
+        active_logger.warning(
+            "Arm swing quantification (unfiltered) failed (%s). "
+            "Returning empty unfiltered arm swing results.",
+            exc,
+        )
+        quantified_arm_swing_unfiltered = _empty_arm_swing_df(df_arm_activity)
+        gait_segment_meta_unfiltered = {
+            "all": {"duration_s": 0},
+            "per_segment": {},
+        }
+
+    # Check if there's clean gait for filtered quantification
     if (
-        len(df_filtered.loc[df_filtered[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] == 1])
+        len(
+            df_arm_activity.loc[
+                df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] == 1
+            ]
+        )
         == 0
     ):
         active_logger.warning("No clean gait data remaining after filtering")
-        return pd.DataFrame(), {}
+        # Set empty filtered results but continue to save/offset logic
+        quantified_arm_swing_filtered = _empty_arm_swing_df(df_arm_activity)
+        gait_segment_meta_filtered = {
+            "all": {"duration_s": 0},
+            "per_segment": {},
+        }
+    else:
+        # Step 6b: Quantify arm swing (filtered - clean gait only)
+        active_logger.info("Step 6b: Quantifying arm swing (filtered)")
+        quantified_arm_swing_filtered, gait_segment_meta_filtered = quantify_arm_swing(
+            df=df_arm_activity,
+            fs=arm_activity_config.sampling_frequency,
+            filtered=True,  # Quantify clean gait only
+            max_segment_gap_s=arm_activity_config.max_segment_gap_s,
+            min_segment_length_s=arm_activity_config.min_segment_length_s,
+        )
 
-    # Step 6: Quantify arm swing
-    active_logger.info("Step 6: Quantifying arm swing")
-    quantified_arm_swing, gait_segment_meta = quantify_arm_swing(
-        df=df_filtered,
-        fs=arm_activity_config.sampling_frequency,
-        filtered=True,
-        max_segment_gap_s=arm_activity_config.max_segment_gap_s,
-        min_segment_length_s=arm_activity_config.min_segment_length_s,
-    )
+    # Apply segment number offsets for multi-file processing
+    if segment_number_offset_unfiltered > 0:
+        if DataColumns.GAIT_SEGMENT_NR in quantified_arm_swing_unfiltered.columns:
+            quantified_arm_swing_unfiltered = quantified_arm_swing_unfiltered.copy()
+            quantified_arm_swing_unfiltered[
+                DataColumns.GAIT_SEGMENT_NR
+            ] += segment_number_offset_unfiltered
+
+        if (
+            gait_segment_meta_unfiltered
+            and "per_segment" in gait_segment_meta_unfiltered
+            and gait_segment_meta_unfiltered["per_segment"]
+        ):
+            updated_per_segment_meta = {}
+            for seg_id, meta in gait_segment_meta_unfiltered["per_segment"].items():
+                new_seg_id = seg_id + segment_number_offset_unfiltered
+                updated_per_segment_meta[new_seg_id] = meta
+            gait_segment_meta_unfiltered["per_segment"] = updated_per_segment_meta
+
+    if segment_number_offset_filtered > 0:
+        if DataColumns.GAIT_SEGMENT_NR in quantified_arm_swing_filtered.columns:
+            quantified_arm_swing_filtered = quantified_arm_swing_filtered.copy()
+            quantified_arm_swing_filtered[
+                DataColumns.GAIT_SEGMENT_NR
+            ] += segment_number_offset_filtered
+
+        if (
+            gait_segment_meta_filtered
+            and "per_segment" in gait_segment_meta_filtered
+            and gait_segment_meta_filtered["per_segment"]
+        ):
+            updated_per_segment_meta = {}
+            for seg_id, meta in gait_segment_meta_filtered["per_segment"].items():
+                updated_per_segment_meta[seg_id + segment_number_offset_filtered] = meta
+            gait_segment_meta_filtered["per_segment"] = updated_per_segment_meta
 
     if "quantification" in store_intermediate:
         quantification_dir = output_dir / "quantification"
         quantification_dir.mkdir(parents=True, exist_ok=True)
-        quantified_arm_swing.to_parquet(
-            quantification_dir / "arm_swing_quantified.parquet", index=False
-        )
 
-        # Save gait segment metadata as JSON
-        with open(quantification_dir / "gait_segment_meta.json", "w") as f:
-            json.dump(gait_segment_meta, f, indent=2)
+        # Save unfiltered quantification
+        quantified_arm_swing_unfiltered.to_parquet(
+            quantification_dir / "arm_swing_quantified_unfiltered.parquet", index=False
+        )
+        with open(quantification_dir / "gait_segment_meta_unfiltered.json", "w") as f:
+            json.dump(gait_segment_meta_unfiltered, f, indent=2)
+
+        # Save filtered quantification
+        quantified_arm_swing_filtered.to_parquet(
+            quantification_dir / "arm_swing_quantified_filtered.parquet", index=False
+        )
+        with open(quantification_dir / "gait_segment_meta_filtered.json", "w") as f:
+            json.dump(gait_segment_meta_filtered, f, indent=2)
 
         active_logger.debug(
-            f"Saved arm swing quantification to "
-            f"{quantification_dir / 'arm_swing_quantified.parquet'}"
+            f"Saved unfiltered quantification to "
+            f"{quantification_dir / 'arm_swing_quantified_unfiltered.parquet'}"
         )
         active_logger.debug(
-            f"Saved gait segment metadata to "
-            f"{quantification_dir / 'gait_segment_meta.json'}"
+            f"Saved filtered quantification to "
+            f"{quantification_dir / 'arm_swing_quantified_filtered.parquet'}"
         )
 
     active_logger.info(
         f"Gait analysis pipeline completed. Found "
-        f"{len(quantified_arm_swing)} windows of gait "
-        f"without other arm activities."
+        f"{len(quantified_arm_swing_unfiltered)} unfiltered arm swings and "
+        f"{len(quantified_arm_swing_filtered)} filtered arm swings."
     )
 
-    # Apply segment number offset if specified (for multi-segment concatenation)
-    if segment_number_offset > 0 and len(quantified_arm_swing) > 0:
-        quantified_arm_swing = quantified_arm_swing.copy()
-        quantified_arm_swing["gait_segment_nr"] += segment_number_offset
-
-        # Also update the metadata with the new segment numbers
-        if gait_segment_meta and "per_segment" in gait_segment_meta:
-            updated_per_segment_meta = {}
-            for seg_id, meta in gait_segment_meta["per_segment"].items():
-                updated_per_segment_meta[seg_id + segment_number_offset] = meta
-            gait_segment_meta["per_segment"] = updated_per_segment_meta
-
-    return quantified_arm_swing, gait_segment_meta
+    return {
+        "filtered": quantified_arm_swing_filtered,
+        "unfiltered": quantified_arm_swing_unfiltered,
+    }, {
+        "filtered": gait_segment_meta_filtered,
+        "unfiltered": gait_segment_meta_unfiltered,
+    }

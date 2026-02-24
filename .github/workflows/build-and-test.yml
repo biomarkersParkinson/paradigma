@@ -68,11 +68,11 @@ jobs:
 
       # Build and archive documentation
       - name: Build documentation
-        run: poetry run make html --directory docs
+        run: poetry run build-docs --dev
 
       - name: Archive documentation
         uses: actions/upload-artifact@v4
         if: github.ref == 'refs/heads/release'
         with:
           name: docs-html
-          path: docs/build/html/
+          path: docs/_build/html/

@@ -6,16 +6,13 @@
     "metadata_version": "0.1",
     "start_iso8601": "2021-06-27T16:52:20Z",
     "end_iso8601": "2021-06-27T17:03:05Z",
-    "scale_factors": [
-        1
-    ],
     "rows": 19338,
     "endianness": "little",
-    "data_type": "float",
     "bits": 64,
+    "data_type": "float",
     "sensors": [
         {
-            "file_name": "PPG_time.bin",
+            "file_name": "ppg_time.bin",
             "channels": [
                 "time"
             ],
@@ -24,7 +21,7 @@
             ]
         },
         {
-            "file_name": "PPG_values.bin",
+            "file_name": "ppg_values.bin",
             "channels": [
                 "green"
             ],
