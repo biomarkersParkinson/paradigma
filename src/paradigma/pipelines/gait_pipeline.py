@@ -403,7 +403,7 @@ def filter_gait(
 def quantify_arm_swing(
     df: pd.DataFrame,
     fs: int | None = None,
-    filtered: bool = False,
+    filtered: bool = True,
     max_segment_gap_s: float = 1.5,
     min_segment_length_s: float = 1.5,
 ) -> tuple[pd.DataFrame, dict]:
@@ -420,7 +420,7 @@ def quantify_arm_swing(
     fs : int
         The sampling frequency of the sensor data.
 
-    filtered : bool, optional, default=False
+    filtered : bool, optional, default=True
         If `True`, the gyroscope data is filtered to only include predicted
         no other arm activity.
 
@@ -1107,7 +1107,7 @@ def run_gait_pipeline(
     )
 
     # Merge predictions back with timestamps
-    df_filtered = merge_predictions_with_timestamps(
+    df_arm_activity = merge_predictions_with_timestamps(
         df_ts=df_gait_only,
         df_predictions=df_arm_activity,
         pred_proba_colname=DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA,
@@ -1116,14 +1116,16 @@ def run_gait_pipeline(
 
     # Add binary prediction column
     filt_threshold = classifier_package_arm_activity.threshold
-    df_filtered[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
-        df_filtered[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= filt_threshold
+    df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
+        df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= filt_threshold
     ).astype(int)
 
     if "arm_activity" in store_intermediate:
         arm_activity_dir = output_dir / "arm_activity"
         arm_activity_dir.mkdir(parents=True, exist_ok=True)
-        df_filtered.to_parquet(arm_activity_dir / "filtered_gait.parquet", index=False)
+        df_arm_activity.to_parquet(
+            arm_activity_dir / "filtered_gait.parquet", index=False
+        )
         active_logger.debug(
             f"Saved filtered gait to {arm_activity_dir / 'filtered_gait.parquet'}"
         )
@@ -1134,7 +1136,7 @@ def run_gait_pipeline(
     try:
         quantified_arm_swing_unfiltered, gait_segment_meta_unfiltered = (
             quantify_arm_swing(
-                df=df_filtered,
+                df=df_arm_activity,
                 filtered=False,  # Quantify all gait
                 max_segment_gap_s=arm_activity_config.max_segment_gap_s,
                 min_segment_length_s=arm_activity_config.min_segment_length_s,
@@ -1146,7 +1148,7 @@ def run_gait_pipeline(
             "Returning empty unfiltered arm swing results.",
             exc,
         )
-        quantified_arm_swing_unfiltered = _empty_arm_swing_df(df_filtered)
+        quantified_arm_swing_unfiltered = _empty_arm_swing_df(df_arm_activity)
         gait_segment_meta_unfiltered = {
             "all": {"duration_s": 0},
             "per_segment": {},
@@ -1154,12 +1156,16 @@ def run_gait_pipeline(
 
     # Check if there's clean gait for filtered quantification
     if (
-        len(df_filtered.loc[df_filtered[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] == 1])
+        len(
+            df_arm_activity.loc[
+                df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] == 1
+            ]
+        )
         == 0
     ):
         active_logger.warning("No clean gait data remaining after filtering")
         # Set empty filtered results but continue to save/offset logic
-        quantified_arm_swing_filtered = _empty_arm_swing_df(df_filtered)
+        quantified_arm_swing_filtered = _empty_arm_swing_df(df_arm_activity)
         gait_segment_meta_filtered = {
             "all": {"duration_s": 0},
             "per_segment": {},
@@ -1168,7 +1174,7 @@ def run_gait_pipeline(
         # Step 6b: Quantify arm swing (filtered - clean gait only)
         active_logger.info("Step 6b: Quantifying arm swing (filtered)")
         quantified_arm_swing_filtered, gait_segment_meta_filtered = quantify_arm_swing(
-            df=df_filtered,
+            df=df_arm_activity,
             filtered=True,  # Quantify clean gait only
             max_segment_gap_s=arm_activity_config.max_segment_gap_s,
             min_segment_length_s=arm_activity_config.min_segment_length_s,
