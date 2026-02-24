@@ -297,10 +297,12 @@ display(df_ppg_proc, df_acc_proc)
     - Accelerometer data: (3455331, 7)
 
 
-    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+    INFO: Resampled: 3455331 -> 3433961 rows at 100.0 Hz
 
 
-    Resampled: 1029374 -> 1030188 rows at 30.0 Hz
+    INFO: Resampled: 1029374 -> 1030188 rows at 30.0 Hz
+
+
     Overlapping preprocessed data shapes:
     - PPG data: (1030188, 2)
     - Accelerometer data: (3433961, 4)
@@ -1132,10 +1134,10 @@ for segment_nr in segments:
 df_pr = pd.concat(list_df_pr, ignore_index=True)
 ```
 
-    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+    INFO: Resampled: 3455331 -> 3433961 rows at 100.0 Hz
 
 
-    Resampled: 1029374 -> 1030188 rows at 30.0 Hz
+    INFO: Resampled: 1029374 -> 1030188 rows at 30.0 Hz
 
 
 ## Step 5: Pulse rate aggregation

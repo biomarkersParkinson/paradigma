@@ -231,7 +231,7 @@ df_preprocessed_data
     The tolerance for checking contiguous timestamps is set to 0.030 seconds.
 
 
-    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+    INFO: Resampled: 3455331 -> 3433961 rows at 100.0 Hz
 
 
 
@@ -1074,10 +1074,10 @@ for segment_nr in segments:
         pd.to_timedelta(df_quantification[config.time_colname], unit="s")
 ```
 
-    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+    INFO: Resampled: 3455331 -> 3433961 rows at 100.0 Hz
 
 
-    Resampled: 7434685 -> 7388945 rows at 100.0 Hz
+    INFO: Resampled: 7434685 -> 7388945 rows at 100.0 Hz
 
 
 ## Step 5: Compute aggregated tremor measures

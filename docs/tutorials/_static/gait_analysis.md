@@ -235,7 +235,7 @@ print(
 df_preprocessed.head()
 ```
 
-    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+    INFO: Resampled: 3455331 -> 3433961 rows at 100.0 Hz
 
 
     The dataset of 34339.61 seconds is automatically resampled to 100 Hz.
@@ -1412,7 +1412,7 @@ for raw_data_segment_nr in raw_data_segments:
 quantified_arm_swing = pd.concat(list_quantified_arm_swing, ignore_index=True)
 ```
 
-    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+    INFO: Resampled: 3455331 -> 3433961 rows at 100.0 Hz
 
 
 ## Step 7: Aggregation

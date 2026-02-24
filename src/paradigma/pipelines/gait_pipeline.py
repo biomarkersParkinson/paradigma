@@ -282,8 +282,8 @@ def extract_arm_activity_features(
         df=df,
         segment_nr_colname=DataColumns.GAIT_SEGMENT_NR,
         min_segment_length_s=config.min_segment_length_s,
-        format="timestamps",
         fs=config.sampling_frequency,
+        format="timestamps",
     )
 
     # Create windows of fixed length and step size from the time series per segment
@@ -1039,6 +1039,7 @@ def run_gait_pipeline(
         df_predictions=df_gait,
         pred_proba_colname=DataColumns.PRED_GAIT_PROBA,
         window_length_s=gait_config.window_length_s,
+        fs=gait_config.sampling_frequency,
     )
 
     # Add binary prediction column
@@ -1110,6 +1111,7 @@ def run_gait_pipeline(
         df_predictions=df_arm_activity,
         pred_proba_colname=DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA,
         window_length_s=arm_activity_config.window_length_s,
+        fs=arm_activity_config.sampling_frequency,
     )
 
     # Add binary prediction column

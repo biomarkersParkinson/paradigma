@@ -254,20 +254,8 @@ print(results_single_pipeline['aggregations'][pipeline])
 results_single_pipeline['quantifications'][pipeline].head()
 ```
 
-    ERROR: Preprocessing failed: preprocess_ppg_data() got an unexpected keyword argument 'verbose'
-
-
-    ERROR: Preprocessing failed: preprocess_ppg_data() got an unexpected keyword argument 'verbose'
-
-
-    WARNING: No quantified pulse_rate results found
-
-
-    WARNING: No pulse_rate quantifications to aggregate
-
-
-    {}
-    {}
+    {'nr_pr_est': 8684}
+    {'mode_pulse_rate': np.float64(63.59175662414131), '99p_pulse_rate': np.float64(85.77263444520081)}
 
 
 
@@ -278,9 +266,42 @@ results_single_pipeline['quantifications'][pipeline].head()
   <thead>
     <tr style="text-align: right;">
       <th></th>
+      <th>time</th>
+      <th>pulse_rate</th>
+      <th>file_key</th>
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <th>0</th>
+      <td>47.0</td>
+      <td>80.372915</td>
+      <td>ppg_segment0001</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>49.0</td>
+      <td>79.769382</td>
+      <td>ppg_segment0001</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>51.0</td>
+      <td>79.136408</td>
+      <td>ppg_segment0001</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>53.0</td>
+      <td>78.606477</td>
+      <td>ppg_segment0001</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>55.0</td>
+      <td>77.870461</td>
+      <td>ppg_segment0001</td>
+    </tr>
   </tbody>
 </table>
 </div>
@@ -473,30 +494,6 @@ results_multi_pipeline = run_paradigma(
 )
 ```
 
-    ERROR: Failed to run gait pipeline on imu_segment0001: extract_spectral_domain_features() missing 1 required positional argument: 'fs'
-
-
-    ERROR: Failed to run tremor pipeline on imu_segment0001: preprocess_imu_data() got an unexpected keyword argument 'verbose'
-
-
-    ERROR: Failed to run gait pipeline on imu_segment0002: extract_spectral_domain_features() missing 1 required positional argument: 'fs'
-
-
-    ERROR: Failed to run tremor pipeline on imu_segment0002: preprocess_imu_data() got an unexpected keyword argument 'verbose'
-
-
-    WARNING: No quantified tremor results found
-
-
-    WARNING: No gait quantifications to aggregate
-
-
-    WARNING: No tremor quantifications to aggregate
-
-
-    WARNING: ParaDigMa analysis completed with 4 error(s)
-
-
 
 ```python
 # Explore the results structure
@@ -559,20 +556,23 @@ print(f"   Metadata: {tremor_meta}")
 
     Detailed Results Analysis:
 
-    Filtered arm swing quantification (0 swings):
-       Columns: ['gait_segment_nr', 'range_of_motion', 'peak_velocity']... (3 total)
+    Filtered arm swing quantification (5299 swings):
+       Columns: ['gait_segment_nr', 'range_of_motion', 'peak_velocity', 'file_key']... (4 total)
+       Files: ['imu_segment0001' 'imu_segment0002']
 
-    Unfiltered arm swing quantification (0 'swings'):
+    Unfiltered arm swing quantification (11950 'swings'):
 
     Filtered gait aggregation:
-       Gait segment categories: []
+       Gait segment categories: ['0_20', '20_inf']
+       Aggregates for 0-20s segments: ['duration_s', 'median_range_of_motion', '95p_range_of_motion', 'median_cov_range_of_motion', 'mean_cov_range_of_motion', 'median_peak_velocity', '95p_peak_velocity', 'median_cov_peak_velocity', 'mean_cov_peak_velocity']
 
-    Tremor quantification (0 windows):
-       Columns: []... (0 total)
+    Tremor quantification (27056 windows):
+       Columns: ['time', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power', 'file_key']... (5 total)
+       Files: ['imu_segment0001' 'imu_segment0002']
 
-    Tremor aggregation (0 time ranges):
-       Aggregates: []
-       Metadata: {}
+    Tremor aggregation (4 time ranges):
+       Aggregates: ['perc_windows_tremor', 'median_tremor_power', 'modal_tremor_power', '90p_tremor_power']
+       Metadata: {'nr_valid_days': 1, 'nr_windows_total': 27056, 'nr_windows_rest': 18766}
 
 
 ## 3. Raw Data Processing
@@ -667,21 +667,50 @@ print("\nQuantifications (first 5 rows; each row represents a single arm swing):
 results_end_to_end['quantifications'][pipeline]['filtered'].head()
 ```
 
-    ERROR: Failed to run gait pipeline on test_data: extract_spectral_domain_features() missing 1 required positional argument: 'fs'
-
-
-    WARNING: No gait quantifications to aggregate
-
-
-    WARNING: ParaDigMa analysis completed with 1 error(s)
-
-
 
     Filtered Gait Aggregations:
-    {}
+    {
+      "0_20": {
+        "duration_s": 0
+      },
+      "20_inf": {
+        "duration_s": 18.0,
+        "median_range_of_motion": 7.182233339196239,
+        "95p_range_of_motion": 27.529007915195255,
+        "median_cov_range_of_motion": 0.19564530259481105,
+        "mean_cov_range_of_motion": 0.2725453668861871,
+        "median_peak_velocity": 52.92434205521389,
+        "95p_peak_velocity": 258.93016146092725,
+        "median_cov_peak_velocity": 0.23137490496592453,
+        "mean_cov_peak_velocity": 0.2872492141424207
+      }
+    }
 
     Unfiltered Gait Aggregations:
-    {}
+    {
+      "0_20": {
+        "duration_s": 33.0,
+        "median_range_of_motion": 18.021256889774918,
+        "95p_range_of_motion": 48.986734305019844,
+        "median_cov_range_of_motion": 0.6876868388869998,
+        "mean_cov_range_of_motion": 0.721209392730354,
+        "median_peak_velocity": 85.1271519261023,
+        "95p_peak_velocity": 200.24091393958028,
+        "median_cov_peak_velocity": 0.4509692493413288,
+        "mean_cov_peak_velocity": 0.5755534586600688
+      },
+      "20_inf": {
+        "duration_s": 238.5,
+        "median_range_of_motion": 38.25306451727731,
+        "95p_range_of_motion": 67.37535941984774,
+        "median_cov_range_of_motion": 0.4132725188180793,
+        "mean_cov_range_of_motion": 0.4468700296741521,
+        "median_peak_velocity": 153.1405489705395,
+        "95p_peak_velocity": 221.23828397076485,
+        "median_cov_peak_velocity": 0.34037878524240156,
+        "mean_cov_peak_velocity": 0.3860157786145167
+      }
+    }
 
     Quantifications (first 5 rows; each row represents a single arm swing):
 
@@ -700,6 +729,36 @@ results_end_to_end['quantifications'][pipeline]['filtered'].head()
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>17.182270</td>
+      <td>136.030218</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>22.832489</td>
+      <td>181.524445</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1</td>
+      <td>23.181810</td>
+      <td>283.032602</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1</td>
+      <td>29.694767</td>
+      <td>253.460914</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+      <td>29.392093</td>
+      <td>221.580715</td>
+    </tr>
   </tbody>
 </table>
 </div>
@@ -844,18 +903,12 @@ print("Individual arm swings:")
 filtered_gait_df.head()
 ```
 
-    ERROR: Failed to process file test_file: create_segments() got an unexpected keyword argument 'fs'
+    WARNING: Time column has irregular sampling
 
 
-    WARNING: No gait quantifications to aggregate
+    Number of detected gait segments: 48
 
-
-    WARNING: ParaDigMa analysis completed with 1 error(s)
-
-
-    Number of detected gait segments: 0
-
-    Number of arm swings: 0
+    Number of arm swings: 1834
     Individual arm swings:
 
 
@@ -870,9 +923,45 @@ filtered_gait_df.head()
       <th>gait_segment_nr</th>
       <th>range_of_motion</th>
       <th>peak_velocity</th>
+      <th>data_segment_nr</th>
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>14.394159</td>
+      <td>40.731020</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>13.593113</td>
+      <td>21.522583</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>20.881968</td>
+      <td>102.620567</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2</td>
+      <td>16.711927</td>
+      <td>48.794681</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2</td>
+      <td>6.565145</td>
+      <td>26.096350</td>
+      <td>1</td>
+    </tr>
   </tbody>
 </table>
 </div>

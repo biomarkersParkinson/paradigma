@@ -453,7 +453,7 @@ def merge_predictions_with_timestamps(
     df_predictions: pd.DataFrame,
     pred_proba_colname: str,
     window_length_s: float,
-    fs: int | None = None,
+    fs: int,
 ) -> pd.DataFrame:
     """
     Merges prediction probabilities with timestamps by expanding overlapping
@@ -500,8 +500,6 @@ def merge_predictions_with_timestamps(
     - Fully vectorized for speed and scalability, avoiding any row-wise operations.
     """
     # Step 1: Generate all timestamps for prediction windows using NumPy broadcasting
-    fs = 1 / df_ts[DataColumns.TIME].diff().median()
-
     window_length = int(window_length_s * fs)
     timestamps = (
         df_predictions[DataColumns.TIME].values[:, None]
