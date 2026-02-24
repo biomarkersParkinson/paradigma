@@ -605,7 +605,6 @@ def run_pulse_rate_pipeline(
         df_ppg_proc, _ = preprocess_ppg_data(
             df_ppg=df_ppg,
             ppg_config=ppg_config,
-            verbose=1 if logging_level <= logging.INFO else 0,
         )
 
         if "preprocessing" in store_intermediate:

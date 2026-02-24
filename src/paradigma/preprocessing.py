@@ -170,7 +170,6 @@ def resample_data(
             segment_array = create_segments(
                 time_array=time_abs_array,
                 max_segment_gap_s=max_segment_gap_s,
-                fs=int(sampling_frequency),
             )
             df["data_segment_nr"] = segment_array
 

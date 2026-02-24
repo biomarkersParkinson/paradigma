@@ -402,7 +402,7 @@ def filter_gait(
 
 def quantify_arm_swing(
     df: pd.DataFrame,
-    fs: int | None = None,
+    fs: int,
     filtered: bool = True,
     max_segment_gap_s: float = 1.5,
     min_segment_length_s: float = 1.5,
@@ -442,9 +442,6 @@ def quantify_arm_swing(
     df["unfiltered_segment_nr"] = create_segments(
         time_array=df[DataColumns.TIME], max_segment_gap_s=max_segment_gap_s
     )
-
-    # fs is deprecated
-    fs = 1 / df[DataColumns.TIME].diff().median()
 
     # Remove segments that do not meet predetermined criteria
     df = discard_segments(
@@ -786,7 +783,6 @@ def extract_temporal_domain_features(
 def extract_spectral_domain_features(
     windowed_data: np.ndarray,
     config,
-    fs,
     sensor: str,
 ) -> pd.DataFrame:
     """
@@ -804,7 +800,7 @@ def extract_spectral_domain_features(
 
     config : object
         Configuration object containing settings such as window type,
-        frequency bands, and MFCC parameters.
+        sampling frequency, frequency bands, and MFCC parameters.
 
     sensor : str
         The name of the sensor (e.g., 'accelerometer', 'gyroscope').
@@ -820,7 +816,9 @@ def extract_spectral_domain_features(
     feature_dict = {}
 
     # Compute periodogram (power spectral density)
-    freqs, psd = periodogram(x=windowed_data, fs=fs, window=config.window_type, axis=1)
+    freqs, psd = periodogram(
+        x=windowed_data, fs=config.sampling_frequency, window=config.window_type, axis=1
+    )
 
     # Compute power in specified frequency bands
     for band_name, band_freqs in config.d_frequency_bandwidths.items():
@@ -1137,6 +1135,7 @@ def run_gait_pipeline(
         quantified_arm_swing_unfiltered, gait_segment_meta_unfiltered = (
             quantify_arm_swing(
                 df=df_arm_activity,
+                fs=arm_activity_config.sampling_frequency,
                 filtered=False,  # Quantify all gait
                 max_segment_gap_s=arm_activity_config.max_segment_gap_s,
                 min_segment_length_s=arm_activity_config.min_segment_length_s,
@@ -1175,6 +1174,7 @@ def run_gait_pipeline(
         active_logger.info("Step 6b: Quantifying arm swing (filtered)")
         quantified_arm_swing_filtered, gait_segment_meta_filtered = quantify_arm_swing(
             df=df_arm_activity,
+            fs=arm_activity_config.sampling_frequency,
             filtered=True,  # Quantify clean gait only
             max_segment_gap_s=arm_activity_config.max_segment_gap_s,
             min_segment_length_s=arm_activity_config.min_segment_length_s,
