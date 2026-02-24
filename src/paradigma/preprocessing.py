@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 import numpy as np
@@ -8,6 +9,8 @@ from scipy.interpolate import interp1d
 from paradigma.config import IMUConfig, PPGConfig
 from paradigma.segmenting import create_segments, discard_segments
 from paradigma.util import invert_watch_side
+
+logger = logging.getLogger(__name__)
 
 
 def resample_data(
@@ -21,7 +24,6 @@ def resample_data(
     auto_segment: bool = False,
     max_segment_gap_s: float | None = None,
     min_segment_length_s: float | None = None,
-    verbose: int = 2,
 ) -> pd.DataFrame:
     """
     Unified resampling function with optional auto-segmentation for non-contiguous data.
@@ -59,10 +61,6 @@ def resample_data(
     min_segment_length_s : float, optional
         Minimum segment length (seconds) to keep. Used when auto_segment=True.
         Defaults to IMUConfig.min_segment_length_s (1.5s).
-    verbose : int, default 1
-        Logging verbose: 0=errors only, 1=basic info, 2+=detailed info.
-        Note: This function still uses verbose for backward compatibility
-        with existing code that calls it directly.
 
     Returns
     -------
@@ -110,7 +108,8 @@ def resample_data(
 
     # Validate resampling frequency
     if resampling_frequency is None:
-        raise ValueError("resampling_frequency must be provided")
+        resampling_frequency = 100
+        logger.warning("resampling_frequency automatically set to 100 Hz")
 
     resampling_frequency = float(resampling_frequency)
 
@@ -124,8 +123,7 @@ def resample_data(
         ]
         if not values_column_names:
             raise ValueError("No numeric columns found for resampling")
-        if verbose >= 2:
-            print(f"Auto-detected {len(values_column_names)} columns for resampling")
+        logger.debug(f"Auto-detected {len(values_column_names)} columns for resampling")
 
     # Auto-detect or use provided sampling frequency
     time_abs_array = np.array(df[time_column])
@@ -133,8 +131,7 @@ def resample_data(
         time_diff = df[time_column].diff().dropna()
         current_dt = time_diff.median()
         sampling_frequency = 1.0 / current_dt
-        if verbose >= 2:
-            print(f"Auto-detected sampling frequency: {sampling_frequency:.2f} Hz")
+        logger.debug(f"Auto-detected sampling frequency: {sampling_frequency:.2f} Hz")
     else:
         sampling_frequency = float(sampling_frequency)
 
@@ -167,13 +164,13 @@ def resample_data(
             )
         elif auto_segment:
             # Split into segments
-            if verbose >= 1:
-                print("Non-contiguous data detected. Auto-segmenting...")
+            logger.info("Non-contiguous data detected. Auto-segmenting...")
 
             # Create segments based on gaps
             segment_array = create_segments(
                 time_array=time_abs_array,
                 max_segment_gap_s=max_segment_gap_s,
+                fs=int(sampling_frequency),
             )
             df["data_segment_nr"] = segment_array
 
@@ -187,15 +184,14 @@ def resample_data(
             )
 
             n_segments = df["data_segment_nr"].nunique()
-            if verbose >= 1:
-                segment_durations = []
-                for seg_nr in df["data_segment_nr"].unique():
-                    seg_df = df[df["data_segment_nr"] == seg_nr]
-                    duration = (
-                        seg_df[time_column].iloc[-1] - seg_df[time_column].iloc[0]
-                    )
-                    segment_durations.append(f"{duration:.1f}s")
-                print(f"Created {n_segments} segments: {', '.join(segment_durations)}")
+            segment_durations = []
+            for seg_nr in df["data_segment_nr"].unique():
+                seg_df = df[df["data_segment_nr"] == seg_nr]
+                duration = seg_df[time_column].iloc[-1] - seg_df[time_column].iloc[0]
+                segment_durations.append(f"{duration:.1f}s")
+            logger.info(
+                f"Created {n_segments} segments: {', '.join(segment_durations)}"
+            )
 
             # Resample each segment independently
             resampled_segments = []
@@ -248,17 +244,16 @@ def resample_data(
             ]
             df_resampled = df_resampled[resampled_columns + other_cols]
 
-            if verbose >= 1:
-                print(
-                    f"Resampled: {len(df)} -> {len(df_resampled)} rows at "
-                    f"{resampling_frequency} Hz"
-                )
+            logger.info(
+                f"Resampled: {len(df)} -> {len(df_resampled)} rows at "
+                f"{resampling_frequency} Hz"
+            )
 
             return df_resampled
 
-        elif verbose >= 2:
-            print(
-                "Warning: Data is not contiguous but validation is disabled. "
+        elif not validate_contiguous:
+            logger.warning(
+                "Data is not contiguous but validation is disabled. "
                 "Interpolating over gaps."
             )
 
@@ -291,11 +286,10 @@ def resample_data(
     resampled_columns = [time_column] + values_column_names
     df_resampled = df_resampled[resampled_columns]
 
-    if verbose >= 1:
-        print(
-            f"Resampled: {len(df)} -> {len(df_resampled)} rows at "
-            f"{resampling_frequency} Hz"
-        )
+    logger.info(
+        f"Resampled: {len(df)} -> {len(df_resampled)} rows at "
+        f"{resampling_frequency} Hz"
+    )
 
     return df_resampled
 
@@ -376,7 +370,6 @@ def preprocess_imu_data(
     config: IMUConfig,
     sensor: str,
     watch_side: str,
-    verbose: int = 1,
 ) -> pd.DataFrame:
     """
     Preprocesses IMU data by resampling and applying filters.
@@ -398,8 +391,6 @@ def preprocess_imu_data(
         The side of the watch where the data was collected. Must be one of:
         - "left": Data was collected from the left wrist.
         - "right": Data was collected from the right wrist.
-    verbose : int, default 1
-        Logging verbose level: 0=errors only, 1=basic info, 2+=detailed info.
 
     Returns
     -------
@@ -455,7 +446,6 @@ def preprocess_imu_data(
             resampling_frequency=config.resampling_frequency,
             tolerance=config.tolerance,
             validate_contiguous=validate_contiguous,
-            verbose=verbose,
         )
 
     # Invert the IMU data if the watch was worn on the right wrist
@@ -512,7 +502,6 @@ def preprocess_ppg_data(
     df_acc: pd.DataFrame | None = None,
     imu_config: IMUConfig | None = None,
     start_time_imu: str | None = None,
-    verbose: int = 1,
 ) -> tuple[pd.DataFrame, pd.DataFrame | None]:
     """
     This function preprocesses PPG and accelerometer data by resampling,
@@ -542,8 +531,6 @@ def preprocess_ppg_data(
         Configuration object for IMU preprocessing.
     start_time_imu : str
         iso8601 formatted start time of the IMU data.
-    verbose : int, default 1
-        Logging verbose level: 0=errors only, 1=basic info, 2+=detailed info.
 
     Returns
     -------
@@ -593,7 +580,6 @@ def preprocess_ppg_data(
             resampling_frequency=imu_config.resampling_frequency,
             tolerance=imu_config.tolerance,
             validate_contiguous=validate_contiguous_acc,
-            verbose=verbose,
         )
 
         # Extract accelerometer data for filtering
@@ -634,7 +620,6 @@ def preprocess_ppg_data(
         resampling_frequency=ppg_config.resampling_frequency,
         tolerance=ppg_config.tolerance,
         validate_contiguous=validate_contiguous_ppg,
-        verbose=verbose,
     )
 
     # Extract accelerometer data for filtering
