@@ -1112,14 +1112,15 @@ def run_gait_pipeline(
         df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= filt_threshold
     ).astype(int)
 
-    if "arm_activity" in store_intermediate:
-        arm_activity_dir = output_dir / "arm_activity"
-        arm_activity_dir.mkdir(parents=True, exist_ok=True)
+    if "classification" in store_intermediate:
+        classification_dir = output_dir / "classification"
+        classification_dir.mkdir(parents=True, exist_ok=True)
         df_arm_activity.to_parquet(
-            arm_activity_dir / "filtered_gait.parquet", index=False
+            classification_dir / "arm_activity_predictions.parquet", index=False
         )
-        active_logger.debug(
-            f"Saved filtered gait to {arm_activity_dir / 'filtered_gait.parquet'}"
+        active_logger.info(
+            "Saved arm activity predictions to "
+            f"{classification_dir / 'arm_activity_predictions.parquet'}"
         )
 
     # Step 6a: Quantify arm swing (unfiltered - all gait)
