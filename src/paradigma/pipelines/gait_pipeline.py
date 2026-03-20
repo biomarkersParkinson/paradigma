@@ -1121,7 +1121,7 @@ def run_gait_pipeline(
     try:
         quantified_arm_swing_unfiltered, gait_segment_meta_unfiltered = (
             quantify_arm_swing(
-                df=df_arm_activity,
+                df=df_arm_activity_with_time,
                 fs=arm_activity_config.sampling_frequency,
                 filtered=False,  # Quantify all gait
                 max_segment_gap_s=arm_activity_config.max_segment_gap_s,
@@ -1134,7 +1134,7 @@ def run_gait_pipeline(
             "Returning empty unfiltered arm swing results.",
             exc,
         )
-        quantified_arm_swing_unfiltered = _empty_arm_swing_df(df_arm_activity)
+        quantified_arm_swing_unfiltered = _empty_arm_swing_df(df_arm_activity_with_time)
         gait_segment_meta_unfiltered = {
             "all": {"duration_s": 0},
             "per_segment": {},
@@ -1143,15 +1143,15 @@ def run_gait_pipeline(
     # Check if there's clean gait for filtered quantification
     if (
         len(
-            df_arm_activity.loc[
-                df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] == 1
+            df_arm_activity_with_time.loc[
+                df_arm_activity_with_time[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] == 1
             ]
         )
         == 0
     ):
         active_logger.warning("No clean gait data remaining after filtering")
         # Set empty filtered results but continue to save/offset logic
-        quantified_arm_swing_filtered = _empty_arm_swing_df(df_arm_activity)
+        quantified_arm_swing_filtered = _empty_arm_swing_df(df_arm_activity_with_time)
         gait_segment_meta_filtered = {
             "all": {"duration_s": 0},
             "per_segment": {},
@@ -1160,7 +1160,7 @@ def run_gait_pipeline(
         # Step 6b: Quantify arm swing (filtered - clean gait only)
         active_logger.info("Step 6b: Quantifying arm swing (filtered)")
         quantified_arm_swing_filtered, gait_segment_meta_filtered = quantify_arm_swing(
-            df=df_arm_activity,
+            df=df_arm_activity_with_time,
             fs=arm_activity_config.sampling_frequency,
             filtered=True,  # Quantify clean gait only
             max_segment_gap_s=arm_activity_config.max_segment_gap_s,
