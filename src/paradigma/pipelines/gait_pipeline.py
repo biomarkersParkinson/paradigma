@@ -1013,14 +1013,6 @@ def run_gait_pipeline(
     active_logger.info("Step 2: Extracting gait features")
     df_gait = extract_gait_features(df_preprocessed, gait_config)
 
-    if "gait" in store_intermediate:
-        gait_dir = output_dir / "gait"
-        gait_dir.mkdir(parents=True, exist_ok=True)
-        df_gait.to_parquet(gait_dir / "gait_features.parquet", index=False)
-        active_logger.debug(
-            f"Saved gait features to {gait_dir / 'gait_features.parquet'}"
-        )
-
     # Step 3: Detect gait
     active_logger.info("Step 3: Detecting gait")
     try:
@@ -1048,8 +1040,8 @@ def run_gait_pipeline(
         >= classifier_package_gait.threshold
     ).astype(int)
 
-    if "gait" in store_intermediate:
-        gait_dir = output_dir / "gait"
+    if "classification" in store_intermediate:
+        gait_dir = output_dir / "classification"
         gait_dir.mkdir(parents=True, exist_ok=True)
         df_gait_with_time.to_parquet(gait_dir / "gait_predictions.parquet", index=False)
         active_logger.info(
