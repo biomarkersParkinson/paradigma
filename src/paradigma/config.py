@@ -92,8 +92,6 @@ class IMUConfig(BaseConfig):
         # Use private variable for sampling_frequency to enable property setter
         self._sampling_frequency = 100
         self.resampling_frequency = 100
-        # Note: _update_frequency_dependent_params() is called at the end of child class __init__,
-        # not here, to ensure all frequency-dependent attributes are initialized first
 
         self.lower_cutoff_frequency = 0.2
         self.upper_cutoff_frequency = 3.5
