@@ -92,7 +92,8 @@ class IMUConfig(BaseConfig):
         # Use private variable for sampling_frequency to enable property setter
         self._sampling_frequency = 100
         self.resampling_frequency = 100
-        self._update_frequency_dependent_params()
+        # Note: _update_frequency_dependent_params() is called at the end of child class __init__,
+        # not here, to ensure all frequency-dependent attributes are initialized first
 
         self.lower_cutoff_frequency = 0.2
         self.upper_cutoff_frequency = 3.5
@@ -233,6 +234,9 @@ class GaitConfig(IMUConfig):
                 self.d_channels_values[f"gyroscope_mfcc_{mfcc_coef}"] = (
                     DataUnits.GRAVITY
                 )
+        
+        # Update frequency-dependent parameters now that all attributes are initialized
+        self._update_frequency_dependent_params()
 
     def _update_frequency_dependent_params(self) -> None:
         """
@@ -246,6 +250,10 @@ class GaitConfig(IMUConfig):
         self.spectrum_high_frequency = int(nyquist * 0.95)
         
         # MFCC bounds: cap to 90% of Nyquist to stay well away from aliasing
+        # Only update if mfcc_high_frequency has been initialized
+        if not hasattr(self, 'mfcc_high_frequency'):
+            return
+            
         max_safe_freq = nyquist * 0.9
         original_mfcc_high = 25  # Original default
         
@@ -259,10 +267,11 @@ class GaitConfig(IMUConfig):
             self.mfcc_high_frequency = max_safe_freq
         
         # Clamp frequency bands to stay within spectrum bounds
-        for band_name, (fmin, fmax) in self.d_frequency_bandwidths.items():
-            if fmax > nyquist * 0.98:  # Leave small safety margin
-                clamped_fmax = nyquist * 0.98
-                self.d_frequency_bandwidths[band_name] = [fmin, clamped_fmax]
+        if hasattr(self, 'd_frequency_bandwidths'):
+            for band_name, (fmin, fmax) in self.d_frequency_bandwidths.items():
+                if fmax > nyquist * 0.98:  # Leave small safety margin
+                    clamped_fmax = nyquist * 0.98
+                    self.d_frequency_bandwidths[band_name] = [fmin, clamped_fmax]
 
 
 class TremorConfig(IMUConfig):
@@ -339,6 +348,9 @@ class TremorConfig(IMUConfig):
                 DataColumns.PRED_TREMOR_CHECKED: "boolean",
                 DataColumns.PRED_ARM_AT_REST: "boolean",
             }
+        
+        # Update frequency-dependent parameters now that all attributes are initialized
+        self._update_frequency_dependent_params()
 
     def _update_frequency_dependent_params(self) -> None:
         """
