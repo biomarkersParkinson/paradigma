@@ -255,9 +255,7 @@ class GaitConfig(IMUConfig):
 
         if self.mfcc_high_frequency > nyquist:
             original_val = self.mfcc_high_frequency
-            clamped_val = int(
-                nyquist * 0.95
-            )  # Leave small safety margin only in this case
+            clamped_val = int(nyquist)  # Clamp to exactly Nyquist when exceeded
             warnings.warn(
                 f"GaitConfig: mfcc_high_frequency ({original_val}Hz) exceeds "
                 f"Nyquist ({nyquist}Hz) at {self.sampling_frequency}Hz sampling. "
@@ -357,33 +355,33 @@ class TremorConfig(IMUConfig):
         Update frequency-dependent parameters when sampling_frequency changes.
 
         Ensures that PSD and MFCC frequency bounds stay within Nyquist limit.
+        Only clamps when they actually exceed Nyquist.
         """
         nyquist = self.sampling_frequency / 2
 
-        # Cap frequency bounds to 90% of Nyquist to avoid aliasing
-        max_safe_freq = nyquist * 0.9
-
-        # Clamp peak search bounds
-        if self.fmax_peak_search > max_safe_freq:
-            original_val = 25
+        # Clamp peak search bounds: only if it exceeds Nyquist
+        if self.fmax_peak_search > nyquist:
+            original_val = self.fmax_peak_search
+            clamped_val = int(nyquist)
             warnings.warn(
                 f"TremorConfig: fmax_peak_search ({original_val}Hz) exceeds "
-                f"safe limit at {self.sampling_frequency}Hz (Nyquist = {nyquist}Hz). "
-                f"Clamped to {max_safe_freq:.1f}Hz.",
+                f"Nyquist ({nyquist}Hz) at {self.sampling_frequency}Hz sampling. "
+                f"Clamped to {clamped_val}Hz.",
                 UserWarning,
             )
-            self.fmax_peak_search = max_safe_freq
+            self.fmax_peak_search = clamped_val
 
-        # Clamp MFCC bounds
-        if self.fmax_mfcc > max_safe_freq:
-            original_val = 25
+        # Clamp MFCC bounds: only if it exceeds Nyquist
+        if self.fmax_mfcc > nyquist:
+            original_val = self.fmax_mfcc
+            clamped_val = int(nyquist)
             warnings.warn(
                 f"TremorConfig: fmax_mfcc ({original_val}Hz) exceeds "
-                f"safe limit at {self.sampling_frequency}Hz (Nyquist = {nyquist}Hz). "
-                f"Clamped to {max_safe_freq:.1f}Hz.",
+                f"Nyquist ({nyquist}Hz) at {self.sampling_frequency}Hz sampling. "
+                f"Clamped to {clamped_val}Hz.",
                 UserWarning,
             )
-            self.fmax_mfcc = max_safe_freq
+            self.fmax_mfcc = clamped_val
 
 
 class PulseRateConfig(PPGConfig):
