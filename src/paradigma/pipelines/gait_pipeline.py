@@ -1042,10 +1042,11 @@ def run_gait_pipeline(
 
     if "classification" in store_intermediate:
         gait_dir = output_dir / "classification"
+        gait_predictions_filename = "gait_predictions.parquet"
         gait_dir.mkdir(parents=True, exist_ok=True)
-        df_gait_with_time.to_parquet(gait_dir / "gait_predictions.parquet", index=False)
+        df_gait.to_parquet(gait_dir / gait_predictions_filename, index=False)
         active_logger.info(
-            f"Saved gait predictions to {gait_dir / 'gait_predictions.parquet'}"
+            f"Saved gait predictions to {gait_dir / gait_predictions_filename}"
         )
 
     # Filter to only gait periods
@@ -1068,17 +1069,6 @@ def run_gait_pipeline(
     active_logger.info("Step 4: Extracting arm activity features")
     df_arm_activity = extract_arm_activity_features(df_gait_only, arm_activity_config)
 
-    if "arm_activity" in store_intermediate:
-        arm_activity_dir = output_dir / "arm_activity"
-        arm_activity_dir.mkdir(parents=True, exist_ok=True)
-        df_arm_activity.to_parquet(
-            arm_activity_dir / "arm_activity_features.parquet", index=False
-        )
-        active_logger.debug(
-            f"Saved arm activity features to "
-            f"{arm_activity_dir / 'arm_activity_features.parquet'}"
-        )
-
     # Step 5: Filter gait (remove other arm activities)
     active_logger.info("Step 5: Filtering gait")
     try:
@@ -1098,7 +1088,7 @@ def run_gait_pipeline(
     )
 
     # Merge predictions back with timestamps
-    df_arm_activity = merge_predictions_with_timestamps(
+    df_arm_activity_with_time = merge_predictions_with_timestamps(
         df_ts=df_gait_only,
         df_predictions=df_arm_activity,
         pred_proba_colname=DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA,
@@ -1108,19 +1098,21 @@ def run_gait_pipeline(
 
     # Add binary prediction column
     filt_threshold = classifier_package_arm_activity.threshold
-    df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
-        df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= filt_threshold
+    df_arm_activity_with_time[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
+        df_arm_activity_with_time[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]
+        >= filt_threshold
     ).astype(int)
 
     if "classification" in store_intermediate:
         classification_dir = output_dir / "classification"
+        arm_activity_predictions_filename = "arm_activity_predictions.parquet"
         classification_dir.mkdir(parents=True, exist_ok=True)
         df_arm_activity.to_parquet(
-            classification_dir / "arm_activity_predictions.parquet", index=False
+            classification_dir / arm_activity_predictions_filename, index=False
         )
         active_logger.info(
             "Saved arm activity predictions to "
-            f"{classification_dir / 'arm_activity_predictions.parquet'}"
+            f"{classification_dir / arm_activity_predictions_filename}"
         )
 
     # Step 6a: Quantify arm swing (unfiltered - all gait)
