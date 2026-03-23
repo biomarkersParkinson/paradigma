@@ -1013,14 +1013,6 @@ def run_gait_pipeline(
     active_logger.info("Step 2: Extracting gait features")
     df_gait = extract_gait_features(df_preprocessed, gait_config)
 
-    if "gait" in store_intermediate:
-        gait_dir = output_dir / "gait"
-        gait_dir.mkdir(parents=True, exist_ok=True)
-        df_gait.to_parquet(gait_dir / "gait_features.parquet", index=False)
-        active_logger.debug(
-            f"Saved gait features to {gait_dir / 'gait_features.parquet'}"
-        )
-
     # Step 3: Detect gait
     active_logger.info("Step 3: Detecting gait")
     try:
@@ -1048,12 +1040,13 @@ def run_gait_pipeline(
         >= classifier_package_gait.threshold
     ).astype(int)
 
-    if "gait" in store_intermediate:
-        gait_dir = output_dir / "gait"
+    if "classification" in store_intermediate:
+        gait_dir = output_dir / "classification"
+        gait_predictions_filename = "gait_predictions.parquet"
         gait_dir.mkdir(parents=True, exist_ok=True)
-        df_gait_with_time.to_parquet(gait_dir / "gait_predictions.parquet", index=False)
+        df_gait.to_parquet(gait_dir / gait_predictions_filename, index=False)
         active_logger.info(
-            f"Saved gait predictions to {gait_dir / 'gait_predictions.parquet'}"
+            f"Saved gait predictions to {gait_dir / gait_predictions_filename}"
         )
 
     # Filter to only gait periods
@@ -1076,17 +1069,6 @@ def run_gait_pipeline(
     active_logger.info("Step 4: Extracting arm activity features")
     df_arm_activity = extract_arm_activity_features(df_gait_only, arm_activity_config)
 
-    if "arm_activity" in store_intermediate:
-        arm_activity_dir = output_dir / "arm_activity"
-        arm_activity_dir.mkdir(parents=True, exist_ok=True)
-        df_arm_activity.to_parquet(
-            arm_activity_dir / "arm_activity_features.parquet", index=False
-        )
-        active_logger.debug(
-            f"Saved arm activity features to "
-            f"{arm_activity_dir / 'arm_activity_features.parquet'}"
-        )
-
     # Step 5: Filter gait (remove other arm activities)
     active_logger.info("Step 5: Filtering gait")
     try:
@@ -1106,7 +1088,7 @@ def run_gait_pipeline(
     )
 
     # Merge predictions back with timestamps
-    df_arm_activity = merge_predictions_with_timestamps(
+    df_arm_activity_with_time = merge_predictions_with_timestamps(
         df_ts=df_gait_only,
         df_predictions=df_arm_activity,
         pred_proba_colname=DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA,
@@ -1116,18 +1098,21 @@ def run_gait_pipeline(
 
     # Add binary prediction column
     filt_threshold = classifier_package_arm_activity.threshold
-    df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
-        df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= filt_threshold
+    df_arm_activity_with_time[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
+        df_arm_activity_with_time[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]
+        >= filt_threshold
     ).astype(int)
 
-    if "arm_activity" in store_intermediate:
-        arm_activity_dir = output_dir / "arm_activity"
-        arm_activity_dir.mkdir(parents=True, exist_ok=True)
+    if "classification" in store_intermediate:
+        classification_dir = output_dir / "classification"
+        arm_activity_predictions_filename = "arm_activity_predictions.parquet"
+        classification_dir.mkdir(parents=True, exist_ok=True)
         df_arm_activity.to_parquet(
-            arm_activity_dir / "filtered_gait.parquet", index=False
+            classification_dir / arm_activity_predictions_filename, index=False
         )
-        active_logger.debug(
-            f"Saved filtered gait to {arm_activity_dir / 'filtered_gait.parquet'}"
+        active_logger.info(
+            "Saved arm activity predictions to "
+            f"{classification_dir / arm_activity_predictions_filename}"
         )
 
     # Step 6a: Quantify arm swing (unfiltered - all gait)
@@ -1136,7 +1121,7 @@ def run_gait_pipeline(
     try:
         quantified_arm_swing_unfiltered, gait_segment_meta_unfiltered = (
             quantify_arm_swing(
-                df=df_arm_activity,
+                df=df_arm_activity_with_time,
                 fs=arm_activity_config.sampling_frequency,
                 filtered=False,  # Quantify all gait
                 max_segment_gap_s=arm_activity_config.max_segment_gap_s,
@@ -1149,7 +1134,7 @@ def run_gait_pipeline(
             "Returning empty unfiltered arm swing results.",
             exc,
         )
-        quantified_arm_swing_unfiltered = _empty_arm_swing_df(df_arm_activity)
+        quantified_arm_swing_unfiltered = _empty_arm_swing_df(df_arm_activity_with_time)
         gait_segment_meta_unfiltered = {
             "all": {"duration_s": 0},
             "per_segment": {},
@@ -1158,15 +1143,15 @@ def run_gait_pipeline(
     # Check if there's clean gait for filtered quantification
     if (
         len(
-            df_arm_activity.loc[
-                df_arm_activity[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] == 1
+            df_arm_activity_with_time.loc[
+                df_arm_activity_with_time[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] == 1
             ]
         )
         == 0
     ):
         active_logger.warning("No clean gait data remaining after filtering")
         # Set empty filtered results but continue to save/offset logic
-        quantified_arm_swing_filtered = _empty_arm_swing_df(df_arm_activity)
+        quantified_arm_swing_filtered = _empty_arm_swing_df(df_arm_activity_with_time)
         gait_segment_meta_filtered = {
             "all": {"duration_s": 0},
             "per_segment": {},
@@ -1175,7 +1160,7 @@ def run_gait_pipeline(
         # Step 6b: Quantify arm swing (filtered - clean gait only)
         active_logger.info("Step 6b: Quantifying arm swing (filtered)")
         quantified_arm_swing_filtered, gait_segment_meta_filtered = quantify_arm_swing(
-            df=df_arm_activity,
+            df=df_arm_activity_with_time,
             fs=arm_activity_config.sampling_frequency,
             filtered=True,  # Quantify clean gait only
             max_segment_gap_s=arm_activity_config.max_segment_gap_s,
