@@ -11,7 +11,7 @@ from paradigma.orchestrator import run_paradigma
 from paradigma.pipelines.tremor_pipeline import run_tremor_pipeline
 
 try:
-    from test_notebooks import compare_data
+    from conftest import compare_data
 
     from paradigma.testing import detect_tremor_io, extract_tremor_features_io
 

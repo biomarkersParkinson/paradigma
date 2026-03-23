@@ -11,7 +11,7 @@ from paradigma.constants import DataColumns
 from paradigma.orchestrator import run_paradigma
 
 try:
-    from test_notebooks import compare_data
+    from conftest import compare_data
 
     from paradigma.testing import (
         extract_gait_features_io,
