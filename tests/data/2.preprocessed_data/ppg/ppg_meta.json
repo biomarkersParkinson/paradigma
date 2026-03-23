@@ -11,7 +11,6 @@
     "data_type": "float",
     "endianness": "little",
     "bits": 64,
-    "freq_sampling_original": 100.49069555614177,
     "sensors": [
         {
             "file_name": "ppg_time.bin",
