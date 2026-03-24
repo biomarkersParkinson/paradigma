@@ -2,6 +2,14 @@
 
 <!--next-version-placeholder-->
 
+## v1.1.1 (24/03/2026)
+
+### Bug Fixes
+- Fixed `save_intermediate` parameter to correctly use 'classification' naming for all predict methods across pipelines.
+
+### Improvements
+- Cleaned up test infrastructure by removing unused test files, notebooks, and obsolete configurations.
+
 ## v1.1.0 (04/02/2026)
 
 ### Features
