@@ -1,5 +1,5 @@
 ---
-title: "ParaDigMa: a Python toolbox for extracting Parkinson's disease digital biomarkers from daily life wrist sensor data"
+title: 'ParaDigMa: a Python toolbox for extracting Parkinson's disease digital biomarkers from daily life wrist sensor data'
 tags:
     - Python
 authors:
@@ -58,13 +58,13 @@ affiliations:
       index: 3
     - name: Netherlands eScience Center, Amsterdam, the Netherlands
       index: 4
-    - name: Department of Bioengineering, Imperial College London, London, UK
+    - name: Department of Bioengineering, Imperial College London, London, United Kingdom
       index: 5
-    - name: School of Computer Science, University of Birmingham, Birmingham, UK
+    - name: School of Computer Science, University of Birmingham, Birmingham, United Kingdom
       index: 6
-    - name: School of Mathematical Sciences, University of Nottingham, Nottingham, UK
+    - name: School of Mathematical Sciences, University of Nottingham, Nottingham, United Kingdom
       index: 7
-    - name: Horizon Digital Economy Research Institute, University of Nottingham, Nottingham, UK
+    - name: Horizon Digital Economy Research Institute, University of Nottingham, Nottingham, United Kingdom
       index: 8
 date: 20 August 2025
 bibliography: paper.bib
