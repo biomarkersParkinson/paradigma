@@ -4,6 +4,14 @@ paradigma.preprocessing
 .. py:module:: paradigma.preprocessing
 
 
+Attributes
+----------
+
+.. autoapisummary::
+
+   paradigma.preprocessing.logger
+
+
 Functions
 ---------
 
@@ -19,7 +27,9 @@ Functions
 Module Contents
 ---------------
 
-.. py:function:: resample_data(df: pandas.DataFrame, time_column: str = 'time', values_column_names: list[str] | None = None, sampling_frequency: int | None = None, resampling_frequency: int | None = None, tolerance: float | None = None, validate_contiguous: bool = True, auto_segment: bool = False, max_segment_gap_s: float | None = None, min_segment_length_s: float | None = None, verbose: int = 2) -> pandas.DataFrame
+.. py:data:: logger
+
+.. py:function:: resample_data(df: pandas.DataFrame, time_column: str = 'time', values_column_names: list[str] | None = None, sampling_frequency: int | None = None, resampling_frequency: int | None = None, tolerance: float | None = None, validate_contiguous: bool = True, auto_segment: bool = False, max_segment_gap_s: float | None = None, min_segment_length_s: float | None = None) -> pandas.DataFrame
 
    Unified resampling function with optional auto-segmentation for non-contiguous data.
 
@@ -54,10 +64,6 @@ Module Contents
    :param min_segment_length_s: Minimum segment length (seconds) to keep. Used when auto_segment=True.
                                 Defaults to IMUConfig.min_segment_length_s (1.5s).
    :type min_segment_length_s: float, optional
-   :param verbose: Logging verbose: 0=errors only, 1=basic info, 2+=detailed info.
-                   Note: This function still uses verbose for backward compatibility
-                   with existing code that calls it directly.
-   :type verbose: int, default 1
 
    :returns: Resampled DataFrame. If auto_segment=True and multiple segments found,
              includes 'data_segment_nr' column identifying each contiguous data segment.
@@ -134,7 +140,7 @@ Module Contents
    to improve numerical stability.
 
 
-.. py:function:: preprocess_imu_data(df: pandas.DataFrame, config: paradigma.config.IMUConfig, sensor: str, watch_side: str, verbose: int = 1) -> pandas.DataFrame
+.. py:function:: preprocess_imu_data(df: pandas.DataFrame, config: paradigma.config.IMUConfig, sensor: str, watch_side: str) -> pandas.DataFrame
 
    Preprocesses IMU data by resampling and applying filters.
 
@@ -153,8 +159,6 @@ Module Contents
                       - "left": Data was collected from the left wrist.
                       - "right": Data was collected from the right wrist.
    :type watch_side: str
-   :param verbose: Logging verbose level: 0=errors only, 1=basic info, 2+=detailed info.
-   :type verbose: int, default 1
 
    :returns: The preprocessed accelerometer and or gyroscope data with the
              following transformations:
@@ -169,7 +173,7 @@ Module Contents
      high-pass and low-pass.
 
 
-.. py:function:: preprocess_ppg_data(df_ppg: pandas.DataFrame, ppg_config: paradigma.config.PPGConfig, start_time_ppg: str | None = None, df_acc: pandas.DataFrame | None = None, imu_config: paradigma.config.IMUConfig | None = None, start_time_imu: str | None = None, verbose: int = 1) -> tuple[pandas.DataFrame, pandas.DataFrame | None]
+.. py:function:: preprocess_ppg_data(df_ppg: pandas.DataFrame, ppg_config: paradigma.config.PPGConfig, start_time_ppg: str | None = None, df_acc: pandas.DataFrame | None = None, imu_config: paradigma.config.IMUConfig | None = None, start_time_imu: str | None = None) -> tuple[pandas.DataFrame, pandas.DataFrame | None]
 
    This function preprocesses PPG and accelerometer data by resampling,
    filtering and aligning the data segments of both sensors (if applicable).
@@ -196,8 +200,6 @@ Module Contents
    :type imu_config: IMUPreprocessingConfig
    :param start_time_imu: iso8601 formatted start time of the IMU data.
    :type start_time_imu: str
-   :param verbose: Logging verbose level: 0=errors only, 1=basic info, 2+=detailed info.
-   :type verbose: int, default 1
 
    :returns: A tuple containing two DataFrames:
              - Preprocessed PPG data with the following transformations:

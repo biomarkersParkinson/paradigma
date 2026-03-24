@@ -52,6 +52,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/installation.html">Installation Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/input_formats.html">Data Input Formats Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
@@ -59,6 +60,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
@@ -603,7 +605,6 @@
         <span class="n">imu_config</span><span class="p">,</span>
         <span class="n">sensor</span><span class="o">=</span><span class="s2">&quot;gyroscope&quot;</span><span class="p">,</span>
         <span class="n">watch_side</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>  <span class="c1"># Watch side is unimportant for tremor detection</span>
-        <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span> <span class="k">if</span> <span class="n">logging_level</span> <span class="o">&lt;=</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="s2">&quot;preprocessing&quot;</span> <span class="ow">in</span> <span class="n">store_intermediate</span><span class="p">:</span>
@@ -616,12 +617,6 @@
     <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Step 2: Extracting tremor features&quot;</span><span class="p">)</span>
     <span class="n">df_features</span> <span class="o">=</span> <span class="n">extract_tremor_features</span><span class="p">(</span><span class="n">df_preprocessed</span><span class="p">,</span> <span class="n">tremor_config</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="s2">&quot;tremor&quot;</span> <span class="ow">in</span> <span class="n">store_intermediate</span><span class="p">:</span>
-        <span class="n">tremor_dir</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;tremor&quot;</span>
-        <span class="n">tremor_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">df_features</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">tremor_dir</span> <span class="o">/</span> <span class="s2">&quot;tremor_features.parquet&quot;</span><span class="p">)</span>
-        <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved tremor features to </span><span class="si">{</span><span class="n">tremor_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
     <span class="c1"># Step 3: Detect tremor</span>
     <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Step 3: Detecting tremor&quot;</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
@@ -632,6 +627,12 @@
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">active_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tremor detection failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="s2">&quot;classification&quot;</span> <span class="ow">in</span> <span class="n">store_intermediate</span><span class="p">:</span>
+        <span class="n">classification_dir</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;classification&quot;</span>
+        <span class="n">classification_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">df_predictions</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">classification_dir</span> <span class="o">/</span> <span class="s2">&quot;tremor_predictions.parquet&quot;</span><span class="p">)</span>
+        <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved tremor predictions to </span><span class="si">{</span><span class="n">classification_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="c1"># Step 4: Quantify tremor (following tutorial pattern)</span>
     <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Step 4: Quantifying tremor&quot;</span><span class="p">)</span>

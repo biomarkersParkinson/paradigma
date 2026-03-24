@@ -53,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../guides/installation.html">Installation Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/input_formats.html">Data Input Formats Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
@@ -60,6 +61,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
@@ -156,7 +158,7 @@
 <span class="c1"># Load the data from the file</span>
 <span class="n">df_imu</span><span class="p">,</span> <span class="n">metadata_time</span><span class="p">,</span> <span class="n">metadata_values</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
     <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_prepared_data</span><span class="p">,</span>
-    <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">raw_data_segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;imu_segment</span><span class="si">{</span><span class="n">raw_data_segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
 <span class="p">)</span>
 
 <span class="n">df_imu</span>
@@ -320,7 +322,7 @@
 <span class="n">df_preprocessed</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Resampled: 3455331 -&gt; 3433961 rows at 100.0 Hz
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>INFO: Resampled: 3455331 -&gt; 3433961 rows at 100.0 Hz
 
 
 The dataset of 34339.61 seconds is automatically resampled to 100 Hz.
@@ -1089,11 +1091,23 @@ as non-gait.
 </section>
 <section id="step-6-arm-swing-quantification">
 <h2>Step 6: Arm swing quantification<a class="headerlink" href="#step-6-arm-swing-quantification" title="Link to this heading"></a></h2>
-<p>The next step is to extract arm swing estimates from the predicted gait segments without other arm activities. Arm swing estimates can be calculated for both filtered and unfiltered gait, with the latter being predicted gait including all arm activities. Specifically, the range of motion (<code class="docutils literal notranslate"><span class="pre">'range_of_motion'</span></code>) and peak angular velocity (<code class="docutils literal notranslate"><span class="pre">'peak_velocity'</span></code>) are extracted.</p>
+<p>The next step is to extract arm swing estimates from the predicted gait segments. Arm swing estimates can be calculated for both <strong>filtered</strong> gait (i.e., gait without other arm activities) and <strong>unfiltered</strong> gait (i.e., all predicted gait segments including other arm activities).</p>
+<p><strong>Important:</strong> As of version 1.1.0, the high-level gait pipeline functions (such as <code class="docutils literal notranslate"><span class="pre">run_gait_pipeline()</span></code> and <code class="docutils literal notranslate"><span class="pre">run_paradigma()</span></code>) return arm swing results in a <strong>nested</strong> structure with separate entries for filtered and unfiltered gait:</p>
+<ul class="simple">
+<li><p>Quantified arm swing parameters are exposed under keys <code class="docutils literal notranslate"><span class="pre">'filtered'</span></code> and <code class="docutils literal notranslate"><span class="pre">'unfiltered'</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">'filtered'</span></code>: DataFrame with arm swings from gait without other arm activities</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'unfiltered'</span></code>: DataFrame with arm swings from all gait segments</p></li>
+</ul>
+</li>
+<li><p>Corresponding gait segment metadata are also provided separately for the filtered and unfiltered cases</p></li>
+</ul>
+<p>This allows analysis of arm swing with and without filtering for other arm activities when using the pipeline output.</p>
+<p>When calling <code class="docutils literal notranslate"><span class="pre">quantify_arm_swing()</span></code> directly (as shown in this tutorial), it still returns a <code class="docutils literal notranslate"><span class="pre">(DataFrame,</span> <span class="pre">dict)</span></code> pair, and the <code class="docutils literal notranslate"><span class="pre">filtered</span></code> argument controls whether only gait segments without other arm activities are included in the results.</p>
+<p>Specifically, the range of motion (<code class="docutils literal notranslate"><span class="pre">'range_of_motion'</span></code>) and peak angular velocity (<code class="docutils literal notranslate"><span class="pre">'peak_velocity'</span></code>) are extracted.</p>
 <p>This step creates gait segments based on consecutively predicted gait windows. A new gait segment is created if the gap between consecutive gait predictions exceeds <code class="docutils literal notranslate"><span class="pre">config.max_segment_gap_s</span></code>. Furthermore, a gait segment is considered valid if it is of at minimum length <code class="docutils literal notranslate"><span class="pre">config.min_segment_length_s</span></code>.</p>
 <p>But, first, similar to the step of extracting arm activity features, the predictions of the previous step should be merged with the preprocessed time series data.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Merge arm activity predictions into timeseries data</span>
-
 <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
     <span class="n">df_arm</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">filt_threshold</span>
 <span class="p">):</span>
@@ -1307,14 +1321,14 @@ Individual arm swings of the first gait segment of the  filtered dataset:
 <span class="n">list_quantified_arm_swing</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">max_gait_segment_nr</span> <span class="o">=</span> <span class="mi">0</span>
 
-<span class="n">raw_data_segments</span>  <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;0001&#39;</span><span class="p">,</span> <span class="s1">&#39;0002&#39;</span><span class="p">]</span>  <span class="c1"># list with all available raw data segments</span>
+<span class="n">raw_data_segments</span>  <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;0001&#39;</span><span class="p">]</span>  <span class="c1"># list of raw data segments to process in this example</span>
 
 <span class="k">for</span> <span class="n">raw_data_segment_nr</span> <span class="ow">in</span> <span class="n">raw_data_segments</span><span class="p">:</span>
 
     <span class="c1"># Load the data</span>
     <span class="n">df_imu</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
         <span class="n">path_to_prepared_data</span><span class="p">,</span>
-        <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">raw_data_segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;imu_segment</span><span class="si">{</span><span class="n">raw_data_segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
     <span class="p">)</span>
 
     <span class="c1"># 1: Preprocess the data</span>
@@ -1426,10 +1440,7 @@ Individual arm swings of the first gait segment of the  filtered dataset:
 <span class="n">quantified_arm_swing</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">list_quantified_arm_swing</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Resampled: 3455331 -&gt; 3433961 rows at 100.0 Hz
-
-
-Resampled: 7434685 -&gt; 7388945 rows at 100.0 Hz
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>INFO: Resampled: 3455331 -&gt; 3433961 rows at 100.0 Hz
 </pre></div>
 </div>
 </section>
@@ -1452,32 +1463,32 @@ Resampled: 7434685 -&gt; 7388945 rows at 100.0 Hz
 </div>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{
   &quot;0_10&quot;: {
-    &quot;duration_s&quot;: 341.25,
-    &quot;median_range_of_motion&quot;: 10.265043828684437,
-    &quot;95p_range_of_motion&quot;: 33.23162448765661,
-    &quot;median_peak_velocity&quot;: 52.98458323096141,
-    &quot;95p_peak_velocity&quot;: 168.65258802439874
+    &quot;duration_s&quot;: 379.5,
+    &quot;median_range_of_motion&quot;: 11.781191233196722,
+    &quot;95p_range_of_motion&quot;: 40.53201409103202,
+    &quot;median_peak_velocity&quot;: 58.566197027859204,
+    &quot;95p_peak_velocity&quot;: 182.7177098350067
   },
   &quot;10_20&quot;: {
-    &quot;duration_s&quot;: 60.75,
-    &quot;median_range_of_motion&quot;: 21.05381778480308,
-    &quot;95p_range_of_motion&quot;: 45.617438049991144,
-    &quot;median_peak_velocity&quot;: 117.7375878000595,
-    &quot;95p_peak_velocity&quot;: 228.8853651528709
+    &quot;duration_s&quot;: 67.5,
+    &quot;median_range_of_motion&quot;: 15.10889561336818,
+    &quot;95p_range_of_motion&quot;: 54.96940806547923,
+    &quot;median_peak_velocity&quot;: 71.19981331102237,
+    &quot;95p_peak_velocity&quot;: 228.84234804496018
   },
   &quot;20_inf&quot;: {
-    &quot;duration_s&quot;: 1905.75,
-    &quot;median_range_of_motion&quot;: 25.56899710571253,
-    &quot;95p_range_of_motion&quot;: 43.59181429894547,
-    &quot;median_peak_velocity&quot;: 127.40063801636731,
-    &quot;95p_peak_velocity&quot;: 217.64806342438817
+    &quot;duration_s&quot;: 285.75,
+    &quot;median_range_of_motion&quot;: 29.273886230725473,
+    &quot;95p_range_of_motion&quot;: 56.74815032228555,
+    &quot;median_peak_velocity&quot;: 143.92113449093603,
+    &quot;95p_peak_velocity&quot;: 259.4270842914848
   },
   &quot;0_inf&quot;: {
-    &quot;duration_s&quot;: 2307.75,
-    &quot;median_range_of_motion&quot;: 24.07131352109043,
-    &quot;95p_range_of_motion&quot;: 43.06891252479739,
-    &quot;median_peak_velocity&quot;: 120.43812492382015,
-    &quot;95p_peak_velocity&quot;: 215.76855388647215
+    &quot;duration_s&quot;: 732.75,
+    &quot;median_range_of_motion&quot;: 17.767386841988397,
+    &quot;95p_range_of_motion&quot;: 53.93423076026392,
+    &quot;median_peak_velocity&quot;: 91.83493870082003,
+    &quot;95p_peak_velocity&quot;: 243.42317337529113
   }
 }
 </pre></div>

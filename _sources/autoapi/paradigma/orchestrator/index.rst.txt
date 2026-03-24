@@ -40,6 +40,7 @@ Functions
 
 .. autoapisummary::
 
+   paradigma.orchestrator._empty_gait_quantification_df
    paradigma.orchestrator.run_paradigma
 
 
@@ -52,7 +53,9 @@ Module Contents
    :value: 15
 
 
-.. py:function:: run_paradigma(*, data_path: str | pathlib.Path | None = None, dfs: pandas.DataFrame | list[pandas.DataFrame] | dict[str, pandas.DataFrame] | None = None, save_intermediate: list[str] = [], output_dir: str | pathlib.Path = './output', skip_preparation: bool = False, pipelines: list[str] | str | None = None, watch_side: str | None = None, accelerometer_units: str = 'g', gyroscope_units: str = 'deg/s', time_input_unit: paradigma.constants.TimeUnit = TimeUnit.RELATIVE_S, target_frequency: float = 100.0, column_mapping: dict[str, str] | None = None, device_orientation: list[str] | None = ['x', 'y', 'z'], file_pattern: str | list[str] | None = None, aggregates: list[str] | None = None, segment_length_bins: list[str] | None = None, split_by_gaps: bool = False, max_gap_seconds: float | None = None, min_segment_seconds: float | None = None, imu_config: paradigma.config.IMUConfig | None = None, ppg_config: paradigma.config.PPGConfig | None = None, gait_config: paradigma.config.GaitConfig | None = None, arm_activity_config: paradigma.config.GaitConfig | None = None, tremor_config: paradigma.config.TremorConfig | None = None, pulse_rate_config: paradigma.config.PulseRateConfig | None = None, logging_level: int = logging.INFO, custom_logger: logging.Logger | None = None) -> dict[str, pandas.DataFrame | dict]
+.. py:function:: _empty_gait_quantification_df() -> pandas.DataFrame
+
+.. py:function:: run_paradigma(*, data_path: str | pathlib.Path | None = None, dfs: pandas.DataFrame | list[pandas.DataFrame] | dict[str, pandas.DataFrame] | None = None, save_intermediate: list[str] = [], output_dir: str | pathlib.Path = './output', skip_preparation: bool = False, pipelines: list[str] | str | None = None, watch_side: str | None = None, accelerometer_units: str = 'g', gyroscope_units: str = 'deg/s', time_input_unit: paradigma.constants.TimeUnit = TimeUnit.RELATIVE_S, target_frequency: float = 100.0, column_mapping: dict[str, str] | None = None, device_orientation: list[str] | None = ['x', 'y', 'z'], file_pattern: str | list[str] | None = None, aggregates: list[str] | None = None, segment_length_bins: list[tuple[float, float] | list[float] | str] | None = None, split_by_gaps: bool = False, max_gap_seconds: float | None = None, min_segment_seconds: float | None = None, imu_config: paradigma.config.IMUConfig | None = None, ppg_config: paradigma.config.PPGConfig | None = None, gait_config: paradigma.config.GaitConfig | None = None, arm_activity_config: paradigma.config.GaitConfig | None = None, tremor_config: paradigma.config.TremorConfig | None = None, pulse_rate_config: paradigma.config.PulseRateConfig | None = None, logging_level: int = logging.INFO, custom_logger: logging.Logger | None = None) -> dict[str, pandas.DataFrame | dict]
 
    Complete ParaDigMa analysis pipeline from data loading to aggregated results.
 
@@ -81,7 +84,8 @@ Module Contents
    :param save_intermediate: Which intermediate results to store. Valid values:
                              - 'preparation': Save prepared data
                              - 'preprocessing': Save preprocessed signals
-                             - 'classification': Save classification results
+                             - 'classification': Save classification/prediction results (e.g., gait
+                             predictions, tremor predictions, PPG signal quality predictions)
                              - 'quantification': Save quantified measures
                              - 'aggregation': Save aggregated results
                              If empty, no files are saved (results are only returned).
@@ -116,8 +120,9 @@ Module Contents
    :param aggregates: Aggregation methods for quantification.
    :type aggregates: list of str, optional
    :param segment_length_bins: Duration bins for gait segment aggregation (gait pipeline only).
-                               Example: ['(0, 10)', '(10, 20)'] for segments 0-10s and 10-20s.
-   :type segment_length_bins: list of str, optional
+                               Accepts either string bins like ['(0, 10)', '(10, 20)'] or 2-element
+                               tuples/lists like [(0, 10), (10, 20)] for segments 0-10s and 10-20s.
+   :type segment_length_bins: list of str or list of tuple/list, optional
    :param split_by_gaps: If True, automatically split non-contiguous data into segments
                          during preparation.
                          Adds 'data_segment_nr' column to prepared data which is preserved
@@ -153,10 +158,18 @@ Module Contents
                          Allows full control over logging configuration.
    :type custom_logger: logging.Logger, optional
 
-   :returns: Complete analysis results with nested structure for multiple pipelines:
-             - 'quantifications': dict with pipeline names as keys and DataFrames as values
-             - 'aggregations': dict with pipeline names as keys and result dicts as values
-             - 'metadata': dict with pipeline names as keys and metadata dicts as values
+   :returns:
+
+             Complete analysis results with nested structure for multiple pipelines:
+                     - 'quantifications': dict with pipeline names as keys and DataFrames
+                         as values. For gait, values are nested dicts with 'filtered' and
+                         'unfiltered' DataFrames.
+                     - 'aggregations': dict with pipeline names as keys and result dicts
+                         as values. For gait, values are nested dicts with 'filtered' and
+                         'unfiltered' aggregation dictionaries.
+                     - 'metadata': dict with pipeline names as keys and metadata dicts
+                         as values. For gait, values are nested dicts with 'filtered' and
+                         'unfiltered' metadata dictionaries.
              - 'errors': list of dicts tracking any errors that occurred during processing.
                Each error dict contains 'stage', 'error', and optionally 'file' and
                'pipeline'.

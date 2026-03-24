@@ -4,6 +4,14 @@ paradigma.segmenting
 .. py:module:: paradigma.segmenting
 
 
+Attributes
+----------
+
+.. autoapisummary::
+
+   paradigma.segmenting.logger
+
+
 Classes
 -------
 
@@ -26,6 +34,8 @@ Functions
 
 Module Contents
 ---------------
+
+.. py:data:: logger
 
 .. py:function:: tabulate_windows(df: pandas.DataFrame, columns: list[str], window_length_s: float, window_step_length_s: float, fs: int) -> numpy.ndarray
 

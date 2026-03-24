@@ -52,6 +52,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/installation.html">Installation Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/input_formats.html">Data Input Formats Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
@@ -59,6 +60,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
@@ -131,6 +133,20 @@
 <span class="c1"># Only configure basic logging if no handlers exist</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">logger</span><span class="o">.</span><span class="n">hasHandlers</span><span class="p">():</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(levelname)s</span><span class="s2">: </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="_empty_arm_swing_df">
+<a class="viewcode-back" href="../../../autoapi/paradigma/pipelines/gait_pipeline/index.html#paradigma.pipelines.gait_pipeline._empty_arm_swing_df">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_empty_arm_swing_df</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">expected_columns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">DataColumns</span><span class="o">.</span><span class="n">GAIT_SEGMENT_NR</span><span class="p">,</span>
+        <span class="n">DataColumns</span><span class="o">.</span><span class="n">RANGE_OF_MOTION</span><span class="p">,</span>
+        <span class="n">DataColumns</span><span class="o">.</span><span class="n">PEAK_VELOCITY</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">DATA_SEGMENT_NR</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">expected_columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">DATA_SEGMENT_NR</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">expected_columns</span><span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="extract_gait_features">
@@ -499,10 +515,10 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">quantify_arm_swing</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">filtered</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">filtered</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">max_segment_gap_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">,</span>
     <span class="n">min_segment_length_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Quantify arm swing parameters for segments of motion based on gyroscope data.</span>
 
@@ -703,7 +719,11 @@
 
                 <span class="n">arm_swing_quantified</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df_params_segment</span><span class="p">)</span>
 
-    <span class="n">arm_swing_quantified</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">arm_swing_quantified</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">arm_swing_quantified</span><span class="p">:</span>
+        <span class="c1"># No valid arm swing segments found, return empty DataFrame</span>
+        <span class="n">arm_swing_quantified</span> <span class="o">=</span> <span class="n">_empty_arm_swing_df</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">arm_swing_quantified</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">arm_swing_quantified</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">arm_swing_quantified</span><span class="p">,</span> <span class="n">segment_meta</span></div>
 
@@ -900,8 +920,8 @@
 <span class="sd">        A 2D numpy array where each row corresponds to a window of sensor data.</span>
 
 <span class="sd">    config : object</span>
-<span class="sd">        Configuration object containing settings such as sampling frequency,</span>
-<span class="sd">        window type, frequency bands, and MFCC parameters.</span>
+<span class="sd">        Configuration object containing settings such as window type,</span>
+<span class="sd">        sampling frequency, frequency bands, and MFCC parameters.</span>
 
 <span class="sd">    sensor : str</span>
 <span class="sd">        The name of the sensor (e.g., &#39;accelerometer&#39;, &#39;gyroscope&#39;).</span>
@@ -973,11 +993,12 @@
     <span class="n">imu_config</span><span class="p">:</span> <span class="n">IMUConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">gait_config</span><span class="p">:</span> <span class="n">GaitConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">arm_activity_config</span><span class="p">:</span> <span class="n">GaitConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">store_intermediate</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[],</span>
-    <span class="n">segment_number_offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">store_intermediate</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">segment_number_offset_filtered</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">segment_number_offset_unfiltered</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">logging_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
     <span class="n">custom_logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Run the complete gait analysis pipeline on prepared data (steps 1-6).</span>
 
@@ -1010,16 +1031,21 @@
 <span class="sd">    arm_activity_config : GaitConfig, optional</span>
 <span class="sd">        Configuration for arm activity feature extraction and filtering.</span>
 <span class="sd">        If None, uses default GaitConfig(step=&quot;arm_activity&quot;).</span>
-<span class="sd">    store_intermediate : List[str]</span>
+<span class="sd">    store_intermediate : list[str], optional</span>
 <span class="sd">        Steps of which intermediate results should be stored:</span>
 <span class="sd">        - &#39;preprocessing&#39;: Store preprocessed data after step 1</span>
 <span class="sd">        - &#39;gait&#39;: Store gait features and predictions after step 3</span>
 <span class="sd">        - &#39;arm_activity&#39;: Store arm activity features and predictions after step 5</span>
 <span class="sd">        - &#39;quantification&#39;: Store arm swing quantification results after step 6</span>
 <span class="sd">        If empty, only returns the final quantified results.</span>
-<span class="sd">    segment_number_offset : int, optional, default=0</span>
-<span class="sd">        Offset to add to all segment numbers to avoid conflicts when concatenating</span>
-<span class="sd">        multiple data segments. Used for proper segment numbering across multiple files.</span>
+<span class="sd">    segment_number_offset_filtered : int, optional, default=0</span>
+<span class="sd">        Offset to add to filtered segment numbers to avoid conflicts when</span>
+<span class="sd">        concatenating multiple data segments. Used for proper segment numbering</span>
+<span class="sd">        across multiple files.</span>
+<span class="sd">    segment_number_offset_unfiltered : int, optional, default=0</span>
+<span class="sd">        Offset to add to unfiltered segment numbers to avoid conflicts when</span>
+<span class="sd">        concatenating multiple data segments. Used for proper segment numbering</span>
+<span class="sd">        across multiple files.</span>
 <span class="sd">    logging_level : int, default logging.INFO</span>
 <span class="sd">        Logging level using standard logging constants (logging.DEBUG, logging.INFO,</span>
 <span class="sd">        etc.)</span>
@@ -1028,14 +1054,19 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    tuple[pd.DataFrame, dict]</span>
-<span class="sd">        A tuple containing:</span>
-<span class="sd">        - pd.DataFrame: Quantified arm swing parameters with the following columns:</span>
+<span class="sd">    tuple[dict[str, pd.DataFrame], dict[str, dict]]</span>
+<span class="sd">        A tuple containing two dictionaries:</span>
+<span class="sd">        - First dict contains quantified arm swing parameters with keys:</span>
+<span class="sd">            - &#39;filtered&#39;: DataFrame with arm swings from clean gait only</span>
+<span class="sd">            - &#39;unfiltered&#39;: DataFrame with arm swings from all gait</span>
+<span class="sd">          Each DataFrame has columns:</span>
 <span class="sd">            - gait_segment_nr: Gait segment number within this data segment</span>
 <span class="sd">            - Various arm swing metrics (range of motion, peak angular velocity, etc.)</span>
 <span class="sd">            - Additional metadata columns</span>
-<span class="sd">        - dict: Gait segment metadata containing information about each detected</span>
-<span class="sd">        gait segment</span>
+<span class="sd">        - Second dict contains gait segment metadata with keys:</span>
+<span class="sd">            - &#39;filtered&#39;: Metadata for filtered quantification</span>
+<span class="sd">            - &#39;unfiltered&#39;: Metadata for unfiltered quantification</span>
+<span class="sd">          Each metadata dict contains information about each detected gait segment</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -1051,6 +1082,9 @@
     <span class="n">active_logger</span> <span class="o">=</span> <span class="n">custom_logger</span> <span class="k">if</span> <span class="n">custom_logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">logger</span>
     <span class="k">if</span> <span class="n">custom_logger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">active_logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging_level</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">store_intermediate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">store_intermediate</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="c1"># Set default configurations</span>
     <span class="k">if</span> <span class="n">imu_config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1086,7 +1120,6 @@
         <span class="n">config</span><span class="o">=</span><span class="n">imu_config</span><span class="p">,</span>
         <span class="n">sensor</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span>
         <span class="n">watch_side</span><span class="o">=</span><span class="n">watch_side</span><span class="p">,</span>
-        <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span> <span class="k">if</span> <span class="n">logging_level</span> <span class="o">&lt;=</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="s2">&quot;preprocessing&quot;</span> <span class="ow">in</span> <span class="n">store_intermediate</span><span class="p">:</span>
@@ -1103,14 +1136,6 @@
     <span class="c1"># Step 2: Extract gait features</span>
     <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Step 2: Extracting gait features&quot;</span><span class="p">)</span>
     <span class="n">df_gait</span> <span class="o">=</span> <span class="n">extract_gait_features</span><span class="p">(</span><span class="n">df_preprocessed</span><span class="p">,</span> <span class="n">gait_config</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="s2">&quot;gait&quot;</span> <span class="ow">in</span> <span class="n">store_intermediate</span><span class="p">:</span>
-        <span class="n">gait_dir</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;gait&quot;</span>
-        <span class="n">gait_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">df_gait</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">gait_dir</span> <span class="o">/</span> <span class="s2">&quot;gait_features.parquet&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">active_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Saved gait features to </span><span class="si">{</span><span class="n">gait_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s1">&#39;gait_features.parquet&#39;</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
 
     <span class="c1"># Step 3: Detect gait</span>
     <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Step 3: Detecting gait&quot;</span><span class="p">)</span>
@@ -1139,12 +1164,13 @@
         <span class="o">&gt;=</span> <span class="n">classifier_package_gait</span><span class="o">.</span><span class="n">threshold</span>
     <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="s2">&quot;gait&quot;</span> <span class="ow">in</span> <span class="n">store_intermediate</span><span class="p">:</span>
-        <span class="n">gait_dir</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;gait&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;classification&quot;</span> <span class="ow">in</span> <span class="n">store_intermediate</span><span class="p">:</span>
+        <span class="n">gait_dir</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;classification&quot;</span>
+        <span class="n">gait_predictions_filename</span> <span class="o">=</span> <span class="s2">&quot;gait_predictions.parquet&quot;</span>
         <span class="n">gait_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">df_gait_with_time</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">gait_dir</span> <span class="o">/</span> <span class="s2">&quot;gait_predictions.parquet&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">df_gait</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">gait_dir</span> <span class="o">/</span> <span class="n">gait_predictions_filename</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Saved gait predictions to </span><span class="si">{</span><span class="n">gait_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s1">&#39;gait_predictions.parquet&#39;</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Saved gait predictions to </span><span class="si">{</span><span class="n">gait_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">gait_predictions_filename</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
     <span class="c1"># Filter to only gait periods</span>
@@ -1154,22 +1180,18 @@
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_gait_only</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">active_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No gait detected in this segment&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(),</span> <span class="p">{}</span>
+        <span class="n">empty_df_filtered</span> <span class="o">=</span> <span class="n">_empty_arm_swing_df</span><span class="p">(</span><span class="n">df_prepared</span><span class="p">)</span>
+        <span class="n">empty_df_unfiltered</span> <span class="o">=</span> <span class="n">_empty_arm_swing_df</span><span class="p">(</span><span class="n">df_prepared</span><span class="p">)</span>
+        <span class="n">empty_meta_filtered</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;all&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;duration_s&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span> <span class="s2">&quot;per_segment&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">empty_meta_unfiltered</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;all&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;duration_s&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span> <span class="s2">&quot;per_segment&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;filtered&quot;</span><span class="p">:</span> <span class="n">empty_df_filtered</span><span class="p">,</span> <span class="s2">&quot;unfiltered&quot;</span><span class="p">:</span> <span class="n">empty_df_unfiltered</span><span class="p">},</span> <span class="p">{</span>
+            <span class="s2">&quot;filtered&quot;</span><span class="p">:</span> <span class="n">empty_meta_filtered</span><span class="p">,</span>
+            <span class="s2">&quot;unfiltered&quot;</span><span class="p">:</span> <span class="n">empty_meta_unfiltered</span><span class="p">,</span>
+        <span class="p">}</span>
 
     <span class="c1"># Step 4: Extract arm activity features</span>
     <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Step 4: Extracting arm activity features&quot;</span><span class="p">)</span>
     <span class="n">df_arm_activity</span> <span class="o">=</span> <span class="n">extract_arm_activity_features</span><span class="p">(</span><span class="n">df_gait_only</span><span class="p">,</span> <span class="n">arm_activity_config</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="s2">&quot;arm_activity&quot;</span> <span class="ow">in</span> <span class="n">store_intermediate</span><span class="p">:</span>
-        <span class="n">arm_activity_dir</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;arm_activity&quot;</span>
-        <span class="n">arm_activity_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">df_arm_activity</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
-            <span class="n">arm_activity_dir</span> <span class="o">/</span> <span class="s2">&quot;arm_activity_features.parquet&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
-        <span class="p">)</span>
-        <span class="n">active_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Saved arm activity features to &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">arm_activity_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s1">&#39;arm_activity_features.parquet&#39;</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
 
     <span class="c1"># Step 5: Filter gait (remove other arm activities)</span>
     <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Step 5: Filtering gait&quot;</span><span class="p">)</span>
@@ -1190,7 +1212,7 @@
     <span class="p">)</span>
 
     <span class="c1"># Merge predictions back with timestamps</span>
-    <span class="n">df_filtered</span> <span class="o">=</span> <span class="n">merge_predictions_with_timestamps</span><span class="p">(</span>
+    <span class="n">df_arm_activity_with_time</span> <span class="o">=</span> <span class="n">merge_predictions_with_timestamps</span><span class="p">(</span>
         <span class="n">df_ts</span><span class="o">=</span><span class="n">df_gait_only</span><span class="p">,</span>
         <span class="n">df_predictions</span><span class="o">=</span><span class="n">df_arm_activity</span><span class="p">,</span>
         <span class="n">pred_proba_colname</span><span class="o">=</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">,</span>
@@ -1200,74 +1222,151 @@
 
     <span class="c1"># Add binary prediction column</span>
     <span class="n">filt_threshold</span> <span class="o">=</span> <span class="n">classifier_package_arm_activity</span><span class="o">.</span><span class="n">threshold</span>
-    <span class="n">df_filtered</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">df_filtered</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">filt_threshold</span>
+    <span class="n">df_arm_activity_with_time</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df_arm_activity_with_time</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY_PROBA</span><span class="p">]</span>
+        <span class="o">&gt;=</span> <span class="n">filt_threshold</span>
     <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="s2">&quot;arm_activity&quot;</span> <span class="ow">in</span> <span class="n">store_intermediate</span><span class="p">:</span>
-        <span class="n">arm_activity_dir</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;arm_activity&quot;</span>
-        <span class="n">arm_activity_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">df_filtered</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">arm_activity_dir</span> <span class="o">/</span> <span class="s2">&quot;filtered_gait.parquet&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">active_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Saved filtered gait to </span><span class="si">{</span><span class="n">arm_activity_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s1">&#39;filtered_gait.parquet&#39;</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;classification&quot;</span> <span class="ow">in</span> <span class="n">store_intermediate</span><span class="p">:</span>
+        <span class="n">classification_dir</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;classification&quot;</span>
+        <span class="n">arm_activity_predictions_filename</span> <span class="o">=</span> <span class="s2">&quot;arm_activity_predictions.parquet&quot;</span>
+        <span class="n">classification_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">df_arm_activity</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
+            <span class="n">classification_dir</span> <span class="o">/</span> <span class="n">arm_activity_predictions_filename</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Saved arm activity predictions to &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">classification_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">arm_activity_predictions_filename</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
+    <span class="c1"># Step 6a: Quantify arm swing (unfiltered - all gait)</span>
+    <span class="c1"># Always compute unfiltered quantification, even if there&#39;s no clean gait</span>
+    <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Step 6a: Quantifying arm swing (unfiltered)&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">quantified_arm_swing_unfiltered</span><span class="p">,</span> <span class="n">gait_segment_meta_unfiltered</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">quantify_arm_swing</span><span class="p">(</span>
+                <span class="n">df</span><span class="o">=</span><span class="n">df_arm_activity_with_time</span><span class="p">,</span>
+                <span class="n">fs</span><span class="o">=</span><span class="n">arm_activity_config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
+                <span class="n">filtered</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># Quantify all gait</span>
+                <span class="n">max_segment_gap_s</span><span class="o">=</span><span class="n">arm_activity_config</span><span class="o">.</span><span class="n">max_segment_gap_s</span><span class="p">,</span>
+                <span class="n">min_segment_length_s</span><span class="o">=</span><span class="n">arm_activity_config</span><span class="o">.</span><span class="n">min_segment_length_s</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="n">active_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;Arm swing quantification (unfiltered) failed (</span><span class="si">%s</span><span class="s2">). &quot;</span>
+            <span class="s2">&quot;Returning empty unfiltered arm swing results.&quot;</span><span class="p">,</span>
+            <span class="n">exc</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">quantified_arm_swing_unfiltered</span> <span class="o">=</span> <span class="n">_empty_arm_swing_df</span><span class="p">(</span><span class="n">df_arm_activity_with_time</span><span class="p">)</span>
+        <span class="n">gait_segment_meta_unfiltered</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;all&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;duration_s&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+            <span class="s2">&quot;per_segment&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="p">}</span>
+
+    <span class="c1"># Check if there&#39;s clean gait for filtered quantification</span>
     <span class="k">if</span> <span class="p">(</span>
-        <span class="nb">len</span><span class="p">(</span><span class="n">df_filtered</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_filtered</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="nb">len</span><span class="p">(</span>
+            <span class="n">df_arm_activity_with_time</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                <span class="n">df_arm_activity_with_time</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_NO_OTHER_ARM_ACTIVITY</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
         <span class="o">==</span> <span class="mi">0</span>
     <span class="p">):</span>
         <span class="n">active_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No clean gait data remaining after filtering&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(),</span> <span class="p">{}</span>
+        <span class="c1"># Set empty filtered results but continue to save/offset logic</span>
+        <span class="n">quantified_arm_swing_filtered</span> <span class="o">=</span> <span class="n">_empty_arm_swing_df</span><span class="p">(</span><span class="n">df_arm_activity_with_time</span><span class="p">)</span>
+        <span class="n">gait_segment_meta_filtered</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;all&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;duration_s&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+            <span class="s2">&quot;per_segment&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Step 6b: Quantify arm swing (filtered - clean gait only)</span>
+        <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Step 6b: Quantifying arm swing (filtered)&quot;</span><span class="p">)</span>
+        <span class="n">quantified_arm_swing_filtered</span><span class="p">,</span> <span class="n">gait_segment_meta_filtered</span> <span class="o">=</span> <span class="n">quantify_arm_swing</span><span class="p">(</span>
+            <span class="n">df</span><span class="o">=</span><span class="n">df_arm_activity_with_time</span><span class="p">,</span>
+            <span class="n">fs</span><span class="o">=</span><span class="n">arm_activity_config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
+            <span class="n">filtered</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Quantify clean gait only</span>
+            <span class="n">max_segment_gap_s</span><span class="o">=</span><span class="n">arm_activity_config</span><span class="o">.</span><span class="n">max_segment_gap_s</span><span class="p">,</span>
+            <span class="n">min_segment_length_s</span><span class="o">=</span><span class="n">arm_activity_config</span><span class="o">.</span><span class="n">min_segment_length_s</span><span class="p">,</span>
+        <span class="p">)</span>
 
-    <span class="c1"># Step 6: Quantify arm swing</span>
-    <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Step 6: Quantifying arm swing&quot;</span><span class="p">)</span>
-    <span class="n">quantified_arm_swing</span><span class="p">,</span> <span class="n">gait_segment_meta</span> <span class="o">=</span> <span class="n">quantify_arm_swing</span><span class="p">(</span>
-        <span class="n">df</span><span class="o">=</span><span class="n">df_filtered</span><span class="p">,</span>
-        <span class="n">fs</span><span class="o">=</span><span class="n">arm_activity_config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
-        <span class="n">filtered</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">max_segment_gap_s</span><span class="o">=</span><span class="n">arm_activity_config</span><span class="o">.</span><span class="n">max_segment_gap_s</span><span class="p">,</span>
-        <span class="n">min_segment_length_s</span><span class="o">=</span><span class="n">arm_activity_config</span><span class="o">.</span><span class="n">min_segment_length_s</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="c1"># Apply segment number offsets for multi-file processing</span>
+    <span class="k">if</span> <span class="n">segment_number_offset_unfiltered</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GAIT_SEGMENT_NR</span> <span class="ow">in</span> <span class="n">quantified_arm_swing_unfiltered</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">quantified_arm_swing_unfiltered</span> <span class="o">=</span> <span class="n">quantified_arm_swing_unfiltered</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">quantified_arm_swing_unfiltered</span><span class="p">[</span>
+                <span class="n">DataColumns</span><span class="o">.</span><span class="n">GAIT_SEGMENT_NR</span>
+            <span class="p">]</span> <span class="o">+=</span> <span class="n">segment_number_offset_unfiltered</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">gait_segment_meta_unfiltered</span>
+            <span class="ow">and</span> <span class="s2">&quot;per_segment&quot;</span> <span class="ow">in</span> <span class="n">gait_segment_meta_unfiltered</span>
+            <span class="ow">and</span> <span class="n">gait_segment_meta_unfiltered</span><span class="p">[</span><span class="s2">&quot;per_segment&quot;</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="n">updated_per_segment_meta</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">seg_id</span><span class="p">,</span> <span class="n">meta</span> <span class="ow">in</span> <span class="n">gait_segment_meta_unfiltered</span><span class="p">[</span><span class="s2">&quot;per_segment&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">new_seg_id</span> <span class="o">=</span> <span class="n">seg_id</span> <span class="o">+</span> <span class="n">segment_number_offset_unfiltered</span>
+                <span class="n">updated_per_segment_meta</span><span class="p">[</span><span class="n">new_seg_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span>
+            <span class="n">gait_segment_meta_unfiltered</span><span class="p">[</span><span class="s2">&quot;per_segment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">updated_per_segment_meta</span>
+
+    <span class="k">if</span> <span class="n">segment_number_offset_filtered</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">DataColumns</span><span class="o">.</span><span class="n">GAIT_SEGMENT_NR</span> <span class="ow">in</span> <span class="n">quantified_arm_swing_filtered</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">quantified_arm_swing_filtered</span> <span class="o">=</span> <span class="n">quantified_arm_swing_filtered</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">quantified_arm_swing_filtered</span><span class="p">[</span>
+                <span class="n">DataColumns</span><span class="o">.</span><span class="n">GAIT_SEGMENT_NR</span>
+            <span class="p">]</span> <span class="o">+=</span> <span class="n">segment_number_offset_filtered</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">gait_segment_meta_filtered</span>
+            <span class="ow">and</span> <span class="s2">&quot;per_segment&quot;</span> <span class="ow">in</span> <span class="n">gait_segment_meta_filtered</span>
+            <span class="ow">and</span> <span class="n">gait_segment_meta_filtered</span><span class="p">[</span><span class="s2">&quot;per_segment&quot;</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="n">updated_per_segment_meta</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">seg_id</span><span class="p">,</span> <span class="n">meta</span> <span class="ow">in</span> <span class="n">gait_segment_meta_filtered</span><span class="p">[</span><span class="s2">&quot;per_segment&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">updated_per_segment_meta</span><span class="p">[</span><span class="n">seg_id</span> <span class="o">+</span> <span class="n">segment_number_offset_filtered</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span>
+            <span class="n">gait_segment_meta_filtered</span><span class="p">[</span><span class="s2">&quot;per_segment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">updated_per_segment_meta</span>
 
     <span class="k">if</span> <span class="s2">&quot;quantification&quot;</span> <span class="ow">in</span> <span class="n">store_intermediate</span><span class="p">:</span>
         <span class="n">quantification_dir</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;quantification&quot;</span>
         <span class="n">quantification_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">quantified_arm_swing</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
-            <span class="n">quantification_dir</span> <span class="o">/</span> <span class="s2">&quot;arm_swing_quantified.parquet&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
-        <span class="p">)</span>
 
-        <span class="c1"># Save gait segment metadata as JSON</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">quantification_dir</span> <span class="o">/</span> <span class="s2">&quot;gait_segment_meta.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">gait_segment_meta</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="c1"># Save unfiltered quantification</span>
+        <span class="n">quantified_arm_swing_unfiltered</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
+            <span class="n">quantification_dir</span> <span class="o">/</span> <span class="s2">&quot;arm_swing_quantified_unfiltered.parquet&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">quantification_dir</span> <span class="o">/</span> <span class="s2">&quot;gait_segment_meta_unfiltered.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">gait_segment_meta_unfiltered</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># Save filtered quantification</span>
+        <span class="n">quantified_arm_swing_filtered</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
+            <span class="n">quantification_dir</span> <span class="o">/</span> <span class="s2">&quot;arm_swing_quantified_filtered.parquet&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">quantification_dir</span> <span class="o">/</span> <span class="s2">&quot;gait_segment_meta_filtered.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">gait_segment_meta_filtered</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
         <span class="n">active_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Saved arm swing quantification to &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">quantification_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s1">&#39;arm_swing_quantified.parquet&#39;</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Saved unfiltered quantification to &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">quantification_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s1">&#39;arm_swing_quantified_unfiltered.parquet&#39;</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
         <span class="n">active_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Saved gait segment metadata to &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">quantification_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s1">&#39;gait_segment_meta.json&#39;</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Saved filtered quantification to &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">quantification_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s1">&#39;arm_swing_quantified_filtered.parquet&#39;</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
     <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;Gait analysis pipeline completed. Found &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">quantified_arm_swing</span><span class="p">)</span><span class="si">}</span><span class="s2"> windows of gait &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;without other arm activities.&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">quantified_arm_swing_unfiltered</span><span class="p">)</span><span class="si">}</span><span class="s2"> unfiltered arm swings and &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">quantified_arm_swing_filtered</span><span class="p">)</span><span class="si">}</span><span class="s2"> filtered arm swings.&quot;</span>
     <span class="p">)</span>
 
-    <span class="c1"># Apply segment number offset if specified (for multi-segment concatenation)</span>
-    <span class="k">if</span> <span class="n">segment_number_offset</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">quantified_arm_swing</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">quantified_arm_swing</span> <span class="o">=</span> <span class="n">quantified_arm_swing</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">quantified_arm_swing</span><span class="p">[</span><span class="s2">&quot;gait_segment_nr&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">segment_number_offset</span>
-
-        <span class="c1"># Also update the metadata with the new segment numbers</span>
-        <span class="k">if</span> <span class="n">gait_segment_meta</span> <span class="ow">and</span> <span class="s2">&quot;per_segment&quot;</span> <span class="ow">in</span> <span class="n">gait_segment_meta</span><span class="p">:</span>
-            <span class="n">updated_per_segment_meta</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">for</span> <span class="n">seg_id</span><span class="p">,</span> <span class="n">meta</span> <span class="ow">in</span> <span class="n">gait_segment_meta</span><span class="p">[</span><span class="s2">&quot;per_segment&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">updated_per_segment_meta</span><span class="p">[</span><span class="n">seg_id</span> <span class="o">+</span> <span class="n">segment_number_offset</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span>
-            <span class="n">gait_segment_meta</span><span class="p">[</span><span class="s2">&quot;per_segment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">updated_per_segment_meta</span>
-
-    <span class="k">return</span> <span class="n">quantified_arm_swing</span><span class="p">,</span> <span class="n">gait_segment_meta</span></div>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;filtered&quot;</span><span class="p">:</span> <span class="n">quantified_arm_swing_filtered</span><span class="p">,</span>
+        <span class="s2">&quot;unfiltered&quot;</span><span class="p">:</span> <span class="n">quantified_arm_swing_unfiltered</span><span class="p">,</span>
+    <span class="p">},</span> <span class="p">{</span>
+        <span class="s2">&quot;filtered&quot;</span><span class="p">:</span> <span class="n">gait_segment_meta_filtered</span><span class="p">,</span>
+        <span class="s2">&quot;unfiltered&quot;</span><span class="p">:</span> <span class="n">gait_segment_meta_unfiltered</span><span class="p">,</span>
+    <span class="p">}</span></div>
 
 </pre></div>
 

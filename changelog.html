@@ -25,7 +25,9 @@
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="License" href="license.html" />
+    <link rel="prev" title="Code of Conduct" href="conduct.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -53,13 +55,15 @@
 <li class="toctree-l1"><a class="reference internal" href="guides/installation.html">Installation Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="guides/sensor_requirements.html">Sensor Data Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/input_formats.html">Data Input Formats Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer docs</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
@@ -94,25 +98,66 @@
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading"></a></h1>
 <!--next-version-placeholder-->
-<section id="v1-1-0-04-02-2026">
-<h2>v1.1.0 (04/02/2026)<a class="headerlink" href="#v1-1-0-04-02-2026" title="Link to this heading"></a></h2>
+<section id="v1-1-1-24-03-2026">
+<h2>v1.1.1 (24/03/2026)<a class="headerlink" href="#v1-1-1-24-03-2026" title="Link to this heading"></a></h2>
+<section id="breaking-changes">
+<h3>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>run_gait_pipeline() return structure changed</strong>: Now returns nested dictionaries with separate ‘filtered’ and ‘unfiltered’ results instead of flat tuples.</p>
+<ul>
+<li><p>Previously: <code class="docutils literal notranslate"><span class="pre">(quantified_df:</span> <span class="pre">DataFrame,</span> <span class="pre">metadata:</span> <span class="pre">dict)</span></code></p></li>
+<li><p>Now: <code class="docutils literal notranslate"><span class="pre">({'filtered':</span> <span class="pre">df,</span> <span class="pre">'unfiltered':</span> <span class="pre">df},</span> <span class="pre">{'filtered':</span> <span class="pre">meta,</span> <span class="pre">'unfiltered':</span> <span class="pre">meta})</span></code></p></li>
+<li><p>This change allows analysis of both filtered (clean gait only) and unfiltered (all gait) arm swing data.</p></li>
+</ul>
+</li>
+</ul>
+</section>
 <section id="features">
 <h3>Features<a class="headerlink" href="#features" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Unfiltered gait quantification</strong> (#264): Added support for both filtered and unfiltered gait analysis, allowing comparison of:</p>
+<ul>
+<li><p>Filtered quantification: Arm swing during walking without other activities</p></li>
+<li><p>Unfiltered quantification: All arm swing during any gait, regardless of quality</p></li>
+<li><p>This enables analysis of total gait duration vs clean gait duration and arm swing characteristics across all gait data.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="bug-fixes">
+<h3>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Fixed <code class="docutils literal notranslate"><span class="pre">save_intermediate</span></code> parameter to correctly use ‘classification’ naming for all prediction outputs.</p></li>
+<li><p>Fixed orchestrator to properly pass required <code class="docutils literal notranslate"><span class="pre">segment_meta</span></code> and <code class="docutils literal notranslate"><span class="pre">segment_cats</span></code> to aggregation functions, including parsing of <code class="docutils literal notranslate"><span class="pre">segment_length_bins</span></code> to segment category tuples.</p></li>
+</ul>
+</section>
+<section id="improvements">
+<h3>Improvements<a class="headerlink" href="#improvements" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Cleaned up test infrastructure by removing unused test files, notebooks, and consolidating test helpers to conftest.py.</p></li>
+</ul>
+</section>
+</section>
+<section id="v1-1-0-04-02-2026">
+<h2>v1.1.0 (04/02/2026)<a class="headerlink" href="#v1-1-0-04-02-2026" title="Link to this heading"></a></h2>
+<section id="id1">
+<h3>Features<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><strong>Orchestrator Pipeline</strong>: Added <code class="docutils literal notranslate"><span class="pre">orchestrator.py</span></code> with <code class="docutils literal notranslate"><span class="pre">run_paradigma()</span></code> function for complete end-to-end ParaDigMa analysis pipeline from data loading to aggregated results.</p></li>
 <li><p><strong>Data Preparation</strong>: Added <code class="docutils literal notranslate"><span class="pre">prepare_data.py</span></code> with automatic data preparation capabilities, including column mapping for flexible column names, watch orientation adjustment, and comprehensive validation.</p></li>
 <li><p><strong>Centralized Loading</strong>: Added <code class="docutils literal notranslate"><span class="pre">load.py</span></code> to centralize data loading capabilities across all pipelines.</p></li>
 <li><p><strong>High-Level Pipeline Functions</strong>: Added <code class="docutils literal notranslate"><span class="pre">run_gait_pipeline()</span></code>, <code class="docutils literal notranslate"><span class="pre">run_tremor_pipeline()</span></code>, and <code class="docutils literal notranslate"><span class="pre">run_pulse_rate_pipeline()</span></code> for simplified pipeline execution.</p></li>
 <li><p><strong>Segment Distinction</strong>: Added <code class="docutils literal notranslate"><span class="pre">GAIT_SEGMENT_NR</span></code> and <code class="docutils literal notranslate"><span class="pre">DATA_SEGMENT_NR</span></code> constants to distinguish between temporal gaps and gait bouts. <code class="docutils literal notranslate"><span class="pre">SEGMENT_NR</span></code> kept as deprecated alias for backward compatibility.</p></li>
+<li><p><strong>Unfiltered Gait Quantification</strong>: Modified gait pipeline to return both filtered (clean gait only, without other arm activities) and unfiltered (all gait) quantifications. This allows analysis of arm swing with and without filtering for other arm activities, providing more comprehensive gait assessment options.</p></li>
 <li><p><strong>Test Data</strong>: Added Physilog Gait-Up test data to LFS.</p></li>
 </ul>
 </section>
-<section id="improvements">
-<h3>Improvements<a class="headerlink" href="#improvements" title="Link to this heading"></a></h3>
+<section id="id2">
+<h3>Improvements<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><strong>Logging System</strong>: Replaced <code class="docutils literal notranslate"><span class="pre">verbose</span></code> parameter with standard Python logging using <code class="docutils literal notranslate"><span class="pre">logging_level</span></code> and <code class="docutils literal notranslate"><span class="pre">custom_logger</span></code> parameters across all pipeline functions for better control and traceability.</p></li>
-<li><p><strong>Data Segment Preservation</strong>: Modified <code class="docutils literal notranslate"><span class="pre">quantify_arm_swing()</span></code> to preserve <code class="docutils literal notranslate"><span class="pre">data_segment_nr</span></code> when present in input data.</p></li>
-<li><p><strong>Bug Fixes</strong>: Fixed NaN propagation in resampling by interpolating NaN values before resampling (scipy cannot handle NaN in non-contiguous data).</p></li>
+<li><p><strong>Data Segment Preservation</strong>: Modified <code class="docutils literal notranslate"><span class="pre">quantify_arm_swing()</span></code>, <code class="docutils literal notranslate"><span class="pre">preprocess_imu_data()</span></code>, and aggregation functions to preserve <code class="docutils literal notranslate"><span class="pre">data_segment_nr</span></code> column throughout the pipeline when using <code class="docutils literal notranslate"><span class="pre">split_by_gaps=True</span></code> for non-contiguous data processing.</p></li>
+<li><p><strong>Bug Fixes</strong>: Fixed NaN propagation in resampling by interpolating NaN values before resampling (scipy cannot handle NaN in non-contiguous data). Fixed metadata structure mismatch in gait aggregation that caused zero duration values when using <code class="docutils literal notranslate"><span class="pre">split_by_gaps=True</span></code>.</p></li>
 </ul>
 </section>
 <section id="documentation">
@@ -227,7 +272,10 @@
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="conduct.html" class="btn btn-neutral float-left" title="Code of Conduct" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="license.html" class="btn btn-neutral float-right" title="License" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

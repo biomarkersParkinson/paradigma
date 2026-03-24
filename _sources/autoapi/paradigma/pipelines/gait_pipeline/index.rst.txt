@@ -17,6 +17,7 @@ Functions
 
 .. autoapisummary::
 
+   paradigma.pipelines.gait_pipeline._empty_arm_swing_df
    paradigma.pipelines.gait_pipeline.extract_gait_features
    paradigma.pipelines.gait_pipeline.detect_gait
    paradigma.pipelines.gait_pipeline.extract_arm_activity_features
@@ -32,6 +33,8 @@ Module Contents
 ---------------
 
 .. py:data:: logger
+
+.. py:function:: _empty_arm_swing_df(df: pandas.DataFrame) -> pandas.DataFrame
 
 .. py:function:: extract_gait_features(df: pandas.DataFrame, config: paradigma.config.GaitConfig) -> pandas.DataFrame
 
@@ -154,7 +157,7 @@ Module Contents
    :rtype: pd.Series
 
 
-.. py:function:: quantify_arm_swing(df: pandas.DataFrame, fs: int, filtered: bool = False, max_segment_gap_s: float = 1.5, min_segment_length_s: float = 1.5) -> tuple[dict[str, pandas.DataFrame], dict]
+.. py:function:: quantify_arm_swing(df: pandas.DataFrame, fs: int, filtered: bool = True, max_segment_gap_s: float = 1.5, min_segment_length_s: float = 1.5) -> tuple[pandas.DataFrame, dict]
 
    Quantify arm swing parameters for segments of motion based on gyroscope data.
 
@@ -232,8 +235,8 @@ Module Contents
 
    :param windowed_data: A 2D numpy array where each row corresponds to a window of sensor data.
    :type windowed_data: numpy.ndarray
-   :param config: Configuration object containing settings such as sampling frequency,
-                  window type, frequency bands, and MFCC parameters.
+   :param config: Configuration object containing settings such as window type,
+                  sampling frequency, frequency bands, and MFCC parameters.
    :type config: object
    :param sensor: The name of the sensor (e.g., 'accelerometer', 'gyroscope').
    :type sensor: str
@@ -244,7 +247,7 @@ Module Contents
    :rtype: pd.DataFrame
 
 
-.. py:function:: run_gait_pipeline(df_prepared: pandas.DataFrame, watch_side: str, output_dir: str | pathlib.Path, imu_config: paradigma.config.IMUConfig | None = None, gait_config: paradigma.config.GaitConfig | None = None, arm_activity_config: paradigma.config.GaitConfig | None = None, store_intermediate: list[str] = [], segment_number_offset: int = 0, logging_level: int = logging.INFO, custom_logger: logging.Logger | None = None) -> tuple[pandas.DataFrame, dict]
+.. py:function:: run_gait_pipeline(df_prepared: pandas.DataFrame, watch_side: str, output_dir: str | pathlib.Path, imu_config: paradigma.config.IMUConfig | None = None, gait_config: paradigma.config.GaitConfig | None = None, arm_activity_config: paradigma.config.GaitConfig | None = None, store_intermediate: list[str] | None = None, segment_number_offset_filtered: int = 0, segment_number_offset_unfiltered: int = 0, logging_level: int = logging.INFO, custom_logger: logging.Logger | None = None) -> tuple[dict[str, pandas.DataFrame], dict[str, dict]]
 
    Run the complete gait analysis pipeline on prepared data (steps 1-6).
 
@@ -281,24 +284,34 @@ Module Contents
                               - 'arm_activity': Store arm activity features and predictions after step 5
                               - 'quantification': Store arm swing quantification results after step 6
                               If empty, only returns the final quantified results.
-   :type store_intermediate: List[str]
-   :param segment_number_offset: Offset to add to all segment numbers to avoid conflicts when concatenating
-                                 multiple data segments. Used for proper segment numbering across multiple files.
-   :type segment_number_offset: int, optional, default=0
+   :type store_intermediate: list[str], optional
+   :param segment_number_offset_filtered: Offset to add to filtered segment numbers to avoid conflicts when
+                                          concatenating multiple data segments. Used for proper segment numbering
+                                          across multiple files.
+   :type segment_number_offset_filtered: int, optional, default=0
+   :param segment_number_offset_unfiltered: Offset to add to unfiltered segment numbers to avoid conflicts when
+                                            concatenating multiple data segments. Used for proper segment numbering
+                                            across multiple files.
+   :type segment_number_offset_unfiltered: int, optional, default=0
    :param logging_level: Logging level using standard logging constants (logging.DEBUG, logging.INFO,
                          etc.)
    :type logging_level: int, default logging.INFO
    :param custom_logger: Custom logger instance. If provided, logging_level is ignored.
    :type custom_logger: logging.Logger, optional
 
-   :returns: A tuple containing:
-             - pd.DataFrame: Quantified arm swing parameters with the following columns:
+   :returns: A tuple containing two dictionaries:
+             - First dict contains quantified arm swing parameters with keys:
+                 - 'filtered': DataFrame with arm swings from clean gait only
+                 - 'unfiltered': DataFrame with arm swings from all gait
+               Each DataFrame has columns:
                  - gait_segment_nr: Gait segment number within this data segment
                  - Various arm swing metrics (range of motion, peak angular velocity, etc.)
                  - Additional metadata columns
-             - dict: Gait segment metadata containing information about each detected
-             gait segment
-   :rtype: tuple[pd.DataFrame, dict]
+             - Second dict contains gait segment metadata with keys:
+                 - 'filtered': Metadata for filtered quantification
+                 - 'unfiltered': Metadata for unfiltered quantification
+               Each metadata dict contains information about each detected gait segment
+   :rtype: tuple[dict[str, pd.DataFrame], dict[str, dict]]
 
    .. rubric:: Notes
 

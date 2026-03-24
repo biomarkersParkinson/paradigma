@@ -34,7 +34,7 @@ path_to_imu_data = path_to_raw_data / 'imu'
 
 df_imu, imu_time, imu_values = load_tsdf_dataframe(
     path_to_data=path_to_imu_data,
-    prefix='IMU'
+    prefix='imu'
 )
 
 df_imu.head()
@@ -120,7 +120,7 @@ path_to_ppg_data = os.path.join(path_to_raw_data, 'ppg')
 
 df_ppg, ppg_time, ppg_values = load_tsdf_dataframe(
     path_to_data=path_to_ppg_data,
-    prefix='PPG'
+    prefix='ppg'
 )
 
 df_ppg.head()

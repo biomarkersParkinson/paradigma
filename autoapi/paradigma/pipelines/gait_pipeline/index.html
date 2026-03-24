@@ -55,6 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../guides/installation.html">Installation Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guides/input_formats.html">Data Input Formats Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
@@ -62,6 +63,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
@@ -135,31 +137,34 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.extract_gait_features" title="paradigma.pipelines.gait_pipeline.extract_gait_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_gait_features</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline._empty_arm_swing_df" title="paradigma.pipelines.gait_pipeline._empty_arm_swing_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_empty_arm_swing_df</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.extract_gait_features" title="paradigma.pipelines.gait_pipeline.extract_gait_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_gait_features</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Extracts gait features from accelerometer and gravity sensor data in the</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.detect_gait" title="paradigma.pipelines.gait_pipeline.detect_gait"><code class="xref py py-obj docutils literal notranslate"><span class="pre">detect_gait</span></code></a>(→ pandas.Series)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.detect_gait" title="paradigma.pipelines.gait_pipeline.detect_gait"><code class="xref py py-obj docutils literal notranslate"><span class="pre">detect_gait</span></code></a>(→ pandas.Series)</p></td>
 <td><p>Detects gait activity in the input DataFrame using a pre-trained</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.extract_arm_activity_features" title="paradigma.pipelines.gait_pipeline.extract_arm_activity_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_arm_activity_features</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.extract_arm_activity_features" title="paradigma.pipelines.gait_pipeline.extract_arm_activity_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_arm_activity_features</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Extract features related to arm activity from a time-series DataFrame.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.filter_gait" title="paradigma.pipelines.gait_pipeline.filter_gait"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_gait</span></code></a>(→ pandas.Series)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.filter_gait" title="paradigma.pipelines.gait_pipeline.filter_gait"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_gait</span></code></a>(→ pandas.Series)</p></td>
 <td><p>Filters gait data to identify windows with no other arm activity using</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.quantify_arm_swing" title="paradigma.pipelines.gait_pipeline.quantify_arm_swing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quantify_arm_swing</span></code></a>(→ tuple[dict[str, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.quantify_arm_swing" title="paradigma.pipelines.gait_pipeline.quantify_arm_swing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quantify_arm_swing</span></code></a>(→ tuple[pandas.DataFrame, dict])</p></td>
 <td><p>Quantify arm swing parameters for segments of motion based on gyroscope data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.aggregate_arm_swing_params" title="paradigma.pipelines.gait_pipeline.aggregate_arm_swing_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_arm_swing_params</span></code></a>(→ dict)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.aggregate_arm_swing_params" title="paradigma.pipelines.gait_pipeline.aggregate_arm_swing_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_arm_swing_params</span></code></a>(→ dict)</p></td>
 <td><p>Aggregate the quantification results for arm swing parameters.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.extract_temporal_domain_features" title="paradigma.pipelines.gait_pipeline.extract_temporal_domain_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_temporal_domain_features</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.extract_temporal_domain_features" title="paradigma.pipelines.gait_pipeline.extract_temporal_domain_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_temporal_domain_features</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Compute temporal domain features for the accelerometer signal.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.extract_spectral_domain_features" title="paradigma.pipelines.gait_pipeline.extract_spectral_domain_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_spectral_domain_features</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.extract_spectral_domain_features" title="paradigma.pipelines.gait_pipeline.extract_spectral_domain_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_spectral_domain_features</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Compute spectral domain features for a sensor's data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.run_gait_pipeline" title="paradigma.pipelines.gait_pipeline.run_gait_pipeline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_gait_pipeline</span></code></a>(→ tuple[pandas.DataFrame, dict])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#paradigma.pipelines.gait_pipeline.run_gait_pipeline" title="paradigma.pipelines.gait_pipeline.run_gait_pipeline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_gait_pipeline</span></code></a>(→ tuple[dict[str, pandas.DataFrame], ...)</p></td>
 <td><p>Run the complete gait analysis pipeline on prepared data (steps 1-6).</p></td>
 </tr>
 </tbody>
@@ -170,6 +175,11 @@
 <dl class="py data">
 <dt class="sig sig-object py" id="paradigma.pipelines.gait_pipeline.logger">
 <span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.gait_pipeline.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#paradigma.pipelines.gait_pipeline.logger" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paradigma.pipelines.gait_pipeline._empty_arm_swing_df">
+<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.gait_pipeline.</span></span><span class="sig-name descname"><span class="pre">_empty_arm_swing_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/gait_pipeline.html#_empty_arm_swing_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.gait_pipeline._empty_arm_swing_df" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -333,7 +343,7 @@ threshold, and scaler.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.pipelines.gait_pipeline.quantify_arm_swing">
-<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.gait_pipeline.</span></span><span class="sig-name descname"><span class="pre">quantify_arm_swing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtered</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_segment_gap_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_segment_length_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/gait_pipeline.html#quantify_arm_swing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.gait_pipeline.quantify_arm_swing" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.gait_pipeline.</span></span><span class="sig-name descname"><span class="pre">quantify_arm_swing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtered</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_segment_gap_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_segment_length_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/gait_pipeline.html#quantify_arm_swing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.gait_pipeline.quantify_arm_swing" title="Link to this definition"></a></dt>
 <dd><p>Quantify arm swing parameters for segments of motion based on gyroscope data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -423,8 +433,8 @@ windowed data.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>windowed_data</strong> (<em>numpy.ndarray</em>) – A 2D numpy array where each row corresponds to a window of sensor data.</p></li>
-<li><p><strong>config</strong> (<em>object</em>) – Configuration object containing settings such as sampling frequency,
-window type, frequency bands, and MFCC parameters.</p></li>
+<li><p><strong>config</strong> (<em>object</em>) – Configuration object containing settings such as window type,
+sampling frequency, frequency bands, and MFCC parameters.</p></li>
 <li><p><strong>sensor</strong> (<em>str</em>) – The name of the sensor (e.g., ‘accelerometer’, ‘gyroscope’).</p></li>
 </ul>
 </dd>
@@ -441,7 +451,7 @@ feature.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.pipelines.gait_pipeline.run_gait_pipeline">
-<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.gait_pipeline.</span></span><span class="sig-name descname"><span class="pre">run_gait_pipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_prepared</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">watch_side</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imu_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.IMUConfig" title="paradigma.config.IMUConfig"><span class="pre">paradigma.config.IMUConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gait_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.GaitConfig" title="paradigma.config.GaitConfig"><span class="pre">paradigma.config.GaitConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arm_activity_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.GaitConfig" title="paradigma.config.GaitConfig"><span class="pre">paradigma.config.GaitConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_intermediate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_number_offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logging_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">logging.INFO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logging.Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/gait_pipeline.html#run_gait_pipeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.gait_pipeline.run_gait_pipeline" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.gait_pipeline.</span></span><span class="sig-name descname"><span class="pre">run_gait_pipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_prepared</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">watch_side</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imu_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.IMUConfig" title="paradigma.config.IMUConfig"><span class="pre">paradigma.config.IMUConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gait_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.GaitConfig" title="paradigma.config.GaitConfig"><span class="pre">paradigma.config.GaitConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arm_activity_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.GaitConfig" title="paradigma.config.GaitConfig"><span class="pre">paradigma.config.GaitConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_intermediate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_number_offset_filtered</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_number_offset_unfiltered</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logging_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">logging.INFO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logging.Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/gait_pipeline.html#run_gait_pipeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.gait_pipeline.run_gait_pipeline" title="Link to this definition"></a></dt>
 <dd><p>Run the complete gait analysis pipeline on prepared data (steps 1-6).</p>
 <p>This function implements the gait analysis workflow as described in the tutorials:
 1. Preprocessing
@@ -465,37 +475,57 @@ If None, uses default IMUConfig.</p></li>
 If None, uses default GaitConfig(step=”gait”).</p></li>
 <li><p><strong>arm_activity_config</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.GaitConfig" title="paradigma.config.GaitConfig"><em>GaitConfig</em></a><em>, </em><em>optional</em>) – Configuration for arm activity feature extraction and filtering.
 If None, uses default GaitConfig(step=”arm_activity”).</p></li>
-<li><p><strong>store_intermediate</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – Steps of which intermediate results should be stored:
+<li><p><strong>store_intermediate</strong> (<em>list</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Steps of which intermediate results should be stored:
 - ‘preprocessing’: Store preprocessed data after step 1
 - ‘gait’: Store gait features and predictions after step 3
 - ‘arm_activity’: Store arm activity features and predictions after step 5
 - ‘quantification’: Store arm swing quantification results after step 6
 If empty, only returns the final quantified results.</p></li>
-<li><p><strong>segment_number_offset</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default=0</em>) – Offset to add to all segment numbers to avoid conflicts when concatenating
-multiple data segments. Used for proper segment numbering across multiple files.</p></li>
+<li><p><strong>segment_number_offset_filtered</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default=0</em>) – Offset to add to filtered segment numbers to avoid conflicts when
+concatenating multiple data segments. Used for proper segment numbering
+across multiple files.</p></li>
+<li><p><strong>segment_number_offset_unfiltered</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default=0</em>) – Offset to add to unfiltered segment numbers to avoid conflicts when
+concatenating multiple data segments. Used for proper segment numbering
+across multiple files.</p></li>
 <li><p><strong>logging_level</strong> (<em>int</em><em>, </em><em>default logging.INFO</em>) – Logging level using standard logging constants (logging.DEBUG, logging.INFO,
 etc.)</p></li>
 <li><p><strong>custom_logger</strong> (<em>logging.Logger</em><em>, </em><em>optional</em>) – Custom logger instance. If provided, logging_level is ignored.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><p>A tuple containing:
-- pd.DataFrame: Quantified arm swing parameters with the following columns:</p>
+<dd class="field-even"><p><p>A tuple containing two dictionaries:
+- First dict contains quantified arm swing parameters with keys:</p>
 <blockquote>
+<div><blockquote>
 <div><ul class="simple">
+<li><p>’filtered’: DataFrame with arm swings from clean gait only</p></li>
+<li><p>’unfiltered’: DataFrame with arm swings from all gait</p></li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt>Each DataFrame has columns:</dt><dd><ul class="simple">
 <li><p>gait_segment_nr: Gait segment number within this data segment</p></li>
 <li><p>Various arm swing metrics (range of motion, peak angular velocity, etc.)</p></li>
 <li><p>Additional metadata columns</p></li>
 </ul>
+</dd>
+</dl>
 </div></blockquote>
-<ul class="simple">
-<li><p>dict: Gait segment metadata containing information about each detected</p></li>
+<ul>
+<li><dl class="simple">
+<dt>Second dict contains gait segment metadata with keys:</dt><dd><ul class="simple">
+<li><p>’filtered’: Metadata for filtered quantification</p></li>
+<li><p>’unfiltered’: Metadata for unfiltered quantification</p></li>
 </ul>
-<p>gait segment</p>
+</dd>
+</dl>
+<p>Each metadata dict contains information about each detected gait segment</p>
+</li>
+</ul>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tuple[pd.DataFrame, dict]</p>
+<dd class="field-odd"><p>tuple[dict[str, pd.DataFrame], dict[str, dict]]</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>

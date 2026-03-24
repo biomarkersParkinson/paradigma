@@ -53,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../guides/installation.html">Installation Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/input_formats.html">Data Input Formats Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
@@ -60,6 +61,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
@@ -134,7 +136,7 @@ path_to_imu_data = path_to_raw_data / &#39;imu&#39;
 
 df_imu, imu_time, imu_values = load_tsdf_dataframe(
     path_to_data=path_to_imu_data,
-    prefix=&#39;IMU&#39;
+    prefix=&#39;imu&#39;
 )
 
 df_imu.head()
@@ -148,7 +150,7 @@ df_imu.head()
 
 df_ppg, ppg_time, ppg_values = load_tsdf_dataframe(
     path_to_data=path_to_ppg_data,
-    prefix=&#39;PPG&#39;
+    prefix=&#39;ppg&#39;
 )
 
 df_ppg.head()

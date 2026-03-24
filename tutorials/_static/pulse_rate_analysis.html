@@ -53,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../guides/installation.html">Installation Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/input_formats.html">Data Input Formats Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
@@ -60,6 +61,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
@@ -147,13 +149,13 @@
 
 <span class="n">df_ppg</span><span class="p">,</span> <span class="n">metadata_time_ppg</span><span class="p">,</span> <span class="n">metadata_values_ppg</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
     <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_prepared_data</span> <span class="o">/</span> <span class="n">ppg_prefix</span><span class="p">,</span>
-    <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;PPG_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;ppg_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
 <span class="p">)</span>
 
 <span class="c1"># Only relevant if you have IMU data available</span>
 <span class="n">df_imu</span><span class="p">,</span> <span class="n">metadata_time_imu</span><span class="p">,</span> <span class="n">metadata_values_imu</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
     <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_prepared_data</span> <span class="o">/</span> <span class="n">imu_prefix</span><span class="p">,</span>
-    <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;imu_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
 <span class="p">)</span>
 
 <span class="n">time_col</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
@@ -377,10 +379,12 @@ Original data shapes:
 - Accelerometer data: (3455331, 7)
 
 
-Resampled: 3455331 -&gt; 3433961 rows at 100.0 Hz
+INFO: Resampled: 3455331 -&gt; 3433961 rows at 100.0 Hz
 
 
-Resampled: 1029374 -&gt; 1030188 rows at 30.0 Hz
+INFO: Resampled: 1029374 -&gt; 1030188 rows at 30.0 Hz
+
+
 Overlapping preprocessed data shapes:
 - PPG data: (1030188, 2)
 - Accelerometer data: (3433961, 4)
@@ -1098,18 +1102,18 @@ In this pipeline, the logistic classifier for PPG morphology was trained on z-sc
 <span class="c1"># Create a list of dataframes to store the estimated pulse rates of all segments</span>
 <span class="n">list_df_pr</span> <span class="o">=</span> <span class="p">[]</span>
 
-<span class="n">segments</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;0001&#39;</span><span class="p">,</span> <span class="s1">&#39;0002&#39;</span><span class="p">]</span> <span class="c1"># list with all available segments</span>
+<span class="n">segments</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;0001&#39;</span><span class="p">]</span> <span class="c1"># list with all available segments</span>
 
 <span class="k">for</span> <span class="n">segment_nr</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">:</span>
 
     <span class="c1"># Load the data</span>
     <span class="n">df_ppg</span><span class="p">,</span> <span class="n">metadata_time_ppg</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
         <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_prepared_data</span> <span class="o">/</span> <span class="n">ppg_prefix</span><span class="p">,</span>
-        <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;PPG_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;ppg_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
     <span class="p">)</span>
     <span class="n">df_imu</span><span class="p">,</span> <span class="n">metadata_time_imu</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_dataframe</span><span class="p">(</span>
         <span class="n">path_to_data</span><span class="o">=</span><span class="n">path_to_prepared_data</span> <span class="o">/</span> <span class="n">imu_prefix</span><span class="p">,</span>
-        <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;IMU_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;imu_segment</span><span class="si">{</span><span class="n">segment_nr</span><span class="si">}</span><span class="s1">&#39;</span>
     <span class="p">)</span>
 
     <span class="c1"># Drop the gyroscope columns from the IMU data</span>
@@ -1169,16 +1173,10 @@ In this pipeline, the logistic classifier for PPG morphology was trained on z-sc
 <span class="n">df_pr</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">list_df_pr</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Resampled: 3455331 -&gt; 3433961 rows at 100.0 Hz
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>INFO: Resampled: 3455331 -&gt; 3433961 rows at 100.0 Hz
 
 
-Resampled: 1029374 -&gt; 1030188 rows at 30.0 Hz
-
-
-Resampled: 7434685 -&gt; 7388945 rows at 100.0 Hz
-
-
-Resampled: 2214444 -&gt; 2216683 rows at 30.0 Hz
+INFO: Resampled: 1029374 -&gt; 1030188 rows at 30.0 Hz
 </pre></div>
 </div>
 </section>
@@ -1197,11 +1195,11 @@ Resampled: 2214444 -&gt; 2216683 rows at 30.0 Hz
 </div>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{
   &quot;metadata&quot;: {
-    &quot;nr_pr_est&quot;: 8660
+    &quot;nr_pr_est&quot;: 806
   },
   &quot;pr_aggregates&quot;: {
-    &quot;mode_pulse_rate&quot;: 63.59175662414131,
-    &quot;99p_pulse_rate&quot;: 85.77263444520081
+    &quot;mode_pulse_rate&quot;: 81.25613346418058,
+    &quot;99p_pulse_rate&quot;: 87.65865011636926
   }
 }
 </pre></div>

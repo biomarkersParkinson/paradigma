@@ -52,6 +52,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/installation.html">Installation Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/sensor_requirements.html">Sensor Data Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/supported_devices.html">Supported Devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/input_formats.html">Data Input Formats Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/config.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/coordinate_system.html">Coordinate System</a></li>
 </ul>
@@ -59,6 +60,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
@@ -724,7 +726,6 @@
         <span class="n">df_ppg_proc</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">preprocess_ppg_data</span><span class="p">(</span>
             <span class="n">df_ppg</span><span class="o">=</span><span class="n">df_ppg</span><span class="p">,</span>
             <span class="n">ppg_config</span><span class="o">=</span><span class="n">ppg_config</span><span class="p">,</span>
-            <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span> <span class="k">if</span> <span class="n">logging_level</span> <span class="o">&lt;=</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="s2">&quot;preprocessing&quot;</span> <span class="ow">in</span> <span class="n">store_intermediate</span><span class="p">:</span>
@@ -742,12 +743,6 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="n">df_features</span> <span class="o">=</span> <span class="n">extract_signal_quality_features</span><span class="p">(</span><span class="n">df_ppg_proc</span><span class="p">,</span> <span class="n">pulse_rate_config</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="s2">&quot;pulse_rate&quot;</span> <span class="ow">in</span> <span class="n">store_intermediate</span><span class="p">:</span>
-            <span class="n">pulse_rate_dir</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;pulse_rate&quot;</span>
-            <span class="n">pulse_rate_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">df_features</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">pulse_rate_dir</span> <span class="o">/</span> <span class="s2">&quot;signal_quality_features.parquet&quot;</span><span class="p">)</span>
-            <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved signal quality features to </span><span class="si">{</span><span class="n">pulse_rate_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">active_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Feature extraction failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
@@ -761,6 +756,14 @@
         <span class="n">df_classified</span> <span class="o">=</span> <span class="n">signal_quality_classification</span><span class="p">(</span>
             <span class="n">df_features</span><span class="p">,</span> <span class="n">pulse_rate_config</span><span class="p">,</span> <span class="n">classifier_package</span>
         <span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;classification&quot;</span> <span class="ow">in</span> <span class="n">store_intermediate</span><span class="p">:</span>
+            <span class="n">classification_dir</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;classification&quot;</span>
+            <span class="n">classification_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">df_classified</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
+                <span class="n">classification_dir</span> <span class="o">/</span> <span class="s2">&quot;ppg_quality_predictions.parquet&quot;</span>
+            <span class="p">)</span>
+            <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved PPG quality predictions to </span><span class="si">{</span><span class="n">classification_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">active_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Signal quality classification failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
