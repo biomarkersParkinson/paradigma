@@ -1,0 +1,12 @@
+{
+    "metadata": {
+        "nr_windows_total": 182,
+        "nr_windows_rest": 89
+    },
+    "aggregated_tremor_measures": {
+        "perc_windows_tremor": 16.853932584269664,
+        "median_tremor_power": 0.4242462829851676,
+        "modal_tremor_power": 0.42,
+        "90p_tremor_power": 0.8001855655603451
+    }
+}

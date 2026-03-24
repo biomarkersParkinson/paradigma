@@ -1,27 +1,36 @@
 # ParaDigMa Pipeline Orchestrator Tutorial
 
-This tutorial demonstrates how to use the **pipeline orchestrator** `run_paradigma()`, which serves as the main entry point for running ParaDigMa analysis pipelines. The orchestrator coordinates multiple analysis steps and can process different formats of sensor data.
+This tutorial demonstrates how to use the **pipeline orchestrator**
+`run_paradigma()`, which serves as the main entry point for running
+ParaDigMa analysis pipelines. The orchestrator coordinates multiple
+analysis steps and can process different formats of sensor data.
 
 ## Overview
 
-The `run_paradigma()` function is called an _orchestrator_ because it coordinates multiple analysis steps depending on the user input. It can process:
+The `run_paradigma()` function is called an _orchestrator_ because it
+coordinates multiple analysis steps depending on the user input. It can
+process:
 
 - **Gait analysis**: Arm swing quantification from IMU data
-- **Tremor analysis**: Tremor detection and quantification from gyroscope data
+- **Tremor analysis**: Tremor detection and quantification from gyroscope
+  data
 - **Pulse rate estimation**: Pulse rate analysis from PPG data
 
 ### Key Features
 
 - **Multi-pipeline support**: Run multiple analyses simultaneously
 - **Flexible data input**: Works with both prepared and raw sensor data
-- **Multiple data formats**: Supports Verily, Axivity, Empatica, and custom formats
+- **Multiple data formats**: Supports Verily, Axivity, Empatica, and custom
+  formats
 - **Robust processing**: Automatic data preparation and error handling
 
 ### Data Requirements
 
 The orchestrator accepts either:
-1. **Prepared data**: Prepared according to the [Data preparation tutorial](https://biomarkersparkinson.github.io/paradigma/tutorials/data_preparation.html)
-2. **Raw data**: Automatically processed (note: this feature has a limited scope)
+1. **Prepared data**: Prepared according to the
+   [Data preparation tutorial](https://biomarkersparkinson.github.io/paradigma/tutorials/data_preparation.html)
+2. **Raw data**: Automatically processed (note: this feature has a limited
+   scope)
 
 Let's explore different usage scenarios with examples.
 
@@ -40,11 +49,13 @@ from paradigma.orchestrator import run_paradigma
 
 ## 1. Single pipeline with prepared data
 
-Let's start with a simple example using prepared PPG data for pulse rate analysis.
+Let's start with a simple example using prepared PPG data for pulse rate
+analysis.
 
-The function `load_data_files` attempts to load data of any or multiple of the following formats:
-'parquet', 'csv', 'pkl', 'pickle', 'json', 'avro', 'cwa'. You can load the data in your preferred
-ways, but note that the output should be of format `Dict[str, pd.DataFrame]`:
+The function `load_data_files` attempts to load data of any or multiple of
+the following formats: 'parquet', 'csv', 'pkl', 'pickle', 'json', 'avro',
+'cwa'. You can load the data in your preferred ways, but note that the
+output should be of format `Dict[str, pd.DataFrame]`:
 ```python
 {
     'file_1': df_1,
@@ -56,10 +67,12 @@ ways, but note that the output should be of format `Dict[str, pd.DataFrame]`:
 
 Alternatively, you can provide:
 - A **single DataFrame**: Will be processed with key `'df_1'`
-- A **list of DataFrames**: Each will get keys like `'df_1'`, `'df_2'`, etc.
+- A **list of DataFrames**: Each will get keys like `'df_1'`, `'df_2'`,
+  etc.
 
-This means ParaDigMa can run multiple files in sequence. This is useful when you have multiple files
-spanning a week, and you want aggregations to be computed across all files.
+This means ParaDigMa can run multiple files in sequence. This is useful
+when you have multiple files spanning a week, and you want aggregations
+to be computed across all files.
 
 
 ```python
@@ -82,13 +95,13 @@ dfs_ppg[list(dfs_ppg.keys())[0]].head()
     INFO: Found 2 data files in ..\..\example_data\verily\ppg
 
 
-    INFO: Loading TSDF data from ..\..\example_data\verily\ppg with prefix 'PPG_segment0001'
+    INFO: Loading TSDF data from ..\..\example_data\verily\ppg with prefix 'ppg_segment0001'
 
 
     INFO: Loaded TSDF data: 1029375 rows, 2 columns
 
 
-    INFO: Loading TSDF data from ..\..\example_data\verily\ppg with prefix 'PPG_segment0002'
+    INFO: Loading TSDF data from ..\..\example_data\verily\ppg with prefix 'ppg_segment0002'
 
 
     INFO: Loaded TSDF data: 2214450 rows, 2 columns
@@ -98,10 +111,10 @@ dfs_ppg[list(dfs_ppg.keys())[0]].head()
 
 
     Loaded 2 PPG files:
-      - PPG_segment0001: 1029375 samples, 2 columns
-      - PPG_segment0002: 2214450 samples, 2 columns
+      - ppg_segment0001: 1029375 samples, 2 columns
+      - ppg_segment0002: 2214450 samples, 2 columns
 
-    First 5 rows of PPG_segment0001:
+    First 5 rows of ppg_segment0001:
 
 
 
@@ -150,7 +163,8 @@ dfs_ppg[list(dfs_ppg.keys())[0]].head()
 
 ### Output Control
 
-When running ParaDigMa, you can control where results are saved and what intermediate results to store:
+When running ParaDigMa, you can control where results are saved and what
+intermediate results to store:
 
 **Output Directory:**
 - Default: `output_dir` defaults to `"./output"`
@@ -171,13 +185,18 @@ Valid options are:
 - `'quantification'`: Save quantified measures
 - `'aggregation'`: Save aggregated results
 
-If `save_intermediate=[]` (empty list), **no files are saved** - results are only returned in memory.
+If `save_intermediate=[]` (empty list), **no files are saved** - results
+are only returned in memory.
 
-Also, set the correct units of the `time` column. For all options, please check [the API reference](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/constants/index.html#paradigma.constants.TimeUnit).
+Also, set the correct units of the `time` column. For all options, please
+check
+[the API reference](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/constants/index.html#paradigma.constants.TimeUnit).
 
 ### Logging Control
 
-ParaDigMa uses Python's standard `logging` module to provide progress updates and diagnostics. You can control the verbosity level and optionally provide a custom logger for advanced use cases.
+ParaDigMa uses Python's standard `logging` module to provide progress
+updates and diagnostics. You can control the verbosity level and
+optionally provide a custom logger for advanced use cases.
 
 **Basic Logging Levels:**
 
@@ -199,7 +218,8 @@ run_paradigma(..., logging_level=logging.ERROR)
 
 **Custom Logger (Advanced):**
 
-For full control over logging (custom formatting, multiple handlers, etc.), provide your own logger:
+For full control over logging (custom formatting, multiple handlers, etc.),
+provide your own logger:
 
 ```python
 # Create custom logger with your configuration
@@ -211,19 +231,21 @@ custom_logger.addHandler(...)  # Add your handlers
 run_paradigma(..., custom_logger=custom_logger)
 ```
 
-When a custom logger is provided, the `logging_level` parameter is ignored.
+When a custom logger is provided, the `logging_level` parameter is
+ignored.
 
 
 ```python
 pipeline = 'pulse_rate'
 
-# Example 1: Using default output directory with storage
+# Example: Using default output directory with storage
 results_single_pipeline = run_paradigma(
     dfs=dfs_ppg,
     pipelines=pipeline,
     skip_preparation=True,
     time_input_unit=TimeUnit.RELATIVE_S,
-    save_intermediate=['quantification', 'aggregation'],  # Files saved to ./output
+    # Files saved to ./output
+    save_intermediate=['quantification', 'aggregation'],
     logging_level=logging.WARNING  # Only show warnings and errors
 )
 
@@ -254,31 +276,31 @@ results_single_pipeline['quantifications'][pipeline].head()
       <th>0</th>
       <td>47.0</td>
       <td>80.372915</td>
-      <td>PPG_segment0001</td>
+      <td>ppg_segment0001</td>
     </tr>
     <tr>
       <th>1</th>
       <td>49.0</td>
       <td>79.769382</td>
-      <td>PPG_segment0001</td>
+      <td>ppg_segment0001</td>
     </tr>
     <tr>
       <th>2</th>
       <td>51.0</td>
       <td>79.136408</td>
-      <td>PPG_segment0001</td>
+      <td>ppg_segment0001</td>
     </tr>
     <tr>
       <th>3</th>
       <td>53.0</td>
       <td>78.606477</td>
-      <td>PPG_segment0001</td>
+      <td>ppg_segment0001</td>
     </tr>
     <tr>
       <th>4</th>
       <td>55.0</td>
       <td>77.870461</td>
-      <td>PPG_segment0001</td>
+      <td>ppg_segment0001</td>
     </tr>
   </tbody>
 </table>
@@ -286,65 +308,63 @@ results_single_pipeline['quantifications'][pipeline].head()
 
 
 
+If you only want to work with results in memory without saving any files,
+use an empty `save_intermediate` list:
 
-```python
-# Example 2: No file storage - results only in memory
-results_no_storage = run_paradigma(
-    dfs=dfs_ppg,
-    pipelines=pipeline,
-    skip_preparation=True,
-    time_input_unit=TimeUnit.RELATIVE_S,
-    save_intermediate=[],  # No files saved
-    logging_level=logging.WARNING  # Only show warnings and errors
-)
-
-print("Results returned without file storage:")
-print(f"  Quantifications: {len(results_no_storage['quantifications'][pipeline])} rows")
-print(f"  Aggregations: {results_no_storage['aggregations'][pipeline]}")
-```
-
-    Results returned without file storage:
-      Quantifications: 8684 rows
-      Aggregations: {'mode_pulse_rate': np.float64(63.59175662414131), '99p_pulse_rate': np.float64(85.77263444520081)}
-
-
-### Example: No File Storage
-
-If you only want to work with results in memory without saving any files, use an empty `save_intermediate` list:
-
-Note that `run_paradigma` currently does not accept accelerometer data as a supplement to the pulse
-rate pipeline for signal quality analysis. If you want to do these analyses, please check out the
+Note that `run_paradigma` currently does not accept accelerometer data as
+a supplement to the pulse rate pipeline for signal quality analysis. If you
+want to do these analyses, please check out the
 [Pulse rate analysis](https://biomarkersparkinson.github.io/paradigma/tutorials/_static/pulse_rate_analysis.html)
 tutorial for more info.
 
 ## 2. Multi-pipeline with prepared data
 
-One of the key features of the orchestrator is the ability to run multiple analysis pipelines simultaneously on the same data. This is more efficient than running them separately.
+One of the key features of the orchestrator is the ability to run multiple
+analysis pipelines simultaneously on the same data. This is more efficient
+than running them separately.
 
 ### Results Structure
 
-The multi-pipeline orchestrator returns a nested structure that organizes results by pipeline:
+The multi-pipeline orchestrator returns a nested structure that organizes
+results by pipeline:
 
 ```python
 {
     'quantifications': {
-        'gait': DataFrame,      # Gait segment-level quantifications
-        'tremor': DataFrame     # Tremor window-level quantifications
+        'gait': {
+            'filtered': DataFrame,
+            'unfiltered': DataFrame   # All gait segments
+        },
+        'tremor': DataFrame           # Tremor window-level quantifications
     },
     'aggregations': {
-        'gait': {...},         # Aggregated gait metrics
-        'tremor': {...}        # Aggregated tremor metrics
+        'gait': {
+            'filtered': {...},        # Aggregates for clean gait
+            'unfiltered': {...}       # Aggregates for all gait
+        },
+        'tremor': {...}               # Aggregated tremor metrics
     },
     'metadata': {
-        'gait': {...},         # Gait analysis metadata
-        'tremor': {...}        # Tremor analysis metadata
+        'gait': {
+            'filtered': {...},        # Metadata for clean gait
+            'unfiltered': {...}       # Metadata for all gait
+        },
+        'tremor': {...}               # Tremor analysis metadata
     },
-    'errors': [...]            # List of errors encountered (empty if successful)
+    # List of errors encountered (empty if successful)
+    'errors': [...]
 }
 ```
 
-The `errors` list tracks any failures during processing. Each error contains:
-- `stage`: Where the error occurred (loading, preparation, pipeline_execution, aggregation)
+**Note:** The gait pipeline returns nested dictionaries with `'filtered'`
+and `'unfiltered'` keys to provide both clean gait analysis (without other
+arm activities) and all gait analysis. Other pipelines return DataFrames
+and dicts directly.
+
+The `errors` list tracks any failures during processing. Each error
+contains:
+- `stage`: Where the error occurred (loading, preparation,
+  pipeline_execution, aggregation)
 - `error`: Error message
 - `file`: Filename (if file-specific)
 - `pipeline`: Pipeline name (if pipeline-specific)
@@ -377,10 +397,10 @@ dfs_imu[list(dfs_imu.keys())[0]].head()
 ```
 
     Loaded 2 IMU files:
-      - IMU_segment0001: 3455331 samples, 7 columns
-      - IMU_segment0002: 7434685 samples, 7 columns
+      - imu_segment0001: 3455331 samples, 7 columns
+      - imu_segment0002: 7434685 samples, 7 columns
 
-    First 5 rows of IMU_segment0001:
+    First 5 rows of imu_segment0001:
 
 
 
@@ -465,10 +485,12 @@ results_multi_pipeline = run_paradigma(
     output_dir=Path('./output_multi'),
     dfs=dfs_imu,                        # Pre-loaded data
     skip_preparation=True,              # Data is already prepared
-    pipelines=['gait', 'tremor'],       # Multiple pipelines (list format)
+    # Multiple pipelines (list format)
+    pipelines=['gait', 'tremor'],
     watch_side='left',                  # Required for gait analysis
-    save_intermediate=['quantification'],  # Store quantifications only
-    logging_level=logging.WARNING  # Only show warnings and errors
+    # Store quantifications only
+    save_intermediate=['quantification'],
+    logging_level=logging.WARNING       # Only show warnings and errors
 )
 ```
 
@@ -477,21 +499,43 @@ results_multi_pipeline = run_paradigma(
 # Explore the results structure
 print("Detailed Results Analysis:")
 
-# Gait results
-arm_swing_quantified = results_multi_pipeline['quantifications']['gait']
-arm_swing_aggregates = results_multi_pipeline['aggregations']['gait']
-arm_swing_meta = results_multi_pipeline['metadata']['gait']
-print(f"\nArm swing quantification ({len(arm_swing_quantified)} windows):")
-print(
-    f"   Columns: {list(arm_swing_quantified.columns[:5])}... "
-    f"({len(arm_swing_quantified.columns)} total)"
-)
-print(f"   Files: {arm_swing_quantified['file_key'].unique()}")
+# Gait results (now nested with 'filtered' and 'unfiltered' keys)
+gait_quantifications = results_multi_pipeline['quantifications']['gait']
+gait_aggregates = results_multi_pipeline['aggregations']['gait']
+gait_metadata = results_multi_pipeline['metadata']['gait']
 
-print(f"\nArm swing aggregation ({len(arm_swing_aggregates)} time ranges):")
-print(f"   Gait segment categories: {list(arm_swing_aggregates.keys())}")
-print(f"   Aggregates: {list(arm_swing_aggregates['0_10'].keys())}")
-print(f"   Metadata first gait segment: {arm_swing_meta[1]}")
+# Access filtered gait results (clean gait without other arm activities)
+arm_swing_quantified_filtered = gait_quantifications['filtered']
+n_windows = len(arm_swing_quantified_filtered)
+print(f"\nFiltered arm swing quantification ({n_windows} swings):")
+print(
+    f"   Columns: {list(arm_swing_quantified_filtered.columns[:5])}... "
+    f"({len(arm_swing_quantified_filtered.columns)} total)"
+)
+if 'file_key' in arm_swing_quantified_filtered.columns:
+    files = arm_swing_quantified_filtered['file_key'].unique()
+    print(f"   Files: {files}")
+
+# Access unfiltered gait results (all gait)
+arm_swing_quantified_unfiltered = gait_quantifications['unfiltered']
+n_unfiltered = len(arm_swing_quantified_unfiltered)
+print(f"\nUnfiltered arm swing quantification ({n_unfiltered} 'swings'):")
+
+print("\nFiltered gait aggregation:")
+categories = list(gait_aggregates['filtered'].keys())
+print(f"   Gait segment categories: {categories}")
+if '0_20' in gait_aggregates['filtered']:
+    agg_keys = list(gait_aggregates['filtered']['0_20'].keys())
+    print(f"   Aggregates for 0-20s segments: {agg_keys}")
+
+has_segments = (
+    'per_segment' in gait_metadata['filtered']
+    and gait_metadata['filtered']['per_segment']
+)
+if has_segments:
+    first_segment = list(gait_metadata['filtered']['per_segment'].keys())[0]
+    first_seg_meta = gait_metadata['filtered']['per_segment'][first_segment]
+    print(f"   First filtered gait segment: {first_seg_meta}")
 
 # Tremor results
 tremor_quantified = results_multi_pipeline['quantifications']['tremor']
@@ -502,47 +546,56 @@ print(
     f"   Columns: {list(tremor_quantified.columns[:5])}... "
     f"({len(tremor_quantified.columns)} total)"
 )
-print(f"   Files: {tremor_quantified['file_key'].unique()}")
+if 'file_key' in tremor_quantified.columns:
+    print(f"   Files: {tremor_quantified['file_key'].unique()}")
 
 print(f"\nTremor aggregation ({len(tremor_aggregates)} time ranges):")
 print(f"   Aggregates: {list(tremor_aggregates.keys())}")
-print(f"   Metadata first tremor segment: {tremor_meta}")
+print(f"   Metadata: {tremor_meta}")
 ```
 
     Detailed Results Analysis:
 
-    Arm swing quantification (5299 windows):
+    Filtered arm swing quantification (5299 swings):
        Columns: ['gait_segment_nr', 'range_of_motion', 'peak_velocity', 'file_key']... (4 total)
-       Files: ['IMU_segment0001' 'IMU_segment0002']
+       Files: ['imu_segment0001' 'imu_segment0002']
 
-    Arm swing aggregation (4 time ranges):
-       Gait segment categories: ['0_10', '10_20', '20_inf', '0_inf']
-       Aggregates: ['duration_s', 'median_range_of_motion', '95p_range_of_motion', 'median_cov_range_of_motion', 'mean_cov_range_of_motion', 'median_peak_velocity', '95p_peak_velocity', 'median_cov_peak_velocity', 'mean_cov_peak_velocity']
-       Metadata first gait segment: {'start_time_s': 2221.75, 'end_time_s': 2230.74, 'duration_unfiltered_segment_s': 12.75, 'duration_filtered_segment_s': 9.0}
+    Unfiltered arm swing quantification (11950 'swings'):
+
+    Filtered gait aggregation:
+       Gait segment categories: ['0_20', '20_inf']
+       Aggregates for 0-20s segments: ['duration_s', 'median_range_of_motion', '95p_range_of_motion', 'median_cov_range_of_motion', 'mean_cov_range_of_motion', 'median_peak_velocity', '95p_peak_velocity', 'median_cov_peak_velocity', 'mean_cov_peak_velocity']
 
     Tremor quantification (27056 windows):
        Columns: ['time', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power', 'file_key']... (5 total)
-       Files: ['IMU_segment0001' 'IMU_segment0002']
+       Files: ['imu_segment0001' 'imu_segment0002']
 
     Tremor aggregation (4 time ranges):
        Aggregates: ['perc_windows_tremor', 'median_tremor_power', 'modal_tremor_power', '90p_tremor_power']
-       Metadata first tremor segment: {'nr_valid_days': 1, 'nr_windows_total': 27056, 'nr_windows_rest': 18766}
+       Metadata: {'nr_valid_days': 1, 'nr_windows_total': 27056, 'nr_windows_rest': 18766}
 
 
 ## 3. Raw Data Processing
 
-The orchestrator can also process raw sensor data automatically. This includes data preparation steps like format standardization, unit conversion, and orientation correction. Note that this feature has been developed on limited data examples, and therefore may not function as expected on newly observed data.
+The orchestrator can also process raw sensor data automatically. This
+includes data preparation steps like format standardization, unit
+conversion, and orientation correction. Note that this feature has been
+developed on limited data examples, and therefore may not function as
+expected on newly observed data.
 
 ### Column Mapping for Custom Data Formats
 
-If your raw data uses different column names than ParaDigMa's standard naming convention, use the `column_mapping` parameter to map your column names to the expected ones.
+If your raw data uses different column names than ParaDigMa's standard
+naming convention, use the `column_mapping` parameter to map your column
+names to the expected ones.
 
 **Standard ParaDigMa column names:**
 - **Required for all pipelines:**
   - `time`: Timestamp column
 
 - **For IMU pipelines (gait, tremor):**
-  - `accelerometer_x`, `accelerometer_y`, `accelerometer_z`: Accelerometer axes
+  - `accelerometer_x`, `accelerometer_y`, `accelerometer_z`: Accelerometer
+    axes
   - `gyroscope_x`, `gyroscope_y`, `gyroscope_z`: Gyroscope axes
 
 - **For PPG pipeline (pulse_rate):**
@@ -551,11 +604,14 @@ If your raw data uses different column names than ParaDigMa's standard naming co
 **Example mapping:**
 ```python
 column_mapping = {
-    'timestamp': 'time',                      # Your 'timestamp' column → ParaDigMa 'time' column
-    'acceleration_x': 'accelerometer_x',      # Your 'acceleration' columns → ParaDigMa 'accelerometer' columns'
+    # Your 'timestamp' column → ParaDigMa 'time' column
+    'timestamp': 'time',
+    # Your 'acceleration' columns → ParaDigMa 'accelerometer' columns'
+    'acceleration_x': 'accelerometer_x',
     'acceleration_y': 'accelerometer_y',
     'acceleration_z': 'accelerometer_z',
-    'rotation_x': 'gyroscope_x',              # Your 'rotation' columns → ParaDigMa 'gyroscope' columns
+    # Your 'rotation' columns → ParaDigMa 'gyroscope' columns
+    'rotation_x': 'gyroscope_x',
     'rotation_y': 'gyroscope_y',
     'rotation_z': 'gyroscope_z',
 }
@@ -565,7 +621,7 @@ column_mapping = {
 ```python
 path_to_raw_data = Path('../../example_data/axivity')
 
-device_orientation = ["-x", "-y", "z"]      # Sensor was worn upside-down
+device_orientation = ["-x", "-y", "z"]  # Sensor was worn upside-down
 pipeline = 'gait'
 
 # Working with raw data - this requires data preparation
@@ -576,45 +632,45 @@ results_end_to_end = run_paradigma(
     skip_preparation=False,                 # ParaDigMa will prepare the data
     pipelines=pipeline,
     watch_side="left",
-    time_input_unit=TimeUnit.RELATIVE_S,    # Specify time unit for raw data
+    time_input_unit=TimeUnit.RELATIVE_S,    # Specify time unit
     accelerometer_units='g',
     gyroscope_units='deg/s',
     target_frequency=100.0,
     device_orientation=device_orientation,
     save_intermediate=['aggregation'],      # Only save aggregations
-    logging_level=logging.WARNING,  # Only show warnings and errors
+    logging_level=logging.WARNING,          # Only show warnings and errors
 )
 
-print(
-    f"\nMetadata:\n"
-    f"{json.dumps(results_end_to_end['metadata'][pipeline][1], indent=2)}"
-)
-print(
-    f"\nAggregations:\n"
-    f"{json.dumps(results_end_to_end['aggregations'][pipeline], indent=2)}"
-)
+# Access filtered gait metadata (clean gait without other arm activities)
+filtered_gait_metadata = results_end_to_end['metadata'][pipeline]['filtered']
+if 'per_segment' in filtered_gait_metadata:
+    if filtered_gait_metadata['per_segment']:
+        seg_keys = list(filtered_gait_metadata['per_segment'].keys())
+        first_segment_id = seg_keys[0]
+        first_seg = filtered_gait_metadata['per_segment'][first_segment_id]
+        print(
+            f"\nFiltered Gait Metadata (first segment):"
+            f"\n{json.dumps(first_seg, indent=2)}"
+        )
+
+# Access filtered aggregations
+filtered_gait_agg = results_end_to_end['aggregations'][pipeline]['filtered']
+print("\nFiltered Gait Aggregations:")
+print(json.dumps(filtered_gait_agg, indent=2))
+
+# Access unfiltered aggregations
+unfiltered_gait_agg = results_end_to_end['aggregations'][pipeline]['unfiltered']
+print("\nUnfiltered Gait Aggregations:")
+print(json.dumps(unfiltered_gait_agg, indent=2))
+
 print("\nQuantifications (first 5 rows; each row represents a single arm swing):")
-results_end_to_end['quantifications'][pipeline].head()
+results_end_to_end['quantifications'][pipeline]['filtered'].head()
 ```
 
-    Resampled: 36400 -> 36433 rows at 100.0 Hz
 
-
-
-    Metadata:
+    Filtered Gait Aggregations:
     {
-      "start_time_s": 124.5,
-      "end_time_s": 127.49,
-      "duration_unfiltered_segment_s": 124.5,
-      "duration_filtered_segment_s": 3.0
-    }
-
-    Aggregations:
-    {
-      "0_10": {
-        "duration_s": 0
-      },
-      "10_20": {
+      "0_20": {
         "duration_s": 0
       },
       "20_inf": {
@@ -627,17 +683,32 @@ results_end_to_end['quantifications'][pipeline].head()
         "95p_peak_velocity": 258.93016146092725,
         "median_cov_peak_velocity": 0.23137490496592453,
         "mean_cov_peak_velocity": 0.2872492141424207
+      }
+    }
+
+    Unfiltered Gait Aggregations:
+    {
+      "0_20": {
+        "duration_s": 33.0,
+        "median_range_of_motion": 18.021256889774918,
+        "95p_range_of_motion": 48.986734305019844,
+        "median_cov_range_of_motion": 0.6876868388869998,
+        "mean_cov_range_of_motion": 0.721209392730354,
+        "median_peak_velocity": 85.1271519261023,
+        "95p_peak_velocity": 200.24091393958028,
+        "median_cov_peak_velocity": 0.4509692493413288,
+        "mean_cov_peak_velocity": 0.5755534586600688
       },
-      "0_inf": {
-        "duration_s": 18.0,
-        "median_range_of_motion": 7.182233339196239,
-        "95p_range_of_motion": 27.529007915195255,
-        "median_cov_range_of_motion": 0.19564530259481105,
-        "mean_cov_range_of_motion": 0.2725453668861871,
-        "median_peak_velocity": 52.92434205521389,
-        "95p_peak_velocity": 258.93016146092725,
-        "median_cov_peak_velocity": 0.23137490496592453,
-        "mean_cov_peak_velocity": 0.2872492141424207
+      "20_inf": {
+        "duration_s": 238.5,
+        "median_range_of_motion": 38.25306451727731,
+        "95p_range_of_motion": 67.37535941984774,
+        "median_cov_range_of_motion": 0.4132725188180793,
+        "mean_cov_range_of_motion": 0.4468700296741521,
+        "median_peak_velocity": 153.1405489705395,
+        "95p_peak_velocity": 221.23828397076485,
+        "median_cov_peak_velocity": 0.34037878524240156,
+        "mean_cov_peak_velocity": 0.3860157786145167
       }
     }
 
@@ -696,7 +767,10 @@ results_end_to_end['quantifications'][pipeline].head()
 
 ## 4. Auto-Segmentation for Non-Contiguous Data
 
-When working with sensor data, you may encounter gaps or interruptions in the recording (e.g., battery died, device removed, multiple recording sessions). The orchestrator can automatically detect these gaps and split the data into contiguous segments for processing.
+When working with sensor data, you may encounter gaps or interruptions in
+the recording (e.g., battery died, device removed, multiple recording
+sessions). The orchestrator can automatically detect these gaps and split
+the data into contiguous segments for processing.
 
 ### When to Use Auto-Segmentation
 
@@ -709,11 +783,13 @@ Use `split_by_gaps=True` when:
 ### Understanding Data Segments vs Gait Segments
 
 Important distinction:
-- **Data segments (`data_segment_nr`)**: Contiguous recording chunks separated by temporal gaps
+- **Data segments (`data_segment_nr`)**: Contiguous recording chunks
+  separated by temporal gaps
   - Created during data preparation
   - Example: 4 segments if recording had 3 interruptions
 
-- **Gait segments (`gait_segment_nr`)**: Detected gait bouts within the data
+- **Gait segments (`gait_segment_nr`)**: Detected gait bouts within the
+  data
   - Created during gait pipeline analysis
   - Example: 52 gait bouts detected across all data segments
   - Only applicable to gait analysis
@@ -721,14 +797,19 @@ Important distinction:
 The orchestrator will:
 1. Detect gaps larger than `max_gap_seconds` (default: 1.5 seconds)
 2. Split data into contiguous data segments
-3. Discard segments shorter than `min_segment_seconds` (default: 1.5 seconds)
-4. Add a `data_segment_nr` column to track which recording chunk each data point belongs to
+3. Discard segments shorter than `min_segment_seconds` (default: 1.5
+   seconds)
+4. Add a `data_segment_nr` column to track which recording chunk each data
+   point belongs to
 5. Process each data segment independently through the pipeline
-6. Combine results with `gait_segment_nr` for detected gait bouts (gait pipeline only)
+6. Combine results with `gait_segment_nr` for detected gait bouts (gait
+   pipeline only)
 
 ### Example: Gait-up Physilog Data with Gaps
 
-This example uses data from a Gait-up Physilog 4 device with 3 large gaps (up to ~20 minutes). The data is already in Parquet format with standard column names, but timestamps are non-contiguous.
+This example uses data from a Gait-up Physilog 4 device with 3 large gaps
+(up to ~20 minutes). The data is already in Parquet format with standard
+column names, but timestamps are non-contiguous.
 
 
 ```python
@@ -742,9 +823,14 @@ dfs_physilog = load_data_files(
 
 print(f"Loaded {len(dfs_physilog)} Gait-up Physilog file(s):")
 for filename, df in dfs_physilog.items():
-    print(f"  - {filename}: {len(df)} samples, {len(df.columns)} columns")
-    print(f"    Time range: {df['time'].min():.1f}s to {df['time'].max():.1f}s")
-    print(f"    Duration: {(df['time'].max() - df['time'].min()):.1f}s")
+    n_samples = len(df)
+    n_cols = len(df.columns)
+    print(f"  - {filename}: {n_samples} samples, {n_cols} columns")
+    time_min = df['time'].min()
+    time_max = df['time'].max()
+    print(f"    Time range: {time_min:.1f}s to {time_max:.1f}s")
+    duration = time_max - time_min
+    print(f"    Duration: {duration:.1f}s")
 
     # Check for gaps
     time_diffs = df['time'].diff().dropna()
@@ -760,13 +846,15 @@ for filename, df in dfs_physilog.items():
     if nan_counts.sum() > 0:
         print(f"Contains {nan_counts.sum()} NaN values")
 
-# Clean DataFrames with NaN values (after iteration to avoid SettingWithCopyWarning)
+# Clean DataFrames with NaN values
+# (after iteration to avoid SettingWithCopyWarning)
 for filename in list(dfs_physilog.keys()):
     df = dfs_physilog[filename]
     df_clean = df.dropna().reset_index(drop=True)
     if len(df_clean) < len(df):
+        n_dropped = len(df) - len(df_clean)
         print(
-            f"Dropping {len(df) - len(df_clean)} rows with NaN values "
+            f"Dropping {n_dropped} rows with NaN values "
             f"from file {filename}"
         )
     dfs_physilog[filename] = df_clean
@@ -787,46 +875,41 @@ for filename in list(dfs_physilog.keys()):
 # Data already has standard column names and units, but needs segmentation
 
 results_with_segmentation = run_paradigma(
-    dfs=dfs_physilog,                     # Pre-loaded data dictionary
-    skip_preparation=False,               # Need preparation to add data_segment_nr
+    dfs=dfs_physilog,  # Pre-loaded data dictionary
+    skip_preparation=False,  # Need preparation to add data_segment_nr
     pipelines='gait',
     watch_side="left",
     time_input_unit=TimeUnit.RELATIVE_S,
     # Auto-segmentation parameters
-    split_by_gaps=True,                   # Enable automatic segmentation
-    max_gap_seconds=1.0,                  # Gaps > 1s create new data segment
-    min_segment_seconds=2.0,              # Keep only data segments >= 2s
-    save_intermediate=[],                 # No file storage for demo
+    split_by_gaps=True,  # Enable automatic segmentation
+    max_gap_seconds=1.0,  # Gaps > 1s create new data segment
+    min_segment_seconds=2.0,  # Keep only data segments >= 2s
+    save_intermediate=[],  # No file storage for demo
     logging_level=logging.WARNING,  # Only show warnings and errors
 )
 
+# Access gait results (nested structure with 'filtered' and 'unfiltered')
 gait_results = results_with_segmentation['quantifications']['gait']
+filtered_gait_df = gait_results['filtered']
+unfiltered_gait_df = gait_results['unfiltered']
 
-print(f"\nTotal arm swings quantified: {len(gait_results)}")
-print(f"Number of gait segments: {gait_results['gait_segment_nr'].nunique()}")
-if 'data_segment_nr' in gait_results.columns:
-    print(f"Number of data segments: {gait_results['data_segment_nr'].nunique()}")
-print(f"\nColumns in output: {list(gait_results.columns)}")
-gait_results.head()
+if 'gait_segment_nr' in unfiltered_gait_df.columns:
+    n_gait_segments = unfiltered_gait_df['gait_segment_nr'].nunique()
+    print(f"Number of detected gait segments: {n_gait_segments}")
+
+print(f"\nNumber of arm swings: {len(filtered_gait_df)}")
+
+print("Individual arm swings:")
+filtered_gait_df.head()
 ```
-
-    Non-contiguous data detected. Auto-segmenting...
-
-
-    Created 4 segments: 1713.3s, 1588.3s, 2243.5s, 3220.3s
-
 
     WARNING: Time column has irregular sampling
 
 
-    Resampled: 876525 -> 876535 rows at 100.0 Hz
+    Number of detected gait segments: 48
 
-
-
-    Total arm swings quantified: 1834
-    Number of gait segments: 47
-
-    Columns in output: ['gait_segment_nr', 'range_of_motion', 'peak_velocity']
+    Number of arm swings: 1834
+    Individual arm swings:
 
 
 
@@ -840,6 +923,7 @@ gait_results.head()
       <th>gait_segment_nr</th>
       <th>range_of_motion</th>
       <th>peak_velocity</th>
+      <th>data_segment_nr</th>
     </tr>
   </thead>
   <tbody>
@@ -848,30 +932,35 @@ gait_results.head()
       <td>1</td>
       <td>14.394159</td>
       <td>40.731020</td>
+      <td>1</td>
     </tr>
     <tr>
       <th>1</th>
       <td>2</td>
       <td>13.593113</td>
       <td>21.522583</td>
+      <td>1</td>
     </tr>
     <tr>
       <th>2</th>
       <td>2</td>
       <td>20.881968</td>
       <td>102.620567</td>
+      <td>1</td>
     </tr>
     <tr>
       <th>3</th>
       <td>2</td>
       <td>16.711927</td>
       <td>48.794681</td>
+      <td>1</td>
     </tr>
     <tr>
       <th>4</th>
       <td>2</td>
       <td>6.565145</td>
       <td>26.096350</td>
+      <td>1</td>
     </tr>
   </tbody>
 </table>

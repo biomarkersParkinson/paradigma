@@ -55,7 +55,7 @@ segment_nr  = '0001'
 
 df_data, metadata_time, metadata_values = load_tsdf_dataframe(
     path_to_prepared_data,
-    prefix=f'IMU_segment{segment_nr}'
+    prefix=f'imu_segment{segment_nr}'
 )
 
 df_data
@@ -231,7 +231,7 @@ df_preprocessed_data
     The tolerance for checking contiguous timestamps is set to 0.030 seconds.
 
 
-    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+    INFO: Resampled: 3455331 -> 3433961 rows at 100.0 Hz
 
 
 
@@ -1027,14 +1027,14 @@ full_path_to_classifier_package = (
 # Create a list of dataframes to store the quantifications of all segments
 list_df_quantifications = []
 
-segments  = ['0001','0002'] # list with all  available segments
+segments  = ['0001', '0002'] # list with all  available segments
 
 for segment_nr in segments:
 
     # Load the data
     df_data, metadata_time, _ = load_tsdf_dataframe(
         path_to_prepared_data,
-        prefix='IMU_segment'+segment_nr
+        prefix='imu_segment'+segment_nr
     )
 
     # 1: Preprocess the data
@@ -1074,10 +1074,10 @@ for segment_nr in segments:
         pd.to_timedelta(df_quantification[config.time_colname], unit="s")
 ```
 
-    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+    INFO: Resampled: 3455331 -> 3433961 rows at 100.0 Hz
 
 
-    Resampled: 7434685 -> 7388945 rows at 100.0 Hz
+    INFO: Resampled: 7434685 -> 7388945 rows at 100.0 Hz
 
 
 ## Step 5: Compute aggregated tremor measures

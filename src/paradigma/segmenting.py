@@ -1,8 +1,12 @@
+import logging
+
 import numpy as np
 import pandas as pd
 
 from paradigma.constants import DataColumns
 from paradigma.util import deprecated
+
+logger = logging.getLogger(__name__)
 
 
 def tabulate_windows(

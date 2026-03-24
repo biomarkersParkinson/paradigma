@@ -89,7 +89,7 @@ If your device is not listed, you can still use ParaDigMa:
 
 1. Convert your device's data to pandas DataFrame or a supported file format (Parquet recommended).
 2. Ensure your data meets the [Sensor Requirements](sensor_requirements.md).
-3. Follow the [Data Preparation Tutorial](../tutorials/data_preparation.html) to
+3. Follow the [Data Preparation Tutorial](https://biomarkersparkinson.github.io/paradigma/tutorials/data_preparation.html) to
 format your DataFrame, or set the `skip_preparation` parameter of `run_paradigma`
 to False and provide the required set of parameters to automate data preparation.
 4. Test with Small Dataset.
@@ -173,5 +173,5 @@ Your contribution helps expand ParaDigMa's device ecosystem!
 
 - [Sensor Requirements](sensor_requirements.md) - Technical specifications for sensors
 - [Input Formats Guide](input_formats.md) - How to provide data to ParaDigMa
-- [Data Preparation Tutorial](../tutorials/data_preparation.html) - Step-by-step guide
+- [Data Preparation Tutorial](https://biomarkersparkinson.github.io/paradigma/tutorials/data_preparation.html) - Step-by-step guide
 - [Coordinate System Guide](coordinate_system.md) - Orientation requirements
