@@ -4,11 +4,24 @@
 
 ## v1.1.1 (24/03/2026)
 
+### Breaking Changes
+- **run_gait_pipeline() return structure changed**: Now returns nested dictionaries with separate 'filtered' and 'unfiltered' results instead of flat tuples.
+  - Previously: `(quantified_df: DataFrame, metadata: dict)`
+  - Now: `({'filtered': df, 'unfiltered': df}, {'filtered': meta, 'unfiltered': meta})`
+  - This change allows analysis of both filtered (clean gait only) and unfiltered (all gait) arm swing data.
+
+### Features
+- **Unfiltered gait quantification** (#264): Added support for both filtered and unfiltered gait analysis, allowing comparison of:
+  - Filtered quantification: Arm swing during walking without other activities
+  - Unfiltered quantification: All arm swing during any gait, regardless of quality
+  - This enables analysis of total gait duration vs clean gait duration and arm swing characteristics across all gait data.
+
 ### Bug Fixes
-- Fixed `save_intermediate` parameter to correctly use 'classification' naming for all predict methods across pipelines.
+- Fixed `save_intermediate` parameter to correctly use 'classification' naming for all prediction outputs.
+- Fixed orchestrator to properly pass required `segment_meta` and `segment_cats` to aggregation functions, including parsing of `segment_length_bins` to segment category tuples.
 
 ### Improvements
-- Cleaned up test infrastructure by removing unused test files, notebooks, and obsolete configurations.
+- Cleaned up test infrastructure by removing unused test files, notebooks, and consolidating test helpers to conftest.py.
 
 ## v1.1.0 (04/02/2026)
 
