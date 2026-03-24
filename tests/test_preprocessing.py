@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import pytest
-from test_notebooks import compare_data
+from conftest import compare_data
 
 from paradigma.config import IMUConfig
 from paradigma.testing import preprocess_imu_data_io

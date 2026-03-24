@@ -303,4 +303,4 @@ This preserves traceability while keeping single-file results concise.
 
 - [Sensor Requirements](sensor_requirements.md) - What sensor specs are needed
 - [Supported Devices](supported_devices.md) - Device-specific loading examples
-- [Data Preparation Tutorial](../tutorials/data_preparation.html) - Step-by-step preparation guide
+- [Data Preparation Tutorial](https://biomarkersparkinson.github.io/paradigma/tutorials/data_preparation.html) - Step-by-step preparation guide

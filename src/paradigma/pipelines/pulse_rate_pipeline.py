@@ -605,7 +605,6 @@ def run_pulse_rate_pipeline(
         df_ppg_proc, _ = preprocess_ppg_data(
             df_ppg=df_ppg,
             ppg_config=ppg_config,
-            verbose=1 if logging_level <= logging.INFO else 0,
         )
 
         if "preprocessing" in store_intermediate:
@@ -623,12 +622,6 @@ def run_pulse_rate_pipeline(
     try:
         df_features = extract_signal_quality_features(df_ppg_proc, pulse_rate_config)
 
-        if "pulse_rate" in store_intermediate:
-            pulse_rate_dir = output_dir / "pulse_rate"
-            pulse_rate_dir.mkdir(exist_ok=True)
-            df_features.to_parquet(pulse_rate_dir / "signal_quality_features.parquet")
-            active_logger.info(f"Saved signal quality features to {pulse_rate_dir}")
-
     except Exception as e:
         active_logger.error(f"Feature extraction failed: {e}")
         return pd.DataFrame()
@@ -642,6 +635,14 @@ def run_pulse_rate_pipeline(
         df_classified = signal_quality_classification(
             df_features, pulse_rate_config, classifier_package
         )
+
+        if "classification" in store_intermediate:
+            classification_dir = output_dir / "classification"
+            classification_dir.mkdir(exist_ok=True)
+            df_classified.to_parquet(
+                classification_dir / "ppg_quality_predictions.parquet"
+            )
+            active_logger.info(f"Saved PPG quality predictions to {classification_dir}")
 
     except Exception as e:
         active_logger.error(f"Signal quality classification failed: {e}")

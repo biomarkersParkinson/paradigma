@@ -11,7 +11,7 @@ from paradigma.orchestrator import run_paradigma
 from paradigma.pipelines.pulse_rate_pipeline import run_pulse_rate_pipeline
 
 try:
-    from test_notebooks import compare_data
+    from conftest import compare_data
 
     from paradigma.testing import preprocess_ppg_data_io
 

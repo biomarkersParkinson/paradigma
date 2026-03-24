@@ -16,7 +16,7 @@
             "sensors": [
                 {
                     "endianness": "not applicable",
-                    "file_name": "PPG_quality.bin",
+                    "file_name": "ppg_quality.bin",
                     "channels": [
                         "quality"
                     ],
@@ -27,7 +27,7 @@
                 },
                 {
                     "endianness": "little",
-                    "file_name": "PPG_values.bin",
+                    "file_name": "ppg_values.bin",
                     "channels": [
                         "green"
                     ],
@@ -40,7 +40,7 @@
         },
         {
             "endianness": "little",
-            "file_name": "PPG_time.bin",
+            "file_name": "ppg_time.bin",
             "channels": [
                 "time"
             ],

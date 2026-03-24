@@ -15,7 +15,7 @@
             "sensors": [
                 {
                     "endianness": "little",
-                    "file_name": "IMU_time.bin",
+                    "file_name": "imu_time.bin",
                     "channels": [
                         "time"
                     ],
@@ -27,7 +27,7 @@
                 },
                 {
                     "endianness": "not applicable",
-                    "file_name": "IMU_quality.bin",
+                    "file_name": "imu_quality.bin",
                     "channels": [
                         "quality"
                     ],
@@ -41,7 +41,7 @@
         },
         {
             "endianness": "little",
-            "file_name": "IMU_values.bin",
+            "file_name": "imu_values.bin",
             "channels": [
                 "acceleration_x",
                 "acceleration_y",
