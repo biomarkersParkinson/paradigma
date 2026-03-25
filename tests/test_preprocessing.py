@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import pytest
-from test_notebooks import compare_data
+from conftest import compare_data
 
 from paradigma.config import IMUConfig
 from paradigma.testing import preprocess_imu_data_io
@@ -21,11 +21,13 @@ imu_binaries_pairs: list[tuple[str, str]] = (
 
 
 @pytest.mark.skip(
-    reason="Reference data needs to be regenerated - preprocessing pipeline may have changed"
+    reason="Reference data needs to be regenerated - preprocessing pipeline may "
+    "have changed"
 )
 def test_1_imu_preprocessing_outputs(shared_datadir: Path):
     """
-    This function is used to evaluate the output of the preprocessing function. It evaluates it by comparing the output to a reference output.
+    This function is used to evaluate the output of the preprocessing function.
+    It evaluates it by comparing the output to a reference output.
     """
     input_dir_name: str = "1.prepared_data"
     output_dir_name: str = "2.preprocessed_data"

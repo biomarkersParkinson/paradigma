@@ -19,20 +19,31 @@ To run the complete gait pipeline, a prerequisite is to have both accelerometer 
 
 
 ```python
-from importlib.resources import files
 import json
+from importlib.resources import files
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
 import tsdf
 
 from paradigma.classification import ClassifierPackage
-from paradigma.config import IMUConfig, GaitConfig
+from paradigma.config import GaitConfig, IMUConfig
 from paradigma.constants import DataColumns
-from paradigma.pipelines.gait_pipeline import extract_gait_features, detect_gait, \
-    extract_arm_activity_features, filter_gait, quantify_arm_swing, aggregate_arm_swing_params
+from paradigma.pipelines.gait_pipeline import (
+    aggregate_arm_swing_params,
+    detect_gait,
+    extract_arm_activity_features,
+    extract_gait_features,
+    filter_gait,
+    quantify_arm_swing,
+)
 from paradigma.preprocessing import preprocess_imu_data
-from paradigma.util import load_tsdf_dataframe, write_df_data, merge_predictions_with_timestamps
+from paradigma.util import (
+    load_tsdf_dataframe,
+    merge_predictions_with_timestamps,
+    write_df_data,
+)
 ```
 
 ## Load data
@@ -54,7 +65,7 @@ raw_data_segment_nr  = '0001'
 # Load the data from the file
 df_imu, metadata_time, metadata_values = load_tsdf_dataframe(
     path_to_data=path_to_prepared_data,
-    prefix=f'IMU_segment{raw_data_segment_nr}'
+    prefix=f'imu_segment{raw_data_segment_nr}'
 )
 
 df_imu
@@ -64,19 +75,6 @@ df_imu
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -237,7 +235,7 @@ print(
 df_preprocessed.head()
 ```
 
-    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+    INFO: Resampled: 3455331 -> 3433961 rows at 100.0 Hz
 
 
     The dataset of 34339.61 seconds is automatically resampled to 100 Hz.
@@ -248,19 +246,6 @@ df_preprocessed.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -402,19 +387,6 @@ df_gait.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -607,8 +579,10 @@ n_predictions_non_gait = df_gait.loc[
 perc_predictions_non_gait = round(100 * n_predictions_non_gait / n_windows, 1)
 
 print(
-    f"Out of {n_windows} windows, {n_predictions_gait} ({perc_predictions_gait}%) \n"
-    f"were predicted as gait, and {n_predictions_non_gait} ({perc_predictions_non_gait}%) \n"
+    f"Out of {n_windows} windows, {n_predictions_gait} "
+    f"({perc_predictions_gait}%) \n"
+    f"were predicted as gait, and {n_predictions_non_gait} "
+    f"({perc_predictions_non_gait}%) \n"
     f"as non-gait."
 )
 
@@ -626,19 +600,6 @@ df_gait[[config.time_colname, DataColumns.PRED_GAIT_PROBA]].head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -729,19 +690,6 @@ df_gait.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -842,19 +790,6 @@ df_arm.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1072,19 +1007,6 @@ df_arm[[config.time_colname, DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]].head
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1126,7 +1048,19 @@ df_arm[[config.time_colname, DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]].head
 
 
 ## Step 6: Arm swing quantification
-The next step is to extract arm swing estimates from the predicted gait segments without other arm activities. Arm swing estimates can be calculated for both filtered and unfiltered gait, with the latter being predicted gait including all arm activities. Specifically, the range of motion (`'range_of_motion'`) and peak angular velocity (`'peak_velocity'`) are extracted.
+The next step is to extract arm swing estimates from the predicted gait segments. Arm swing estimates can be calculated for both **filtered** gait (i.e., gait without other arm activities) and **unfiltered** gait (i.e., all predicted gait segments including other arm activities).
+
+**Important:** As of version 1.1.0, the high-level gait pipeline functions (such as `run_gait_pipeline()` and `run_paradigma()`) return arm swing results in a **nested** structure with separate entries for filtered and unfiltered gait:
+- Quantified arm swing parameters are exposed under keys `'filtered'` and `'unfiltered'`
+  - `'filtered'`: DataFrame with arm swings from gait without other arm activities
+  - `'unfiltered'`: DataFrame with arm swings from all gait segments
+- Corresponding gait segment metadata are also provided separately for the filtered and unfiltered cases
+
+This allows analysis of arm swing with and without filtering for other arm activities when using the pipeline output.
+
+When calling `quantify_arm_swing()` directly (as shown in this tutorial), it still returns a `(DataFrame, dict)` pair, and the `filtered` argument controls whether only gait segments without other arm activities are included in the results.
+
+Specifically, the range of motion (`'range_of_motion'`) and peak angular velocity (`'peak_velocity'`) are extracted.
 
 This step creates gait segments based on consecutively predicted gait windows. A new gait segment is created if the gap between consecutive gait predictions exceeds `config.max_segment_gap_s`. Furthermore, a gait segment is considered valid if it is of at minimum length `config.min_segment_length_s`.
 
@@ -1135,7 +1069,6 @@ But, first, similar to the step of extracting arm activity features, the predict
 
 ```python
 # Merge arm activity predictions into timeseries data
-
 if not any(
     df_arm[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA] >= filt_threshold
 ):
@@ -1230,19 +1163,6 @@ quantified_arm_swing.loc[quantified_arm_swing['gait_segment_nr'] == 1]
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1373,14 +1293,14 @@ filtered = True
 list_quantified_arm_swing = []
 max_gait_segment_nr = 0
 
-raw_data_segments  = ['0001', '0002']  # list with all available raw data segments
+raw_data_segments  = ['0001']  # list of raw data segments to process in this example
 
 for raw_data_segment_nr in raw_data_segments:
 
     # Load the data
     df_imu, _, _ = load_tsdf_dataframe(
         path_to_prepared_data,
-        prefix=f'IMU_segment{raw_data_segment_nr}'
+        prefix=f'imu_segment{raw_data_segment_nr}'
     )
 
     # 1: Preprocess the data
@@ -1492,10 +1412,7 @@ for raw_data_segment_nr in raw_data_segments:
 quantified_arm_swing = pd.concat(list_quantified_arm_swing, ignore_index=True)
 ```
 
-    Resampled: 3455331 -> 3433961 rows at 100.0 Hz
-
-
-    Resampled: 7434685 -> 7388945 rows at 100.0 Hz
+    INFO: Resampled: 3455331 -> 3433961 rows at 100.0 Hz
 
 
 ## Step 7: Aggregation
@@ -1519,32 +1436,32 @@ print(json.dumps(arm_swing_aggregations, indent=2))
 
     {
       "0_10": {
-        "duration_s": 341.25,
-        "median_range_of_motion": 10.265043828684437,
-        "95p_range_of_motion": 33.23162448765661,
-        "median_peak_velocity": 52.98458323096141,
-        "95p_peak_velocity": 168.65258802439874
+        "duration_s": 379.5,
+        "median_range_of_motion": 11.781191233196722,
+        "95p_range_of_motion": 40.53201409103202,
+        "median_peak_velocity": 58.566197027859204,
+        "95p_peak_velocity": 182.7177098350067
       },
       "10_20": {
-        "duration_s": 60.75,
-        "median_range_of_motion": 21.05381778480308,
-        "95p_range_of_motion": 45.617438049991144,
-        "median_peak_velocity": 117.7375878000595,
-        "95p_peak_velocity": 228.8853651528709
+        "duration_s": 67.5,
+        "median_range_of_motion": 15.10889561336818,
+        "95p_range_of_motion": 54.96940806547923,
+        "median_peak_velocity": 71.19981331102237,
+        "95p_peak_velocity": 228.84234804496018
       },
       "20_inf": {
-        "duration_s": 1905.75,
-        "median_range_of_motion": 25.56899710571253,
-        "95p_range_of_motion": 43.59181429894547,
-        "median_peak_velocity": 127.40063801636731,
-        "95p_peak_velocity": 217.64806342438817
+        "duration_s": 285.75,
+        "median_range_of_motion": 29.273886230725473,
+        "95p_range_of_motion": 56.74815032228555,
+        "median_peak_velocity": 143.92113449093603,
+        "95p_peak_velocity": 259.4270842914848
       },
       "0_inf": {
-        "duration_s": 2307.75,
-        "median_range_of_motion": 24.07131352109043,
-        "95p_range_of_motion": 43.06891252479739,
-        "median_peak_velocity": 120.43812492382015,
-        "95p_peak_velocity": 215.76855388647215
+        "duration_s": 732.75,
+        "median_range_of_motion": 17.767386841988397,
+        "95p_range_of_motion": 53.93423076026392,
+        "median_peak_velocity": 91.83493870082003,
+        "95p_peak_velocity": 243.42317337529113
       }
     }
 

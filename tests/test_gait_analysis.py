@@ -5,13 +5,13 @@ import numpy as np
 import pandas as pd
 import pytest
 
+import paradigma.pipelines.gait_pipeline as gait_pipeline
 from paradigma.config import GaitConfig, IMUConfig
 from paradigma.constants import DataColumns
 from paradigma.orchestrator import run_paradigma
-from paradigma.pipelines.gait_pipeline import run_gait_pipeline
 
 try:
-    from test_notebooks import compare_data
+    from conftest import compare_data
 
     from paradigma.testing import (
         extract_gait_features_io,
@@ -91,7 +91,7 @@ def test_gait_pipeline_basic():
     df_test = create_test_gait_data()
 
     with tempfile.TemporaryDirectory() as temp_dir:
-        result = run_gait_pipeline(
+        result = gait_pipeline.run_gait_pipeline(
             df_prepared=df_test,
             watch_side="right",
             output_dir=temp_dir,
@@ -100,8 +100,31 @@ def test_gait_pipeline_basic():
             arm_activity_config=GaitConfig("arm_activity"),
         )
 
-        assert isinstance(result, pd.DataFrame)
-        # May be empty if no gait detected, which is OK
+        assert isinstance(result, tuple)
+        assert len(result) == 2
+
+        # First element should be a dict with 'filtered' and
+        # 'unfiltered' quantifications
+        assert isinstance(result[0], dict)
+        assert "filtered" in result[0]
+        assert "unfiltered" in result[0]
+        assert isinstance(result[0]["filtered"], pd.DataFrame)
+        assert isinstance(result[0]["unfiltered"], pd.DataFrame)
+
+        expected_columns = {
+            DataColumns.GAIT_SEGMENT_NR,
+            DataColumns.RANGE_OF_MOTION,
+            DataColumns.PEAK_VELOCITY,
+        }
+        assert expected_columns.issubset(result[0]["filtered"].columns)
+        assert expected_columns.issubset(result[0]["unfiltered"].columns)
+
+        # Second element should be a dict with 'filtered' and 'unfiltered' metadata
+        assert isinstance(result[1], dict)
+        assert "filtered" in result[1]
+        assert "unfiltered" in result[1]
+        assert isinstance(result[1]["filtered"], dict)
+        assert isinstance(result[1]["unfiltered"], dict)
 
 
 def test_gait_pipeline_integration():
@@ -124,10 +147,113 @@ def test_gait_pipeline_integration():
         assert "metadata" in results
         assert "aggregations" in results
 
+        gait_quantifications = results["quantifications"]["gait"]
+        assert "filtered" in gait_quantifications
+        assert "unfiltered" in gait_quantifications
+        assert isinstance(gait_quantifications["filtered"], pd.DataFrame)
+        assert isinstance(gait_quantifications["unfiltered"], pd.DataFrame)
+
+        expected_columns = {
+            DataColumns.GAIT_SEGMENT_NR,
+            DataColumns.RANGE_OF_MOTION,
+            DataColumns.PEAK_VELOCITY,
+        }
+        assert expected_columns.issubset(gait_quantifications["filtered"].columns)
+        assert expected_columns.issubset(gait_quantifications["unfiltered"].columns)
+
+
+def test_multi_file_unfiltered_only_offsets(monkeypatch):
+    """Ensure unfiltered-only gait results keep unique segment ids across files."""
+
+    class DummyClassifierPackage:
+        def __init__(self, threshold: float = 0.5) -> None:
+            self.threshold = threshold
+
+    def fake_load(_path):
+        return DummyClassifierPackage()
+
+    def fake_detect_gait(df, _clf_package, parallel=False):
+        return np.ones(len(df))
+
+    def fake_filter_gait(df, _clf_package, parallel=False):
+        return np.zeros(len(df))
+
+    def fake_quantify_arm_swing(
+        df, fs, filtered=False, max_segment_gap_s=1.5, min_segment_length_s=1.5
+    ):
+        if filtered:
+            empty_df = pd.DataFrame(
+                columns=[
+                    DataColumns.GAIT_SEGMENT_NR,
+                    DataColumns.RANGE_OF_MOTION,
+                    DataColumns.PEAK_VELOCITY,
+                ]
+            )
+            return empty_df, {"all": {"duration_s": 0}, "per_segment": {}}
+
+        unfiltered_df = pd.DataFrame(
+            {
+                DataColumns.GAIT_SEGMENT_NR: [1, 2],
+                DataColumns.RANGE_OF_MOTION: [10.0, 12.0],
+                DataColumns.PEAK_VELOCITY: [50.0, 60.0],
+            }
+        )
+        return unfiltered_df, {
+            "all": {"duration_s": 2.0},
+            "per_segment": {
+                1: {"duration_unfiltered_segment_s": 1.0},
+                2: {"duration_unfiltered_segment_s": 1.0},
+            },
+        }
+
+    monkeypatch.setattr(gait_pipeline.ClassifierPackage, "load", fake_load)
+    monkeypatch.setattr(gait_pipeline, "detect_gait", fake_detect_gait)
+    monkeypatch.setattr(gait_pipeline, "filter_gait", fake_filter_gait)
+    monkeypatch.setattr(gait_pipeline, "quantify_arm_swing", fake_quantify_arm_swing)
+
+    dfs = {
+        "file1": create_test_gait_data(duration_minutes=1),
+        "file2": create_test_gait_data(duration_minutes=1),
+    }
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        per_file_counts = []
+        for df in dfs.values():
+            _, meta = gait_pipeline.run_gait_pipeline(
+                df_prepared=df,
+                watch_side="right",
+                output_dir=temp_dir,
+                imu_config=IMUConfig(),
+                gait_config=GaitConfig("gait"),
+                arm_activity_config=GaitConfig("arm_activity"),
+            )
+            per_segment = meta["unfiltered"].get("per_segment", {})
+            per_file_counts.append(len(per_segment))
+
+        results = run_paradigma(
+            pipelines=["gait"],
+            dfs=dfs,
+            output_dir=temp_dir,
+            watch_side="right",
+            skip_preparation=True,
+            imu_config=IMUConfig(),
+            gait_config=GaitConfig("gait"),
+            arm_activity_config=GaitConfig("arm_activity"),
+        )
+
+        gait_quantifications = results["quantifications"]["gait"]
+        assert gait_quantifications["filtered"].empty
+        assert not gait_quantifications["unfiltered"].empty
+
+        unfiltered_meta = results["metadata"]["gait"]["unfiltered"]
+        assert len(unfiltered_meta) == sum(per_file_counts)
+        assert len(unfiltered_meta) == len(set(unfiltered_meta.keys()))
+
 
 def test_gait_segment_nr_column_name():
     """
-    Test that gait_segment_nr column is present and backward compatibility is maintained.
+    Test that gait_segment_nr column is present and backward compatibility is
+    maintained.
 
     This test verifies:
     1. The new GAIT_SEGMENT_NR constant exists
@@ -188,7 +314,8 @@ def test_gait_segment_nr_column_name():
 
 def test_data_segment_nr_preserved():
     """
-    Test that data_segment_nr is preserved in gait pipeline output when present in input.
+    Test that data_segment_nr is preserved in gait pipeline output when present
+    in input.
 
     This test verifies:
     1. DATA_SEGMENT_NR constant exists
@@ -231,7 +358,8 @@ def test_data_segment_nr_preserved():
         constant_works
     ), "DATA_SEGMENT_NR constant should work to access data_segment_nr column"
 
-    # Test 4: Verify data integrity - each gait segment belongs to exactly one data segment
+    # Test 4: Verify data integrity - each gait segment belongs to exactly one
+    # data segment
     gait_to_data = mock_gait_results.groupby("gait_segment_nr")[
         "data_segment_nr"
     ].nunique()
@@ -264,7 +392,8 @@ path_to_assets = Path("src/paradigma/assets")
 @pytest.mark.skipif(not HAS_TESTING_UTILS, reason="Testing utilities not available")
 def test_2_extract_features_gait_output(shared_datadir: Path):
     """
-    This function is used to evaluate the output of the gait feature extraction. It evaluates it by comparing the output to a reference output.
+    This function is used to evaluate the output of the gait feature extraction.
+    It evaluates it by comparing the output to a reference output.
     """
 
     input_dir_name: str = "2.preprocessed_data"

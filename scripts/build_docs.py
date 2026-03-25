@@ -1,4 +1,5 @@
 import argparse
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -9,6 +10,15 @@ from nbformat import read, write
 
 def run(cmd, **kwargs):
     subprocess.run(cmd, check=True, **kwargs)
+
+
+def clean_style_blocks(content: str) -> str:
+    """Remove <style scoped>...</style> blocks from markdown content.
+
+    GitHub markdown doesn't support style tags, so they render as literal text.
+    """
+    pattern = r"<style scoped>\s*\n.*?\n</style>\n"
+    return re.sub(pattern, "", content, flags=re.DOTALL)
 
 
 def main():
@@ -25,6 +35,12 @@ def main():
         help="Skip nbconvert step (assumes markdown already exists)",
     )
 
+    parser.add_argument(
+        "--notebook",
+        type=str,
+        help="Build only a specific notebook (e.g., 'pipeline_orchestrator.ipynb')",
+    )
+
     args = parser.parse_args()
 
     project_root = Path(__file__).resolve().parent.parent
@@ -32,10 +48,20 @@ def main():
     static_dir = tutorials_dir / "_static"
     static_dir.mkdir(exist_ok=True)
 
-    notebooks = list(tutorials_dir.glob("*.ipynb"))
-    if not notebooks:
-        print("No notebooks found")
-        return
+    if args.notebook:
+        # Build only the specified notebook
+        nb_path = tutorials_dir / args.notebook
+        if not nb_path.exists():
+            print(f"Error: Notebook '{args.notebook}' not found in {tutorials_dir}")
+            return
+        notebooks = [nb_path]
+        print(f"Building single notebook: {args.notebook}")
+    else:
+        # Build all notebooks
+        notebooks = list(tutorials_dir.glob("*.ipynb"))
+        if not notebooks:
+            print("No notebooks found")
+            return
 
     for nb_path in notebooks:
         md_path = static_dir / f"{nb_path.stem}.md"
@@ -73,12 +99,17 @@ def main():
                         str(static_dir),
                     ]
                 )
+
+                # Clean style blocks from generated markdown
+                if md_path.exists():
+                    with open(md_path, encoding="utf-8") as f:
+                        content = f.read()
+                    cleaned = clean_style_blocks(content)
+                    with open(md_path, "w", encoding="utf-8") as f:
+                        f.write(cleaned)
+                    print(f"  Cleaned style tags from {md_path.name}")
         else:
             print(f"[DEV] Skipping nbconvert for {nb_path}")
-
-        if not args.dev:
-            print(f"Stripping outputs from {nb_path}...")
-            run([sys.executable, "-m", "nbstripout", str(nb_path)])
 
     print("Building Sphinx docs...")
     run(
@@ -92,5 +123,11 @@ def main():
             str(project_root / "docs/_build/html"),
         ]
     )
+
+    # Strip outputs AFTER Sphinx has built the docs
+    if not args.dev:
+        for nb_path in notebooks:
+            print(f"Stripping outputs from {nb_path}...")
+            run([sys.executable, "-m", "nbstripout", str(nb_path)])
 
     print("Done!")

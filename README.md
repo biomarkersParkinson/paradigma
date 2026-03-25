@@ -11,14 +11,14 @@
 
 ## Overview
 
-ParaDigMa (Parkinson's disease Digital Markers) is a Python toolbox for extracting validated digital biomarkers from wrist-worn sensor data in Parkinson's disease. It processes accelerometer, gyroscope, and PPG signals collected during passive monitoring in daily life.
+ParaDigMa (Parkinson's disease Digital Markers) is a Python toolbox for extracting validated digital biomarkers from wrist sensor data in Parkinson's disease. It processes accelerometer, gyroscope, and PPG signals collected during passive monitoring in daily life.
 
 **Key Features:**
 - Arm swing during gait analysis
 - Tremor analysis
-- Pulse Rate analysis
+- Pulse rate analysis
 - Scientifically validated in peer-reviewed publications
-- Extensible architecture for custom analyses
+- Modular, extensible architecture for custom analyses
 
 ## Quick Start
 
@@ -76,10 +76,16 @@ results = run_paradigma(
 )
 
 # Access results (nested by pipeline)
-gait_measures = results['quantifications']['gait']
+# For gait, results are nested by filtered/unfiltered
+gait_filtered = results['quantifications']['gait']['filtered']
+gait_unfiltered = results['quantifications']['gait']['unfiltered']
 tremor_measures = results['quantifications']['tremor']
-gait_aggregates = results['aggregations']['gait']
+gait_aggregates = results['aggregations']['gait']  # Contains 'filtered' and 'unfiltered' keys
 tremor_aggregates = results['aggregations']['tremor']
+
+# Check for errors
+if results['errors']:
+    print(f"Warning: {len(results['errors'])} error(s) occurred")
 ```
 
 **See our [tutorials](https://biomarkersparkinson.github.io/paradigma/tutorials/index.html) for complete examples.**
@@ -92,11 +98,13 @@ tremor_aggregates = results['aggregations']['tremor']
 
 ### Validated Processing Pipelines
 
-| Pipeline | Input sensors | Output week-level aggregation | Tutorial |
-| ---- | ---- | ------- | ---- |
-| **Arm swing during gait** | Accelerometer + Gyroscope | Typical, maximum & variability of arm swing range of motion | [Guide](https://biomarkersparkinson.github.io/paradigma/tutorials/gait_analysis) |
-| **Tremor** | Gyroscope | % tremor time, typical & maximum tremor power | [Guide](https://biomarkersparkinson.github.io/paradigma/tutorials/tremor_analysis) |
-| **Pulse rate** | PPG (+ Accelerometer) | Resting & maximum pulse rate | [Guide](https://biomarkersparkinson.github.io/paradigma/tutorials/pulse_rate_analysis) |
+| Pipeline | Input sensors | Output week-level aggregation | Publications | Tutorial |
+| ---- | ---- | ------- | ---- | ---- |
+| **Arm swing during gait** | Accelerometer + Gyroscope | Typical, maximum & variability of arm swing range of motion | [Post 2025](https://doi.org/10.1186/s12984-025-01578-z), [Post 2026*](https://doi.org/10.64898/2026.01.06.26343500) | [Guide](https://biomarkersparkinson.github.io/paradigma/tutorials/gait_analysis) |
+| **Tremor** | Gyroscope | % tremor time, typical & maximum tremor power | [Timmermans 2025a](https://doi.org/10.1038/s41531-025-01056-2), [Timmermans 2025b*](https://www.medrxiv.org/content/10.64898/2025.12.23.25342892v1) | [Guide](https://biomarkersparkinson.github.io/paradigma/tutorials/tremor_analysis) |
+| **Pulse rate** | PPG (+ Accelerometer) | Resting & maximum pulse rate | [Veldkamp 2025*](https://doi.org/10.1101/2025.08.15.25333751) | [Guide](https://biomarkersparkinson.github.io/paradigma/tutorials/pulse_rate_analysis) |
+
+*\* Indicates pre-print*
 
 ### Pipeline Architecture
 
@@ -114,19 +122,29 @@ ParaDigMa can best be understood by categorizing the sequential processes:
 
 - **[Tutorials](https://biomarkersparkinson.github.io/paradigma/tutorials/index.html)** - Step-by-step usage examples
 - **[Installation Guide](https://biomarkersparkinson.github.io/paradigma/guides/installation.html)** - Setup and troubleshooting
-- **[Sensor Requirements](https://biomarkersparkinson.github.io/paradigma/guides/sensor_requirements.html)** - Data specifications and compliance
+- **[Sensor Data Requirements](https://biomarkersparkinson.github.io/paradigma/guides/sensor_requirements.html)** - Data specifications and compliance
 - **[Supported Devices](https://biomarkersparkinson.github.io/paradigma/guides/supported_devices.html)** - Validated hardware
 - **[Input Formats Guide](https://biomarkersparkinson.github.io/paradigma/guides/input_formats.html)** - Input format options and data loading
 - **[Configuration Guide](https://biomarkersparkinson.github.io/paradigma/guides/config.html)** - Pipeline configuration
-- **[Scientific Validation](https://biomarkersparkinson.github.io/paradigma/guides/validation.html)** - Validation studies and publications
 - **[API Reference](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/index.html)** - Complete API documentation
+
+### Sensor Requirements & Supported Devices
+
+ParaDigMa is designed for wrist sensor data collected during passive monitoring in persons with Parkinson's disease. While designed to work with any compliant device, it has been empirically validated on:
+
+- **Verily Study Watch** (gait, tremor, pulse rate)
+- **Axivity AX6** (gait, tremor)
+- **Gait-up Physilog 4** (gait, tremor)
+- **Empatica EmbracePlus** (data loading)
+
+Please check before running the pipelines whether your sensor data complies with the requirements for the sensor configuration and context of use. See the [sensor requirements guide](https://biomarkersparkinson.github.io/paradigma/guides/sensor_requirements.html) for data specifications and the [supported devices guide](https://biomarkersparkinson.github.io/paradigma/guides/supported_devices.html) for device-specific setup instructions.
 
 ### Data Formats
 
 ParaDigMa supports the following data formats:
 
-- In-memory (recommend): **Pandas DataFrames** (see examples above)
-- Data loading file extensions: **TSDF, Parquet, CSV, Pickle** and **several Device-specific formats** (AVRO (Empatica), CWA (Axivity))
+- In-memory (recommended): **Pandas DataFrames** (see examples above)
+- Data loading file extensions: **TSDF, Parquet, CSV, Pickle** and **several device-specific formats** (AVRO (Empatica), CWA (Axivity))
 
 ### Troubleshooting
 
@@ -134,9 +152,9 @@ For installation issues, see the [installation guide troubleshooting section](ht
 
 For other issues, check our [issue tracker](https://github.com/biomarkersParkinson/paradigma/issues) or contact paradigma@radboudumc.nl.
 
-### Sensor Requirements & Supported Devices
+## Scientific Validation
 
-ParaDigMa is designed for analysis of wrist-worn sensor data collected during passive monitoring in persons with Parkinson's disease.
+The following publications contain details and validation of the pipelines:
 
 All pipelines require data from a wrist-worn sensor with:
 
@@ -165,6 +183,7 @@ ParaDigMa pipelines are validated in peer-reviewed publications:
 | **Pulse rate** | Veldkamp et al. (2025) |
 
 See the [validation guide](https://biomarkersparkinson.github.io/paradigma/guides/validation.html) for full publication details.
+
 
 ## Contributing
 
@@ -195,11 +214,11 @@ Licensed under the Apache License 2.0. See [LICENSE](LICENSE) for details.
 
 ## Acknowledgements
 
-**Core Team**: Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, Luc Evers
+**Core Team**: Erik Post, Kars Veldkamp, Nienke Timmermans, Diogo Coutinho Soriano, Vedran Kasalica, Peter Kok, Twan van Laarhoven, Luc Evers
 
-**Advisors**: Max Little, Jordan Raykov, Twan van Laarhoven, Hayriye Cagnan, Bas Bloem
+**Advisors**: Max Little, Jordan Raykov, Hayriye Cagnan, Bas Bloem
 
-**Funding**: Michael J Fox Foundation (grant #020425), Dutch Research Council (grants #ASDI.2020.060, #2023.010)
+**Funding**: the initial release was funded by the Michael J Fox Foundation (grant #020425) and the Dutch Research Council (grants #ASDI.2020.060, #2023.010)
 
 ## Contact
 

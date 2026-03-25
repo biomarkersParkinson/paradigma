@@ -2,6 +2,71 @@
 
 <!--next-version-placeholder-->
 
+## v1.1.1 (24/03/2026)
+
+### Breaking Changes
+- **run_gait_pipeline() return structure changed**: Now returns nested dictionaries with separate 'filtered' and 'unfiltered' results instead of flat tuples.
+  - Previously: `(quantified_df: DataFrame, metadata: dict)`
+  - Now: `({'filtered': df, 'unfiltered': df}, {'filtered': meta, 'unfiltered': meta})`
+  - This change allows analysis of both filtered (clean gait only) and unfiltered (all gait) arm swing data.
+
+### Features
+- **Unfiltered gait quantification** (#264): Added support for both filtered and unfiltered gait analysis, allowing comparison of:
+  - Filtered quantification: Arm swing during walking without other activities
+  - Unfiltered quantification: All arm swing during any gait, regardless of quality
+  - This enables analysis of total gait duration vs clean gait duration and arm swing characteristics across all gait data.
+
+### Bug Fixes
+- Fixed `save_intermediate` parameter to correctly use 'classification' naming for all prediction outputs.
+- Fixed orchestrator to properly pass required `segment_meta` and `segment_cats` to aggregation functions, including parsing of `segment_length_bins` to segment category tuples.
+
+### Improvements
+- Cleaned up test infrastructure by removing unused test files, notebooks, and consolidating test helpers to conftest.py.
+
+## v1.1.0 (04/02/2026)
+
+### Features
+- **Orchestrator Pipeline**: Added `orchestrator.py` with `run_paradigma()` function for complete end-to-end ParaDigMa analysis pipeline from data loading to aggregated results.
+- **Data Preparation**: Added `prepare_data.py` with automatic data preparation capabilities, including column mapping for flexible column names, watch orientation adjustment, and comprehensive validation.
+- **Centralized Loading**: Added `load.py` to centralize data loading capabilities across all pipelines.
+- **High-Level Pipeline Functions**: Added `run_gait_pipeline()`, `run_tremor_pipeline()`, and `run_pulse_rate_pipeline()` for simplified pipeline execution.
+- **Segment Distinction**: Added `GAIT_SEGMENT_NR` and `DATA_SEGMENT_NR` constants to distinguish between temporal gaps and gait bouts. `SEGMENT_NR` kept as deprecated alias for backward compatibility.
+- **Unfiltered Gait Quantification**: Modified gait pipeline to return both filtered (clean gait only, without other arm activities) and unfiltered (all gait) quantifications. This allows analysis of arm swing with and without filtering for other arm activities, providing more comprehensive gait assessment options.
+- **Test Data**: Added Physilog Gait-Up test data to LFS.
+
+### Improvements
+- **Logging System**: Replaced `verbose` parameter with standard Python logging using `logging_level` and `custom_logger` parameters across all pipeline functions for better control and traceability.
+- **Data Segment Preservation**: Modified `quantify_arm_swing()`, `preprocess_imu_data()`, and aggregation functions to preserve `data_segment_nr` column throughout the pipeline when using `split_by_gaps=True` for non-contiguous data processing.
+- **Bug Fixes**: Fixed NaN propagation in resampling by interpolating NaN values before resampling (scipy cannot handle NaN in non-contiguous data). Fixed metadata structure mismatch in gait aggregation that caused zero duration values when using `split_by_gaps=True`.
+
+### Documentation
+- **New Tutorials**: Added `pipeline_orchestrator.ipynb` tutorial demonstrating end-to-end processing with logging control examples.
+- **New Guides**: Added comprehensive guides for data_input, installation, sensor_requirements, supported_devices, and validation.
+- **Readme**: Shortened README.md for readability and expanded detailed guides.
+- **PEP Standards**: Updated all docstrings and function signatures to PEP standards.
+- **Build System**: Added single-notebook build support with `--notebook` argument; automated style tag removal in documentation build pipeline.
+
+### Testing
+- Added minimal testing for new pipeline functionalities.
+- Added tests for segment column naming and backward compatibility.
+- Added tests to verify data segment tracking preservation.
+
+### Backward Compatibility
+- All existing code using `SEGMENT_NR` continues to work.
+- Previously used pipeline code remains functional.
+
+## v1.0.4 (11/11/2025)
+- Column names no longer have to be set to ParaDigMa standards, but can be flexibly adjusted (see data_preparation.ipynb tutorial for instructions).
+- Users can now change the tolerance threshold for determining when consecutive timestamps are contiguous using config.
+- The usage of accelerometry is now optional. Accelerometry can be used to detect motion artefacts that can be removed using Paradigma (see pulse_rate_analysis.ipynb for more details).
+- We also added instructions for how to scale PPG features using z-scoring.
+- Coefficient of variation (CoV) added as aggregation method for arm swing during gait.
+- Gait segment duration categories are no longer fixed.
+
+For developers
+* We added pre-commit hooks to ensure consistency in formatting and automate cleanup.
+* We also created two Python scripts for simplifying building and hosting docs, using poetry build-docs and poetry serve-docs.
+
 ## v1.0.3 (08/09/2025)
 - Added flexibility to let user specify gait segment duration categories.
 - Added the within-segment coefficient of variation to list of arm swing parameters.

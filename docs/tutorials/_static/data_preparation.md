@@ -16,8 +16,12 @@ import os
 from pathlib import Path
 
 from paradigma.constants import TimeUnit
-from paradigma.util import load_tsdf_dataframe, transform_time_array, convert_units_accelerometer, \
-    convert_units_gyroscope
+from paradigma.util import (
+    convert_units_accelerometer,
+    convert_units_gyroscope,
+    load_tsdf_dataframe,
+    transform_time_array,
+)
 ```
 
 ## Load data
@@ -30,7 +34,7 @@ path_to_imu_data = path_to_raw_data / 'imu'
 
 df_imu, imu_time, imu_values = load_tsdf_dataframe(
     path_to_data=path_to_imu_data,
-    prefix='IMU'
+    prefix='imu'
 )
 
 df_imu.head()
@@ -40,19 +44,6 @@ df_imu.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -129,7 +120,7 @@ path_to_ppg_data = os.path.join(path_to_raw_data, 'ppg')
 
 df_ppg, ppg_time, ppg_values = load_tsdf_dataframe(
     path_to_data=path_to_ppg_data,
-    prefix='PPG'
+    prefix='ppg'
 )
 
 df_ppg.head()
@@ -139,19 +130,6 @@ df_ppg.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -246,19 +224,6 @@ df_imu.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -349,19 +314,6 @@ df_imu.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -450,19 +402,6 @@ df_imu.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -548,19 +487,6 @@ df_ppg.head()
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">

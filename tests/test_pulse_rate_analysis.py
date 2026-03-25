@@ -11,7 +11,7 @@ from paradigma.orchestrator import run_paradigma
 from paradigma.pipelines.pulse_rate_pipeline import run_pulse_rate_pipeline
 
 try:
-    from test_notebooks import compare_data
+    from conftest import compare_data
 
     from paradigma.testing import preprocess_ppg_data_io
 
@@ -88,7 +88,8 @@ def compare_ppg_preprocessing(
     shared_datadir: Path, binaries_pairs: list[tuple[str, str]]
 ):
     """
-    This function is used to evaluate the output of the PPG pipeline preprocessing function. It evaluates it by comparing the output to a reference output.
+    This function is used to evaluate the output of the PPG pipeline preprocessing
+    function. It evaluates it by comparing the output to a reference output.
 
     Parameters
     ----------

@@ -1,5 +1,5 @@
+import logging
 from datetime import datetime
-from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -10,11 +10,13 @@ from paradigma.config import IMUConfig, PPGConfig
 from paradigma.segmenting import create_segments, discard_segments
 from paradigma.util import invert_watch_side
 
+logger = logging.getLogger(__name__)
+
 
 def resample_data(
     df: pd.DataFrame,
     time_column: str = "time",
-    values_column_names: List[str] | None = None,
+    values_column_names: list[str] | None = None,
     sampling_frequency: int | None = None,
     resampling_frequency: int | None = None,
     tolerance: float | None = None,
@@ -22,7 +24,6 @@ def resample_data(
     auto_segment: bool = False,
     max_segment_gap_s: float | None = None,
     min_segment_length_s: float | None = None,
-    verbose: int = 2,
 ) -> pd.DataFrame:
     """
     Unified resampling function with optional auto-segmentation for non-contiguous data.
@@ -50,17 +51,16 @@ def resample_data(
     validate_contiguous : bool, default True
         Whether to validate data contiguity. If False, gaps are silently interpolated.
     auto_segment : bool, default False
-        If True, automatically split non-contiguous data into segments and process each.
-        Adds 'data_segment_nr' column to output. If False and data is non-contiguous with
-        validate_contiguous=True, raises ValueError.
+        If True, automatically split non-contiguous data into segments and
+        process each. Adds 'data_segment_nr' column to output. If False and
+        data is non-contiguous with validate_contiguous=True, raises
+        ValueError.
     max_segment_gap_s : float, optional
         Maximum gap (seconds) before starting new segment. Used when auto_segment=True.
         Defaults to IMUConfig.max_segment_gap_s (1.5s).
     min_segment_length_s : float, optional
         Minimum segment length (seconds) to keep. Used when auto_segment=True.
         Defaults to IMUConfig.min_segment_length_s (1.5s).
-    verbose : int, default 1
-        Logging verbose: 0=errors only, 1=basic info, 2+=detailed info.
 
     Returns
     -------
@@ -72,7 +72,8 @@ def resample_data(
     ------
     ValueError
         - If time array is not strictly increasing
-        - If time array is not contiguous and validate_contiguous=True and auto_segment=False
+        - If time array is not contiguous and validate_contiguous=True
+          and auto_segment=False
         - If no numeric columns found for resampling
         - If all segments are discarded due to min_segment_length_s
 
@@ -107,18 +108,22 @@ def resample_data(
 
     # Validate resampling frequency
     if resampling_frequency is None:
-        raise ValueError("resampling_frequency must be provided")
+        resampling_frequency = 100
+        logger.warning("resampling_frequency automatically set to 100 Hz")
 
     resampling_frequency = float(resampling_frequency)
 
     # Auto-detect or use provided column names
     if values_column_names is None:
         numeric_columns = df.select_dtypes(include=[np.number]).columns
-        values_column_names = [col for col in numeric_columns if col != time_column]
+        values_column_names = [
+            col
+            for col in numeric_columns
+            if col != time_column and col != "data_segment_nr"
+        ]
         if not values_column_names:
             raise ValueError("No numeric columns found for resampling")
-        if verbose >= 2:
-            print(f"Auto-detected {len(values_column_names)} columns for resampling")
+        logger.debug(f"Auto-detected {len(values_column_names)} columns for resampling")
 
     # Auto-detect or use provided sampling frequency
     time_abs_array = np.array(df[time_column])
@@ -126,8 +131,7 @@ def resample_data(
         time_diff = df[time_column].diff().dropna()
         current_dt = time_diff.median()
         sampling_frequency = 1.0 / current_dt
-        if verbose >= 2:
-            print(f"Auto-detected sampling frequency: {sampling_frequency:.2f} Hz")
+        logger.debug(f"Auto-detected sampling frequency: {sampling_frequency:.2f} Hz")
     else:
         sampling_frequency = float(sampling_frequency)
 
@@ -154,14 +158,13 @@ def resample_data(
     if not is_contiguous:
         if validate_contiguous and not auto_segment:
             raise ValueError(
-                "Time array is not contiguous. Consider enabling automatic segmentation "
-                "to split and process non-contiguous segments, or disable contiguity "
-                "validation to interpolate over gaps."
+                "Time array is not contiguous. Consider enabling automatic "
+                "segmentation to split and process non-contiguous segments, or "
+                "disable contiguity validation to interpolate over gaps."
             )
         elif auto_segment:
             # Split into segments
-            if verbose >= 1:
-                print("Non-contiguous data detected. Auto-segmenting...")
+            logger.info("Non-contiguous data detected. Auto-segmenting...")
 
             # Create segments based on gaps
             segment_array = create_segments(
@@ -180,15 +183,14 @@ def resample_data(
             )
 
             n_segments = df["data_segment_nr"].nunique()
-            if verbose >= 1:
-                segment_durations = []
-                for seg_nr in df["data_segment_nr"].unique():
-                    seg_df = df[df["data_segment_nr"] == seg_nr]
-                    duration = (
-                        seg_df[time_column].iloc[-1] - seg_df[time_column].iloc[0]
-                    )
-                    segment_durations.append(f"{duration:.1f}s")
-                print(f"Created {n_segments} segments: {', '.join(segment_durations)}")
+            segment_durations = []
+            for seg_nr in df["data_segment_nr"].unique():
+                seg_df = df[df["data_segment_nr"] == seg_nr]
+                duration = seg_df[time_column].iloc[-1] - seg_df[time_column].iloc[0]
+                segment_durations.append(f"{duration:.1f}s")
+            logger.info(
+                f"Created {n_segments} segments: {', '.join(segment_durations)}"
+            )
 
             # Resample each segment independently
             resampled_segments = []
@@ -241,16 +243,17 @@ def resample_data(
             ]
             df_resampled = df_resampled[resampled_columns + other_cols]
 
-            if verbose >= 1:
-                print(
-                    f"Resampled: {len(df)} -> {len(df_resampled)} rows at {resampling_frequency} Hz"
-                )
+            logger.info(
+                f"Resampled: {len(df)} -> {len(df_resampled)} rows at "
+                f"{resampling_frequency} Hz"
+            )
 
             return df_resampled
 
-        elif verbose >= 2:
-            print(
-                "Warning: Data is not contiguous but validation is disabled. Interpolating over gaps."
+        elif not validate_contiguous:
+            logger.warning(
+                "Data is not contiguous but validation is disabled. "
+                "Interpolating over gaps."
             )
 
     # Standard resampling for contiguous data (or when validation is disabled)
@@ -282,10 +285,10 @@ def resample_data(
     resampled_columns = [time_column] + values_column_names
     df_resampled = df_resampled[resampled_columns]
 
-    if verbose >= 1:
-        print(
-            f"Resampled: {len(df)} -> {len(df_resampled)} rows at {resampling_frequency} Hz"
-        )
+    logger.info(
+        f"Resampled: {len(df)} -> {len(df_resampled)} rows at "
+        f"{resampling_frequency} Hz"
+    )
 
     return df_resampled
 
@@ -293,7 +296,7 @@ def resample_data(
 def butterworth_filter(
     data: np.ndarray,
     order: int,
-    cutoff_frequency: float | List[float],
+    cutoff_frequency: float | list[float],
     passband: str,
     sampling_frequency: int,
 ):
@@ -312,26 +315,35 @@ def butterworth_filter(
     order : int
         The order of the Butterworth filter. Higher values result in a steeper roll-off.
     cutoff_frequency : float or list of float
-        The cutoff frequency (or frequencies) for the filter. For a low-pass or high-pass filter,
-        this is a single float. For a band-pass filter, this should be a list of two floats,
-        specifying the lower and upper cutoff frequencies.
+        The cutoff frequency (or frequencies) for the filter. For a low-pass
+        or high-pass filter, this is a single float. For a band-pass filter,
+        this should be a list of two floats, specifying the lower and upper
+        cutoff frequencies.
     passband : str
         Type of passband to apply. Options are:
         - 'hp' : high-pass filter
         - 'lp' : low-pass filter
         - 'band' : band-pass filter
     sampling_frequency : int
-        Sampling frequency of the data in Hz. This is used to normalize the cutoff frequency.
+        The sampling frequency of the data in Hz. This is used to normalize
+        the cutoff frequency.
 
     Returns
     -------
     np.ndarray
         The filtered sensor data. The shape of the output is the same as the input data.
 
+    Raises
+    ------
+    ValueError
+        If the input data has more than two dimensions, or if an invalid
+        passband is specified.
+
     Notes
     -----
-    The function uses `scipy.signal.butter` to design the filter and `scipy.signal.sosfiltfilt`
-    to apply it using second-order sections (SOS) to improve numerical stability.
+    The function uses `scipy.signal.butter` to design the filter and
+    `scipy.signal.sosfiltfilt` to apply it using second-order sections (SOS)
+    to improve numerical stability.
     """
     # Design the filter using second-order sections (SOS)
     sos = signal.butter(
@@ -357,7 +369,6 @@ def preprocess_imu_data(
     config: IMUConfig,
     sensor: str,
     watch_side: str,
-    verbose: int = 1,
 ) -> pd.DataFrame:
     """
     Preprocesses IMU data by resampling and applying filters.
@@ -368,7 +379,8 @@ def preprocess_imu_data(
         DataFrame containing raw accelerometer and/or gyroscope data.
     config : IMUConfig
         Configuration object containing various settings, such as time column
-        name, accelerometer and/or gyroscope columns, filter settings, and sampling frequency.
+        name, accelerometer and/or gyroscope columns, filter settings, and
+        sampling frequency.
     sensor: str
         Name of the sensor data to be preprocessed. Must be one of:
         - "accelerometer": Preprocess accelerometer data only.
@@ -384,13 +396,16 @@ def preprocess_imu_data(
     Returns
     -------
     pd.DataFrame
-        Preprocessed accelerometer and/or gyroscope data with the following transformations:
+        The preprocessed accelerometer and or gyroscope data with the
+        following transformations:
         - Resampled data at the specified frequency.
-        - Filtered accelerometer data with high-pass and low-pass filtering applied.
+        - Filtered accelerometer data with high-pass and low-pass filtering
+          applied.
 
     Notes
     -----
-    - Applies Butterworth filters to accelerometer data, both high-pass and low-pass.
+    - The function applies Butterworth filters to accelerometer data, both
+      high-pass and low-pass.
     """
     # Make a copy to avoid SettingWithCopyWarning
     df = df.copy()
@@ -432,7 +447,6 @@ def preprocess_imu_data(
             resampling_frequency=config.resampling_frequency,
             tolerance=config.tolerance,
             validate_contiguous=validate_contiguous,
-            verbose=verbose,
         )
 
     # Invert the IMU data if the watch was worn on the right wrist
@@ -472,7 +486,12 @@ def preprocess_imu_data(
 
         values_colnames += config.gravity_colnames
 
-    df = df[[config.time_colname, *values_colnames]]
+    # Preserve data_segment_nr column if it exists (needed for split_by_gaps)
+    columns_to_keep = [config.time_colname, *values_colnames]
+    if "data_segment_nr" in df.columns:
+        columns_to_keep.append("data_segment_nr")
+
+    df = df[columns_to_keep]
 
     return df
 
@@ -484,19 +503,20 @@ def preprocess_ppg_data(
     df_acc: pd.DataFrame | None = None,
     imu_config: IMUConfig | None = None,
     start_time_imu: str | None = None,
-    verbose: int = 1,
-) -> Tuple[pd.DataFrame, pd.DataFrame | None]:
+) -> tuple[pd.DataFrame, pd.DataFrame | None]:
     """
-    Preprocesses PPG and accelerometer data by resampling, filtering and aligning
-    the data segments of both sensors (if applicable). Aligning is done using the
-    `extract_overlapping_segments` function which is based on the provided start
-    times of the PPG and IMU data and returns only the data points where both signals
-    overlap in time. The remaining data points are discarded. After alignment, the
-    function resamples the data to the specified frequency and applies Butterworth
-    filters to both PPG and accelerometer data (if applicable).
-
-    The output is two DataFrames: one for the preprocessed PPG data and another
-    for the preprocessed accelerometer data (if provided, otherwise return is None).
+    This function preprocesses PPG and accelerometer data by resampling,
+    filtering and aligning the data segments of both sensors (if applicable).
+    Aligning is done using the extract_overlapping_segments function which is
+    based on the provided start times of the PPG and IMU data and returns
+    only the data points where both signals overlap in time. The remaining
+    data points are discarded.
+    After alignment, the function resamples the data to the specified
+    frequency and applies Butterworth filters to both PPG and accelerometer
+    data (if applicable).
+    The output is two DataFrames: one for the preprocessed PPG data and
+    another for the preprocessed accelerometer data (if provided, otherwise
+    return is None).
 
     Parameters
     ----------
@@ -504,13 +524,13 @@ def preprocess_ppg_data(
         DataFrame containing PPG data.
     ppg_config : PPGPreprocessingConfig
         Configuration object for PPG preprocessing.
-    start_time_ppg : str, optional, default=None
+    start_time_ppg : str
         iso8601 formatted start time of the PPG data.
-    df_acc : pd.DataFrame, optional, default=None
+    df_acc : pd.DataFrame
         DataFrame containing accelerometer from IMU data.
-    imu_config : IMUPreprocessingConfig, optional, default=None
+    imu_config : IMUPreprocessingConfig
         Configuration object for IMU preprocessing.
-    start_time_imu : str, optional, default=None
+    start_time_imu : str
         iso8601 formatted start time of the IMU data.
     verbose : int, default 1
         Logging verbose level: 0=errors only, 1=basic info, 2+=detailed info.
@@ -522,17 +542,19 @@ def preprocess_ppg_data(
         - Preprocessed PPG data with the following transformations:
             - Resampled data at the specified frequency.
             - Filtered PPG data with bandpass filtering applied.
-        - Preprocessed accelerometer data (if provided, otherwise return is None)
-        with the following transformations:
+        - Preprocessed accelerometer data (if provided, otherwise return is
+          None) with the following transformations:
             - Resampled data at the specified frequency.
-            - Filtered accelerometer data with high-pass and low-pass filtering applied.
+            - Filtered accelerometer data with high-pass and low-pass
+              filtering applied.
 
     Notes
     -----
-    - If accelerometer data or IMU configuration is not provided, the function
-    only preprocesses PPG data.
+    - If accelerometer data or IMU configuration is not provided, the
+      function only preprocesses PPG data.
     - The function applies Butterworth filters to PPG and accelerometer
-    (if applicable) data, both high-pass and low-pass.
+      (if applicable) data, both high-pass and low-pass.
+
     """
     # Make copies to avoid SettingWithCopyWarning
     df_ppg = df_ppg.copy()
@@ -561,7 +583,6 @@ def preprocess_ppg_data(
             resampling_frequency=imu_config.resampling_frequency,
             tolerance=imu_config.tolerance,
             validate_contiguous=validate_contiguous_acc,
-            verbose=verbose,
         )
 
         # Extract accelerometer data for filtering
@@ -602,7 +623,6 @@ def preprocess_ppg_data(
         resampling_frequency=ppg_config.resampling_frequency,
         tolerance=ppg_config.tolerance,
         validate_contiguous=validate_contiguous_ppg,
-        verbose=verbose,
     )
 
     # Extract accelerometer data for filtering
@@ -642,7 +662,7 @@ def extract_overlapping_segments(
     time_colname_imu: str,
     start_time_ppg: str,
     start_time_acc: str,
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Extract DataFrames with overlapping data segments between accelerometer
     (from the IMU) and PPG datasets based on their timestamps.
@@ -674,7 +694,8 @@ def extract_overlapping_segments(
     datetime_acc_start = datetime.fromisoformat(start_time_acc.replace("Z", "+00:00"))
     start_acc_ppg = int(datetime_acc_start.timestamp())
 
-    # Calculate the time in Unix timestamps for each dataset because the timestamps are relative to the start time
+    # Calculate the time in Unix timestamps for each dataset because the
+    # timestamps are relative to the start time
     ppg_time = df_ppg[time_colname_ppg] + start_unix_ppg
     acc_time = df_acc[time_colname_imu] + start_acc_ppg
 

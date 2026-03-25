@@ -11,7 +11,7 @@ from paradigma.orchestrator import run_paradigma
 from paradigma.pipelines.tremor_pipeline import run_tremor_pipeline
 
 try:
-    from test_notebooks import compare_data
+    from conftest import compare_data
 
     from paradigma.testing import detect_tremor_io, extract_tremor_features_io
 
@@ -87,7 +87,8 @@ path_to_assets = Path("src/paradigma/assets")
 @pytest.mark.skipif(not HAS_TESTING_UTILS, reason="Testing utilities not available")
 def test_2_extract_features_tremor_output(shared_datadir: Path):
     """
-    This function is used to evaluate the output of the tremor feature extraction. It evaluates it by comparing the output to a reference output.
+    This function is used to evaluate the output of the tremor feature extraction.
+    It evaluates it by comparing the output to a reference output.
     """
 
     input_dir_name: str = "2.preprocessed_data"
@@ -106,7 +107,8 @@ def test_2_extract_features_tremor_output(shared_datadir: Path):
 @pytest.mark.skipif(not HAS_TESTING_UTILS, reason="Testing utilities not available")
 def test_3_tremor_detection_output(shared_datadir: Path):
     """
-    This function is used to evaluate the output of the tremor detection. It evaluates it by comparing the output to a reference output.
+    This function is used to evaluate the output of the tremor detection.
+    It evaluates it by comparing the output to a reference output.
     """
 
     input_dir_name: str = "3.extracted_features"
