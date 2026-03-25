@@ -354,8 +354,8 @@ def extract_temporal_domain_features(
 
     Notes
     -----
-    - The features are added to the dataframe. Therefore the original dataframe is modified,
-    and the modified dataframe is returned.
+    - The features are added to the dataframe. Therefore the original dataframe is
+    modified, and the modified dataframe is returned.
     """
 
     feature_dict = {}
