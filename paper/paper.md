@@ -34,6 +34,7 @@ authors:
       orcid: 0000-0002-6371-3337
       affiliation: 1
     - name: Max A. Little
+      orcid: 0000-0002-1507-3822
       affiliation: 6
     - name: Yordan P. Raykov
       email: yordan.raykov@nottingham.ac.uk

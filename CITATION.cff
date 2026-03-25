@@ -1,6 +1,7 @@
 cff-version: 1.3.1
 title: >-
-  ParaDigMa: A toolbox for deriving Parkinson's disease Digital Markers from real-life wrist sensor data
+  ParaDigMa: a Python toolbox for extracting Parkinson's disease digital biomarkers
+  from daily life wrist sensor data
 message: >-
   If you use this software, please cite it using the
   metadata from this file.
@@ -39,6 +40,7 @@ authors:
     Center for Engineering, Modeling and Applied Social
     Sciences (CECS), Federal University of ABC (UFABC),
     Brazil
+  orcid: 'https://orcid.org/0000-0002-9804-7477'
 
 - given-names: Vedran
   family-names: Kasalica
@@ -64,11 +66,13 @@ authors:
   affiliation: >-
     Radboud University Medical Center, Nijmegen,
     Netherlands
+  orcid: 'https://orcid.org/0000-0002-6371-3337'
 
 - given-names: Max A.
   family-names: Little
   email: max.a.little@gmail.com
   affiliation: University of Birmingham
+  orcid: 'https://orcid.org/0000-0002-1507-3822'
 
 - given-names: Jordan P.
   family-names: Raykov
