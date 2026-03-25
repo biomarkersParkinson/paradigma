@@ -1,0 +1,62 @@
+{
+    "study_id": "PPP",
+    "device_id": "Verily Study Watch",
+    "subject_id": "X",
+    "ppp_source_protobuf": "WatchData.IMU.Week104.raw",
+    "metadata_version": "0.1",
+    "start_iso8601": "2021-06-27T16:52:20Z",
+    "end_iso8601": "2021-06-27T17:04:28Z",
+    "rows": 182,
+    "endianness": "little",
+    "data_type": "float",
+    "bits": 64,
+    "sensors": [
+        {
+            "file_name": "tremor_time.bin",
+            "channels": [
+                "time"
+            ],
+            "units": [
+                "relative_time_ms"
+            ]
+        },
+        {
+            "file_name": "tremor_values.bin",
+            "channels": [
+                "mfcc_1",
+                "mfcc_2",
+                "mfcc_3",
+                "mfcc_4",
+                "mfcc_5",
+                "mfcc_6",
+                "mfcc_7",
+                "mfcc_8",
+                "mfcc_9",
+                "mfcc_10",
+                "mfcc_11",
+                "mfcc_12",
+                "freq_peak",
+                "below_tremor_power",
+                "tremor_power"
+            ],
+            "units": [
+                "unitless",
+                "unitless",
+                "unitless",
+                "unitless",
+                "unitless",
+                "unitless",
+                "unitless",
+                "unitless",
+                "unitless",
+                "unitless",
+                "unitless",
+                "unitless",
+                "Hz",
+                "(deg/s)^2",
+                "(deg/s)^2"
+            ],
+            "scale_factors": []
+        }
+    ]
+}
