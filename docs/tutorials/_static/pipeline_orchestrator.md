@@ -254,8 +254,14 @@ print(results_single_pipeline['aggregations'][pipeline])
 results_single_pipeline['quantifications'][pipeline].head()
 ```
 
-    {'nr_pr_est': 8684}
-    {'mode_pulse_rate': np.float64(63.59175662414131), '99p_pulse_rate': np.float64(85.77263444520081)}
+    WARNING: No quantified pulse_rate results found
+
+
+    WARNING: No pulse_rate quantifications to aggregate
+
+
+    {}
+    {}
 
 
 
@@ -266,42 +272,9 @@ results_single_pipeline['quantifications'][pipeline].head()
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>time</th>
-      <th>pulse_rate</th>
-      <th>file_key</th>
     </tr>
   </thead>
   <tbody>
-    <tr>
-      <th>0</th>
-      <td>47.0</td>
-      <td>80.372915</td>
-      <td>ppg_segment0001</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>49.0</td>
-      <td>79.769382</td>
-      <td>ppg_segment0001</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>51.0</td>
-      <td>79.136408</td>
-      <td>ppg_segment0001</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>53.0</td>
-      <td>78.606477</td>
-      <td>ppg_segment0001</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>55.0</td>
-      <td>77.870461</td>
-      <td>ppg_segment0001</td>
-    </tr>
   </tbody>
 </table>
 </div>
@@ -494,6 +467,12 @@ results_multi_pipeline = run_paradigma(
 )
 ```
 
+    WARNING: No quantified tremor results found
+
+
+    WARNING: No tremor quantifications to aggregate
+
+
 
 ```python
 # Explore the results structure
@@ -566,13 +545,12 @@ print(f"   Metadata: {tremor_meta}")
        Gait segment categories: ['0_20', '20_inf']
        Aggregates for 0-20s segments: ['duration_s', 'median_range_of_motion', '95p_range_of_motion', 'median_cov_range_of_motion', 'mean_cov_range_of_motion', 'median_peak_velocity', '95p_peak_velocity', 'median_cov_peak_velocity', 'mean_cov_peak_velocity']
 
-    Tremor quantification (27056 windows):
-       Columns: ['time', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power', 'file_key']... (5 total)
-       Files: ['imu_segment0001' 'imu_segment0002']
+    Tremor quantification (0 windows):
+       Columns: []... (0 total)
 
-    Tremor aggregation (4 time ranges):
-       Aggregates: ['perc_windows_tremor', 'median_tremor_power', 'modal_tremor_power', '90p_tremor_power']
-       Metadata: {'nr_valid_days': 1, 'nr_windows_total': 27056, 'nr_windows_rest': 18766}
+    Tremor aggregation (0 time ranges):
+       Aggregates: []
+       Metadata: {}
 
 
 ## 3. Raw Data Processing
