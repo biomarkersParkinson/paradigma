@@ -1,5 +1,6 @@
 ---
-title: "ParaDigMa: a Python toolbox for extracting Parkinson's disease digital biomarkers from daily life wrist sensor data"
+title: >-
+    ParaDigMa: a Python toolbox for extracting Parkinson's disease digital biomarkers from daily life wrist sensor data
 tags:
     - Python
 authors:
@@ -33,12 +34,10 @@ authors:
       orcid: 0000-0002-6371-3337
       affiliation: 1
     - name: Max A. Little
-      email: maxl@mit.edu
-      orcid: 0000-0003-0753-717X
       affiliation: 6
     - name: Yordan P. Raykov
       email: yordan.raykov@nottingham.ac.uk
-      orcid: 0000-0002-8241-5087
+      orcid: 0000-0003-0753-717X
       affiliation: "7, 8"
     - given-names: Twan
       non-dropping-particle: van
@@ -58,13 +57,13 @@ affiliations:
       index: 3
     - name: Netherlands eScience Center, Amsterdam, the Netherlands
       index: 4
-    - name: Department of Bioengineering, Imperial College London, London, UK
+    - name: Department of Bioengineering, Imperial College London, London, United Kingdom
       index: 5
-    - name: School of Computer Science, University of Birmingham, Birmingham, UK
+    - name: School of Computer Science, University of Birmingham, Birmingham, United Kingdom
       index: 6
-    - name: School of Mathematical Sciences, University of Nottingham, Nottingham, UK
+    - name: School of Mathematical Sciences, University of Nottingham, Nottingham, United Kingdom
       index: 7
-    - name: Horizon Digital Economy Research Institute, University of Nottingham, Nottingham, UK
+    - name: Horizon Digital Economy Research Institute, University of Nottingham, Nottingham, United Kingdom
       index: 8
 date: 20 August 2025
 bibliography: paper.bib
@@ -98,7 +97,7 @@ From top to bottom, data are processed as follows. First, sensor data are prepro
 
 This sequential, modular approach enables users to extract the output after each processing step. For example, users can examine the presence of tremor, the quantity of gait with or without other arm activities, and the PPG signal quality after classification (step 3). Furthermore, after quantification (step 4), users can examine daily fluctuations in tremor power (estimated per 4 seconds), arm swing range of motion (estimated per 1.5 seconds), and pulse rate (estimated per 2 seconds). Or, to study disease progression, users can assess week-to-week longitudinal changes in tremor time, typical and maximum tremor power, typical and maximum arm swing range of motion, or resting and maximum pulse rate after aggregation (step 5).
 
-The ParaDigMa pipelines have been developed and validated using representative data from the Parkinson@Home Validation Study [@eversRealLifeGaitPerformance2020b] and the Personalized Parkinson Project (PPP) [@bloemPersonalizedParkinsonProject2019a]. The cross-sectional validity of all three pipelines has been demonstrated in recent scientific publications [@postQuantifyingArmSwing2025a; @timmermansGeneralizableOpensourceAlgorithm2025a; @veldkampHeartRateMonitoring2025]. Ongoing work is focused on longitudinal validation of the pipelines, including assessments of test-retest reliability and sensitivity to disease progression.
+The ParaDigMa pipelines have been developed and validated using representative data from the Parkinson@Home Validation Study [@eversRealLifeGaitPerformance2020b] and the Personalized Parkinson Project (PPP) [@bloemPersonalizedParkinsonProject2019a]. The cross-sectional validity of all three pipelines has been demonstrated in peer-reviewed publications [@postQuantifyingArmSwing2025a; @timmermansGeneralizableOpensourceAlgorithm2025a; @veldkampHeartRateMonitoring2025]. Longitudinal validation of the pipelines is underway, with detailed assessments of test-retest reliability and sensitivity to disease progression reported in preprints [@postLongitudinalProgressionDigital2026; @timmermansProgressionDailylifeTremor2025a].
 
 To facilitate standardization and reproducibility, ParaDigMa includes optional functionality for working with Time Series Data Format (TSDF) [@kokTsdf2024]. TSDF provides a consistent and efficient format for storing and reading time series data along with relevant metadata, such as data source and temporal coverage. This makes it easier to document, cache, and reuse intermediate outputs across pipeline stages, and to maintain interoperability across studies or devices.
 
