@@ -1,5 +1,6 @@
 ---
-title: 'ParaDigMa: a Python toolbox for extracting Parkinson's disease digital biomarkers from daily life wrist sensor data'
+title: >-
+    ParaDigMa: a Python toolbox for extracting Parkinson's disease digital biomarkers from daily life wrist sensor data
 tags:
     - Python
 authors:
