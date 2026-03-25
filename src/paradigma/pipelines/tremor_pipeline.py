@@ -23,8 +23,11 @@ from paradigma.util import aggregate_parameter
 
 def extract_tremor_features(df: pd.DataFrame, config: TremorConfig) -> pd.DataFrame:
     """
-    This function groups sequences of timestamps into windows and subsequently extracts
-    tremor features from windowed gyroscope data.
+    Extract tremor features from windowed gyroscope data.
+
+    Steps:
+    1. Segment sequences of timestamps into overlapping windows.
+    2. Extract spectral tremor features from each window.
 
     Parameters
     ----------
@@ -301,7 +304,7 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
 
 def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     """
-    Compute spectral domain features from the gyroscope data.
+    Compute spectral features from windowed gyroscope data.
 
     This function computes Mel-frequency cepstral coefficients (MFCCs), the
     frequency of the peak, the tremor power, and the below tremor power
@@ -310,8 +313,8 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
 
     Parameters
     ----------
-    data : numpy.ndarray
-        A 2D numpy array where each row corresponds to a window of gyroscope data.
+    data : np.ndarray
+        2D array where each row corresponds to a window of gyroscope data.
     config : object
         Configuration object containing settings such as sampling frequency,
         window type, and MFCC parameters.
@@ -324,7 +327,6 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
         below tremor power for each window.
 
     """
-
     # Initialize a dictionary to hold the results
     feature_dict = {}
 

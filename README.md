@@ -156,16 +156,33 @@ For other issues, check our [issue tracker](https://github.com/biomarkersParkins
 
 The following publications contain details and validation of the pipelines:
 
-**Arm swing during gait**
-* [Post, E. et al. (2025) - Quantifying arm swing in Parkinson's disease: a method account for arm activities during free-living gait](https://doi.org/10.1186/s12984-025-01578-z)
-* [Post, E. et al. (2026) - (Pre-print) Longitudinal progression of digital arm swing measures during free-living gait in early Parkinson's disease](https://doi.org/10.64898/2026.01.06.26343500)
+All pipelines require data from a wrist-worn sensor with:
 
-**Tremor**
-* [Timmermans, N.A. et al. (2025) - A generalizable and open-source algorithm for real-life monitoring of tremor in Parkinson's disease](https://doi.org/10.1038/s41531-025-01056-2)
-* [Timmermans, N.A. et al. (2025) - (Pre-print) Progression of daily-life tremor measures in early Parkinson disease: a longitudinal continuous monitoring study](https://www.medrxiv.org/content/10.64898/2025.12.23.25342892v1)
+- **Sensor Position**: Either wrist (left or right)
+- **Population**: Persons with Parkinson's disease
+- **Data Quality**: Strictly increasing timestamps
+- **Orientation**: Standardized coordinate system (see [Coordinate System Guide](coordinate_system.md))
 
-**Pulse rate**
-* [Veldkamp, K.I. et al. (2025) - Heart rate monitoring using wrist photoplethysmography in Parkinson disease: feasibility and relation with autonomic dysfunction](https://doi.org/10.1101/2025.08.15.25333751)
+ParaDigMa is designed to work on prepared sensor data of any device, but it has been emperically validated on:
+
+- **Verily Study Watch** (gait, tremor, pulse rate)
+- **Axivity AX6** (gait, tremor)
+- **Gait-up Physilog 4** (gait, tremor)
+- **Empatica EmbracePlus** (data loading)
+
+See [sensor requirements guide](https://biomarkersparkinson.github.io/paradigma/guides/sensor_requirements.html) for more details on requirements; see [supported devices guide](https://biomarkersparkinson.github.io/paradigma/guides/supported_devices.html) for details on device-specific usage.
+
+## Scientific Validation
+
+ParaDigMa pipelines are validated in peer-reviewed publications:
+
+| Pipeline | Publication |
+|----------|-------------|
+| **Arm swing during gait** | Post et al. (2025, 2026) |
+| **Tremor** | Timmermans et al. (2025a, 2025b) |
+| **Pulse rate** | Veldkamp et al. (2025) |
+
+See the [validation guide](https://biomarkersparkinson.github.io/paradigma/guides/validation.html) for full publication details.
 
 
 ## Contributing

@@ -20,11 +20,11 @@ class ClassifierPackage:
         Parameters
         ----------
         classifier
-            The trained classifier.
+            Trained classifier.
         threshold : float
-            The classification threshold.
+            Classification threshold.
         scaler
-            The trained scaler (e.g., StandardScaler or MinMaxScaler).
+            TTrained scaler (e.g., StandardScaler or MinMaxScaler).
         """
         self.classifier = classifier
         self.threshold = threshold
@@ -42,7 +42,7 @@ class ClassifierPackage:
         Return
         ------
         np.ndarray
-            The transformed features.
+            Transformed features.
         """
         if not self.scaler:
             return x
@@ -55,7 +55,7 @@ class ClassifierPackage:
         Parameters
         ----------
         x_train : np.ndarray
-            The training data to fit the scaler.
+            Training data to fit the scaler.
         """
         scaler = StandardScaler()
         self.scaler = scaler.fit(x_train)
@@ -72,7 +72,7 @@ class ClassifierPackage:
         Return
         ------
         float
-            The predicted probability.
+            Predicted probability.
 
         """
         if not self.classifier:
@@ -91,7 +91,7 @@ class ClassifierPackage:
         Return
         ------
         int
-            The predicted class.
+            Predicted class.
 
         """
         if not self.classifier:
@@ -104,8 +104,8 @@ class ClassifierPackage:
 
         Parameters
         ----------
-        filepath : str
-            The path to the file.
+        filepath : str | Path
+            Path to the file.
         """
         with open(filepath, "wb") as f:
             pickle.dump(self, f)
@@ -117,13 +117,13 @@ class ClassifierPackage:
 
         Parameters
         ----------
-        filepath : str
-            The path to the file.
+        filepath : str | Path
+            Path to the file.
 
         Return
         ------
         ClassifierPackage
-            The loaded classifier package.
+            Loaded classifier package.
         """
         try:
             with open(filepath, "rb") as f:

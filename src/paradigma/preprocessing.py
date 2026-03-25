@@ -303,14 +303,14 @@ def butterworth_filter(
     """
     Applies a Butterworth filter to 1D or 2D sensor data.
 
-    This function applies a low-pass, high-pass, or band-pass Butterworth filter to the
+    Applies a low-pass, high-pass, or band-pass Butterworth filter to the
     input data. The filter is designed using the specified order, cutoff frequency,
     and passband type. The function can handle both 1D and 2D data arrays.
 
     Parameters
     ----------
     data : np.ndarray
-        The sensor data to be filtered. Can be 1D (e.g., a single signal) or 2D
+        Sensor data to be filtered. Can be 1D (e.g., a single signal) or 2D
         (e.g., multi-axis sensor data).
     order : int
         The order of the Butterworth filter. Higher values result in a steeper roll-off.
@@ -320,7 +320,7 @@ def butterworth_filter(
         this should be a list of two floats, specifying the lower and upper
         cutoff frequencies.
     passband : str
-        The type of passband to apply. Options are:
+        Type of passband to apply. Options are:
         - 'hp' : high-pass filter
         - 'lp' : low-pass filter
         - 'band' : band-pass filter
@@ -376,7 +376,7 @@ def preprocess_imu_data(
     Parameters
     ----------
     df : pd.DataFrame
-        The DataFrame containing raw accelerometer and/or gyroscope data.
+        DataFrame containing raw accelerometer and/or gyroscope data.
     config : IMUConfig
         Configuration object containing various settings, such as time column
         name, accelerometer and/or gyroscope columns, filter settings, and
@@ -387,9 +387,11 @@ def preprocess_imu_data(
         - "gyroscope": Preprocess gyroscope data only.
         - "both": Preprocess both accelerometer and gyroscope data.
     watch_side: str
-        The side of the watch where the data was collected. Must be one of:
+        Side of the watch where the data was collected. Must be one of:
         - "left": Data was collected from the left wrist.
         - "right": Data was collected from the right wrist.
+    verbose : int, default 1
+        Logging verbose level: 0=errors only, 1=basic info, 2+=detailed info.
 
     Returns
     -------
@@ -530,11 +532,13 @@ def preprocess_ppg_data(
         Configuration object for IMU preprocessing.
     start_time_imu : str
         iso8601 formatted start time of the IMU data.
+    verbose : int, default 1
+        Logging verbose level: 0=errors only, 1=basic info, 2+=detailed info.
 
     Returns
     -------
     Tuple[pd.DataFrame, pd.DataFrame | None]
-        A tuple containing two DataFrames:
+        Two DataFrames:
         - Preprocessed PPG data with the following transformations:
             - Resampled data at the specified frequency.
             - Filtered PPG data with bandpass filtering applied.
@@ -670,9 +674,9 @@ def extract_overlapping_segments(
     df_acc : pd.DataFrame
         DataFrame containing accelerometer data from the IMU.
     time_colname_ppg : str
-        The name of the column containing the time data in the PPG dataframe.
+        Name of column containing the time data in the PPG dataframe.
     time_colname_imu : str
-        The name of the column containing the time data in the IMU dataframe.
+        Name of column containing the time data in the IMU dataframe.
     start_time_ppg : str
         iso8601 formatted start time of the PPG data.
     start_time_acc : str

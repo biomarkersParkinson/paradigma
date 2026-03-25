@@ -46,9 +46,7 @@ def extract_signal_quality_features(
     Parameters
     ----------
     df_ppg : pd.DataFrame
-        The DataFrame containing the PPG signal.
-    df_acc : pd.DataFrame
-        The DataFrame containing the accelerometer signal.
+        DataFrame containing the PPG signal.
     ppg_config: PulseRateConfig
         The configuration for the signal quality feature extraction of the PPG
         signal.
@@ -59,7 +57,7 @@ def extract_signal_quality_features(
     Returns
     -------
     df_features : pd.DataFrame
-        The DataFrame containing the extracted signal quality features.
+        DataFrame containing extracted signal quality features for each window.
 
     """
     # Group sequences of timestamps into windows
@@ -150,9 +148,9 @@ def signal_quality_classification(
         The DataFrame containing the PPG features and the accelerometer
         feature for signal quality classification.
     config : PulseRateConfig
-        The configuration for the signal quality classification.
+        Configuration containing column names and thresholds for classification.
     clf_package : ClassifierPackage
-        The classifier package containing the classifier and scaler.
+        Pre-trained classifier and feature scaler.
 
     Returns
     -------
@@ -188,21 +186,26 @@ def estimate_pulse_rate(
     df_sqa: pd.DataFrame, df_ppg_preprocessed: pd.DataFrame, config: PulseRateConfig
 ) -> pd.DataFrame:
     """
-    Estimate the pulse rate from the PPG signal using the time-frequency domain method.
+    Estimate pulse rate from the PPG signal using a time-frequency domain approach.
+
+    Pulse rate estimates are computed only for segments marked as high-quality
+    by the signal quality assessment. Segment boundaries are extended by 2 seconds
+    on each side to improve estimation accuracy.
 
     Parameters
     ----------
     df_sqa : pd.DataFrame
-        The DataFrame containing the signal quality assessment predictions.
+        DataFrame containing window-level signal quality predictions.
     df_ppg_preprocessed : pd.DataFrame
-        The DataFrame containing the preprocessed PPG signal.
+        Preprocessed PPG signal data.
     config : PulseRateConfig
-        The configuration for the pulse rate estimation.
+        Configuration including sampling frequency, time column, PPG column,
+        TFD parameters, and kernel settings.
 
     Returns
     -------
-    df_pr : pd.DataFrame
-        The DataFrame containing the pulse rate estimations.
+    pd.DataFrame
+        DataFrame containing pulse rate estimations.
     """
 
     # Extract NumPy arrays for faster operations
@@ -290,7 +293,7 @@ def aggregate_pulse_rate(
     pr_values: np.ndarray, aggregates: list[str] = ["mode", "99p"]
 ) -> dict:
     """
-    Aggregate the pulse rate estimates using the specified aggregation methods.
+    Aggregate pulse rate estimates using specified aggregation methods.
 
     Parameters
     ----------
@@ -302,8 +305,10 @@ def aggregate_pulse_rate(
 
     Returns
     -------
-    aggregated_results : dict
-        The dictionary containing the aggregated results of the pulse rate estimates.
+    dict
+        Dictionary with:
+        - "metadata": number of pulse rate estimates
+        - "pr_aggregates": aggregated results per method
     """
     # Initialize the dictionary for the aggregated results
     aggregated_results = {}
@@ -334,8 +339,7 @@ def extract_temporal_domain_features(
     Parameters
     ----------
     ppg_windowed: np.ndarray
-        The dataframe containing the windowed accelerometer signal
-
+        Windowed PPG signal.
     config: PulseRateConfig
         The configuration object containing the parameters for the feature extraction
 
@@ -346,7 +350,12 @@ def extract_temporal_domain_features(
     Returns
     -------
     pd.DataFrame
-        The dataframe with the added temporal domain features.
+        DataFrame with temporal domain features for each window.
+
+    Notes
+    -----
+    - The features are added to the dataframe. Therefore the original dataframe is
+    modified, and the modified dataframe is returned.
     """
 
     feature_dict = {}
@@ -374,15 +383,14 @@ def extract_spectral_domain_features(
     Parameters
     ----------
     ppg_windowed: np.ndarray
-        The dataframe containing the windowed ppg signal
-
+        Windowed PPG signal.
     config: PulseRateConfig
-        The configuration object containing the parameters for the feature extraction
+        Configuration including sampling frequency, window settings, and FFT parameters.
 
     Returns
     -------
     pd.DataFrame
-        The dataframe with the added spectral domain features.
+        DataFrame with spectral domain features for each window.
     """
     d_features = {}
 
@@ -415,7 +423,7 @@ def extract_acc_power_feature(
     psd_ppg: np.ndarray,
 ) -> np.ndarray:
     """
-    Extract the accelerometer power feature in the PPG frequency range.
+    Compute accelerometer power in the PPG frequency range.
 
     Parameters
     ----------
@@ -431,7 +439,7 @@ def extract_acc_power_feature(
     Returns
     -------
     np.ndarray
-        The accelerometer power feature in the PPG frequency range
+        Accelerometer power feature in the PPG frequency range.
     """
 
     # Find the index of the maximum PSD value in the PPG signal
@@ -476,18 +484,16 @@ def extract_accelerometer_feature(
     Parameters
     ----------
     acc_windowed: np.ndarray
-        The dataframe containing the windowed accelerometer signal
-
+        Windowed accelerometer signal.
     ppg_windowed: np.ndarray
-        The dataframe containing the corresponding windowed ppg signal
-
+        Windowed PPG signal corresponding to the accelerometer windows.
     config: PulseRateConfig
-        The configuration object containing the parameters for the feature extraction
+        Configuration containing sampling frequency, sensor type, and Welch parameters.
 
     Returns
     -------
     pd.DataFrame
-        The dataframe with the relative power accelerometer feature.
+        DataFrame with the relative power accelerometer feature.
     """
 
     if config.sensor not in ["imu", "ppg"]:
