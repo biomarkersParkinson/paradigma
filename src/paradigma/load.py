@@ -10,6 +10,7 @@ Based on device_specific_data_loading tutorial.
 
 import logging
 import pickle
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -346,7 +347,7 @@ def get_data_file_paths(
 
 def load_single_data_file(
     file_path: str | Path,
-) -> tuple[str, pd.DataFrame]:
+) -> tuple[str, pd.DataFrame, datetime | None]:
     """
     Load a single data file with automatic format detection.
 
@@ -358,7 +359,10 @@ def load_single_data_file(
     Returns
     -------
     tuple
-        Tuple of (file_key, DataFrame) where file_key is the file name without extension
+        Tuple of (file_key, DataFrame, start_datetime) where:
+        - file_key is the file name without extension
+        - DataFrame is the loaded sensor data
+        - start_datetime is the recording start time (or None if not available)
     """
     file_path = Path(file_path)
 
@@ -367,26 +371,46 @@ def load_single_data_file(
 
     try:
         file_format = detect_file_format(file_path)
+        start_dt = None
 
         if file_format == "tsdf":
             # For TSDF, load based on .meta file and infer prefix
             if file_path.suffix.lower() == ".json":
                 prefix = file_path.stem.replace("_meta", "")
-                df, _, _ = load_tsdf_data(file_path.parent, prefix)
-                return prefix, df
+                df, time_meta, _ = load_tsdf_data(file_path.parent, prefix)
+                # Extract start_iso8601 from TSDF metadata
+                if hasattr(time_meta, "start_iso8601"):
+                    start_iso8601 = time_meta.start_iso8601
+                    start_dt = datetime.fromisoformat(start_iso8601.rstrip("Z"))
+                return prefix, df, start_dt
 
         elif file_format == "empatica":
             df = load_empatica_data(file_path)
-            return file_path.stem, df
+            # Extract start_datetime from time_dt column if available
+            if "time_dt" in df.columns and len(df) > 0:
+                start_dt = df["time_dt"].iloc[0]
+                if hasattr(start_dt, "to_pydatetime"):
+                    start_dt = start_dt.to_pydatetime()
+            return file_path.stem, df, start_dt
 
         elif file_format == "axivity":
             df = load_axivity_data(file_path)
-            return file_path.stem, df
+            # Extract start_datetime from time_dt column if available
+            if "time_dt" in df.columns and len(df) > 0:
+                start_dt = df["time_dt"].iloc[0]
+                if hasattr(start_dt, "to_pydatetime"):
+                    start_dt = start_dt.to_pydatetime()
+            return file_path.stem, df, start_dt
 
         elif file_format == "prepared":
             df = load_prepared_data(file_path)
+            # Check for time_dt column in prepared data
+            if "time_dt" in df.columns and len(df) > 0:
+                start_dt = df["time_dt"].iloc[0]
+                if hasattr(start_dt, "to_pydatetime"):
+                    start_dt = start_dt.to_pydatetime()
             prefix = file_path.stem.replace("_meta", "")
-            return prefix, df
+            return prefix, df, start_dt
 
         else:
             raise ValueError(f"Unknown file format for {file_path}")
@@ -428,7 +452,7 @@ def load_data_files(
     # Load each file
     for file_path in all_files:
         try:
-            file_key, df = load_single_data_file(file_path)
+            file_key, df, start_dt = load_single_data_file(file_path)
             loaded_files[file_key] = df
         except Exception as e:
             logger.warning(f"Failed to load {file_path}: {e}")
