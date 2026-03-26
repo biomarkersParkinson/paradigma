@@ -452,7 +452,7 @@ def load_data_files(
     # Load each file
     for file_path in all_files:
         try:
-            file_key, df, start_dt = load_single_data_file(file_path)
+            file_key, df, _ = load_single_data_file(file_path)
             loaded_files[file_key] = df
         except Exception as e:
             logger.warning(f"Failed to load {file_path}: {e}")
