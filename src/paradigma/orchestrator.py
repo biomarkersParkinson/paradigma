@@ -650,13 +650,15 @@ def run_paradigma(
                                         f"{pipeline_result['_error']}"
                                     )
                                 quantification_data = pipeline_result.get(
-                                    "quantification", {}
+                                    "quantification", None
                                 )
                             else:
                                 quantification_data = pipeline_result
 
+                            # Check if quantification_data is not None and has content
+                            # (works for both DataFrame and dict)
                             if (
-                                isinstance(quantification_data, dict)
+                                quantification_data is not None
                                 and len(quantification_data) > 0
                             ):
                                 quantification_data = quantification_data.copy()
@@ -690,13 +692,15 @@ def run_paradigma(
                                         f"{pipeline_result['_error']}"
                                     )
                                 quantification_data = pipeline_result.get(
-                                    "quantification", {}
+                                    "quantification", None
                                 )
                             else:
                                 quantification_data = pipeline_result
 
+                            # Check if quantification_data is not None and has content
+                            # (works for both DataFrame and dict)
                             if (
-                                isinstance(quantification_data, dict)
+                                quantification_data is not None
                                 and len(quantification_data) > 0
                             ):
                                 quantification_data = quantification_data.copy()
