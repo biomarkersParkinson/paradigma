@@ -1027,6 +1027,7 @@ def run_gait_pipeline(
         raise ValueError(f"Missing required columns: {missing_columns}")
 
     # Step 1: Preprocess data
+    # DEPENDENCY: Required for steps 2+. Must run before classification.
     if "preprocessing" in run_steps:
         try:
             active_logger.info("Step 1: Preprocessing IMU data")
@@ -1058,6 +1059,8 @@ def run_gait_pipeline(
         df_preprocessed = df_prepared
 
     # Steps 2-3: Extract features and detect gait (classification step)
+    # DEPENDENCY: Requires 'preprocessing' step data. Must run before 'quantification'.
+    # Extracts gait features and makes predictions (steps 2-5 of pipeline).
     if "classification" in run_steps:
         try:
             active_logger.info("Step 2: Extracting gait features")
@@ -1187,6 +1190,8 @@ def run_gait_pipeline(
             return result_dict
 
     # Step 6: Quantify arm swing (only if quantification is in run_steps)
+    # DEPENDENCY: Requires 'classification' step to have completed.
+    # Produces arm swing metrics and metadata for downstream analysis.
     if "quantification" in run_steps:
         try:
             # Get df_arm_activity_with_time from classification step if it ran
