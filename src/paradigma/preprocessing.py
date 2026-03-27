@@ -427,14 +427,6 @@ def preprocess_imu_data(
         # Data has been pre-segmented, skip contiguity validation
         validate_contiguous = False
 
-    # Check current sampling frequency
-    time_diff = df[config.time_colname].diff().dropna()
-    current_dt = time_diff.median()
-    current_frequency = 1.0 / current_dt
-
-    if abs(current_frequency - config.resampling_frequency) < 0.1:
-        needs_resampling = False
-
     if needs_resampling:
         # Resample the data to the specified frequency
         df = resample_data(
