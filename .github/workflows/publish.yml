@@ -117,14 +117,27 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+
     steps:
-      - name: Download the documentation
-        uses: actions/download-artifact@v4
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          name: docs-html
-          path: docs/
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install poetry
+          poetry install
+
+      # Full documentation build with all notebooks executed before publishing
+      # This ensures documentation is completely up-to-date with code
+      - name: Build documentation (full execution)
+        run: poetry run build-docs --force
+
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/
+          publish_dir: docs/_build/html/
