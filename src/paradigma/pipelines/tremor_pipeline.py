@@ -508,12 +508,6 @@ def run_tremor_pipeline(
     active_logger.info("Step 2: Extracting tremor features")
     df_features = extract_tremor_features(df_preprocessed, tremor_config)
 
-    if "tremor" in store_intermediate:
-        tremor_dir = output_dir / "tremor"
-        tremor_dir.mkdir(exist_ok=True)
-        df_features.to_parquet(tremor_dir / "tremor_features.parquet")
-        active_logger.info(f"Saved tremor features to {tremor_dir}")
-
     # Step 3: Detect tremor
     active_logger.info("Step 3: Detecting tremor")
     try:
@@ -524,6 +518,12 @@ def run_tremor_pipeline(
     except Exception as e:
         active_logger.error(f"Tremor detection failed: {e}")
         return pd.DataFrame()
+
+    if "classification" in store_intermediate:
+        classification_dir = output_dir / "classification"
+        classification_dir.mkdir(exist_ok=True)
+        df_predictions.to_parquet(classification_dir / "tremor_predictions.parquet")
+        active_logger.info(f"Saved tremor predictions to {classification_dir}")
 
     # Step 4: Quantify tremor (following tutorial pattern)
     active_logger.info("Step 4: Quantifying tremor")

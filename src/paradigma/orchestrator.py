@@ -129,7 +129,8 @@ def run_paradigma(
         Which intermediate results to store. Valid values:
         - 'preparation': Save prepared data
         - 'preprocessing': Save preprocessed signals
-        - 'classification': Save classification results
+        - 'classification': Save classification/prediction results (e.g., gait
+        predictions, tremor predictions, PPG signal quality predictions)
         - 'quantification': Save quantified measures
         - 'aggregation': Save aggregated results
         If empty, no files are saved (results are only returned).

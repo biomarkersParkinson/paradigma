@@ -5,11 +5,12 @@
     "ppp_source_protobuf": "WatchData.PPG.Week104.raw",
     "metadata_version": "0.1",
     "start_iso8601": "2021-06-27T16:52:20Z",
-    "end_iso8601": "2021-06-27T17:03:05Z",
+    "end_iso8601": "2021-06-27T17:03:04Z",
+    "scale_factors": 1,
     "rows": 19338,
+    "data_type": "float",
     "endianness": "little",
     "bits": 64,
-    "data_type": "float",
     "sensors": [
         {
             "file_name": "ppg_time.bin",
@@ -17,7 +18,7 @@
                 "time"
             ],
             "units": [
-                "absolute_ms"
+                "ms"
             ]
         },
         {

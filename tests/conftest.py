@@ -1,45 +1,12 @@
 from pathlib import Path
 
 import numpy as np
-import papermill as pm
 import tsdf
-
-arm_swing_binaries_pairs: list[tuple[str, str]] = [
-    ("arm_activity_meta.json", "arm_activity_values.bin"),
-    ("arm_activity_meta.json", "arm_activity_time.bin"),
-]
 
 # Tolerance for the np.allclose function
 # Relaxed tolerances for preprocessing operations which involve filtering and resampling
 tolerance: float = 1e-5  # Relative tolerance
 abs_tol: float = 1e-6  # Absolute tolerance
-
-# Path to the notebooks
-notebooks_dir: str = "tests/notebooks/gait"
-
-
-def execute_notebook(name: str, parameters: dict[str, str]):
-    """
-    This function is used to execute a notebook.
-
-    Parameters
-    ----------
-    shared_datadir : Path
-        The path to the shared data directory.
-    name : str
-        The name of the notebook to execute.
-    parameters : dict[str, str]
-        The parameters to pass to the notebook.
-    """
-    path = f"{notebooks_dir}/{name}.ipynb"
-    # compute shared_datadir / "tmp" / output_dir_name / metadata
-    output = None
-
-    pm.execute_notebook(
-        path,
-        output,
-        parameters=parameters,
-    )
 
 
 def compare_data(
