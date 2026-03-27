@@ -124,10 +124,4 @@ def main():
         ]
     )
 
-    # Strip outputs AFTER Sphinx has built the docs
-    if not args.dev:
-        for nb_path in notebooks:
-            print(f"Stripping outputs from {nb_path}...")
-            run([sys.executable, "-m", "nbstripout", str(nb_path)])
-
     print("Done!")
