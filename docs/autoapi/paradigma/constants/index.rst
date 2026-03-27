@@ -1,0 +1,425 @@
+paradigma.constants
+===================
+
+.. py:module:: paradigma.constants
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   paradigma.constants.UNIX_TICKS_MS
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   paradigma.constants.DataColumns
+   paradigma.constants.DataUnits
+   paradigma.constants.TimeUnit
+
+
+Module Contents
+---------------
+
+.. py:class:: DataColumns
+
+   Class containing the data channels in `tsdf`.
+
+
+   .. py:attribute:: ACCELEROMETER_X
+      :type:  str
+      :value: 'accelerometer_x'
+
+
+
+   .. py:attribute:: ACCELEROMETER_Y
+      :type:  str
+      :value: 'accelerometer_y'
+
+
+
+   .. py:attribute:: ACCELEROMETER_Z
+      :type:  str
+      :value: 'accelerometer_z'
+
+
+
+   .. py:attribute:: GYROSCOPE_X
+      :type:  str
+      :value: 'gyroscope_x'
+
+
+
+   .. py:attribute:: GYROSCOPE_Y
+      :type:  str
+      :value: 'gyroscope_y'
+
+
+
+   .. py:attribute:: GYROSCOPE_Z
+      :type:  str
+      :value: 'gyroscope_z'
+
+
+
+   .. py:attribute:: PPG
+      :type:  str
+      :value: 'green'
+
+
+
+   .. py:attribute:: TIME
+      :type:  str
+      :value: 'time'
+
+
+
+   .. py:attribute:: GAIT_SEGMENT_NR
+      :type:  str
+      :value: 'gait_segment_nr'
+
+
+
+   .. py:attribute:: SEGMENT_NR
+      :type:  str
+      :value: 'gait_segment_nr'
+
+
+
+   .. py:attribute:: DATA_SEGMENT_NR
+      :type:  str
+      :value: 'data_segment_nr'
+
+
+
+   .. py:attribute:: SEGMENT_CAT
+      :type:  str
+      :value: 'segment_category'
+
+
+
+   .. py:attribute:: GRAV_ACCELEROMETER_X
+      :type:  str
+      :value: 'accelerometer_x_grav'
+
+
+
+   .. py:attribute:: GRAV_ACCELEROMETER_Y
+      :type:  str
+      :value: 'accelerometer_y_grav'
+
+
+
+   .. py:attribute:: GRAV_ACCELEROMETER_Z
+      :type:  str
+      :value: 'accelerometer_z_grav'
+
+
+
+   .. py:attribute:: PRED_GAIT_PROBA
+      :type:  str
+      :value: 'pred_gait_proba'
+
+
+
+   .. py:attribute:: PRED_GAIT
+      :type:  str
+      :value: 'pred_gait'
+
+
+
+   .. py:attribute:: PRED_NO_OTHER_ARM_ACTIVITY_PROBA
+      :type:  str
+      :value: 'pred_no_other_arm_activity_proba'
+
+
+
+   .. py:attribute:: PRED_NO_OTHER_ARM_ACTIVITY
+      :type:  str
+      :value: 'pred_no_other_arm_activity'
+
+
+
+   .. py:attribute:: ANGLE
+      :type:  str
+      :value: 'angle'
+
+
+
+   .. py:attribute:: VELOCITY
+      :type:  str
+      :value: 'velocity'
+
+
+
+   .. py:attribute:: DOMINANT_FREQUENCY
+      :type:  str
+      :value: 'dominant_frequency'
+
+
+
+   .. py:attribute:: RANGE_OF_MOTION
+      :type:  str
+      :value: 'range_of_motion'
+
+
+
+   .. py:attribute:: PEAK_VELOCITY
+      :type:  str
+      :value: 'peak_velocity'
+
+
+
+   .. py:attribute:: PRED_TREMOR_PROBA
+      :type:  str
+      :value: 'pred_tremor_proba'
+
+
+
+   .. py:attribute:: PRED_TREMOR_LOGREG
+      :type:  str
+      :value: 'pred_tremor_logreg'
+
+
+
+   .. py:attribute:: PRED_TREMOR_CHECKED
+      :type:  str
+      :value: 'pred_tremor_checked'
+
+
+
+   .. py:attribute:: PRED_ARM_AT_REST
+      :type:  str
+      :value: 'pred_arm_at_rest'
+
+
+
+   .. py:attribute:: TREMOR_POWER
+      :type:  str
+      :value: 'tremor_power'
+
+
+
+   .. py:attribute:: BELOW_TREMOR_POWER
+      :type:  str
+      :value: 'below_tremor_power'
+
+
+
+   .. py:attribute:: FREQ_PEAK
+      :type:  str
+      :value: 'freq_peak'
+
+
+
+   .. py:attribute:: VARIANCE
+      :type:  str
+      :value: 'variance'
+
+
+
+   .. py:attribute:: MEAN
+      :type:  str
+      :value: 'mean'
+
+
+
+   .. py:attribute:: MEDIAN
+      :type:  str
+      :value: 'median'
+
+
+
+   .. py:attribute:: KURTOSIS
+      :type:  str
+      :value: 'kurtosis'
+
+
+
+   .. py:attribute:: SKEWNESS
+      :type:  str
+      :value: 'skewness'
+
+
+
+   .. py:attribute:: RELATIVE_POWER
+      :type:  str
+      :value: 'relative_power'
+
+
+
+   .. py:attribute:: SPECTRAL_ENTROPY
+      :type:  str
+      :value: 'spectral_entropy'
+
+
+
+   .. py:attribute:: SIGNAL_NOISE_RATIO
+      :type:  str
+      :value: 'signal_noise_ratio'
+
+
+
+   .. py:attribute:: SECOND_HIGHEST_PEAK
+      :type:  str
+      :value: 'second_highest_peak'
+
+
+
+   .. py:attribute:: POWER_RATIO
+      :type:  str
+      :value: 'power_ratio'
+
+
+
+   .. py:attribute:: ACC_POWER_RATIO
+      :type:  str
+      :value: 'acc_power_ratio'
+
+
+
+   .. py:attribute:: PRED_SQA_PROBA
+      :type:  str
+      :value: 'pred_sqa_proba'
+
+
+
+   .. py:attribute:: PRED_SQA_ACC_LABEL
+      :type:  str
+      :value: 'pred_sqa_acc_label'
+
+
+
+   .. py:attribute:: PRED_SQA
+      :type:  str
+      :value: 'pred_sqa'
+
+
+
+   .. py:attribute:: PULSE_RATE
+      :type:  str
+      :value: 'pulse_rate'
+
+
+
+.. py:class:: DataUnits
+
+   Class containing the data channel unit types in `tsdf`.
+
+
+   .. py:attribute:: ACCELERATION
+      :type:  str
+      :value: 'm/s^2'
+
+
+      The acceleration is in m/s^2.
+
+
+   .. py:attribute:: ROTATION
+      :type:  str
+      :value: 'deg/s'
+
+
+      The rotation is in degrees per second.
+
+
+   .. py:attribute:: GRAVITY
+      :type:  str
+      :value: 'g'
+
+
+      The acceleration due to gravity is in g.
+
+
+   .. py:attribute:: POWER_SPECTRAL_DENSITY_ACC
+      :type:  str
+      :value: 'g^2/Hz'
+
+
+      The power spectral density is in g^2/Hz.
+
+
+   .. py:attribute:: POWER_ROTATION
+      :type:  str
+      :value: '(deg/s)^2'
+
+
+      The power is in "(deg/s)^2.
+
+
+   .. py:attribute:: FREQUENCY
+      :type:  str
+      :value: 'Hz'
+
+
+      The frequency is in Hz.
+
+
+   .. py:attribute:: NONE
+      :type:  str
+      :value: 'none'
+
+
+      The data channel has no unit.
+
+
+.. py:class:: TimeUnit
+
+   Class containing the `time` channel unit types in `tsdf`.
+
+
+   .. py:attribute:: RELATIVE_MS
+      :type:  str
+      :value: 'relative_ms'
+
+
+      The time is relative to the start time in milliseconds.
+
+
+   .. py:attribute:: RELATIVE_S
+      :type:  str
+      :value: 'relative_s'
+
+
+      The time is relative to the start time in seconds.
+
+
+   .. py:attribute:: ABSOLUTE_MS
+      :type:  str
+      :value: 'absolute_ms'
+
+
+      The time is absolute in milliseconds.
+
+
+   .. py:attribute:: ABSOLUTE_S
+      :type:  str
+      :value: 'absolute_s'
+
+
+      The time is absolute in seconds.
+
+
+   .. py:attribute:: DIFFERENCE_MS
+      :type:  str
+      :value: 'difference_ms'
+
+
+      The time is the difference between consecutive samples in milliseconds.
+
+
+   .. py:attribute:: DIFFERENCE_S
+      :type:  str
+      :value: 'difference_s'
+
+
+      The time is the difference between consecutive samples in seconds.
+
+
+.. py:data:: UNIX_TICKS_MS
+   :type:  int
+   :value: 1000

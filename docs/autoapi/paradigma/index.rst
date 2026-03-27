@@ -1,0 +1,29 @@
+paradigma
+=========
+
+.. py:module:: paradigma
+
+.. autoapi-nested-parse::
+
+   ParaDigMa: Parkinson Digital Biomarker Analysis Toolbox
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/paradigma/classification/index
+   /autoapi/paradigma/config/index
+   /autoapi/paradigma/constants/index
+   /autoapi/paradigma/feature_extraction/index
+   /autoapi/paradigma/load/index
+   /autoapi/paradigma/orchestrator/index
+   /autoapi/paradigma/pipelines/index
+   /autoapi/paradigma/prepare_data/index
+   /autoapi/paradigma/preprocessing/index
+   /autoapi/paradigma/segmenting/index
+   /autoapi/paradigma/testing/index
+   /autoapi/paradigma/util/index

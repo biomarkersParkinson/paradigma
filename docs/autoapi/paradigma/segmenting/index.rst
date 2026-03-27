@@ -1,0 +1,236 @@
+paradigma.segmenting
+====================
+
+.. py:module:: paradigma.segmenting
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   paradigma.segmenting.logger
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   paradigma.segmenting.WindowedDataExtractor
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   paradigma.segmenting.tabulate_windows
+   paradigma.segmenting.tabulate_windows_legacy
+   paradigma.segmenting.create_segments
+   paradigma.segmenting.discard_segments
+   paradigma.segmenting.categorize_segments
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: tabulate_windows(df: pandas.DataFrame, columns: list[str], window_length_s: float, window_step_length_s: float, fs: int) -> numpy.ndarray
+
+   Split the given DataFrame into overlapping windows of specified length
+   and step size.
+
+   This function extracts windows of data from the specified columns of the
+   DataFrame, based on the window length and step size provided in the
+   configuration. The windows are returned in a 3D NumPy array, where the
+   first dimension represents the window index, the second dimension
+   represents the time steps within the window, and the third dimension
+   represents the columns of the data.
+
+   :param df: The input DataFrame containing the data to be windowed.
+   :type df: pd.DataFrame
+   :param columns: A list of column names from the DataFrame that will be used for windowing.
+   :type columns: list of str
+   :param window_length_s: The length of each window in seconds.
+   :type window_length_s: float
+   :param window_step_length_s: The step size between consecutive windows in seconds.
+   :type window_step_length_s: float
+   :param fs: The sampling frequency of the data in Hz.
+   :type fs: int
+
+   :returns: A 3D NumPy array of shape (n_windows, window_size, n_columns), where:
+             - `n_windows` is the number of windows that can be formed from the
+               data.
+             - `window_size` is the length of each window in terms of the number
+               of time steps.
+             - `n_columns` is the number of columns in the input DataFrame
+               specified by `columns`.
+
+             If the length of the data is shorter than the specified window size,
+             an empty array is returned.
+   :rtype: np.ndarray
+
+   .. rubric:: Notes
+
+   This function uses `np.lib.stride_tricks.sliding_window_view` to
+   generate sliding windows of data. The step size is applied to extract
+   windows at intervals. If the data is insufficient for at least one
+   window, an empty array will be returned.
+
+   .. rubric:: Example
+
+   config = Config(window_length_s=5, window_step_length_s=1, sampling_frequency=100)
+   df = pd.DataFrame({'col1': np.random.randn(100), 'col2': np.random.randn(100)})
+   columns = ['col1', 'col2']
+   windows = tabulate_windows(config, df, columns)
+
+
+.. py:function:: tabulate_windows_legacy(config, df, agg_func='first')
+
+   Efficiently creates a windowed dataframe from the input dataframe using
+   vectorized operations.
+
+   :param config: A configuration object containing:
+                  - `window_length_s`: The number of seconds per window.
+                  - `window_step_length_s`: The number of seconds to shift between windows.
+                  - `sampling_frequency`: The sampling frequency in Hz.
+                  - `single_value_colnames`: List of column names where a single value
+                    (e.g., mean) is needed.
+                  - `list_value_colnames`: List of column names where all 600 values
+                    should be stored in a list.
+   :type config: object
+   :param agg_func: Aggregation function for single-value columns. Can be 'mean',
+                    'first', or a custom callable. Default is 'first'.
+   :type agg_func: str or callable, optional
+
+   :returns: A new DataFrame where each row corresponds to a window, containing:
+             - `window_nr`: The window number (starting from 1).
+             - `window_start`: The start time of the window.
+             - `window_end`: The end time of the window.
+             - Aggregated values for `single_value_colnames`.
+             - Lists of values for `list_value_colnames`.
+   :rtype: pd.DataFrame
+
+
+.. py:function:: create_segments(time_array: numpy.ndarray, max_segment_gap_s: float)
+
+.. py:function:: discard_segments(df: pandas.DataFrame, segment_nr_colname: str, min_segment_length_s: float, fs: int, format: str = 'timestamps') -> pandas.DataFrame
+
+   Remove segments smaller than a specified size and reset segment enumeration.
+
+   This function filters out segments from the DataFrame that are smaller than a
+   given minimum size, based on the configuration. After removing small segments,
+   the segment numbers are reset to start from 1.
+
+   :param config: A configuration object containing:
+                  - `min_segment_length_s`: The minimum segment length in seconds.
+                  - `sampling_frequency`: The sampling frequency in Hz.
+   :type config: object
+   :param df: The input DataFrame containing a segment column and time series data.
+   :type df: pd.DataFrame
+   :param format: The format of the input data, either 'timestamps' or 'windows'.
+   :type format: str, optional
+
+   :returns: A filtered DataFrame where small segments have been removed and segment
+             numbers have been reset to start from 1.
+   :rtype: pd.DataFrame
+
+   .. rubric:: Example
+
+   config = Config(min_segment_length_s=2, sampling_frequency=100,
+                   segment_nr_colname='segment')
+   df = pd.DataFrame({
+       'segment': [1, 1, 2, 2, 2],
+       'time': [0, 1, 2, 3, 4]
+   })
+   df_filtered = discard_segments(config, df)
+   # Result:
+   #   segment  time
+   # 0       1     0
+   # 1       1     1
+   # 2       2     2
+   # 3       2     3
+   # 4       2     4
+
+
+.. py:function:: categorize_segments(df, fs, format='timestamps', window_step_length_s=None)
+
+   Categorize segments based on their duration.
+
+   This function categorizes segments into four categories based on their duration
+   in seconds. The categories are defined as:
+   - Category 1: Segments shorter than 5 seconds
+   - Category 2: Segments between 5 and 10 seconds
+   - Category 3: Segments between 10 and 20 seconds
+   - Category 4: Segments longer than 20 seconds
+
+   The duration of each segment is calculated based on the sampling frequency and
+   the number of rows (data points) in the segment.
+
+   :param df: The input DataFrame containing the segment column with segment numbers.
+   :type df: pd.DataFrame
+   :param config: A configuration object containing `sampling_frequency`.
+   :type config: object
+   :param format: The format of the input data, either 'timestamps' or 'windows'.
+   :type format: str, optional
+
+   :returns: A Series containing the category for each segment:
+             - 'short' for segments < 5 seconds
+             - 'moderately_long' for segments between 5 and 10 seconds
+             - 'long' for segments between 10 and 20 seconds
+             - 'very_long' for segments > 20 seconds
+   :rtype: pd.Series
+
+
+.. py:class:: WindowedDataExtractor(windowed_colnames: list[str])
+
+   A utility class for extracting specific column indices and slices
+   from a list of windowed column names.
+
+   .. attribute:: column_indices
+
+      A dictionary mapping column names to their indices.
+
+      :type: dict
+
+   .. method:: get_index(colname)
+
+      Returns the index of a specific column name.
+
+   .. method:: get_slice(colnames)
+
+      Returns a slice object for a range of consecutive column names.
+
+
+
+   .. py:attribute:: column_indices
+
+
+   .. py:method:: get_index(colname: str) -> int
+
+      Get the index of a specific column.
+
+      :param col: The name of the column to retrieve the index for.
+      :type col: str
+
+      :returns: The index of the specified column.
+      :rtype: int
+
+      :raises ValueError: If the column is not found in the `windowed_colnames` list.
+
+
+
+   .. py:method:: get_slice(colnames: list[str]) -> slice
+
+      Get a slice object for a range of consecutive columns.
+
+      :param colnames: A list of consecutive column names to define the slice.
+      :type colnames: list of str
+
+      :returns: A slice object spanning the indices of the given columns.
+      :rtype: slice
+
+      :raises ValueError: If one or more columns in `colnames` are not found in the
+          `windowed_colnames` list.

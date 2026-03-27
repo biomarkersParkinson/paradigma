@@ -1,0 +1,16 @@
+paradigma.pipelines
+===================
+
+.. py:module:: paradigma.pipelines
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/paradigma/pipelines/gait_pipeline/index
+   /autoapi/paradigma/pipelines/pulse_rate_pipeline/index
+   /autoapi/paradigma/pipelines/pulse_rate_utils/index
+   /autoapi/paradigma/pipelines/tremor_pipeline/index

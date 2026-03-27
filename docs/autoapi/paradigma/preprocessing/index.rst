@@ -1,0 +1,243 @@
+paradigma.preprocessing
+=======================
+
+.. py:module:: paradigma.preprocessing
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   paradigma.preprocessing.logger
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   paradigma.preprocessing.resample_data
+   paradigma.preprocessing.butterworth_filter
+   paradigma.preprocessing.preprocess_imu_data
+   paradigma.preprocessing.preprocess_ppg_data
+   paradigma.preprocessing.extract_overlapping_segments
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: resample_data(df: pandas.DataFrame, time_column: str = 'time', values_column_names: list[str] | None = None, sampling_frequency: int | None = None, resampling_frequency: int | None = None, tolerance: float | None = None, validate_contiguous: bool = True, auto_segment: bool = False, max_segment_gap_s: float | None = None, min_segment_length_s: float | None = None) -> pandas.DataFrame
+
+   Unified resampling function with optional auto-segmentation for non-contiguous data.
+
+   This function supports:
+   - Automatic frequency detection or explicit specification
+   - Contiguity validation with configurable tolerance
+   - Automatic segmentation of non-contiguous data
+   - Preservation of non-numeric columns
+
+   :param df: The input DataFrame containing the sensor data.
+   :type df: pd.DataFrame
+   :param time_column: The name of the column containing the time data.
+   :type time_column: str, default 'time'
+   :param values_column_names: Column names to resample. If None, auto-detects all numeric columns except time.
+   :type values_column_names: List[str], optional
+   :param sampling_frequency: Original sampling frequency (Hz). If None, auto-detected from data.
+   :type sampling_frequency: int, optional
+   :param resampling_frequency: Target sampling frequency in Hz.
+   :type resampling_frequency: int, optional
+   :param tolerance: Tolerance for contiguity checking (seconds). Defaults to IMUConfig tolerance.
+   :type tolerance: float, optional
+   :param validate_contiguous: Whether to validate data contiguity. If False, gaps are silently interpolated.
+   :type validate_contiguous: bool, default True
+   :param auto_segment: If True, automatically split non-contiguous data into segments and
+                        process each. Adds 'data_segment_nr' column to output. If False and
+                        data is non-contiguous with validate_contiguous=True, raises
+                        ValueError.
+   :type auto_segment: bool, default False
+   :param max_segment_gap_s: Maximum gap (seconds) before starting new segment. Used when auto_segment=True.
+                             Defaults to IMUConfig.max_segment_gap_s (1.5s).
+   :type max_segment_gap_s: float, optional
+   :param min_segment_length_s: Minimum segment length (seconds) to keep. Used when auto_segment=True.
+                                Defaults to IMUConfig.min_segment_length_s (1.5s).
+   :type min_segment_length_s: float, optional
+
+   :returns: Resampled DataFrame. If auto_segment=True and multiple segments found,
+             includes 'data_segment_nr' column identifying each contiguous data segment.
+   :rtype: pd.DataFrame
+
+   :raises ValueError: - If time array is not strictly increasing
+       - If time array is not contiguous and validate_contiguous=True
+         and auto_segment=False
+       - If no numeric columns found for resampling
+       - If all segments are discarded due to min_segment_length_s
+
+   .. rubric:: Notes
+
+   - Uses cubic interpolation for smooth resampling if there are enough points
+   - Falls back to linear interpolation if only 2-3 points available
+   - Non-numeric columns are preserved (first value copied to all rows)
+   - Backwards compatible with both old resample_data signatures
+
+   .. rubric:: Examples
+
+   # Auto-detection mode
+   df_resampled = resample_data(df, resampling_frequency=100)
+
+   # Explicit mode
+   df_resampled = resample_data(
+       df, time_column='time', values_column_names=['acc_x', 'acc_y'],
+       sampling_frequency=128, resampling_frequency=100
+   )
+
+   # Auto-segmentation mode
+   df_segmented = resample_data(
+       df, resampling_frequency=100, auto_segment=True,
+       max_segment_gap_s=2.0, min_segment_length_s=3.0
+   )
+
+
+.. py:function:: butterworth_filter(data: numpy.ndarray, order: int, cutoff_frequency: float | list[float], passband: str, sampling_frequency: int)
+
+   Applies a Butterworth filter to 1D or 2D sensor data.
+
+   This function applies a low-pass, high-pass, or band-pass Butterworth filter to the
+   input data. The filter is designed using the specified order, cutoff frequency,
+   and passband type. The function can handle both 1D and 2D data arrays.
+
+   :param data: The sensor data to be filtered. Can be 1D (e.g., a single signal) or 2D
+                (e.g., multi-axis sensor data).
+   :type data: np.ndarray
+   :param order: The order of the Butterworth filter. Higher values result in a steeper roll-off.
+   :type order: int
+   :param cutoff_frequency: The cutoff frequency (or frequencies) for the filter. For a low-pass
+                            or high-pass filter, this is a single float. For a band-pass filter,
+                            this should be a list of two floats, specifying the lower and upper
+                            cutoff frequencies.
+   :type cutoff_frequency: float or list of float
+   :param passband: The type of passband to apply. Options are:
+                    - 'hp' : high-pass filter
+                    - 'lp' : low-pass filter
+                    - 'band' : band-pass filter
+   :type passband: str
+   :param sampling_frequency: The sampling frequency of the data in Hz. This is used to normalize
+                              the cutoff frequency.
+   :type sampling_frequency: int
+
+   :returns: The filtered sensor data. The shape of the output is the same as the input data.
+   :rtype: np.ndarray
+
+   :raises ValueError: If the input data has more than two dimensions, or if an invalid
+       passband is specified.
+
+   .. rubric:: Notes
+
+   The function uses `scipy.signal.butter` to design the filter and
+   `scipy.signal.sosfiltfilt` to apply it using second-order sections (SOS)
+   to improve numerical stability.
+
+
+.. py:function:: preprocess_imu_data(df: pandas.DataFrame, config: paradigma.config.IMUConfig, sensor: str, watch_side: str) -> pandas.DataFrame
+
+   Preprocesses IMU data by resampling and applying filters.
+
+   :param df: The DataFrame containing raw accelerometer and/or gyroscope data.
+   :type df: pd.DataFrame
+   :param config: Configuration object containing various settings, such as time column
+                  name, accelerometer and/or gyroscope columns, filter settings, and
+                  sampling frequency.
+   :type config: IMUConfig
+   :param sensor: Name of the sensor data to be preprocessed. Must be one of:
+                  - "accelerometer": Preprocess accelerometer data only.
+                  - "gyroscope": Preprocess gyroscope data only.
+                  - "both": Preprocess both accelerometer and gyroscope data.
+   :type sensor: str
+   :param watch_side: The side of the watch where the data was collected. Must be one of:
+                      - "left": Data was collected from the left wrist.
+                      - "right": Data was collected from the right wrist.
+   :type watch_side: str
+
+   :returns: The preprocessed accelerometer and or gyroscope data with the
+             following transformations:
+             - Resampled data at the specified frequency.
+             - Filtered accelerometer data with high-pass and low-pass filtering
+               applied.
+   :rtype: pd.DataFrame
+
+   .. rubric:: Notes
+
+   - The function applies Butterworth filters to accelerometer data, both
+     high-pass and low-pass.
+
+
+.. py:function:: preprocess_ppg_data(df_ppg: pandas.DataFrame, ppg_config: paradigma.config.PPGConfig, start_time_ppg: str | None = None, df_acc: pandas.DataFrame | None = None, imu_config: paradigma.config.IMUConfig | None = None, start_time_imu: str | None = None) -> tuple[pandas.DataFrame, pandas.DataFrame | None]
+
+   This function preprocesses PPG and accelerometer data by resampling,
+   filtering and aligning the data segments of both sensors (if applicable).
+   Aligning is done using the extract_overlapping_segments function which is
+   based on the provided start times of the PPG and IMU data and returns
+   only the data points where both signals overlap in time. The remaining
+   data points are discarded.
+   After alignment, the function resamples the data to the specified
+   frequency and applies Butterworth filters to both PPG and accelerometer
+   data (if applicable).
+   The output is two DataFrames: one for the preprocessed PPG data and
+   another for the preprocessed accelerometer data (if provided, otherwise
+   return is None).
+
+   :param df_ppg: DataFrame containing PPG data.
+   :type df_ppg: pd.DataFrame
+   :param ppg_config: Configuration object for PPG preprocessing.
+   :type ppg_config: PPGPreprocessingConfig
+   :param start_time_ppg: iso8601 formatted start time of the PPG data.
+   :type start_time_ppg: str
+   :param df_acc: DataFrame containing accelerometer from IMU data.
+   :type df_acc: pd.DataFrame
+   :param imu_config: Configuration object for IMU preprocessing.
+   :type imu_config: IMUPreprocessingConfig
+   :param start_time_imu: iso8601 formatted start time of the IMU data.
+   :type start_time_imu: str
+
+   :returns: A tuple containing two DataFrames:
+             - Preprocessed PPG data with the following transformations:
+                 - Resampled data at the specified frequency.
+                 - Filtered PPG data with bandpass filtering applied.
+             - Preprocessed accelerometer data (if provided, otherwise return is
+               None) with the following transformations:
+                 - Resampled data at the specified frequency.
+                 - Filtered accelerometer data with high-pass and low-pass
+                   filtering applied.
+   :rtype: Tuple[pd.DataFrame, pd.DataFrame | None]
+
+   .. rubric:: Notes
+
+   - If accelerometer data or IMU configuration is not provided, the
+     function only preprocesses PPG data.
+   - The function applies Butterworth filters to PPG and accelerometer
+     (if applicable) data, both high-pass and low-pass.
+
+
+.. py:function:: extract_overlapping_segments(df_ppg: pandas.DataFrame, df_acc: pandas.DataFrame, time_colname_ppg: str, time_colname_imu: str, start_time_ppg: str, start_time_acc: str) -> tuple[pandas.DataFrame, pandas.DataFrame]
+
+   Extract DataFrames with overlapping data segments between accelerometer
+   (from the IMU) and PPG datasets based on their timestamps.
+
+   :param df_ppg: DataFrame containing PPG data.
+   :type df_ppg: pd.DataFrame
+   :param df_acc: DataFrame containing accelerometer data from the IMU.
+   :type df_acc: pd.DataFrame
+   :param time_colname_ppg: The name of the column containing the time data in the PPG dataframe.
+   :type time_colname_ppg: str
+   :param time_colname_imu: The name of the column containing the time data in the IMU dataframe.
+   :type time_colname_imu: str
+   :param start_time_ppg: iso8601 formatted start time of the PPG data.
+   :type start_time_ppg: str
+   :param start_time_acc: iso8601 formatted start time of the accelerometer data.
+   :type start_time_acc: str
+
+   :returns: DataFrames containing the overlapping segments (time and values) of
+             PPG and accelerometer data.
+   :rtype: Tuple[pd.DataFrame, pd.DataFrame]

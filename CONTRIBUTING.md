@@ -216,12 +216,56 @@ poetry run build-docs
 poetry run serve-docs
 ```
 
-`build-docs` accepts the following arguments to speed up development:
-- `--notebook <filename>` - Build only a specific notebook (e.g., `--notebook pipeline_orchestrator.ipynb`)
-- `--dev` - Skip execution of notebooks
-- `--no-nbconvert` - Skip conversion of notebooks to markdown
+### Documentation Build Process
 
-These options are useful when iterating on documentation changes without rebuilding everything.
+The `build-docs` command uses **incremental builds by default**, which:
+- Only executes notebooks that have changed since the last build
+- Detects if any Python source files (in `src/` or `scripts/`) have changed
+- If dependencies changed, automatically re-executes all affected notebooks
+- Preserves notebook outputs in markdown files while stripping them from `.ipynb` files (for clean git history)
+
+### Available `build-docs` Options
+
+| Option | Description |
+|--------|-------------|
+| `--dev` | Skip notebook execution (dev mode for fast iteration) |
+| `--force` | Force execution of all notebooks, skip incremental build check |
+| `--parallel N` | Execute N notebooks in parallel (default: 1). Useful for multiple notebooks. |
+| `--notebook <filename>` | Build only a specific notebook (e.g., `--notebook pipeline_orchestrator.ipynb`) |
+| `--no-nbconvert` | Skip conversion of notebooks to markdown (assumes markdown already exists) |
+
+### Common Workflows
+
+**Fast iteration on notebook content (skip execution):**
+```bash
+poetry run build-docs --dev
+```
+
+**Execute a single notebook (faster than all):**
+```bash
+poetry run build-docs --notebook pipeline_orchestrator.ipynb
+```
+
+**Full rebuild with parallel execution (4 workers):**
+```bash
+poetry run build-docs --force --parallel 4
+```
+
+**Validate full docs build (after changes):**
+```bash
+poetry run build-docs  # Uses incremental build, detecting your changes
+```
+
+### How Incremental Builds Work
+
+Notebooks are skipped if:
+1. Markdown file exists AND
+2. Notebook hasn't changed AND
+3. No Python source files have changed
+
+If any `.py` file in `src/` or `scripts/` is modified, all notebooks are re-executed on the next build (since their outputs may be affected).
+
+This ensures docs stay in sync with code changes while minimizing build time for incremental edits.
 
 7. Commit your changes and open a pull request.
 
