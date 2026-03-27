@@ -676,8 +676,8 @@ results_end_to_end['quantifications'][pipeline]['filtered'].head()
       "20_inf": {
         "duration_s": 18.0,
         "median_range_of_motion": 7.182233339196239,
-        "95p_range_of_motion": 27.529007915195255,
-        "median_cov_range_of_motion": 0.19564530259481105,
+        "95p_range_of_motion": 27.529007915195262,
+        "median_cov_range_of_motion": 0.19564530259481108,
         "mean_cov_range_of_motion": 0.2725453668861871,
         "median_peak_velocity": 52.92434205521389,
         "95p_peak_velocity": 258.93016146092725,
@@ -692,23 +692,23 @@ results_end_to_end['quantifications'][pipeline]['filtered'].head()
         "duration_s": 33.0,
         "median_range_of_motion": 18.021256889774918,
         "95p_range_of_motion": 48.986734305019844,
-        "median_cov_range_of_motion": 0.6876868388869998,
+        "median_cov_range_of_motion": 0.6876868388869997,
         "mean_cov_range_of_motion": 0.721209392730354,
         "median_peak_velocity": 85.1271519261023,
-        "95p_peak_velocity": 200.24091393958028,
+        "95p_peak_velocity": 200.2409139395803,
         "median_cov_peak_velocity": 0.4509692493413288,
-        "mean_cov_peak_velocity": 0.5755534586600688
+        "mean_cov_peak_velocity": 0.5755534586600687
       },
       "20_inf": {
         "duration_s": 238.5,
-        "median_range_of_motion": 38.25306451727731,
-        "95p_range_of_motion": 67.37535941984774,
-        "median_cov_range_of_motion": 0.4132725188180793,
-        "mean_cov_range_of_motion": 0.4468700296741521,
+        "median_range_of_motion": 38.253064517277366,
+        "95p_range_of_motion": 67.37535941984773,
+        "median_cov_range_of_motion": 0.41327251881807925,
+        "mean_cov_range_of_motion": 0.4468700296741522,
         "median_peak_velocity": 153.1405489705395,
         "95p_peak_velocity": 221.23828397076485,
         "median_cov_peak_velocity": 0.34037878524240156,
-        "mean_cov_peak_velocity": 0.3860157786145167
+        "mean_cov_peak_velocity": 0.38601577861451664
       }
     }
 
@@ -906,9 +906,12 @@ filtered_gait_df.head()
     WARNING: Time column has irregular sampling
 
 
-    Number of detected gait segments: 48
+    WARNING: Data is not contiguous but validation is disabled. Interpolating over gaps.
 
-    Number of arm swings: 1834
+
+    Number of detected gait segments: 47
+
+    Number of arm swings: 1782
     Individual arm swings:
 
 
@@ -923,44 +926,38 @@ filtered_gait_df.head()
       <th>gait_segment_nr</th>
       <th>range_of_motion</th>
       <th>peak_velocity</th>
-      <th>data_segment_nr</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>14.394159</td>
-      <td>40.731020</td>
-      <td>1</td>
+      <td>14.175549</td>
+      <td>40.844875</td>
     </tr>
     <tr>
       <th>1</th>
       <td>2</td>
-      <td>13.593113</td>
-      <td>21.522583</td>
-      <td>1</td>
+      <td>13.590119</td>
+      <td>21.436342</td>
     </tr>
     <tr>
       <th>2</th>
       <td>2</td>
-      <td>20.881968</td>
-      <td>102.620567</td>
-      <td>1</td>
+      <td>20.877245</td>
+      <td>102.735568</td>
     </tr>
     <tr>
       <th>3</th>
       <td>2</td>
-      <td>16.711927</td>
-      <td>48.794681</td>
-      <td>1</td>
+      <td>16.709358</td>
+      <td>48.634776</td>
     </tr>
     <tr>
       <th>4</th>
       <td>2</td>
-      <td>6.565145</td>
-      <td>26.096350</td>
-      <td>1</td>
+      <td>6.744359</td>
+      <td>26.217534</td>
     </tr>
   </tbody>
 </table>
