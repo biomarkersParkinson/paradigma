@@ -514,7 +514,7 @@ def quantify_arm_swing(
             start_dt + timedelta(seconds=float(df[DataColumns.TIME].min()))
         ).isoformat() + "Z"
         segment_meta["combined"]["end_dt"] = (
-            start_dt + timedelta(seconds=float(df[DataColumns.TIME].max()))
+            start_dt + timedelta(seconds=float(df[DataColumns.TIME].max() + 1 / fs))
         ).isoformat() + "Z"
 
     # PCA is fitted on only predicted gait without other arm activity if
@@ -575,7 +575,7 @@ def quantify_arm_swing(
                 start_dt + timedelta(seconds=float(time_array.min()))
             ).isoformat() + "Z"
             segment_meta["per_segment"][segment_nr]["end_dt"] = (
-                start_dt + timedelta(seconds=float(time_array.max()))
+                start_dt + timedelta(seconds=float(time_array.max() + 1 / fs))
             ).isoformat() + "Z"
             # Remove relative time fields when datetime is available
             del segment_meta["per_segment"][segment_nr]["start_s"]
