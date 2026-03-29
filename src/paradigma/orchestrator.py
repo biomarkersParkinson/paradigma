@@ -330,7 +330,7 @@ def run_paradigma(
             file_path = file_paths[i]
             active_logger.info(f"Processing file {i+1}/{num_files}: {file_path.name}")
             try:
-                file_name, df_raw = load_single_data_file(file_path)
+                file_name, df_raw, start_dt = load_single_data_file(file_path)
             except Exception as e:
                 error_msg = f"Failed to load file {file_path.name}: {e}"
                 active_logger.error(error_msg)
@@ -342,6 +342,7 @@ def run_paradigma(
             # Using in-memory data
             file_name = list(dfs_dict.keys())[i]
             df_raw = dfs_dict[file_name]
+            start_dt = None  # No datetime info available for in-memory DataFrames
             active_logger.info(f"Processing DataFrame {i+1}/{num_files}: {file_name}")
 
         try:
@@ -418,6 +419,7 @@ def run_paradigma(
                             segment_number_offset_unfiltered=(
                                 max_gait_segment_nr_unfiltered
                             ),
+                            start_dt=start_dt,
                             logging_level=logging_level,
                             custom_logger=active_logger,
                         )

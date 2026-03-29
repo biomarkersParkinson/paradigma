@@ -179,7 +179,12 @@ def test_multi_file_unfiltered_only_offsets(monkeypatch):
         return np.zeros(len(df))
 
     def fake_quantify_arm_swing(
-        df, fs, filtered=False, max_segment_gap_s=1.5, min_segment_length_s=1.5
+        df,
+        fs,
+        filtered=False,
+        max_segment_gap_s=1.5,
+        min_segment_length_s=1.5,
+        start_dt=None,
     ):
         if filtered:
             empty_df = pd.DataFrame(
