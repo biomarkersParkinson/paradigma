@@ -381,7 +381,7 @@ def load_single_data_file(
                 # Extract start_iso8601 from TSDF metadata
                 if hasattr(time_meta, "start_iso8601"):
                     start_iso8601 = time_meta.start_iso8601
-                    start_dt = datetime.fromisoformat(start_iso8601.rstrip("Z"))
+                    start_dt = datetime.fromisoformat(start_iso8601)
                 return prefix, df, start_dt
 
         elif file_format == "empatica":

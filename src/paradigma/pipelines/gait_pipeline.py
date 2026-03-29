@@ -512,10 +512,10 @@ def quantify_arm_swing(
     if start_dt is not None:
         segment_meta["combined"]["start_dt"] = (
             start_dt + timedelta(seconds=float(df[DataColumns.TIME].min()))
-        ).isoformat() + "Z"
+        ).isoformat()
         segment_meta["combined"]["end_dt"] = (
             start_dt + timedelta(seconds=float(df[DataColumns.TIME].max() + 1 / fs))
-        ).isoformat() + "Z"
+        ).isoformat()
 
     # PCA is fitted on only predicted gait without other arm activity if
     # filtered, otherwise it is fitted on the entire gyroscope data
@@ -573,10 +573,10 @@ def quantify_arm_swing(
         if start_dt is not None:
             segment_meta["per_segment"][segment_nr]["start_dt"] = (
                 start_dt + timedelta(seconds=float(time_array.min()))
-            ).isoformat() + "Z"
+            ).isoformat()
             segment_meta["per_segment"][segment_nr]["end_dt"] = (
                 start_dt + timedelta(seconds=float(time_array.max() + 1 / fs))
-            ).isoformat() + "Z"
+            ).isoformat()
             # Remove relative time fields when datetime is available
             del segment_meta["per_segment"][segment_nr]["start_s"]
             del segment_meta["per_segment"][segment_nr]["end_s"]
