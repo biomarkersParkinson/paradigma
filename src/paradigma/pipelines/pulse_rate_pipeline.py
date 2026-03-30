@@ -674,8 +674,7 @@ def run_pulse_rate_pipeline(
             df_ppg_prepared[ppg_cols].copy() if ppg_cols else df_ppg_prepared.copy()
         )
 
-    # Steps 2-4: Extract features, classify quality, estimate pulse rate
-    # (classification step)
+    # Steps 2-3: Extract features, classify quality
     if "classification" in run_steps:
         try:
             # Step 2: Extract signal quality features
@@ -703,15 +702,7 @@ def run_pulse_rate_pipeline(
                     f"Saved PPG quality predictions to {classification_dir}"
                 )
 
-            # Step 4: Pulse rate estimation
-            active_logger.info("Step 4: Pulse rate estimation")
-            df_pulse_rates = estimate_pulse_rate(
-                df_sqa=df_classified,
-                df_ppg_preprocessed=df_ppg_proc,
-                config=pulse_rate_config,
-            )
-
-            result_dict["classification"] = df_pulse_rates
+            result_dict["classification"] = df_classified
             steps_executed.append("classification")
 
         except Exception as e:
@@ -719,7 +710,7 @@ def run_pulse_rate_pipeline(
             result_dict["_error"] = f"Classification failed: {str(e)}"
             return result_dict
 
-    # Step 5: Quantify pulse rate (select relevant columns and apply quality filtering)
+    # Step 4: Quantify pulse rate (select relevant columns and apply quality filtering)
     if "quantification" in run_steps:
         try:
             # Need classification results for quantification
@@ -734,54 +725,31 @@ def run_pulse_rate_pipeline(
 
             active_logger.info("Step 5: Quantifying pulse rate")
 
-            # Select quantification columns
-            quantification_columns = []
-            if DataColumns.TIME in df_pulse_rates.columns:
-                quantification_columns.append(DataColumns.TIME)
-            if DataColumns.PULSE_RATE in df_pulse_rates.columns:
-                quantification_columns.append(DataColumns.PULSE_RATE)
-            if "signal_quality" in df_pulse_rates.columns:
-                quantification_columns.append("signal_quality")
-
-            # Use available columns
-            available_columns = [
-                col for col in quantification_columns if col in df_pulse_rates.columns
-            ]
-            if not available_columns:
-                active_logger.warning("No valid quantification columns found")
-                result_dict["_error"] = "No valid quantification columns found"
-                return result_dict
-
-            df_quantification = df_pulse_rates[available_columns].copy()
-
-            # Apply quality filtering if signal quality is available
-            if (
-                "signal_quality" in df_quantification.columns
-                and DataColumns.PULSE_RATE in df_quantification.columns
-            ):
-                quality_threshold = getattr(pulse_rate_config, "threshold_sqa", 0.5)
-                low_quality_mask = (
-                    df_quantification["signal_quality"] < quality_threshold
-                )
-                df_quantification.loc[low_quality_mask, DataColumns.PULSE_RATE] = np.nan
+            # Pulse rate estimation
+            active_logger.info("Step 4: Pulse rate estimation")
+            df_pulse_rates = estimate_pulse_rate(
+                df_sqa=df_classified,
+                df_ppg_preprocessed=df_ppg_proc,
+                config=pulse_rate_config,
+            )
 
             if "quantification" in store_intermediate:
                 quantification_dir = output_dir / "quantification"
                 quantification_dir.mkdir(exist_ok=True)
-                df_quantification.to_parquet(
+                df_pulse_rates.to_parquet(
                     quantification_dir / "pulse_rate_quantification.parquet"
                 )
 
                 # Save quantification metadata
                 valid_pulse_rates = (
-                    df_quantification[DataColumns.PULSE_RATE].dropna()
-                    if DataColumns.PULSE_RATE in df_quantification.columns
+                    df_pulse_rates[DataColumns.PULSE_RATE].dropna()
+                    if DataColumns.PULSE_RATE in df_pulse_rates.columns
                     else pd.Series(dtype=float)
                 )
                 quantification_meta = {
-                    "total_windows": len(df_quantification),
+                    "total_windows": len(df_pulse_rates),
                     "valid_pulse_rate_estimates": len(valid_pulse_rates),
-                    "columns": list(df_quantification.columns),
+                    "columns": list(df_pulse_rates.columns),
                 }
                 with open(
                     quantification_dir / "pulse_rate_quantification_meta.json", "w"
@@ -793,16 +761,16 @@ def run_pulse_rate_pipeline(
                 )
 
             pulse_rate_estimates = (
-                len(df_quantification[DataColumns.PULSE_RATE].dropna())
-                if DataColumns.PULSE_RATE in df_quantification.columns
+                len(df_pulse_rates[DataColumns.PULSE_RATE].dropna())
+                if DataColumns.PULSE_RATE in df_pulse_rates.columns
                 else 0
             )
             active_logger.info(
                 f"Pulse rate analysis completed: {pulse_rate_estimates} valid pulse "
-                f"rate estimates from {len(df_quantification)} total windows"
+                f"rate estimates from {len(df_pulse_rates)} total windows"
             )
 
-            result_dict["quantification"] = df_quantification
+            result_dict["quantification"] = df_pulse_rates
             steps_executed.append("quantification")
 
         except Exception as e:

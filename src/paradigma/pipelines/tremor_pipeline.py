@@ -1,5 +1,6 @@
 import json
 import logging
+from importlib.resources import files
 from pathlib import Path
 
 import numpy as np
@@ -568,8 +569,6 @@ def run_tremor_pipeline(
             # Step 3: Detect tremor
             active_logger.info("Step 3: Detecting tremor")
             try:
-                from importlib.resources import files
-
                 classifier_path = (
                     files("paradigma.assets") / "tremor_detection_clf_package.pkl"
                 )

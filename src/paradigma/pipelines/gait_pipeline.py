@@ -1045,7 +1045,7 @@ def run_gait_pipeline(
                 df_preprocessed.to_parquet(
                     preprocessing_dir / "preprocessed_data.parquet", index=False
                 )
-                active_logger.debug(
+                active_logger.info(
                     f"Saved preprocessed data to "
                     f"{preprocessing_dir / 'preprocessed_data.parquet'}"
                 )
