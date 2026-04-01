@@ -358,6 +358,7 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     segment_length_n = sampling_frequency * segment_length_spectrogram_s
     overlap_n = segment_length_n * overlap_fraction
     window = signal.get_window(window_type, segment_length_n)
+    nfft = int(sampling_frequency / 0.5)
 
     f, t, stft_result = signal.stft(
         x=data,
@@ -365,6 +366,7 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
         window=window,
         nperseg=segment_length_n,
         noverlap=overlap_n,
+        nfft=nfft,
         boundary=None,
         axis=1,
     )
@@ -372,7 +374,7 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     # Compute total power in the PSD and the total spectrogram (summed over
     # the three axes)
     total_psd = compute_total_power(psd)
-    total_spectrogram = np.sum(np.abs(stft_result) * sampling_frequency, axis=2)
+    total_spectrogram = np.sum(np.abs(stft_result) * (segment_length_n / 2), axis=2)
 
     # Compute the MFCC's
     config.mfcc_low_frequency = config.fmin_mfcc
