@@ -339,9 +339,9 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
 
     # Compute the power spectral density
     segment_length_n = sampling_frequency * segment_length_psd_s
-    overlap_n = int(segment_length_n * overlap_fraction)
+    overlap_n = int(np.round(segment_length_n * overlap_fraction))
     window = signal.get_window(window_type, segment_length_n, fftbins=False)
-    nfft = int(sampling_frequency / spectral_resolution_psd)
+    nfft = int(np.round(sampling_frequency / spectral_resolution_psd))
 
     freqs, psd = signal.welch(
         x=data,
@@ -357,9 +357,9 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
 
     # Compute the spectrogram
     segment_length_n = sampling_frequency * segment_length_spectrogram_s
-    overlap_n = int(segment_length_n * overlap_fraction)
+    overlap_n = int(np.round(segment_length_n * overlap_fraction))
     window = signal.get_window(window_type, segment_length_n)
-    nfft = int(sampling_frequency / spectral_resolution_spectrogram)
+    nfft = int(np.round(sampling_frequency / spectral_resolution_spectrogram))
 
     f, t, stft_result = signal.stft(
         x=data,
@@ -377,7 +377,8 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     total_psd = compute_total_power(psd)
     total_spectrogram = np.sum(
         np.abs(stft_result) * 100, axis=2
-    )  # scaling factor of 100 to match with previous Matlab code
+    )  # scaling factor of 100 to match with previous Matlab code which was
+    # developed on a 100 Hz sampling frequency and 2 second window length
 
     # Compute the MFCC's
     config.mfcc_low_frequency = config.fmin_mfcc
