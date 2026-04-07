@@ -257,8 +257,9 @@ def test_multi_file_unfiltered_only_offsets(monkeypatch):
         assert not gait_quantifications["unfiltered"].empty
 
         unfiltered_meta = results["metadata"]["gait"]["unfiltered"]
-        assert len(unfiltered_meta) == sum(per_file_counts)
-        assert len(unfiltered_meta) == len(set(unfiltered_meta.keys()))
+        per_segment_meta = unfiltered_meta.get("per_segment", {})
+        assert len(per_segment_meta) == sum(per_file_counts)
+        assert len(per_segment_meta) == len(set(per_segment_meta.keys()))
 
 
 def test_gait_segment_nr_column_name():
