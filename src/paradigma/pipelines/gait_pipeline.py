@@ -1,5 +1,7 @@
+import datetime
 import json
 import logging
+from datetime import timedelta
 from importlib.resources import files
 from pathlib import Path
 
@@ -406,6 +408,7 @@ def quantify_arm_swing(
     filtered: bool = True,
     max_segment_gap_s: float = 1.5,
     min_segment_length_s: float = 1.5,
+    start_dt: datetime.datetime | None = None,
 ) -> tuple[pd.DataFrame, dict]:
     """
     Quantify arm swing parameters for segments of motion based on gyroscope data.
@@ -430,6 +433,11 @@ def quantify_arm_swing(
 
     min_segment_length_s : float, optional, default=1.5
         The minimum length in seconds for a segment to be considered valid.
+
+    start_dt : datetime.datetime, optional
+        Start datetime of the recording session. Used to compute absolute
+        datetime values for each arm swing segment. If None, only relative
+        timestamps will be included in metadata.
 
     Returns
     -------
@@ -496,9 +504,18 @@ def quantify_arm_swing(
 
     arm_swing_quantified = []
     segment_meta = {
-        "all": {"duration_s": len(df[DataColumns.TIME]) / fs},
+        "combined": {"duration_s": len(df[DataColumns.TIME]) / fs},
         "per_segment": {},
     }
+
+    # Add datetime information to combined metadata if available
+    if start_dt is not None:
+        segment_meta["combined"]["start_dt"] = (
+            start_dt + timedelta(seconds=float(df[DataColumns.TIME].min()))
+        ).isoformat()
+        segment_meta["combined"]["end_dt"] = (
+            start_dt + timedelta(seconds=float(df[DataColumns.TIME].max() + 1 / fs))
+        ).isoformat()
 
     # PCA is fitted on only predicted gait without other arm activity if
     # filtered, otherwise it is fitted on the entire gyroscope data
@@ -518,7 +535,7 @@ def quantify_arm_swing(
             gait_segment_nr = segment_nr
 
         try:
-            gait_segment_duration_s = gait_segment_duration_dict[gait_segment_nr]
+            _ = gait_segment_duration_dict[gait_segment_nr]
         except KeyError:
             logger.warning(
                 "Segment %s (filtered = %s) not found in gait segment "
@@ -547,15 +564,19 @@ def quantify_arm_swing(
         )
 
         segment_meta["per_segment"][segment_nr] = {
-            "start_time_s": float(time_array.min()),
-            "end_time_s": float(time_array.max()),
-            "duration_unfiltered_segment_s": gait_segment_duration_s,
+            "start_s": float(time_array.min()),
+            "end_s": float(time_array.max()),
+            "duration_s": len(time_array) / fs,
         }
 
-        if filtered:
-            segment_meta["per_segment"][segment_nr]["duration_filtered_segment_s"] = (
-                len(time_array) / fs
-            )
+        # Add datetime information if available
+        if start_dt is not None:
+            segment_meta["per_segment"][segment_nr]["start_dt"] = (
+                start_dt + timedelta(seconds=float(time_array.min()))
+            ).isoformat()
+            segment_meta["per_segment"][segment_nr]["end_dt"] = (
+                start_dt + timedelta(seconds=float(time_array.max() + 1 / fs))
+            ).isoformat()
 
         if angle_array.size > 0:
             angle_extrema_indices, _, _ = extract_angle_extremes(
@@ -653,24 +674,16 @@ def aggregate_arm_swing_params(
         segment_cat_str = f"{segment_cat_range[0]}_{segment_cat_range[1]}"
         cat_segments = [
             x
-            for x in segment_meta.keys()
-            if segment_meta[x]["duration_unfiltered_segment_s"] >= segment_cat_range[0]
-            and segment_meta[x]["duration_unfiltered_segment_s"] < segment_cat_range[1]
+            for x in segment_meta["per_segment"].keys()
+            if segment_meta["per_segment"][x]["duration_s"] >= segment_cat_range[0]
+            and segment_meta["per_segment"][x]["duration_s"] < segment_cat_range[1]
         ]
 
         if len(cat_segments) > 0:
-            # For each segment, use 'duration_filtered_segment_s' if present,
-            # else 'duration_unfiltered_segment_s'
+            # Calculate total duration for segments in this category
             aggregated_results[segment_cat_str] = {
                 "duration_s": sum(
-                    [
-                        (
-                            segment_meta[x]["duration_filtered_segment_s"]
-                            if "duration_filtered_segment_s" in segment_meta[x]
-                            else segment_meta[x]["duration_unfiltered_segment_s"]
-                        )
-                        for x in cat_segments
-                    ]
+                    [segment_meta["per_segment"][x]["duration_s"] for x in cat_segments]
                 )
             }
 
@@ -872,6 +885,7 @@ def run_gait_pipeline(
     store_intermediate: list[str] | None = None,
     segment_number_offset_filtered: int = 0,
     segment_number_offset_unfiltered: int = 0,
+    start_dt: datetime.datetime | None = None,
     logging_level: int = logging.INFO,
     custom_logger: logging.Logger | None = None,
     run_steps: list[str] | None = None,
@@ -924,6 +938,10 @@ def run_gait_pipeline(
         Offset to add to unfiltered segment numbers to avoid conflicts when
         concatenating multiple data segments. Used for proper segment numbering
         across multiple files.
+    start_dt : datetime.datetime, optional
+        Start datetime of the recording session. Used to compute absolute
+        datetime values for each arm swing segment. If None, only relative
+        timestamps will be included in metadata.
     logging_level : int, default logging.INFO
         Logging level using standard logging constants (logging.DEBUG, logging.INFO,
         etc.)
@@ -1110,8 +1128,11 @@ def run_gait_pipeline(
                 active_logger.warning("No gait detected in this segment")
                 empty_df_filtered = _empty_arm_swing_df(df_prepared)
                 empty_df_unfiltered = _empty_arm_swing_df(df_prepared)
-                empty_meta_filtered = {"all": {"duration_s": 0}, "per_segment": {}}
-                empty_meta_unfiltered = {"all": {"duration_s": 0}, "per_segment": {}}
+                empty_meta_filtered = {"combined": {"duration_s": 0}, "per_segment": {}}
+                empty_meta_unfiltered = {
+                    "combined": {"duration_s": 0},
+                    "per_segment": {},
+                }
                 result_dict["quantification"] = {
                     "filtered": empty_df_filtered,
                     "unfiltered": empty_df_unfiltered,
@@ -1213,6 +1234,7 @@ def run_gait_pipeline(
                         filtered=False,  # Quantify all gait
                         max_segment_gap_s=arm_activity_config.max_segment_gap_s,
                         min_segment_length_s=arm_activity_config.min_segment_length_s,
+                        start_dt=start_dt,
                     )
                 )
             except ValueError as exc:
@@ -1225,7 +1247,7 @@ def run_gait_pipeline(
                     df_arm_activity_with_time
                 )
                 gait_segment_meta_unfiltered = {
-                    "all": {"duration_s": 0},
+                    "combined": {"duration_s": 0},
                     "per_segment": {},
                 }
 
@@ -1247,7 +1269,7 @@ def run_gait_pipeline(
                     df_arm_activity_with_time
                 )
                 gait_segment_meta_filtered = {
-                    "all": {"duration_s": 0},
+                    "combined": {"duration_s": 0},
                     "per_segment": {},
                 }
             else:
@@ -1260,6 +1282,7 @@ def run_gait_pipeline(
                         filtered=True,  # Quantify clean gait only
                         max_segment_gap_s=arm_activity_config.max_segment_gap_s,
                         min_segment_length_s=arm_activity_config.min_segment_length_s,
+                        start_dt=start_dt,
                     )
                 )
 
