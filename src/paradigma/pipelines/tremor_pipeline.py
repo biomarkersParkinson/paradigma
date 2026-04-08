@@ -334,14 +334,15 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     segment_length_psd_s = config.segment_length_psd_s
     segment_length_spectrogram_s = config.segment_length_spectrogram_s
     overlap_fraction = config.overlap_fraction
-    spectral_resolution = config.spectral_resolution
+    spectral_resolution_psd = config.spectral_resolution_psd
+    spectral_resolution_spectrogram = config.spectral_resolution_spectrogram
     window_type = "hann"
 
     # Compute the power spectral density
     segment_length_n = sampling_frequency * segment_length_psd_s
-    overlap_n = segment_length_n * overlap_fraction
+    overlap_n = int(np.round(segment_length_n * overlap_fraction))
     window = signal.get_window(window_type, segment_length_n, fftbins=False)
-    nfft = sampling_frequency / spectral_resolution
+    nfft = int(np.round(sampling_frequency / spectral_resolution_psd))
 
     freqs, psd = signal.welch(
         x=data,
@@ -357,8 +358,9 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
 
     # Compute the spectrogram
     segment_length_n = sampling_frequency * segment_length_spectrogram_s
-    overlap_n = segment_length_n * overlap_fraction
+    overlap_n = int(np.round(segment_length_n * overlap_fraction))
     window = signal.get_window(window_type, segment_length_n)
+    nfft = int(np.round(sampling_frequency / spectral_resolution_spectrogram))
 
     f, t, stft_result = signal.stft(
         x=data,
@@ -366,6 +368,7 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
         window=window,
         nperseg=segment_length_n,
         noverlap=overlap_n,
+        nfft=nfft,
         boundary=None,
         axis=1,
     )
@@ -373,7 +376,10 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     # Compute total power in the PSD and the total spectrogram (summed over
     # the three axes)
     total_psd = compute_total_power(psd)
-    total_spectrogram = np.sum(np.abs(stft_result) * sampling_frequency, axis=2)
+    total_spectrogram = np.sum(
+        np.abs(stft_result) * 100, axis=2
+    )  # scaling factor of 100 to match with previous Matlab code which was
+    # developed on a 100 Hz sampling frequency and 2 second window length
 
     # Compute the MFCC's
     config.mfcc_low_frequency = config.fmin_mfcc
@@ -404,7 +410,7 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
         config.fmin_below_rest_tremor,
         config.fmax_below_rest_tremor,
         include_max=False,
-        spectral_resolution=config.spectral_resolution,
+        spectral_resolution=config.spectral_resolution_psd,
         cumulative_sum_method="sum",
     )
     feature_dict[DataColumns.TREMOR_POWER] = extract_tremor_power(
@@ -547,7 +553,7 @@ def run_tremor_pipeline(
 
             if "preprocessing" in store_intermediate:
                 preprocessing_dir = output_dir / "preprocessing"
-                preprocessing_dir.mkdir(exist_ok=True)
+                preprocessing_dir.mkdir(parents=True, exist_ok=True)
                 df_preprocessed.to_parquet(
                     preprocessing_dir / "tremor_preprocessed.parquet"
                 )
@@ -582,7 +588,7 @@ def run_tremor_pipeline(
 
             if "classification" in store_intermediate:
                 classification_dir = output_dir / "classification"
-                classification_dir.mkdir(exist_ok=True)
+                classification_dir.mkdir(parents=True, exist_ok=True)
                 df_predictions.to_parquet(
                     classification_dir / "tremor_predictions.parquet"
                 )
@@ -642,7 +648,7 @@ def run_tremor_pipeline(
 
             if "quantification" in store_intermediate:
                 quantification_dir = output_dir / "quantification"
-                quantification_dir.mkdir(exist_ok=True)
+                quantification_dir.mkdir(parents=True, exist_ok=True)
                 df_quantification.to_parquet(
                     quantification_dir / "tremor_quantification.parquet"
                 )
