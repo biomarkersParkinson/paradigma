@@ -418,34 +418,23 @@ def preprocess_imu_data(
     else:
         raise ("Sensor should be either accelerometer, gyroscope, or both")
 
-    # Check if data needs resampling
     # Skip resampling if already at target frequency or if data has been pre-segmented
-    needs_resampling = True
     validate_contiguous = True
 
     if "data_segment_nr" in df.columns:
         # Data has been pre-segmented, skip contiguity validation
         validate_contiguous = False
 
-    # Check current sampling frequency
-    time_diff = df[config.time_colname].diff().dropna()
-    current_dt = time_diff.median()
-    current_frequency = 1.0 / current_dt
-
-    if abs(current_frequency - config.resampling_frequency) < 0.1:
-        needs_resampling = False
-
-    if needs_resampling:
-        # Resample the data to the specified frequency
-        df = resample_data(
-            df=df,
-            time_column=config.time_colname,
-            values_column_names=values_colnames,
-            sampling_frequency=config.sampling_frequency,
-            resampling_frequency=config.resampling_frequency,
-            tolerance=config.tolerance,
-            validate_contiguous=validate_contiguous,
-        )
+    # Resample the data to the specified frequency
+    df = resample_data(
+        df=df,
+        time_column=config.time_colname,
+        values_column_names=values_colnames,
+        sampling_frequency=config.sampling_frequency,
+        resampling_frequency=config.resampling_frequency,
+        tolerance=config.tolerance,
+        validate_contiguous=validate_contiguous,
+    )
 
     # Invert the IMU data if the watch was worn on the right wrist
     df = invert_watch_side(df, watch_side, sensor)

@@ -72,7 +72,9 @@ def run_paradigma(
     *,
     data_path: str | Path | None = None,
     dfs: pd.DataFrame | list[pd.DataFrame] | dict[str, pd.DataFrame] | None = None,
+    run_steps: list[str] | str = "all",
     save_intermediate: list[str] = [],
+    return_intermediate: list[str] = [],
     output_dir: str | Path = "./output",
     skip_preparation: bool = False,
     pipelines: list[str] | str | None = None,
@@ -125,15 +127,31 @@ def run_paradigma(
         Note: The 'file_key' column is only added to quantification results when
         len(dfs) > 1, allowing cleaner output for single-file processing.
         See input_formats guide for details.
+    run_steps : list of str or str, default 'all'
+        Which steps of the pipeline(s) to run. When constructing a list, the following
+        steps are valid: 'preprocessing', 'classification', 'quantification',
+        'aggregation'. Steps must be in this order; skipping intermediate steps is not
+        allowed (e.g., cannot do ['preprocessing', 'quantification'] because
+        'classification' is required). Use this parameter when running ParaDigMa in
+        parallel across multiple directories or data chunks, allowing you to split
+        the pipeline into separate runs and aggregate results later by only running
+        aggregation on combined quantifications.
     save_intermediate : list of str, default []
-        Which intermediate results to store. Valid values:
+        Which intermediate results to store to disk. Valid values:
         - 'preparation': Save prepared data
         - 'preprocessing': Save preprocessed signals
         - 'classification': Save classification/prediction results (e.g., gait
         predictions, tremor predictions, PPG signal quality predictions)
         - 'quantification': Save quantified measures
         - 'aggregation': Save aggregated results
-        If empty, no files are saved (results are only returned).
+        Must be subset of run_steps. If empty, no files are saved.
+    return_intermediate : list of str, default []
+        Which intermediate results to include in return dictionary. Valid values:
+        same as save_intermediate. By default, only quantifications/aggregations
+        are returned to minimize memory usage. Set to include preprocessing/
+        classification results for debugging or inspection. Must be subset of
+        run_steps. Results can be saved to disk without being returned (and vice
+        versa) by configuring these parameters independently.
     output_dir : str or Path, default './output'
         Output directory for all results. Files are only saved if
         save_intermediate is not empty.
@@ -237,6 +255,62 @@ def run_paradigma(
             f"Supported pipelines: 'gait', 'tremor', 'pulse_rate'"
         )
 
+    # Parse and validate run_steps
+    valid_steps = ["preprocessing", "classification", "quantification", "aggregation"]
+    if isinstance(run_steps, str):
+        if run_steps == "all":
+            run_steps = valid_steps.copy()
+        else:
+            raise ValueError(
+                f"Invalid run_steps value: '{run_steps}'. Must be 'all' or a list."
+            )
+
+    # Validate all steps are valid
+    invalid_steps = [s for s in run_steps if s not in valid_steps]
+    if invalid_steps:
+        raise ValueError(
+            f"Invalid steps in run_steps: {invalid_steps}. "
+            f"Valid steps are: {valid_steps}"
+        )
+
+    # Check that steps are in correct order and no intermediate steps are skipped
+    step_indices = {step: i for i, step in enumerate(valid_steps)}
+    sorted_steps = sorted(run_steps, key=lambda s: step_indices[s])
+    if list(run_steps) != sorted_steps:
+        raise ValueError(
+            f"Steps must be in order: {sorted_steps} (received: {run_steps})"
+        )
+
+    # Check for skipped intermediate steps
+    run_steps_set = set(run_steps)
+    for i, step in enumerate(valid_steps):
+        if step in run_steps_set:
+            # Check if all previous required steps are present
+            required_steps = valid_steps[:i]
+            missing_required = [s for s in required_steps if s not in run_steps_set]
+            if missing_required:
+                raise ValueError(
+                    f"Step '{step}' requires {missing_required} but they are not in "
+                    f"run_steps. Steps must form a contiguous sequence."
+                )
+
+    # Validate save_intermediate and return_intermediate are subsets of run_steps
+    # preparation can be independent
+    save_steps = set(save_intermediate) - {"preparation"}
+    invalid_save = save_steps - run_steps_set
+    if invalid_save:
+        raise ValueError(
+            f"save_intermediate steps {invalid_save} are not in run_steps {run_steps}"
+        )
+
+    return_steps = set(return_intermediate)
+    invalid_return = return_steps - run_steps_set
+    if invalid_return:
+        raise ValueError(
+            f"return_intermediate steps {invalid_return} are not in "
+            f"run_steps {run_steps}"
+        )
+
     # Use custom logger if provided, otherwise use module logger
     active_logger = custom_logger if custom_logger is not None else logger
 
@@ -268,6 +342,23 @@ def run_paradigma(
     )
     package_logger.addHandler(file_handler)
     active_logger.info(f"Logging to {log_file}")
+
+    # Log which steps will be executed and returned
+    active_logger.info(f"Running pipeline steps: {', '.join(run_steps)}")
+    returned_steps = (
+        return_intermediate
+        if return_intermediate
+        else ["quantification", "aggregation"]
+    )
+    active_logger.info(f"Returning intermediate results: {', '.join(returned_steps)}")
+
+    if save_intermediate:
+        active_logger.info(
+            f"Saving intermediate results: {', '.join(save_intermediate)}"
+        )
+
+    # Warn about save_intermediate steps not in run_steps
+    # (should not happen due to validation)
 
     # Step 1: Get file paths or convert provided DataFrames
     file_paths = None  # Will hold list of file paths if loading from directory
@@ -316,494 +407,619 @@ def run_paradigma(
         "errors": [],
     }
 
+    # Determine if we need to process files
+    should_process_files = any(
+        step in run_steps
+        for step in ["preprocessing", "classification", "quantification"]
+    )
+
     # Steps 2-3: Process each file individually
-    active_logger.info(f"Steps 2-3: Processing {num_files} files individually")
+    if should_process_files:
+        active_logger.info(f"Steps 2-3: Processing {num_files} files individually")
 
-    # Track maximum gait segment numbers separately for filtered and unfiltered
-    # since they have independent numbering schemes
-    max_gait_segment_nr_filtered = 0
-    max_gait_segment_nr_unfiltered = 0
+        # Track maximum gait segment numbers separately for filtered and unfiltered
+        # since they have independent numbering schemes
+        max_gait_segment_nr_filtered = 0
+        max_gait_segment_nr_unfiltered = 0
 
-    for i in range(num_files):
-        # Load one file at a time
-        if file_paths:
-            file_path = file_paths[i]
-            active_logger.info(f"Processing file {i+1}/{num_files}: {file_path.name}")
-            try:
-                file_name, df_raw = load_single_data_file(file_path)
-            except Exception as e:
-                error_msg = f"Failed to load file {file_path.name}: {e}"
-                active_logger.error(error_msg)
-                all_results["errors"].append(
-                    {"file": file_path.name, "stage": "loading", "error": str(e)}
+        for i in range(num_files):
+            # Load one file at a time
+            if file_paths:
+                file_path = file_paths[i]
+                active_logger.info(
+                    f"Processing file {i+1}/{num_files}: {file_path.name}"
                 )
-                continue
-        else:
-            # Using in-memory data
-            file_name = list(dfs_dict.keys())[i]
-            df_raw = dfs_dict[file_name]
-            active_logger.info(f"Processing DataFrame {i+1}/{num_files}: {file_name}")
-
-        try:
-            # Step 2: Prepare data (if needed)
-            if not skip_preparation:
-                active_logger.log(DETAILED_INFO, f"Preparing data for {file_name}")
-
-                prepare_params = {
-                    "time_input_unit": time_input_unit,
-                    "resampling_frequency": target_frequency,
-                    "column_mapping": column_mapping,
-                    "auto_segment": split_by_gaps,
-                    "max_segment_gap_s": max_gap_seconds,
-                    "min_segment_length_s": min_segment_seconds,
-                }
-
-                # Add pipeline-specific preparation parameters
-                if "gait" in pipelines or "tremor" in pipelines:
-                    prepare_params["gyroscope_units"] = gyroscope_units
-
-                if "gait" in pipelines:
-                    prepare_params.update(
-                        {
-                            "accelerometer_units": accelerometer_units,
-                            "device_orientation": device_orientation,
-                        }
-                    )
-
-                df_prepared = prepare_raw_data(df=df_raw, **prepare_params)
-
-                # Save prepared data if requested
-                if "preparation" in save_intermediate:
-                    prepared_dir = output_dir / "prepared_data"
-                    prepared_dir.mkdir(exist_ok=True)
-                    save_prepared_data(
-                        df_prepared,
-                        prepared_dir / f"{file_name}.parquet",
-                    )
-            else:
-                df_prepared = df_raw
-
-            # Release raw data from memory
-            del df_raw
-
-            # Step 3: Run each pipeline on this single file
-            store_intermediate_per_file = [
-                x
-                for x in save_intermediate
-                if x not in ["aggregation", "quantification"]
-            ]
-
-            # Create file-specific output directory
-            file_output_dir = output_dir / "individual_files" / file_name
-
-            for pipeline_name in pipelines:
-                active_logger.log(
-                    DETAILED_INFO, f"Running {pipeline_name} pipeline on {file_name}"
-                )
-
                 try:
-                    if pipeline_name == "gait":
-                        # Pass separate offsets for filtered and unfiltered
-                        quantifications_dict, metadata_dict = run_gait_pipeline(
-                            df_prepared=df_prepared,
-                            watch_side=watch_side,
-                            imu_config=imu_config,
-                            gait_config=gait_config,
-                            arm_activity_config=arm_activity_config,
-                            store_intermediate=store_intermediate_per_file,
-                            output_dir=file_output_dir,
-                            segment_number_offset_filtered=(
-                                max_gait_segment_nr_filtered
-                            ),
-                            segment_number_offset_unfiltered=(
-                                max_gait_segment_nr_unfiltered
-                            ),
-                            logging_level=logging_level,
-                            custom_logger=active_logger,
+                    file_name, df_raw = load_single_data_file(file_path)
+                except Exception as e:
+                    error_msg = f"Failed to load file {file_path.name}: {e}"
+                    active_logger.error(error_msg)
+                    all_results["errors"].append(
+                        {"file": file_path.name, "stage": "loading", "error": str(e)}
+                    )
+                    continue
+            else:
+                # Using in-memory data
+                file_name = list(dfs_dict.keys())[i]
+                df_raw = dfs_dict[file_name]
+                active_logger.info(
+                    f"Processing DataFrame {i+1}/{num_files}: {file_name}"
+                )
+
+            try:
+                # Step 2: Prepare data (if needed)
+                if not skip_preparation:
+                    active_logger.log(DETAILED_INFO, f"Preparing data for {file_name}")
+
+                    prepare_params = {
+                        "time_input_unit": time_input_unit,
+                        "resampling_frequency": target_frequency,
+                        "column_mapping": column_mapping,
+                        "auto_segment": split_by_gaps,
+                        "max_segment_gap_s": max_gap_seconds,
+                        "min_segment_length_s": min_segment_seconds,
+                    }
+
+                    # Add pipeline-specific preparation parameters
+                    if "gait" in pipelines or "tremor" in pipelines:
+                        prepare_params["gyroscope_units"] = gyroscope_units
+
+                    if "gait" in pipelines:
+                        prepare_params.update(
+                            {
+                                "accelerometer_units": accelerometer_units,
+                                "device_orientation": device_orientation,
+                            }
                         )
 
-                        # Process both filtered and unfiltered quantifications
-                        for quant_type in ["filtered", "unfiltered"]:
-                            quantification_data = quantifications_dict[quant_type]
-                            quantification_metadata = metadata_dict[quant_type]
+                    df_prepared = prepare_raw_data(df=df_raw, **prepare_params)
 
-                            if len(quantification_data) > 0:
-                                # Add file identifier if processing multiple files
+                    # Save prepared data if requested
+                    if "preparation" in save_intermediate:
+                        prepared_dir = output_dir / "prepared_data"
+                        prepared_dir.mkdir(exist_ok=True)
+                        save_prepared_data(
+                            df_prepared,
+                            prepared_dir / f"{file_name}.parquet",
+                        )
+                else:
+                    df_prepared = df_raw
+
+                # Release raw data from memory
+                del df_raw
+
+                # Step 3: Run each pipeline on this single file
+                store_intermediate_per_file = [
+                    x
+                    for x in save_intermediate
+                    if x not in ["aggregation", "quantification"]
+                ]
+
+                # Filter run_steps for pipeline execution (remove 'aggregation')
+                pipeline_run_steps = [
+                    step for step in run_steps if step != "aggregation"
+                ]
+
+                # Create file-specific output directory
+                file_output_dir = output_dir / "individual_files" / file_name
+
+                for pipeline_name in pipelines:
+                    active_logger.log(
+                        DETAILED_INFO,
+                        f"Running {pipeline_name} pipeline on {file_name}",
+                    )
+
+                    try:
+                        if pipeline_name == "gait":
+                            # Pass separate offsets for filtered and unfiltered
+                            pipeline_result = run_gait_pipeline(
+                                df_prepared=df_prepared,
+                                watch_side=watch_side,
+                                imu_config=imu_config,
+                                gait_config=gait_config,
+                                arm_activity_config=arm_activity_config,
+                                run_steps=pipeline_run_steps,
+                                return_intermediate=(
+                                    return_intermediate
+                                    if return_intermediate
+                                    else ["quantification"]
+                                ),
+                                store_intermediate=store_intermediate_per_file,
+                                output_dir=file_output_dir,
+                                segment_number_offset_filtered=(
+                                    max_gait_segment_nr_filtered
+                                ),
+                                segment_number_offset_unfiltered=(
+                                    max_gait_segment_nr_unfiltered
+                                ),
+                                logging_level=logging_level,
+                                custom_logger=active_logger,
+                            )
+
+                            # Extract results from pipeline dict
+                            if pipeline_result.get("_error"):
+                                error_msg = (
+                                    f"Gait pipeline failed on {file_name}: "
+                                    f"{pipeline_result['_error']}"
+                                )
+                                active_logger.error(error_msg)
+                                all_results["errors"].append(
+                                    {
+                                        "file": file_name,
+                                        "pipeline": pipeline_name,
+                                        "stage": "pipeline_execution",
+                                        "error": pipeline_result["_error"],
+                                    }
+                                )
+                                continue
+
+                            # Extract quantification if it was computed
+                            quantifications_dict = pipeline_result.get("quantification")
+                            metadata_dict = pipeline_result.get("metadata", {})
+
+                            # Process both filtered and unfiltered quantifications
+                            if quantifications_dict:
+                                for quant_type in ["filtered", "unfiltered"]:
+                                    quantification_data = quantifications_dict.get(
+                                        quant_type
+                                    )
+                                    quantification_metadata = metadata_dict.get(
+                                        quant_type, {}
+                                    )
+
+                                    if (
+                                        quantification_data is not None
+                                        and len(quantification_data) > 0
+                                    ):
+                                        # Add file identifier if processing multiple
+                                        # files
+                                        quantification_data = quantification_data.copy()
+                                        if num_files > 1:
+                                            quantification_data["file_key"] = file_name
+                                        all_results["quantifications"][pipeline_name][
+                                            quant_type
+                                        ].append(quantification_data)
+
+                                        # Update max segment number for next file
+                                        current_max = int(
+                                            quantification_data[
+                                                DataColumns.GAIT_SEGMENT_NR
+                                            ].max()
+                                        )
+                                        if quant_type == "filtered":
+                                            max_gait_segment_nr_filtered = max(
+                                                max_gait_segment_nr_filtered,
+                                                current_max,
+                                            )
+                                        else:  # unfiltered
+                                            max_gait_segment_nr_unfiltered = max(
+                                                max_gait_segment_nr_unfiltered,
+                                                current_max,
+                                            )
+
+                                    # Store metadata and update offset even if
+                                    # no quantifications
+                                    if (
+                                        quantification_metadata
+                                        and "per_segment" in quantification_metadata
+                                    ):
+                                        all_results["metadata"][pipeline_name][
+                                            quant_type
+                                        ].update(quantification_metadata["per_segment"])
+
+                                        # Update max segment number based on
+                                        # metadata to prevent overwrites
+                                        if quantification_metadata["per_segment"]:
+                                            max_segment_in_metadata = max(
+                                                quantification_metadata[
+                                                    "per_segment"
+                                                ].keys()
+                                            )
+                                            if quant_type == "filtered":
+                                                max_gait_segment_nr_filtered = max(
+                                                    max_gait_segment_nr_filtered,
+                                                    max_segment_in_metadata,
+                                                )
+                                            else:  # unfiltered
+                                                max_gait_segment_nr_unfiltered = max(
+                                                    max_gait_segment_nr_unfiltered,
+                                                    max_segment_in_metadata,
+                                                )
+
+                        elif pipeline_name == "tremor":
+                            pipeline_result = run_tremor_pipeline(
+                                df_prepared=df_prepared,
+                                store_intermediate=store_intermediate_per_file,
+                                output_dir=file_output_dir,
+                                tremor_config=tremor_config,
+                                imu_config=imu_config,
+                                logging_level=logging_level,
+                                custom_logger=active_logger,
+                                run_steps=pipeline_run_steps,
+                                return_intermediate=(
+                                    return_intermediate
+                                    if return_intermediate
+                                    else ["quantification"]
+                                ),
+                            )
+
+                            if isinstance(pipeline_result, dict):
+                                if pipeline_result.get("_error"):
+                                    active_logger.warning(
+                                        f"tremor pipeline returned error: "
+                                        f"{pipeline_result['_error']}"
+                                    )
+                                quantification_data = pipeline_result.get(
+                                    "quantification", None
+                                )
+                            else:
+                                quantification_data = pipeline_result
+
+                            # Check if quantification_data is not None and has content
+                            # (works for both DataFrame and dict)
+                            if (
+                                quantification_data is not None
+                                and len(quantification_data) > 0
+                            ):
                                 quantification_data = quantification_data.copy()
                                 if num_files > 1:
                                     quantification_data["file_key"] = file_name
-                                all_results["quantifications"][pipeline_name][
-                                    quant_type
-                                ].append(quantification_data)
-
-                                # Update max segment number for next file
-                                current_max = int(
-                                    quantification_data[
-                                        DataColumns.GAIT_SEGMENT_NR
-                                    ].max()
+                                all_results["quantifications"][pipeline_name].append(
+                                    quantification_data
                                 )
-                                if quant_type == "filtered":
-                                    max_gait_segment_nr_filtered = max(
-                                        max_gait_segment_nr_filtered, current_max
-                                    )
-                                else:  # unfiltered
-                                    max_gait_segment_nr_unfiltered = max(
-                                        max_gait_segment_nr_unfiltered, current_max
-                                    )
 
-                            # Store metadata and update offset even if
-                            # no quantifications
+                        elif pipeline_name == "pulse_rate":
+                            pipeline_result = run_pulse_rate_pipeline(
+                                df_ppg_prepared=df_prepared,
+                                store_intermediate=store_intermediate_per_file,
+                                output_dir=file_output_dir,
+                                pulse_rate_config=pulse_rate_config,
+                                ppg_config=ppg_config,
+                                logging_level=logging_level,
+                                custom_logger=active_logger,
+                                run_steps=pipeline_run_steps,
+                                return_intermediate=(
+                                    return_intermediate
+                                    if return_intermediate
+                                    else ["quantification"]
+                                ),
+                            )
+
+                            if isinstance(pipeline_result, dict):
+                                if pipeline_result.get("_error"):
+                                    active_logger.warning(
+                                        f"pulse_rate pipeline returned error: "
+                                        f"{pipeline_result['_error']}"
+                                    )
+                                quantification_data = pipeline_result.get(
+                                    "quantification", None
+                                )
+                            else:
+                                quantification_data = pipeline_result
+
+                            # Check if quantification_data is not None and has content
+                            # (works for both DataFrame and dict)
                             if (
-                                quantification_metadata
-                                and "per_segment" in quantification_metadata
+                                quantification_data is not None
+                                and len(quantification_data) > 0
                             ):
-                                all_results["metadata"][pipeline_name][
-                                    quant_type
-                                ].update(quantification_metadata["per_segment"])
+                                quantification_data = quantification_data.copy()
+                                if num_files > 1:
+                                    quantification_data["file_key"] = file_name
+                                all_results["quantifications"][pipeline_name].append(
+                                    quantification_data
+                                )
 
-                                # Update max segment number based on metadata to
-                                # prevent overwrites
-                                if quantification_metadata["per_segment"]:
-                                    max_segment_in_metadata = max(
-                                        quantification_metadata["per_segment"].keys()
-                                    )
-                                    if quant_type == "filtered":
-                                        max_gait_segment_nr_filtered = max(
-                                            max_gait_segment_nr_filtered,
-                                            max_segment_in_metadata,
-                                        )
-                                    else:  # unfiltered
-                                        max_gait_segment_nr_unfiltered = max(
-                                            max_gait_segment_nr_unfiltered,
-                                            max_segment_in_metadata,
-                                        )
-
-                    elif pipeline_name == "tremor":
-                        quantification_data = run_tremor_pipeline(
-                            df_prepared=df_prepared,
-                            store_intermediate=store_intermediate_per_file,
-                            output_dir=file_output_dir,
-                            tremor_config=tremor_config,
-                            imu_config=imu_config,
-                            logging_level=logging_level,
-                            custom_logger=active_logger,
+                    except Exception as e:
+                        error_msg = (
+                            f"Failed to run {pipeline_name} pipeline on "
+                            f"{file_name}: {e}"
                         )
-
-                        if len(quantification_data) > 0:
-                            quantification_data = quantification_data.copy()
-                            if num_files > 1:
-                                quantification_data["file_key"] = file_name
-                            all_results["quantifications"][pipeline_name].append(
-                                quantification_data
-                            )
-
-                    elif pipeline_name == "pulse_rate":
-                        quantification_data = run_pulse_rate_pipeline(
-                            df_ppg_prepared=df_prepared,
-                            store_intermediate=store_intermediate_per_file,
-                            output_dir=file_output_dir,
-                            pulse_rate_config=pulse_rate_config,
-                            ppg_config=ppg_config,
-                            logging_level=logging_level,
-                            custom_logger=active_logger,
+                        active_logger.error(error_msg)
+                        all_results["errors"].append(
+                            {
+                                "file": file_name,
+                                "pipeline": pipeline_name,
+                                "stage": "pipeline_execution",
+                                "error": str(e),
+                            }
                         )
+                        continue
 
-                        if len(quantification_data) > 0:
-                            quantification_data = quantification_data.copy()
-                            if num_files > 1:
-                                quantification_data["file_key"] = file_name
-                            all_results["quantifications"][pipeline_name].append(
-                                quantification_data
-                            )
+                # Release prepared data from memory
+                del df_prepared
 
-                except Exception as e:
-                    error_msg = (
-                        f"Failed to run {pipeline_name} pipeline on {file_name}: {e}"
-                    )
-                    active_logger.error(error_msg)
-                    all_results["errors"].append(
-                        {
-                            "file": file_name,
-                            "pipeline": pipeline_name,
-                            "stage": "pipeline_execution",
-                            "error": str(e),
-                        }
-                    )
-                    continue
-
-            # Release prepared data from memory
-            del df_prepared
-
-        except Exception as e:
-            error_msg = f"Failed to process file {file_name}: {e}"
-            active_logger.error(error_msg)
-            all_results["errors"].append(
-                {"file": file_name, "stage": "preparation", "error": str(e)}
-            )
-            continue
+            except Exception as e:
+                error_msg = f"Failed to process file {file_name}: {e}"
+                active_logger.error(error_msg)
+                all_results["errors"].append(
+                    {"file": file_name, "stage": "preparation", "error": str(e)}
+                )
+                continue
 
     # Step 4: Combine quantifications from all files
-    active_logger.info("Step 4: Combining quantifications from all files")
+    if "quantification" in run_steps:
+        active_logger.info("Step 4: Combining quantifications from all files")
 
-    for pipeline_name in pipelines:
-        # Handle gait separately due to filtered/unfiltered structure
-        if pipeline_name == "gait":
-            for quant_type in ["filtered", "unfiltered"]:
-                if all_results["quantifications"][pipeline_name][quant_type]:
+        for pipeline_name in pipelines:
+            # Handle gait separately due to filtered/unfiltered structure
+            if pipeline_name == "gait":
+                for quant_type in ["filtered", "unfiltered"]:
+                    if all_results["quantifications"][pipeline_name][quant_type]:
+                        combined_quantified = pd.concat(
+                            all_results["quantifications"][pipeline_name][quant_type],
+                            ignore_index=True,
+                        )
+
+                        num_files_processed = len(
+                            all_results["quantifications"][pipeline_name][quant_type]
+                        )
+                        all_results["quantifications"][pipeline_name][
+                            quant_type
+                        ] = combined_quantified
+
+                        active_logger.info(
+                            f"{pipeline_name.capitalize()} ({quant_type}): Combined "
+                            f"{len(combined_quantified)} windows from "
+                            f"{num_files_processed} files"
+                        )
+                    else:
+                        # Normalize empty lists to DataFrames to avoid AttributeError on
+                        # .empty
+                        all_results["quantifications"][pipeline_name][
+                            quant_type
+                        ] = _empty_gait_quantification_df()
+            else:
+                # Concatenate all quantifications for non-gait pipelines
+                if all_results["quantifications"][pipeline_name]:
                     combined_quantified = pd.concat(
-                        all_results["quantifications"][pipeline_name][quant_type],
-                        ignore_index=True,
+                        all_results["quantifications"][pipeline_name], ignore_index=True
                     )
 
                     num_files_processed = len(
-                        all_results["quantifications"][pipeline_name][quant_type]
+                        all_results["quantifications"][pipeline_name]
                     )
-                    all_results["quantifications"][pipeline_name][
-                        quant_type
-                    ] = combined_quantified
+                    all_results["quantifications"][pipeline_name] = combined_quantified
 
                     active_logger.info(
-                        f"{pipeline_name.capitalize()} ({quant_type}): Combined "
+                        f"{pipeline_name.capitalize()}: Combined "
                         f"{len(combined_quantified)} windows from "
                         f"{num_files_processed} files"
                     )
                 else:
-                    # Normalize empty lists to DataFrames to avoid AttributeError on
-                    # .empty
-                    all_results["quantifications"][pipeline_name][
-                        quant_type
-                    ] = _empty_gait_quantification_df()
-        else:
-            # Concatenate all quantifications for non-gait pipelines
-            if all_results["quantifications"][pipeline_name]:
-                combined_quantified = pd.concat(
-                    all_results["quantifications"][pipeline_name], ignore_index=True
-                )
-
-                num_files_processed = len(all_results["quantifications"][pipeline_name])
-                all_results["quantifications"][pipeline_name] = combined_quantified
-
-                active_logger.info(
-                    f"{pipeline_name.capitalize()}: Combined "
-                    f"{len(combined_quantified)} windows from "
-                    f"{num_files_processed} files"
-                )
-            else:
-                # No quantifications found for this pipeline
-                all_results["quantifications"][pipeline_name] = pd.DataFrame()
-                active_logger.warning(f"No quantified {pipeline_name} results found")
+                    # No quantifications found for this pipeline
+                    all_results["quantifications"][pipeline_name] = pd.DataFrame()
+                    active_logger.warning(
+                        f"No quantified {pipeline_name} results found"
+                    )
 
     # Step 5: Perform aggregation on combined results FROM ALL FILES
-    active_logger.info("Step 5: Aggregating results across all files")
+    if "aggregation" in run_steps:
+        active_logger.info("Step 5: Aggregating results across all files")
 
-    for pipeline_name in pipelines:
-        try:
-            # Skip aggregation if no quantifications
-            if pipeline_name == "gait":
-                # Check both filtered and unfiltered
-                has_quantifications = (
-                    not all_results["quantifications"][pipeline_name]["filtered"].empty
-                    or not all_results["quantifications"][pipeline_name][
-                        "unfiltered"
-                    ].empty
-                )
-            else:
-                has_quantifications = not all_results["quantifications"][
-                    pipeline_name
-                ].empty
-
-            if not has_quantifications:
-                active_logger.warning(
-                    f"No {pipeline_name} quantifications to aggregate"
-                )
-                continue
-
-            if pipeline_name == "tremor":
-                active_logger.info("Aggregating tremor results across ALL files")
-
-                # Work on a copy for tremor aggregation
-                combined_quantified = all_results["quantifications"][pipeline_name]
-                tremor_data_for_aggregation = combined_quantified.copy()
-
-                # Need to add datetime column for aggregate_tremor
-                if (
-                    "time_dt" not in tremor_data_for_aggregation.columns
-                    and "time" in tremor_data_for_aggregation.columns
-                ):
-                    tremor_data_for_aggregation["time_dt"] = pd.to_datetime(
-                        tremor_data_for_aggregation["time"], unit="s"
+        for pipeline_name in pipelines:
+            try:
+                # Skip aggregation if no quantifications
+                if pipeline_name == "gait":
+                    # Check both filtered and unfiltered
+                    has_quantifications = (
+                        not all_results["quantifications"][pipeline_name][
+                            "filtered"
+                        ].empty
+                        or not all_results["quantifications"][pipeline_name][
+                            "unfiltered"
+                        ].empty
                     )
+                else:
+                    has_quantifications = not all_results["quantifications"][
+                        pipeline_name
+                    ].empty
 
-                if tremor_config is None:
-                    tremor_config = TremorConfig()
+                if not has_quantifications:
+                    active_logger.warning(
+                        f"No {pipeline_name} quantifications to aggregate"
+                    )
+                    continue
 
-                aggregation_output = aggregate_tremor(
-                    tremor_data_for_aggregation, tremor_config
-                )
-                all_results["aggregations"][pipeline_name] = aggregation_output[
-                    "aggregated_tremor_measures"
-                ]
-                all_results["metadata"][pipeline_name] = aggregation_output["metadata"]
-                active_logger.info("Tremor aggregation completed")
+                if pipeline_name == "tremor":
+                    active_logger.info("Aggregating tremor results across ALL files")
 
-            elif pipeline_name == "pulse_rate":
-                active_logger.info("Aggregating pulse rate results across ALL files")
+                    # Work on a copy for tremor aggregation
+                    combined_quantified = all_results["quantifications"][pipeline_name]
+                    tremor_data_for_aggregation = combined_quantified.copy()
 
-                combined_quantified = all_results["quantifications"][pipeline_name]
-                pulse_rate_values = (
-                    combined_quantified[DataColumns.PULSE_RATE].dropna().values
-                )
+                    # Need to add datetime column for aggregate_tremor
+                    if (
+                        "time_dt" not in tremor_data_for_aggregation.columns
+                        and "time" in tremor_data_for_aggregation.columns
+                    ):
+                        tremor_data_for_aggregation["time_dt"] = pd.to_datetime(
+                            tremor_data_for_aggregation["time"], unit="s"
+                        )
 
-                if len(pulse_rate_values) > 0:
-                    aggregation_output = aggregate_pulse_rate(
-                        pr_values=pulse_rate_values,
-                        aggregates=aggregates if aggregates else ["mode", "99p"],
+                    if tremor_config is None:
+                        tremor_config = TremorConfig()
+
+                    aggregation_output = aggregate_tremor(
+                        tremor_data_for_aggregation, tremor_config
                     )
                     all_results["aggregations"][pipeline_name] = aggregation_output[
-                        "pr_aggregates"
+                        "aggregated_tremor_measures"
                     ]
                     all_results["metadata"][pipeline_name] = aggregation_output[
                         "metadata"
                     ]
+                    active_logger.info("Tremor aggregation completed")
+
+                elif pipeline_name == "pulse_rate":
                     active_logger.info(
-                        f"Pulse rate aggregation completed with "
-                        f"{len(pulse_rate_values)} valid estimates"
-                    )
-                else:
-                    active_logger.warning(
-                        "No valid pulse rate estimates found for aggregation"
+                        "Aggregating pulse rate results across ALL files"
                     )
 
-            elif pipeline_name == "gait":
-                active_logger.info("Aggregating gait results across ALL files")
+                    combined_quantified = all_results["quantifications"][pipeline_name]
+                    pulse_rate_values = (
+                        combined_quantified[DataColumns.PULSE_RATE].dropna().values
+                    )
 
-                # Initialize nested dictionary for gait aggregations
-                all_results["aggregations"][pipeline_name] = {
-                    "filtered": {},
-                    "unfiltered": {},
-                }
+                    if len(pulse_rate_values) > 0:
+                        aggregation_output = aggregate_pulse_rate(
+                            pr_values=pulse_rate_values,
+                            aggregates=aggregates if aggregates else ["mode", "99p"],
+                        )
+                        all_results["aggregations"][pipeline_name] = aggregation_output[
+                            "pr_aggregates"
+                        ]
+                        all_results["metadata"][pipeline_name] = aggregation_output[
+                            "metadata"
+                        ]
+                        active_logger.info(
+                            f"Pulse rate aggregation completed with "
+                            f"{len(pulse_rate_values)} valid estimates"
+                        )
+                    else:
+                        active_logger.warning(
+                            "No valid pulse rate estimates found for aggregation"
+                        )
 
-                # Convert segment_length_bins to segment_cats (list of tuples)
-                if segment_length_bins is None:
-                    segment_cats = [(0, 20), (20, float("inf"))]
-                else:
-                    # Support both string format ['(0, 10)', '(10, 20)'] and
-                    # tuple/list format [(0, 10), (10, 20)]
-                    segment_cats = []
-                    for bin_def in segment_length_bins:
-                        # Case 1: already provided as tuple/list
-                        if isinstance(bin_def, (tuple, list)):
-                            if len(bin_def) != 2:
-                                raise ValueError(
-                                    f"segment_length_bins entries as tuple/list must "
-                                    f"have length 2, got {len(bin_def)}: {bin_def!r}"
+                elif pipeline_name == "gait":
+                    active_logger.info("Aggregating gait results across ALL files")
+
+                    # Initialize nested dictionary for gait aggregations
+                    all_results["aggregations"][pipeline_name] = {
+                        "filtered": {},
+                        "unfiltered": {},
+                    }
+
+                    # Convert segment_length_bins to segment_cats (list of tuples)
+                    if segment_length_bins is None:
+                        segment_cats = [(0, 20), (20, float("inf"))]
+                    else:
+                        # Support both string format ['(0, 10)', '(10, 20)'] and
+                        # tuple/list format [(0, 10), (10, 20)]
+                        segment_cats = []
+                        for bin_def in segment_length_bins:
+                            # Case 1: already provided as tuple/list
+                            if isinstance(bin_def, (tuple, list)):
+                                if len(bin_def) != 2:
+                                    raise ValueError(
+                                        f"segment_length_bins entries as tuple/list "
+                                        f"must have length 2, got {len(bin_def)}: "
+                                        f"{bin_def!r}"
+                                    )
+                                lower_val, upper_val = bin_def
+                                lower = float(lower_val)
+                                # Allow 'inf' as string, or float('inf') / np.inf / etc.
+                                if (
+                                    isinstance(upper_val, str)
+                                    and upper_val.strip() == "inf"
+                                ):
+                                    upper = float("inf")
+                                else:
+                                    upper = float(upper_val)
+                                segment_cats.append((lower, upper))
+                            # Case 2: string that needs parsing
+                            elif isinstance(bin_def, str):
+                                bin_str = bin_def.strip("()")
+                                parts = bin_str.split(",")
+                                if len(parts) != 2:
+                                    raise ValueError(
+                                        f"Invalid segment length bin string: "
+                                        f"{bin_def!r}"
+                                    )
+                                lower = float(parts[0].strip())
+                                upper_part = parts[1].strip()
+                                upper = (
+                                    float("inf")
+                                    if upper_part == "inf"
+                                    else float(upper_part)
                                 )
-                            lower_val, upper_val = bin_def
-                            lower = float(lower_val)
-                            # Allow 'inf' as string, or float('inf') / np.inf / etc.
-                            if (
-                                isinstance(upper_val, str)
-                                and upper_val.strip() == "inf"
-                            ):
-                                upper = float("inf")
+                                segment_cats.append((lower, upper))
                             else:
-                                upper = float(upper_val)
-                            segment_cats.append((lower, upper))
-                        # Case 2: string that needs parsing
-                        elif isinstance(bin_def, str):
-                            bin_str = bin_def.strip("()")
-                            parts = bin_str.split(",")
-                            if len(parts) != 2:
-                                raise ValueError(
-                                    f"Invalid segment length bin string: {bin_def!r}"
+                                raise TypeError(
+                                    "segment_length_bins entries must be strings or \
+"
+                                    f"2-element tuples/lists, got "
+                                    f"{type(bin_def).__name__}"
                                 )
-                            lower = float(parts[0].strip())
-                            upper_part = parts[1].strip()
-                            upper = (
-                                float("inf")
-                                if upper_part == "inf"
-                                else float(upper_part)
-                            )
-                            segment_cats.append((lower, upper))
-                        else:
-                            raise TypeError(
-                                "segment_length_bins entries must be strings or "
-                                f"2-element tuples/lists, got {type(bin_def).__name__}"
-                            )
 
-                # Aggregate filtered gait quantifications
-                if not all_results["quantifications"][pipeline_name]["filtered"].empty:
-                    active_logger.info(
-                        "Aggregating filtered gait quantifications (clean gait only)"
-                    )
-                    aggregation_output = aggregate_arm_swing_params(
-                        all_results["quantifications"][pipeline_name]["filtered"],
-                        segment_meta=all_results["metadata"][pipeline_name]["filtered"],
-                        segment_cats=segment_cats,
-                        aggregates=(
-                            aggregates if aggregates else ["median", "95p", "cov"]
-                        ),
-                    )
-                    all_results["aggregations"][pipeline_name][
+                    # Aggregate filtered gait quantifications
+                    if not all_results["quantifications"][pipeline_name][
                         "filtered"
-                    ] = aggregation_output
-                    filtered_count = len(
-                        all_results["quantifications"][pipeline_name]["filtered"]
-                    )
-                    active_logger.info(
-                        f"Filtered gait aggregation completed with "
-                        f"{filtered_count} arm swings"
-                    )
-                else:
-                    active_logger.warning(
-                        "No filtered gait quantifications found for aggregation"
-                    )
+                    ].empty:
+                        active_logger.info(
+                            "Aggregating filtered gait quantifications "
+                            "(clean gait only)"
+                        )
+                        aggregation_output = aggregate_arm_swing_params(
+                            all_results["quantifications"][pipeline_name]["filtered"],
+                            segment_meta=all_results["metadata"][pipeline_name][
+                                "filtered"
+                            ],
+                            segment_cats=segment_cats,
+                            aggregates=(
+                                aggregates if aggregates else ["median", "95p", "cov"]
+                            ),
+                        )
+                        all_results["aggregations"][pipeline_name][
+                            "filtered"
+                        ] = aggregation_output
+                        filtered_count = len(
+                            all_results["quantifications"][pipeline_name]["filtered"]
+                        )
+                        active_logger.info(
+                            f"Filtered gait aggregation completed with "
+                            f"{filtered_count} arm swings"
+                        )
+                    else:
+                        active_logger.warning(
+                            "No filtered gait quantifications found for aggregation"
+                        )
 
-                # Aggregate unfiltered gait quantifications
-                if not all_results["quantifications"][pipeline_name][
-                    "unfiltered"
-                ].empty:
-                    active_logger.info(
-                        "Aggregating unfiltered gait quantifications (all gait)"
-                    )
-                    aggregation_output = aggregate_arm_swing_params(
-                        all_results["quantifications"][pipeline_name]["unfiltered"],
-                        segment_meta=all_results["metadata"][pipeline_name][
-                            "unfiltered"
-                        ],
-                        segment_cats=segment_cats,
-                        aggregates=(
-                            aggregates if aggregates else ["median", "95p", "cov"]
-                        ),
-                    )
-                    all_results["aggregations"][pipeline_name][
+                    # Aggregate unfiltered gait quantifications
+                    if not all_results["quantifications"][pipeline_name][
                         "unfiltered"
-                    ] = aggregation_output
-                    unfiltered_count = len(
-                        all_results["quantifications"][pipeline_name]["unfiltered"]
-                    )
-                    active_logger.info(
-                        f"Unfiltered gait aggregation completed with "
-                        f"{unfiltered_count} arm swings"
-                    )
-                else:
-                    active_logger.warning(
-                        "No unfiltered gait quantifications found for aggregation"
-                    )
+                    ].empty:
+                        active_logger.info(
+                            "Aggregating unfiltered gait quantifications (all gait)"
+                        )
+                        aggregation_output = aggregate_arm_swing_params(
+                            all_results["quantifications"][pipeline_name]["unfiltered"],
+                            segment_meta=all_results["metadata"][pipeline_name][
+                                "unfiltered"
+                            ],
+                            segment_cats=segment_cats,
+                            aggregates=(
+                                aggregates if aggregates else ["median", "95p", "cov"]
+                            ),
+                        )
+                        all_results["aggregations"][pipeline_name][
+                            "unfiltered"
+                        ] = aggregation_output
+                        unfiltered_count = len(
+                            all_results["quantifications"][pipeline_name]["unfiltered"]
+                        )
+                        active_logger.info(
+                            f"Unfiltered gait aggregation completed with "
+                            f"{unfiltered_count} arm swings"
+                        )
+                    else:
+                        active_logger.warning(
+                            "No unfiltered gait quantifications found for aggregation"
+                        )
 
-        except Exception as e:
-            error_msg = f"Failed to aggregate {pipeline_name} results: {e}"
-            active_logger.error(error_msg)
-            all_results["errors"].append(
-                {"pipeline": pipeline_name, "stage": "aggregation", "error": str(e)}
-            )
-            if pipeline_name == "gait":
-                all_results["aggregations"][pipeline_name] = {
-                    "filtered": {},
-                    "unfiltered": {},
-                }
-            else:
-                all_results["aggregations"][pipeline_name] = {}
+            except Exception as e:
+                error_msg = f"Failed to aggregate {pipeline_name} results: {e}"
+                active_logger.error(error_msg)
+                all_results["errors"].append(
+                    {"pipeline": pipeline_name, "stage": "aggregation", "error": str(e)}
+                )
+                if pipeline_name == "gait":
+                    all_results["aggregations"][pipeline_name] = {
+                        "filtered": {},
+                        "unfiltered": {},
+                    }
+                else:
+                    all_results["aggregations"][pipeline_name] = {}
 
     # Save combined quantifications if requested
     if "quantification" in save_intermediate:
