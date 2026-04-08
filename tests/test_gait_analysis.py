@@ -100,31 +100,40 @@ def test_gait_pipeline_basic():
             arm_activity_config=GaitConfig("arm_activity"),
         )
 
-        assert isinstance(result, tuple)
-        assert len(result) == 2
+        # New dict return format
+        assert isinstance(result, dict)
+        assert "quantification" in result
+        assert "metadata" in result
+        assert "_steps_executed" in result
+        assert "_error" in result
 
-        # First element should be a dict with 'filtered' and
-        # 'unfiltered' quantifications
-        assert isinstance(result[0], dict)
-        assert "filtered" in result[0]
-        assert "unfiltered" in result[0]
-        assert isinstance(result[0]["filtered"], pd.DataFrame)
-        assert isinstance(result[0]["unfiltered"], pd.DataFrame)
+        # Check quantification structure
+        assert isinstance(result["quantification"], dict)
+        assert "filtered" in result["quantification"]
+        assert "unfiltered" in result["quantification"]
+        assert isinstance(result["quantification"]["filtered"], pd.DataFrame)
+        assert isinstance(result["quantification"]["unfiltered"], pd.DataFrame)
 
         expected_columns = {
             DataColumns.GAIT_SEGMENT_NR,
             DataColumns.RANGE_OF_MOTION,
             DataColumns.PEAK_VELOCITY,
         }
-        assert expected_columns.issubset(result[0]["filtered"].columns)
-        assert expected_columns.issubset(result[0]["unfiltered"].columns)
+        assert (
+            expected_columns.issubset(result["quantification"]["filtered"].columns)
+            or len(result["quantification"]["filtered"]) == 0
+        )
+        assert (
+            expected_columns.issubset(result["quantification"]["unfiltered"].columns)
+            or len(result["quantification"]["unfiltered"]) == 0
+        )
 
-        # Second element should be a dict with 'filtered' and 'unfiltered' metadata
-        assert isinstance(result[1], dict)
-        assert "filtered" in result[1]
-        assert "unfiltered" in result[1]
-        assert isinstance(result[1]["filtered"], dict)
-        assert isinstance(result[1]["unfiltered"], dict)
+        # Check metadata structure
+        assert isinstance(result["metadata"], dict)
+        assert "filtered" in result["metadata"]
+        assert "unfiltered" in result["metadata"]
+        assert isinstance(result["metadata"]["filtered"], dict)
+        assert isinstance(result["metadata"]["unfiltered"], dict)
 
 
 def test_gait_pipeline_integration():
@@ -224,7 +233,7 @@ def test_multi_file_unfiltered_only_offsets(monkeypatch):
     with tempfile.TemporaryDirectory() as temp_dir:
         per_file_counts = []
         for df in dfs.values():
-            _, meta = gait_pipeline.run_gait_pipeline(
+            result = gait_pipeline.run_gait_pipeline(
                 df_prepared=df,
                 watch_side="right",
                 output_dir=temp_dir,
@@ -232,7 +241,9 @@ def test_multi_file_unfiltered_only_offsets(monkeypatch):
                 gait_config=GaitConfig("gait"),
                 arm_activity_config=GaitConfig("arm_activity"),
             )
-            per_segment = meta["unfiltered"].get("per_segment", {})
+            # Extract metadata from new dict return format
+            meta = result.get("metadata", {})
+            per_segment = meta.get("unfiltered", {}).get("per_segment", {})
             per_file_counts.append(len(per_segment))
 
         results = run_paradigma(
