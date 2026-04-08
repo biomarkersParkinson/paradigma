@@ -577,9 +577,6 @@ def quantify_arm_swing(
             segment_meta["per_segment"][segment_nr]["end_dt"] = (
                 start_dt + timedelta(seconds=float(time_array.max() + 1 / fs))
             ).isoformat()
-            # Remove relative time fields when datetime is available
-            del segment_meta["per_segment"][segment_nr]["start_s"]
-            del segment_meta["per_segment"][segment_nr]["end_s"]
 
         if angle_array.size > 0:
             angle_extrema_indices, _, _ = extract_angle_extremes(
@@ -677,15 +674,17 @@ def aggregate_arm_swing_params(
         segment_cat_str = f"{segment_cat_range[0]}_{segment_cat_range[1]}"
         cat_segments = [
             x
-            for x in segment_meta.keys()
-            if segment_meta[x]["duration_s"] >= segment_cat_range[0]
-            and segment_meta[x]["duration_s"] < segment_cat_range[1]
+            for x in segment_meta["per_segment"].keys()
+            if segment_meta["per_segment"][x]["duration_s"] >= segment_cat_range[0]
+            and segment_meta["per_segment"][x]["duration_s"] < segment_cat_range[1]
         ]
 
         if len(cat_segments) > 0:
             # Calculate total duration for segments in this category
             aggregated_results[segment_cat_str] = {
-                "duration_s": sum([segment_meta[x]["duration_s"] for x in cat_segments])
+                "duration_s": sum(
+                    [segment_meta["per_segment"][x]["duration_s"] for x in cat_segments]
+                )
             }
 
             df_arm_swing_params_cat = df_arm_swing_params.loc[
