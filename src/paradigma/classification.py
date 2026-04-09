@@ -2,6 +2,7 @@ import pickle
 from pathlib import Path
 from typing import Any
 
+import joblib
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.preprocessing import StandardScaler
@@ -113,20 +114,32 @@ class ClassifierPackage:
     @classmethod
     def load(cls, filepath: str | Path):
         """
-        Load a ClassifierPackage from a file.
+        Load a ClassifierPackage from a file using joblib (safer than pickle).
 
         Parameters
         ----------
-        filepath : str
-            The path to the file.
+        filepath : str or Path
+            The path to the classifier file.
 
-        Return
-        ------
+        Returns
+        -------
         ClassifierPackage
             The loaded classifier package.
+
+        Raises
+        ------
+        FileNotFoundError
+            If the file does not exist.
+        ValueError
+            If the file cannot be loaded or is corrupted.
         """
+        filepath = Path(filepath)
+        if not filepath.exists():
+            raise FileNotFoundError(f"Classifier file not found: {filepath}")
+
         try:
-            with open(filepath, "rb") as f:
-                return pickle.load(f)
+            return joblib.load(filepath)
         except Exception as e:
-            raise ValueError(f"Failed to load classifier package: {e}") from e
+            raise ValueError(
+                f"Failed to load classifier package from {filepath}: {e}"
+            ) from e
