@@ -74,15 +74,38 @@ def convert_sensor_units(
         Input DataFrame with sensor data.
     accelerometer_units : str, default 'm/s^2'
         Current units of accelerometer data.
+        Supported: 'g', 'm/s^2', 'milli-g'
     gyroscope_units : str, default 'deg/s'
         Current units of gyroscope data.
+        Supported: 'deg/s', 'rad/s'
 
     Returns
     -------
     pd.DataFrame
         DataFrame with converted units.
+
+    Raises
+    ------
+    ValueError
+        If unsupported unit strings are provided.
     """
     df = df.copy()
+
+    # Validate unit strings
+    supported_accel_units = {"g", "m/s^2", "milli-g"}
+    supported_gyro_units = {"deg/s", "rad/s"}
+
+    if accelerometer_units not in supported_accel_units:
+        logger.warning(
+            f"Unsupported accelerometer units: {accelerometer_units}. "
+            f"Supported: {supported_accel_units}. Proceeding without conversion."
+        )
+
+    if gyroscope_units not in supported_gyro_units:
+        logger.warning(
+            f"Unsupported gyroscope units: {gyroscope_units}. "
+            f"Supported: {supported_gyro_units}. Proceeding without conversion."
+        )
 
     # Convert accelerometer units
     accelerometer_columns = [

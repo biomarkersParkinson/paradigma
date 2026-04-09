@@ -112,6 +112,15 @@ def resample_data(
         logger.warning("resampling_frequency automatically set to 100 Hz")
 
     resampling_frequency = float(resampling_frequency)
+    if resampling_frequency <= 0:
+        raise ValueError(
+            f"resampling_frequency must be positive, got {resampling_frequency}"
+        )
+
+    # Validate tolerance
+    if tolerance is not None:
+        if not isinstance(tolerance, (int, float)) or tolerance < 0:
+            raise ValueError(f"tolerance must be non-negative number, got {tolerance}")
 
     # Auto-detect or use provided column names
     if values_column_names is None:
@@ -143,12 +152,25 @@ def resample_data(
     if tolerance is None:
         tolerance = IMUConfig().tolerance
 
-    # Set default segmentation parameters
+    # Set default segmentation parameters and validate
     if auto_segment:
         if max_segment_gap_s is None:
             max_segment_gap_s = 1.5  # IMUConfig default
         if min_segment_length_s is None:
             min_segment_length_s = 1.5  # IMUConfig default
+
+        if not isinstance(max_segment_gap_s, (int, float)) or max_segment_gap_s <= 0:
+            raise ValueError(
+                f"max_segment_gap_s must be positive number, got {max_segment_gap_s}"
+            )
+        if (
+            not isinstance(min_segment_length_s, (int, float))
+            or min_segment_length_s <= 0
+        ):
+            raise ValueError(
+                f"min_segment_length_s must be positive number, "
+                f"got {min_segment_length_s}"
+            )
 
     # Check contiguity
     expected_interval = 1 / sampling_frequency
@@ -289,6 +311,16 @@ def resample_data(
         f"Resampled: {len(df)} -> {len(df_resampled)} rows at "
         f"{resampling_frequency} Hz"
     )
+
+    # Check for NaN values after resampling
+    nan_count = df_resampled.isnull().sum().sum()
+    if nan_count > 0:
+        nan_rows = df_resampled.isnull().any(axis=1).sum()
+        logger.warning(
+            f"Resampling produced {nan_count} NaN values in {nan_rows} rows. "
+            "This may occur with extrapolation or edge effects. "
+            "Consider forward-filling or inspecting data quality."
+        )
 
     return df_resampled
 
