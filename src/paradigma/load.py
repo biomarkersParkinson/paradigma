@@ -75,7 +75,10 @@ def load_empatica_data(
 
     with open(file_path, "rb") as f:
         reader = DataFileReader(f, DatumReader())
-        empatica_data = next(reader)
+        try:
+            empatica_data = next(reader)
+        finally:
+            reader.close()
 
     accel_data = empatica_data["rawData"]["accelerometer"]
 
