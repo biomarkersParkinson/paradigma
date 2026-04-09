@@ -25,7 +25,7 @@ class BaseConfig:
         Parameters
         ----------
         prefix : str
-            The prefix for the filenames.
+            Prefix of the filenames.
         """
         self.meta_filename = f"{prefix}_meta.json"
         self.time_filename = f"{prefix}_time.bin"
@@ -34,7 +34,7 @@ class BaseConfig:
 
 class IMUConfig(BaseConfig):
     """
-    IMU configuration that uses DataColumns() to dynamically map available channels.
+    IMU configuration that uses `DataColumns()` to dynamically map available channels.
     Works even if only accelerometer or only gyroscope data is present.
     """
 
@@ -102,7 +102,6 @@ class IMUConfig(BaseConfig):
 
 
 class PPGConfig(BaseConfig):
-
     def __init__(self, column_mapping: dict[str, str] | None = None) -> None:
         super().__init__()
 
@@ -127,7 +126,6 @@ class PPGConfig(BaseConfig):
 
 # Domain base configs
 class GaitConfig(IMUConfig):
-
     def __init__(self, step, column_mapping: dict[str, str] | None = None) -> None:
         # Pass column_mapping through to IMUConfig
         super().__init__(column_mapping=column_mapping)
@@ -213,13 +211,12 @@ class GaitConfig(IMUConfig):
 
 
 class TremorConfig(IMUConfig):
-
     def __init__(self, step: str | None = None) -> None:
         """
         Parameters
         ----------
         step : str (optional)
-            The step of the tremor pipeline. Can be 'features' or 'classification'.
+            Step of the tremor pipeline. Can be 'features' or 'classification'.
         """
         super().__init__()
 

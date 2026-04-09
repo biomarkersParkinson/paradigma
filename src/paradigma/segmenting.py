@@ -30,15 +30,15 @@ def tabulate_windows(
     Parameters
     ----------
     df : pd.DataFrame
-        The input DataFrame containing the data to be windowed.
+        Input DataFrame containing the data to be windowed.
     columns : list of str
-        A list of column names from the DataFrame that will be used for windowing.
+        List of column names from the DataFrame that will be used for windowing.
     window_length_s : float
-        The length of each window in seconds.
+        Length of each window in seconds.
     window_step_length_s : float
-        The step size between consecutive windows in seconds.
+        Step size between consecutive windows in seconds.
     fs : int
-        The sampling frequency of the data in Hz.
+        Sampling frequency of the data in Hz.
 
     Returns
     -------
@@ -91,7 +91,10 @@ def tabulate_windows(
     return windows
 
 
-def tabulate_windows_legacy(config, df, agg_func="first"):
+@deprecated("This will be removed in v1.1.")
+def tabulate_windows_legacy(
+    config, df: pd.DataFrame, agg_func: str = "first"
+) -> pd.DataFrame:
     """
     Efficiently creates a windowed dataframe from the input dataframe using
     vectorized operations.
@@ -120,7 +123,6 @@ def tabulate_windows_legacy(config, df, agg_func="first"):
         - `window_end`: The end time of the window.
         - Aggregated values for `single_value_colnames`.
         - Lists of values for `list_value_colnames`.
-
     """
     # If single_value_colnames or list_value_colnames is None, default to an empty list
     if config.single_value_colnames is None:
@@ -197,7 +199,23 @@ def tabulate_windows_legacy(config, df, agg_func="first"):
 def create_segments(
     time_array: np.ndarray,
     max_segment_gap_s: float,
-):
+) -> np.ndarray:
+    """
+    Create segment numbers based on time gaps exceeding a specified threshold.
+
+    Parameters
+    ----------
+    time_array : np.ndarray
+        A 1D NumPy array of time values (in seconds).
+    max_segment_gap_s : float
+        The maximum allowed gap (in seconds) between consecutive time values
+        before a new segment is created.
+
+    Returns
+    -------
+    np.ndarray
+        A 1D NumPy array of segment numbers corresponding to each time value.
+    """
     # Calculate the difference between consecutive time values
     time_diff = np.diff(time_array, prepend=0.0)
 
@@ -220,25 +238,25 @@ def discard_segments(
     """
     Remove segments smaller than a specified size and reset segment enumeration.
 
-    This function filters out segments from the DataFrame that are smaller than a
+    Filters out segments from the DataFrame that are smaller than a
     given minimum size, based on the configuration. After removing small segments,
     the segment numbers are reset to start from 1.
 
     Parameters
     ----------
     config : object
-        A configuration object containing:
-        - `min_segment_length_s`: The minimum segment length in seconds.
-        - `sampling_frequency`: The sampling frequency in Hz.
+        Configuration object containing:
+        - `min_segment_length_s`: Minimum segment length in seconds.
+        - `sampling_frequency`: Sampling frequency in Hz.
     df : pd.DataFrame
-        The input DataFrame containing a segment column and time series data.
+        Input DataFrame containing a segment column and time series data.
     format : str, optional
-        The format of the input data, either 'timestamps' or 'windows'.
+        Format of the input data, either 'timestamps' or 'windows'.
 
     Returns
     -------
     pd.DataFrame
-        A filtered DataFrame where small segments have been removed and segment
+        Filtered DataFrame where small segments have been removed and segment
         numbers have been reset to start from 1.
 
     Example
@@ -378,13 +396,8 @@ class WindowedDataExtractor:
 
         Parameters
         ----------
-        windowed_colnames : list of str
+        windowed_colnames : List[str]
             A list of column names in the windowed data.
-
-        Raises
-         ------
-        ValueError
-            If the list of `windowed_colnames` is empty.
         """
         if not windowed_colnames:
             raise ValueError("The list of windowed columns cannot be empty.")
@@ -396,18 +409,13 @@ class WindowedDataExtractor:
 
         Parameters
         ----------
-        col : str
-            The name of the column to retrieve the index for.
+        colname : str
+            Name of the column to retrieve the index for.
 
         Returns
         -------
         int
-            The index of the specified column.
-
-        Raises
-        ------
-        ValueError
-            If the column is not found in the `windowed_colnames` list.
+            Index of the specified column.
         """
         if colname not in self.column_indices:
             raise ValueError(f"Column name '{colname}' not found in windowed_colnames.")

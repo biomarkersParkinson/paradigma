@@ -69,7 +69,6 @@ site/
 # =========================
 # Project-specific / temporary
 # =========================
-paper/
 tests/data/tmp
 
 # =========================

@@ -213,10 +213,7 @@ def detect_gait(
     return pred_gait_proba_series
 
 
-def extract_arm_activity_features(
-    df: pd.DataFrame,
-    config: GaitConfig,
-) -> pd.DataFrame:
+def extract_arm_activity_features(df: pd.DataFrame, config: GaitConfig) -> pd.DataFrame:
     """
     Extract features related to arm activity from a time-series DataFrame.
 
@@ -366,17 +363,17 @@ def filter_gait(
     Parameters
     ----------
     df : pd.DataFrame
-        The input DataFrame containing features extracted from gait data.
+        Input DataFrame containing features extracted from gait data.
     clf_package: ClassifierPackage
         The pre-trained classifier package containing the classifier,
         threshold, and scaler.
     parallel : bool, optional, default=False
-        If `True`, enables parallel processing.
+        If True, enables parallel processing.
 
     Returns
     -------
     pd.Series
-        A Series containing the predicted probabilities.
+        Predicted probabilities of windows with no other arm activity.
     """
     if df.shape[0] == 0:
         raise ValueError("No data found in the input DataFrame.")
@@ -411,7 +408,7 @@ def quantify_arm_swing(
     start_dt: datetime.datetime | None = None,
 ) -> tuple[pd.DataFrame, dict]:
     """
-    Quantify arm swing parameters for segments of motion based on gyroscope data.
+    Quantify arm swing parameters from gyroscope data of gait segments.
 
     Parameters
     ----------
@@ -432,7 +429,7 @@ def quantify_arm_swing(
         them into segments.
 
     min_segment_length_s : float, optional, default=1.5
-        The minimum length in seconds for a segment to be considered valid.
+        Minimum segment duration in seconds to be included.
 
     start_dt : datetime.datetime, optional
         Start datetime of the recording session. Used to compute absolute
@@ -644,16 +641,14 @@ def aggregate_arm_swing_params(
     aggregates: list[str] = ["median"],
 ) -> dict:
     """
-    Aggregate the quantification results for arm swing parameters.
+    Aggregate arm swing parameters across segments and segment categories.
 
     Parameters
     ----------
     df_arm_swing_params : pd.DataFrame
-        A dataframe containing the arm swing parameters to be aggregated
-
+        DataFrame containing arm swing parameters per segment.
     segment_meta : dict
-        A dictionary containing metadata for each segment.
-
+        Metadata for each segment including durations.
     segment_cats : List[tuple]
         A list of tuples defining the segment categories, where each tuple
         contains the lower and upper bounds for the segment duration.
@@ -754,29 +749,23 @@ def extract_temporal_domain_features(
     grav_stats: list[str] = ["mean"],
 ) -> pd.DataFrame:
     """
-    Compute temporal domain features for the accelerometer signal.
-
-    This function calculates various statistical features for the gravity signal
-    and computes the standard deviation of the accelerometer's Euclidean norm.
+    Compute temporal domain features for accelerometer and gravity signals.
 
     Parameters
     ----------
     config : object
         Configuration object containing the accelerometer and gravity column names.
     windowed_acc : numpy.ndarray
-        A 2D numpy array of shape (N, M) where N is the number of windows and M is
-        the number of accelerometer values per window.
+        Windowed accelerometer data of shape (num_windows, num_axes).
     windowed_grav : numpy.ndarray
-        A 2D numpy array of shape (N, M) where N is the number of windows and M is
-        the number of gravity signal values per window.
-    grav_stats : list of str, optional
-        A list of statistics to compute for the gravity signal (default is ['mean']).
+        Windowed gravity data of shape (num_windows, num_axes).
+    grav_stats : list of str, optional, default=['mean']
+        Statistics to compute for the gravity signal.
 
     Returns
     -------
     pd.DataFrame
-        A DataFrame containing the computed features, with each row corresponding
-        to a window and each column representing a specific feature.
+        DataFrame with computed temporal features per window.
     """
     # Compute gravity statistics (e.g., mean, std, etc.)
     feature_dict = {}
@@ -795,7 +784,7 @@ def extract_temporal_domain_features(
 
 def extract_spectral_domain_features(
     windowed_data: np.ndarray,
-    config,
+    config: GaitConfig,
     sensor: str,
 ) -> pd.DataFrame:
     """
@@ -809,14 +798,13 @@ def extract_spectral_domain_features(
     Parameters
     ----------
     windowed_data : numpy.ndarray
-        A 2D numpy array where each row corresponds to a window of sensor data.
-
+        Windowed sensor data of shape (num_windows, num_axes).
     config : object
         Configuration object containing settings such as window type,
         sampling frequency, frequency bands, and MFCC parameters.
 
     sensor : str
-        The name of the sensor (e.g., 'accelerometer', 'gyroscope').
+        Name of the sensor (e.g., 'accelerometer', 'gyroscope').
 
     Returns
     -------
