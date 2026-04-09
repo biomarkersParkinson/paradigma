@@ -321,6 +321,13 @@ def run_paradigma(
     if custom_logger is None:
         package_logger.setLevel(logging_level)
 
+        # Remove old file handlers to prevent accumulation and file handle leaks
+        # when run_paradigma is called multiple times in the same process
+        for handler in package_logger.handlers[:]:
+            if isinstance(handler, logging.FileHandler):
+                handler.close()
+                package_logger.removeHandler(handler)
+
     if data_path is not None:
         data_path = Path(data_path)
         active_logger.info(f"Applying ParaDigMa pipelines to {data_path}")
