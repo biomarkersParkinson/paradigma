@@ -320,8 +320,8 @@ def extract_arm_activity_features(
     # If no windows were created, raise an error
     if not windowed_data:
         error_msg = (
-            "No windows created from data. Occurs when all segments "
-            "too short after filtering. "
+            "No windows were created from the data. This occurs when all gait "
+            "segments are too short. "
             f"Data shape: {df.shape}, segments: {len(df_grouped)}"
         )
         active_logger.error(error_msg)
