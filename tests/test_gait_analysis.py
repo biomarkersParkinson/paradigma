@@ -194,6 +194,7 @@ def test_multi_file_unfiltered_only_offsets(monkeypatch):
         max_segment_gap_s=1.5,
         min_segment_length_s=1.5,
         start_dt=None,
+        custom_logger=None,
     ):
         if filtered:
             empty_df = pd.DataFrame(

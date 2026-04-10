@@ -216,6 +216,7 @@ def detect_gait(
 def extract_arm_activity_features(
     df: pd.DataFrame,
     config: GaitConfig,
+    custom_logger: logging.Logger | None = None,
 ) -> pd.DataFrame:
     """
     Extract features related to arm activity from a time-series DataFrame.
@@ -242,12 +243,18 @@ def extract_arm_activity_features(
         Configuration object containing column names and parameters
         for feature extraction.
 
+    custom_logger : logging.Logger, optional
+        Custom logger instance for logging within this function.
+        If None, uses the module-level logger.
+
     Returns
     -------
     pd.DataFrame
         A DataFrame containing the extracted arm activity features,
         including angle, velocity, temporal, and spectral features.
     """
+    active_logger = custom_logger if custom_logger is not None else logger
+
     # Group consecutive timestamps into segments, with new segments
     # starting after a pre-specified gap. If data_segment_nr exists,
     # create gait segments per data segment to preserve both
@@ -312,8 +319,13 @@ def extract_arm_activity_features(
 
     # If no windows were created, raise an error
     if not windowed_data:
-        print("No windows were created from the given data.")
-        return pd.DataFrame()
+        error_msg = (
+            "No windows were created from predicted gait data. This occurs when "
+            "all segments are too short. "
+            f"Data shape: {df.shape}, segments: {len(df_grouped)}"
+        )
+        active_logger.error(error_msg)
+        raise ValueError(error_msg)
 
     # Concatenate the windows into one array at the end
     windowed_data = np.concatenate(windowed_data, axis=0)
@@ -409,6 +421,7 @@ def quantify_arm_swing(
     max_segment_gap_s: float = 1.5,
     min_segment_length_s: float = 1.5,
     start_dt: datetime.datetime | None = None,
+    custom_logger: logging.Logger | None = None,
 ) -> tuple[pd.DataFrame, dict]:
     """
     Quantify arm swing parameters for segments of motion based on gyroscope data.
@@ -439,12 +452,18 @@ def quantify_arm_swing(
         datetime values for each arm swing segment. If None, only relative
         timestamps will be included in metadata.
 
+    custom_logger : logging.Logger, optional
+        Custom logger instance for logging within this function.
+        If None, uses the module-level logger.
+
     Returns
     -------
     Tuple[pd.DataFrame, dict]
         A tuple containing a dataframe with quantified arm swing parameters
         and a dictionary containing metadata for each segment.
     """
+    active_logger = custom_logger if custom_logger is not None else logger
+
     # Group consecutive timestamps into segments, with new segments starting
     # after a pre-specified gap. Segments are made based on predicted gait
     df["unfiltered_segment_nr"] = create_segments(
@@ -593,9 +612,11 @@ def quantify_arm_swing(
                     )
                 except Exception as e:
                     # Handle the error, set RoM to NaN, and log the error
-                    print(
-                        f"Error computing range of motion for segment "
-                        f"{segment_nr}: {e}"
+                    segment_duration = len(group[DataColumns.TIME]) / fs
+                    active_logger.warning(
+                        f"Error computing RoM for segment {segment_nr}: {e}. "
+                        f"Setting to NaN (filtered={filtered}, "
+                        f"duration={segment_duration:.2f}s)"
                     )
                     rom = np.array([np.nan])
 
@@ -606,9 +627,11 @@ def quantify_arm_swing(
                     )
                 except Exception as e:
                     # Handle the error, set pav to NaN, and log the error
-                    print(
-                        f"Error computing peak angular velocity for segment "
-                        f"{segment_nr}: {e}"
+                    segment_duration = len(group[DataColumns.TIME]) / fs
+                    active_logger.warning(
+                        f"Error computing PAV for segment {segment_nr}: {e}. "
+                        f"Setting to NaN (filtered={filtered}, "
+                        f"duration={segment_duration:.2f}s)"
                     )
                     pav = np.array([np.nan])
 
@@ -1147,7 +1170,7 @@ def run_gait_pipeline(
             # Step 4: Extract arm activity features
             active_logger.info("Step 4: Extracting arm activity features")
             df_arm_activity = extract_arm_activity_features(
-                df_gait_only, arm_activity_config
+                df_gait_only, arm_activity_config, custom_logger=active_logger
             )
 
             # Step 5: Filter gait (remove other arm activities)
@@ -1235,6 +1258,7 @@ def run_gait_pipeline(
                         max_segment_gap_s=arm_activity_config.max_segment_gap_s,
                         min_segment_length_s=arm_activity_config.min_segment_length_s,
                         start_dt=start_dt,
+                        custom_logger=active_logger,
                     )
                 )
             except ValueError as exc:
@@ -1283,6 +1307,7 @@ def run_gait_pipeline(
                         max_segment_gap_s=arm_activity_config.max_segment_gap_s,
                         min_segment_length_s=arm_activity_config.min_segment_length_s,
                         start_dt=start_dt,
+                        custom_logger=active_logger,
                     )
                 )
 
