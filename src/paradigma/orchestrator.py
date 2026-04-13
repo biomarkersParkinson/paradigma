@@ -437,7 +437,7 @@ def run_paradigma(
                     f"Processing file {i+1}/{num_files}: {file_path.name}"
                 )
                 try:
-                    file_name, df_raw = load_single_data_file(file_path)
+                    file_name, df_raw, start_dt = load_single_data_file(file_path)
                 except Exception as e:
                     error_msg = f"Failed to load file {file_path.name}: {e}"
                     active_logger.error(error_msg)
@@ -449,6 +449,7 @@ def run_paradigma(
                 # Using in-memory data
                 file_name = list(dfs_dict.keys())[i]
                 df_raw = dfs_dict[file_name]
+                start_dt = None
                 active_logger.info(
                     f"Processing DataFrame {i+1}/{num_files}: {file_name}"
                 )
@@ -484,7 +485,7 @@ def run_paradigma(
                     # Save prepared data if requested
                     if "preparation" in save_intermediate:
                         prepared_dir = output_dir / "prepared_data"
-                        prepared_dir.mkdir(exist_ok=True)
+                        prepared_dir.mkdir(parents=True, exist_ok=True)
                         save_prepared_data(
                             df_prepared,
                             prepared_dir / f"{file_name}.parquet",
@@ -539,6 +540,7 @@ def run_paradigma(
                                 segment_number_offset_unfiltered=(
                                     max_gait_segment_nr_unfiltered
                                 ),
+                                start_dt=start_dt,
                                 logging_level=logging_level,
                                 custom_logger=active_logger,
                             )
