@@ -1151,11 +1151,8 @@ def run_gait_pipeline(
                 active_logger.warning("No gait detected in this segment")
                 empty_df_filtered = _empty_arm_swing_df(df_prepared)
                 empty_df_unfiltered = _empty_arm_swing_df(df_prepared)
-                empty_meta_filtered = {"combined": {"duration_s": 0}, "per_segment": {}}
-                empty_meta_unfiltered = {
-                    "combined": {"duration_s": 0},
-                    "per_segment": {},
-                }
+                empty_meta_filtered = {"all": {"duration_s": 0}, "per_segment": {}}
+                empty_meta_unfiltered = {"all": {"duration_s": 0}, "per_segment": {}}
                 result_dict["quantification"] = {
                     "filtered": empty_df_filtered,
                     "unfiltered": empty_df_unfiltered,

@@ -401,7 +401,14 @@ def run_paradigma(
             for p in pipelines
         },
         "metadata": {
-            p: {} if p != "gait" else {"filtered": {}, "unfiltered": {}}
+            p: (
+                {}
+                if p != "gait"
+                else {
+                    "filtered": {"per_segment": {}},
+                    "unfiltered": {"per_segment": {}},
+                }
+            )
             for p in pipelines
         },
         "errors": [],
@@ -607,7 +614,9 @@ def run_paradigma(
                                     ):
                                         all_results["metadata"][pipeline_name][
                                             quant_type
-                                        ].update(quantification_metadata["per_segment"])
+                                        ]["per_segment"].update(
+                                            quantification_metadata["per_segment"]
+                                        )
 
                                         # Update max segment number based on
                                         # metadata to prevent overwrites
