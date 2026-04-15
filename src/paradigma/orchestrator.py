@@ -172,7 +172,11 @@ def run_paradigma(
     time_input_unit : TimeUnit, default TimeUnit.RELATIVE_S
         Input time unit type.
     target_frequency : float, default 100.0
-        Target sampling frequency for resampling.
+        Target sampling frequency for resampling in Hz. If data is already within
+        ±5% of this frequency, resampling is skipped to preserve data fidelity.
+        This means data at 50 Hz or 64 Hz will be used directly without interpolation,
+        avoiding unnecessary artifacts from upsampling. Only set to a different value
+        if you specifically need data at a different frequency.
     column_mapping : dict, optional
         Custom column name mapping.
     device_orientation : list of str, optional
