@@ -1,7 +1,9 @@
 import argparse
+import gc
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 from nbclient import NotebookClient
@@ -126,6 +128,10 @@ def main():
 
     # Strip outputs AFTER Sphinx has built the docs
     if not args.dev:
+        # Force garbage collection and allow OS to release file handles
+        gc.collect()
+        time.sleep(0.5)
+
         for nb_path in notebooks:
             print(f"Stripping outputs from {nb_path}...")
             run([sys.executable, "-m", "nbstripout", str(nb_path)])

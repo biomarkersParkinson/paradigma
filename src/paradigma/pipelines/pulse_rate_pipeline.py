@@ -531,7 +531,9 @@ def run_pulse_rate_pipeline(
     ppg_config: PPGConfig | None = None,
     logging_level: int = logging.INFO,
     custom_logger: logging.Logger | None = None,
-) -> pd.DataFrame:
+    run_steps: list[str] | None = None,
+    return_intermediate: list[str] | None = None,
+) -> dict:
     """
     High-level pulse rate analysis pipeline for a single segment.
 
@@ -559,14 +561,28 @@ def run_pulse_rate_pipeline(
         Logging level using standard logging constants
     custom_logger : logging.Logger, optional
         Custom logger instance
+    run_steps : list[str], optional
+        Which steps to execute: 'preprocessing', 'classification', 'quantification'.
+        Must be a contiguous sequence starting from 'preprocessing'.
+        If None, defaults to running all steps.
+    return_intermediate : list[str], optional
+        Which intermediate results to include in the return dict.
+        Must be a subset of run_steps.
+        If None, defaults to only returning quantification.
 
     Returns
     -------
-    pd.DataFrame
-        Quantified pulse rate data with columns:
-        - time: timestamp
-        - pulse_rate: pulse rate estimate
-        - signal_quality: quality assessment (if available)
+    dict
+        A dictionary containing pipeline results with the following possible keys:
+        - 'preprocessing': DataFrame with preprocessed PPG data
+        (if 'preprocessing' in return_intermediate)
+        - 'classification': DataFrame with signal quality classification
+        (if 'classification' in return_intermediate)
+        - 'quantification': DataFrame with pulse rate quantification
+        (if 'quantification' in return_intermediate)
+          Columns include: time, pulse_rate, signal_quality
+        - '_steps_executed': List of steps that were actually executed
+        - '_error': Error message if an error occurred (None if successful)
     """
     # Setup logger
     active_logger = (
@@ -580,6 +596,31 @@ def run_pulse_rate_pipeline(
     if ppg_config is None:
         ppg_config = PPGConfig()
 
+    # Initialize run_steps and return_intermediate
+    if run_steps is None:
+        run_steps = ["preprocessing", "classification", "quantification"]
+    if return_intermediate is None:
+        return_intermediate = ["quantification"]
+
+    # Validate run_steps and return_intermediate
+    valid_steps = ["preprocessing", "classification", "quantification"]
+    if not all(step in valid_steps for step in run_steps):
+        invalid = [s for s in run_steps if s not in valid_steps]
+        raise ValueError(f"Invalid steps in run_steps: {invalid}. Valid: {valid_steps}")
+
+    if not all(step in run_steps for step in return_intermediate):
+        invalid = [s for s in return_intermediate if s not in run_steps]
+        raise ValueError(f"return_intermediate steps {invalid} are not in run_steps")
+
+    steps_executed = []
+    result_dict = {
+        "preprocessing": None,
+        "classification": None,
+        "quantification": None,
+        "_steps_executed": steps_executed,
+        "_error": None,
+    }
+
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -592,137 +633,158 @@ def run_pulse_rate_pipeline(
         active_logger.warning(
             f"Missing required columns for pulse rate pipeline: {missing_columns}"
         )
-        return pd.DataFrame()
+        result_dict["_error"] = f"Missing columns: {missing_columns}"
+        return result_dict
 
     # Step 1: Preprocess PPG and accelerometer data (following tutorial)
-    active_logger.info("Step 1: Preprocessing PPG and accelerometer data")
-    try:
-        # Separate PPG data (always available)
-        ppg_cols = [DataColumns.TIME, DataColumns.PPG]
-        df_ppg = df_ppg_prepared[ppg_cols].copy()
+    if "preprocessing" in run_steps:
+        try:
+            active_logger.info("Step 1: Preprocessing PPG and accelerometer data")
+            # Separate PPG data (always available)
+            ppg_cols = [DataColumns.TIME, DataColumns.PPG]
+            df_ppg = df_ppg_prepared[ppg_cols].copy()
 
-        # Preprocess the data
-        df_ppg_proc, _ = preprocess_ppg_data(
-            df_ppg=df_ppg,
-            ppg_config=ppg_config,
-        )
-
-        if "preprocessing" in store_intermediate:
-            preprocessing_dir = output_dir / "preprocessing"
-            preprocessing_dir.mkdir(exist_ok=True)
-            df_ppg_proc.to_parquet(preprocessing_dir / "ppg_preprocessed.parquet")
-            active_logger.info(f"Saved preprocessed data to {preprocessing_dir}")
-
-    except Exception as e:
-        active_logger.error(f"Preprocessing failed: {e}")
-        return pd.DataFrame()
-
-    # Step 2: Extract signal quality features
-    active_logger.info("Step 2: Extracting signal quality features")
-    try:
-        df_features = extract_signal_quality_features(df_ppg_proc, pulse_rate_config)
-
-    except Exception as e:
-        active_logger.error(f"Feature extraction failed: {e}")
-        return pd.DataFrame()
-
-    # Step 3: Signal quality classification
-    active_logger.info("Step 3: Signal quality classification")
-    try:
-        classifier_path = files("paradigma.assets") / "ppg_quality_clf_package.pkl"
-        classifier_package = ClassifierPackage.load(classifier_path)
-
-        df_classified = signal_quality_classification(
-            df_features, pulse_rate_config, classifier_package
-        )
-
-        if "classification" in store_intermediate:
-            classification_dir = output_dir / "classification"
-            classification_dir.mkdir(exist_ok=True)
-            df_classified.to_parquet(
-                classification_dir / "ppg_quality_predictions.parquet"
+            # Preprocess the data
+            df_ppg_proc, _ = preprocess_ppg_data(
+                df_ppg=df_ppg,
+                ppg_config=ppg_config,
             )
-            active_logger.info(f"Saved PPG quality predictions to {classification_dir}")
 
-    except Exception as e:
-        active_logger.error(f"Signal quality classification failed: {e}")
-        return pd.DataFrame()
+            steps_executed.append("preprocessing")
+            result_dict["preprocessing"] = df_ppg_proc
 
-    # Step 4: Pulse rate estimation
-    active_logger.info("Step 4: Pulse rate estimation")
-    try:
-        df_pulse_rates = estimate_pulse_rate(
-            df_sqa=df_classified,
-            df_ppg_preprocessed=df_ppg_proc,
-            config=pulse_rate_config,
+            if "preprocessing" in store_intermediate:
+                preprocessing_dir = output_dir / "preprocessing"
+                preprocessing_dir.mkdir(exist_ok=True)
+                df_ppg_proc.to_parquet(preprocessing_dir / "ppg_preprocessed.parquet")
+                active_logger.info(f"Saved preprocessed data to {preprocessing_dir}")
+
+        except Exception as e:
+            active_logger.error(f"Preprocessing failed: {e}")
+            result_dict["_error"] = f"Preprocessing failed: {str(e)}"
+            return result_dict
+    else:
+        # If preprocessing wasn't run, create a minimal processed version for next steps
+        ppg_cols = (
+            [DataColumns.TIME, DataColumns.PPG]
+            if DataColumns.PPG in df_ppg_prepared.columns
+            else [DataColumns.TIME]
+        )
+        df_ppg_proc = (
+            df_ppg_prepared[ppg_cols].copy() if ppg_cols else df_ppg_prepared.copy()
         )
 
-    except Exception as e:
-        active_logger.error(f"Pulse rate estimation failed: {e}")
-        return pd.DataFrame()
+    # Steps 2-3: Extract features, classify quality
+    if "classification" in run_steps:
+        try:
+            # Step 2: Extract signal quality features
+            active_logger.info("Step 2: Extracting signal quality features")
+            df_features = extract_signal_quality_features(
+                df_ppg_proc, pulse_rate_config
+            )
 
-    # Step 5: Quantify pulse rate (select relevant columns and apply quality filtering)
-    active_logger.info("Step 5: Quantifying pulse rate")
+            # Step 3: Signal quality classification
+            active_logger.info("Step 3: Signal quality classification")
+            classifier_path = files("paradigma.assets") / "ppg_quality_clf_package.pkl"
+            classifier_package = ClassifierPackage.load(classifier_path)
 
-    # Select quantification columns
-    quantification_columns = []
-    if DataColumns.TIME in df_pulse_rates.columns:
-        quantification_columns.append(DataColumns.TIME)
-    if DataColumns.PULSE_RATE in df_pulse_rates.columns:
-        quantification_columns.append(DataColumns.PULSE_RATE)
-    if "signal_quality" in df_pulse_rates.columns:
-        quantification_columns.append("signal_quality")
+            df_classified = signal_quality_classification(
+                df_features, pulse_rate_config, classifier_package
+            )
 
-    # Use available columns
-    available_columns = [
-        col for col in quantification_columns if col in df_pulse_rates.columns
-    ]
-    if not available_columns:
-        active_logger.warning("No valid quantification columns found")
-        return pd.DataFrame()
+            if "classification" in store_intermediate:
+                classification_dir = output_dir / "classification"
+                classification_dir.mkdir(exist_ok=True)
+                df_classified.to_parquet(
+                    classification_dir / "ppg_quality_predictions.parquet"
+                )
+                active_logger.info(
+                    f"Saved PPG quality predictions to {classification_dir}"
+                )
 
-    df_quantification = df_pulse_rates[available_columns].copy()
+            result_dict["classification"] = df_classified
+            steps_executed.append("classification")
 
-    # Apply quality filtering if signal quality is available
-    if (
-        "signal_quality" in df_quantification.columns
-        and DataColumns.PULSE_RATE in df_quantification.columns
-    ):
-        quality_threshold = getattr(pulse_rate_config, "threshold_sqa", 0.5)
-        low_quality_mask = df_quantification["signal_quality"] < quality_threshold
-        df_quantification.loc[low_quality_mask, DataColumns.PULSE_RATE] = np.nan
+        except Exception as e:
+            active_logger.error(f"Classification step failed: {e}")
+            result_dict["_error"] = f"Classification failed: {str(e)}"
+            return result_dict
 
-    if "quantification" in store_intermediate:
-        quantification_dir = output_dir / "quantification"
-        quantification_dir.mkdir(exist_ok=True)
-        df_quantification.to_parquet(
-            quantification_dir / "pulse_rate_quantification.parquet"
-        )
+    # Step 4: Quantify pulse rate (select relevant columns and apply quality filtering)
+    if "quantification" in run_steps:
+        try:
+            # Need classification results for quantification
+            if "classification" not in run_steps:
+                active_logger.error(
+                    "Quantification requires classification step to be run"
+                )
+                result_dict["_error"] = (
+                    "Quantification requires classification step to be run"
+                )
+                return result_dict
 
-        # Save quantification metadata
-        valid_pulse_rates = (
-            df_quantification[DataColumns.PULSE_RATE].dropna()
-            if DataColumns.PULSE_RATE in df_quantification.columns
-            else pd.Series(dtype=float)
-        )
-        quantification_meta = {
-            "total_windows": len(df_quantification),
-            "valid_pulse_rate_estimates": len(valid_pulse_rates),
-            "columns": list(df_quantification.columns),
-        }
-        with open(quantification_dir / "pulse_rate_quantification_meta.json", "w") as f:
-            json.dump(quantification_meta, f, indent=2)
+            active_logger.info("Step 5: Quantifying pulse rate")
 
-        active_logger.info(f"Saved pulse rate quantification to {quantification_dir}")
+            # Pulse rate estimation
+            active_logger.info("Step 4: Pulse rate estimation")
+            df_pulse_rates = estimate_pulse_rate(
+                df_sqa=df_classified,
+                df_ppg_preprocessed=df_ppg_proc,
+                config=pulse_rate_config,
+            )
 
-    pulse_rate_estimates = (
-        len(df_quantification[DataColumns.PULSE_RATE].dropna())
-        if DataColumns.PULSE_RATE in df_quantification.columns
-        else 0
-    )
-    active_logger.info(
-        f"Pulse rate analysis completed: {pulse_rate_estimates} valid pulse "
-        f"rate estimates from {len(df_quantification)} total windows"
-    )
+            if "quantification" in store_intermediate:
+                quantification_dir = output_dir / "quantification"
+                quantification_dir.mkdir(exist_ok=True)
+                df_pulse_rates.to_parquet(
+                    quantification_dir / "pulse_rate_quantification.parquet"
+                )
 
-    return df_quantification
+                # Save quantification metadata
+                valid_pulse_rates = (
+                    df_pulse_rates[DataColumns.PULSE_RATE].dropna()
+                    if DataColumns.PULSE_RATE in df_pulse_rates.columns
+                    else pd.Series(dtype=float)
+                )
+                quantification_meta = {
+                    "total_windows": len(df_pulse_rates),
+                    "valid_pulse_rate_estimates": len(valid_pulse_rates),
+                    "columns": list(df_pulse_rates.columns),
+                }
+                with open(
+                    quantification_dir / "pulse_rate_quantification_meta.json", "w"
+                ) as f:
+                    json.dump(quantification_meta, f, indent=2)
+
+                active_logger.info(
+                    f"Saved pulse rate quantification to {quantification_dir}"
+                )
+
+            pulse_rate_estimates = (
+                len(df_pulse_rates[DataColumns.PULSE_RATE].dropna())
+                if DataColumns.PULSE_RATE in df_pulse_rates.columns
+                else 0
+            )
+            active_logger.info(
+                f"Pulse rate analysis completed: {pulse_rate_estimates} valid pulse "
+                f"rate estimates from {len(df_pulse_rates)} total windows"
+            )
+
+            result_dict["quantification"] = df_pulse_rates
+            steps_executed.append("quantification")
+
+        except Exception as e:
+            active_logger.error(f"Error in quantification step: {e}")
+            result_dict["_error"] = f"Quantification failed: {str(e)}"
+            return result_dict
+
+    # Filter result dict to only include requested return steps
+    filtered_result = {
+        "_steps_executed": steps_executed,
+        "_error": result_dict["_error"],
+    }
+    for step in return_intermediate:
+        if step in ["preprocessing", "classification", "quantification"]:
+            filtered_result[step] = result_dict.get(step)
+
+    return filtered_result

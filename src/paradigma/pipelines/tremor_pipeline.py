@@ -1,5 +1,6 @@
 import json
 import logging
+from importlib.resources import files
 from pathlib import Path
 
 import numpy as np
@@ -333,14 +334,15 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     segment_length_psd_s = config.segment_length_psd_s
     segment_length_spectrogram_s = config.segment_length_spectrogram_s
     overlap_fraction = config.overlap_fraction
-    spectral_resolution = config.spectral_resolution
+    spectral_resolution_psd = config.spectral_resolution_psd
+    spectral_resolution_spectrogram = config.spectral_resolution_spectrogram
     window_type = "hann"
 
     # Compute the power spectral density
-    segment_length_n = int(sampling_frequency * segment_length_psd_s)
-    overlap_n = int(segment_length_n * overlap_fraction)
+    segment_length_n = sampling_frequency * segment_length_psd_s
+    overlap_n = int(np.round(segment_length_n * overlap_fraction))
     window = signal.get_window(window_type, segment_length_n, fftbins=False)
-    nfft = int(sampling_frequency / spectral_resolution)
+    nfft = int(np.round(sampling_frequency / spectral_resolution_psd))
 
     freqs, psd = signal.welch(
         x=data,
@@ -355,9 +357,10 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     )
 
     # Compute the spectrogram
-    segment_length_n = int(sampling_frequency * segment_length_spectrogram_s)
-    overlap_n = int(segment_length_n * overlap_fraction)
+    segment_length_n = sampling_frequency * segment_length_spectrogram_s
+    overlap_n = int(np.round(segment_length_n * overlap_fraction))
     window = signal.get_window(window_type, segment_length_n)
+    nfft = int(np.round(sampling_frequency / spectral_resolution_spectrogram))
 
     f, t, stft_result = signal.stft(
         x=data,
@@ -365,6 +368,7 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
         window=window,
         nperseg=segment_length_n,
         noverlap=overlap_n,
+        nfft=nfft,
         boundary=None,
         axis=1,
     )
@@ -372,7 +376,10 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     # Compute total power in the PSD and the total spectrogram (summed over
     # the three axes)
     total_psd = compute_total_power(psd)
-    total_spectrogram = np.sum(np.abs(stft_result) * sampling_frequency, axis=2)
+    total_spectrogram = np.sum(
+        np.abs(stft_result) * 100, axis=2
+    )  # scaling factor of 100 to match with previous Matlab code which was
+    # developed on a 100 Hz sampling frequency and 2 second window length
 
     # Compute the MFCC's
     config.mfcc_low_frequency = config.fmin_mfcc
@@ -403,7 +410,7 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
         config.fmin_below_rest_tremor,
         config.fmax_below_rest_tremor,
         include_max=False,
-        spectral_resolution=config.spectral_resolution,
+        spectral_resolution=config.spectral_resolution_psd,
         cumulative_sum_method="sum",
     )
     feature_dict[DataColumns.TREMOR_POWER] = extract_tremor_power(
@@ -421,7 +428,9 @@ def run_tremor_pipeline(
     imu_config: IMUConfig | None = None,
     logging_level: int = logging.INFO,
     custom_logger: logging.Logger | None = None,
-) -> pd.DataFrame:
+    run_steps: list[str] | None = None,
+    return_intermediate: list[str] | None = None,
+) -> dict:
     """
     High-level tremor analysis pipeline for a single segment.
 
@@ -448,15 +457,28 @@ def run_tremor_pipeline(
         Logging level using standard logging constants
     custom_logger : logging.Logger, optional
         Custom logger instance
+    run_steps : list[str], optional
+        Which steps to execute: 'preprocessing', 'classification', 'quantification'.
+        Must be a contiguous sequence starting from 'preprocessing'.
+        If None, defaults to running all steps.
+    return_intermediate : list[str], optional
+        Which intermediate results to include in the return dict.
+        Must be a subset of run_steps.
+        If None, defaults to only returning quantification.
 
     Returns
     -------
-    pd.DataFrame
-        Quantified tremor data with columns:
-        - time: timestamp
-        - pred_arm_at_rest: arm at rest prediction
-        - pred_tremor_checked: tremor detection result
-        - tremor_power: tremor power measure
+    dict
+        A dictionary containing pipeline results with the following possible keys:
+        - 'preprocessing': DataFrame with preprocessed gyroscope data
+        (if 'preprocessing' in return_intermediate)
+        - 'classification': DataFrame with classification results
+        (if 'classification' in return_intermediate)
+        - 'quantification': DataFrame with tremor quantification
+        (if 'quantification' in return_intermediate)
+          Columns include: time, pred_arm_at_rest, pred_tremor_checked, tremor_power
+        - '_steps_executed': List of steps that were actually executed
+        - '_error': Error message if an error occurred (None if successful)
 
     """
     # Setup logger
@@ -470,6 +492,31 @@ def run_tremor_pipeline(
         tremor_config = TremorConfig()
     if imu_config is None:
         imu_config = IMUConfig()
+
+    # Initialize run_steps and return_intermediate
+    if run_steps is None:
+        run_steps = ["preprocessing", "classification", "quantification"]
+    if return_intermediate is None:
+        return_intermediate = ["quantification"]
+
+    # Validate run_steps and return_intermediate
+    valid_steps = ["preprocessing", "classification", "quantification"]
+    if not all(step in valid_steps for step in run_steps):
+        invalid = [s for s in run_steps if s not in valid_steps]
+        raise ValueError(f"Invalid steps in run_steps: {invalid}. Valid: {valid_steps}")
+
+    if not all(step in run_steps for step in return_intermediate):
+        invalid = [s for s in return_intermediate if s not in run_steps]
+        raise ValueError(f"return_intermediate steps {invalid} are not in run_steps")
+
+    steps_executed = []
+    result_dict = {
+        "preprocessing": None,
+        "classification": None,
+        "quantification": None,
+        "_steps_executed": steps_executed,
+        "_error": None,
+    }
 
     output_dir = Path(output_dir)
 
@@ -487,107 +534,168 @@ def run_tremor_pipeline(
         active_logger.warning(
             f"Missing required columns for tremor pipeline: " f"{missing_columns}"
         )
-        return pd.DataFrame()
+        result_dict["_error"] = f"Missing columns: {missing_columns}"
+        return result_dict
 
     # Step 1: Preprocess gyroscope data (following tutorial)
-    active_logger.info("Step 1: Preprocessing gyroscope data")
-    df_preprocessed = preprocess_imu_data(
-        df_prepared,
-        imu_config,
-        sensor="gyroscope",
-        watch_side="left",  # Watch side is unimportant for tremor detection
-    )
+    if "preprocessing" in run_steps:
+        try:
+            active_logger.info("Step 1: Preprocessing gyroscope data")
+            df_preprocessed = preprocess_imu_data(
+                df_prepared,
+                imu_config,
+                sensor="gyroscope",
+                watch_side="left",  # Watch side is unimportant for tremor detection
+            )
 
-    if "preprocessing" in store_intermediate:
-        preprocessing_dir = output_dir / "preprocessing"
-        preprocessing_dir.mkdir(exist_ok=True)
-        df_preprocessed.to_parquet(preprocessing_dir / "tremor_preprocessed.parquet")
-        active_logger.info(f"Saved preprocessed data to {preprocessing_dir}")
+            steps_executed.append("preprocessing")
+            result_dict["preprocessing"] = df_preprocessed
 
-    # Step 2: Extract tremor features
-    active_logger.info("Step 2: Extracting tremor features")
-    df_features = extract_tremor_features(df_preprocessed, tremor_config)
+            if "preprocessing" in store_intermediate:
+                preprocessing_dir = output_dir / "preprocessing"
+                preprocessing_dir.mkdir(parents=True, exist_ok=True)
+                df_preprocessed.to_parquet(
+                    preprocessing_dir / "tremor_preprocessed.parquet"
+                )
+                active_logger.info(f"Saved preprocessed data to {preprocessing_dir}")
+        except Exception as e:
+            active_logger.error(f"Error in preprocessing step: {e}")
+            result_dict["_error"] = f"Preprocessing failed: {str(e)}"
+            return result_dict
+    else:
+        # If preprocessing was skipped, still need base data for later steps
+        df_preprocessed = df_prepared
 
-    # Step 3: Detect tremor
-    active_logger.info("Step 3: Detecting tremor")
-    try:
-        from importlib.resources import files
+    # Steps 2-3: Extract features and detect tremor (classification step)
+    if "classification" in run_steps:
+        try:
+            active_logger.info("Step 2: Extracting tremor features")
+            df_features = extract_tremor_features(df_preprocessed, tremor_config)
 
-        classifier_path = files("paradigma.assets") / "tremor_detection_clf_package.pkl"
-        df_predictions = detect_tremor(df_features, tremor_config, classifier_path)
-    except Exception as e:
-        active_logger.error(f"Tremor detection failed: {e}")
-        return pd.DataFrame()
+            # Step 3: Detect tremor
+            active_logger.info("Step 3: Detecting tremor")
+            try:
+                classifier_path = (
+                    files("paradigma.assets") / "tremor_detection_clf_package.pkl"
+                )
+                df_predictions = detect_tremor(
+                    df_features, tremor_config, classifier_path
+                )
+            except Exception as e:
+                active_logger.error(f"Tremor detection failed: {e}")
+                result_dict["_error"] = f"Tremor detection failed: {str(e)}"
+                return result_dict
 
-    if "classification" in store_intermediate:
-        classification_dir = output_dir / "classification"
-        classification_dir.mkdir(exist_ok=True)
-        df_predictions.to_parquet(classification_dir / "tremor_predictions.parquet")
-        active_logger.info(f"Saved tremor predictions to {classification_dir}")
+            if "classification" in store_intermediate:
+                classification_dir = output_dir / "classification"
+                classification_dir.mkdir(parents=True, exist_ok=True)
+                df_predictions.to_parquet(
+                    classification_dir / "tremor_predictions.parquet"
+                )
+                active_logger.info(f"Saved tremor predictions to {classification_dir}")
+
+            result_dict["classification"] = df_predictions
+            steps_executed.append("classification")
+        except Exception as e:
+            active_logger.error(f"Error in classification step: {e}")
+            result_dict["_error"] = f"Classification failed: {str(e)}"
+            return result_dict
 
     # Step 4: Quantify tremor (following tutorial pattern)
-    active_logger.info("Step 4: Quantifying tremor")
+    if "quantification" in run_steps:
+        try:
+            # Need classification results for quantification
+            if "classification" not in run_steps:
+                active_logger.error(
+                    "Quantification requires classification step to be run"
+                )
+                result_dict["_error"] = (
+                    "Quantification requires classification step to be run"
+                )
+                return result_dict
 
-    # Select quantification columns as in the tutorial
-    quantification_columns = [
-        tremor_config.time_colname,
-        DataColumns.PRED_ARM_AT_REST,
-        DataColumns.PRED_TREMOR_CHECKED,
-        DataColumns.TREMOR_POWER,
-    ]
+            active_logger.info("Step 4: Quantifying tremor")
 
-    # Check if all required columns exist
-    available_columns = [
-        col for col in quantification_columns if col in df_predictions.columns
-    ]
-    if len(available_columns) != len(quantification_columns):
-        missing = set(quantification_columns) - set(available_columns)
-        active_logger.warning(f"Missing quantification columns: {missing}")
-        # Use available columns
-        quantification_columns = available_columns
+            # Select quantification columns as in the tutorial
+            quantification_columns = [
+                tremor_config.time_colname,
+                DataColumns.PRED_ARM_AT_REST,
+                DataColumns.PRED_TREMOR_CHECKED,
+                DataColumns.TREMOR_POWER,
+            ]
 
-    df_quantification = df_predictions[quantification_columns].copy()
+            # Check if all required columns exist
+            available_columns = [
+                col for col in quantification_columns if col in df_predictions.columns
+            ]
+            if len(available_columns) != len(quantification_columns):
+                missing = set(quantification_columns) - set(available_columns)
+                active_logger.warning(f"Missing quantification columns: {missing}")
+                # Use available columns
+                quantification_columns = available_columns
 
-    # Set tremor power to None for non-tremor windows (following tutorial)
-    if (
-        DataColumns.TREMOR_POWER in df_quantification.columns
-        and DataColumns.PRED_TREMOR_CHECKED in df_quantification.columns
-    ):
-        df_quantification.loc[
-            df_quantification[DataColumns.PRED_TREMOR_CHECKED] == 0,
-            DataColumns.TREMOR_POWER,
-        ] = None
+            df_quantification = df_predictions[quantification_columns].copy()
 
-    if "quantification" in store_intermediate:
-        quantification_dir = output_dir / "quantification"
-        quantification_dir.mkdir(exist_ok=True)
-        df_quantification.to_parquet(
-            quantification_dir / "tremor_quantification.parquet"
-        )
+            # Set tremor power to None for non-tremor windows (following tutorial)
+            if (
+                DataColumns.TREMOR_POWER in df_quantification.columns
+                and DataColumns.PRED_TREMOR_CHECKED in df_quantification.columns
+            ):
+                df_quantification.loc[
+                    df_quantification[DataColumns.PRED_TREMOR_CHECKED] == 0,
+                    DataColumns.TREMOR_POWER,
+                ] = None
 
-        # Save quantification metadata
-        quantification_meta = {
-            "total_windows": len(df_quantification),
-            "tremor_windows": (
+            if "quantification" in store_intermediate:
+                quantification_dir = output_dir / "quantification"
+                quantification_dir.mkdir(parents=True, exist_ok=True)
+                df_quantification.to_parquet(
+                    quantification_dir / "tremor_quantification.parquet"
+                )
+
+                # Save quantification metadata
+                quantification_meta = {
+                    "total_windows": len(df_quantification),
+                    "tremor_windows": (
+                        int(df_quantification[DataColumns.PRED_TREMOR_CHECKED].sum())
+                        if DataColumns.PRED_TREMOR_CHECKED in df_quantification.columns
+                        else 0
+                    ),
+                    "columns": list(df_quantification.columns),
+                }
+                with open(
+                    quantification_dir / "tremor_quantification_meta.json", "w"
+                ) as f:
+                    json.dump(quantification_meta, f, indent=2)
+
+                active_logger.debug(
+                    f"Saved tremor quantification to {quantification_dir}"
+                )
+
+            tremor_windows = (
                 int(df_quantification[DataColumns.PRED_TREMOR_CHECKED].sum())
                 if DataColumns.PRED_TREMOR_CHECKED in df_quantification.columns
                 else 0
-            ),
-            "columns": list(df_quantification.columns),
-        }
-        with open(quantification_dir / "tremor_quantification_meta.json", "w") as f:
-            json.dump(quantification_meta, f, indent=2)
+            )
+            active_logger.info(
+                f"Tremor analysis completed: {tremor_windows} tremor windows "
+                f"detected from {len(df_quantification)} total windows"
+            )
 
-        active_logger.debug(f"Saved tremor quantification to {quantification_dir}")
+            result_dict["quantification"] = df_quantification
+            steps_executed.append("quantification")
+        except Exception as e:
+            active_logger.error(f"Error in quantification step: {e}")
+            result_dict["_error"] = f"Quantification failed: {str(e)}"
+            return result_dict
 
-    tremor_windows = (
-        int(df_quantification[DataColumns.PRED_TREMOR_CHECKED].sum())
-        if DataColumns.PRED_TREMOR_CHECKED in df_quantification.columns
-        else 0
-    )
-    active_logger.info(
-        f"Tremor analysis completed: {tremor_windows} tremor windows "
-        f"detected from {len(df_quantification)} total windows"
-    )
+    # Filter result dict to only include requested return steps
+    filtered_result = {
+        "_steps_executed": steps_executed,
+        "_error": result_dict["_error"],
+    }
+    for step in return_intermediate:
+        if step in ["preprocessing", "classification", "quantification"]:
+            filtered_result[step] = result_dict.get(step)
 
-    return df_quantification
+    return filtered_result

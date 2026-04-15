@@ -2,6 +2,63 @@
 
 <!--next-version-placeholder-->
 
+## v1.1.2 (TBD)
+
+### Breaking Changes
+- **Unified pipeline return format**: All pipelines (`run_gait_pipeline()`, `run_tremor_pipeline()`, `run_pulse_rate_pipeline()`) now return a unified dictionary structure instead of tuples/DataFrames:
+  - Previously:
+    - Gait: `(quantified_df_dict: dict, metadata_dict: dict)` (from v1.1.1)
+    - Tremor/Pulse Rate: `DataFrame`
+  - Now: All return unified dict with keys:
+    - `'quantification'`: Computed results (dict for gait, DataFrame for others)
+    - `'metadata'`: Metadata dict (gait only)
+    - `'preprocessing'`, `'classification'`: Intermediate results (if requested via `return_intermediate`)
+    - `'_steps_executed'`: List of steps that were actually executed
+    - `'_error'`: Error message (None if successful)
+
+### Features
+- **Selective pipeline step execution**: New parameters `run_steps` and `return_intermediate` in all pipeline functions and orchestrator:
+  - `run_steps`: Which processing steps to execute ('preprocessing', 'classification', 'quantification', 'aggregation')
+  - `return_intermediate`: Which intermediate results to include in return dict (independent of disk storage)
+  - Available in both individual pipeline functions and main `run_paradigma()` orchestrator
+  - Enables parallel processing workflows where preprocessing/classification run separately from quantification
+  - Example: `run_steps=['preprocessing', 'classification']` to stop after classification without computing quantification
+
+- **Independent save/return control**: `save_intermediate` and `return_intermediate` now work independently:
+  - Save results to disk without returning them (memory-efficient for large datasets)
+  - Return intermediate results without saving to disk (useful for debugging)
+  - Previously, saving automatically returned results in memory
+
+- **Orchestrator updates**: `run_paradigma()` now supports selective step execution and handles unified dict returns from all pipelines:
+  - Updated to work with new pipeline return formats (unified dict structure)
+  - Properly handles gait filtered/unfiltered results in combined output
+  - Enables conditional execution paths (e.g., only run quantification for pre-processed data)
+
+### Improvements
+- Added comprehensive error handling with `_error` field in all pipeline function returns.
+- All pipeline functions now log which steps are being executed and returned.
+
+## v1.1.1 (24/03/2026)
+
+### Breaking Changes
+- **run_gait_pipeline() return structure changed**: Now returns nested dictionaries with separate 'filtered' and 'unfiltered' results instead of flat tuples.
+  - Previously: `(quantified_df: DataFrame, metadata: dict)`
+  - Now: `({'filtered': df, 'unfiltered': df}, {'filtered': meta, 'unfiltered': meta})`
+  - This change allows analysis of both filtered (clean gait only) and unfiltered (all gait) arm swing data.
+
+### Features
+- **Unfiltered gait quantification** (#264): Added support for both filtered and unfiltered gait analysis, allowing comparison of:
+  - Filtered quantification: Arm swing during walking without other activities
+  - Unfiltered quantification: All arm swing during any gait, regardless of quality
+  - This enables analysis of total gait duration vs clean gait duration and arm swing characteristics across all gait data.
+
+### Bug Fixes
+- Fixed `save_intermediate` parameter to correctly use 'classification' naming for all prediction outputs.
+- Fixed orchestrator to properly pass required `segment_meta` and `segment_cats` to aggregation functions, including parsing of `segment_length_bins` to segment category tuples.
+
+### Improvements
+- Cleaned up test infrastructure by removing unused test files, notebooks, and consolidating test helpers to conftest.py.
+
 ## v1.1.0 (04/02/2026)
 
 ### Features

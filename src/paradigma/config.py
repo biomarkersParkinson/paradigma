@@ -298,7 +298,8 @@ class TremorConfig(IMUConfig):
         self.overlap_fraction: float = 0.8
         self.segment_length_psd_s: float = 3
         self.segment_length_spectrogram_s: float = 2
-        self.spectral_resolution: float = 0.25
+        self.spectral_resolution_psd: float = 0.25
+        self.spectral_resolution_spectrogram: float = 0.5
 
         # PSD based features
         self.fmin_peak_search: float = 1
