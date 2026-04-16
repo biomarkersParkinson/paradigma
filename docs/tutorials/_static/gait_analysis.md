@@ -1099,6 +1099,7 @@ quantified_arm_swing, gait_segment_meta = quantify_arm_swing(
     filtered=filtered,
     max_segment_gap_s=config.max_segment_gap_s,
     min_segment_length_s=config.min_segment_length_s,
+    start_dt=None,  # if provided, this ensures datetime format of segments is returned
 )
 
 print(
