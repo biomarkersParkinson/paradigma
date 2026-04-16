@@ -242,21 +242,20 @@ class GaitConfig(IMUConfig):
         Update frequency-dependent parameters when sampling_frequency changes.
 
         Ensures that spectral bounds stay within Nyquist limit (fs/2).
-        Only clamps when bounds exceed Nyquist; physiological bands preserved.
+        Only clamps when bounds actually exceed Nyquist (aliasing risk).
         """
         nyquist = self.sampling_frequency / 2
 
-        # Spectrum bounds: cap to ~95% of Nyquist for safety margin
-        self.spectrum_high_frequency = int(nyquist * 0.95)
+        # Spectrum bounds: use exact Nyquist frequency
+        self.spectrum_high_frequency = int(nyquist)
 
         # MFCC bounds: only clamp if it EXCEEDS Nyquist (actual aliasing risk)
-        # Don't apply safety margin since 25 Hz is physiologically meaningful
         if not hasattr(self, "mfcc_high_frequency"):
             return
 
         if self.mfcc_high_frequency > nyquist:
             original_val = self.mfcc_high_frequency
-            clamped_val = int(nyquist)  # Clamp to exactly Nyquist when exceeded
+            clamped_val = int(nyquist)
             warnings.warn(
                 f"GaitConfig: mfcc_high_frequency ({original_val}Hz) exceeds "
                 f"Nyquist ({nyquist}Hz) at {self.sampling_frequency}Hz sampling. "
@@ -265,11 +264,11 @@ class GaitConfig(IMUConfig):
             )
             self.mfcc_high_frequency = clamped_val
 
-        # Clamp frequency bands to stay within spectrum bounds
+        # Clamp frequency bands only if they exceed Nyquist
         if hasattr(self, "d_frequency_bandwidths"):
             for band_name, (fmin, fmax) in self.d_frequency_bandwidths.items():
-                if fmax > nyquist * 0.98:  # Leave small safety margin
-                    clamped_fmax = nyquist * 0.98
+                if fmax > nyquist:
+                    clamped_fmax = int(nyquist)
                     self.d_frequency_bandwidths[band_name] = [fmin, clamped_fmax]
 
 

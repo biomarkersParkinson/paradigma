@@ -26,7 +26,7 @@ imu_config.sampling_frequency = 100
 
 #### Adaptive Frequency Handling
 
-`sampling_frequency` is a property setter that automatically adapts frequency-dependent parameters:
+Changing `sampling_frequency` automatically adapts frequency-dependent parameters:
 
 ```python
 imu_config = IMUConfig()

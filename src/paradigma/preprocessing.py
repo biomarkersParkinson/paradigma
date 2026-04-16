@@ -259,19 +259,15 @@ def resample_data(
             )
 
     # Standard resampling for contiguous data (or when validation is disabled)
-
-    # Skip resampling if data is already at a reasonable frequency
-    # This avoids unnecessary interpolation artifacts from upsampling.
-    # Empirically validated: 50 Hz and 64 Hz work well without upsampling to 100 Hz
-    # Only skip when all conditions are met:
-    # 1. Current frequency <= target frequency (never downsample good data)
-    # 2. freq >= 50 Hz (sufficient Nyquist for tremor/gait: 25 Hz
-    if sampling_frequency <= resampling_frequency and sampling_frequency >= 50:
-        logger.info(
-            f"Data at {sampling_frequency:.2f} Hz meets quality threshold. "
-            f"Skipping unnecessary resampling to {resampling_frequency:.2f} Hz"
+    # Quality check: data below 50 Hz may have degraded classifier performance (trained
+    # on 100 Hz)
+    if sampling_frequency < 50:
+        logger.warning(
+            f"Data sampled at {sampling_frequency:.2f} Hz is below the recommended "
+            f"50 Hz threshold. Classifier performance may be degraded. "
+            f"Original Nyquist: {sampling_frequency/2:.1f} Hz. Consider allowing "
+            f"data collection at higher frequencies if possible."
         )
-        return df.copy()
 
     values_array = np.array(df[values_column_names])
 
@@ -442,11 +438,11 @@ def preprocess_imu_data(
         validate_contiguous = False
 
     # Resample the data to the specified frequency
+    # Note: sampling_frequency is NOT passed, allowing auto-detection from data
     df = resample_data(
         df=df,
         time_column=config.time_colname,
         values_column_names=values_colnames,
-        sampling_frequency=config.sampling_frequency,
         resampling_frequency=config.resampling_frequency,
         tolerance=config.tolerance,
         validate_contiguous=validate_contiguous,
@@ -576,11 +572,11 @@ def preprocess_ppg_data(
         # Resample accelerometer data
         # Skip contiguity validation if data has been pre-segmented
         validate_contiguous_acc = "data_segment_nr" not in df_acc_overlapping.columns
+        # Note: sampling_frequency is NOT passed, allowing auto-detection from data
         df_acc_proc = resample_data(
             df=df_acc_overlapping,
             time_column=imu_config.time_colname,
             values_column_names=list(imu_config.d_channels_accelerometer.keys()),
-            sampling_frequency=imu_config.sampling_frequency,
             resampling_frequency=imu_config.resampling_frequency,
             tolerance=imu_config.tolerance,
             validate_contiguous=validate_contiguous_acc,
@@ -616,11 +612,11 @@ def preprocess_ppg_data(
     # Resample PPG data
     # Skip contiguity validation if data has been pre-segmented
     validate_contiguous_ppg = "data_segment_nr" not in df_ppg_overlapping.columns
+    # Note: sampling_frequency is NOT passed, allowing auto-detection from data
     df_ppg_proc = resample_data(
         df=df_ppg_overlapping,
         time_column=ppg_config.time_colname,
         values_column_names=list(ppg_config.d_channels_ppg.keys()),
-        sampling_frequency=ppg_config.sampling_frequency,
         resampling_frequency=ppg_config.resampling_frequency,
         tolerance=ppg_config.tolerance,
         validate_contiguous=validate_contiguous_ppg,
