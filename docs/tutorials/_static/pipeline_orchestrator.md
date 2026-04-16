@@ -23,6 +23,8 @@ process:
 - **Multiple data formats**: Supports Verily, Axivity, Empatica, and custom
   formats
 - **Robust processing**: Automatic data preparation and error handling
+- **Adaptive frequency detection**: Automatically detects and adapts to your data's
+  sampling frequency
 
 ### Data Requirements
 
@@ -556,23 +558,24 @@ print(f"   Metadata: {tremor_meta}")
 
     Detailed Results Analysis:
 
-    Filtered arm swing quantification (5299 swings):
+    Filtered arm swing quantification (5402 swings):
        Columns: ['gait_segment_nr', 'range_of_motion', 'peak_velocity', 'file_key']... (4 total)
        Files: ['imu_segment0001' 'imu_segment0002']
 
-    Unfiltered arm swing quantification (11950 'swings'):
+    Unfiltered arm swing quantification (11939 'swings'):
 
     Filtered gait aggregation:
        Gait segment categories: ['0_20', '20_inf']
        Aggregates for 0-20s segments: ['duration_s', 'median_range_of_motion', '95p_range_of_motion', 'median_cov_range_of_motion', 'mean_cov_range_of_motion', 'median_peak_velocity', '95p_peak_velocity', 'median_cov_peak_velocity', 'mean_cov_peak_velocity']
+       First filtered gait segment: {'start_s': 1616.12, 'end_s': 1619.1, 'duration_s': 3.0}
 
-    Tremor quantification (27056 windows):
+    Tremor quantification (27224 windows):
        Columns: ['time', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power', 'file_key']... (5 total)
        Files: ['imu_segment0001' 'imu_segment0002']
 
     Tremor aggregation (4 time ranges):
        Aggregates: ['perc_windows_tremor', 'median_tremor_power', 'modal_tremor_power', '90p_tremor_power']
-       Metadata: {'nr_valid_days': 1, 'nr_windows_total': 27056, 'nr_windows_rest': 18766}
+       Metadata: {'nr_valid_days': 1, 'nr_windows_total': 27224, 'nr_windows_rest': 18900}
 
 
 ## 3. Raw Data Processing
@@ -667,22 +670,35 @@ print("\nQuantifications (first 5 rows; each row represents a single arm swing):
 results_end_to_end['quantifications'][pipeline]['filtered'].head()
 ```
 
+    C:\Users\z665206\Documents\PhD\code\paradigma\src\paradigma\load.py:402: UserWarning: Discarding nonzero nanoseconds in conversion.
+      start_dt = start_dt.to_pydatetime()
+
+
+
+    Filtered Gait Metadata (first segment):
+    {
+      "start_s": 124.61,
+      "end_s": 127.61,
+      "duration_s": 3.01,
+      "start_dt": "2025-11-17T09:02:06.934188",
+      "end_dt": "2025-11-17T09:02:09.944188"
+    }
 
     Filtered Gait Aggregations:
     {
       "0_20": {
-        "duration_s": 0
+        "duration_s": 17.990000000000002,
+        "median_range_of_motion": 5.074153330561703,
+        "95p_range_of_motion": 25.054266204679127,
+        "median_cov_range_of_motion": 0.2824209187873884,
+        "mean_cov_range_of_motion": 0.3317821220089832,
+        "median_peak_velocity": 42.409935075100094,
+        "95p_peak_velocity": 257.2656407587342,
+        "median_cov_peak_velocity": 0.16092685282350078,
+        "mean_cov_peak_velocity": 0.2373669704342846
       },
       "20_inf": {
-        "duration_s": 18.0,
-        "median_range_of_motion": 7.182233339196239,
-        "95p_range_of_motion": 27.529007915195262,
-        "median_cov_range_of_motion": 0.19564530259481108,
-        "mean_cov_range_of_motion": 0.2725453668861871,
-        "median_peak_velocity": 52.92434205521389,
-        "95p_peak_velocity": 258.93016146092725,
-        "median_cov_peak_velocity": 0.23137490496592453,
-        "mean_cov_peak_velocity": 0.2872492141424207
+        "duration_s": 0
       }
     }
 
@@ -690,25 +706,25 @@ results_end_to_end['quantifications'][pipeline]['filtered'].head()
     {
       "0_20": {
         "duration_s": 33.0,
-        "median_range_of_motion": 18.021256889774918,
-        "95p_range_of_motion": 48.986734305019844,
-        "median_cov_range_of_motion": 0.6876868388869997,
-        "mean_cov_range_of_motion": 0.721209392730354,
-        "median_peak_velocity": 85.1271519261023,
-        "95p_peak_velocity": 200.2409139395803,
-        "median_cov_peak_velocity": 0.4509692493413288,
-        "mean_cov_peak_velocity": 0.5755534586600687
+        "median_range_of_motion": 19.502424727171714,
+        "95p_range_of_motion": 50.49964653314619,
+        "median_cov_range_of_motion": 0.6910961746970024,
+        "mean_cov_range_of_motion": 0.6804318644779058,
+        "median_peak_velocity": 84.99460720754622,
+        "95p_peak_velocity": 236.58261354030628,
+        "median_cov_peak_velocity": 0.39938102923855573,
+        "mean_cov_peak_velocity": 0.5699030522531778
       },
       "20_inf": {
-        "duration_s": 238.5,
-        "median_range_of_motion": 38.253064517277366,
-        "95p_range_of_motion": 67.37535941984773,
-        "median_cov_range_of_motion": 0.41327251881807925,
-        "mean_cov_range_of_motion": 0.4468700296741522,
-        "median_peak_velocity": 153.1405489705395,
-        "95p_peak_velocity": 221.23828397076485,
-        "median_cov_peak_velocity": 0.34037878524240156,
-        "mean_cov_peak_velocity": 0.38601577861451664
+        "duration_s": 236.98,
+        "median_range_of_motion": 38.36924802357446,
+        "95p_range_of_motion": 67.35790442561034,
+        "median_cov_range_of_motion": 0.4264121141029186,
+        "mean_cov_range_of_motion": 0.4546229828144921,
+        "median_peak_velocity": 153.03499423684144,
+        "95p_peak_velocity": 217.78722230174154,
+        "median_cov_peak_velocity": 0.3098737496614712,
+        "mean_cov_peak_velocity": 0.37642157133746496
       }
     }
 
@@ -732,32 +748,32 @@ results_end_to_end['quantifications'][pipeline]['filtered'].head()
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>17.182270</td>
-      <td>136.030218</td>
+      <td>25.281015</td>
+      <td>180.541717</td>
     </tr>
     <tr>
       <th>1</th>
       <td>1</td>
-      <td>22.832489</td>
-      <td>181.524445</td>
+      <td>24.868744</td>
+      <td>284.854816</td>
     </tr>
     <tr>
       <th>2</th>
       <td>1</td>
-      <td>23.181810</td>
-      <td>283.032602</td>
+      <td>12.155101</td>
+      <td>234.959634</td>
     </tr>
     <tr>
       <th>3</th>
       <td>1</td>
-      <td>29.694767</td>
-      <td>253.460914</td>
+      <td>17.196047</td>
+      <td>254.820898</td>
     </tr>
     <tr>
       <th>4</th>
       <td>1</td>
-      <td>29.392093</td>
-      <td>221.580715</td>
+      <td>28.459320</td>
+      <td>222.107711</td>
     </tr>
   </tbody>
 </table>
@@ -909,9 +925,9 @@ filtered_gait_df.head()
     WARNING: Data is not contiguous but validation is disabled. Interpolating over gaps.
 
 
-    Number of detected gait segments: 47
+    Number of detected gait segments: 48
 
-    Number of arm swings: 1782
+    Number of arm swings: 1834
     Individual arm swings:
 
 
@@ -926,38 +942,44 @@ filtered_gait_df.head()
       <th>gait_segment_nr</th>
       <th>range_of_motion</th>
       <th>peak_velocity</th>
+      <th>data_segment_nr</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>14.175549</td>
-      <td>40.844875</td>
+      <td>14.394159</td>
+      <td>40.731020</td>
+      <td>1</td>
     </tr>
     <tr>
       <th>1</th>
       <td>2</td>
-      <td>13.590119</td>
-      <td>21.436342</td>
+      <td>13.593113</td>
+      <td>21.522583</td>
+      <td>1</td>
     </tr>
     <tr>
       <th>2</th>
       <td>2</td>
-      <td>20.877245</td>
-      <td>102.735568</td>
+      <td>20.881968</td>
+      <td>102.620567</td>
+      <td>1</td>
     </tr>
     <tr>
       <th>3</th>
       <td>2</td>
-      <td>16.709358</td>
-      <td>48.634776</td>
+      <td>16.711927</td>
+      <td>48.794681</td>
+      <td>1</td>
     </tr>
     <tr>
       <th>4</th>
       <td>2</td>
-      <td>6.744359</td>
-      <td>26.217534</td>
+      <td>6.565145</td>
+      <td>26.096350</td>
+      <td>1</td>
     </tr>
   </tbody>
 </table>

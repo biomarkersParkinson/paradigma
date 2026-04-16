@@ -13,13 +13,7 @@ All pipelines require data from a wrist-worn sensor with:
 
 ## Sampling Frequency Flexibility
 
-ParaDigMa is designed to work with various sampling frequencies. While the pipeline can internally resample data to a standard frequency (default: 100 Hz), this is **automatic and optional**:
-
-- **Data already near target frequency?** ParaDigMa detects this and **skips unnecessary resampling** to preserve data fidelity.
-- **Data needs conversion?** ParaDigMa handles it transparently (e.g., 50 Hz → 100 Hz).
-
-> [!TIP]
-> For best results, use native sensor data without upsampling beforehand. ParaDigMa's internal frequency handling is optimized to minimize data artifacts. Testing shows that frequencies within ±5% of the target are used directly without interpolation to preserve signal quality.
+ParaDigMa is designed to work with various sampling frequencies. The orchestrator `run_paradigma` estimates the current sampling frequency and adjusts frequency-dependent parameters accordingly. For best results, use native sensor data without upsampling beforehand.
 
 ## Pipeline-Specific Requirements
 
@@ -29,15 +23,15 @@ ParaDigMa is designed to work with various sampling frequencies. While the pipel
 
 | Specification | Minimum Requirement |
 |---------------|-------------------|
-| **Accelerometer** | Sampling rate ≥ 100 Hz<br>Range ≥ ± 4 g |
-| **Gyroscope** | Sampling rate ≥ 100 Hz<br>Range ≥ ± 1000 degrees/sec |
+| **Accelerometer** | Sampling rate ≥ 50 Hz<br>Range ≥ ± 4 g |
+| **Gyroscope** | Sampling rate ≥ 50 Hz<br>Range ≥ ± 1000 degrees/sec |
 
 #### Physical Units
 
 - **Accelerometer**: `g` (gravitational force)
 - **Gyroscope**: `deg/s` (degrees per second)
 
-> ParaDigMa has functionalities for converting [accelerometer](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/util/index.html#paradigma.util.convert_units_accelerometer) and [gyroscope](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/util/index.html#paradigma.util.convert_units_gyroscope) in other units (e.g., `m/s^2`, `rad/s`) to these standard units. This can also be setup when using `run_paradigma`.
+> ParaDigMa has functionalities for converting [accelerometer](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/util/index.html#paradigma.util.convert_units_accelerometer) and [gyroscope](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/util/index.html#paradigma.util.convert_units_gyroscope) in other units (e.g., `m/s^2`, `rad/s`) to these standard units. This can also be setup when using run_paradigma`.
 
 #### Data Compliance
 
@@ -63,7 +57,7 @@ For reliable weekly measures:
 
 | Specification | Minimum Requirement |
 |---------------|-------------------|
-| **Gyroscope** | Sampling rate ≥ 100 Hz<br>Range ≥ ± 1000 degrees/sec |
+| **Gyroscope** | Sampling rate ≥ 50 Hz<br>Range ≥ ± 1000 degrees/sec |
 
 #### Physical Units
 
@@ -140,6 +134,6 @@ results = run_paradigma(
 ## Important Notes on Validation
 
 > [!NOTE]
-> The specifications above represent **validated requirements**. ParaDigMa has been tested and verified to work correctly with sampling frequencies as low as 50 Hz, with comparable accuracy to 100 Hz baseline. Frequencies within ±5% of the target frequency are automatically preserved without interpolation to maintain signal integrity.
+> The specifications above represent **validated requirements**. ParaDigMa has been tested and verified to work correctly with sampling frequencies as low as 50 Hz, with comparable accuracy to 100 Hz baseline.
 
 ---

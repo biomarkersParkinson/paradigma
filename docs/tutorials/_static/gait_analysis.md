@@ -235,10 +235,10 @@ print(
 df_preprocessed.head()
 ```
 
-    INFO: Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+    INFO: Data at 100.00 Hz meets quality threshold. Skipping unnecessary resampling to 100.00 Hz
 
 
-    The dataset of 34339.61 seconds is automatically resampled to 100 Hz.
+    The dataset of 34553.31 seconds is automatically resampled to 100 Hz.
     The tolerance for checking contiguous timestamps is set to 0.030 seconds.
 
 
@@ -265,68 +265,68 @@ df_preprocessed.head()
   <tbody>
     <tr>
       <th>0</th>
-      <td>0.00</td>
-      <td>-0.002324</td>
-      <td>-0.001442</td>
-      <td>-0.002116</td>
+      <td>0.000000</td>
+      <td>-0.002323</td>
+      <td>-0.001227</td>
+      <td>-0.002185</td>
       <td>0.000000</td>
       <td>1.402439</td>
       <td>0.243902</td>
-      <td>-0.472317</td>
-      <td>-0.377984</td>
-      <td>0.772451</td>
+      <td>-0.472318</td>
+      <td>-0.378199</td>
+      <td>0.772520</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>0.01</td>
-      <td>-0.000390</td>
-      <td>-0.000914</td>
-      <td>-0.007396</td>
-      <td>0.432231</td>
-      <td>0.665526</td>
-      <td>-0.123434</td>
-      <td>-0.472326</td>
-      <td>-0.378012</td>
-      <td>0.772464</td>
+      <td>0.009933</td>
+      <td>-0.000400</td>
+      <td>-0.000723</td>
+      <td>-0.007460</td>
+      <td>0.426829</td>
+      <td>0.670732</td>
+      <td>-0.121951</td>
+      <td>-0.472327</td>
+      <td>-0.378225</td>
+      <td>0.772532</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>0.02</td>
+      <td>0.019867</td>
       <td>0.000567</td>
-      <td>0.002474</td>
-      <td>-0.005445</td>
-      <td>1.164277</td>
-      <td>-0.069584</td>
-      <td>-0.307536</td>
-      <td>-0.472336</td>
-      <td>-0.378040</td>
-      <td>0.772476</td>
+      <td>0.002653</td>
+      <td>-0.005559</td>
+      <td>1.158537</td>
+      <td>-0.060976</td>
+      <td>-0.304878</td>
+      <td>-0.472337</td>
+      <td>-0.378251</td>
+      <td>0.772544</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>0.03</td>
-      <td>-0.000425</td>
-      <td>0.002414</td>
-      <td>-0.002099</td>
-      <td>1.151432</td>
-      <td>-0.554928</td>
-      <td>-0.554223</td>
-      <td>-0.472346</td>
-      <td>-0.378068</td>
-      <td>0.772489</td>
+      <td>0.029800</td>
+      <td>-0.000380</td>
+      <td>0.002679</td>
+      <td>-0.002221</td>
+      <td>1.158537</td>
+      <td>-0.548780</td>
+      <td>-0.548780</td>
+      <td>-0.472347</td>
+      <td>-0.378277</td>
+      <td>0.772556</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>0.04</td>
-      <td>-0.002807</td>
-      <td>-0.001408</td>
-      <td>-0.000218</td>
-      <td>0.657189</td>
-      <td>-0.603207</td>
-      <td>-0.731570</td>
-      <td>-0.472355</td>
-      <td>-0.378096</td>
-      <td>0.772502</td>
+      <td>0.039733</td>
+      <td>-0.002763</td>
+      <td>-0.001123</td>
+      <td>-0.000320</td>
+      <td>0.670732</td>
+      <td>-0.609756</td>
+      <td>-0.731707</td>
+      <td>-0.472356</td>
+      <td>-0.378303</td>
+      <td>0.772569</td>
     </tr>
   </tbody>
 </table>
@@ -380,7 +380,7 @@ print(
 df_gait.head()
 ```
 
-    A total of 34 features have been extracted from 34334 6-second windows with 5 seconds overlap.
+    A total of 34 features have been extracted from 34548 6-second windows with 5 seconds overlap.
 
 
 
@@ -417,123 +417,123 @@ df_gait.head()
   <tbody>
     <tr>
       <th>0</th>
-      <td>0.0</td>
-      <td>-0.472967</td>
-      <td>-0.380588</td>
-      <td>0.774287</td>
-      <td>0.000270</td>
-      <td>0.000818</td>
-      <td>0.000574</td>
-      <td>0.003377</td>
+      <td>0.000000</td>
+      <td>-0.472968</td>
+      <td>-0.380609</td>
+      <td>0.774291</td>
+      <td>0.000275</td>
+      <td>0.000766</td>
+      <td>0.000560</td>
+      <td>0.003373</td>
       <td>0.000003</td>
-      <td>1.188086e-06</td>
+      <td>1.151509e-06</td>
       <td>...</td>
-      <td>-1.101486</td>
-      <td>0.524288</td>
-      <td>0.215990</td>
-      <td>0.429154</td>
-      <td>0.900923</td>
-      <td>1.135918</td>
-      <td>0.673404</td>
-      <td>-0.128276</td>
-      <td>-0.335655</td>
-      <td>-0.060155</td>
+      <td>-1.105308</td>
+      <td>0.505124</td>
+      <td>0.212134</td>
+      <td>0.403196</td>
+      <td>0.870436</td>
+      <td>1.129268</td>
+      <td>0.703834</td>
+      <td>-0.085600</td>
+      <td>-0.322168</td>
+      <td>-0.093405</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>1.0</td>
-      <td>-0.473001</td>
-      <td>-0.380704</td>
+      <td>0.993667</td>
+      <td>-0.472998</td>
+      <td>-0.380703</td>
       <td>0.774541</td>
-      <td>0.000235</td>
-      <td>0.000588</td>
-      <td>0.000220</td>
-      <td>0.003194</td>
+      <td>0.000245</td>
+      <td>0.000574</td>
+      <td>0.000226</td>
+      <td>0.003204</td>
       <td>0.000003</td>
-      <td>1.210176e-06</td>
+      <td>1.204678e-06</td>
       <td>...</td>
-      <td>-0.997314</td>
-      <td>0.633275</td>
-      <td>0.327645</td>
-      <td>0.451613</td>
-      <td>0.972729</td>
-      <td>1.120786</td>
-      <td>0.770134</td>
-      <td>-0.115916</td>
-      <td>-0.395856</td>
-      <td>-0.011206</td>
+      <td>-0.994130</td>
+      <td>0.621509</td>
+      <td>0.322671</td>
+      <td>0.414244</td>
+      <td>0.942337</td>
+      <td>1.122690</td>
+      <td>0.811417</td>
+      <td>-0.061107</td>
+      <td>-0.382304</td>
+      <td>-0.048965</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>2.0</td>
-      <td>-0.473036</td>
-      <td>-0.380563</td>
-      <td>0.774578</td>
-      <td>0.000233</td>
-      <td>0.000619</td>
-      <td>0.000195</td>
-      <td>0.003188</td>
+      <td>1.987667</td>
+      <td>-0.473034</td>
+      <td>-0.380561</td>
+      <td>0.774574</td>
+      <td>0.000242</td>
+      <td>0.000610</td>
+      <td>0.000201</td>
+      <td>0.003201</td>
       <td>0.000002</td>
-      <td>6.693551e-07</td>
+      <td>6.718255e-07</td>
       <td>...</td>
-      <td>-1.040592</td>
-      <td>0.404720</td>
-      <td>0.268514</td>
-      <td>0.507473</td>
-      <td>0.944706</td>
-      <td>1.016282</td>
-      <td>0.785686</td>
-      <td>-0.071433</td>
-      <td>-0.414269</td>
-      <td>0.020690</td>
+      <td>-1.032682</td>
+      <td>0.396731</td>
+      <td>0.253735</td>
+      <td>0.464214</td>
+      <td>0.919187</td>
+      <td>1.021736</td>
+      <td>0.832672</td>
+      <td>-0.011435</td>
+      <td>-0.407592</td>
+      <td>-0.015557</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>3.0</td>
-      <td>-0.472952</td>
-      <td>-0.380310</td>
-      <td>0.774660</td>
-      <td>0.000301</td>
-      <td>0.000526</td>
-      <td>0.000326</td>
-      <td>0.003020</td>
+      <td>2.981000</td>
+      <td>-0.472960</td>
+      <td>-0.380315</td>
+      <td>0.774648</td>
+      <td>0.000297</td>
+      <td>0.000529</td>
+      <td>0.000318</td>
+      <td>0.003034</td>
       <td>0.000002</td>
-      <td>6.835856e-07</td>
+      <td>6.617470e-07</td>
       <td>...</td>
-      <td>-1.075637</td>
-      <td>0.258352</td>
-      <td>0.257234</td>
-      <td>0.506739</td>
-      <td>0.892823</td>
-      <td>0.900388</td>
-      <td>0.706368</td>
-      <td>-0.080562</td>
-      <td>-0.302595</td>
-      <td>0.054805</td>
+      <td>-1.068324</td>
+      <td>0.244040</td>
+      <td>0.239564</td>
+      <td>0.465579</td>
+      <td>0.867227</td>
+      <td>0.904580</td>
+      <td>0.752168</td>
+      <td>-0.025484</td>
+      <td>-0.301639</td>
+      <td>0.026369</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>4.0</td>
-      <td>-0.472692</td>
-      <td>-0.380024</td>
-      <td>0.774889</td>
-      <td>0.000468</td>
-      <td>0.000355</td>
-      <td>0.000470</td>
-      <td>0.002869</td>
+      <td>3.975667</td>
+      <td>-0.472709</td>
+      <td>-0.380035</td>
+      <td>0.774878</td>
+      <td>0.000449</td>
+      <td>0.000357</td>
+      <td>0.000464</td>
+      <td>0.002888</td>
       <td>0.000002</td>
-      <td>1.097557e-06</td>
+      <td>1.081647e-06</td>
       <td>...</td>
-      <td>-1.079496</td>
-      <td>0.264418</td>
-      <td>0.237172</td>
-      <td>0.587941</td>
-      <td>0.936835</td>
-      <td>0.763372</td>
-      <td>0.607845</td>
-      <td>-0.159721</td>
-      <td>-0.184856</td>
-      <td>0.128150</td>
+      <td>-1.076344</td>
+      <td>0.246587</td>
+      <td>0.230658</td>
+      <td>0.547408</td>
+      <td>0.918235</td>
+      <td>0.767667</td>
+      <td>0.643226</td>
+      <td>-0.118808</td>
+      <td>-0.191408</td>
+      <td>0.108192</td>
     </tr>
   </tbody>
 </table>
@@ -591,8 +591,8 @@ print(
 df_gait[[config.time_colname, DataColumns.PRED_GAIT_PROBA]].head()
 ```
 
-    Out of 34334 windows, 2753 (8.0%)
-    were predicted as gait, and 31581 (92.0%)
+    Out of 34548 windows, 2747 (8.0%)
+    were predicted as gait, and 31801 (92.0%)
     as non-gait.
 
 
@@ -611,27 +611,27 @@ df_gait[[config.time_colname, DataColumns.PRED_GAIT_PROBA]].head()
   <tbody>
     <tr>
       <th>0</th>
-      <td>0.0</td>
+      <td>0.000000</td>
       <td>0.000023</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>1.0</td>
+      <td>0.993667</td>
       <td>0.000024</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>2.0</td>
+      <td>1.987667</td>
       <td>0.000023</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>3.0</td>
+      <td>2.981000</td>
       <td>0.000023</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>4.0</td>
+      <td>3.975667</td>
       <td>0.000023</td>
     </tr>
   </tbody>
@@ -701,27 +701,27 @@ df_gait.head()
   <tbody>
     <tr>
       <th>0</th>
-      <td>0.0</td>
+      <td>0.000000</td>
       <td>0.000023</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>1.0</td>
+      <td>0.993667</td>
       <td>0.000024</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>2.0</td>
+      <td>1.987667</td>
       <td>0.000023</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>3.0</td>
+      <td>2.981000</td>
       <td>0.000023</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>4.0</td>
+      <td>3.975667</td>
       <td>0.000023</td>
     </tr>
   </tbody>
@@ -783,7 +783,7 @@ print(
 df_arm.head()
 ```
 
-    A total of 61 features have been extracted from 2749 3-second windows with 2.25 seconds overlap.
+    A total of 61 features have been extracted from 2757 3-second windows with 2.25 seconds overlap.
 
 
 
@@ -820,123 +820,123 @@ df_arm.head()
   <tbody>
     <tr>
       <th>0</th>
-      <td>1463.00</td>
-      <td>-0.941812</td>
-      <td>-0.216149</td>
-      <td>-0.129170</td>
-      <td>0.031409</td>
-      <td>0.089397</td>
-      <td>0.060771</td>
-      <td>0.166084</td>
-      <td>0.000596</td>
-      <td>0.007746</td>
+      <td>1463.07</td>
+      <td>-0.943119</td>
+      <td>-0.211245</td>
+      <td>-0.125436</td>
+      <td>0.030597</td>
+      <td>0.085997</td>
+      <td>0.059704</td>
+      <td>0.188947</td>
+      <td>0.000468</td>
+      <td>0.007631</td>
       <td>...</td>
-      <td>-0.555190</td>
-      <td>0.735644</td>
-      <td>0.180382</td>
-      <td>0.044897</td>
-      <td>-0.645257</td>
-      <td>-0.255383</td>
-      <td>0.121998</td>
-      <td>0.297776</td>
-      <td>0.326170</td>
-      <td>0.348648</td>
+      <td>-0.598599</td>
+      <td>0.735297</td>
+      <td>0.123057</td>
+      <td>0.046734</td>
+      <td>-0.658865</td>
+      <td>-0.264201</td>
+      <td>0.147703</td>
+      <td>0.311547</td>
+      <td>0.322653</td>
+      <td>0.361395</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>1463.75</td>
-      <td>-0.933787</td>
-      <td>-0.198807</td>
-      <td>-0.092710</td>
-      <td>0.045961</td>
-      <td>0.066987</td>
-      <td>0.038606</td>
-      <td>0.363777</td>
-      <td>0.001216</td>
-      <td>0.002593</td>
+      <td>1463.81</td>
+      <td>-0.932621</td>
+      <td>-0.198881</td>
+      <td>-0.090402</td>
+      <td>0.048966</td>
+      <td>0.070364</td>
+      <td>0.036554</td>
+      <td>0.366069</td>
+      <td>0.001309</td>
+      <td>0.002404</td>
       <td>...</td>
-      <td>-0.722972</td>
-      <td>0.686450</td>
-      <td>-0.254451</td>
-      <td>-0.282469</td>
-      <td>-0.798232</td>
-      <td>-0.100043</td>
-      <td>0.028278</td>
-      <td>0.114591</td>
-      <td>0.160311</td>
-      <td>0.372009</td>
+      <td>-0.747559</td>
+      <td>0.646198</td>
+      <td>-0.258551</td>
+      <td>-0.306104</td>
+      <td>-0.782468</td>
+      <td>-0.123423</td>
+      <td>-0.002756</td>
+      <td>0.074582</td>
+      <td>0.149163</td>
+      <td>0.362355</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>1464.50</td>
-      <td>-0.882285</td>
-      <td>-0.265160</td>
-      <td>-0.080937</td>
-      <td>0.094924</td>
-      <td>0.146720</td>
-      <td>0.021218</td>
-      <td>0.362434</td>
-      <td>0.002429</td>
-      <td>0.001315</td>
+      <td>1464.56</td>
+      <td>-0.878327</td>
+      <td>-0.270713</td>
+      <td>-0.080581</td>
+      <td>0.098331</td>
+      <td>0.152360</td>
+      <td>0.021547</td>
+      <td>0.364226</td>
+      <td>0.002602</td>
+      <td>0.001563</td>
       <td>...</td>
-      <td>-1.134321</td>
-      <td>0.773245</td>
-      <td>-0.218279</td>
-      <td>-0.430585</td>
-      <td>-0.437373</td>
-      <td>-0.065236</td>
-      <td>0.014411</td>
-      <td>0.083823</td>
-      <td>0.181666</td>
-      <td>0.079949</td>
+      <td>-1.159250</td>
+      <td>0.803385</td>
+      <td>-0.194169</td>
+      <td>-0.412418</td>
+      <td>-0.418789</td>
+      <td>-0.060248</td>
+      <td>0.049491</td>
+      <td>0.091165</td>
+      <td>0.187773</td>
+      <td>0.080063</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>1465.25</td>
-      <td>-0.794800</td>
-      <td>-0.405043</td>
-      <td>-0.094178</td>
-      <td>0.126863</td>
-      <td>0.212621</td>
-      <td>0.034948</td>
-      <td>0.363425</td>
-      <td>0.004974</td>
-      <td>0.008407</td>
+      <td>1465.30</td>
+      <td>-0.788787</td>
+      <td>-0.414315</td>
+      <td>-0.095250</td>
+      <td>0.128551</td>
+      <td>0.215131</td>
+      <td>0.035795</td>
+      <td>0.363348</td>
+      <td>0.005378</td>
+      <td>0.008291</td>
       <td>...</td>
-      <td>-1.154252</td>
-      <td>1.024267</td>
-      <td>-0.161531</td>
-      <td>-0.217479</td>
-      <td>-0.153630</td>
-      <td>-0.016550</td>
-      <td>0.119570</td>
-      <td>0.095287</td>
-      <td>0.231406</td>
-      <td>0.015294</td>
+      <td>-1.144686</td>
+      <td>1.019807</td>
+      <td>-0.132758</td>
+      <td>-0.202768</td>
+      <td>-0.134086</td>
+      <td>-0.023182</td>
+      <td>0.106764</td>
+      <td>0.085045</td>
+      <td>0.217903</td>
+      <td>0.029877</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>1466.00</td>
-      <td>-0.691081</td>
-      <td>-0.578715</td>
-      <td>-0.118220</td>
-      <td>0.127414</td>
-      <td>0.219660</td>
-      <td>0.035758</td>
-      <td>0.360352</td>
-      <td>0.003998</td>
-      <td>0.004305</td>
+      <td>1466.05</td>
+      <td>-0.684683</td>
+      <td>-0.588562</td>
+      <td>-0.119566</td>
+      <td>0.126552</td>
+      <td>0.218069</td>
+      <td>0.035382</td>
+      <td>0.356186</td>
+      <td>0.004388</td>
+      <td>0.004385</td>
       <td>...</td>
-      <td>-0.763188</td>
-      <td>0.763812</td>
-      <td>-0.158849</td>
-      <td>-0.023935</td>
-      <td>-0.006564</td>
-      <td>-0.185257</td>
-      <td>-0.120585</td>
-      <td>0.090823</td>
-      <td>0.171506</td>
-      <td>-0.038381</td>
+      <td>-0.741050</td>
+      <td>0.728900</td>
+      <td>-0.139386</td>
+      <td>-0.022936</td>
+      <td>-0.017016</td>
+      <td>-0.189782</td>
+      <td>-0.136417</td>
+      <td>0.098604</td>
+      <td>0.165319</td>
+      <td>-0.020198</td>
     </tr>
   </tbody>
 </table>
@@ -1000,7 +1000,7 @@ print(
 df_arm[[config.time_colname, DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]].head()
 ```
 
-    Out of 2749 windows, 916 (33.3%) were predicted as no_other_arm_activity, and 1833 (66.7%) as other_arm_activity.
+    Out of 2757 windows, 933 (33.8%) were predicted as no_other_arm_activity, and 1824 (66.2%) as other_arm_activity.
 
 
 
@@ -1018,28 +1018,28 @@ df_arm[[config.time_colname, DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]].head
   <tbody>
     <tr>
       <th>0</th>
-      <td>1463.00</td>
-      <td>0.199764</td>
+      <td>1463.07</td>
+      <td>0.198040</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>1463.75</td>
-      <td>0.107982</td>
+      <td>1463.81</td>
+      <td>0.106580</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>1464.50</td>
-      <td>0.138796</td>
+      <td>1464.56</td>
+      <td>0.136358</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>1465.25</td>
-      <td>0.168050</td>
+      <td>1465.30</td>
+      <td>0.156168</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>1466.00</td>
-      <td>0.033986</td>
+      <td>1466.05</td>
+      <td>0.030799</td>
     </tr>
   </tbody>
 </table>
@@ -1123,14 +1123,16 @@ print(
 )
 
 print("\nMetadata of the first gait segment:")
-print(json.dumps(gait_segment_meta['per_segment'][1], indent = 1))
+first_segment_meta = gait_segment_meta['per_segment'][1]
+print(json.dumps(first_segment_meta, indent = 1))
 
-filt_example_s = gait_segment_meta['per_segment'][1]['duration_filtered_segment_s']
-unfilt_example_s = gait_segment_meta['per_segment'][1]['duration_unfiltered_segment_s']
+segment_duration_s = first_segment_meta['duration_s']
+segment_start_s = first_segment_meta['start_s']
+segment_end_s = first_segment_meta['end_s']
+
 print(
-    f"\nOf this example, the filtered gait segment of {filt_example_s} seconds "
-    f"is part of an unfiltered segment of {unfilt_example_s} seconds, which is "
-    f"at least as large as the filtered gait segment."
+    f"\nThe first {dataset_used} gait segment has a duration of {segment_duration_s:.2f} seconds, "
+    f"starting at {segment_start_s:.2f}s and ending at {segment_end_s:.2f}s."
 )
 
 print(
@@ -1144,17 +1146,16 @@ quantified_arm_swing.loc[quantified_arm_swing['gait_segment_nr'] == 1]
 
     Gait segments are created of minimum 1.5 seconds and maximum 1.5 seconds gap between segments.
 
-    A total of 84 filtered gait segments have been quantified.
+    A total of 81 filtered gait segments have been quantified.
 
     Metadata of the first gait segment:
     {
-     "start_time_s": 2221.75,
-     "end_time_s": 2230.74,
-     "duration_unfiltered_segment_s": 12.75,
-     "duration_filtered_segment_s": 9.0
+     "start_s": 1616.12,
+     "end_s": 1619.11,
+     "duration_s": 3.01
     }
 
-    Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 12.75 seconds, which is at least as large as the filtered gait segment.
+    The first filtered gait segment has a duration of 3.01 seconds, starting at 1616.12s and ending at 1619.11s.
 
     Individual arm swings of the first gait segment of the  filtered dataset:
 
@@ -1176,80 +1177,14 @@ quantified_arm_swing.loc[quantified_arm_swing['gait_segment_nr'] == 1]
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>19.218491</td>
-      <td>90.807689</td>
+      <td>18.682702</td>
+      <td>72.068852</td>
     </tr>
     <tr>
       <th>1</th>
       <td>1</td>
-      <td>21.267287</td>
-      <td>105.781357</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>1</td>
-      <td>23.582098</td>
-      <td>103.932332</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>1</td>
-      <td>23.757712</td>
-      <td>114.846304</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>1</td>
-      <td>17.430734</td>
-      <td>63.297391</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>1</td>
-      <td>12.139037</td>
-      <td>59.740258</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>1</td>
-      <td>6.681346</td>
-      <td>36.802784</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>1</td>
-      <td>6.293493</td>
-      <td>30.793498</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>1</td>
-      <td>7.892546</td>
-      <td>42.481470</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>1</td>
-      <td>9.633521</td>
-      <td>43.837249</td>
-    </tr>
-    <tr>
-      <th>10</th>
-      <td>1</td>
-      <td>9.679263</td>
-      <td>38.867993</td>
-    </tr>
-    <tr>
-      <th>11</th>
-      <td>1</td>
-      <td>9.437900</td>
-      <td>34.112233</td>
-    </tr>
-    <tr>
-      <th>12</th>
-      <td>1</td>
-      <td>9.272199</td>
-      <td>33.344802</td>
+      <td>21.772653</td>
+      <td>119.622537</td>
     </tr>
   </tbody>
 </table>
@@ -1412,7 +1347,7 @@ for raw_data_segment_nr in raw_data_segments:
 quantified_arm_swing = pd.concat(list_quantified_arm_swing, ignore_index=True)
 ```
 
-    INFO: Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+    INFO: Data at 100.00 Hz meets quality threshold. Skipping unnecessary resampling to 100.00 Hz
 
 
 ## Step 7: Aggregation
@@ -1426,7 +1361,7 @@ segment_categories = [(0,10), (10,20), (20, np.inf), (0, np.inf)]
 
 arm_swing_aggregations = aggregate_arm_swing_params(
     df_arm_swing_params=quantified_arm_swing,
-    segment_meta=gait_segment_meta['per_segment'],
+    segment_meta=gait_segment_meta,
     segment_cats=segment_categories,
     aggregates=['median', '95p']
 )
@@ -1436,32 +1371,32 @@ print(json.dumps(arm_swing_aggregations, indent=2))
 
     {
       "0_10": {
-        "duration_s": 379.5,
-        "median_range_of_motion": 11.781191233196722,
-        "95p_range_of_motion": 40.53201409103202,
-        "median_peak_velocity": 58.566197027859204,
-        "95p_peak_velocity": 182.7177098350067
+        "duration_s": 343.71,
+        "median_range_of_motion": 11.329445979107904,
+        "95p_range_of_motion": 38.80715638131665,
+        "median_peak_velocity": 58.385719697525076,
+        "95p_peak_velocity": 189.35575159312535
       },
       "10_20": {
-        "duration_s": 67.5,
-        "median_range_of_motion": 15.10889561336818,
-        "95p_range_of_motion": 54.96940806547923,
-        "median_peak_velocity": 71.19981331102237,
-        "95p_peak_velocity": 228.84234804496018
+        "duration_s": 74.12,
+        "median_range_of_motion": 16.317311020932507,
+        "95p_range_of_motion": 48.28521784250025,
+        "median_peak_velocity": 106.07594472083005,
+        "95p_peak_velocity": 227.03838591455244
       },
       "20_inf": {
-        "duration_s": 285.75,
-        "median_range_of_motion": 29.273886230725473,
-        "95p_range_of_motion": 56.74815032228555,
-        "median_peak_velocity": 143.92113449093603,
-        "95p_peak_velocity": 259.4270842914848
+        "duration_s": 310.53000000000003,
+        "median_range_of_motion": 25.744038880835415,
+        "95p_range_of_motion": 41.978104241282786,
+        "median_peak_velocity": 144.09755220382561,
+        "95p_peak_velocity": 268.00249051735057
       },
       "0_inf": {
-        "duration_s": 732.75,
-        "median_range_of_motion": 17.767386841988397,
-        "95p_range_of_motion": 53.93423076026392,
-        "median_peak_velocity": 91.83493870082003,
-        "95p_peak_velocity": 243.42317337529113
+        "duration_s": 728.36,
+        "median_range_of_motion": 17.83745601349677,
+        "95p_range_of_motion": 41.44733771656344,
+        "median_peak_velocity": 95.21419907458392,
+        "95p_peak_velocity": 255.84351691132278
       }
     }
 
