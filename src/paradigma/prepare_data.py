@@ -14,9 +14,11 @@ Based on data_preparation tutorial.
 
 import logging
 
+import numpy as np
 import pandas as pd
 
 from paradigma.constants import DataColumns, TimeUnit
+from paradigma.segmenting import create_segments, discard_segments
 from paradigma.util import (
     convert_units_accelerometer,
     convert_units_gyroscope,
@@ -343,8 +345,8 @@ def prepare_raw_data(
     validate : bool, default True
         Whether to validate the prepared data
     auto_segment : bool, default False
-        If True, automatically split non-contiguous data into segments.
-        Adds 'data_segment_nr' column to output.
+        If True, automatically split non-contiguous data into segments based on
+        time gaps. Adds 'data_segment_nr' column to output.
     max_segment_gap_s : float, optional
         Maximum gap (seconds) before starting new segment. Used when auto_segment=True.
         Defaults to 1.5s.
@@ -356,7 +358,7 @@ def prepare_raw_data(
     -------
     pd.DataFrame
         Prepared data ready for ParaDigMa analysis. If auto_segment=True and multiple
-        segments found, includes 'data_segment_nr' column.
+        segments found, includes 'data_segment_nr' column for tracking segments.
     """
     logger.info("Starting data preparation pipeline")
 
@@ -379,6 +381,32 @@ def prepare_raw_data(
     logger.info("Step 4: Correcting device orientation")
     df = correct_watch_orientation(df, device_orientation=device_orientation)
 
+    # Step 5: Auto-segment non-contiguous data if requested
+    if auto_segment:
+        logger.info("Step 5: Auto-segmenting non-contiguous data")
+        time_array = np.array(df[DataColumns.TIME])
+        segment_array = create_segments(
+            time_array=time_array,
+            max_segment_gap_s=(
+                max_segment_gap_s if max_segment_gap_s is not None else 1.5
+            ),
+        )
+        df["data_segment_nr"] = segment_array
+
+        # Discard segments that are too short
+        df = discard_segments(
+            df=df,
+            segment_nr_colname="data_segment_nr",
+            min_segment_length_s=(
+                min_segment_length_s if min_segment_length_s is not None else 1.5
+            ),
+            fs=100,  # Approximate fs for segment length calculation
+            format="timestamps",
+        )
+
+        n_segments = df["data_segment_nr"].nunique()
+        logger.info(f"Created {n_segments} segments")
+
     # Deprecation notice for resampling_frequency parameter
     if resampling_frequency != 100.0:
         logger.warning(
@@ -387,9 +415,9 @@ def prepare_raw_data(
             "Set resampling_frequency in the preprocessing config instead."
         )
 
-    # Step 5: Validate prepared data
+    # Step 6: Validate prepared data
     if validate:
-        logger.info("Step 5: Validating prepared data")
+        logger.info("Step 6: Validating prepared data")
         validation = validate_prepared_data(df)
 
         if validation["warnings"]:
