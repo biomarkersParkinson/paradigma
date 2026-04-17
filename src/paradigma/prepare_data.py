@@ -6,7 +6,8 @@ This module provides functions to prepare raw sensor data for analysis:
 - Time column formatting
 - Column name standardization
 - Watch side orientation correction
-- Resampling to 100 Hz
+
+Note: Resampling is handled during preprocessing, not data preparation.
 
 Based on data_preparation tutorial.
 """
@@ -16,7 +17,6 @@ import logging
 import pandas as pd
 
 from paradigma.constants import DataColumns, TimeUnit
-from paradigma.preprocessing import resample_data
 from paradigma.util import (
     convert_units_accelerometer,
     convert_units_gyroscope,
@@ -334,7 +334,8 @@ def prepare_raw_data(
     time_input_unit : TimeUnit, default TimeUnit.RELATIVE_S
         Input time unit type
     resampling_frequency : float, default 100.0
-        Target sampling frequency in Hz
+        Deprecated. This parameter is ignored; resampling is handled during
+        preprocessing.
     column_mapping : Dict[str, str], optional
         Custom column name mapping
     device_orientation : Dict[str, int], optional
@@ -378,19 +379,17 @@ def prepare_raw_data(
     logger.info("Step 4: Correcting device orientation")
     df = correct_watch_orientation(df, device_orientation=device_orientation)
 
-    # Step 5: Resample to target frequency
-    logger.info(f"Step 5: Resampling to {resampling_frequency} Hz")
-    df = resample_data(
-        df,
-        resampling_frequency=resampling_frequency,
-        auto_segment=auto_segment,
-        max_segment_gap_s=max_segment_gap_s,
-        min_segment_length_s=min_segment_length_s,
-    )
+    # Deprecation notice for resampling_frequency parameter
+    if resampling_frequency != 100.0:
+        logger.warning(
+            "The 'resampling_frequency' parameter in prepare_raw_data is deprecated. "
+            "Resampling is now handled exclusively during preprocessing. "
+            "Set resampling_frequency in the preprocessing config instead."
+        )
 
-    # Step 6: Validate prepared data
+    # Step 5: Validate prepared data
     if validate:
-        logger.info("Step 6: Validating prepared data")
+        logger.info("Step 5: Validating prepared data")
         validation = validate_prepared_data(df)
 
         if validation["warnings"]:

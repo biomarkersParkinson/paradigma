@@ -11,7 +11,7 @@ Main Function
   Can process raw data from disk or already-prepared DataFrames.
 
 The orchestrator coordinates:
-1. Data loading and preparation (unit conversion, resampling, orientation correction)
+1. Data loading and preparation (unit conversion, orientation correction)
 2. Pipeline execution on single or multiple files (imports from pipeline modules)
 3. Result aggregation across files and segments
 4. Optional intermediate result storage
@@ -172,8 +172,7 @@ def run_paradigma(
     time_input_unit : TimeUnit, default TimeUnit.RELATIVE_S
         Input time unit type.
     target_frequency : float, default 100.0
-        Target sampling frequency for resampling in Hz. Only set to a different value
-        if you specifically need data at a different frequency.
+        Target sampling frequency for resampling.
     column_mapping : dict, optional
         Custom column name mapping.
     device_orientation : list of str, optional

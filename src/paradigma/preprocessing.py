@@ -24,7 +24,6 @@ def resample_data(
     auto_segment: bool = False,
     max_segment_gap_s: float | None = None,
     min_segment_length_s: float | None = None,
-    warn_low_sampling_freq: bool = False,
 ) -> pd.DataFrame:
     """
     Unified resampling function with optional auto-segmentation for non-contiguous data.
@@ -62,9 +61,6 @@ def resample_data(
     min_segment_length_s : float, optional
         Minimum segment length (seconds) to keep. Used when auto_segment=True.
         Defaults to IMUConfig.min_segment_length_s (1.5s).
-    warn_low_sampling_freq : bool, default False
-        If True, warn when sampling_frequency < 50 Hz (IMU classifier performance).
-        Only set to True for IMU data; PPG data has different frequency requirements.
 
     Returns
     -------
@@ -110,13 +106,6 @@ def resample_data(
     if time_column not in df.columns:
         raise ValueError(f"Time column '{time_column}' not found in DataFrame")
 
-    # Validate resampling frequency
-    if resampling_frequency is None:
-        resampling_frequency = 100
-        logger.warning("resampling_frequency automatically set to 100 Hz")
-
-    resampling_frequency = float(resampling_frequency)
-
     # Auto-detect or use provided column names
     if values_column_names is None:
         numeric_columns = df.select_dtypes(include=[np.number]).columns
@@ -139,15 +128,31 @@ def resample_data(
     else:
         sampling_frequency = float(sampling_frequency)
 
+    # Auto-detect resampling frequency if not provided
+    # Use the detected/provided sampling frequency to ensure uniform sampling without
+    # upsampling
+    if resampling_frequency is None:
+        resampling_frequency = sampling_frequency
+        logger.debug(
+            f"resampling_frequency not specified. Using auto-detected sampling "
+            f"frequency of {resampling_frequency:.2f} Hz for uniform resampling."
+        )
+    else:
+        resampling_frequency = float(resampling_frequency)
+        if resampling_frequency > sampling_frequency:
+            logger.warning(
+                f"resampling_frequency ({resampling_frequency:.2f} Hz) is higher than "
+                f"auto-detected sampling frequency ({sampling_frequency:.2f} Hz). "
+                f"This will cause upsampling, which adds no new information."
+            )
+
     # Ensure time array is strictly increasing
     if not np.all(np.diff(time_abs_array) > 0):
         raise ValueError("Time array is not strictly increasing")
 
     # Set default tolerance if not provided
     if tolerance is None:
-        # Default tolerance: 3 times the expected sampling interval (IMUConfig
-        # default behavior)
-        tolerance = 3 * (1 / sampling_frequency)
+        tolerance = IMUConfig().tolerance
 
     # Set default segmentation parameters
     if auto_segment:
@@ -263,15 +268,6 @@ def resample_data(
             )
 
     # Standard resampling for contiguous data (or when validation is disabled)
-    # Quality check: warn if IMU data is below 50 Hz (classifier trained on 100 Hz)
-    if warn_low_sampling_freq and sampling_frequency < 50:
-        logger.warning(
-            f"IMU data sampled at {sampling_frequency:.2f} Hz is below the recommended "
-            f"50 Hz threshold. Gait and tremor classifier performance may be degraded. "
-            f"Original Nyquist: {sampling_frequency/2:.1f} Hz. Consider allowing "
-            f"data collection at higher frequencies if possible."
-        )
-
     values_array = np.array(df[values_column_names])
 
     # Resample the time data
@@ -441,16 +437,14 @@ def preprocess_imu_data(
         validate_contiguous = False
 
     # Resample the data to the specified frequency
-    # Note: sampling_frequency is NOT passed, allowing auto-detection from data
-    # Warn about low sampling frequency for IMU data (classifiers trained on 100 Hz)
     df = resample_data(
         df=df,
         time_column=config.time_colname,
         values_column_names=values_colnames,
+        sampling_frequency=config.sampling_frequency,
         resampling_frequency=config.resampling_frequency,
         tolerance=config.tolerance,
         validate_contiguous=validate_contiguous,
-        warn_low_sampling_freq=True,
     )
 
     # Invert the IMU data if the watch was worn on the right wrist
@@ -577,11 +571,11 @@ def preprocess_ppg_data(
         # Resample accelerometer data
         # Skip contiguity validation if data has been pre-segmented
         validate_contiguous_acc = "data_segment_nr" not in df_acc_overlapping.columns
-        # Note: sampling_frequency is NOT passed, allowing auto-detection from data
         df_acc_proc = resample_data(
             df=df_acc_overlapping,
             time_column=imu_config.time_colname,
             values_column_names=list(imu_config.d_channels_accelerometer.keys()),
+            sampling_frequency=imu_config.sampling_frequency,
             resampling_frequency=imu_config.resampling_frequency,
             tolerance=imu_config.tolerance,
             validate_contiguous=validate_contiguous_acc,
@@ -617,11 +611,11 @@ def preprocess_ppg_data(
     # Resample PPG data
     # Skip contiguity validation if data has been pre-segmented
     validate_contiguous_ppg = "data_segment_nr" not in df_ppg_overlapping.columns
-    # Note: sampling_frequency is NOT passed, allowing auto-detection from data
     df_ppg_proc = resample_data(
         df=df_ppg_overlapping,
         time_column=ppg_config.time_colname,
         values_column_names=list(ppg_config.d_channels_ppg.keys()),
+        sampling_frequency=ppg_config.sampling_frequency,
         resampling_frequency=ppg_config.resampling_frequency,
         tolerance=ppg_config.tolerance,
         validate_contiguous=validate_contiguous_ppg,
