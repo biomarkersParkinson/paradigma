@@ -11,7 +11,7 @@ Main Function
   Can process raw data from disk or already-prepared DataFrames.
 
 The orchestrator coordinates:
-1. Data loading and preparation (unit conversion, resampling, orientation correction)
+1. Data loading and preparation (unit conversion, orientation correction)
 2. Pipeline execution on single or multiple files (imports from pipeline modules)
 3. Result aggregation across files and segments
 4. Optional intermediate result storage

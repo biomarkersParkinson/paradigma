@@ -23,6 +23,8 @@ process:
 - **Multiple data formats**: Supports Verily, Axivity, Empatica, and custom
   formats
 - **Robust processing**: Automatic data preparation and error handling
+- **Adaptive frequency detection**: Automatically detects and adapts to your data's
+  sampling frequency
 
 ### Data Requirements
 
@@ -565,6 +567,7 @@ print(f"   Metadata: {tremor_meta}")
     Filtered gait aggregation:
        Gait segment categories: ['0_20', '20_inf']
        Aggregates for 0-20s segments: ['duration_s', 'median_range_of_motion', '95p_range_of_motion', 'median_cov_range_of_motion', 'mean_cov_range_of_motion', 'median_peak_velocity', '95p_peak_velocity', 'median_cov_peak_velocity', 'mean_cov_peak_velocity']
+       First filtered gait segment: {'start_s': 2221.75, 'end_s': 2230.75, 'duration_s': 9.0}
 
     Tremor quantification (27056 windows):
        Columns: ['time', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power', 'file_key']... (5 total)
@@ -668,12 +671,18 @@ results_end_to_end['quantifications'][pipeline]['filtered'].head()
 ```
 
 
+    Filtered Gait Metadata (first segment):
+    {
+      "start_s": 124.5,
+      "end_s": 127.5,
+      "duration_s": 3.0,
+      "start_dt": "2025-11-17T09:02:06.824188",
+      "end_dt": "2025-11-17T09:02:09.824188"
+    }
+
     Filtered Gait Aggregations:
     {
       "0_20": {
-        "duration_s": 0
-      },
-      "20_inf": {
         "duration_s": 18.0,
         "median_range_of_motion": 7.182233339196239,
         "95p_range_of_motion": 27.529007915195262,
@@ -683,6 +692,9 @@ results_end_to_end['quantifications'][pipeline]['filtered'].head()
         "95p_peak_velocity": 258.93016146092725,
         "median_cov_peak_velocity": 0.23137490496592453,
         "mean_cov_peak_velocity": 0.2872492141424207
+      },
+      "20_inf": {
+        "duration_s": 0
       }
     }
 

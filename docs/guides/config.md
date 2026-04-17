@@ -24,8 +24,20 @@ imu_config = IMUConfig()
 imu_config.sampling_frequency = 100
 ```
 
-**Parameters**
--
+#### Adaptive Frequency Handling
+
+Changing `sampling_frequency` automatically adapts frequency-dependent parameters:
+
+```python
+imu_config = IMUConfig()
+imu_config.sampling_frequency = 50  # Auto-updates all frequency-dependent parameters
+```
+
+**Key Behaviors:**
+- Setting `sampling_frequency` triggers automatic parameter adaptation via `_update_frequency_dependent_params()`
+- Frequency-dependent parameters (filter cutoffs, window sizes) scale proportionally
+- The orchestrator automatically detects and sets the appropriate frequency for each segment
+
 ### PPGConfig
 
 Configuration for photoplethysmography (PPG) sensors:

@@ -106,13 +106,6 @@ def resample_data(
     if time_column not in df.columns:
         raise ValueError(f"Time column '{time_column}' not found in DataFrame")
 
-    # Validate resampling frequency
-    if resampling_frequency is None:
-        resampling_frequency = 100
-        logger.warning("resampling_frequency automatically set to 100 Hz")
-
-    resampling_frequency = float(resampling_frequency)
-
     # Auto-detect or use provided column names
     if values_column_names is None:
         numeric_columns = df.select_dtypes(include=[np.number]).columns
@@ -134,6 +127,24 @@ def resample_data(
         logger.debug(f"Auto-detected sampling frequency: {sampling_frequency:.2f} Hz")
     else:
         sampling_frequency = float(sampling_frequency)
+
+    # Auto-detect resampling frequency if not provided
+    # Use the detected/provided sampling frequency to ensure uniform sampling without
+    # upsampling
+    if resampling_frequency is None:
+        resampling_frequency = sampling_frequency
+        logger.debug(
+            f"resampling_frequency not specified. Using auto-detected sampling "
+            f"frequency of {resampling_frequency:.2f} Hz for uniform resampling."
+        )
+    else:
+        resampling_frequency = float(resampling_frequency)
+        if resampling_frequency > sampling_frequency:
+            logger.warning(
+                f"resampling_frequency ({resampling_frequency:.2f} Hz) is higher than "
+                f"auto-detected sampling frequency ({sampling_frequency:.2f} Hz). "
+                f"This will cause upsampling, which adds no new information."
+            )
 
     # Ensure time array is strictly increasing
     if not np.all(np.diff(time_abs_array) > 0):
