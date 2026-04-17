@@ -256,12 +256,6 @@ print(results_single_pipeline['aggregations'][pipeline])
 results_single_pipeline['quantifications'][pipeline].head()
 ```
 
-    WARNING: Data sampled at 29.98 Hz is below the recommended 50 Hz threshold. Classifier performance may be degraded. Original Nyquist: 15.0 Hz. Consider allowing data collection at higher frequencies if possible.
-
-
-    WARNING: Data sampled at 29.98 Hz is below the recommended 50 Hz threshold. Classifier performance may be degraded. Original Nyquist: 15.0 Hz. Consider allowing data collection at higher frequencies if possible.
-
-
     {'nr_pr_est': 8684}
     {'mode_pulse_rate': np.float64(63.59175662414131), '99p_pulse_rate': np.float64(85.77263444520081)}
 
@@ -573,7 +567,7 @@ print(f"   Metadata: {tremor_meta}")
     Filtered gait aggregation:
        Gait segment categories: ['0_20', '20_inf']
        Aggregates for 0-20s segments: ['duration_s', 'median_range_of_motion', '95p_range_of_motion', 'median_cov_range_of_motion', 'mean_cov_range_of_motion', 'median_peak_velocity', '95p_peak_velocity', 'median_cov_peak_velocity', 'mean_cov_peak_velocity']
-       First filtered gait segment: {'start_s': 2221.75, 'end_s': 2230.74, 'duration_s': 9.0}
+       First filtered gait segment: {'start_s': 2221.75, 'end_s': 2230.75, 'duration_s': 9.0}
 
     Tremor quantification (27056 windows):
        Columns: ['time', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power', 'file_key']... (5 total)
@@ -676,15 +670,11 @@ print("\nQuantifications (first 5 rows; each row represents a single arm swing):
 results_end_to_end['quantifications'][pipeline]['filtered'].head()
 ```
 
-    C:\Users\z665206\Documents\PhD\code\paradigma\src\paradigma\load.py:402: UserWarning: Discarding nonzero nanoseconds in conversion.
-      start_dt = start_dt.to_pydatetime()
-
-
 
     Filtered Gait Metadata (first segment):
     {
       "start_s": 124.5,
-      "end_s": 127.49,
+      "end_s": 127.5,
       "duration_s": 3.0,
       "start_dt": "2025-11-17T09:02:06.824188",
       "end_dt": "2025-11-17T09:02:09.824188"

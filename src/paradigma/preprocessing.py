@@ -24,6 +24,7 @@ def resample_data(
     auto_segment: bool = False,
     max_segment_gap_s: float | None = None,
     min_segment_length_s: float | None = None,
+    warn_low_sampling_freq: bool = False,
 ) -> pd.DataFrame:
     """
     Unified resampling function with optional auto-segmentation for non-contiguous data.
@@ -61,6 +62,9 @@ def resample_data(
     min_segment_length_s : float, optional
         Minimum segment length (seconds) to keep. Used when auto_segment=True.
         Defaults to IMUConfig.min_segment_length_s (1.5s).
+    warn_low_sampling_freq : bool, default False
+        If True, warn when sampling_frequency < 50 Hz (IMU classifier performance).
+        Only set to True for IMU data; PPG data has different frequency requirements.
 
     Returns
     -------
@@ -259,12 +263,11 @@ def resample_data(
             )
 
     # Standard resampling for contiguous data (or when validation is disabled)
-    # Quality check: data below 50 Hz may have degraded classifier performance (trained
-    # on 100 Hz)
-    if sampling_frequency < 50:
+    # Quality check: warn if IMU data is below 50 Hz (classifier trained on 100 Hz)
+    if warn_low_sampling_freq and sampling_frequency < 50:
         logger.warning(
-            f"Data sampled at {sampling_frequency:.2f} Hz is below the recommended "
-            f"50 Hz threshold. Classifier performance may be degraded. "
+            f"IMU data sampled at {sampling_frequency:.2f} Hz is below the recommended "
+            f"50 Hz threshold. Gait and tremor classifier performance may be degraded. "
             f"Original Nyquist: {sampling_frequency/2:.1f} Hz. Consider allowing "
             f"data collection at higher frequencies if possible."
         )
@@ -439,6 +442,7 @@ def preprocess_imu_data(
 
     # Resample the data to the specified frequency
     # Note: sampling_frequency is NOT passed, allowing auto-detection from data
+    # Warn about low sampling frequency for IMU data (classifiers trained on 100 Hz)
     df = resample_data(
         df=df,
         time_column=config.time_colname,
@@ -446,6 +450,7 @@ def preprocess_imu_data(
         resampling_frequency=config.resampling_frequency,
         tolerance=config.tolerance,
         validate_contiguous=validate_contiguous,
+        warn_low_sampling_freq=True,
     )
 
     # Invert the IMU data if the watch was worn on the right wrist

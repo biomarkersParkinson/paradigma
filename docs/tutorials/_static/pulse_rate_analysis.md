@@ -300,9 +300,6 @@ display(df_ppg_proc, df_acc_proc)
     INFO: Resampled: 3455331 -> 3433961 rows at 100.0 Hz
 
 
-    WARNING: Data sampled at 29.98 Hz is below the recommended 50 Hz threshold. Classifier performance may be degraded. Original Nyquist: 15.0 Hz. Consider allowing data collection at higher frequencies if possible.
-
-
     INFO: Resampled: 1029374 -> 1030188 rows at 30.0 Hz
 
 
@@ -1138,9 +1135,6 @@ df_pr = pd.concat(list_df_pr, ignore_index=True)
 ```
 
     INFO: Resampled: 3455331 -> 3433961 rows at 100.0 Hz
-
-
-    WARNING: Data sampled at 29.98 Hz is below the recommended 50 Hz threshold. Classifier performance may be degraded. Original Nyquist: 15.0 Hz. Consider allowing data collection at higher frequencies if possible.
 
 
     INFO: Resampled: 1029374 -> 1030188 rows at 30.0 Hz

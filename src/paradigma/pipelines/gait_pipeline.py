@@ -584,7 +584,7 @@ def quantify_arm_swing(
 
         segment_meta["per_segment"][segment_nr] = {
             "start_s": float(time_array.min()),
-            "end_s": float(time_array.max()),
+            "end_s": float(time_array.max() + 1 / fs),
             "duration_s": len(time_array) / fs,
         }
 

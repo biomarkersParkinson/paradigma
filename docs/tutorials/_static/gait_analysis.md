@@ -1141,11 +1141,11 @@ quantified_arm_swing.loc[quantified_arm_swing['gait_segment_nr'] == 1]
     Metadata of the first gait segment:
     {
      "start_s": 2221.75,
-     "end_s": 2230.74,
+     "end_s": 2230.75,
      "duration_s": 9.0
     }
 
-    The first filtered gait segment has a duration of 9.00 seconds, starting at 2221.75s and ending at 2230.74s.
+    The first filtered gait segment has a duration of 9.00 seconds, starting at 2221.75s and ending at 2230.75s.
 
     Individual arm swings of the first gait segment of the  filtered dataset:
 

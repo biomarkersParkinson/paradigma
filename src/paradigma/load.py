@@ -390,7 +390,7 @@ def load_single_data_file(
             if "time_dt" in df.columns and len(df) > 0:
                 start_dt = df["time_dt"].iloc[0]
                 if hasattr(start_dt, "to_pydatetime"):
-                    start_dt = start_dt.to_pydatetime()
+                    start_dt = start_dt.to_pydatetime(warn=False)
             return file_path.stem, df, start_dt
 
         elif file_format == "axivity":
@@ -399,7 +399,7 @@ def load_single_data_file(
             if "time_dt" in df.columns and len(df) > 0:
                 start_dt = df["time_dt"].iloc[0]
                 if hasattr(start_dt, "to_pydatetime"):
-                    start_dt = start_dt.to_pydatetime()
+                    start_dt = start_dt.to_pydatetime(warn=False)
             return file_path.stem, df, start_dt
 
         elif file_format == "prepared":
@@ -408,7 +408,7 @@ def load_single_data_file(
             if "time_dt" in df.columns and len(df) > 0:
                 start_dt = df["time_dt"].iloc[0]
                 if hasattr(start_dt, "to_pydatetime"):
-                    start_dt = start_dt.to_pydatetime()
+                    start_dt = start_dt.to_pydatetime(warn=False)
             prefix = file_path.stem.replace("_meta", "")
             return prefix, df, start_dt
 
