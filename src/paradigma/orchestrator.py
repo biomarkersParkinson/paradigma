@@ -187,7 +187,6 @@ def run_paradigma(
         Segment duration categories for arm swing grouping (gait pipeline only).
         Accepts either string categories like ['(0, 10)', '(10, 20)'] or 2-element
         tuples/lists like [(0, 10), (10, 20)] for segments 0-10s and 10-20s.
-        Used consistently in both quantification and aggregation steps.
     split_by_gaps : bool, default False
         If True, automatically split non-contiguous data into segments
         during preparation.
