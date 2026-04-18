@@ -195,6 +195,7 @@ def test_multi_file_unfiltered_only_offsets(monkeypatch):
         min_segment_length_s=1.5,
         start_dt=None,
         custom_logger=None,
+        gait_segment_categories=None,
     ):
         if filtered:
             empty_df = pd.DataFrame(
