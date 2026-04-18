@@ -591,16 +591,11 @@ def quantify_arm_swing(
             "start_s": float(time_array.min()),
             "end_s": float(time_array.max() + 1 / fs),
             "duration_s": len(time_array) / fs,
-            "duration_unfiltered_segment_s": gait_segment_duration_dict[
-                gait_segment_nr
-            ],
         }
 
         # Determine segment category based on unfiltered segment duration
         # This will be used for aggregation categorization
-        unfiltered_dur = segment_meta["per_segment"][segment_nr][
-            "duration_unfiltered_segment_s"
-        ]
+        unfiltered_dur = gait_segment_duration_dict[gait_segment_nr]
         segment_category = None
         for lower, upper in segment_cats:
             if lower <= unfiltered_dur < upper:
