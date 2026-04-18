@@ -930,6 +930,7 @@ def run_gait_pipeline(
     custom_logger: logging.Logger | None = None,
     run_steps: list[str] | None = None,
     return_intermediate: list[str] | None = None,
+    segment_cats: list[tuple] | None = None,
 ) -> dict:
     """
     Run the complete gait analysis pipeline on prepared data (steps 1-6).
@@ -1273,6 +1274,7 @@ def run_gait_pipeline(
                         min_segment_length_s=arm_activity_config.min_segment_length_s,
                         start_dt=start_dt,
                         custom_logger=active_logger,
+                        segment_cats=segment_cats,
                     )
                 )
             except ValueError as exc:
@@ -1322,6 +1324,7 @@ def run_gait_pipeline(
                         min_segment_length_s=arm_activity_config.min_segment_length_s,
                         start_dt=start_dt,
                         custom_logger=active_logger,
+                        segment_cats=segment_cats,
                     )
                 )
 

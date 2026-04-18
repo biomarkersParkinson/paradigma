@@ -87,7 +87,7 @@ def run_paradigma(
     device_orientation: list[str] | None = ["x", "y", "z"],
     file_pattern: str | list[str] | None = None,
     aggregates: list[str] | None = None,
-    segment_length_bins: list[tuple[float, float] | list[float] | str] | None = None,
+    segment_cats: list[tuple[float, float] | list[float] | str] | None = None,
     split_by_gaps: bool = False,
     max_gap_seconds: float | None = None,
     min_segment_seconds: float | None = None,
@@ -420,6 +420,49 @@ def run_paradigma(
         for step in ["preprocessing", "classification", "quantification"]
     )
 
+    # Normalize segment_cats to ensure consistency between quantification
+    # and aggregation (both use the same categorization boundaries)
+    if segment_cats is None:
+        segment_cats = [(0, 20), (20, float("inf"))]
+    else:
+        # Support both string format ['(0, 10)', '(10, 20)'] and
+        # tuple/list format [(0, 10), (10, 20)]
+        normalized_cats = []
+        for cat_def in segment_cats:
+            # Case 1: already provided as tuple/list
+            if isinstance(cat_def, (tuple, list)):
+                if len(cat_def) != 2:
+                    raise ValueError(
+                        f"segment_cats entries as tuple/list "
+                        f"must have length 2, got {len(cat_def)}: "
+                        f"{cat_def!r}"
+                    )
+                lower_val, upper_val = cat_def
+                lower = float(lower_val)
+                # Allow 'inf' as string, or float('inf') / np.inf / etc.
+                if isinstance(upper_val, str) and upper_val.strip() == "inf":
+                    upper = float("inf")
+                else:
+                    upper = float(upper_val)
+                normalized_cats.append((lower, upper))
+            # Case 2: string that needs parsing
+            elif isinstance(cat_def, str):
+                cat_str = cat_def.strip("()")
+                parts = cat_str.split(",")
+                if len(parts) != 2:
+                    raise ValueError(f"Invalid segment_cats string: " f"{cat_def!r}")
+                lower = float(parts[0].strip())
+                upper_part = parts[1].strip()
+                upper = float("inf") if upper_part == "inf" else float(upper_part)
+                normalized_cats.append((lower, upper))
+            else:
+                raise TypeError(
+                    "segment_cats entries must be strings or "
+                    f"2-element tuples/lists, got "
+                    f"{type(cat_def).__name__}"
+                )
+        segment_cats = normalized_cats
+
     # Steps 2-3: Process each file individually
     if should_process_files:
         active_logger.info(f"Steps 2-3: Processing {num_files} files individually")
@@ -543,6 +586,7 @@ def run_paradigma(
                                 start_dt=start_dt,
                                 logging_level=logging_level,
                                 custom_logger=active_logger,
+                                segment_cats=segment_cats,
                             )
 
                             # Extract results from pipeline dict
@@ -901,57 +945,10 @@ def run_paradigma(
                         "unfiltered": {},
                     }
 
-                    # Convert segment_length_bins to segment_cats (list of tuples)
-                    if segment_length_bins is None:
-                        segment_cats = [(0, 20), (20, float("inf"))]
-                    else:
-                        # Support both string format ['(0, 10)', '(10, 20)'] and
-                        # tuple/list format [(0, 10), (10, 20)]
-                        segment_cats = []
-                        for bin_def in segment_length_bins:
-                            # Case 1: already provided as tuple/list
-                            if isinstance(bin_def, (tuple, list)):
-                                if len(bin_def) != 2:
-                                    raise ValueError(
-                                        f"segment_length_bins entries as tuple/list "
-                                        f"must have length 2, got {len(bin_def)}: "
-                                        f"{bin_def!r}"
-                                    )
-                                lower_val, upper_val = bin_def
-                                lower = float(lower_val)
-                                # Allow 'inf' as string, or float('inf') / np.inf / etc.
-                                if (
-                                    isinstance(upper_val, str)
-                                    and upper_val.strip() == "inf"
-                                ):
-                                    upper = float("inf")
-                                else:
-                                    upper = float(upper_val)
-                                segment_cats.append((lower, upper))
-                            # Case 2: string that needs parsing
-                            elif isinstance(bin_def, str):
-                                bin_str = bin_def.strip("()")
-                                parts = bin_str.split(",")
-                                if len(parts) != 2:
-                                    raise ValueError(
-                                        f"Invalid segment length bin string: "
-                                        f"{bin_def!r}"
-                                    )
-                                lower = float(parts[0].strip())
-                                upper_part = parts[1].strip()
-                                upper = (
-                                    float("inf")
-                                    if upper_part == "inf"
-                                    else float(upper_part)
-                                )
-                                segment_cats.append((lower, upper))
-                            else:
-                                raise TypeError(
-                                    "segment_length_bins entries must be strings or \
-"
-                                    f"2-element tuples/lists, got "
-                                    f"{type(bin_def).__name__}"
-                                )
+                    # Note: segment_cats was already computed at the start of file
+                    # processing and used in quantification. We reuse the same
+                    # categories here to ensure consistency between quantification
+                    # and aggregation.
 
                     # Aggregate filtered gait quantifications
                     if not all_results["quantifications"][pipeline_name][
