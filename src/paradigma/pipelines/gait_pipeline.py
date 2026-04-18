@@ -422,6 +422,7 @@ def quantify_arm_swing(
     min_segment_length_s: float = 1.5,
     start_dt: datetime.datetime | None = None,
     custom_logger: logging.Logger | None = None,
+    segment_cats: list[tuple] | None = None,
 ) -> tuple[pd.DataFrame, dict]:
     """
     Quantify arm swing parameters for segments of motion based on gyroscope data.
@@ -463,6 +464,10 @@ def quantify_arm_swing(
         and a dictionary containing metadata for each segment.
     """
     active_logger = custom_logger if custom_logger is not None else logger
+
+    # Set default segment categories if not provided
+    if segment_cats is None:
+        segment_cats = [(0, 20), (20, float("inf"))]
 
     # Group consecutive timestamps into segments, with new segments starting
     # after a pre-specified gap. Segments are made based on predicted gait
@@ -522,10 +527,8 @@ def quantify_arm_swing(
     grouping_colname = "filtered_segment_nr" if filtered else "unfiltered_segment_nr"
 
     arm_swing_quantified = []
-    # Combined duration is the total actual data duration (filtered or unfiltered)
-    total_duration = len(df[DataColumns.TIME]) / fs
     segment_meta = {
-        "combined": {"duration_s": total_duration},
+        "combined": {"duration_s": len(df[DataColumns.TIME]) / fs},
         "per_segment": {},
     }
 
@@ -588,10 +591,25 @@ def quantify_arm_swing(
             "start_s": float(time_array.min()),
             "end_s": float(time_array.max() + 1 / fs),
             "duration_s": len(time_array) / fs,
-            "duration_for_categorization_s": gait_segment_duration_dict[
+            "duration_unfiltered_segment_s": gait_segment_duration_dict[
                 gait_segment_nr
             ],
         }
+
+        # Determine segment category based on unfiltered segment duration
+        # This will be used for aggregation categorization
+        unfiltered_dur = segment_meta["per_segment"][segment_nr][
+            "duration_unfiltered_segment_s"
+        ]
+        segment_category = None
+        for lower, upper in segment_cats:
+            if lower <= unfiltered_dur < upper:
+                segment_category = f"{lower}_{upper}"
+                break
+        if segment_category:
+            segment_meta["per_segment"][segment_nr][
+                "segment_category"
+            ] = segment_category
 
         # Add datetime information if available
         if start_dt is not None:
@@ -703,10 +721,7 @@ def aggregate_arm_swing_params(
         cat_segments = [
             x
             for x in segment_meta["per_segment"].keys()
-            if segment_meta["per_segment"][x]["duration_for_categorization_s"]
-            >= segment_cat_range[0]
-            and segment_meta["per_segment"][x]["duration_for_categorization_s"]
-            < segment_cat_range[1]
+            if segment_meta["per_segment"][x].get("segment_category") == segment_cat_str
         ]
 
         if len(cat_segments) > 0:
