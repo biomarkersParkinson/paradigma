@@ -422,7 +422,7 @@ def quantify_arm_swing(
     min_segment_length_s: float = 1.5,
     start_dt: datetime.datetime | None = None,
     custom_logger: logging.Logger | None = None,
-    segment_cats: list[tuple] | None = None,
+    gait_segment_categories: list[tuple] | None = None,
 ) -> tuple[pd.DataFrame, dict]:
     """
     Quantify arm swing parameters for segments of motion based on gyroscope data.
@@ -466,8 +466,8 @@ def quantify_arm_swing(
     active_logger = custom_logger if custom_logger is not None else logger
 
     # Set default segment categories if not provided
-    if segment_cats is None:
-        segment_cats = [(0, 20), (20, float("inf"))]
+    if gait_segment_categories is None:
+        gait_segment_categories = [(0, 20), (20, float("inf"))]
 
     # Group consecutive timestamps into segments, with new segments starting
     # after a pre-specified gap. Segments are made based on predicted gait
@@ -597,7 +597,7 @@ def quantify_arm_swing(
         # This will be used for aggregation categorization
         unfiltered_dur = gait_segment_duration_dict[gait_segment_nr]
         segment_category = None
-        for lower, upper in segment_cats:
+        for lower, upper in gait_segment_categories:
             if lower <= unfiltered_dur < upper:
                 segment_category = f"{lower}_{upper}"
                 break
@@ -681,7 +681,7 @@ def quantify_arm_swing(
 def aggregate_arm_swing_params(
     df_arm_swing_params: pd.DataFrame,
     segment_meta: dict,
-    segment_cats: list[tuple],
+    gait_segment_categories: list[tuple],
     aggregates: list[str] = ["median"],
 ) -> dict:
     """
@@ -695,8 +695,8 @@ def aggregate_arm_swing_params(
     segment_meta : dict
         A dictionary containing metadata for each segment.
 
-    segment_cats : List[tuple]
-        A list of tuples defining the segment categories, where each tuple
+    gait_segment_categories : List[tuple]
+        A list of tuples defining the gait segment categories, where each tuple
         contains the lower and upper bounds for the segment duration.
     aggregates : List[str], optional
         A list of aggregation methods to apply to the quantification
@@ -711,7 +711,7 @@ def aggregate_arm_swing_params(
     arm_swing_parameters = [DataColumns.RANGE_OF_MOTION, DataColumns.PEAK_VELOCITY]
 
     aggregated_results = {}
-    for segment_cat_range in segment_cats:
+    for segment_cat_range in gait_segment_categories:
         segment_cat_str = f"{segment_cat_range[0]}_{segment_cat_range[1]}"
         cat_segments = [
             x
@@ -930,7 +930,7 @@ def run_gait_pipeline(
     custom_logger: logging.Logger | None = None,
     run_steps: list[str] | None = None,
     return_intermediate: list[str] | None = None,
-    segment_cats: list[tuple] | None = None,
+    gait_segment_categories: list[tuple] | None = None,
 ) -> dict:
     """
     Run the complete gait analysis pipeline on prepared data (steps 1-6).
@@ -1274,7 +1274,7 @@ def run_gait_pipeline(
                         min_segment_length_s=arm_activity_config.min_segment_length_s,
                         start_dt=start_dt,
                         custom_logger=active_logger,
-                        segment_cats=segment_cats,
+                        gait_segment_categories=gait_segment_categories,
                     )
                 )
             except ValueError as exc:
@@ -1324,7 +1324,7 @@ def run_gait_pipeline(
                         min_segment_length_s=arm_activity_config.min_segment_length_s,
                         start_dt=start_dt,
                         custom_logger=active_logger,
-                        segment_cats=segment_cats,
+                        gait_segment_categories=gait_segment_categories,
                     )
                 )
 

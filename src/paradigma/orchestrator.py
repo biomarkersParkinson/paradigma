@@ -87,7 +87,9 @@ def run_paradigma(
     device_orientation: list[str] | None = ["x", "y", "z"],
     file_pattern: str | list[str] | None = None,
     aggregates: list[str] | None = None,
-    segment_cats: list[tuple[float, float] | list[float] | str] | None = None,
+    gait_segment_categories: (
+        list[tuple[float, float] | list[float] | str] | None
+    ) = None,
     split_by_gaps: bool = False,
     max_gap_seconds: float | None = None,
     min_segment_seconds: float | None = None,
@@ -181,10 +183,11 @@ def run_paradigma(
         File pattern(s) to match when loading data (e.g., 'parquet', '*.csv').
     aggregates : list of str, optional
         Aggregation methods for quantification.
-    segment_length_bins : list of str or list of tuple/list, optional
-        Duration bins for gait segment aggregation (gait pipeline only).
-        Accepts either string bins like ['(0, 10)', '(10, 20)'] or 2-element
+    segment_cats : list of str or list of tuple/list, optional
+        Segment duration categories for arm swing grouping (gait pipeline only).
+        Accepts either string categories like ['(0, 10)', '(10, 20)'] or 2-element
         tuples/lists like [(0, 10), (10, 20)] for segments 0-10s and 10-20s.
+        Used consistently in both quantification and aggregation steps.
     split_by_gaps : bool, default False
         If True, automatically split non-contiguous data into segments
         during preparation.
@@ -420,20 +423,20 @@ def run_paradigma(
         for step in ["preprocessing", "classification", "quantification"]
     )
 
-    # Normalize segment_cats to ensure consistency between quantification
+    # Normalize gait_segment_categories to ensure consistency between quantification
     # and aggregation (both use the same categorization boundaries)
-    if segment_cats is None:
-        segment_cats = [(0, 20), (20, float("inf"))]
+    if gait_segment_categories is None:
+        gait_segment_categories = [(0, 20), (20, float("inf"))]
     else:
         # Support both string format ['(0, 10)', '(10, 20)'] and
         # tuple/list format [(0, 10), (10, 20)]
         normalized_cats = []
-        for cat_def in segment_cats:
+        for cat_def in gait_segment_categories:
             # Case 1: already provided as tuple/list
             if isinstance(cat_def, (tuple, list)):
                 if len(cat_def) != 2:
                     raise ValueError(
-                        f"segment_cats entries as tuple/list "
+                        f"gait_segment_categories entries as tuple/list "
                         f"must have length 2, got {len(cat_def)}: "
                         f"{cat_def!r}"
                     )
@@ -450,18 +453,20 @@ def run_paradigma(
                 cat_str = cat_def.strip("()")
                 parts = cat_str.split(",")
                 if len(parts) != 2:
-                    raise ValueError(f"Invalid segment_cats string: " f"{cat_def!r}")
+                    raise ValueError(
+                        f"Invalid gait_segment_categories string: " f"{cat_def!r}"
+                    )
                 lower = float(parts[0].strip())
                 upper_part = parts[1].strip()
                 upper = float("inf") if upper_part == "inf" else float(upper_part)
                 normalized_cats.append((lower, upper))
             else:
                 raise TypeError(
-                    "segment_cats entries must be strings or "
+                    "gait_segment_categories entries must be strings or "
                     f"2-element tuples/lists, got "
                     f"{type(cat_def).__name__}"
                 )
-        segment_cats = normalized_cats
+        gait_segment_categories = normalized_cats
 
     # Steps 2-3: Process each file individually
     if should_process_files:
@@ -586,7 +591,7 @@ def run_paradigma(
                                 start_dt=start_dt,
                                 logging_level=logging_level,
                                 custom_logger=active_logger,
-                                segment_cats=segment_cats,
+                                gait_segment_categories=gait_segment_categories,
                             )
 
                             # Extract results from pipeline dict
@@ -945,8 +950,8 @@ def run_paradigma(
                         "unfiltered": {},
                     }
 
-                    # Note: segment_cats was already computed at the start of file
-                    # processing and used in quantification. We reuse the same
+                    # Note: gait_segment_categories was computed at the start of
+                    # file processing and used in quantification. We reuse the same
                     # categories here to ensure consistency between quantification
                     # and aggregation.
 
@@ -963,7 +968,7 @@ def run_paradigma(
                             segment_meta=all_results["metadata"][pipeline_name][
                                 "filtered"
                             ],
-                            segment_cats=segment_cats,
+                            gait_segment_categories=gait_segment_categories,
                             aggregates=(
                                 aggregates if aggregates else ["median", "95p", "cov"]
                             ),
@@ -995,7 +1000,7 @@ def run_paradigma(
                             segment_meta=all_results["metadata"][pipeline_name][
                                 "unfiltered"
                             ],
-                            segment_cats=segment_cats,
+                            gait_segment_categories=gait_segment_categories,
                             aggregates=(
                                 aggregates if aggregates else ["median", "95p", "cov"]
                             ),
