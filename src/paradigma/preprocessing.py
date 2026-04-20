@@ -123,10 +123,8 @@ def resample_data(
     if sampling_frequency is None:
         time_diff = df[time_column].diff().dropna()
         current_dt = time_diff.median()
-        sampling_frequency = 1.0 / current_dt
+        sampling_frequency = int((1.0 / current_dt) + 0.5)
         logger.debug(f"Auto-detected sampling frequency: {sampling_frequency:.2f} Hz")
-    else:
-        sampling_frequency = float(sampling_frequency)
 
     # Auto-detect resampling frequency if not provided
     # Use the detected/provided sampling frequency to ensure uniform sampling without
@@ -137,8 +135,6 @@ def resample_data(
             f"resampling_frequency not specified. Using auto-detected sampling "
             f"frequency of {resampling_frequency:.2f} Hz for uniform resampling."
         )
-    else:
-        resampling_frequency = float(resampling_frequency)
         if resampling_frequency > sampling_frequency:
             logger.warning(
                 f"resampling_frequency ({resampling_frequency:.2f} Hz) is higher than "
