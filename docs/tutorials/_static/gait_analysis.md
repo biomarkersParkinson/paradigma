@@ -224,22 +224,10 @@ df_preprocessed = preprocess_imu_data(
     watch_side='left',
 )
 
-print(
-    f"The dataset of {df_preprocessed.shape[0] / config.sampling_frequency} seconds "
-    f"is automatically resampled to {config.resampling_frequency} Hz."
-)
-print(
-    f"The tolerance for checking contiguous timestamps is set "
-    f"to {config.tolerance:.3f} seconds."
-)
 df_preprocessed.head()
 ```
 
     INFO: Resampled: 3455331 -> 3433961 rows at 100.0 Hz
-
-
-    The dataset of 34339.61 seconds is automatically resampled to 100 Hz.
-    The tolerance for checking contiguous timestamps is set to 0.030 seconds.
 
 
 
@@ -1111,6 +1099,7 @@ quantified_arm_swing, gait_segment_meta = quantify_arm_swing(
     filtered=filtered,
     max_segment_gap_s=config.max_segment_gap_s,
     min_segment_length_s=config.min_segment_length_s,
+    start_dt=None,  # if provided, this ensures datetime format of segments is returned
 )
 
 print(
@@ -1123,14 +1112,17 @@ print(
 )
 
 print("\nMetadata of the first gait segment:")
-print(json.dumps(gait_segment_meta['per_segment'][1], indent = 1))
+first_segment_meta = gait_segment_meta['per_segment'][1]
+print(json.dumps(first_segment_meta, indent = 1))
 
-filt_example_s = gait_segment_meta['per_segment'][1]['duration_filtered_segment_s']
-unfilt_example_s = gait_segment_meta['per_segment'][1]['duration_unfiltered_segment_s']
+segment_duration_s = first_segment_meta['duration_s']
+segment_start_s = first_segment_meta['start_s']
+segment_end_s = first_segment_meta['end_s']
+
 print(
-    f"\nOf this example, the filtered gait segment of {filt_example_s} seconds "
-    f"is part of an unfiltered segment of {unfilt_example_s} seconds, which is "
-    f"at least as large as the filtered gait segment."
+    f"\nThe first {dataset_used} gait segment has a duration of "
+    f"{segment_duration_s:.2f} seconds, starting at {segment_start_s:.2f}s and "
+    f"ending at {segment_end_s:.2f}s."
 )
 
 print(
@@ -1148,13 +1140,13 @@ quantified_arm_swing.loc[quantified_arm_swing['gait_segment_nr'] == 1]
 
     Metadata of the first gait segment:
     {
-     "start_time_s": 2221.75,
-     "end_time_s": 2230.74,
-     "duration_unfiltered_segment_s": 12.75,
-     "duration_filtered_segment_s": 9.0
+     "start_s": 2221.75,
+     "end_s": 2230.74,
+     "duration_s": 9.0,
+     "segment_category": "0_20"
     }
 
-    Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 12.75 seconds, which is at least as large as the filtered gait segment.
+    The first filtered gait segment has a duration of 9.00 seconds, starting at 2221.75s and ending at 2230.74s.
 
     Individual arm swings of the first gait segment of the  filtered dataset:
 
@@ -1426,8 +1418,8 @@ segment_categories = [(0,10), (10,20), (20, np.inf), (0, np.inf)]
 
 arm_swing_aggregations = aggregate_arm_swing_params(
     df_arm_swing_params=quantified_arm_swing,
-    segment_meta=gait_segment_meta['per_segment'],
-    segment_cats=segment_categories,
+    segment_meta=gait_segment_meta,
+    gait_segment_categories=segment_categories,
     aggregates=['median', '95p']
 )
 
@@ -1436,18 +1428,10 @@ print(json.dumps(arm_swing_aggregations, indent=2))
 
     {
       "0_10": {
-        "duration_s": 379.5,
-        "median_range_of_motion": 11.781191233196722,
-        "95p_range_of_motion": 40.53201409103202,
-        "median_peak_velocity": 58.566197027859204,
-        "95p_peak_velocity": 182.7177098350067
+        "duration_s": 0
       },
       "10_20": {
-        "duration_s": 67.5,
-        "median_range_of_motion": 15.10889561336818,
-        "95p_range_of_motion": 54.96940806547923,
-        "median_peak_velocity": 71.19981331102237,
-        "95p_peak_velocity": 228.84234804496018
+        "duration_s": 0
       },
       "20_inf": {
         "duration_s": 285.75,
@@ -1457,11 +1441,7 @@ print(json.dumps(arm_swing_aggregations, indent=2))
         "95p_peak_velocity": 259.4270842914848
       },
       "0_inf": {
-        "duration_s": 732.75,
-        "median_range_of_motion": 17.767386841988397,
-        "95p_range_of_motion": 53.93423076026392,
-        "median_peak_velocity": 91.83493870082003,
-        "95p_peak_velocity": 243.42317337529113
+        "duration_s": 0
       }
     }
 
