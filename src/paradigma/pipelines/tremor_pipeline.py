@@ -340,9 +340,9 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
 
     # Compute the power spectral density
     segment_length_n = sampling_frequency * segment_length_psd_s
-    overlap_n = int(np.round(segment_length_n * overlap_fraction))
+    overlap_n = int(segment_length_n * overlap_fraction)
     window = signal.get_window(window_type, segment_length_n, fftbins=False)
-    nfft = int(np.round(sampling_frequency / spectral_resolution_psd))
+    nfft = int(sampling_frequency / spectral_resolution_psd)
 
     freqs, psd = signal.welch(
         x=data,
@@ -358,9 +358,9 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
 
     # Compute the spectrogram
     segment_length_n = sampling_frequency * segment_length_spectrogram_s
-    overlap_n = int(np.round(segment_length_n * overlap_fraction))
+    overlap_n = int(segment_length_n * overlap_fraction)
     window = signal.get_window(window_type, segment_length_n)
-    nfft = int(np.round(sampling_frequency / spectral_resolution_spectrogram))
+    nfft = int(sampling_frequency / spectral_resolution_spectrogram)
 
     f, t, stft_result = signal.stft(
         x=data,
