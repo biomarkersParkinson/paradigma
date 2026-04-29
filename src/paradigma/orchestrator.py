@@ -82,7 +82,6 @@ def run_paradigma(
     accelerometer_units: str = "g",
     gyroscope_units: str = "deg/s",
     time_input_unit: TimeUnit = TimeUnit.RELATIVE_S,
-    target_frequency: float = 100.0,
     column_mapping: dict[str, str] | None = None,
     device_orientation: list[str] | None = ["x", "y", "z"],
     file_pattern: str | list[str] | None = None,
@@ -461,7 +460,6 @@ def run_paradigma(
 
                     prepare_params = {
                         "time_input_unit": time_input_unit,
-                        "resampling_frequency": target_frequency,
                         "column_mapping": column_mapping,
                         "auto_segment": split_by_gaps,
                         "max_segment_gap_s": max_gap_seconds,

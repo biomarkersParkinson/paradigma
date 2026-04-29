@@ -8,22 +8,19 @@ from scipy.interpolate import interp1d
 
 from paradigma.config import IMUConfig, PPGConfig
 from paradigma.segmenting import create_segments, discard_segments
-from paradigma.util import invert_watch_side
+from paradigma.util import invert_watch_side, round_detected_frequency
 
 logger = logging.getLogger(__name__)
 
 
 def resample_data(
     df: pd.DataFrame,
-    time_column: str = "time",
+    config: IMUConfig | PPGConfig,
     values_column_names: list[str] | None = None,
-    sampling_frequency: int | None = None,
-    resampling_frequency: int | None = None,
-    tolerance: float | None = None,
     validate_contiguous: bool = True,
     auto_segment: bool = False,
-    max_segment_gap_s: float | None = None,
-    min_segment_length_s: float | None = None,
+    max_segment_gap_s: float = 1.5,
+    min_segment_length_s: float = 1.5,
 ) -> pd.DataFrame:
     """
     Unified resampling function with optional auto-segmentation for non-contiguous data.
@@ -38,16 +35,10 @@ def resample_data(
     ----------
     df : pd.DataFrame
         The input DataFrame containing the sensor data.
-    time_column : str, default 'time'
-        The name of the column containing the time data.
+    config : IMUConfig | PPGConfig
+        ...
     values_column_names : List[str], optional
         Column names to resample. If None, auto-detects all numeric columns except time.
-    sampling_frequency : int, optional
-        Original sampling frequency (Hz). If None, auto-detected from data.
-    resampling_frequency : int, optional
-        Target sampling frequency in Hz.
-    tolerance : float, optional
-        Tolerance for contiguity checking (seconds). Defaults to IMUConfig tolerance.
     validate_contiguous : bool, default True
         Whether to validate data contiguity. If False, gaps are silently interpolated.
     auto_segment : bool, default False
@@ -103,64 +94,57 @@ def resample_data(
     """
     df = df.copy()
 
-    if time_column not in df.columns:
-        raise ValueError(f"Time column '{time_column}' not found in DataFrame")
+    if config.time_colname not in df.columns:
+        raise ValueError(f"Time column '{config.time_colname}' not found in DataFrame")
 
-    # Auto-detect or use provided column names
+    # Detect or use provided column names
     if values_column_names is None:
         numeric_columns = df.select_dtypes(include=[np.number]).columns
         values_column_names = [
             col
             for col in numeric_columns
-            if col != time_column and col != "data_segment_nr"
+            if col != config.time_colname and col != "data_segment_nr"
         ]
         if not values_column_names:
             raise ValueError("No numeric columns found for resampling")
-        logger.debug(f"Auto-detected {len(values_column_names)} columns for resampling")
+        logger.debug(f"Detected {len(values_column_names)} columns for resampling")
 
-    # Auto-detect or use provided sampling frequency
-    time_abs_array = np.array(df[time_column])
-    if sampling_frequency is None:
-        time_diff = df[time_column].diff().dropna()
-        current_dt = time_diff.median()
-        sampling_frequency = int((1.0 / current_dt) + 0.5)
-        logger.debug(f"Auto-detected sampling frequency: {sampling_frequency:.2f} Hz")
+    # Detect or use provided sampling frequency
+    time_abs_array = np.array(df[config.time_colname])
+    time_diff = df[config.time_colname].diff().dropna()
+    current_dt = time_diff.median()
+    detected_sampling_frequency = round_detected_frequency(1.0 / current_dt)
 
-    # Auto-detect resampling frequency if not provided
+    # Use internal method to set frequency and update dependent parameters
+    config._set_sampling_frequency_detected(detected_sampling_frequency)
+    logger.debug(f"Detected sampling frequency: {config.sampling_frequency} Hz")
+
+    # Detect resampling frequency if not provided
     # Use the detected/provided sampling frequency to ensure uniform sampling without
     # upsampling
-    if resampling_frequency is None:
-        resampling_frequency = sampling_frequency
+    if config.resampling_frequency is None:
+        config.resampling_frequency = config.sampling_frequency
         logger.debug(
-            f"resampling_frequency not specified. Using auto-detected sampling "
-            f"frequency of {resampling_frequency:.2f} Hz for uniform resampling."
+            f"resampling_frequency not specified. Using detected sampling "
+            f"frequency of {config.resampling_frequency:.2f} Hz for uniform resampling."
         )
-        if resampling_frequency > sampling_frequency:
-            logger.warning(
-                f"resampling_frequency ({resampling_frequency:.2f} Hz) is higher than "
-                f"auto-detected sampling frequency ({sampling_frequency:.2f} Hz). "
-                f"This will cause upsampling, which adds no new information."
-            )
+    elif config.resampling_frequency != config.sampling_frequency:
+        logger.debug(
+            f"Resampling detected sampling frequency "
+            f"{config.sampling_frequency:.2f} Hz to "
+            f"{config.resampling_frequency:.2f} Hz."
+        )
 
     # Ensure time array is strictly increasing
     if not np.all(np.diff(time_abs_array) > 0):
         raise ValueError("Time array is not strictly increasing")
 
-    # Set default tolerance if not provided
-    if tolerance is None:
-        tolerance = IMUConfig().tolerance
-
-    # Set default segmentation parameters
-    if auto_segment:
-        if max_segment_gap_s is None:
-            max_segment_gap_s = 1.5  # IMUConfig default
-        if min_segment_length_s is None:
-            min_segment_length_s = 1.5  # IMUConfig default
-
     # Check contiguity
-    expected_interval = 1 / sampling_frequency
+    expected_interval = 1 / config.sampling_frequency
     timestamp_diffs = np.diff(time_abs_array)
-    is_contiguous = not np.any(np.abs(timestamp_diffs - expected_interval) > tolerance)
+    is_contiguous = not np.any(
+        np.abs(timestamp_diffs - expected_interval) > config.tolerance
+    )
 
     if not is_contiguous:
         if validate_contiguous and not auto_segment:
@@ -185,7 +169,7 @@ def resample_data(
                 df=df,
                 segment_nr_colname="data_segment_nr",
                 min_segment_length_s=min_segment_length_s,
-                fs=int(sampling_frequency),
+                fs=int(config.sampling_frequency),
                 format="timestamps",
             )
 
@@ -193,7 +177,10 @@ def resample_data(
             segment_durations = []
             for seg_nr in df["data_segment_nr"].unique():
                 seg_df = df[df["data_segment_nr"] == seg_nr]
-                duration = seg_df[time_column].iloc[-1] - seg_df[time_column].iloc[0]
+                duration = (
+                    seg_df[config.time_colname].iloc[-1]
+                    - seg_df[config.time_colname].iloc[0]
+                )
                 segment_durations.append(f"{duration:.1f}s")
             logger.info(
                 f"Created {n_segments} segments: {', '.join(segment_durations)}"
@@ -203,12 +190,12 @@ def resample_data(
             resampled_segments = []
             for seg_nr in df["data_segment_nr"].unique():
                 seg_df = df[df["data_segment_nr"] == seg_nr].copy()
-                seg_time = np.array(seg_df[time_column])
+                seg_time = np.array(seg_df[config.time_colname])
                 seg_values = np.array(seg_df[values_column_names])
 
                 # Resample this segment
                 duration = seg_time[-1] - seg_time[0]
-                n_samples = int(np.round(duration * resampling_frequency)) + 1
+                n_samples = int(np.round(duration * config.resampling_frequency)) + 1
                 t_resampled = np.linspace(seg_time[0], seg_time[-1], n_samples)
 
                 interpolation_kind = "cubic" if len(seg_time) > 3 else "linear"
@@ -225,7 +212,7 @@ def resample_data(
                 df_seg_resampled = pd.DataFrame(
                     resampled_values, columns=values_column_names
                 )
-                df_seg_resampled[time_column] = t_resampled
+                df_seg_resampled[config.time_colname] = t_resampled
                 df_seg_resampled["data_segment_nr"] = seg_nr
 
                 # Copy non-numeric columns from first row of segment
@@ -243,7 +230,7 @@ def resample_data(
 
             # Ensure correct column order
             resampled_columns = (
-                [time_column] + values_column_names + ["data_segment_nr"]
+                [config.time_colname] + values_column_names + ["data_segment_nr"]
             )
             other_cols = [
                 col for col in df_resampled.columns if col not in resampled_columns
@@ -252,7 +239,7 @@ def resample_data(
 
             logger.info(
                 f"Resampled: {len(df)} -> {len(df_resampled)} rows at "
-                f"{resampling_frequency} Hz"
+                f"{config.resampling_frequency} Hz"
             )
 
             return df_resampled
@@ -268,7 +255,7 @@ def resample_data(
 
     # Resample the time data
     t_resampled = np.arange(
-        time_abs_array[0], time_abs_array[-1], 1 / resampling_frequency
+        time_abs_array[0], time_abs_array[-1], 1 / config.resampling_frequency
     )
 
     # Choose interpolation method
@@ -286,18 +273,20 @@ def resample_data(
 
     # Create resampled DataFrame
     df_resampled = pd.DataFrame(resampled_values, columns=values_column_names)
-    df_resampled[time_column] = t_resampled
+    df_resampled[config.time_colname] = t_resampled
 
     # Return with correct column order
-    resampled_columns = [time_column] + values_column_names
+    resampled_columns = [config.time_colname] + values_column_names
     df_resampled = df_resampled[resampled_columns]
+
+    # Update parameters based on current sampling frequency
 
     logger.info(
         f"Resampled: {len(df)} -> {len(df_resampled)} rows at "
-        f"{resampling_frequency} Hz"
+        f"{config.resampling_frequency} Hz"
     )
 
-    return df_resampled
+    return df_resampled, config
 
 
 def butterworth_filter(
@@ -433,13 +422,10 @@ def preprocess_imu_data(
         validate_contiguous = False
 
     # Resample the data to the specified frequency
-    df = resample_data(
+    df, config = resample_data(
         df=df,
-        time_column=config.time_colname,
         values_column_names=values_colnames,
-        sampling_frequency=config.sampling_frequency,
-        resampling_frequency=config.resampling_frequency,
-        tolerance=config.tolerance,
+        config=config,
         validate_contiguous=validate_contiguous,
     )
 
@@ -567,13 +553,10 @@ def preprocess_ppg_data(
         # Resample accelerometer data
         # Skip contiguity validation if data has been pre-segmented
         validate_contiguous_acc = "data_segment_nr" not in df_acc_overlapping.columns
-        df_acc_proc = resample_data(
+        df_acc_proc, imu_config = resample_data(
             df=df_acc_overlapping,
-            time_column=imu_config.time_colname,
             values_column_names=list(imu_config.d_channels_accelerometer.keys()),
-            sampling_frequency=imu_config.sampling_frequency,
-            resampling_frequency=imu_config.resampling_frequency,
-            tolerance=imu_config.tolerance,
+            config=imu_config,
             validate_contiguous=validate_contiguous_acc,
         )
 
@@ -607,13 +590,10 @@ def preprocess_ppg_data(
     # Resample PPG data
     # Skip contiguity validation if data has been pre-segmented
     validate_contiguous_ppg = "data_segment_nr" not in df_ppg_overlapping.columns
-    df_ppg_proc = resample_data(
+    df_ppg_proc, ppg_config = resample_data(
         df=df_ppg_overlapping,
-        time_column=ppg_config.time_colname,
         values_column_names=list(ppg_config.d_channels_ppg.keys()),
-        sampling_frequency=ppg_config.sampling_frequency,
-        resampling_frequency=ppg_config.resampling_frequency,
-        tolerance=ppg_config.tolerance,
+        config=ppg_config,
         validate_contiguous=validate_contiguous_ppg,
     )
 

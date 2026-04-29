@@ -21,22 +21,30 @@ Configuration for inertial measurement unit (IMU) sensors (accelerometer + gyros
 from paradigma.config import IMUConfig
 
 imu_config = IMUConfig()
-imu_config.sampling_frequency = 100
 ```
 
 #### Adaptive Frequency Handling
 
-Changing `sampling_frequency` automatically adapts frequency-dependent parameters:
+The `sampling_frequency` is automatically detected from your data during preprocessing and cannot be manually set. This ensures parameters like filter cutoffs and window sizes always match your actual data. However, you are free to manually change the input data, thereby affecting the automated sampling frequency detection.
 
 ```python
+from paradigma.preprocessing import preprocess_imu_data
+
 imu_config = IMUConfig()
-imu_config.sampling_frequency = 50  # Auto-updates all frequency-dependent parameters
+df_preprocessed = preprocess_imu_data(df_raw, imu_config)
+
+# After preprocessing, sampling_frequency is auto-detected and available:
+print(f"Detected sampling frequency: {imu_config.sampling_frequency} Hz")
+
+# To use a different resampling frequency (optional, not recommended):
+imu_config.resampling_frequency = 100
 ```
 
 **Key Behaviors:**
-- Setting `sampling_frequency` triggers automatic parameter adaptation via `_update_frequency_dependent_params()`
-- Frequency-dependent parameters (filter cutoffs, window sizes) scale proportionally
-- The orchestrator automatically detects and sets the appropriate frequency for each segment
+- `sampling_frequency` is **read-only** and auto-detected during preprocessing
+- Frequency-dependent parameters (filter cutoffs, tolerance) are automatically calculated
+- `resampling_frequency` defaults to `None` (means "use detected sampling_frequency" for uniform sampling)
+- Set `resampling_frequency` explicitly only if you need to upsample/downsample to a specific rate
 
 ### PPGConfig
 
@@ -66,15 +74,15 @@ Example with gait analysis:
 
 ```python
 from paradigma.config import IMUConfig, GaitConfig
-from paradigma.pipelines import run_paradigma
+from paradigma.orchestrator import run_paradigma
 
-imu_config = IMUConfig()
-imu_config.sampling_frequency = 100
+imu_config = IMUConfig()  # sampling_frequency will be auto-detected
 gait_config = GaitConfig()
 
 results = run_paradigma(
     dfs={'data': df},
     pipelines=['gait'],
+    watch_side='left',
     imu_config=imu_config,
     gait_config=gait_config
 )
@@ -82,10 +90,11 @@ results = run_paradigma(
 
 ## Best Practices
 
-1. **Validation**: Ensure your sensor `sampling_frequency` matches your actual data
-2. **Column Names**: Verify that your DataFrame column names match the configuration
-3. **Units**: Confirm that sensor data is in correct physical units (see [Sensor Requirements](https://biomarkersparkinson.github.io/paradigma/guides/sensor_requirements.html))
-4. **Documentation**: Document any custom configurations in your analysis code
+1. **Frequency Detection**: `sampling_frequency` is automatically detected from your data during preprocessing. No manual configuration needed.
+2. **Resampling** (Optional): By default, data is uniformly sampled at its detected frequency. Only set `resampling_frequency` if you specifically need to upsample or downsample.
+3. **Column Names**: Verify that your DataFrame column names match the configuration
+4. **Units**: Confirm that sensor data is in correct physical units (see [Sensor Requirements](https://biomarkersparkinson.github.io/paradigma/guides/sensor_requirements.html))
+5. **Documentation**: Document any custom configurations (e.g., custom resampling rates) in your analysis code
 
 ## See Also
 

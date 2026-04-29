@@ -319,8 +319,8 @@ def prepare_raw_data(
     device_orientation: dict[str, int] | None = None,
     validate: bool = True,
     auto_segment: bool = False,
-    max_segment_gap_s: float | None = None,
-    min_segment_length_s: float | None = None,
+    max_segment_gap_s: float = 1.5,
+    min_segment_length_s: float = 1.5,
 ) -> pd.DataFrame:
     """
     Complete data preparation pipeline for raw sensor data.
@@ -386,10 +386,7 @@ def prepare_raw_data(
         logger.info("Step 5: Auto-segmenting non-contiguous data")
         time_array = np.array(df[DataColumns.TIME])
         segment_array = create_segments(
-            time_array=time_array,
-            max_segment_gap_s=(
-                max_segment_gap_s if max_segment_gap_s is not None else 1.5
-            ),
+            time_array=time_array, max_segment_gap_s=max_segment_gap_s
         )
         df["data_segment_nr"] = segment_array
 
@@ -397,9 +394,7 @@ def prepare_raw_data(
         df = discard_segments(
             df=df,
             segment_nr_colname="data_segment_nr",
-            min_segment_length_s=(
-                min_segment_length_s if min_segment_length_s is not None else 1.5
-            ),
+            min_segment_length_s=min_segment_length_s,
             fs=100,  # Approximate fs for segment length calculation
             format="timestamps",
         )

@@ -26,7 +26,7 @@ from paradigma.pipelines.pulse_rate_utils import (
 )
 from paradigma.preprocessing import preprocess_ppg_data
 from paradigma.segmenting import WindowedDataExtractor, tabulate_windows
-from paradigma.util import aggregate_parameter
+from paradigma.util import aggregate_parameter, round_detected_frequency
 
 
 def extract_signal_quality_features(
@@ -62,6 +62,24 @@ def extract_signal_quality_features(
         The DataFrame containing the extracted signal quality features.
 
     """
+    # Auto-detect sampling frequency if not set (e.g., when loading preprocessed data
+    # directly)
+    if ppg_config.sampling_frequency is None:
+        time_diff = df_ppg[ppg_config.time_colname].diff().dropna()
+        current_dt = time_diff.median()
+        detected_fs = round_detected_frequency(1.0 / current_dt)
+        ppg_config._set_sampling_frequency_detected(detected_fs)
+
+    if (
+        df_acc is not None
+        and acc_config is not None
+        and acc_config.sampling_frequency is None
+    ):
+        time_diff = df_acc[acc_config.time_colname].diff().dropna()
+        current_dt = time_diff.median()
+        detected_fs = round_detected_frequency(1.0 / current_dt)
+        acc_config._set_sampling_frequency_detected(detected_fs)
+
     # Group sequences of timestamps into windows
     ppg_windowed_colnames = [ppg_config.time_colname, ppg_config.ppg_colname]
     ppg_windowed = tabulate_windows(
@@ -653,6 +671,12 @@ def run_pulse_rate_pipeline(
             steps_executed.append("preprocessing")
             result_dict["preprocessing"] = df_ppg_proc
 
+            # Sync detected frequency to pulse_rate_config
+            if ppg_config.sampling_frequency is not None:
+                pulse_rate_config._set_sampling_frequency_detected(
+                    ppg_config.sampling_frequency
+                )
+
             if "preprocessing" in store_intermediate:
                 preprocessing_dir = output_dir / "preprocessing"
                 preprocessing_dir.mkdir(exist_ok=True)
@@ -706,7 +730,7 @@ def run_pulse_rate_pipeline(
             steps_executed.append("classification")
 
         except Exception as e:
-            active_logger.error(f"Classification step failed: {e}")
+            active_logger.exception(f"Classification step failed: {e}")
             result_dict["_error"] = f"Classification failed: {str(e)}"
             return result_dict
 

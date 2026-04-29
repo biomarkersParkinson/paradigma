@@ -4,6 +4,7 @@ from dataclasses import asdict
 import numpy as np
 
 from paradigma.constants import DataColumns, DataUnits
+from paradigma.util import round_detected_frequency
 
 
 class BaseConfig:
@@ -89,10 +90,9 @@ class IMUConfig(BaseConfig):
             **self.d_channels_gyroscope,
         }
 
-        # Use private variable for sampling_frequency to enable property setter
-        self._sampling_frequency = 100
-        self.resampling_frequency = 100
-        self.tolerance = 3 * 1 / self._sampling_frequency
+        self._sampling_frequency = None
+        self.resampling_frequency = None
+        self.tolerance = None
 
         self.lower_cutoff_frequency = 0.2
         self.upper_cutoff_frequency = 3.5
@@ -103,20 +103,28 @@ class IMUConfig(BaseConfig):
         self.min_segment_length_s = 1.5
 
     @property
-    def sampling_frequency(self) -> float:
-        """Get the sampling frequency in Hz."""
+    def sampling_frequency(self) -> int | None:
+        """Get the sampling frequency in Hz. Auto-detected by resample_data."""
         return self._sampling_frequency
 
-    @sampling_frequency.setter
-    def sampling_frequency(self, value: float) -> None:
-        """Set sampling frequency and auto-update frequency-dependent parameters."""
-        self._sampling_frequency = float(value)
+    def _set_sampling_frequency_detected(self, frequency: float) -> None:
+        """Internal method: Update sampling_frequency and all dependent parameters.
+
+        Called by resample_data after detecting the sampling frequency.
+        Updates tolerance and calls _update_frequency_dependent_params() for
+        all subclasses to update their domain-specific parameters.
+
+        Parameters
+        ----------
+        frequency : float
+            The detected sampling frequency in Hz. Will be converted to integer.
+        """
+        self._sampling_frequency = round_detected_frequency(frequency)
         self.tolerance = 3 * 1 / self._sampling_frequency
         self._update_frequency_dependent_params()
 
     def _update_frequency_dependent_params(self) -> None:
-        """
-        Update parameters that depend on sampling_frequency.
+        """Update parameters that depend on sampling_frequency.
 
         Subclasses should override this to update their domain-specific
         frequency bounds (e.g., spectrum_high_frequency, mfcc_high_frequency).
@@ -138,14 +146,43 @@ class PPGConfig(BaseConfig):
         self.time_colname = self.column_mapping["TIME"]
         self.ppg_colname = self.column_mapping["PPG"]
 
-        self.sampling_frequency = 30
-        self.resampling_frequency = 30
-        self.tolerance = 3 * 1 / self.sampling_frequency
+        self._sampling_frequency = None
+        self.resampling_frequency = None
+        self.tolerance = None
         self.lower_cutoff_frequency = 0.4
         self.upper_cutoff_frequency = 3.5
         self.filter_order = 4
 
         self.d_channels_ppg = {self.ppg_colname: DataUnits.NONE}
+
+    @property
+    def sampling_frequency(self) -> int | None:
+        """Get the sampling frequency in Hz. Auto-detected by resample_data."""
+        return self._sampling_frequency
+
+    def _set_sampling_frequency_detected(self, frequency: float) -> None:
+        """Internal method: Update sampling_frequency and all dependent parameters.
+
+        Called by resample_data after auto-detecting the sampling frequency.
+        Updates tolerance and calls _update_frequency_dependent_params() for
+        all subclasses to update their domain-specific parameters.
+
+        Parameters
+        ----------
+        frequency : float
+            The detected sampling frequency in Hz. Will be converted to integer.
+        """
+        self._sampling_frequency = round_detected_frequency(frequency)
+        self.tolerance = 3 * 1 / self._sampling_frequency
+        self._update_frequency_dependent_params()
+
+    def _update_frequency_dependent_params(self) -> None:
+        """Update parameters that depend on sampling_frequency.
+
+        Subclasses should override this to update their domain-specific
+        frequency bounds.
+        """
+        pass
 
 
 # Domain base configs
@@ -175,7 +212,9 @@ class GaitConfig(IMUConfig):
         # -----------------
         self.window_type: str = "hann"
         self.spectrum_low_frequency: int = 0
-        self.spectrum_high_frequency: int = int(self.sampling_frequency / 2)
+        self.spectrum_high_frequency: int = (
+            0  # Will be set in _update_frequency_dependent_params
+        )
 
         # Power in specified frequency bands
         self.d_frequency_bandwidths: dict[str, list[float]] = {
@@ -241,10 +280,13 @@ class GaitConfig(IMUConfig):
         """
         Update frequency-dependent parameters when sampling_frequency changes.
 
-        Ensures that spectral bounds stay within Nyquist limit (fs/2).
+        Ensures that spectral bounds stay within Nyquist frequency (fs/2).
         Only clamps when bounds actually exceed Nyquist (aliasing risk).
         """
-        nyquist = self.sampling_frequency / 2
+        if self._sampling_frequency is None:
+            return
+
+        nyquist = self._sampling_frequency / 2
 
         # Spectrum bounds: use exact Nyquist frequency
         self.spectrum_high_frequency = int(nyquist)
@@ -258,7 +300,7 @@ class GaitConfig(IMUConfig):
             clamped_val = int(nyquist)
             warnings.warn(
                 f"GaitConfig: mfcc_high_frequency ({original_val}Hz) exceeds "
-                f"Nyquist ({nyquist}Hz) at {self.sampling_frequency}Hz sampling. "
+                f"Nyquist ({nyquist}Hz) at {self._sampling_frequency}Hz sampling. "
                 f"Clamped to {clamped_val}Hz.",
                 UserWarning,
             )
@@ -355,9 +397,12 @@ class TremorConfig(IMUConfig):
         """
         Update frequency-dependent parameters when sampling_frequency changes.
 
-        Ensures that PSD and MFCC frequency bounds stay within Nyquist limit.
+        Ensures that PSD and MFCC frequency bounds stay within Nyquist frequency.
         Only clamps when they actually exceed Nyquist.
         """
+        if self.sampling_frequency is None:
+            return
+
         nyquist = self.sampling_frequency / 2
 
         # Clamp peak search bounds: only if it exceeds Nyquist
@@ -434,11 +479,15 @@ class PulseRateConfig(PPGConfig):
         self.sensor = sensor
 
         # Decide which frequency to use
-        self.sampling_frequency = (
+        target_frequency = (
             self.imu_sampling_frequency
             if sensor == "imu"
             else self.ppg_sampling_frequency
         )
+
+        # Use internal method to set sampling frequency (not auto-detected,
+        # but explicit)
+        self._set_sampling_frequency_detected(target_frequency)
 
         # Update all frequency-dependent parameters
         if min_window_length_s is not None:
@@ -452,18 +501,18 @@ class PulseRateConfig(PPGConfig):
 
         # --- PPG-dependent parameters ---
         self.tfd_length = tfd_length
-        self.min_pr_samples = int(round(self.tfd_length * self.ppg_sampling_frequency))
+        self.min_pr_samples = int(self.tfd_length * self.ppg_sampling_frequency)
 
         pr_est_length = 2  # pulse rate estimation length in seconds
-        self.pr_est_samples = pr_est_length * self.ppg_sampling_frequency
+        self.pr_est_samples = int(pr_est_length * self.ppg_sampling_frequency)
 
         # Time-frequency distribution parameters
         win_type_doppler = "hamm"
         win_type_lag = "hamm"
         win_length_doppler = 8
         win_length_lag = 1
-        doppler_samples = self.ppg_sampling_frequency * win_length_doppler
-        lag_samples = win_length_lag * self.ppg_sampling_frequency
+        doppler_samples = int(self.ppg_sampling_frequency * win_length_doppler)
+        lag_samples = int(win_length_lag * self.ppg_sampling_frequency)
         self.kern_type = "sep"
         self.kern_params = {
             "doppler": {"win_length": doppler_samples, "win_type": win_type_doppler},
@@ -471,7 +520,7 @@ class PulseRateConfig(PPGConfig):
         }
 
         # --- Welch / FFT parameters based on current sensor frequency ---
-        self.window_length_welch = 3 * self.sampling_frequency
+        self.window_length_welch = int(3 * self.sampling_frequency)
         self.overlap_welch_window = self.window_length_welch // 2
         self.nfft = (
             len(np.arange(0, self.sampling_frequency / 2, self.freq_bin_resolution)) * 2

@@ -31,7 +31,7 @@ ParaDigMa is designed to work with various sampling frequencies. The orchestrato
 - **Accelerometer**: `g` (gravitational force)
 - **Gyroscope**: `deg/s` (degrees per second)
 
-> ParaDigMa has functionalities for converting [accelerometer](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/util/index.html#paradigma.util.convert_units_accelerometer) and [gyroscope](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/util/index.html#paradigma.util.convert_units_gyroscope) in other units (e.g., `m/s^2`, `rad/s`) to these standard units. This can also be setup when using run_paradigma`.
+> ParaDigMa has functionalities for converting [accelerometer](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/util/index.html#paradigma.util.convert_units_accelerometer) and [gyroscope](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/util/index.html#paradigma.util.convert_units_gyroscope) in other units (e.g., `m/s^2`, `rad/s`) to these standard units. This can also be setup when using `run_paradigma`.
 
 #### Data Compliance
 
@@ -134,6 +134,6 @@ results = run_paradigma(
 ## Important Notes on Validation
 
 > [!NOTE]
-> The specifications above represent **validated requirements**. ParaDigMa has been tested and verified to work correctly with sampling frequencies as low as 50 Hz, with comparable accuracy to 100 Hz baseline.
+> The specifications above represent **validated requirements**. ParaDigMa has been tested and verified to work correctly with sampling frequencies as low as 64 Hz.
 
 ---
