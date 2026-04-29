@@ -457,6 +457,14 @@ def quantify_arm_swing(
         Custom logger instance for logging within this function.
         If None, uses the module-level logger.
 
+    gait_segment_categories : list[tuple], optional
+        A list of tuples defining gait segment categories, where each tuple
+        contains (lower_bound_s, upper_bound_s) for the unfiltered segment
+        duration in seconds. A segment is assigned to a category if its
+        duration falls within that range (lower <= duration < upper).
+        Segments can belong to multiple overlapping categories.
+        If None, defaults to [(0, 20), (20, float('inf'))].
+
     Returns
     -------
     Tuple[pd.DataFrame, dict]
@@ -591,20 +599,20 @@ def quantify_arm_swing(
             "start_s": float(time_array.min()),
             "end_s": float(time_array.max()),
             "duration_s": len(time_array) / fs,
+            "unfiltered_duration_s": gait_segment_duration_dict[gait_segment_nr],
         }
 
-        # Determine segment category based on unfiltered segment duration
-        # This will be used for aggregation categorization
+        # Determine segment categories based on unfiltered segment duration
+        # Check all categories and collect all matches
         unfiltered_dur = gait_segment_duration_dict[gait_segment_nr]
-        segment_category = None
+        segment_categories = []
         for lower, upper in gait_segment_categories:
             if lower <= unfiltered_dur < upper:
-                segment_category = f"{lower}_{upper}"
-                break
-        if segment_category:
+                segment_categories.append(f"{lower}_{upper}")
+        if segment_categories:
             segment_meta["per_segment"][segment_nr][
-                "segment_category"
-            ] = segment_category
+                "segment_categories"
+            ] = segment_categories
 
         # Add datetime information if available
         if start_dt is not None:
@@ -713,10 +721,18 @@ def aggregate_arm_swing_params(
     aggregated_results = {}
     for segment_cat_range in gait_segment_categories:
         segment_cat_str = f"{segment_cat_range[0]}_{segment_cat_range[1]}"
+        lower, upper = segment_cat_range
+        # Check segment duration against the provided category bounds using unfiltered
+        # duration. This ensures categorization is always based on unfiltered
+        # gait segment size, even if the arm swing results are filtered
         cat_segments = [
             x
             for x in segment_meta["per_segment"].keys()
-            if segment_meta["per_segment"][x].get("segment_category") == segment_cat_str
+            if lower
+            <= segment_meta["per_segment"][x].get(
+                "unfiltered_duration_s", segment_meta["per_segment"][x]["duration_s"]
+            )
+            < upper
         ]
 
         if len(cat_segments) > 0:
