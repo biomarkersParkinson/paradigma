@@ -19,7 +19,7 @@ from paradigma.feature_extraction import (
 )
 from paradigma.preprocessing import preprocess_imu_data
 from paradigma.segmenting import WindowedDataExtractor, tabulate_windows
-from paradigma.util import aggregate_parameter
+from paradigma.util import aggregate_parameter, round_detected_frequency
 
 
 def extract_tremor_features(df: pd.DataFrame, config: TremorConfig) -> pd.DataFrame:
@@ -58,6 +58,14 @@ def extract_tremor_features(df: pd.DataFrame, config: TremorConfig) -> pd.DataFr
         specified in the configuration or if any step in the feature
         extraction fails.
     """
+    # Auto-detect sampling frequency if not set (e.g., when loading preprocessed data
+    # directly)
+    if config.sampling_frequency is None:
+        time_diff = df[config.time_colname].diff().dropna()
+        current_dt = time_diff.median()
+        detected_fs = round_detected_frequency(1.0 / current_dt)
+        config._set_sampling_frequency_detected(detected_fs)
+
     # group sequences of timestamps into windows
     windowed_colnames = [config.time_colname] + config.gyroscope_colnames
     windowed_data = tabulate_windows(
@@ -339,10 +347,10 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     window_type = "hann"
 
     # Compute the power spectral density
-    segment_length_n = sampling_frequency * segment_length_psd_s
-    overlap_n = int(np.round(segment_length_n * overlap_fraction))
+    segment_length_n = int(sampling_frequency * segment_length_psd_s)
+    overlap_n = int(segment_length_n * overlap_fraction)
     window = signal.get_window(window_type, segment_length_n, fftbins=False)
-    nfft = int(np.round(sampling_frequency / spectral_resolution_psd))
+    nfft = int(sampling_frequency / spectral_resolution_psd)
 
     freqs, psd = signal.welch(
         x=data,
@@ -357,10 +365,10 @@ def extract_spectral_domain_features(data: np.ndarray, config) -> pd.DataFrame:
     )
 
     # Compute the spectrogram
-    segment_length_n = sampling_frequency * segment_length_spectrogram_s
-    overlap_n = int(np.round(segment_length_n * overlap_fraction))
+    segment_length_n = int(sampling_frequency * segment_length_spectrogram_s)
+    overlap_n = int(segment_length_n * overlap_fraction)
     window = signal.get_window(window_type, segment_length_n)
-    nfft = int(np.round(sampling_frequency / spectral_resolution_spectrogram))
+    nfft = int(sampling_frequency / spectral_resolution_spectrogram)
 
     f, t, stft_result = signal.stft(
         x=data,
@@ -550,6 +558,12 @@ def run_tremor_pipeline(
 
             steps_executed.append("preprocessing")
             result_dict["preprocessing"] = df_preprocessed
+
+            # Sync detected frequency to tremor config
+            if imu_config.sampling_frequency is not None:
+                tremor_config._set_sampling_frequency_detected(
+                    imu_config.sampling_frequency
+                )
 
             if "preprocessing" in store_intermediate:
                 preprocessing_dir = output_dir / "preprocessing"

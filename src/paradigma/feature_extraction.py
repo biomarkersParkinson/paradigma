@@ -1058,6 +1058,7 @@ def biased_autocorrelation(ppg_windowed: np.ndarray, max_lag: int) -> np.ndarray
         ppg_windowed, axis=1, keepdims=True
     )  # Remove the mean of the signal to make it zero-mean
     n_samples = zero_mean_ppg.shape[1]
+    max_lag = int(max_lag)
     autocorr_values = np.zeros((zero_mean_ppg.shape[0], max_lag + 1))
 
     for lag in range(max_lag + 1):

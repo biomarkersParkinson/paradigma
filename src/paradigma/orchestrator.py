@@ -11,7 +11,7 @@ Main Function
   Can process raw data from disk or already-prepared DataFrames.
 
 The orchestrator coordinates:
-1. Data loading and preparation (unit conversion, resampling, orientation correction)
+1. Data loading and preparation (unit conversion, orientation correction)
 2. Pipeline execution on single or multiple files (imports from pipeline modules)
 3. Result aggregation across files and segments
 4. Optional intermediate result storage
@@ -82,7 +82,6 @@ def run_paradigma(
     accelerometer_units: str = "g",
     gyroscope_units: str = "deg/s",
     time_input_unit: TimeUnit = TimeUnit.RELATIVE_S,
-    target_frequency: float = 100.0,
     column_mapping: dict[str, str] | None = None,
     device_orientation: list[str] | None = ["x", "y", "z"],
     file_pattern: str | list[str] | None = None,
@@ -461,7 +460,6 @@ def run_paradigma(
 
                     prepare_params = {
                         "time_input_unit": time_input_unit,
-                        "resampling_frequency": target_frequency,
                         "column_mapping": column_mapping,
                         "auto_segment": split_by_gaps,
                         "max_segment_gap_s": max_gap_seconds,

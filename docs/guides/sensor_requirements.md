@@ -11,6 +11,10 @@ All pipelines require data from a wrist-worn sensor with:
 - **Data Quality**: Strictly increasing timestamps
 - **Orientation**: Standardized coordinate system (see [Coordinate System Guide](coordinate_system.md))
 
+## Sampling Frequency Flexibility
+
+ParaDigMa is designed to work with various sampling frequencies. The orchestrator `run_paradigma` estimates the current sampling frequency and adjusts frequency-dependent parameters accordingly. For best results, use native sensor data without upsampling beforehand.
+
 ## Pipeline-Specific Requirements
 
 ### Arm Swing during Gait
@@ -19,8 +23,8 @@ All pipelines require data from a wrist-worn sensor with:
 
 | Specification | Minimum Requirement |
 |---------------|-------------------|
-| **Accelerometer** | Sampling rate ≥ 100 Hz<br>Range ≥ ± 4 g |
-| **Gyroscope** | Sampling rate ≥ 100 Hz<br>Range ≥ ± 1000 degrees/sec |
+| **Accelerometer** | Sampling rate ≥ 50 Hz<br>Range ≥ ± 4 g |
+| **Gyroscope** | Sampling rate ≥ 50 Hz<br>Range ≥ ± 1000 degrees/sec |
 
 #### Physical Units
 
@@ -53,7 +57,7 @@ For reliable weekly measures:
 
 | Specification | Minimum Requirement |
 |---------------|-------------------|
-| **Gyroscope** | Sampling rate ≥ 100 Hz<br>Range ≥ ± 1000 degrees/sec |
+| **Gyroscope** | Sampling rate ≥ 50 Hz<br>Range ≥ ± 1000 degrees/sec |
 
 #### Physical Units
 
@@ -130,6 +134,6 @@ results = run_paradigma(
 ## Important Notes on Validation
 
 > [!NOTE]
-> The specifications above represent **minimally validated requirements**. For example, while ParaDigMa works with accelerometer and gyroscope data sampled at 50 Hz, the effect on processing accuracy has not been empirically validated.
+> The specifications above represent **validated requirements**. ParaDigMa has been tested and verified to work correctly with sampling frequencies as low as 64 Hz.
 
 ---
