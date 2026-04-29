@@ -565,7 +565,7 @@ print(f"   Metadata: {tremor_meta}")
     Filtered gait aggregation:
        Gait segment categories: ['0_20', '20_inf']
        Aggregates for 0-20s segments: ['duration_s', 'median_range_of_motion', '95p_range_of_motion', 'median_cov_range_of_motion', 'mean_cov_range_of_motion', 'median_peak_velocity', '95p_peak_velocity', 'median_cov_peak_velocity', 'mean_cov_peak_velocity']
-       First filtered gait segment: {'start_s': 2221.75, 'end_s': 2230.74, 'duration_s': 9.0, 'segment_categories': ['0_20']}
+       First filtered gait segment: {'start_s': 2221.75, 'end_s': 2230.74, 'duration_s': 9.0, 'unfiltered_duration_s': 12.75, 'segment_categories': ['0_20']}
 
     Tremor quantification (27056 windows):
        Columns: ['time', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power', 'file_key']... (5 total)
@@ -668,16 +668,13 @@ print("\nQuantifications (first 5 rows; each row represents a single arm swing):
 results_end_to_end['quantifications'][pipeline]['filtered'].head()
 ```
 
-    C:\Users\z665206\Documents\PhD\code\paradigma\src\paradigma\load.py:402: UserWarning: Discarding nonzero nanoseconds in conversion.
-      start_dt = start_dt.to_pydatetime()
-
-
 
     Filtered Gait Metadata (first segment):
     {
       "start_s": 124.5,
       "end_s": 127.49,
       "duration_s": 3.0,
+      "unfiltered_duration_s": 124.5,
       "segment_categories": [
         "20_inf"
       ],
@@ -688,6 +685,9 @@ results_end_to_end['quantifications'][pipeline]['filtered'].head()
     Filtered Gait Aggregations:
     {
       "0_20": {
+        "duration_s": 0
+      },
+      "20_inf": {
         "duration_s": 18.0,
         "median_range_of_motion": 7.182233339196239,
         "95p_range_of_motion": 27.529007915195262,
@@ -697,9 +697,6 @@ results_end_to_end['quantifications'][pipeline]['filtered'].head()
         "95p_peak_velocity": 258.93016146092725,
         "median_cov_peak_velocity": 0.23137490496592453,
         "mean_cov_peak_velocity": 0.2872492141424207
-      },
-      "20_inf": {
-        "duration_s": 0
       }
     }
 
