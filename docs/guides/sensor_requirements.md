@@ -134,6 +134,6 @@ results = run_paradigma(
 ## Important Notes on Validation
 
 > [!NOTE]
-> The specifications above represent **validated requirements**. ParaDigMa has been tested and verified to work correctly with sampling frequencies as low as 64 Hz.
+> The specifications above represent **validated requirements**. ParaDigMa has been tested and verified to work correctly with sampling frequencies as low as 50 Hz.
 
 ---

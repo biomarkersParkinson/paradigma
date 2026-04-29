@@ -485,8 +485,8 @@ class PulseRateConfig(PPGConfig):
             else self.ppg_sampling_frequency
         )
 
-        # Use internal method to set sampling frequency (not auto-detected,
-        # but explicit)
+        # Use internal method to set sampling frequency (not auto-detected, but
+        # explicit)
         self._set_sampling_frequency_detected(target_frequency)
 
         # Update all frequency-dependent parameters

@@ -215,11 +215,11 @@ The function [`preprocess_imu_data`](https://biomarkersparkinson.github.io/parad
 
 
 ```python
-config = IMUConfig()
+imu_config = IMUConfig()
 
 df_preprocessed = preprocess_imu_data(
     df=df_imu,
-    config=config,
+    config=imu_config,
     sensor='both',
     watch_side='left',
 )
@@ -227,7 +227,7 @@ df_preprocessed = preprocess_imu_data(
 df_preprocessed.head()
 ```
 
-    INFO: Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+    INFO: Resampled: 3455331 -> 3468300 rows at 101 Hz
 
 
 
@@ -253,68 +253,68 @@ df_preprocessed.head()
   <tbody>
     <tr>
       <th>0</th>
-      <td>0.00</td>
-      <td>-0.002324</td>
-      <td>-0.001442</td>
-      <td>-0.002116</td>
+      <td>0.000000</td>
+      <td>-0.002357</td>
+      <td>-0.001140</td>
+      <td>-0.002248</td>
       <td>0.000000</td>
       <td>1.402439</td>
       <td>0.243902</td>
-      <td>-0.472317</td>
-      <td>-0.377984</td>
-      <td>0.772451</td>
+      <td>-0.472284</td>
+      <td>-0.378285</td>
+      <td>0.772583</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>0.01</td>
-      <td>-0.000390</td>
-      <td>-0.000914</td>
-      <td>-0.007396</td>
-      <td>0.432231</td>
-      <td>0.665526</td>
-      <td>-0.123434</td>
-      <td>-0.472326</td>
-      <td>-0.378012</td>
-      <td>0.772464</td>
+      <td>0.009901</td>
+      <td>-0.000438</td>
+      <td>-0.000647</td>
+      <td>-0.007521</td>
+      <td>0.424212</td>
+      <td>0.673259</td>
+      <td>-0.121229</td>
+      <td>-0.472294</td>
+      <td>-0.378311</td>
+      <td>0.772595</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>0.02</td>
-      <td>0.000567</td>
-      <td>0.002474</td>
-      <td>-0.005445</td>
-      <td>1.164277</td>
-      <td>-0.069584</td>
-      <td>-0.307536</td>
-      <td>-0.472336</td>
-      <td>-0.378040</td>
-      <td>0.772476</td>
+      <td>0.019802</td>
+      <td>0.000533</td>
+      <td>0.002722</td>
+      <td>-0.005643</td>
+      <td>1.155682</td>
+      <td>-0.056779</td>
+      <td>-0.303596</td>
+      <td>-0.472304</td>
+      <td>-0.378336</td>
+      <td>0.772606</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>0.03</td>
-      <td>-0.000425</td>
-      <td>0.002414</td>
-      <td>-0.002099</td>
-      <td>1.151432</td>
-      <td>-0.554928</td>
-      <td>-0.554223</td>
-      <td>-0.472346</td>
-      <td>-0.378068</td>
-      <td>0.772489</td>
+      <td>0.029703</td>
+      <td>-0.000393</td>
+      <td>0.002789</td>
+      <td>-0.002310</td>
+      <td>1.161910</td>
+      <td>-0.545737</td>
+      <td>-0.546139</td>
+      <td>-0.472314</td>
+      <td>-0.378360</td>
+      <td>0.772618</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>0.04</td>
-      <td>-0.002807</td>
-      <td>-0.001408</td>
-      <td>-0.000218</td>
-      <td>0.657189</td>
-      <td>-0.603207</td>
-      <td>-0.731570</td>
-      <td>-0.472355</td>
-      <td>-0.378096</td>
-      <td>0.772502</td>
+      <td>0.039604</td>
+      <td>-0.002775</td>
+      <td>-0.001001</td>
+      <td>-0.000398</td>
+      <td>0.677357</td>
+      <td>-0.612758</td>
+      <td>-0.731633</td>
+      <td>-0.472323</td>
+      <td>-0.378385</td>
+      <td>0.772629</td>
     </tr>
   </tbody>
 </table>
@@ -353,17 +353,19 @@ column_mapping = {
     'GYROSCOPE_Z': DataColumns.GYROSCOPE_Z,
 }
 
-config = GaitConfig(step='gait', column_mapping=column_mapping)
+# Pass the IMUConfig from preprocessing to inherit the detected sampling frequency
+gait_config = GaitConfig(step='gait', column_mapping=column_mapping)
+gait_config._set_sampling_frequency_detected(imu_config.sampling_frequency)
 
 df_gait = extract_gait_features(
     df=df_preprocessed,
-    config=config
+    config=gait_config
 )
 
 print(
     f"A total of {df_gait.shape[1]-1} features have been extracted from "
-    f"{df_gait.shape[0]} {config.window_length_s}-second windows with "
-    f"{config.window_length_s-config.window_step_length_s} seconds overlap."
+    f"{df_gait.shape[0]} {gait_config.window_length_s}-second windows with "
+    f"{gait_config.window_length_s-gait_config.window_step_length_s} seconds overlap."
 )
 df_gait.head()
 ```
@@ -406,74 +408,74 @@ df_gait.head()
     <tr>
       <th>0</th>
       <td>0.0</td>
-      <td>-0.472967</td>
-      <td>-0.380588</td>
-      <td>0.774287</td>
-      <td>0.000270</td>
-      <td>0.000818</td>
-      <td>0.000574</td>
-      <td>0.003377</td>
+      <td>-0.472964</td>
+      <td>-0.380610</td>
+      <td>0.774297</td>
+      <td>0.000275</td>
+      <td>0.000748</td>
+      <td>0.000542</td>
+      <td>0.003370</td>
       <td>0.000003</td>
-      <td>1.188086e-06</td>
+      <td>1.167951e-06</td>
       <td>...</td>
-      <td>-1.101486</td>
-      <td>0.524288</td>
-      <td>0.215990</td>
-      <td>0.429154</td>
-      <td>0.900923</td>
-      <td>1.135918</td>
-      <td>0.673404</td>
-      <td>-0.128276</td>
-      <td>-0.335655</td>
-      <td>-0.060155</td>
+      <td>-1.102542</td>
+      <td>0.524570</td>
+      <td>0.215273</td>
+      <td>0.429301</td>
+      <td>0.900356</td>
+      <td>1.136008</td>
+      <td>0.672959</td>
+      <td>-0.128223</td>
+      <td>-0.335890</td>
+      <td>-0.060264</td>
     </tr>
     <tr>
       <th>1</th>
       <td>1.0</td>
-      <td>-0.473001</td>
-      <td>-0.380704</td>
-      <td>0.774541</td>
-      <td>0.000235</td>
-      <td>0.000588</td>
-      <td>0.000220</td>
-      <td>0.003194</td>
+      <td>-0.473002</td>
+      <td>-0.380697</td>
+      <td>0.774538</td>
+      <td>0.000236</td>
+      <td>0.000572</td>
+      <td>0.000215</td>
+      <td>0.003187</td>
       <td>0.000003</td>
-      <td>1.210176e-06</td>
+      <td>1.203355e-06</td>
       <td>...</td>
-      <td>-0.997314</td>
-      <td>0.633275</td>
-      <td>0.327645</td>
-      <td>0.451613</td>
-      <td>0.972729</td>
-      <td>1.120786</td>
-      <td>0.770134</td>
-      <td>-0.115916</td>
-      <td>-0.395856</td>
-      <td>-0.011206</td>
+      <td>-0.997681</td>
+      <td>0.633430</td>
+      <td>0.327416</td>
+      <td>0.451710</td>
+      <td>0.972589</td>
+      <td>1.120794</td>
+      <td>0.770066</td>
+      <td>-0.115923</td>
+      <td>-0.395905</td>
+      <td>-0.011235</td>
     </tr>
     <tr>
       <th>2</th>
       <td>2.0</td>
-      <td>-0.473036</td>
-      <td>-0.380563</td>
-      <td>0.774578</td>
+      <td>-0.473037</td>
+      <td>-0.380556</td>
+      <td>0.774576</td>
       <td>0.000233</td>
-      <td>0.000619</td>
-      <td>0.000195</td>
-      <td>0.003188</td>
+      <td>0.000605</td>
+      <td>0.000193</td>
+      <td>0.003178</td>
       <td>0.000002</td>
-      <td>6.693551e-07</td>
+      <td>6.705345e-07</td>
       <td>...</td>
-      <td>-1.040592</td>
-      <td>0.404720</td>
-      <td>0.268514</td>
-      <td>0.507473</td>
-      <td>0.944706</td>
-      <td>1.016282</td>
-      <td>0.785686</td>
-      <td>-0.071433</td>
-      <td>-0.414269</td>
-      <td>0.020690</td>
+      <td>-1.040508</td>
+      <td>0.404687</td>
+      <td>0.268458</td>
+      <td>0.507542</td>
+      <td>0.944616</td>
+      <td>1.016366</td>
+      <td>0.785605</td>
+      <td>-0.071365</td>
+      <td>-0.414318</td>
+      <td>0.020683</td>
     </tr>
     <tr>
       <th>3</th>
@@ -482,46 +484,46 @@ df_gait.head()
       <td>-0.380310</td>
       <td>0.774660</td>
       <td>0.000301</td>
-      <td>0.000526</td>
+      <td>0.000522</td>
       <td>0.000326</td>
-      <td>0.003020</td>
+      <td>0.003002</td>
       <td>0.000002</td>
-      <td>6.835856e-07</td>
+      <td>6.856197e-07</td>
       <td>...</td>
-      <td>-1.075637</td>
-      <td>0.258352</td>
-      <td>0.257234</td>
-      <td>0.506739</td>
-      <td>0.892823</td>
-      <td>0.900388</td>
-      <td>0.706368</td>
-      <td>-0.080562</td>
-      <td>-0.302595</td>
-      <td>0.054805</td>
+      <td>-1.076265</td>
+      <td>0.258896</td>
+      <td>0.256840</td>
+      <td>0.507037</td>
+      <td>0.892664</td>
+      <td>0.900503</td>
+      <td>0.706305</td>
+      <td>-0.080479</td>
+      <td>-0.302643</td>
+      <td>0.054793</td>
     </tr>
     <tr>
       <th>4</th>
       <td>4.0</td>
       <td>-0.472692</td>
-      <td>-0.380024</td>
-      <td>0.774889</td>
+      <td>-0.380027</td>
+      <td>0.774891</td>
       <td>0.000468</td>
-      <td>0.000355</td>
-      <td>0.000470</td>
-      <td>0.002869</td>
+      <td>0.000358</td>
+      <td>0.000468</td>
+      <td>0.002859</td>
       <td>0.000002</td>
-      <td>1.097557e-06</td>
+      <td>1.099972e-06</td>
       <td>...</td>
-      <td>-1.079496</td>
-      <td>0.264418</td>
-      <td>0.237172</td>
-      <td>0.587941</td>
-      <td>0.936835</td>
-      <td>0.763372</td>
-      <td>0.607845</td>
-      <td>-0.159721</td>
-      <td>-0.184856</td>
-      <td>0.128150</td>
+      <td>-1.079838</td>
+      <td>0.264684</td>
+      <td>0.237084</td>
+      <td>0.587880</td>
+      <td>0.937095</td>
+      <td>0.763024</td>
+      <td>0.608238</td>
+      <td>-0.160035</td>
+      <td>-0.184588</td>
+      <td>0.127915</td>
     </tr>
   </tbody>
 </table>
@@ -576,11 +578,11 @@ print(
 
 # Only the time and the predicted gait probability are shown, but the
 # dataframe also contains the extracted features
-df_gait[[config.time_colname, DataColumns.PRED_GAIT_PROBA]].head()
+df_gait[[gait_config.time_colname, DataColumns.PRED_GAIT_PROBA]].head()
 ```
 
-    Out of 34334 windows, 2753 (8.0%)
-    were predicted as gait, and 31581 (92.0%)
+    Out of 34334 windows, 2755 (8.0%)
+    were predicted as gait, and 31579 (92.0%)
     as non-gait.
 
 
@@ -644,7 +646,7 @@ metadata_values_store = tsdf.TSDFMetadata(
 )
 
 # Select the columns to be saved
-metadata_time_store.channels = [config.time_colname]
+metadata_time_store.channels = [gait_config.time_colname]
 metadata_values_store.channels = [DataColumns.PRED_GAIT_PROBA]
 
 # Set the units
@@ -735,14 +737,12 @@ But, first, the gait predictions should be merged with the preprocessed time ser
 if not any(df_gait[DataColumns.PRED_GAIT_PROBA] >= clf_package_detection.threshold):
     raise ValueError("No gait detected in the input data.")
 
-gait_preprocessing_config = GaitConfig(step='gait')
-
 df = merge_predictions_with_timestamps(
     df_ts=df_preprocessed,
     df_predictions=df_gait,
     pred_proba_colname=DataColumns.PRED_GAIT_PROBA,
-    window_length_s=gait_preprocessing_config.window_length_s,
-    fs=gait_preprocessing_config.sampling_frequency
+    window_length_s=gait_config.window_length_s,
+    fs=gait_config.sampling_frequency
 )
 
 # Add a column for predicted gait based on a fitted threshold
@@ -756,22 +756,23 @@ df = df.loc[df[DataColumns.PRED_GAIT]==1].reset_index(drop=True)
 
 
 ```python
-config = GaitConfig(step='arm_activity')
+arm_config = GaitConfig(step='arm_activity')
+arm_config._set_sampling_frequency_detected(imu_config.sampling_frequency)
 
 df_arm = extract_arm_activity_features(
     df=df,
-    config=config,
+    config=arm_config,
 )
 
 print(
     f"A total of {df_arm.shape[1] - 1} features have been extracted "
-    f"from {df_arm.shape[0]} {config.window_length_s}-second windows "
-    f"with {config.window_length_s - config.window_step_length_s} seconds overlap."
+    f"from {df_arm.shape[0]} {arm_config.window_length_s}-second windows "
+    f"with {arm_config.window_length_s - arm_config.window_step_length_s} seconds overlap."
 )
 df_arm.head()
 ```
 
-    A total of 61 features have been extracted from 2749 3-second windows with 2.25 seconds overlap.
+    A total of 61 features have been extracted from 2755 3-second windows with 2.25 seconds overlap.
 
 
 
@@ -809,122 +810,122 @@ df_arm.head()
     <tr>
       <th>0</th>
       <td>1463.00</td>
-      <td>-0.941812</td>
-      <td>-0.216149</td>
-      <td>-0.129170</td>
-      <td>0.031409</td>
-      <td>0.089397</td>
-      <td>0.060771</td>
-      <td>0.166084</td>
+      <td>-0.941813</td>
+      <td>-0.216146</td>
+      <td>-0.129167</td>
+      <td>0.031408</td>
+      <td>0.089393</td>
+      <td>0.060770</td>
+      <td>0.166103</td>
       <td>0.000596</td>
-      <td>0.007746</td>
+      <td>0.007747</td>
       <td>...</td>
-      <td>-0.555190</td>
-      <td>0.735644</td>
-      <td>0.180382</td>
-      <td>0.044897</td>
-      <td>-0.645257</td>
-      <td>-0.255383</td>
-      <td>0.121998</td>
-      <td>0.297776</td>
-      <td>0.326170</td>
-      <td>0.348648</td>
+      <td>-0.555074</td>
+      <td>0.735551</td>
+      <td>0.180431</td>
+      <td>0.044856</td>
+      <td>-0.645180</td>
+      <td>-0.255526</td>
+      <td>0.122215</td>
+      <td>0.297500</td>
+      <td>0.326476</td>
+      <td>0.348350</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>1463.75</td>
-      <td>-0.933787</td>
-      <td>-0.198807</td>
-      <td>-0.092710</td>
-      <td>0.045961</td>
-      <td>0.066987</td>
-      <td>0.038606</td>
-      <td>0.363777</td>
-      <td>0.001216</td>
-      <td>0.002593</td>
+      <td>1463.74</td>
+      <td>-0.934076</td>
+      <td>-0.198583</td>
+      <td>-0.092962</td>
+      <td>0.045522</td>
+      <td>0.066541</td>
+      <td>0.038878</td>
+      <td>0.360830</td>
+      <td>0.001213</td>
+      <td>0.002664</td>
       <td>...</td>
-      <td>-0.722972</td>
-      <td>0.686450</td>
-      <td>-0.254451</td>
-      <td>-0.282469</td>
-      <td>-0.798232</td>
-      <td>-0.100043</td>
-      <td>0.028278</td>
-      <td>0.114591</td>
-      <td>0.160311</td>
-      <td>0.372009</td>
+      <td>-0.718265</td>
+      <td>0.689992</td>
+      <td>-0.251657</td>
+      <td>-0.279176</td>
+      <td>-0.798014</td>
+      <td>-0.100938</td>
+      <td>0.034502</td>
+      <td>0.118056</td>
+      <td>0.162835</td>
+      <td>0.373055</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>1464.50</td>
-      <td>-0.882285</td>
-      <td>-0.265160</td>
-      <td>-0.080937</td>
-      <td>0.094924</td>
-      <td>0.146720</td>
-      <td>0.021218</td>
-      <td>0.362434</td>
-      <td>0.002429</td>
-      <td>0.001315</td>
+      <td>1464.49</td>
+      <td>-0.883701</td>
+      <td>-0.263048</td>
+      <td>-0.080902</td>
+      <td>0.094025</td>
+      <td>0.145017</td>
+      <td>0.021149</td>
+      <td>0.362067</td>
+      <td>0.002425</td>
+      <td>0.001264</td>
       <td>...</td>
-      <td>-1.134321</td>
-      <td>0.773245</td>
-      <td>-0.218279</td>
-      <td>-0.430585</td>
-      <td>-0.437373</td>
-      <td>-0.065236</td>
-      <td>0.014411</td>
-      <td>0.083823</td>
-      <td>0.181666</td>
-      <td>0.079949</td>
+      <td>-1.126609</td>
+      <td>0.759017</td>
+      <td>-0.217674</td>
+      <td>-0.435664</td>
+      <td>-0.443270</td>
+      <td>-0.069035</td>
+      <td>0.005618</td>
+      <td>0.079465</td>
+      <td>0.178917</td>
+      <td>0.083811</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>1465.25</td>
-      <td>-0.794800</td>
-      <td>-0.405043</td>
-      <td>-0.094178</td>
-      <td>0.126863</td>
-      <td>0.212621</td>
-      <td>0.034948</td>
-      <td>0.363425</td>
-      <td>0.004974</td>
-      <td>0.008407</td>
+      <td>1465.23</td>
+      <td>-0.797733</td>
+      <td>-0.400167</td>
+      <td>-0.093532</td>
+      <td>0.126371</td>
+      <td>0.211431</td>
+      <td>0.034593</td>
+      <td>0.364234</td>
+      <td>0.004846</td>
+      <td>0.008480</td>
       <td>...</td>
-      <td>-1.154252</td>
-      <td>1.024267</td>
-      <td>-0.161531</td>
-      <td>-0.217479</td>
-      <td>-0.153630</td>
-      <td>-0.016550</td>
-      <td>0.119570</td>
-      <td>0.095287</td>
-      <td>0.231406</td>
-      <td>0.015294</td>
+      <td>-1.158651</td>
+      <td>1.020173</td>
+      <td>-0.163708</td>
+      <td>-0.228485</td>
+      <td>-0.162279</td>
+      <td>-0.015891</td>
+      <td>0.126144</td>
+      <td>0.099092</td>
+      <td>0.233570</td>
+      <td>0.016199</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>1466.00</td>
-      <td>-0.691081</td>
-      <td>-0.578715</td>
-      <td>-0.118220</td>
-      <td>0.127414</td>
-      <td>0.219660</td>
-      <td>0.035758</td>
-      <td>0.360352</td>
-      <td>0.003998</td>
-      <td>0.004305</td>
+      <td>1465.97</td>
+      <td>-0.695245</td>
+      <td>-0.571835</td>
+      <td>-0.117326</td>
+      <td>0.127879</td>
+      <td>0.220583</td>
+      <td>0.036150</td>
+      <td>0.361459</td>
+      <td>0.003841</td>
+      <td>0.004359</td>
       <td>...</td>
-      <td>-0.763188</td>
-      <td>0.763812</td>
-      <td>-0.158849</td>
-      <td>-0.023935</td>
-      <td>-0.006564</td>
-      <td>-0.185257</td>
-      <td>-0.120585</td>
-      <td>0.090823</td>
-      <td>0.171506</td>
-      <td>-0.038381</td>
+      <td>-0.777551</td>
+      <td>0.784781</td>
+      <td>-0.158454</td>
+      <td>-0.026845</td>
+      <td>-0.001841</td>
+      <td>-0.178935</td>
+      <td>-0.112552</td>
+      <td>0.086241</td>
+      <td>0.172922</td>
+      <td>-0.038833</td>
     </tr>
   </tbody>
 </table>
@@ -985,10 +986,10 @@ print(
 
 # Only the time and predicted probabilities are shown,
 # but the dataframe also contains the extracted features
-df_arm[[config.time_colname, DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]].head()
+df_arm[[arm_config.time_colname, DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]].head()
 ```
 
-    Out of 2749 windows, 916 (33.3%) were predicted as no_other_arm_activity, and 1833 (66.7%) as other_arm_activity.
+    Out of 2755 windows, 927 (33.6%) were predicted as no_other_arm_activity, and 1828 (66.4%) as other_arm_activity.
 
 
 
@@ -1007,27 +1008,27 @@ df_arm[[config.time_colname, DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]].head
     <tr>
       <th>0</th>
       <td>1463.00</td>
-      <td>0.199764</td>
+      <td>0.200129</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>1463.75</td>
-      <td>0.107982</td>
+      <td>1463.74</td>
+      <td>0.109148</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>1464.50</td>
-      <td>0.138796</td>
+      <td>1464.49</td>
+      <td>0.137190</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>1465.25</td>
-      <td>0.168050</td>
+      <td>1465.23</td>
+      <td>0.167751</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>1466.00</td>
-      <td>0.033986</td>
+      <td>1465.97</td>
+      <td>0.036145</td>
     </tr>
   </tbody>
 </table>
@@ -1064,14 +1065,12 @@ if not any(
         "No gait without other arm activities detected in the input data."
     )
 
-config = GaitConfig(step='arm_activity')
-
 df = merge_predictions_with_timestamps(
     df_ts=df_preprocessed,
     df_predictions=df_arm,
     pred_proba_colname=DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA,
-    window_length_s=config.window_length_s,
-    fs=config.sampling_frequency
+    window_length_s=arm_config.window_length_s,
+    fs=arm_config.sampling_frequency
 )
 
 # Add a column for predicted gait based on a fitted threshold
@@ -1095,16 +1094,16 @@ else:
 
 quantified_arm_swing, gait_segment_meta = quantify_arm_swing(
     df=df,
-    fs=config.sampling_frequency,
+    fs=arm_config.sampling_frequency,
     filtered=filtered,
-    max_segment_gap_s=config.max_segment_gap_s,
-    min_segment_length_s=config.min_segment_length_s,
+    max_segment_gap_s=arm_config.max_segment_gap_s,
+    min_segment_length_s=arm_config.min_segment_length_s,
     start_dt=None,  # if provided, this ensures datetime format of segments is returned
 )
 
 print(
-    f"Gait segments are created of minimum {config.min_segment_length_s} seconds "
-    f"and maximum {config.max_segment_gap_s} seconds gap between segments.\n"
+    f"Gait segments are created of minimum {arm_config.min_segment_length_s} seconds "
+    f"and maximum {arm_config.max_segment_gap_s} seconds gap between segments.\n"
 )
 print(
     f"A total of {quantified_arm_swing['gait_segment_nr'].nunique()} {dataset_used} "
@@ -1136,16 +1135,17 @@ quantified_arm_swing.loc[quantified_arm_swing['gait_segment_nr'] == 1]
 
     Gait segments are created of minimum 1.5 seconds and maximum 1.5 seconds gap between segments.
 
-    A total of 84 filtered gait segments have been quantified.
+    A total of 79 filtered gait segments have been quantified.
 
     Metadata of the first gait segment:
     {
-     "start_s": 2221.75,
-     "end_s": 2230.75,
-     "duration_s": 9.0
+     "start_s": 2221.71,
+     "end_s": 2230.649900990099,
+     "duration_s": 8.94059405940594,
+     "segment_category": "0_20"
     }
 
-    The first filtered gait segment has a duration of 9.00 seconds, starting at 2221.75s and ending at 2230.75s.
+    The first filtered gait segment has a duration of 8.94 seconds, starting at 2221.71s and ending at 2230.65s.
 
     Individual arm swings of the first gait segment of the  filtered dataset:
 
@@ -1167,80 +1167,80 @@ quantified_arm_swing.loc[quantified_arm_swing['gait_segment_nr'] == 1]
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>19.218491</td>
-      <td>90.807689</td>
+      <td>20.777252</td>
+      <td>90.763084</td>
     </tr>
     <tr>
       <th>1</th>
       <td>1</td>
-      <td>21.267287</td>
-      <td>105.781357</td>
+      <td>22.350129</td>
+      <td>105.756866</td>
     </tr>
     <tr>
       <th>2</th>
       <td>1</td>
-      <td>23.582098</td>
-      <td>103.932332</td>
+      <td>24.345197</td>
+      <td>103.794565</td>
     </tr>
     <tr>
       <th>3</th>
       <td>1</td>
-      <td>23.757712</td>
-      <td>114.846304</td>
+      <td>24.725786</td>
+      <td>115.074796</td>
     </tr>
     <tr>
       <th>4</th>
       <td>1</td>
-      <td>17.430734</td>
-      <td>63.297391</td>
+      <td>17.669009</td>
+      <td>63.330240</td>
     </tr>
     <tr>
       <th>5</th>
       <td>1</td>
-      <td>12.139037</td>
-      <td>59.740258</td>
+      <td>12.262003</td>
+      <td>59.865183</td>
     </tr>
     <tr>
       <th>6</th>
       <td>1</td>
-      <td>6.681346</td>
-      <td>36.802784</td>
+      <td>6.787542</td>
+      <td>36.696967</td>
     </tr>
     <tr>
       <th>7</th>
       <td>1</td>
-      <td>6.293493</td>
-      <td>30.793498</td>
+      <td>6.206446</td>
+      <td>30.851121</td>
     </tr>
     <tr>
       <th>8</th>
       <td>1</td>
-      <td>7.892546</td>
-      <td>42.481470</td>
+      <td>7.865740</td>
+      <td>42.370003</td>
     </tr>
     <tr>
       <th>9</th>
       <td>1</td>
-      <td>9.633521</td>
-      <td>43.837249</td>
+      <td>9.697051</td>
+      <td>44.037056</td>
     </tr>
     <tr>
       <th>10</th>
       <td>1</td>
-      <td>9.679263</td>
-      <td>38.867993</td>
+      <td>9.790587</td>
+      <td>38.668452</td>
     </tr>
     <tr>
       <th>11</th>
       <td>1</td>
-      <td>9.437900</td>
-      <td>34.112233</td>
+      <td>9.540712</td>
+      <td>34.264631</td>
     </tr>
     <tr>
       <th>12</th>
       <td>1</td>
-      <td>9.272199</td>
-      <td>33.344802</td>
+      <td>9.189801</td>
+      <td>33.028421</td>
     </tr>
   </tbody>
 </table>
@@ -1297,21 +1297,22 @@ for raw_data_segment_nr in raw_data_segments:
     # 1: Preprocess the data
     # Change column names if necessary by creating parameter column_mapping
     # (see previous cells for an example)
-    config = IMUConfig()
+    imu_config = IMUConfig()
 
     df_preprocessed = preprocess_imu_data(
         df=df_imu,
-        config=config,
+        config=imu_config,
         sensor='both',
         watch_side='left',
     )
 
     # 2: Extract gait features
-    config = GaitConfig(step='gait')
+    gait_config = GaitConfig(step='gait')
+    gait_config._set_sampling_frequency_detected(imu_config.sampling_frequency)
 
     df_gait = extract_gait_features(
         df=df_preprocessed,
-        config=config
+        config=gait_config
     )
 
     # 3: Detect gait
@@ -1330,8 +1331,8 @@ for raw_data_segment_nr in raw_data_segments:
         df_ts=df_preprocessed,
         df_predictions=df_gait,
         pred_proba_colname=DataColumns.PRED_GAIT_PROBA,
-        window_length_s=config.window_length_s,
-        fs=config.sampling_frequency
+        window_length_s=gait_config.window_length_s,
+        fs=gait_config.sampling_frequency
     )
 
     df[DataColumns.PRED_GAIT] = (
@@ -1340,11 +1341,12 @@ for raw_data_segment_nr in raw_data_segments:
     df = df.loc[df[DataColumns.PRED_GAIT]==1].reset_index(drop=True)
 
     # 4: Extract arm activity features
-    config = GaitConfig(step='arm_activity')
+    arm_config = GaitConfig(step='arm_activity')
+    arm_config._set_sampling_frequency_detected(imu_config.sampling_frequency)
 
     df_arm_activity = extract_arm_activity_features(
         df=df,
-        config=config,
+        config=arm_config,
     )
 
     # 5: Filter gait
@@ -1365,8 +1367,8 @@ for raw_data_segment_nr in raw_data_segments:
         df_ts=df_preprocessed,
         df_predictions=df_arm_activity,
         pred_proba_colname=DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA,
-        window_length_s=config.window_length_s,
-        fs=config.sampling_frequency
+        window_length_s=arm_config.window_length_s,
+        fs=arm_config.sampling_frequency
     )
 
     df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
@@ -1377,10 +1379,10 @@ for raw_data_segment_nr in raw_data_segments:
     # 6: Quantify arm swing
     quantified_arm_swing, gait_segment_meta = quantify_arm_swing(
         df=df,
-        fs=config.sampling_frequency,
+        fs=arm_config.sampling_frequency,
         filtered=filtered,
-        max_segment_gap_s=config.max_segment_gap_s,
-        min_segment_length_s=config.min_segment_length_s,
+        max_segment_gap_s=arm_config.max_segment_gap_s,
+        min_segment_length_s=arm_config.min_segment_length_s,
     )
 
     # Since gait segments start at zero, and we are concatenating multiple segments,
@@ -1403,7 +1405,7 @@ for raw_data_segment_nr in raw_data_segments:
 quantified_arm_swing = pd.concat(list_quantified_arm_swing, ignore_index=True)
 ```
 
-    INFO: Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+    INFO: Resampled: 3455331 -> 3468300 rows at 101 Hz
 
 
 ## Step 7: Aggregation
@@ -1427,32 +1429,20 @@ print(json.dumps(arm_swing_aggregations, indent=2))
 
     {
       "0_10": {
-        "duration_s": 379.5,
-        "median_range_of_motion": 11.781191233196722,
-        "95p_range_of_motion": 40.53201409103202,
-        "median_peak_velocity": 58.566197027859204,
-        "95p_peak_velocity": 182.7177098350067
+        "duration_s": 0
       },
       "10_20": {
-        "duration_s": 67.5,
-        "median_range_of_motion": 15.10889561336818,
-        "95p_range_of_motion": 54.96940806547923,
-        "median_peak_velocity": 71.19981331102237,
-        "95p_peak_velocity": 228.84234804496018
+        "duration_s": 0
       },
       "20_inf": {
-        "duration_s": 285.75,
-        "median_range_of_motion": 29.273886230725473,
-        "95p_range_of_motion": 56.74815032228555,
-        "median_peak_velocity": 143.92113449093603,
-        "95p_peak_velocity": 259.4270842914848
+        "duration_s": 307.54455445544556,
+        "median_range_of_motion": 28.12963717852429,
+        "95p_range_of_motion": 48.79783015544807,
+        "median_peak_velocity": 138.61976910396135,
+        "95p_peak_velocity": 258.9169326938605
       },
       "0_inf": {
-        "duration_s": 732.75,
-        "median_range_of_motion": 17.767386841988397,
-        "95p_range_of_motion": 53.93423076026392,
-        "median_peak_velocity": 91.83493870082003,
-        "95p_peak_velocity": 243.42317337529113
+        "duration_s": 0
       }
     }
 
