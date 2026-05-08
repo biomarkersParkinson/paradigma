@@ -767,7 +767,8 @@ df_arm = extract_arm_activity_features(
 print(
     f"A total of {df_arm.shape[1] - 1} features have been extracted "
     f"from {df_arm.shape[0]} {arm_config.window_length_s}-second windows "
-    f"with {arm_config.window_length_s - arm_config.window_step_length_s} seconds overlap."
+    f"with {arm_config.window_length_s - arm_config.window_step_length_s} seconds "
+    "overlap."
 )
 df_arm.head()
 ```
@@ -1142,7 +1143,10 @@ quantified_arm_swing.loc[quantified_arm_swing['gait_segment_nr'] == 1]
      "start_s": 2221.71,
      "end_s": 2230.649900990099,
      "duration_s": 8.94059405940594,
-     "segment_category": "0_20"
+     "unfiltered_duration_s": 12.653465346534654,
+     "segment_categories": [
+      "0_20"
+     ]
     }
 
     The first filtered gait segment has a duration of 8.94 seconds, starting at 2221.71s and ending at 2230.65s.
@@ -1420,7 +1424,7 @@ segment_categories = [(0,10), (10,20), (20, np.inf), (0, np.inf)]
 arm_swing_aggregations = aggregate_arm_swing_params(
     df_arm_swing_params=quantified_arm_swing,
     segment_meta=gait_segment_meta,
-    segment_cats=segment_categories,
+    gait_segment_categories=segment_categories,
     aggregates=['median', '95p']
 )
 
@@ -1429,10 +1433,18 @@ print(json.dumps(arm_swing_aggregations, indent=2))
 
     {
       "0_10": {
-        "duration_s": 0
+        "duration_s": 356.9306930693069,
+        "median_range_of_motion": 11.555917616414455,
+        "95p_range_of_motion": 41.02419007440517,
+        "median_peak_velocity": 59.97911737734337,
+        "95p_peak_velocity": 191.59039595290588
       },
       "10_20": {
-        "duration_s": 0
+        "duration_s": 64.66336633663366,
+        "median_range_of_motion": 15.7581269688773,
+        "95p_range_of_motion": 59.361218461763244,
+        "median_peak_velocity": 83.12687400531114,
+        "95p_peak_velocity": 238.85273366009574
       },
       "20_inf": {
         "duration_s": 307.54455445544556,
@@ -1442,7 +1454,11 @@ print(json.dumps(arm_swing_aggregations, indent=2))
         "95p_peak_velocity": 258.9169326938605
       },
       "0_inf": {
-        "duration_s": 0
+        "duration_s": 729.1386138613861,
+        "median_range_of_motion": 18.139727342193993,
+        "95p_range_of_motion": 47.128543297278256,
+        "median_peak_velocity": 94.49319571680101,
+        "95p_peak_velocity": 247.55749727037238
       }
     }
 

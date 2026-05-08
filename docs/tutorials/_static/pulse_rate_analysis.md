@@ -268,14 +268,14 @@ ppg_column_mapping = {
 ppg_config = PPGConfig(column_mapping=ppg_column_mapping)
 imu_config = IMUConfig(column_mapping=imu_column_mapping)
 
-print(
-    f"The tolerance for checking contiguous timestamps is set to "
-    f"{ppg_config.tolerance:.3f} seconds for PPG data and "
-    f"{imu_config.tolerance:.3f} seconds for accelerometer data."
-)
+# print(
+#     f"The tolerance for checking contiguous timestamps is set to "
+#     f"{ppg_config.tolerance:.3f} seconds for PPG data and "
+#     f"{imu_config.tolerance:.3f} seconds for accelerometer data."
+# )
 print(
     f"Original data shapes:\n- PPG data: {df_ppg.shape}\n"
-    f"- Accelerometer data: {df_imu.shape}"
+    f"- Accelerometer data: {df_imu.shape}\n"
 )
 df_ppg_proc, df_acc_proc = preprocess_ppg_data(
     df_ppg=df_ppg,
@@ -286,26 +286,35 @@ df_ppg_proc, df_acc_proc = preprocess_ppg_data(
     start_time_imu=metadata_time_imu.start_iso8601  # Optional
 )
 
-print(f"Overlapping preprocessed data shapes:\n- PPG data: {df_ppg_proc.shape}\n"
+print(
+    f"\nThe tolerance for checking contiguous timestamps is set to "
+    f"{ppg_config.tolerance:.3f} seconds for PPG data and "
+    f"{imu_config.tolerance:.3f} seconds for accelerometer data."
+)
+
+print(f"\nOverlapping preprocessed data shapes:\n- PPG data: {df_ppg_proc.shape}\n"
       f"- Accelerometer data: {df_acc_proc.shape}")
 display(df_ppg_proc, df_acc_proc)
 ```
 
-    The tolerance for checking contiguous timestamps is set to 0.100 seconds for PPG data and 0.030 seconds for accelerometer data.
     Original data shapes:
     - PPG data: (1029375, 2)
     - Accelerometer data: (3455331, 7)
 
 
-    INFO: Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+
+    INFO: Resampled: 3455331 -> 3468300 rows at 101 Hz
 
 
-    INFO: Resampled: 1029374 -> 1030188 rows at 30.0 Hz
+    INFO: Resampled: 1029374 -> 1030188 rows at 30 Hz
 
+
+
+    The tolerance for checking contiguous timestamps is set to 0.100 seconds for PPG data and 0.030 seconds for accelerometer data.
 
     Overlapping preprocessed data shapes:
     - PPG data: (1030188, 2)
-    - Accelerometer data: (3433961, 4)
+    - Accelerometer data: (3468300, 4)
 
 
 
@@ -395,38 +404,38 @@ display(df_ppg_proc, df_acc_proc)
   <tbody>
     <tr>
       <th>0</th>
-      <td>0.00</td>
-      <td>-0.002324</td>
-      <td>-0.001442</td>
-      <td>-0.002116</td>
+      <td>0.000000</td>
+      <td>-0.002357</td>
+      <td>-0.001140</td>
+      <td>-0.002248</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>0.01</td>
-      <td>-0.000390</td>
-      <td>-0.000914</td>
-      <td>-0.007396</td>
+      <td>0.009901</td>
+      <td>-0.000438</td>
+      <td>-0.000647</td>
+      <td>-0.007521</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>0.02</td>
-      <td>0.000567</td>
-      <td>0.002474</td>
-      <td>-0.005445</td>
+      <td>0.019802</td>
+      <td>0.000533</td>
+      <td>0.002722</td>
+      <td>-0.005643</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>0.03</td>
-      <td>-0.000425</td>
-      <td>0.002414</td>
-      <td>-0.002099</td>
+      <td>0.029703</td>
+      <td>-0.000393</td>
+      <td>0.002789</td>
+      <td>-0.002310</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>0.04</td>
-      <td>-0.002807</td>
-      <td>-0.001408</td>
-      <td>-0.000218</td>
+      <td>0.039604</td>
+      <td>-0.002775</td>
+      <td>-0.001001</td>
+      <td>-0.000398</td>
     </tr>
     <tr>
       <th>...</th>
@@ -436,44 +445,52 @@ display(df_ppg_proc, df_acc_proc)
       <td>...</td>
     </tr>
     <tr>
-      <th>3433956</th>
-      <td>34339.56</td>
-      <td>-0.402941</td>
-      <td>0.038710</td>
-      <td>0.461449</td>
+      <th>3468295</th>
+      <td>34339.554455</td>
+      <td>-0.324322</td>
+      <td>0.373854</td>
+      <td>-1.105726</td>
     </tr>
     <tr>
-      <th>3433957</th>
-      <td>34339.57</td>
-      <td>-0.659832</td>
-      <td>0.098696</td>
-      <td>0.817136</td>
+      <th>3468296</th>
+      <td>34339.564356</td>
+      <td>-0.091892</td>
+      <td>-0.251911</td>
+      <td>0.301449</td>
     </tr>
     <tr>
-      <th>3433958</th>
-      <td>34339.58</td>
-      <td>-0.464138</td>
-      <td>0.033607</td>
-      <td>0.471552</td>
+      <th>3468297</th>
+      <td>34339.574257</td>
+      <td>-0.318763</td>
+      <td>-0.045995</td>
+      <td>0.022215</td>
     </tr>
     <tr>
-      <th>3433959</th>
-      <td>34339.59</td>
-      <td>-0.389065</td>
-      <td>0.108485</td>
-      <td>0.622471</td>
+      <th>3468298</th>
+      <td>34339.584158</td>
+      <td>-0.029810</td>
+      <td>-0.162985</td>
+      <td>-0.125948</td>
     </tr>
     <tr>
-      <th>3433960</th>
-      <td>34339.60</td>
-      <td>-0.082625</td>
-      <td>-0.014490</td>
-      <td>0.119875</td>
+      <th>3468299</th>
+      <td>34339.594059</td>
+      <td>0.008105</td>
+      <td>-0.052241</td>
+      <td>-0.049179</td>
     </tr>
   </tbody>
 </table>
-<p>3433961 rows × 4 columns</p>
+<p>3468300 rows × 4 columns</p>
 </div>
+
+
+
+```python
+
+```
+
+    The tolerance for checking contiguous timestamps is set to 0.100 seconds for PPG data and 0.030 seconds for accelerometer data.
 
 
 ## Step 2: Extract signal quality features
@@ -541,7 +558,7 @@ display(df_features)
     <tr>
       <th>0</th>
       <td>0.0</td>
-      <td>0.026409</td>
+      <td>0.023676</td>
       <td>1.145652e+05</td>
       <td>282.401234</td>
       <td>238.829637</td>
@@ -556,7 +573,7 @@ display(df_features)
     <tr>
       <th>1</th>
       <td>1.0</td>
-      <td>0.023402</td>
+      <td>0.028832</td>
       <td>1.102401e+05</td>
       <td>271.582177</td>
       <td>236.891936</td>
@@ -571,7 +588,7 @@ display(df_features)
     <tr>
       <th>2</th>
       <td>2.0</td>
-      <td>0.028592</td>
+      <td>0.029021</td>
       <td>1.061479e+05</td>
       <td>262.348604</td>
       <td>225.915756</td>
@@ -586,7 +603,7 @@ display(df_features)
     <tr>
       <th>3</th>
       <td>3.0</td>
-      <td>0.019296</td>
+      <td>0.018267</td>
       <td>9.514719e+04</td>
       <td>245.089445</td>
       <td>203.417715</td>
@@ -601,7 +618,7 @@ display(df_features)
     <tr>
       <th>4</th>
       <td>4.0</td>
-      <td>0.020083</td>
+      <td>0.020808</td>
       <td>7.393010e+04</td>
       <td>218.379138</td>
       <td>187.583266</td>
@@ -631,7 +648,7 @@ display(df_features)
     <tr>
       <th>34329</th>
       <td>34329.0</td>
-      <td>0.110219</td>
+      <td>0.097033</td>
       <td>8.176078e+06</td>
       <td>1613.021494</td>
       <td>438.201240</td>
@@ -646,7 +663,7 @@ display(df_features)
     <tr>
       <th>34330</th>
       <td>34330.0</td>
-      <td>0.178742</td>
+      <td>0.167539</td>
       <td>3.512188e+07</td>
       <td>3307.888927</td>
       <td>1069.775894</td>
@@ -661,7 +678,7 @@ display(df_features)
     <tr>
       <th>34331</th>
       <td>34331.0</td>
-      <td>0.153351</td>
+      <td>0.155921</td>
       <td>1.181350e+08</td>
       <td>6648.535487</td>
       <td>2743.478312</td>
@@ -676,7 +693,7 @@ display(df_features)
     <tr>
       <th>34332</th>
       <td>34332.0</td>
-      <td>0.154910</td>
+      <td>0.113562</td>
       <td>1.252829e+09</td>
       <td>20165.525309</td>
       <td>6452.244225</td>
@@ -691,7 +708,7 @@ display(df_features)
     <tr>
       <th>34333</th>
       <td>34333.0</td>
-      <td>0.093221</td>
+      <td>0.068665</td>
       <td>1.008217e+10</td>
       <td>42271.328020</td>
       <td>12552.656437</td>
@@ -806,7 +823,7 @@ df_sqa
       <th>34329</th>
       <td>34329.0</td>
       <td>1.782669e-08</td>
-      <td>0</td>
+      <td>1</td>
     </tr>
     <tr>
       <th>34330</th>
@@ -1134,10 +1151,10 @@ for segment_nr in segments:
 df_pr = pd.concat(list_df_pr, ignore_index=True)
 ```
 
-    INFO: Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+    INFO: Resampled: 3455331 -> 3468300 rows at 101 Hz
 
 
-    INFO: Resampled: 1029374 -> 1030188 rows at 30.0 Hz
+    INFO: Resampled: 1029374 -> 1030188 rows at 30 Hz
 
 
 ## Step 5: Pulse rate aggregation
