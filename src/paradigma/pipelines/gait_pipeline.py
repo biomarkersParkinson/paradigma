@@ -1105,9 +1105,9 @@ def run_gait_pipeline(
     if imu_config is None:
         imu_config = IMUConfig()
     if gait_config is None:
-        gait_config = GaitConfig(step="gait", imu_config=imu_config)
+        gait_config = GaitConfig(step="gait")
     if arm_activity_config is None:
-        arm_activity_config = GaitConfig(step="arm_activity", imu_config=imu_config)
+        arm_activity_config = GaitConfig(step="arm_activity")
 
     output_dir = Path(output_dir)
 
