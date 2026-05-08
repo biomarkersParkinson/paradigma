@@ -75,7 +75,7 @@ def extract_gait_features(df: pd.DataFrame, config: GaitConfig) -> pd.DataFrame:
         accelerometer, and gravity sensor data. The data should be
         structured with the necessary columns as specified in the `config`.
 
-    onfig : GaitConfig
+    config : GaitConfig
         Configuration object containing parameters for feature extraction,
         including column names for time, accelerometer data, and gravity
         data, as well as settings for windowing, and feature computation.
@@ -1012,6 +1012,12 @@ def run_gait_pipeline(
         Which intermediate results to include in the return dict.
         Must be a subset of run_steps.
         If None, defaults to only returning quantification.
+    gait_segment_categories : list of str or list of tuple/list, optional
+        Segment duration categories for arm swing grouping (gait pipeline only). Segment
+        categories are based on unfiltered gait segments, i.e., gait segments with any
+        concurrent arm activity. Accepts either string categories like
+        ['(0, 10)', '(10, 20)'] or 2-element tuples/lists like
+        [(0, 10), (10, 20)] for segments 0-10s and 10-20s.
 
     Returns
     -------

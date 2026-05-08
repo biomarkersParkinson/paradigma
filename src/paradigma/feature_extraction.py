@@ -219,10 +219,10 @@ def extract_tremor_power(
 
     Parameters
     ----------
-    total_psd: np.ndarray
-        The power spectral density of the gyroscope signal summed over the three axes
     freqs: np.ndarray
         Frequency vector corresponding to the power spectral density
+    total_psd: np.ndarray
+        The power spectral density of the gyroscope signal summed over the three axes
     fmin: float
         The lower bound of the tremor frequency band in Hz (default: 3)
     fmax: float

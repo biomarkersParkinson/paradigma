@@ -183,10 +183,12 @@ def run_paradigma(
         File pattern(s) to match when loading data (e.g., 'parquet', '*.csv').
     aggregates : list of str, optional
         Aggregation methods for quantification.
-    segment_cats : list of str or list of tuple/list, optional
-        Segment duration categories for arm swing grouping (gait pipeline only).
-        Accepts either string categories like ['(0, 10)', '(10, 20)'] or 2-element
-        tuples/lists like [(0, 10), (10, 20)] for segments 0-10s and 10-20s.
+    gait_segment_categories : list of str or list of tuple/list, optional
+        Segment duration categories for arm swing grouping (gait pipeline only). Segment
+        categories are based on unfiltered gait segments, i.e., gait segments with any
+        concurrent arm activity. Accepts either string categories like
+        ['(0, 10)', '(10, 20)'] or 2-element tuples/lists like
+        [(0, 10), (10, 20)] for segments 0-10s and 10-20s.
     split_by_gaps : bool, default False
         If True, automatically split non-contiguous data into segments
         during preparation.

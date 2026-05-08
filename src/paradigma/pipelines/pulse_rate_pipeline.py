@@ -47,11 +47,11 @@ def extract_signal_quality_features(
     ----------
     df_ppg : pd.DataFrame
         The DataFrame containing the PPG signal.
-    df_acc : pd.DataFrame
-        The DataFrame containing the accelerometer signal.
     ppg_config: PulseRateConfig
         The configuration for the signal quality feature extraction of the PPG
         signal.
+    df_acc : pd.DataFrame
+        The DataFrame containing the accelerometer signal.
     acc_config: PulseRateConfig
         The configuration for the signal quality feature extraction of the
         accelerometer signal.
@@ -156,7 +156,7 @@ def signal_quality_classification(
 
     Returns
     -------
-    df_sqa pd.DataFrame
+    df_sqa : pd.DataFrame
         The DataFrame containing the PPG signal quality predictions (both
         probabilities of the PPG signal quality classification and the
         accelerometer label based on the threshold).
@@ -296,7 +296,7 @@ def aggregate_pulse_rate(
     ----------
     pr_values : np.ndarray
         The array containing the pulse rate estimates
-    aggregates : List[str]
+    aggregates : list[str]
         The list of aggregation methods to be used for the pulse rate
         estimates. The default is ['mode', '99p'].
 
