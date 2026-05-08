@@ -496,18 +496,6 @@ results_multi_pipeline = run_paradigma(
 )
 ```
 
-    ERROR: Failed to run gait pipeline on imu_segment0001: GaitConfig.__init__() got an unexpected keyword argument 'imu_config'
-
-
-    ERROR: Failed to run gait pipeline on imu_segment0002: GaitConfig.__init__() got an unexpected keyword argument 'imu_config'
-
-
-    WARNING: No gait quantifications to aggregate
-
-
-    WARNING: ParaDigMa analysis completed with 2 error(s)
-
-
 
 ```python
 # Explore the results structure
@@ -570,13 +558,16 @@ print(f"   Metadata: {tremor_meta}")
 
     Detailed Results Analysis:
 
-    Filtered arm swing quantification (0 swings):
-       Columns: ['gait_segment_nr', 'range_of_motion', 'peak_velocity']... (3 total)
+    Filtered arm swing quantification (5436 swings):
+       Columns: ['gait_segment_nr', 'range_of_motion', 'peak_velocity', 'file_key']... (4 total)
+       Files: ['imu_segment0001' 'imu_segment0002']
 
-    Unfiltered arm swing quantification (0 'swings'):
+    Unfiltered arm swing quantification (12034 'swings'):
 
     Filtered gait aggregation:
-       Gait segment categories: []
+       Gait segment categories: ['0_20', '20_inf']
+       Aggregates for 0-20s segments: ['duration_s', 'median_range_of_motion', '95p_range_of_motion', 'median_cov_range_of_motion', 'mean_cov_range_of_motion', 'median_peak_velocity', '95p_peak_velocity', 'median_cov_peak_velocity', 'mean_cov_peak_velocity']
+       First filtered gait segment: {'start_s': 2221.71, 'end_s': 2230.649900990099, 'duration_s': 8.94059405940594, 'unfiltered_duration_s': 12.653465346534654, 'segment_categories': ['0_20']}
 
     Tremor quantification (27056 windows):
        Columns: ['time', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power', 'file_key']... (5 total)
@@ -678,21 +669,63 @@ print("\nQuantifications (first 5 rows; each row represents a single arm swing):
 results_end_to_end['quantifications'][pipeline]['filtered'].head()
 ```
 
-    ERROR: Failed to run gait pipeline on test_data: GaitConfig.__init__() got an unexpected keyword argument 'imu_config'
 
-
-    WARNING: No gait quantifications to aggregate
-
-
-    WARNING: ParaDigMa analysis completed with 1 error(s)
-
-
+    Filtered Gait Metadata (first segment):
+    {
+      "start_s": 124.5,
+      "end_s": 127.5,
+      "duration_s": 3.0,
+      "unfiltered_duration_s": 124.5,
+      "segment_categories": [
+        "20_inf"
+      ],
+      "start_dt": "2025-11-17T09:02:06.824188",
+      "end_dt": "2025-11-17T09:02:09.824188"
+    }
 
     Filtered Gait Aggregations:
-    {}
+    {
+      "0_20": {
+        "duration_s": 0
+      },
+      "20_inf": {
+        "duration_s": 18.0,
+        "median_range_of_motion": 7.182233339196239,
+        "95p_range_of_motion": 27.529007915195255,
+        "median_cov_range_of_motion": 0.19564530259481105,
+        "mean_cov_range_of_motion": 0.2725453668861871,
+        "median_peak_velocity": 52.92434205521389,
+        "95p_peak_velocity": 258.93016146092725,
+        "median_cov_peak_velocity": 0.23137490496592453,
+        "mean_cov_peak_velocity": 0.2872492141424207
+      }
+    }
 
     Unfiltered Gait Aggregations:
-    {}
+    {
+      "0_20": {
+        "duration_s": 33.0,
+        "median_range_of_motion": 18.021256889774918,
+        "95p_range_of_motion": 48.986734305019844,
+        "median_cov_range_of_motion": 0.6876868388869998,
+        "mean_cov_range_of_motion": 0.721209392730354,
+        "median_peak_velocity": 85.1271519261023,
+        "95p_peak_velocity": 200.24091393958028,
+        "median_cov_peak_velocity": 0.4509692493413288,
+        "mean_cov_peak_velocity": 0.5755534586600688
+      },
+      "20_inf": {
+        "duration_s": 238.5,
+        "median_range_of_motion": 38.25306451727731,
+        "95p_range_of_motion": 67.37535941984774,
+        "median_cov_range_of_motion": 0.4132725188180793,
+        "mean_cov_range_of_motion": 0.4468700296741521,
+        "median_peak_velocity": 153.1405489705395,
+        "95p_peak_velocity": 221.23828397076485,
+        "median_cov_peak_velocity": 0.34037878524240156,
+        "mean_cov_peak_velocity": 0.3860157786145167
+      }
+    }
 
     Quantifications (first 5 rows; each row represents a single arm swing):
 
@@ -711,6 +744,36 @@ results_end_to_end['quantifications'][pipeline]['filtered'].head()
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>17.182270</td>
+      <td>136.030218</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>22.832489</td>
+      <td>181.524445</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1</td>
+      <td>23.181810</td>
+      <td>283.032602</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1</td>
+      <td>29.694767</td>
+      <td>253.460914</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+      <td>29.392093</td>
+      <td>221.580715</td>
+    </tr>
   </tbody>
 </table>
 </div>
@@ -858,18 +921,12 @@ filtered_gait_df.head()
     WARNING: Time column has irregular sampling
 
 
-    ERROR: Failed to run gait pipeline on test_file: GaitConfig.__init__() got an unexpected keyword argument 'imu_config'
+    WARNING: Data is not contiguous but validation is disabled. Interpolating over gaps.
 
 
-    WARNING: No gait quantifications to aggregate
+    Number of detected gait segments: 47
 
-
-    WARNING: ParaDigMa analysis completed with 1 error(s)
-
-
-    Number of detected gait segments: 0
-
-    Number of arm swings: 0
+    Number of arm swings: 1782
     Individual arm swings:
 
 
@@ -887,6 +944,36 @@ filtered_gait_df.head()
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>14.175549</td>
+      <td>40.844875</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>13.590119</td>
+      <td>21.436342</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>20.877245</td>
+      <td>102.735568</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2</td>
+      <td>16.709358</td>
+      <td>48.634776</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2</td>
+      <td>6.744359</td>
+      <td>26.217534</td>
+    </tr>
   </tbody>
 </table>
 </div>

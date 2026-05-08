@@ -485,14 +485,6 @@ display(df_ppg_proc, df_acc_proc)
 </div>
 
 
-
-```python
-
-```
-
-    The tolerance for checking contiguous timestamps is set to 0.100 seconds for PPG data and 0.030 seconds for accelerometer data.
-
-
 ## Step 2: Extract signal quality features
 
 The preprocessed data is windowed into overlapping windows of length `ppg_config.window_length_s` with a window step of `ppg_config.window_step_length_s`. From the PPG windows, 10 time- and frequency domain features are extracted to assess PPG morphology. In case of using the accelerometer data (optional),  one relative power feature is calculated per window to assess periodic motion artifacts.
