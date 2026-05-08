@@ -215,31 +215,19 @@ The function [`preprocess_imu_data`](https://biomarkersparkinson.github.io/parad
 
 
 ```python
-config = IMUConfig()
+imu_config = IMUConfig()
 
 df_preprocessed = preprocess_imu_data(
     df=df_imu,
-    config=config,
+    config=imu_config,
     sensor='both',
     watch_side='left',
 )
 
-print(
-    f"The dataset of {df_preprocessed.shape[0] / config.sampling_frequency} seconds "
-    f"is automatically resampled to {config.resampling_frequency} Hz."
-)
-print(
-    f"The tolerance for checking contiguous timestamps is set "
-    f"to {config.tolerance:.3f} seconds."
-)
 df_preprocessed.head()
 ```
 
     INFO: Resampled: 3455331 -> 3433961 rows at 100.0 Hz
-
-
-    The dataset of 34339.61 seconds is automatically resampled to 100 Hz.
-    The tolerance for checking contiguous timestamps is set to 0.030 seconds.
 
 
 
@@ -365,17 +353,17 @@ column_mapping = {
     'GYROSCOPE_Z': DataColumns.GYROSCOPE_Z,
 }
 
-config = GaitConfig(step='gait', column_mapping=column_mapping)
+gait_config = GaitConfig(step='gait', column_mapping=column_mapping)
 
 df_gait = extract_gait_features(
     df=df_preprocessed,
-    config=config
+    config=gait_config
 )
 
 print(
     f"A total of {df_gait.shape[1]-1} features have been extracted from "
-    f"{df_gait.shape[0]} {config.window_length_s}-second windows with "
-    f"{config.window_length_s-config.window_step_length_s} seconds overlap."
+    f"{df_gait.shape[0]} {gait_config.window_length_s}-second windows with "
+    f"{gait_config.window_length_s-gait_config.window_step_length_s} seconds overlap."
 )
 df_gait.head()
 ```
@@ -588,7 +576,7 @@ print(
 
 # Only the time and the predicted gait probability are shown, but the
 # dataframe also contains the extracted features
-df_gait[[config.time_colname, DataColumns.PRED_GAIT_PROBA]].head()
+df_gait[[gait_config.time_colname, DataColumns.PRED_GAIT_PROBA]].head()
 ```
 
     Out of 34334 windows, 2753 (8.0%)
@@ -656,7 +644,7 @@ metadata_values_store = tsdf.TSDFMetadata(
 )
 
 # Select the columns to be saved
-metadata_time_store.channels = [config.time_colname]
+metadata_time_store.channels = [gait_config.time_colname]
 metadata_values_store.channels = [DataColumns.PRED_GAIT_PROBA]
 
 # Set the units
@@ -747,14 +735,12 @@ But, first, the gait predictions should be merged with the preprocessed time ser
 if not any(df_gait[DataColumns.PRED_GAIT_PROBA] >= clf_package_detection.threshold):
     raise ValueError("No gait detected in the input data.")
 
-gait_preprocessing_config = GaitConfig(step='gait')
-
 df = merge_predictions_with_timestamps(
     df_ts=df_preprocessed,
     df_predictions=df_gait,
     pred_proba_colname=DataColumns.PRED_GAIT_PROBA,
-    window_length_s=gait_preprocessing_config.window_length_s,
-    fs=gait_preprocessing_config.sampling_frequency
+    window_length_s=gait_config.window_length_s,
+    fs=gait_config.sampling_frequency
 )
 
 # Add a column for predicted gait based on a fitted threshold
@@ -768,17 +754,18 @@ df = df.loc[df[DataColumns.PRED_GAIT]==1].reset_index(drop=True)
 
 
 ```python
-config = GaitConfig(step='arm_activity')
+arm_config = GaitConfig(step='arm_activity')
 
 df_arm = extract_arm_activity_features(
     df=df,
-    config=config,
+    config=arm_config,
 )
 
 print(
     f"A total of {df_arm.shape[1] - 1} features have been extracted "
-    f"from {df_arm.shape[0]} {config.window_length_s}-second windows "
-    f"with {config.window_length_s - config.window_step_length_s} seconds overlap."
+    f"from {df_arm.shape[0]} {arm_config.window_length_s}-second windows "
+    f"with {arm_config.window_length_s - arm_config.window_step_length_s} seconds "
+    "overlap."
 )
 df_arm.head()
 ```
@@ -997,7 +984,7 @@ print(
 
 # Only the time and predicted probabilities are shown,
 # but the dataframe also contains the extracted features
-df_arm[[config.time_colname, DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]].head()
+df_arm[[arm_config.time_colname, DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]].head()
 ```
 
     Out of 2749 windows, 916 (33.3%) were predicted as no_other_arm_activity, and 1833 (66.7%) as other_arm_activity.
@@ -1076,14 +1063,12 @@ if not any(
         "No gait without other arm activities detected in the input data."
     )
 
-config = GaitConfig(step='arm_activity')
-
 df = merge_predictions_with_timestamps(
     df_ts=df_preprocessed,
     df_predictions=df_arm,
     pred_proba_colname=DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA,
-    window_length_s=config.window_length_s,
-    fs=config.sampling_frequency
+    window_length_s=arm_config.window_length_s,
+    fs=arm_config.sampling_frequency
 )
 
 # Add a column for predicted gait based on a fitted threshold
@@ -1107,15 +1092,16 @@ else:
 
 quantified_arm_swing, gait_segment_meta = quantify_arm_swing(
     df=df,
-    fs=config.sampling_frequency,
+    fs=arm_config.sampling_frequency,
     filtered=filtered,
-    max_segment_gap_s=config.max_segment_gap_s,
-    min_segment_length_s=config.min_segment_length_s,
+    max_segment_gap_s=arm_config.max_segment_gap_s,
+    min_segment_length_s=arm_config.min_segment_length_s,
+    start_dt=None,  # if provided, this ensures datetime format of segments is returned
 )
 
 print(
-    f"Gait segments are created of minimum {config.min_segment_length_s} seconds "
-    f"and maximum {config.max_segment_gap_s} seconds gap between segments.\n"
+    f"Gait segments are created of minimum {arm_config.min_segment_length_s} seconds "
+    f"and maximum {arm_config.max_segment_gap_s} seconds gap between segments.\n"
 )
 print(
     f"A total of {quantified_arm_swing['gait_segment_nr'].nunique()} {dataset_used} "
@@ -1123,14 +1109,17 @@ print(
 )
 
 print("\nMetadata of the first gait segment:")
-print(json.dumps(gait_segment_meta['per_segment'][1], indent = 1))
+first_segment_meta = gait_segment_meta['per_segment'][1]
+print(json.dumps(first_segment_meta, indent = 1))
 
-filt_example_s = gait_segment_meta['per_segment'][1]['duration_filtered_segment_s']
-unfilt_example_s = gait_segment_meta['per_segment'][1]['duration_unfiltered_segment_s']
+segment_duration_s = first_segment_meta['duration_s']
+segment_start_s = first_segment_meta['start_s']
+segment_end_s = first_segment_meta['end_s']
+
 print(
-    f"\nOf this example, the filtered gait segment of {filt_example_s} seconds "
-    f"is part of an unfiltered segment of {unfilt_example_s} seconds, which is "
-    f"at least as large as the filtered gait segment."
+    f"\nThe first {dataset_used} gait segment has a duration of "
+    f"{segment_duration_s:.2f} seconds, starting at {segment_start_s:.2f}s and "
+    f"ending at {segment_end_s:.2f}s."
 )
 
 print(
@@ -1148,13 +1137,16 @@ quantified_arm_swing.loc[quantified_arm_swing['gait_segment_nr'] == 1]
 
     Metadata of the first gait segment:
     {
-     "start_time_s": 2221.75,
-     "end_time_s": 2230.74,
-     "duration_unfiltered_segment_s": 12.75,
-     "duration_filtered_segment_s": 9.0
+     "start_s": 2221.75,
+     "end_s": 2230.74,
+     "duration_s": 9.0,
+     "unfiltered_duration_s": 12.75,
+     "segment_categories": [
+      "0_20"
+     ]
     }
 
-    Of this example, the filtered gait segment of 9.0 seconds is part of an unfiltered segment of 12.75 seconds, which is at least as large as the filtered gait segment.
+    The first filtered gait segment has a duration of 9.00 seconds, starting at 2221.75s and ending at 2230.74s.
 
     Individual arm swings of the first gait segment of the  filtered dataset:
 
@@ -1306,21 +1298,21 @@ for raw_data_segment_nr in raw_data_segments:
     # 1: Preprocess the data
     # Change column names if necessary by creating parameter column_mapping
     # (see previous cells for an example)
-    config = IMUConfig()
+    imu_config = IMUConfig()
 
     df_preprocessed = preprocess_imu_data(
         df=df_imu,
-        config=config,
+        config=imu_config,
         sensor='both',
         watch_side='left',
     )
 
     # 2: Extract gait features
-    config = GaitConfig(step='gait')
+    gait_config = GaitConfig(step='gait')
 
     df_gait = extract_gait_features(
         df=df_preprocessed,
-        config=config
+        config=gait_config
     )
 
     # 3: Detect gait
@@ -1339,8 +1331,8 @@ for raw_data_segment_nr in raw_data_segments:
         df_ts=df_preprocessed,
         df_predictions=df_gait,
         pred_proba_colname=DataColumns.PRED_GAIT_PROBA,
-        window_length_s=config.window_length_s,
-        fs=config.sampling_frequency
+        window_length_s=gait_config.window_length_s,
+        fs=gait_config.sampling_frequency
     )
 
     df[DataColumns.PRED_GAIT] = (
@@ -1349,11 +1341,11 @@ for raw_data_segment_nr in raw_data_segments:
     df = df.loc[df[DataColumns.PRED_GAIT]==1].reset_index(drop=True)
 
     # 4: Extract arm activity features
-    config = GaitConfig(step='arm_activity')
+    arm_config = GaitConfig(step='arm_activity')
 
     df_arm_activity = extract_arm_activity_features(
         df=df,
-        config=config,
+        config=arm_config,
     )
 
     # 5: Filter gait
@@ -1374,8 +1366,8 @@ for raw_data_segment_nr in raw_data_segments:
         df_ts=df_preprocessed,
         df_predictions=df_arm_activity,
         pred_proba_colname=DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA,
-        window_length_s=config.window_length_s,
-        fs=config.sampling_frequency
+        window_length_s=arm_config.window_length_s,
+        fs=arm_config.sampling_frequency
     )
 
     df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
@@ -1386,10 +1378,10 @@ for raw_data_segment_nr in raw_data_segments:
     # 6: Quantify arm swing
     quantified_arm_swing, gait_segment_meta = quantify_arm_swing(
         df=df,
-        fs=config.sampling_frequency,
+        fs=arm_config.sampling_frequency,
         filtered=filtered,
-        max_segment_gap_s=config.max_segment_gap_s,
-        min_segment_length_s=config.min_segment_length_s,
+        max_segment_gap_s=arm_config.max_segment_gap_s,
+        min_segment_length_s=arm_config.min_segment_length_s,
     )
 
     # Since gait segments start at zero, and we are concatenating multiple segments,
@@ -1426,8 +1418,8 @@ segment_categories = [(0,10), (10,20), (20, np.inf), (0, np.inf)]
 
 arm_swing_aggregations = aggregate_arm_swing_params(
     df_arm_swing_params=quantified_arm_swing,
-    segment_meta=gait_segment_meta['per_segment'],
-    segment_cats=segment_categories,
+    segment_meta=gait_segment_meta,
+    gait_segment_categories=segment_categories,
     aggregates=['median', '95p']
 )
 
