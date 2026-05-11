@@ -89,9 +89,10 @@ class IMUConfig(BaseConfig):
             **self.d_channels_gyroscope,
         }
 
-        self.sampling_frequency = 100
+        # Use private variable for sampling_frequency to enable property setter
+        self._sampling_frequency = 100
         self.resampling_frequency = 100
-        self.tolerance = 3 * 1 / self.sampling_frequency
+
         self.lower_cutoff_frequency = 0.2
         self.upper_cutoff_frequency = 3.5
         self.filter_order = 4
@@ -99,6 +100,27 @@ class IMUConfig(BaseConfig):
         # Segmentation parameters for handling non-contiguous data
         self.max_segment_gap_s = 1.5
         self.min_segment_length_s = 1.5
+
+    @property
+    def sampling_frequency(self) -> float:
+        """Get the sampling frequency in Hz."""
+        return self._sampling_frequency
+
+    @sampling_frequency.setter
+    def sampling_frequency(self, value: float) -> None:
+        """Set sampling frequency and auto-update frequency-dependent parameters."""
+        self._sampling_frequency = float(value)
+        self.tolerance = 3 * 1 / self._sampling_frequency
+        self._update_frequency_dependent_params()
+
+    def _update_frequency_dependent_params(self) -> None:
+        """
+        Update parameters that depend on sampling_frequency.
+
+        Subclasses should override this to update their domain-specific
+        frequency bounds (e.g., spectrum_high_frequency, mfcc_high_frequency).
+        """
+        pass
 
 
 class PPGConfig(BaseConfig):
@@ -211,6 +233,44 @@ class GaitConfig(IMUConfig):
                     DataUnits.GRAVITY
                 )
 
+        # Update frequency-dependent parameters now that all attributes are initialized
+        self._update_frequency_dependent_params()
+
+    def _update_frequency_dependent_params(self) -> None:
+        """
+        Update frequency-dependent parameters when sampling_frequency changes.
+
+        Ensures that spectral bounds stay within Nyquist limit (fs/2).
+        Only clamps when bounds exceed Nyquist; physiological bands preserved.
+        """
+        nyquist = self.sampling_frequency / 2
+
+        # Spectrum bounds: cap to ~95% of Nyquist for safety margin
+        self.spectrum_high_frequency = int(nyquist * 0.95)
+
+        # MFCC bounds: only clamp if it EXCEEDS Nyquist (actual aliasing risk)
+        # Don't apply safety margin since 25 Hz is physiologically meaningful
+        if not hasattr(self, "mfcc_high_frequency"):
+            return
+
+        if self.mfcc_high_frequency > nyquist:
+            original_val = self.mfcc_high_frequency
+            clamped_val = int(nyquist)  # Clamp to exactly Nyquist when exceeded
+            warnings.warn(
+                f"GaitConfig: mfcc_high_frequency ({original_val}Hz) exceeds "
+                f"Nyquist ({nyquist}Hz) at {self.sampling_frequency}Hz sampling. "
+                f"Clamped to {clamped_val}Hz.",
+                UserWarning,
+            )
+            self.mfcc_high_frequency = clamped_val
+
+        # Clamp frequency bands to stay within spectrum bounds
+        if hasattr(self, "d_frequency_bandwidths"):
+            for band_name, (fmin, fmax) in self.d_frequency_bandwidths.items():
+                if fmax > nyquist * 0.98:  # Leave small safety margin
+                    clamped_fmax = nyquist * 0.98
+                    self.d_frequency_bandwidths[band_name] = [fmin, clamped_fmax]
+
 
 class TremorConfig(IMUConfig):
 
@@ -287,6 +347,42 @@ class TremorConfig(IMUConfig):
                 DataColumns.PRED_TREMOR_CHECKED: "boolean",
                 DataColumns.PRED_ARM_AT_REST: "boolean",
             }
+
+        # Update frequency-dependent parameters now that all attributes are initialized
+        self._update_frequency_dependent_params()
+
+    def _update_frequency_dependent_params(self) -> None:
+        """
+        Update frequency-dependent parameters when sampling_frequency changes.
+
+        Ensures that PSD and MFCC frequency bounds stay within Nyquist limit.
+        Only clamps when they actually exceed Nyquist.
+        """
+        nyquist = self.sampling_frequency / 2
+
+        # Clamp peak search bounds: only if it exceeds Nyquist
+        if self.fmax_peak_search > nyquist:
+            original_val = self.fmax_peak_search
+            clamped_val = int(nyquist)
+            warnings.warn(
+                f"TremorConfig: fmax_peak_search ({original_val}Hz) exceeds "
+                f"Nyquist ({nyquist}Hz) at {self.sampling_frequency}Hz sampling. "
+                f"Clamped to {clamped_val}Hz.",
+                UserWarning,
+            )
+            self.fmax_peak_search = clamped_val
+
+        # Clamp MFCC bounds: only if it exceeds Nyquist
+        if self.fmax_mfcc > nyquist:
+            original_val = self.fmax_mfcc
+            clamped_val = int(nyquist)
+            warnings.warn(
+                f"TremorConfig: fmax_mfcc ({original_val}Hz) exceeds "
+                f"Nyquist ({nyquist}Hz) at {self.sampling_frequency}Hz sampling. "
+                f"Clamped to {clamped_val}Hz.",
+                UserWarning,
+            )
+            self.fmax_mfcc = clamped_val
 
 
 class PulseRateConfig(PPGConfig):
