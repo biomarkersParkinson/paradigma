@@ -162,7 +162,7 @@ The following publications contain details and validation of the pipelines:
 
 **Tremor**
 * [Timmermans, N.A. et al. (2025) - A generalizable and open-source algorithm for real-life monitoring of tremor in Parkinson's disease](https://doi.org/10.1038/s41531-025-01056-2)
-* [Timmermans, N.A. et al. (2025) - (Pre-print) Progression of daily-life tremor measures in early Parkinson disease: a longitudinal continuous monitoring study](https://www.medrxiv.org/content/10.64898/2025.12.23.25342892v1)
+* [Timmermans, N.A. et al. (2026) - Daily-Life, Sensor-Derived Tremor Measures Are Sensitive to Progression in Early Parkinson's Disease](http://doi.org/10.1002/ana.78236)
 
 **Pulse rate**
 * [Veldkamp, K.I. et al. (2025) - Heart rate monitoring using wrist photoplethysmography in Parkinson disease: feasibility and relation with autonomic dysfunction](https://doi.org/10.1101/2025.08.15.25333751)
