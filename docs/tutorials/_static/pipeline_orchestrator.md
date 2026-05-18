@@ -23,6 +23,8 @@ process:
 - **Multiple data formats**: Supports Verily, Axivity, Empatica, and custom
   formats
 - **Robust processing**: Automatic data preparation and error handling
+- **Adaptive frequency detection**: Automatically detects and adapts to your data's
+  sampling frequency
 
 ### Data Requirements
 
@@ -556,16 +558,16 @@ print(f"   Metadata: {tremor_meta}")
 
     Detailed Results Analysis:
 
-    Filtered arm swing quantification (5299 swings):
+    Filtered arm swing quantification (5436 swings):
        Columns: ['gait_segment_nr', 'range_of_motion', 'peak_velocity', 'file_key']... (4 total)
        Files: ['imu_segment0001' 'imu_segment0002']
 
-    Unfiltered arm swing quantification (11950 'swings'):
+    Unfiltered arm swing quantification (12034 'swings'):
 
     Filtered gait aggregation:
        Gait segment categories: ['0_20', '20_inf']
        Aggregates for 0-20s segments: ['duration_s', 'median_range_of_motion', '95p_range_of_motion', 'median_cov_range_of_motion', 'mean_cov_range_of_motion', 'median_peak_velocity', '95p_peak_velocity', 'median_cov_peak_velocity', 'mean_cov_peak_velocity']
-       First filtered gait segment: {'start_s': 2221.75, 'end_s': 2230.74, 'duration_s': 9.0, 'unfiltered_duration_s': 12.75, 'segment_categories': ['0_20']}
+       First filtered gait segment: {'start_s': 2221.71, 'end_s': 2230.649900990099, 'duration_s': 8.94059405940594, 'unfiltered_duration_s': 12.653465346534654, 'segment_categories': ['0_20']}
 
     Tremor quantification (27056 windows):
        Columns: ['time', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power', 'file_key']... (5 total)
@@ -573,7 +575,7 @@ print(f"   Metadata: {tremor_meta}")
 
     Tremor aggregation (4 time ranges):
        Aggregates: ['perc_windows_tremor', 'median_tremor_power', 'modal_tremor_power', '90p_tremor_power']
-       Metadata: {'nr_valid_days': 1, 'nr_windows_total': 27056, 'nr_windows_rest': 18766}
+       Metadata: {'nr_valid_days': 1, 'nr_windows_total': 27056, 'nr_windows_rest': 18763}
 
 
 ## 3. Raw Data Processing
@@ -636,7 +638,6 @@ results_end_to_end = run_paradigma(
     time_input_unit=TimeUnit.RELATIVE_S,    # Specify time unit
     accelerometer_units='g',
     gyroscope_units='deg/s',
-    target_frequency=100.0,
     device_orientation=device_orientation,
     save_intermediate=['aggregation'],      # Only save aggregations
     logging_level=logging.WARNING,          # Only show warnings and errors
@@ -672,7 +673,7 @@ results_end_to_end['quantifications'][pipeline]['filtered'].head()
     Filtered Gait Metadata (first segment):
     {
       "start_s": 124.5,
-      "end_s": 127.49,
+      "end_s": 127.5,
       "duration_s": 3.0,
       "unfiltered_duration_s": 124.5,
       "segment_categories": [
@@ -690,8 +691,8 @@ results_end_to_end['quantifications'][pipeline]['filtered'].head()
       "20_inf": {
         "duration_s": 18.0,
         "median_range_of_motion": 7.182233339196239,
-        "95p_range_of_motion": 27.529007915195262,
-        "median_cov_range_of_motion": 0.19564530259481108,
+        "95p_range_of_motion": 27.529007915195255,
+        "median_cov_range_of_motion": 0.19564530259481105,
         "mean_cov_range_of_motion": 0.2725453668861871,
         "median_peak_velocity": 52.92434205521389,
         "95p_peak_velocity": 258.93016146092725,
@@ -706,23 +707,23 @@ results_end_to_end['quantifications'][pipeline]['filtered'].head()
         "duration_s": 33.0,
         "median_range_of_motion": 18.021256889774918,
         "95p_range_of_motion": 48.986734305019844,
-        "median_cov_range_of_motion": 0.6876868388869997,
+        "median_cov_range_of_motion": 0.6876868388869998,
         "mean_cov_range_of_motion": 0.721209392730354,
         "median_peak_velocity": 85.1271519261023,
-        "95p_peak_velocity": 200.2409139395803,
+        "95p_peak_velocity": 200.24091393958028,
         "median_cov_peak_velocity": 0.4509692493413288,
-        "mean_cov_peak_velocity": 0.5755534586600687
+        "mean_cov_peak_velocity": 0.5755534586600688
       },
       "20_inf": {
         "duration_s": 238.5,
-        "median_range_of_motion": 38.253064517277366,
-        "95p_range_of_motion": 67.37535941984773,
-        "median_cov_range_of_motion": 0.41327251881807925,
-        "mean_cov_range_of_motion": 0.4468700296741522,
+        "median_range_of_motion": 38.25306451727731,
+        "95p_range_of_motion": 67.37535941984774,
+        "median_cov_range_of_motion": 0.4132725188180793,
+        "mean_cov_range_of_motion": 0.4468700296741521,
         "median_peak_velocity": 153.1405489705395,
         "95p_peak_velocity": 221.23828397076485,
         "median_cov_peak_velocity": 0.34037878524240156,
-        "mean_cov_peak_velocity": 0.38601577861451664
+        "mean_cov_peak_velocity": 0.3860157786145167
       }
     }
 

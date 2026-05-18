@@ -448,6 +448,38 @@ def aggregate_parameter(
         raise ValueError(f"Invalid aggregation method: {aggregate}")
 
 
+def round_detected_frequency(frequency: float) -> int:
+    """Round detected sampling frequency to nearest integer.
+
+    Uses banker's rounding (round-to-nearest-even) to bias toward even
+    sampling frequencies, which have several advantages for signal processing:
+
+    1. Even frequencies have integer Nyquist frequencies (fs/2 is an integer)
+    2. FFT bin frequencies align better (no half-Hz boundaries)
+    3. Filter design is cleaner (easier to set exact cutoff frequencies)
+
+    Example: 128 Hz (even) → Nyquist = 64 Hz (integer)
+             127 Hz (odd)  → Nyquist = 63.5 Hz (fractional)
+
+    Parameters
+    ----------
+    frequency : float
+        Raw detected frequency (e.g., 1.0 / median_time_difference)
+
+    Returns
+    -------
+    int
+        Rounded frequency with bias toward even values.
+
+    Notes
+    -----
+    - Banker's rounding: 50.5 → 50, 51.5 → 52 (rounds to nearest even)
+    - This differs from standard round-half-up: 50.5 → 51, 51.5 → 52
+    - The bias toward even frequencies is intentional and beneficial
+    """
+    return int(np.round(frequency))
+
+
 def merge_predictions_with_timestamps(
     df_ts: pd.DataFrame,
     df_predictions: pd.DataFrame,

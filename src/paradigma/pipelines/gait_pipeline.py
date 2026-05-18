@@ -33,7 +33,11 @@ from paradigma.segmenting import (
     discard_segments,
     tabulate_windows,
 )
-from paradigma.util import aggregate_parameter, merge_predictions_with_timestamps
+from paradigma.util import (
+    aggregate_parameter,
+    merge_predictions_with_timestamps,
+    round_detected_frequency,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -104,6 +108,14 @@ def extract_gait_features(df: pd.DataFrame, config: GaitConfig) -> pd.DataFrame:
         specified in the configuration or if any step in the feature
         extraction fails.
     """
+    # Auto-detect sampling frequency if not set (e.g., when loading preprocessed data
+    # directly)
+    if config.sampling_frequency is None:
+        time_diff = df[config.time_colname].diff().dropna()
+        current_dt = time_diff.median()
+        detected_fs = round_detected_frequency(1.0 / current_dt)
+        config._set_sampling_frequency_detected(detected_fs)
+
     # Group sequences of timestamps into windows
     windowed_colnames = (
         [config.time_colname] + config.accelerometer_colnames + config.gravity_colnames
@@ -254,6 +266,14 @@ def extract_arm_activity_features(
         including angle, velocity, temporal, and spectral features.
     """
     active_logger = custom_logger if custom_logger is not None else logger
+
+    # Auto-detect sampling frequency if not set (e.g., when loading preprocessed data
+    # directly)
+    if config.sampling_frequency is None:
+        time_diff = df[config.time_colname].diff().dropna()
+        current_dt = time_diff.median()
+        detected_fs = round_detected_frequency(1.0 / current_dt)
+        config._set_sampling_frequency_detected(detected_fs)
 
     # Group consecutive timestamps into segments, with new segments
     # starting after a pre-specified gap. If data_segment_nr exists,
@@ -597,7 +617,7 @@ def quantify_arm_swing(
 
         segment_meta["per_segment"][segment_nr] = {
             "start_s": float(time_array.min()),
-            "end_s": float(time_array.max()),
+            "end_s": float(time_array.max() + 1 / fs),
             "duration_s": len(time_array) / fs,
             "unfiltered_duration_s": gait_segment_duration_dict[gait_segment_nr],
         }
@@ -1119,6 +1139,15 @@ def run_gait_pipeline(
             )
             steps_executed.append("preprocessing")
             result_dict["preprocessing"] = df_preprocessed
+
+            # Sync detected frequency to feature extraction configs
+            if imu_config.sampling_frequency is not None:
+                gait_config._set_sampling_frequency_detected(
+                    imu_config.sampling_frequency
+                )
+                arm_activity_config._set_sampling_frequency_detected(
+                    imu_config.sampling_frequency
+                )
 
             if "preprocessing" in store_intermediate:
                 preprocessing_dir = output_dir / "preprocessing"

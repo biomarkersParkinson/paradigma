@@ -158,7 +158,7 @@ results = run_paradigma(
 
 ## Data Preparation Parameters
 
-If your data needs preparation (unit conversion, resampling, etc.), ParaDigMa can handle it automatically:
+If your data needs preparation (unit conversion, changing watch orientation, etc.), ParaDigMa can handle it automatically:
 
 ```python
 results = run_paradigma(
@@ -170,9 +170,6 @@ results = run_paradigma(
     # Unit conversion
     accelerometer_units='m/s^2',  # Auto-converts to 'g'
     gyroscope_units='rad/s',      # Auto-converts to 'deg/s'
-
-    # Resampling
-    target_frequency=100.0,
 
     # Time handling
     time_input_unit='relative_s',  # Or 'absolute_datetime'
