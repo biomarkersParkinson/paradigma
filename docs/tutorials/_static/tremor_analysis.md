@@ -200,6 +200,9 @@ df_data
 
 IMU sensors collect data at a fixed sampling frequency, but the sampling rate is not uniform, causing variation in time differences between timestamps. The [preprocess_imu_data](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.preprocess_imu_data) function therefore resamples the timestamps to be uniformly distributed, and then interpolates IMU values at these new timestamps using the original timestamps and corresponding IMU values. If the difference between timestamps is larger than a specified tolerance (`config.tolerance`, in seconds), it will return an error that the timestamps are not contiguous.  If you still want to process the data in this case, you can create segments from discontiguous samples using the function [`create_segments`](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/segmenting/index.html#paradigma.segmenting.create_segments) and analyze these segments consecutively as shown in [here](#multiple_segments_cell). By setting `sensor` to 'gyroscope', only gyroscope data is preprocessed and the accelerometer data is removed from the dataframe. Also a `watch_side` should be provided, although for the tremor analysis it does not matter whether this is the correct side since the tremor features are not influenced by the gyroscope axes orientation.
 
+Note: The data sampling frequency is automatically detected, and frequency-dependent parameters (such as the tolerance) and features
+are subsequently automatically adjusted. For more info, see the [config guide](https://biomarkersparkinson.github.io/paradigma/guides/config.html).
+
 
 ```python
 # Set column names: replace DataColumn.* with your actual column names.

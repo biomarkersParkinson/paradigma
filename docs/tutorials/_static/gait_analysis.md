@@ -209,6 +209,9 @@ df_imu
 ## Step 1: Preprocess data
 The function [`preprocess_imu_data`](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.preprocess_imu_data) in the cell below runs all necessary preprocessing steps. It requires the loaded dataframe, a configuration object [`config`](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/config/index.html) specifying parameters used for preprocessing, and a selection of sensors. For the sensors, options include `'accelerometer'`, `'gyroscope'`, or `'both'`.  If the difference between timestamps is larger than a specified tolerance (`config.tolerance`, in seconds), it will return an error that the timestamps are not contiguous. If you still want to process the data in this case, you can create segments from discontiguous samples using the function [`create_segments`](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/segmenting/index.html#paradigma.segmenting.create_segments) and analyze these segments consecutively as shown in [here](#multiple_segments_cell).
 
+Note: The data sampling frequency is automatically detected, and frequency-dependent parameters (such as the tolerance) and features
+are subsequently automatically adjusted. For more info, see the [config guide](https://biomarkersparkinson.github.io/paradigma/guides/config.html).
+
 The function [`preprocess_imu_data`](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.preprocess_imu_data) processes the data as follows:
 1. Resample the data to ensure uniformly distributed sampling rate.
 2. Apply filtering to separate the gravity component from the accelerometer.

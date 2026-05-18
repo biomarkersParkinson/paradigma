@@ -280,6 +280,7 @@ def resample_data(
     df_resampled = df_resampled[resampled_columns]
 
     # Update parameters based on current sampling frequency
+    config._set_sampling_frequency_detected(config.resampling_frequency)
 
     logger.info(
         f"Resampled: {len(df)} -> {len(df_resampled)} rows at "
