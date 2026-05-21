@@ -211,8 +211,15 @@ def test_gait_aggregation_metadata_alignment():
         assert metadata["nr_filtered_arm_swings"] == len(
             results["quantifications"]["gait"]["filtered"]
         )
-        assert metadata["gait_duration_s"] >= metadata["filtered_gait_duration_s"] >= 0
+        assert metadata["gait_duration_s"] >= metadata["filtered_gait_duration_s"]
+        assert metadata["filtered_gait_duration_s"] >= 0
         assert metadata["hours_of_gait_data"] >= metadata["hours_of_filtered_gait_data"]
+        assert metadata["hours_of_gait_data"] == pytest.approx(
+            metadata["gait_duration_s"] / 3600
+        )
+        assert metadata["hours_of_filtered_gait_data"] == pytest.approx(
+            metadata["filtered_gait_duration_s"] / 3600
+        )
 
 
 def test_multi_file_unfiltered_only_offsets(monkeypatch):

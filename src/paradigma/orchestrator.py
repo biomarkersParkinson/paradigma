@@ -695,9 +695,13 @@ def run_paradigma(
                                         duration_s = float(
                                             combined_meta.get("duration_s", 0)
                                         )
-                                        all_results["metadata"][pipeline_name][
-                                            quant_type
-                                        ]["combined"]["duration_s"] += duration_s
+                                        target_meta = all_results["metadata"][
+                                            pipeline_name
+                                        ].setdefault(quant_type, {})
+                                        target_combined = target_meta.setdefault(
+                                            "combined", {"duration_s": 0.0}
+                                        )
+                                        target_combined["duration_s"] += duration_s
 
                         elif pipeline_name == "tremor":
                             pipeline_result = run_tremor_pipeline(
@@ -1089,8 +1093,8 @@ def run_paradigma(
                     all_results["aggregations"][pipeline_name]["metadata"] = {
                         "nr_gait_segments": nr_segments_unfiltered,
                         "nr_filtered_gait_segments": nr_segments_filtered,
-                        "nr_arm_swings": int(len(unfiltered_quantifications)),
-                        "nr_filtered_arm_swings": int(len(filtered_quantifications)),
+                        "nr_arm_swings": len(unfiltered_quantifications),
+                        "nr_filtered_arm_swings": len(filtered_quantifications),
                         "gait_duration_s": duration_unfiltered_s,
                         "filtered_gait_duration_s": duration_filtered_s,
                         "hours_of_gait_data": duration_unfiltered_s / 3600,
