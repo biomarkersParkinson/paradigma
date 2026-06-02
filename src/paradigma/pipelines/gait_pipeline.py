@@ -1503,14 +1503,6 @@ def run_gait_pipeline(
                 "unfiltered": gait_segment_meta_unfiltered,
             }
 
-            if start_dt is not None:
-                for key in ["filtered", "unfiltered"]:
-                    df = result_dict["quantification"][key]
-                    if "time" in df.columns:
-                        result_dict["quantification"][key] = df.copy()
-                        result_dict["quantification"][key]["time_dt"] = (
-                            start_dt + pd.to_timedelta(df["time"], unit="s")
-                        )
             steps_executed.append("quantification")
 
         except Exception as e:
