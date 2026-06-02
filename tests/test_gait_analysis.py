@@ -171,6 +171,57 @@ def test_gait_pipeline_integration():
         assert expected_columns.issubset(gait_quantifications["unfiltered"].columns)
 
 
+def test_gait_aggregation_metadata_alignment():
+    """Test that gait aggregation output contains aligned metadata."""
+    dfs = {"test": create_test_gait_data()}
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        results = run_paradigma(
+            pipelines=["gait"],
+            dfs=dfs,
+            output_dir=temp_dir,
+            watch_side="right",
+            skip_preparation=True,
+            imu_config=IMUConfig(),
+            gait_config=GaitConfig("gait"),
+            arm_activity_config=GaitConfig("arm_activity"),
+        )
+
+        gait_aggregations = results["aggregations"]["gait"]
+        assert "metadata" in gait_aggregations
+        assert "filtered" in gait_aggregations
+        assert "unfiltered" in gait_aggregations
+
+        metadata = gait_aggregations["metadata"]
+        expected_keys = {
+            "nr_gait_segments",
+            "nr_filtered_gait_segments",
+            "nr_arm_swings",
+            "nr_filtered_arm_swings",
+            "gait_duration_s",
+            "filtered_gait_duration_s",
+            "hours_of_gait_data",
+            "hours_of_filtered_gait_data",
+        }
+        assert expected_keys.issubset(metadata.keys())
+
+        assert metadata["nr_arm_swings"] == len(
+            results["quantifications"]["gait"]["unfiltered"]
+        )
+        assert metadata["nr_filtered_arm_swings"] == len(
+            results["quantifications"]["gait"]["filtered"]
+        )
+        assert metadata["gait_duration_s"] >= metadata["filtered_gait_duration_s"]
+        assert metadata["filtered_gait_duration_s"] >= 0
+        assert metadata["hours_of_gait_data"] >= metadata["hours_of_filtered_gait_data"]
+        assert metadata["hours_of_gait_data"] == pytest.approx(
+            metadata["gait_duration_s"] / 3600
+        )
+        assert metadata["hours_of_filtered_gait_data"] == pytest.approx(
+            metadata["filtered_gait_duration_s"] / 3600
+        )
+
+
 def test_multi_file_unfiltered_only_offsets(monkeypatch):
     """Ensure unfiltered-only gait results keep unique segment ids across files."""
 

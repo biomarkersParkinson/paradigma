@@ -408,8 +408,8 @@ def run_paradigma(
                 {}
                 if p != "gait"
                 else {
-                    "filtered": {"per_segment": {}},
-                    "unfiltered": {"per_segment": {}},
+                    "filtered": {"combined": {"duration_s": 0.0}, "per_segment": {}},
+                    "unfiltered": {"combined": {"duration_s": 0.0}, "per_segment": {}},
                 }
             )
             for p in pipelines
@@ -685,6 +685,24 @@ def run_paradigma(
                                                     max_segment_in_metadata,
                                                 )
 
+                                    if (
+                                        quantification_metadata
+                                        and "combined" in quantification_metadata
+                                    ):
+                                        combined_meta = quantification_metadata[
+                                            "combined"
+                                        ]
+                                        duration_s = float(
+                                            combined_meta.get("duration_s", 0)
+                                        )
+                                        target_meta = all_results["metadata"][
+                                            pipeline_name
+                                        ].setdefault(quant_type, {})
+                                        target_combined = target_meta.setdefault(
+                                            "combined", {"duration_s": 0.0}
+                                        )
+                                        target_combined["duration_s"] += duration_s
+
                         elif pipeline_name == "tremor":
                             pipeline_result = run_tremor_pipeline(
                                 df_prepared=df_prepared,
@@ -878,6 +896,38 @@ def run_paradigma(
                     active_logger.warning(
                         f"No {pipeline_name} quantifications to aggregate"
                     )
+                    if pipeline_name == "gait":
+                        filtered_meta = all_results["metadata"][pipeline_name][
+                            "filtered"
+                        ]
+                        unfiltered_meta = all_results["metadata"][pipeline_name][
+                            "unfiltered"
+                        ]
+                        duration_filtered_s = float(
+                            filtered_meta.get("combined", {}).get("duration_s", 0)
+                        )
+                        duration_unfiltered_s = float(
+                            unfiltered_meta.get("combined", {}).get("duration_s", 0)
+                        )
+                        all_results["aggregations"][pipeline_name] = {
+                            "metadata": {
+                                "nr_gait_segments": len(
+                                    unfiltered_meta.get("per_segment", {})
+                                ),
+                                "nr_filtered_gait_segments": len(
+                                    filtered_meta.get("per_segment", {})
+                                ),
+                                "nr_arm_swings": 0,
+                                "nr_filtered_arm_swings": 0,
+                                "gait_duration_s": duration_unfiltered_s,
+                                "filtered_gait_duration_s": duration_filtered_s,
+                                "hours_of_gait_data": duration_unfiltered_s / 3600,
+                                "hours_of_filtered_gait_data": duration_filtered_s
+                                / 3600,
+                            },
+                            "filtered": {},
+                            "unfiltered": {},
+                        }
                     continue
 
                 if pipeline_name == "tremor":
@@ -945,6 +995,7 @@ def run_paradigma(
 
                     # Initialize nested dictionary for gait aggregations
                     all_results["aggregations"][pipeline_name] = {
+                        "metadata": {},
                         "filtered": {},
                         "unfiltered": {},
                     }
@@ -1019,6 +1070,37 @@ def run_paradigma(
                             "No unfiltered gait quantifications found for aggregation"
                         )
 
+                    filtered_quantifications = all_results["quantifications"][
+                        pipeline_name
+                    ]["filtered"]
+                    unfiltered_quantifications = all_results["quantifications"][
+                        pipeline_name
+                    ]["unfiltered"]
+                    filtered_meta = all_results["metadata"][pipeline_name]["filtered"]
+                    unfiltered_meta = all_results["metadata"][pipeline_name][
+                        "unfiltered"
+                    ]
+
+                    duration_filtered_s = float(
+                        filtered_meta.get("combined", {}).get("duration_s", 0)
+                    )
+                    duration_unfiltered_s = float(
+                        unfiltered_meta.get("combined", {}).get("duration_s", 0)
+                    )
+                    nr_segments_filtered = len(filtered_meta.get("per_segment", {}))
+                    nr_segments_unfiltered = len(unfiltered_meta.get("per_segment", {}))
+
+                    all_results["aggregations"][pipeline_name]["metadata"] = {
+                        "nr_gait_segments": nr_segments_unfiltered,
+                        "nr_filtered_gait_segments": nr_segments_filtered,
+                        "nr_arm_swings": len(unfiltered_quantifications),
+                        "nr_filtered_arm_swings": len(filtered_quantifications),
+                        "gait_duration_s": duration_unfiltered_s,
+                        "filtered_gait_duration_s": duration_filtered_s,
+                        "hours_of_gait_data": duration_unfiltered_s / 3600,
+                        "hours_of_filtered_gait_data": duration_filtered_s / 3600,
+                    }
+
             except Exception as e:
                 error_msg = f"Failed to aggregate {pipeline_name} results: {e}"
                 active_logger.error(error_msg)
@@ -1027,6 +1109,7 @@ def run_paradigma(
                 )
                 if pipeline_name == "gait":
                     all_results["aggregations"][pipeline_name] = {
+                        "metadata": {},
                         "filtered": {},
                         "unfiltered": {},
                     }
