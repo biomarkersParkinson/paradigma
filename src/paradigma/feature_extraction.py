@@ -910,6 +910,55 @@ def compute_peak_angular_velocity(
     return np.array(pav)
 
 
+def compute_cadence(
+    angle_extrema_indices: list[int],
+    fs: int,
+) -> np.ndarray:
+    """
+    Compute arm swing cadence (cycles per minute) based on angle extrema.
+
+    One cycle is defined as two consecutive extrema intervals
+    (e.g., min -> max -> min).
+
+    Parameters
+    ----------
+    angle_extrema_indices : list[int]
+        Indices of detected angle extrema (alternating min/max).
+    fs : int
+        Sampling frequency.
+
+    Returns
+    -------
+    np.ndarray
+        Cadence values (cycles per minute) per cycle.
+    """
+
+    idx = np.array(angle_extrema_indices)
+
+    if len(idx) < 3:
+        raise ValueError("Need at least 3 extrema to compute cadence.")
+
+    if np.any(idx < 0):
+        raise ValueError("Negative indices found in extrema.")
+
+    # Convert indices to time (seconds)
+    t = idx / fs
+
+    cadences = []
+
+    # Two extrema intervals = one cycle
+    for i in range(len(t) - 2):
+        cycle_duration = t[i + 2] - t[i]
+
+        if cycle_duration <= 0:
+            continue
+
+        cadence_cpm = 60.0 / cycle_duration
+        cadences.append(cadence_cpm)
+
+    return np.array(cadences)
+
+
 def compute_forward_backward_peak_angular_velocity(
     velocity_array: np.ndarray,
     angle_extrema_indices: list[int],

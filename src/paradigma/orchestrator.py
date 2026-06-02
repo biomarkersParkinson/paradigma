@@ -34,7 +34,7 @@ from paradigma.config import (
     PulseRateConfig,
     TremorConfig,
 )
-from paradigma.constants import DataColumns, TimeUnit
+from paradigma.constants import DEFAULT_TIME_PERIODS, DataColumns, TimePeriod, TimeUnit
 from paradigma.load import (
     get_data_file_paths,
     load_single_data_file,
@@ -50,6 +50,7 @@ from paradigma.pipelines.pulse_rate_pipeline import (
 )
 from paradigma.pipelines.tremor_pipeline import aggregate_tremor, run_tremor_pipeline
 from paradigma.prepare_data import prepare_raw_data
+from paradigma.util import aggregate_by_time_period
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +65,7 @@ def _empty_gait_quantification_df() -> pd.DataFrame:
             DataColumns.GAIT_SEGMENT_NR,
             DataColumns.RANGE_OF_MOTION,
             DataColumns.PEAK_VELOCITY,
+            DataColumns.CADENCE,
         ]
     )
 
@@ -86,6 +88,7 @@ def run_paradigma(
     device_orientation: list[str] | None = ["x", "y", "z"],
     file_pattern: str | list[str] | None = None,
     aggregates: list[str] | None = None,
+    time_periods: list[tuple[str, str]] | None = None,
     gait_segment_categories: (
         list[tuple[float, float] | list[float] | str] | None
     ) = None,
@@ -182,6 +185,11 @@ def run_paradigma(
         File pattern(s) to match when loading data (e.g., 'parquet', '*.csv').
     aggregates : list of str, optional
         Aggregation methods for quantification.
+    time_periods : list of tuples of strings with time ranges between which to
+        additionally compute aggregations. For example:
+        time_periods = [("09:00 - 12:00", "09:00", "12:00"), (...)],
+        where the first element is a label, the second the start time, and the third the
+        end time. This requires 'start_dt' column.
     gait_segment_categories : list of str or list of tuple/list, optional
         Segment duration categories for arm swing grouping (gait pipeline only). Segment
         categories are based on unfiltered gait segments, i.e., gait segments with any
@@ -360,8 +368,17 @@ def run_paradigma(
             f"Saving intermediate results: {', '.join(save_intermediate)}"
         )
 
-    # Warn about save_intermediate steps not in run_steps
-    # (should not happen due to validation)
+    if time_periods is None:
+        time_periods = DEFAULT_TIME_PERIODS
+    else:
+        time_periods = [
+            (
+                TimePeriod(f"{tp[0]}-{tp[1]}", tp[0], tp[1])
+                if not isinstance(tp, TimePeriod)
+                else tp
+            )
+            for tp in time_periods
+        ]
 
     # Step 1: Get file paths or convert provided DataFrames
     file_paths = None  # Will hold list of file paths if loading from directory
@@ -400,6 +417,10 @@ def run_paradigma(
             for p in pipelines
         },
         "aggregations": {
+            p: {} if p != "gait" else {"filtered": {}, "unfiltered": {}}
+            for p in pipelines
+        },
+        "time_aggregations": {
             p: {} if p != "gait" else {"filtered": {}, "unfiltered": {}}
             for p in pipelines
         },
@@ -975,6 +996,35 @@ def run_paradigma(
                         all_results["aggregations"][pipeline_name][
                             "filtered"
                         ] = aggregation_output
+
+                        if (
+                            "time_dt"
+                            in all_results["quantifications"][pipeline_name][
+                                "filtered"
+                            ].columns
+                        ):
+                            time_period_agg = aggregate_by_time_period(
+                                all_results["quantifications"][pipeline_name][
+                                    "filtered"
+                                ],
+                                time_col="time_dt",
+                                value_cols=[
+                                    DataColumns.RANGE_OF_MOTION,
+                                    DataColumns.PEAK_VELOCITY,
+                                    DataColumns.CADENCE,
+                                ],
+                                periods=time_periods,
+                                aggregates=(
+                                    aggregates
+                                    if aggregates
+                                    else ["median", "95p", "cov"]
+                                ),
+                            )
+
+                            all_results["time_aggregations"][pipeline_name][
+                                "filtered"
+                            ] = time_period_agg
+
                         filtered_count = len(
                             all_results["quantifications"][pipeline_name]["filtered"]
                         )
@@ -1007,6 +1057,40 @@ def run_paradigma(
                         all_results["aggregations"][pipeline_name][
                             "unfiltered"
                         ] = aggregation_output
+
+                        if (
+                            "time_dt"
+                            in all_results["quantifications"][pipeline_name][
+                                "unfiltered"
+                            ].columns
+                        ):
+                            time_period_agg = aggregate_by_time_period(
+                                all_results["quantifications"][pipeline_name][
+                                    "unfiltered"
+                                ],
+                                time_col="time_dt",
+                                value_cols=[
+                                    DataColumns.RANGE_OF_MOTION,
+                                    DataColumns.PEAK_VELOCITY,
+                                    DataColumns.CADENCE,
+                                ],
+                                periods=time_periods,
+                                aggregates=(
+                                    aggregates
+                                    if aggregates
+                                    else ["median", "95p", "cov"]
+                                ),
+                            )
+
+                            all_results["time_aggregations"][pipeline_name][
+                                "unfiltered"
+                            ] = time_period_agg
+                        else:
+                            active_logger.debug(
+                                "Skipping time-period aggregation: no time_dt column "
+                                "available"
+                            )
+
                         unfiltered_count = len(
                             all_results["quantifications"][pipeline_name]["unfiltered"]
                         )

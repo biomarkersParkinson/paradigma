@@ -1,6 +1,7 @@
 import functools
 import os
 import warnings
+from collections.abc import Sequence
 from datetime import datetime, timedelta
 
 import numpy as np
@@ -10,7 +11,7 @@ from dateutil import parser
 from scipy.stats import gaussian_kde
 from tsdf import TSDFMetadata
 
-from paradigma.constants import DataColumns, TimeUnit
+from paradigma.constants import DataColumns, TimePeriod, TimeUnit
 
 
 def deprecated(reason: str = ""):
@@ -448,6 +449,40 @@ def aggregate_parameter(
         raise ValueError(f"Invalid aggregation method: {aggregate}")
 
 
+def aggregate_by_time_period(
+    df: pd.DataFrame,
+    group_cols: list[str],
+    value_cols: list[str],
+    time_period_col: str = "time_period",
+    agg_funcs: list[str] | None = None,
+) -> pd.DataFrame:
+    """
+    Generic aggregation over time periods.
+    """
+
+    if agg_funcs is None:
+        agg_funcs = ["median", "mean", "std"]
+
+    if time_period_col not in df.columns:
+        raise ValueError(
+            "Time period column missing. Did you run assign_time_periods()?"
+        )
+
+    grouped = (
+        df.groupby(group_cols + [time_period_col])[value_cols]
+        .agg(agg_funcs)
+        .reset_index()
+    )
+
+    # flatten multi-index columns
+    grouped.columns = [
+        "_".join([c for c in col if c]).strip("_") if isinstance(col, tuple) else col
+        for col in grouped.columns
+    ]
+
+    return grouped
+
+
 def round_detected_frequency(frequency: float) -> int:
     """Round detected sampling frequency to nearest integer.
 
@@ -625,3 +660,45 @@ def select_days(df: pd.DataFrame, min_hours_per_day: int) -> pd.DataFrame:
     )
 
     return df_subset
+
+
+def assign_time_periods(
+    df: pd.DataFrame,
+    time_col: str,
+    periods: Sequence[TimePeriod],
+    label_col: str = "time_period",
+) -> pd.DataFrame:
+    """
+    Assigns each row to a fixed clock-time period based on time-of-day.
+    """
+
+    if time_col not in df.columns:
+        raise ValueError(f"Missing required time column: {time_col}")
+
+    df = df.copy()
+
+    # ensure datetime
+    df["_time_dt"] = pd.to_datetime(df[time_col], errors="coerce")
+
+    # convert to minutes since midnight for easy comparison
+    minutes = df["_time_dt"].dt.hour * 60 + df["_time_dt"].dt.minute
+
+    period_labels = []
+    for p in periods:
+        start_h, start_m = map(int, p.start.split(":"))
+        end_h, end_m = map(int, p.end.split(":"))
+
+        start = start_h * 60 + start_m
+        end = end_h * 60 + end_m
+
+        mask = (minutes >= start) & (minutes < end)
+        period_labels.append((mask, p.label))
+
+    df[label_col] = None
+
+    for mask, label in period_labels:
+        df.loc[mask, label_col] = label
+
+    df.drop(columns=["_time_dt"], inplace=True)
+
+    return df

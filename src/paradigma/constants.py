@@ -33,6 +33,7 @@ class DataColumns:
     DOMINANT_FREQUENCY: str = "dominant_frequency"
     RANGE_OF_MOTION: str = "range_of_motion"
     PEAK_VELOCITY: str = "peak_velocity"
+    CADENCE: str = "cadence"
 
     # The following are used in tremor analysis
     PRED_TREMOR_PROBA: str = "pred_tremor_proba"
@@ -117,3 +118,20 @@ class TimeUnit:
 
 
 UNIX_TICKS_MS: int = 1000
+
+
+@dataclass(frozen=True)
+class TimePeriod:
+    label: str
+    start: str  # "HH:MM"
+    end: str  # "HH:MM"
+
+
+# Aggregation time periods
+DEFAULT_TIME_PERIODS = [
+    TimePeriod("08:00-11:00", "08:00", "11:00"),
+    TimePeriod("11:00-14:00", "11:00", "14:00"),
+    TimePeriod("14:00-17:00", "14:00", "17:00"),
+    TimePeriod("17:00-20:00", "17:00", "20:00"),
+    TimePeriod("20:00-23:00", "20:00", "23:00"),
+]

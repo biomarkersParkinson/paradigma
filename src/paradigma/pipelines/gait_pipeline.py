@@ -14,6 +14,7 @@ from paradigma.config import GaitConfig, IMUConfig
 from paradigma.constants import DataColumns
 from paradigma.feature_extraction import (
     compute_angle,
+    compute_cadence,
     compute_dominant_frequency,
     compute_mfccs,
     compute_peak_angular_velocity,
@@ -51,6 +52,7 @@ def _empty_arm_swing_df(df: pd.DataFrame) -> pd.DataFrame:
         DataColumns.GAIT_SEGMENT_NR,
         DataColumns.RANGE_OF_MOTION,
         DataColumns.PEAK_VELOCITY,
+        DataColumns.CADENCE,
     ]
     if DataColumns.DATA_SEGMENT_NR in df.columns:
         expected_columns.append(DataColumns.DATA_SEGMENT_NR)
@@ -603,6 +605,9 @@ def quantify_arm_swing(
         time_array = group[DataColumns.TIME].to_numpy()
         velocity_array = group[DataColumns.VELOCITY].to_numpy()
 
+        # Determine swing time
+        segment_start_s = float(time_array.min())
+
         # Integrate the angular velocity to obtain an estimation of the angle
         angle_array = compute_angle(
             time_array=time_array,
@@ -681,10 +686,25 @@ def quantify_arm_swing(
                     )
                     pav = np.array([np.nan])
 
+                try:
+                    cad = compute_cadence(
+                        angle_extrema_indices=angle_extrema_indices, fs=fs
+                    )
+                except Exception as e:
+                    # Handle the error, set pav to NaN, and log the error
+                    segment_duration = len(group[DataColumns.TIME]) / fs
+                    active_logger.warning(
+                        f"Error computing cadence for segment {segment_nr}: {e}. "
+                        f"Setting to NaN (filtered={filtered}, "
+                        f"duration={segment_duration:.2f}s)"
+                    )
+                    cad = np.array([np.nan])
+
                 params_dict = {
                     DataColumns.GAIT_SEGMENT_NR: segment_nr,
                     DataColumns.RANGE_OF_MOTION: rom,
                     DataColumns.PEAK_VELOCITY: pav,
+                    DataColumns.CADENCE: cad,
                 }
 
                 # Add data_segment_nr if it exists in the input data
@@ -694,6 +714,12 @@ def quantify_arm_swing(
                     ].iloc[0]
 
                 df_params_segment = pd.DataFrame(params_dict)
+                df_params_segment["time_s"] = segment_start_s
+
+                if start_dt is not None:
+                    df_params_segment["time_dt"] = start_dt + pd.to_timedelta(
+                        segment_start_s, unit="s"
+                    )
 
                 arm_swing_quantified.append(df_params_segment)
 
@@ -736,7 +762,11 @@ def aggregate_arm_swing_params(
         A dictionary containing the aggregated quantification results for
         arm swing parameters.
     """
-    arm_swing_parameters = [DataColumns.RANGE_OF_MOTION, DataColumns.PEAK_VELOCITY]
+    arm_swing_parameters = [
+        DataColumns.RANGE_OF_MOTION,
+        DataColumns.PEAK_VELOCITY,
+        DataColumns.CADENCE,
+    ]
 
     aggregated_results = {}
     for segment_cat_range in gait_segment_categories:
@@ -1472,6 +1502,15 @@ def run_gait_pipeline(
                 "filtered": gait_segment_meta_filtered,
                 "unfiltered": gait_segment_meta_unfiltered,
             }
+
+            if start_dt is not None:
+                for key in ["filtered", "unfiltered"]:
+                    df = result_dict["quantification"][key]
+                    if "time" in df.columns:
+                        result_dict["quantification"][key] = df.copy()
+                        result_dict["quantification"][key]["time_dt"] = (
+                            start_dt + pd.to_timedelta(df["time"], unit="s")
+                        )
             steps_executed.append("quantification")
 
         except Exception as e:
