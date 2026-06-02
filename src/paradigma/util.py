@@ -417,6 +417,11 @@ def aggregate_parameter(
     np.ndarray
         The aggregated parameter.
     """
+    parameter = parameter[~np.isnan(parameter)]
+
+    if len(parameter) == 0:
+        return np.nan
+
     if aggregate == "mean":
         return np.mean(parameter)
     elif aggregate == "median":
@@ -451,36 +456,61 @@ def aggregate_parameter(
 
 def aggregate_by_time_period(
     df: pd.DataFrame,
-    group_cols: list[str],
+    time_col: str,
     value_cols: list[str],
-    time_period_col: str = "time_period",
-    agg_funcs: list[str] | None = None,
+    periods: list[TimePeriod],
+    aggregates: list[str] | None = None,
 ) -> pd.DataFrame:
     """
-    Generic aggregation over time periods.
+    Aggregate value columns over specified time periods.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame containing the data to aggregate.
+    time_col : str
+        Column containing datetime values used to assign time periods.
+    value_cols : list[str]
+        Columns to aggregate.
+    periods : list[TimePeriod]
+        Time periods to aggregate over, each with a label, start, and end time.
+    aggregates : list[str], optional
+        Aggregation methods to apply. Defaults to ["median", "mean", "std"].
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with aggregated values per time period.
     """
+    if aggregates is None:
+        aggregates = ["median", "mean", "std"]
 
-    if agg_funcs is None:
-        agg_funcs = ["median", "mean", "std"]
+    if time_col not in df.columns:
+        raise ValueError(f"Time column '{time_col}' not found in DataFrame.")
 
-    if time_period_col not in df.columns:
-        raise ValueError(
-            "Time period column missing. Did you run assign_time_periods()?"
-        )
+    results = []
 
-    grouped = (
-        df.groupby(group_cols + [time_period_col])[value_cols]
-        .agg(agg_funcs)
-        .reset_index()
-    )
+    for period in periods:
+        # Parse start and end times
+        start_time = datetime.strptime(period.start, "%H:%M").time()
+        end_time = datetime.strptime(period.end, "%H:%M").time()
 
-    # flatten multi-index columns
-    grouped.columns = [
-        "_".join([c for c in col if c]).strip("_") if isinstance(col, tuple) else col
-        for col in grouped.columns
-    ]
+        # Filter rows falling within this time period
+        mask = (df[time_col].dt.time >= start_time) & (df[time_col].dt.time < end_time)
+        df_period = df.loc[mask, value_cols].copy()
 
-    return grouped
+        # Strip NaNs before aggregating
+        row = {"time_period": period.label, "n": len(df_period)}
+        for col in value_cols:
+            values = df_period[col].dropna().to_numpy()
+            for agg in aggregates:
+                row[f"{agg}_{col}"] = (
+                    aggregate_parameter(values, agg) if len(values) > 0 else np.nan
+                )
+
+        results.append(row)
+
+    return pd.DataFrame(results)
 
 
 def round_detected_frequency(frequency: float) -> int:

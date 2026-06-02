@@ -80,6 +80,7 @@ def run_paradigma(
     output_dir: str | Path = "./output",
     skip_preparation: bool = False,
     pipelines: list[str] | str | None = None,
+    start_dt: datetime | list[datetime] | None = None,
     watch_side: str | None = None,
     accelerometer_units: str = "g",
     gyroscope_units: str = "deg/s",
@@ -167,6 +168,8 @@ def run_paradigma(
         Pipelines to run: 'gait', 'tremor', and/or 'pulse_rate'.
         If providing a list, currently only tremor and gait pipelines
         can be run together.
+    start_dt : datetime, list of datetime, or None, optional
+        Start datetime(s) related to the input dataframes (use only if dfs is defined).
     watch_side : str, optional
         Watch side: 'left' or 'right' (required for gait pipeline).
     accelerometer_units : str, default 'm/s^2'
@@ -396,6 +399,7 @@ def run_paradigma(
 
         if not file_paths:
             raise ValueError(f"No data files found in {data_path}")
+
     else:
         active_logger.info("Step 1: Using provided DataFrame(s) as input")
 
@@ -406,6 +410,15 @@ def run_paradigma(
             dfs_dict = {"df_1": dfs}
         else:
             dfs_dict = dfs
+
+    # Validate start_dt length matches dfs_length
+    if start_dt is not None and isinstance(start_dt, list):
+        n_inputs = len(dfs_dict) if dfs_dict is not None else len(file_paths)
+        if len(start_dt) != n_inputs:
+            raise ValueError(
+                f"Length of start_dt ({len(start_dt)}) must match the number of "
+                f"inputs provided ({n_inputs})."
+            )
 
     # Determine number of files to process
     num_files = len(file_paths) if file_paths else len(dfs_dict)
@@ -506,7 +519,7 @@ def run_paradigma(
                     f"Processing file {i+1}/{num_files}: {file_path.name}"
                 )
                 try:
-                    file_name, df_raw, start_dt = load_single_data_file(file_path)
+                    file_name, df_raw, file_start_dt = load_single_data_file(file_path)
                 except Exception as e:
                     error_msg = f"Failed to load file {file_path.name}: {e}"
                     active_logger.error(error_msg)
@@ -514,11 +527,20 @@ def run_paradigma(
                         {"file": file_path.name, "stage": "loading", "error": str(e)}
                     )
                     continue
+
+                # Overwrite data load with set parameters
+                if start_dt is not None:
+                    file_start_dt = (
+                        start_dt[i] if isinstance(start_dt, list) else start_dt
+                    )
             else:
                 # Using in-memory data
                 file_name = list(dfs_dict.keys())[i]
                 df_raw = dfs_dict[file_name]
-                start_dt = None
+                if isinstance(start_dt, list):
+                    file_start_dt = start_dt[i]
+                else:
+                    file_start_dt = start_dt  # single value or None
                 active_logger.info(
                     f"Processing DataFrame {i+1}/{num_files}: {file_name}"
                 )
@@ -608,7 +630,7 @@ def run_paradigma(
                                 segment_number_offset_unfiltered=(
                                     max_gait_segment_nr_unfiltered
                                 ),
-                                start_dt=start_dt,
+                                start_dt=file_start_dt,
                                 logging_level=logging_level,
                                 custom_logger=active_logger,
                                 gait_segment_categories=gait_segment_categories,
@@ -1157,6 +1179,13 @@ def run_paradigma(
                 with open(agg_file, "w") as f:
                     json.dump(all_results["aggregations"][pipeline_name], f, indent=2)
                 active_logger.info(f"Saved aggregations to {agg_file}")
+
+            if all_results["time_aggregations"][pipeline_name]:
+                time_agg_file = output_dir / f"time_aggregations_{pipeline_name}.json"
+                with open(time_agg_file, "w") as f:
+                    json.dump(
+                        all_results["time_aggregations"][pipeline_name], f, indent=2
+                    )
 
     if all_results["errors"]:
         active_logger.warning(

@@ -664,8 +664,8 @@ def quantify_arm_swing(
                 except Exception as e:
                     # Handle the error, set RoM to NaN, and log the error
                     segment_duration = len(group[DataColumns.TIME]) / fs
-                    active_logger.warning(
-                        f"Error computing RoM for segment {segment_nr}: {e}. "
+                    active_logger.debug(
+                        f"Error computing RoM for gait segment {segment_nr}: {e}. "
                         f"Setting to NaN (filtered={filtered}, "
                         f"duration={segment_duration:.2f}s)"
                     )
@@ -679,26 +679,29 @@ def quantify_arm_swing(
                 except Exception as e:
                     # Handle the error, set pav to NaN, and log the error
                     segment_duration = len(group[DataColumns.TIME]) / fs
-                    active_logger.warning(
-                        f"Error computing PAV for segment {segment_nr}: {e}. "
+                    active_logger.debug(
+                        f"Error computing PAV for gait segment {segment_nr}: {e}. "
                         f"Setting to NaN (filtered={filtered}, "
                         f"duration={segment_duration:.2f}s)"
                     )
                     pav = np.array([np.nan])
 
                 try:
+                    # Note: cadence is per cycle, other parameters per swing, so
+                    # its length is one short.
                     cad = compute_cadence(
                         angle_extrema_indices=angle_extrema_indices, fs=fs
                     )
+                    cad = np.concatenate([cad, [np.nan]])
                 except Exception as e:
-                    # Handle the error, set pav to NaN, and log the error
+                    # Handle the error, set cad to NaN, and log the error
                     segment_duration = len(group[DataColumns.TIME]) / fs
-                    active_logger.warning(
-                        f"Error computing cadence for segment {segment_nr}: {e}. "
+                    active_logger.debug(
+                        f"Error computing cadence for gait segment {segment_nr}: {e}. "
                         f"Setting to NaN (filtered={filtered}, "
                         f"duration={segment_duration:.2f}s)"
                     )
-                    cad = np.array([np.nan])
+                    cad = np.full(len(rom), np.nan)  # match rom/pav length
 
                 params_dict = {
                     DataColumns.GAIT_SEGMENT_NR: segment_nr,
@@ -737,6 +740,7 @@ def aggregate_arm_swing_params(
     segment_meta: dict,
     gait_segment_categories: list[tuple],
     aggregates: list[str] = ["median"],
+    time_period_col: str | None = None,
 ) -> dict:
     """
     Aggregate the quantification results for arm swing parameters.
@@ -755,12 +759,34 @@ def aggregate_arm_swing_params(
     aggregates : List[str], optional
         A list of aggregation methods to apply to the quantification
         results.
+    time_period_col : str, optional
+        Time period along which to additionally aggregate. Should be a string of format
+        "HH:MM".
 
     Returns
     -------
     dict
         A dictionary containing the aggregated quantification results for
         arm swing parameters.
+
+        Output structure
+        ----------------
+        {
+            "0_20": {
+                "total": {
+                    "duration_s": ...,
+                    ...
+                },
+                "per_time_period": {
+                    "08:00-10:00": {
+                        "duration_s": ...,
+                        ...
+                    },
+                    ...
+                }
+            },
+            ...
+        }
     """
     arm_swing_parameters = [
         DataColumns.RANGE_OF_MOTION,
@@ -768,87 +794,129 @@ def aggregate_arm_swing_params(
         DataColumns.CADENCE,
     ]
 
+    aggregates_per_segment = ["median", "mean"]
+
+    def aggregate_subset(
+        df_subset: pd.DataFrame,
+        segment_ids: list[int],
+        duration_s: float,
+    ) -> dict:
+        """
+        Aggregate a subset of arm swing parameters.
+        """
+        result = {"duration_s": duration_s}
+
+        grouped = df_subset.groupby(DataColumns.GAIT_SEGMENT_NR)
+
+        for parameter in arm_swing_parameters:
+            for aggregate in aggregates:
+
+                # Segment-level variability metrics
+                if aggregate in ["std", "cov"]:
+
+                    per_segment_values = []
+
+                    for segment_nr in segment_ids:
+                        if segment_nr not in grouped.groups:
+                            continue
+
+                        segment_df = grouped.get_group(segment_nr)
+
+                        per_segment_values.append(
+                            aggregate_parameter(
+                                segment_df[parameter],
+                                aggregate,
+                            )
+                        )
+
+                    per_segment_values = np.asarray(per_segment_values)
+                    per_segment_values = per_segment_values[
+                        ~np.isnan(per_segment_values)
+                    ]
+
+                    for segment_level_aggregate in aggregates_per_segment:
+                        key = (
+                            f"{segment_level_aggregate}_" f"{aggregate}_" f"{parameter}"
+                        )
+
+                        result[key] = aggregate_parameter(
+                            per_segment_values,
+                            segment_level_aggregate,
+                        )
+
+                # Population-level metrics
+                else:
+                    result[f"{aggregate}_{parameter}"] = aggregate_parameter(
+                        df_subset[parameter],
+                        aggregate,
+                    )
+
+        return result
+
     aggregated_results = {}
-    for segment_cat_range in gait_segment_categories:
-        segment_cat_str = f"{segment_cat_range[0]}_{segment_cat_range[1]}"
-        lower, upper = segment_cat_range
-        # Check segment duration against the provided category bounds using unfiltered
-        # duration. This ensures categorization is always based on unfiltered
-        # gait segment size, even if the arm swing results are filtered
+
+    for lower, upper in gait_segment_categories:
+
+        segment_cat_str = f"{lower}_{upper}"
+
+        # Categorize segments based on unfiltered duration
         cat_segments = [
-            x
-            for x in segment_meta["per_segment"].keys()
+            seg_id
+            for seg_id, meta in segment_meta["per_segment"].items()
             if lower
-            <= segment_meta["per_segment"][x].get(
-                "unfiltered_duration_s", segment_meta["per_segment"][x]["duration_s"]
+            <= meta.get(
+                "unfiltered_duration_s",
+                meta["duration_s"],
             )
             < upper
         ]
 
-        if len(cat_segments) > 0:
-            # Calculate total duration for segments in this category
+        if not cat_segments:
             aggregated_results[segment_cat_str] = {
-                "duration_s": sum(
-                    [segment_meta["per_segment"][x]["duration_s"] for x in cat_segments]
+                "total": {"duration_s": 0},
+                "per_time_period": {},
+            }
+            continue
+
+        df_cat = df_arm_swing_params[
+            df_arm_swing_params[DataColumns.GAIT_SEGMENT_NR].isin(cat_segments)
+        ].copy()
+
+        total_duration_s = sum(
+            segment_meta["per_segment"][seg]["duration_s"] for seg in cat_segments
+        )
+
+        aggregated_results[segment_cat_str] = {
+            "total": aggregate_subset(
+                df_subset=df_cat,
+                segment_ids=cat_segments,
+                duration_s=total_duration_s,
+            ),
+            "per_time_period": {},
+        }
+
+        # Time-period specific aggregation
+        if time_period_col is not None and time_period_col in df_cat.columns:
+
+            for time_period, df_tp in df_cat.groupby(time_period_col):
+
+                segments_in_period = (
+                    df_tp[DataColumns.GAIT_SEGMENT_NR].dropna().unique().tolist()
                 )
-            }
 
-            df_arm_swing_params_cat = df_arm_swing_params.loc[
-                df_arm_swing_params[DataColumns.GAIT_SEGMENT_NR].isin(cat_segments)
-            ]
+                duration_s = sum(
+                    segment_meta["per_segment"][seg]["duration_s"]
+                    for seg in segments_in_period
+                    if seg in segment_meta["per_segment"]
+                )
 
-            # Aggregate across all segments
-            aggregates_per_segment = ["median", "mean"]
-
-            for arm_swing_parameter in arm_swing_parameters:
-                for aggregate in aggregates:
-                    if aggregate in ["std", "cov"]:
-                        per_segment_agg = []
-                        # If the aggregate is 'cov' (coefficient of variation),
-                        # we also compute the mean and standard deviation per
-                        # segment
-                        segment_groups = dict(
-                            tuple(
-                                df_arm_swing_params_cat.groupby(
-                                    DataColumns.GAIT_SEGMENT_NR
-                                )
-                            )
-                        )
-                        for segment_nr in cat_segments:
-                            segment_df = segment_groups.get(segment_nr)
-                            if segment_df is not None:
-                                per_segment_agg.append(
-                                    aggregate_parameter(
-                                        segment_df[arm_swing_parameter], aggregate
-                                    )
-                                )
-
-                        # Drop nans
-                        per_segment_agg = np.array(per_segment_agg)
-                        per_segment_agg = per_segment_agg[~np.isnan(per_segment_agg)]
-
-                        for segment_level_aggregate in aggregates_per_segment:
-                            key = (
-                                f"{segment_level_aggregate}_{aggregate}_"
-                                f"{arm_swing_parameter}"
-                            )
-                            aggregated_results[segment_cat_str][key] = (
-                                aggregate_parameter(
-                                    per_segment_agg, segment_level_aggregate
-                                )
-                            )
-                    else:
-                        aggregated_results[segment_cat_str][
-                            f"{aggregate}_{arm_swing_parameter}"
-                        ] = aggregate_parameter(
-                            df_arm_swing_params_cat[arm_swing_parameter], aggregate
-                        )
-
-        else:
-            # If no segments are found for this category, initialize with NaN
-            aggregated_results[segment_cat_str] = {
-                "duration_s": 0,
-            }
+                aggregated_results[segment_cat_str]["per_time_period"][time_period] = (
+                    aggregate_subset(
+                        df_subset=df_tp,
+                        segment_ids=segments_in_period,
+                        duration_s=duration_s,
+                    )
+                )
 
     return aggregated_results
 
