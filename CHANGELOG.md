@@ -2,7 +2,7 @@
 
 <!--next-version-placeholder-->
 
-## v1.1.2 (10/06/26)
+## v1.1.2 (11/06/26)
 
 ### Breaking Changes
 - **Unified pipeline return format**: All pipelines (`run_gait_pipeline()`, `run_tremor_pipeline()`, `run_pulse_rate_pipeline()`) now return a unified dictionary structure instead of tuples/DataFrames:
