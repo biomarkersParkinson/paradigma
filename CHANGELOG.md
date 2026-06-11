@@ -2,7 +2,7 @@
 
 <!--next-version-placeholder-->
 
-## v1.1.2 (TBD)
+## v1.1.2 (11/06/26)
 
 ### Breaking Changes
 - **Unified pipeline return format**: All pipelines (`run_gait_pipeline()`, `run_tremor_pipeline()`, `run_pulse_rate_pipeline()`) now return a unified dictionary structure instead of tuples/DataFrames:
@@ -23,6 +23,8 @@
   - Available in both individual pipeline functions and main `run_paradigma()` orchestrator
   - Enables parallel processing workflows where preprocessing/classification run separately from quantification
   - Example: `run_steps=['preprocessing', 'classification']` to stop after classification without computing quantification
+
+- **Adaptive sampling frequency detection**: orchestrator now automatically detects data sampling frequency and adjusts frequency-dependent parameters accordingly. It is no longer necessary to manually set the sampling frequency to 100 Hz
 
 - **Independent save/return control**: `save_intermediate` and `return_intermediate` now work independently:
   - Save results to disk without returning them (memory-efficient for large datasets)
