@@ -300,7 +300,6 @@ print(f"\nOverlapping preprocessed data shapes:\n- PPG data: {df_ppg_proc.shape}
 display(df_ppg_proc, df_acc_proc)
 ```
 
-    The tolerance for checking contiguous timestamps is set to 0.100 seconds for PPG data and 0.030 seconds for accelerometer data.
     Original data shapes:
     - PPG data: (1029375, 2)
     - Accelerometer data: (3455331, 7)
