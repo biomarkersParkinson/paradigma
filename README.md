@@ -101,8 +101,8 @@ if results['errors']:
 | Pipeline | Input sensors | Output week-level aggregation | Publications | Tutorial |
 | ---- | ---- | ------- | ---- | ---- |
 | **Arm swing during gait** | Accelerometer + Gyroscope | Typical, maximum & variability of arm swing range of motion | [Post 2025](https://doi.org/10.1186/s12984-025-01578-z), [Post 2026*](https://doi.org/10.64898/2026.01.06.26343500) | [Guide](https://biomarkersparkinson.github.io/paradigma/tutorials/gait_analysis) |
-| **Tremor** | Gyroscope | % tremor time, typical & maximum tremor power | [Timmermans 2025a](https://doi.org/10.1038/s41531-025-01056-2), [Timmermans 2025b*](https://www.medrxiv.org/content/10.64898/2025.12.23.25342892v1) | [Guide](https://biomarkersparkinson.github.io/paradigma/tutorials/tremor_analysis) |
-| **Pulse rate** | PPG (+ Accelerometer) | Resting & maximum pulse rate | [Veldkamp 2025*](https://doi.org/10.1101/2025.08.15.25333751) | [Guide](https://biomarkersparkinson.github.io/paradigma/tutorials/pulse_rate_analysis) |
+| **Tremor** | Gyroscope | % tremor time, typical & maximum tremor power | [Timmermans 2025](https://doi.org/10.1038/s41531-025-01056-2), [Timmermans 2026](http://doi.org/10.1002/ana.78236) | [Guide](https://biomarkersparkinson.github.io/paradigma/tutorials/tremor_analysis) |
+| **Pulse rate** | PPG (+ Accelerometer) | Resting & maximum pulse rate | [Veldkamp 2026](https://doi.org/10.1186/s12984-026-01994-9) | [Guide](https://biomarkersparkinson.github.io/paradigma/tutorials/pulse_rate_analysis) |
 
 *\* Indicates pre-print*
 
@@ -162,10 +162,10 @@ The following publications contain details and validation of the pipelines:
 
 **Tremor**
 * [Timmermans, N.A. et al. (2025) - A generalizable and open-source algorithm for real-life monitoring of tremor in Parkinson's disease](https://doi.org/10.1038/s41531-025-01056-2)
-* [Timmermans, N.A. et al. (2025) - (Pre-print) Progression of daily-life tremor measures in early Parkinson disease: a longitudinal continuous monitoring study](https://www.medrxiv.org/content/10.64898/2025.12.23.25342892v1)
+* [Timmermans, N.A. et al. (2026) - Daily-Life, Sensor-Derived Tremor Measures Are Sensitive to Progression in Early Parkinson's Disease](http://doi.org/10.1002/ana.78236)
 
 **Pulse rate**
-* [Veldkamp, K.I. et al. (2025) - Heart rate monitoring using wrist photoplethysmography in Parkinson disease: feasibility and relation with autonomic dysfunction](https://doi.org/10.1101/2025.08.15.25333751)
+* [Veldkamp, K.I. et al. (2026) - Heart rate monitoring using wrist photoplethysmography in Parkinson disease: feasibility and relation with autonomic dysfunction](https://doi.org/10.1186/s12984-026-01994-9)
 
 
 ## Contributing

@@ -200,6 +200,9 @@ df_data
 
 IMU sensors collect data at a fixed sampling frequency, but the sampling rate is not uniform, causing variation in time differences between timestamps. The [preprocess_imu_data](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.preprocess_imu_data) function therefore resamples the timestamps to be uniformly distributed, and then interpolates IMU values at these new timestamps using the original timestamps and corresponding IMU values. If the difference between timestamps is larger than a specified tolerance (`config.tolerance`, in seconds), it will return an error that the timestamps are not contiguous.  If you still want to process the data in this case, you can create segments from discontiguous samples using the function [`create_segments`](https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/segmenting/index.html#paradigma.segmenting.create_segments) and analyze these segments consecutively as shown in [here](#multiple_segments_cell). By setting `sensor` to 'gyroscope', only gyroscope data is preprocessed and the accelerometer data is removed from the dataframe. Also a `watch_side` should be provided, although for the tremor analysis it does not matter whether this is the correct side since the tremor features are not influenced by the gyroscope axes orientation.
 
+Note: The data sampling frequency is automatically detected, and frequency-dependent parameters (such as the tolerance) and features
+are subsequently automatically adjusted. For more info, see the [config guide](https://biomarkersparkinson.github.io/paradigma/guides/config.html).
+
 
 ```python
 # Set column names: replace DataColumn.* with your actual column names.
@@ -215,23 +218,24 @@ column_mapping = {
     'GYROSCOPE_Z': DataColumns.GYROSCOPE_Z,
 }
 
-config = IMUConfig(column_mapping)
-print(f"The data is resampled to {config.resampling_frequency} Hz.")
-print(f"The tolerance for checking contiguous timestamps is "
-      f"set to {config.tolerance:.3f} seconds.")
+imu_config = IMUConfig(column_mapping)
 
 df_preprocessed_data = preprocess_imu_data(
-    df_data, config, sensor='gyroscope', watch_side='left'
+    df_data, imu_config, sensor='gyroscope', watch_side='left'
 )
+
+print(f"The data is resampled uniformly to {imu_config.resampling_frequency} Hz.")
+print(f"The tolerance for checking contiguous timestamps is "
+      f"set to {imu_config.tolerance:.3f} seconds.")
 
 df_preprocessed_data
 ```
 
-    The data is resampled to 100 Hz.
+    INFO: Resampled: 3455331 -> 3468300 rows at 101 Hz
+
+
+    The data is resampled uniformly to 101 Hz.
     The tolerance for checking contiguous timestamps is set to 0.030 seconds.
-
-
-    INFO: Resampled: 3455331 -> 3433961 rows at 100.0 Hz
 
 
 
@@ -251,38 +255,38 @@ df_preprocessed_data
   <tbody>
     <tr>
       <th>0</th>
-      <td>0.00</td>
+      <td>0.000000</td>
       <td>0.000000</td>
       <td>1.402439</td>
       <td>0.243902</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>0.01</td>
-      <td>0.432231</td>
-      <td>0.665526</td>
-      <td>-0.123434</td>
+      <td>0.009901</td>
+      <td>0.424212</td>
+      <td>0.673259</td>
+      <td>-0.121229</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>0.02</td>
-      <td>1.164277</td>
-      <td>-0.069584</td>
-      <td>-0.307536</td>
+      <td>0.019802</td>
+      <td>1.155682</td>
+      <td>-0.056779</td>
+      <td>-0.303596</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>0.03</td>
-      <td>1.151432</td>
-      <td>-0.554928</td>
-      <td>-0.554223</td>
+      <td>0.029703</td>
+      <td>1.161910</td>
+      <td>-0.545737</td>
+      <td>-0.546139</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>0.04</td>
-      <td>0.657189</td>
-      <td>-0.603207</td>
-      <td>-0.731570</td>
+      <td>0.039604</td>
+      <td>0.677357</td>
+      <td>-0.612758</td>
+      <td>-0.731633</td>
     </tr>
     <tr>
       <th>...</th>
@@ -292,43 +296,43 @@ df_preprocessed_data
       <td>...</td>
     </tr>
     <tr>
-      <th>3433956</th>
-      <td>34339.56</td>
-      <td>130.392434</td>
-      <td>29.491627</td>
-      <td>-26.868202</td>
+      <th>3468295</th>
+      <td>34339.554455</td>
+      <td>-63.697260</td>
+      <td>39.121747</td>
+      <td>-14.192411</td>
     </tr>
     <tr>
-      <th>3433957</th>
-      <td>34339.57</td>
-      <td>135.771133</td>
-      <td>-184.515525</td>
-      <td>-21.544211</td>
+      <th>3468296</th>
+      <td>34339.564356</td>
+      <td>181.214291</td>
+      <td>-41.963407</td>
+      <td>-29.116730</td>
     </tr>
     <tr>
-      <th>3433958</th>
-      <td>34339.58</td>
-      <td>146.364103</td>
-      <td>-324.248909</td>
-      <td>-5.248641</td>
+      <th>3468297</th>
+      <td>34339.574257</td>
+      <td>115.281745</td>
+      <td>-269.298210</td>
+      <td>-14.416680</td>
     </tr>
     <tr>
-      <th>3433959</th>
-      <td>34339.59</td>
-      <td>273.675024</td>
-      <td>-293.011330</td>
-      <td>14.618256</td>
+      <th>3468298</th>
+      <td>34339.584158</td>
+      <td>194.076509</td>
+      <td>-328.099389</td>
+      <td>2.395920</td>
     </tr>
     <tr>
-      <th>3433960</th>
-      <td>34339.60</td>
-      <td>372.878731</td>
-      <td>-158.516265</td>
-      <td>35.330770</td>
+      <th>3468299</th>
+      <td>34339.594059</td>
+      <td>324.945776</td>
+      <td>-247.077559</td>
+      <td>23.379297</td>
     </tr>
   </tbody>
 </table>
-<p>3433961 rows × 4 columns</p>
+<p>3468300 rows × 4 columns</p>
 </div>
 
 
@@ -339,10 +343,11 @@ The function [`extract_tremor_features`](https://biomarkersparkinson.github.io/p
 
 
 ```python
-config = TremorConfig()
-print(f'The window length is {config.window_length_s} seconds')
+tremor_config = TremorConfig()
+tremor_config._set_sampling_frequency_detected(imu_config.sampling_frequency)
+print(f'The window length is {tremor_config.window_length_s} seconds')
 
-df_features = extract_tremor_features(df_preprocessed_data, config)
+df_features = extract_tremor_features(df_preprocessed_data, tremor_config)
 
 df_features
 ```
@@ -380,97 +385,97 @@ df_features
     <tr>
       <th>0</th>
       <td>0.0</td>
-      <td>5.323582</td>
-      <td>1.179579</td>
-      <td>-0.498552</td>
-      <td>-0.149152</td>
-      <td>-0.063535</td>
-      <td>-0.132090</td>
-      <td>-0.112380</td>
-      <td>-0.044326</td>
-      <td>-0.025917</td>
-      <td>0.116045</td>
-      <td>0.169869</td>
-      <td>0.213884</td>
+      <td>5.323215</td>
+      <td>1.177907</td>
+      <td>-0.501607</td>
+      <td>-0.149680</td>
+      <td>-0.060247</td>
+      <td>-0.131664</td>
+      <td>-0.113229</td>
+      <td>-0.043972</td>
+      <td>-0.025087</td>
+      <td>0.114878</td>
+      <td>0.170381</td>
+      <td>0.213038</td>
       <td>3.75</td>
-      <td>0.082219</td>
-      <td>0.471588</td>
+      <td>0.082369</td>
+      <td>0.471235</td>
     </tr>
     <tr>
       <th>1</th>
       <td>4.0</td>
-      <td>5.333162</td>
-      <td>1.205712</td>
-      <td>-0.607844</td>
-      <td>-0.138371</td>
-      <td>-0.039518</td>
-      <td>-0.137703</td>
-      <td>-0.069552</td>
-      <td>-0.008029</td>
-      <td>-0.087711</td>
-      <td>0.089844</td>
-      <td>0.152380</td>
-      <td>0.195165</td>
+      <td>5.336619</td>
+      <td>1.208349</td>
+      <td>-0.607052</td>
+      <td>-0.137038</td>
+      <td>-0.038054</td>
+      <td>-0.135531</td>
+      <td>-0.069183</td>
+      <td>-0.007556</td>
+      <td>-0.085976</td>
+      <td>0.089542</td>
+      <td>0.153726</td>
+      <td>0.195739</td>
       <td>3.75</td>
-      <td>0.071260</td>
-      <td>0.327252</td>
+      <td>0.071459</td>
+      <td>0.327415</td>
     </tr>
     <tr>
       <th>2</th>
       <td>8.0</td>
-      <td>5.180974</td>
-      <td>1.039548</td>
-      <td>-0.627100</td>
-      <td>-0.054816</td>
-      <td>-0.016767</td>
-      <td>-0.044817</td>
-      <td>0.079859</td>
-      <td>-0.023155</td>
-      <td>0.024729</td>
-      <td>0.104989</td>
-      <td>0.126502</td>
-      <td>0.192319</td>
+      <td>5.180463</td>
+      <td>1.042150</td>
+      <td>-0.627363</td>
+      <td>-0.053882</td>
+      <td>-0.016101</td>
+      <td>-0.045770</td>
+      <td>0.080107</td>
+      <td>-0.024386</td>
+      <td>0.025677</td>
+      <td>0.104405</td>
+      <td>0.127752</td>
+      <td>0.192906</td>
       <td>7.75</td>
-      <td>0.097961</td>
-      <td>0.114138</td>
+      <td>0.098172</td>
+      <td>0.114098</td>
     </tr>
     <tr>
       <th>3</th>
       <td>12.0</td>
-      <td>5.290298</td>
-      <td>1.183957</td>
-      <td>-0.627651</td>
-      <td>-0.027235</td>
-      <td>0.095184</td>
-      <td>-0.050455</td>
-      <td>-0.024654</td>
-      <td>0.029754</td>
-      <td>-0.007459</td>
-      <td>0.125700</td>
-      <td>0.146895</td>
-      <td>0.220589</td>
+      <td>5.287420</td>
+      <td>1.182862</td>
+      <td>-0.627432</td>
+      <td>-0.028083</td>
+      <td>0.093145</td>
+      <td>-0.052906</td>
+      <td>-0.025959</td>
+      <td>0.030913</td>
+      <td>-0.011134</td>
+      <td>0.124871</td>
+      <td>0.145850</td>
+      <td>0.220220</td>
       <td>7.75</td>
-      <td>0.193237</td>
-      <td>0.180988</td>
+      <td>0.193567</td>
+      <td>0.181103</td>
     </tr>
     <tr>
       <th>4</th>
       <td>16.0</td>
-      <td>5.128074</td>
-      <td>1.066869</td>
-      <td>-0.622282</td>
-      <td>0.038557</td>
-      <td>-0.034719</td>
-      <td>0.045109</td>
-      <td>0.076679</td>
-      <td>0.057267</td>
-      <td>-0.024619</td>
-      <td>0.131755</td>
-      <td>0.177849</td>
-      <td>0.149686</td>
+      <td>5.133249</td>
+      <td>1.064652</td>
+      <td>-0.622849</td>
+      <td>0.037858</td>
+      <td>-0.035782</td>
+      <td>0.043510</td>
+      <td>0.075618</td>
+      <td>0.058650</td>
+      <td>-0.024736</td>
+      <td>0.131784</td>
+      <td>0.179266</td>
+      <td>0.149834</td>
       <td>7.75</td>
-      <td>0.156469</td>
-      <td>0.090009</td>
+      <td>0.156356</td>
+      <td>0.089982</td>
     </tr>
     <tr>
       <th>...</th>
@@ -494,97 +499,97 @@ df_features
     <tr>
       <th>8579</th>
       <td>34316.0</td>
-      <td>7.071408</td>
-      <td>-0.376556</td>
-      <td>0.272322</td>
-      <td>0.068750</td>
-      <td>0.051588</td>
-      <td>0.102012</td>
-      <td>0.055017</td>
-      <td>0.115942</td>
-      <td>0.012746</td>
-      <td>0.117970</td>
-      <td>0.073279</td>
-      <td>0.057367</td>
+      <td>6.986879</td>
+      <td>-0.354682</td>
+      <td>0.273604</td>
+      <td>0.057881</td>
+      <td>0.054815</td>
+      <td>0.118318</td>
+      <td>0.064013</td>
+      <td>0.112470</td>
+      <td>0.014039</td>
+      <td>0.117485</td>
+      <td>0.074521</td>
+      <td>0.060339</td>
       <td>13.50</td>
-      <td>48.930380</td>
-      <td>91.971686</td>
+      <td>48.895782</td>
+      <td>91.952490</td>
     </tr>
     <tr>
       <th>8580</th>
       <td>34320.0</td>
-      <td>1.917642</td>
-      <td>0.307927</td>
-      <td>0.142330</td>
-      <td>0.265357</td>
-      <td>0.285635</td>
-      <td>0.143886</td>
-      <td>0.259636</td>
-      <td>0.195724</td>
-      <td>0.176947</td>
-      <td>0.162205</td>
-      <td>0.147897</td>
-      <td>0.170488</td>
+      <td>1.917719</td>
+      <td>0.307124</td>
+      <td>0.145170</td>
+      <td>0.265969</td>
+      <td>0.283961</td>
+      <td>0.144457</td>
+      <td>0.258391</td>
+      <td>0.195310</td>
+      <td>0.176972</td>
+      <td>0.162119</td>
+      <td>0.147681</td>
+      <td>0.169611</td>
       <td>11.00</td>
-      <td>0.012123</td>
+      <td>0.012124</td>
       <td>0.000316</td>
     </tr>
     <tr>
       <th>8581</th>
       <td>34324.0</td>
-      <td>2.383806</td>
-      <td>0.268580</td>
-      <td>0.151254</td>
-      <td>0.414430</td>
-      <td>0.241540</td>
-      <td>0.244071</td>
-      <td>0.201109</td>
-      <td>0.209611</td>
-      <td>0.097146</td>
-      <td>0.048798</td>
-      <td>0.013239</td>
-      <td>0.035379</td>
+      <td>2.380429</td>
+      <td>0.268608</td>
+      <td>0.152984</td>
+      <td>0.414011</td>
+      <td>0.240926</td>
+      <td>0.245157</td>
+      <td>0.200777</td>
+      <td>0.210480</td>
+      <td>0.097858</td>
+      <td>0.047840</td>
+      <td>0.014666</td>
+      <td>0.036084</td>
       <td>2.00</td>
-      <td>0.013077</td>
-      <td>0.000615</td>
+      <td>0.013080</td>
+      <td>0.000614</td>
     </tr>
     <tr>
       <th>8582</th>
       <td>34328.0</td>
-      <td>1.883626</td>
-      <td>0.089983</td>
-      <td>0.196880</td>
-      <td>0.300523</td>
-      <td>0.239185</td>
-      <td>0.259342</td>
-      <td>0.277586</td>
-      <td>0.206517</td>
-      <td>0.178499</td>
-      <td>0.215561</td>
-      <td>0.067234</td>
-      <td>0.123958</td>
+      <td>1.884624</td>
+      <td>0.093049</td>
+      <td>0.196704</td>
+      <td>0.299977</td>
+      <td>0.240239</td>
+      <td>0.259326</td>
+      <td>0.276831</td>
+      <td>0.205116</td>
+      <td>0.178561</td>
+      <td>0.213776</td>
+      <td>0.067219</td>
+      <td>0.123831</td>
       <td>13.75</td>
-      <td>0.011466</td>
+      <td>0.011465</td>
       <td>0.000211</td>
     </tr>
     <tr>
       <th>8583</th>
       <td>34332.0</td>
-      <td>2.599103</td>
-      <td>0.286252</td>
-      <td>-0.014529</td>
-      <td>0.475488</td>
-      <td>0.229446</td>
-      <td>0.188200</td>
-      <td>0.173689</td>
-      <td>0.033262</td>
-      <td>0.138957</td>
-      <td>0.106176</td>
-      <td>0.036859</td>
-      <td>0.082178</td>
+      <td>2.597827</td>
+      <td>0.286846</td>
+      <td>-0.015120</td>
+      <td>0.475393</td>
+      <td>0.229463</td>
+      <td>0.187146</td>
+      <td>0.173255</td>
+      <td>0.032205</td>
+      <td>0.140228</td>
+      <td>0.106082</td>
+      <td>0.037928</td>
+      <td>0.083249</td>
       <td>12.50</td>
-      <td>0.015068</td>
-      <td>0.000891</td>
+      <td>0.015059</td>
+      <td>0.000889</td>
     </tr>
   </tbody>
 </table>
@@ -599,7 +604,7 @@ The function [`detect_tremor`](https://biomarkersparkinson.github.io/paradigma/a
 
 
 ```python
-print(f'A threshold of {config.movement_threshold} deg\u00b2/s\u00b2 \
+print(f'A threshold of {tremor_config.movement_threshold} deg\u00b2/s\u00b2 \
 is used to determine whether the arm is at rest or in stable posture.')
 
 # Load the pre-trained logistic regression classifier
@@ -611,11 +616,14 @@ full_path_to_classifier_package = (
 )
 
 # Use the logistic regression classifier to detect tremor and check for rest tremor
-df_predictions = detect_tremor(df_features, config, full_path_to_classifier_package)
+df_predictions = detect_tremor(
+    df_features, tremor_config, full_path_to_classifier_package
+)
 
 df_predictions[[
-    config.time_colname, DataColumns.PRED_TREMOR_PROBA, DataColumns.PRED_TREMOR_LOGREG,
-    DataColumns.PRED_ARM_AT_REST, DataColumns.PRED_TREMOR_CHECKED
+    tremor_config.time_colname, DataColumns.PRED_TREMOR_PROBA,
+    DataColumns.PRED_TREMOR_LOGREG, DataColumns.PRED_ARM_AT_REST,
+    DataColumns.PRED_TREMOR_CHECKED
 ]]
 ```
 
@@ -641,7 +649,7 @@ df_predictions[[
     <tr>
       <th>0</th>
       <td>0.0</td>
-      <td>0.038968</td>
+      <td>0.038855</td>
       <td>1</td>
       <td>1</td>
       <td>1</td>
@@ -649,7 +657,7 @@ df_predictions[[
     <tr>
       <th>1</th>
       <td>4.0</td>
-      <td>0.035365</td>
+      <td>0.035294</td>
       <td>1</td>
       <td>1</td>
       <td>1</td>
@@ -657,7 +665,7 @@ df_predictions[[
     <tr>
       <th>2</th>
       <td>8.0</td>
-      <td>0.031255</td>
+      <td>0.031335</td>
       <td>1</td>
       <td>1</td>
       <td>0</td>
@@ -665,7 +673,7 @@ df_predictions[[
     <tr>
       <th>3</th>
       <td>12.0</td>
-      <td>0.021106</td>
+      <td>0.020958</td>
       <td>0</td>
       <td>1</td>
       <td>0</td>
@@ -673,7 +681,7 @@ df_predictions[[
     <tr>
       <th>4</th>
       <td>16.0</td>
-      <td>0.021078</td>
+      <td>0.021405</td>
       <td>0</td>
       <td>1</td>
       <td>0</td>
@@ -689,7 +697,7 @@ df_predictions[[
     <tr>
       <th>8579</th>
       <td>34316.0</td>
-      <td>0.000296</td>
+      <td>0.000292</td>
       <td>0</td>
       <td>1</td>
       <td>0</td>
@@ -697,7 +705,7 @@ df_predictions[[
     <tr>
       <th>8580</th>
       <td>34320.0</td>
-      <td>0.000089</td>
+      <td>0.000088</td>
       <td>0</td>
       <td>1</td>
       <td>0</td>
@@ -721,7 +729,7 @@ df_predictions[[
     <tr>
       <th>8583</th>
       <td>34332.0</td>
-      <td>0.000049</td>
+      <td>0.000050</td>
       <td>0</td>
       <td>1</td>
       <td>0</td>
@@ -749,7 +757,7 @@ metadata_values_store = tsdf.TSDFMetadata(
 )
 
 # Select the columns to be saved
-metadata_time_store.channels = [config.time_colname]
+metadata_time_store.channels = [tremor_config.time_colname]
 metadata_values_store.channels = [
     DataColumns.TREMOR_POWER,
     DataColumns.PRED_TREMOR_PROBA,
@@ -811,8 +819,8 @@ df_predictions.head()
     <tr>
       <th>0</th>
       <td>0.0</td>
-      <td>0.471588</td>
-      <td>0.038968</td>
+      <td>0.471235</td>
+      <td>0.038855</td>
       <td>1.0</td>
       <td>1.0</td>
       <td>1.0</td>
@@ -820,8 +828,8 @@ df_predictions.head()
     <tr>
       <th>1</th>
       <td>4.0</td>
-      <td>0.327252</td>
-      <td>0.035365</td>
+      <td>0.327415</td>
+      <td>0.035294</td>
       <td>1.0</td>
       <td>1.0</td>
       <td>1.0</td>
@@ -829,8 +837,8 @@ df_predictions.head()
     <tr>
       <th>2</th>
       <td>8.0</td>
-      <td>0.114138</td>
-      <td>0.031255</td>
+      <td>0.114098</td>
+      <td>0.031335</td>
       <td>1.0</td>
       <td>1.0</td>
       <td>0.0</td>
@@ -838,8 +846,8 @@ df_predictions.head()
     <tr>
       <th>3</th>
       <td>12.0</td>
-      <td>0.180988</td>
-      <td>0.021106</td>
+      <td>0.181103</td>
+      <td>0.020958</td>
       <td>0.0</td>
       <td>1.0</td>
       <td>0.0</td>
@@ -847,8 +855,8 @@ df_predictions.head()
     <tr>
       <th>4</th>
       <td>16.0</td>
-      <td>0.090009</td>
-      <td>0.021078</td>
+      <td>0.089982</td>
+      <td>0.021405</td>
       <td>0.0</td>
       <td>1.0</td>
       <td>0.0</td>
@@ -866,7 +874,7 @@ The tremor power of all predicted tremor windows (where `pred_tremor_checked` is
 
 ```python
 df_quantification = df_predictions[[
-    config.time_colname, DataColumns.PRED_ARM_AT_REST,
+    tremor_config.time_colname, DataColumns.PRED_ARM_AT_REST,
     DataColumns.PRED_TREMOR_CHECKED, DataColumns.TREMOR_POWER
 ]].copy()
 df_quantification.loc[
@@ -882,11 +890,11 @@ start_time = (
     .replace(tzinfo=pytz.timezone('UTC'))
     .astimezone(pytz.timezone('CET')) # convert to correct timezone if necessary
 )
-df_quantification[f'{config.time_colname}_dt'] = start_time + \
-    pd.to_timedelta(df_quantification[config.time_colname], unit="s")
+df_quantification[f'{tremor_config.time_colname}_dt'] = start_time + \
+    pd.to_timedelta(df_quantification[tremor_config.time_colname], unit="s")
 df_quantification = df_quantification[[
-    config.time_colname,
-    f'{config.time_colname}_dt',
+    tremor_config.time_colname,
+    f'{tremor_config.time_colname}_dt',
     DataColumns.PRED_ARM_AT_REST,
     DataColumns.PRED_TREMOR_CHECKED,
     DataColumns.TREMOR_POWER
@@ -917,7 +925,7 @@ df_quantification
       <td>2019-08-20 12:39:16+02:00</td>
       <td>1.0</td>
       <td>1.0</td>
-      <td>0.471588</td>
+      <td>0.471235</td>
     </tr>
     <tr>
       <th>1</th>
@@ -925,7 +933,7 @@ df_quantification
       <td>2019-08-20 12:39:20+02:00</td>
       <td>1.0</td>
       <td>1.0</td>
-      <td>0.327252</td>
+      <td>0.327415</td>
     </tr>
     <tr>
       <th>2</th>
@@ -1040,21 +1048,24 @@ for segment_nr in segments:
     # 1: Preprocess the data
     # Change column names if necessary by creating parameter
     # column_mapping (see previous cells for an example)
-    config = IMUConfig()
+    imu_config = IMUConfig()
     df_preprocessed_data = preprocess_imu_data(
-        df_data, config, sensor='gyroscope', watch_side='left'
+        df_data, imu_config, sensor='gyroscope', watch_side='left'
     )
 
     # 2: Extract features
-    config = TremorConfig()
-    df_features = extract_tremor_features(df_preprocessed_data, config)
+    tremor_config = TremorConfig()
+    tremor_config._set_sampling_frequency_detected(imu_config.sampling_frequency)
+
+    df_features = extract_tremor_features(df_preprocessed_data, tremor_config)
 
     # 3: Detect tremor
-    df_predictions = detect_tremor(df_features, config, full_path_to_classifier_package)
+    df_predictions = detect_tremor(df_features, tremor_config,
+                                   full_path_to_classifier_package)
 
     # 4: Quantify tremor
     df_quantification = df_predictions[[
-        config.time_colname, DataColumns.PRED_ARM_AT_REST,
+        tremor_config.time_colname, DataColumns.PRED_ARM_AT_REST,
     DataColumns.PRED_TREMOR_CHECKED, DataColumns.TREMOR_POWER
     ]].copy()
     df_quantification.loc[
@@ -1070,14 +1081,14 @@ for segment_nr in segments:
         .replace(tzinfo=pytz.timezone('UTC'))
         .astimezone(pytz.timezone('CET')) # convert to correct timezone if necessary
     )
-    df_quantification[f'{config.time_colname}_dt'] = start_time + \
-        pd.to_timedelta(df_quantification[config.time_colname], unit="s")
+    df_quantification[f'{tremor_config.time_colname}_dt'] = start_time + \
+        pd.to_timedelta(df_quantification[tremor_config.time_colname], unit="s")
 ```
 
-    INFO: Resampled: 3455331 -> 3433961 rows at 100.0 Hz
+    INFO: Resampled: 3455331 -> 3468300 rows at 101 Hz
 
 
-    INFO: Resampled: 7434685 -> 7388945 rows at 100.0 Hz
+    INFO: Resampled: 7434685 -> 7462834 rows at 101 Hz
 
 
 ## Step 5: Compute aggregated tremor measures
@@ -1096,7 +1107,7 @@ print(
     f"Before aggregation we select data collected between {select_hours_start} "
     f"and {select_hours_end}. We also select days with at "
     f"least {min_hours_per_day} hours of data. \nThe following tremor power "
-    f"aggregates are derived: {config.aggregates_tremor_power}."
+    f"aggregates are derived: {tremor_config.aggregates_tremor_power}."
 )
 
 # Select the hours that should be included in the analysis
@@ -1120,12 +1131,12 @@ print(json.dumps(d_tremor_aggregates, indent=2))
       "metadata": {
         "nr_valid_days": 1,
         "nr_windows_total": 12600,
-        "nr_windows_rest": 8284
+        "nr_windows_rest": 8282
       },
       "aggregated_tremor_measures": {
-        "perc_windows_tremor": 19.386769676484793,
-        "median_tremor_power": 0.5143985314908104,
+        "perc_windows_tremor": 19.415600096595025,
+        "median_tremor_power": 0.5144274315149706,
         "modal_tremor_power": 0.3,
-        "90p_tremor_power": 1.3259483071516063
+        "90p_tremor_power": 1.3229371865246413
       }
     }

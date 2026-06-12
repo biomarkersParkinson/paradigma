@@ -6,17 +6,19 @@ This module provides functions to prepare raw sensor data for analysis:
 - Time column formatting
 - Column name standardization
 - Watch side orientation correction
-- Resampling to 100 Hz
+
+Note: Resampling is handled during preprocessing, not data preparation.
 
 Based on data_preparation tutorial.
 """
 
 import logging
 
+import numpy as np
 import pandas as pd
 
 from paradigma.constants import DataColumns, TimeUnit
-from paradigma.preprocessing import resample_data
+from paradigma.segmenting import create_segments, discard_segments
 from paradigma.util import (
     convert_units_accelerometer,
     convert_units_gyroscope,
@@ -317,8 +319,8 @@ def prepare_raw_data(
     device_orientation: dict[str, int] | None = None,
     validate: bool = True,
     auto_segment: bool = False,
-    max_segment_gap_s: float | None = None,
-    min_segment_length_s: float | None = None,
+    max_segment_gap_s: float = 1.5,
+    min_segment_length_s: float = 1.5,
 ) -> pd.DataFrame:
     """
     Complete data preparation pipeline for raw sensor data.
@@ -334,7 +336,8 @@ def prepare_raw_data(
     time_input_unit : TimeUnit, default TimeUnit.RELATIVE_S
         Input time unit type
     resampling_frequency : float, default 100.0
-        Target sampling frequency in Hz
+        Deprecated. This parameter is ignored; resampling is handled during
+        preprocessing.
     column_mapping : Dict[str, str], optional
         Custom column name mapping
     device_orientation : Dict[str, int], optional
@@ -342,8 +345,8 @@ def prepare_raw_data(
     validate : bool, default True
         Whether to validate the prepared data
     auto_segment : bool, default False
-        If True, automatically split non-contiguous data into segments.
-        Adds 'data_segment_nr' column to output.
+        If True, automatically split non-contiguous data into segments based on
+        time gaps. Adds 'data_segment_nr' column to output.
     max_segment_gap_s : float, optional
         Maximum gap (seconds) before starting new segment. Used when auto_segment=True.
         Defaults to 1.5s.
@@ -355,7 +358,7 @@ def prepare_raw_data(
     -------
     pd.DataFrame
         Prepared data ready for ParaDigMa analysis. If auto_segment=True and multiple
-        segments found, includes 'data_segment_nr' column.
+        segments found, includes 'data_segment_nr' column for tracking segments.
     """
     logger.info("Starting data preparation pipeline")
 
@@ -378,15 +381,34 @@ def prepare_raw_data(
     logger.info("Step 4: Correcting device orientation")
     df = correct_watch_orientation(df, device_orientation=device_orientation)
 
-    # Step 5: Resample to target frequency
-    logger.info(f"Step 5: Resampling to {resampling_frequency} Hz")
-    df = resample_data(
-        df,
-        resampling_frequency=resampling_frequency,
-        auto_segment=auto_segment,
-        max_segment_gap_s=max_segment_gap_s,
-        min_segment_length_s=min_segment_length_s,
-    )
+    # Step 5: Auto-segment non-contiguous data if requested
+    if auto_segment:
+        logger.info("Step 5: Auto-segmenting non-contiguous data")
+        time_array = np.array(df[DataColumns.TIME])
+        segment_array = create_segments(
+            time_array=time_array, max_segment_gap_s=max_segment_gap_s
+        )
+        df["data_segment_nr"] = segment_array
+
+        # Discard segments that are too short
+        df = discard_segments(
+            df=df,
+            segment_nr_colname="data_segment_nr",
+            min_segment_length_s=min_segment_length_s,
+            fs=100,  # Approximate fs for segment length calculation
+            format="timestamps",
+        )
+
+        n_segments = df["data_segment_nr"].nunique()
+        logger.info(f"Created {n_segments} segments")
+
+    # Deprecation notice for resampling_frequency parameter
+    if resampling_frequency != 100.0:
+        logger.warning(
+            "The 'resampling_frequency' parameter in prepare_raw_data is deprecated. "
+            "Resampling is now handled exclusively during preprocessing. "
+            "Set resampling_frequency in the preprocessing config instead."
+        )
 
     # Step 6: Validate prepared data
     if validate:

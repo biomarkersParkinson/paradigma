@@ -219,10 +219,10 @@ def extract_tremor_power(
 
     Parameters
     ----------
-    total_psd: np.ndarray
-        The power spectral density of the gyroscope signal summed over the three axes
     freqs: np.ndarray
         Frequency vector corresponding to the power spectral density
+    total_psd: np.ndarray
+        The power spectral density of the gyroscope signal summed over the three axes
     fmin: float
         The lower bound of the tremor frequency band in Hz (default: 3)
     fmax: float
@@ -1058,6 +1058,7 @@ def biased_autocorrelation(ppg_windowed: np.ndarray, max_lag: int) -> np.ndarray
         ppg_windowed, axis=1, keepdims=True
     )  # Remove the mean of the signal to make it zero-mean
     n_samples = zero_mean_ppg.shape[1]
+    max_lag = int(max_lag)
     autocorr_values = np.zeros((zero_mean_ppg.shape[0], max_lag + 1))
 
     for lag in range(max_lag + 1):
