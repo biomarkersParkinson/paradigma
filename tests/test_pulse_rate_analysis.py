@@ -60,8 +60,13 @@ def test_pulse_rate_pipeline_basic():
             ppg_config=PPGConfig(),
         )
 
-        assert isinstance(result, pd.DataFrame)
-        assert DataColumns.TIME in result.columns
+        # New dict return format
+        assert isinstance(result, dict)
+        assert "quantification" in result
+        assert "_steps_executed" in result
+        quantification = result.get("quantification")
+        assert isinstance(quantification, pd.DataFrame)
+        assert DataColumns.TIME in quantification.columns
 
 
 def test_pulse_rate_pipeline_integration():

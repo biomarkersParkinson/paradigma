@@ -6,7 +6,9 @@ ParaDigMa requires the sensor data to be of a specific format. This tutorial pro
   * Triaxial gyroscope (x, y, z) in _deg/s_
   * Photoplethysmography (PPG)
 
-The final dataframe should be resampled to 100 Hz, have the correct units for the sensor columns, and the correct format for the time column. Also note that the _gait_ pipeline expects a specific orientation of sensor axes, as explained in [Coordinate system](../guides/coordinate_system).
+The final dataframe should have the correct units for the sensor columns and the correct format for the time column. Also note that the _gait_ pipeline expects a specific orientation of sensor axes, as explained in [Coordinate system](../guides/coordinate_system).
+
+Note that ParaDigMa automatically calculates the actual sampling frequency and resamples this to a uniform format, which happens _after_ data preparation.
 
 ## Import required modules
 
