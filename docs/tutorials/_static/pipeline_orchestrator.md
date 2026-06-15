@@ -943,6 +943,10 @@ filtered_gait_df.head()
       <th>peak_velocity</th>
     </tr>
   </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
       <td>14.175549</td>
       <td>40.844875</td>
     </tr>
