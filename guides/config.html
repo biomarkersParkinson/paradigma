@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
@@ -6,23 +8,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Configuration Guide &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
-      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a31c8b26" />
       <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a31c8b26" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -109,27 +107,49 @@
 </section>
 <section id="sensor-configurations">
 <h2>Sensor Configurations<a class="headerlink" href="#sensor-configurations" title="Link to this heading"></a></h2>
-<section id="imuconfig">
-<h3>IMUConfig<a class="headerlink" href="#imuconfig" title="Link to this heading"></a></h3>
-<p>Configuration for inertial measurement unit (IMU) sensors (accelerometer + gyroscope):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span>
+<p>ParaDigMa supports processing two types of sensors: IMU (accelerometer + gyroscope)
+and PPG.</p>
+<section id="instantiating-a-configuration-object">
+<h3>Instantiating a configuration object<a class="headerlink" href="#instantiating-a-configuration-object" title="Link to this heading"></a></h3>
+<p>To create a configuration object:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span><span class="p">,</span> <span class="n">PPGConfig</span>
 
 <span class="n">imu_config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span>
-<span class="n">imu_config</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="mi">100</span>
-</pre></div>
-</div>
-</section>
-</section>
-<section id="parameters">
-<h2><strong>Parameters</strong><a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
-<section id="ppgconfig">
-<h3>PPGConfig<a class="headerlink" href="#ppgconfig" title="Link to this heading"></a></h3>
-<p>Configuration for photoplethysmography (PPG) sensors:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PPGConfig</span>
-
 <span class="n">ppg_config</span> <span class="o">=</span> <span class="n">PPGConfig</span><span class="p">()</span>
 </pre></div>
 </div>
+</section>
+<section id="adaptive-frequency-handling">
+<h3>Adaptive Frequency Handling<a class="headerlink" href="#adaptive-frequency-handling" title="Link to this heading"></a></h3>
+<p>The data sampling frequency is automatically detected from your data during
+preprocessing and cannot be manually set. This ensures parameters like filter cutoffs
+and window sizes always match your actual data. However, you are free to manually change
+the input data, thereby affecting the automated sampling frequency detection.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_imu_data</span>
+
+<span class="n">imu_config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span>
+<span class="n">df_preprocessed</span> <span class="o">=</span> <span class="n">preprocess_imu_data</span><span class="p">(</span><span class="n">df_raw</span><span class="p">,</span> <span class="n">imu_config</span><span class="p">)</span>
+
+<span class="c1"># After preprocessing, sampling_frequency is auto-detected and available:</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Detected sampling frequency: </span><span class="si">{</span><span class="n">imu_config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="si">}</span><span class="s2"> Hz&quot;</span><span class="p">)</span>
+
+</pre></div>
+</div>
+<p>Optionally, to resample to a specific sampling frequency, you can set
+<code class="docutils literal notranslate"><span class="pre">imu_config.resampling_frequency</span></code> prior to running <code class="docutils literal notranslate"><span class="pre">preprocess_imu_data()</span></code>. However,
+this is not recommended, because it may distort frequency-dependent features and
+therefore lead to incorrect classification output.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># To use a different resampling frequency (optional, not recommended):</span>
+<span class="n">imu_config</span><span class="o">.</span><span class="n">resampling_frequency</span> <span class="o">=</span> <span class="mi">100</span>
+</pre></div>
+</div>
+<p><strong>Key Behaviors:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sampling_frequency</span></code> is <strong>read-only</strong> and auto-detected during preprocessing</p></li>
+<li><p>Frequency-dependent parameters (filter cutoffs, tolerance) are automatically calculated</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">resampling_frequency</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code> (means “use detected sampling_frequency” for uniform sampling)</p></li>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">resampling_frequency</span></code> explicitly only if you need to upsample/downsample to a specific rate. This is not recommended, as ParaDigMa adapts to the detected sampling frequency; validity of outcomes generated by explicitly setting <code class="docutils literal notranslate"><span class="pre">resampling_frequency</span></code> may be incorrect.</p></li>
+</ul>
 </section>
 </section>
 <section id="domain-configurations">
@@ -147,15 +167,15 @@
 <p>Each domain (gait, tremor, pulse rate) has configuration classes for its specific processing steps. See the <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/index.html">API Reference</a> for complete documentation of available configurations.</p>
 <p>Example with gait analysis:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span><span class="p">,</span> <span class="n">GaitConfig</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.pipelines</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_paradigma</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.orchestrator</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_paradigma</span>
 
-<span class="n">imu_config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span>
-<span class="n">imu_config</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">imu_config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span>  <span class="c1"># sampling_frequency will be auto-detected</span>
 <span class="n">gait_config</span> <span class="o">=</span> <span class="n">GaitConfig</span><span class="p">()</span>
 
 <span class="n">results</span> <span class="o">=</span> <span class="n">run_paradigma</span><span class="p">(</span>
     <span class="n">dfs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="n">df</span><span class="p">},</span>
     <span class="n">pipelines</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gait&#39;</span><span class="p">],</span>
+    <span class="n">watch_side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span>
     <span class="n">imu_config</span><span class="o">=</span><span class="n">imu_config</span><span class="p">,</span>
     <span class="n">gait_config</span><span class="o">=</span><span class="n">gait_config</span>
 <span class="p">)</span>
@@ -166,10 +186,13 @@
 <section id="best-practices">
 <h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
 <ol class="arabic simple">
-<li><p><strong>Validation</strong>: Ensure your sensor <code class="docutils literal notranslate"><span class="pre">sampling_frequency</span></code> matches your actual data</p></li>
-<li><p><strong>Column Names</strong>: Verify that your DataFrame column names match the configuration</p></li>
+<li><p><strong>Frequency Detection</strong>: <code class="docutils literal notranslate"><span class="pre">sampling_frequency</span></code> is automatically detected from your
+data during preprocessing. No manual configuration needed.</p></li>
+<li><p><strong>Column Names</strong>: Verify that your DataFrame column names match the configuration, or
+map your column names using the parameter <code class="docutils literal notranslate"><span class="pre">column_mapping</span></code>.</p></li>
 <li><p><strong>Units</strong>: Confirm that sensor data is in correct physical units (see <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/guides/sensor_requirements.html">Sensor Requirements</a>)</p></li>
-<li><p><strong>Documentation</strong>: Document any custom configurations in your analysis code</p></li>
+<li><p><strong>Documentation</strong>: Document any custom configurations (e.g., custom resampling rates)
+in your analysis code</p></li>
 </ol>
 </section>
 <section id="see-also">

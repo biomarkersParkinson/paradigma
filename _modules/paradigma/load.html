@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
@@ -5,23 +7,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>paradigma.load &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
-      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -105,6 +103,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -461,7 +460,7 @@
 <a class="viewcode-back" href="../../autoapi/paradigma/load/index.html#paradigma.load.load_single_data_file">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_single_data_file</span><span class="p">(</span>
     <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load a single data file with automatic format detection.</span>
 
@@ -473,7 +472,10 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    tuple</span>
-<span class="sd">        Tuple of (file_key, DataFrame) where file_key is the file name without extension</span>
+<span class="sd">        Tuple of (file_key, DataFrame, start_datetime) where:</span>
+<span class="sd">        - file_key is the file name without extension</span>
+<span class="sd">        - DataFrame is the loaded sensor data</span>
+<span class="sd">        - start_datetime is the recording start time (or None if not available)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
 
@@ -482,26 +484,46 @@
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">file_format</span> <span class="o">=</span> <span class="n">detect_file_format</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="n">start_dt</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;tsdf&quot;</span><span class="p">:</span>
             <span class="c1"># For TSDF, load based on .meta file and infer prefix</span>
             <span class="k">if</span> <span class="n">file_path</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;.json&quot;</span><span class="p">:</span>
                 <span class="n">prefix</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_meta&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-                <span class="n">df</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_data</span><span class="p">(</span><span class="n">file_path</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">prefix</span><span class="p">)</span>
-                <span class="k">return</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">df</span>
+                <span class="n">df</span><span class="p">,</span> <span class="n">time_meta</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_tsdf_data</span><span class="p">(</span><span class="n">file_path</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">prefix</span><span class="p">)</span>
+                <span class="c1"># Extract start_iso8601 from TSDF metadata</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">time_meta</span><span class="p">,</span> <span class="s2">&quot;start_iso8601&quot;</span><span class="p">):</span>
+                    <span class="n">start_iso8601</span> <span class="o">=</span> <span class="n">time_meta</span><span class="o">.</span><span class="n">start_iso8601</span>
+                    <span class="n">start_dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">start_iso8601</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">start_dt</span>
 
         <span class="k">elif</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;empatica&quot;</span><span class="p">:</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">load_empatica_data</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">file_path</span><span class="o">.</span><span class="n">stem</span><span class="p">,</span> <span class="n">df</span>
+            <span class="c1"># Extract start_datetime from time_dt column if available</span>
+            <span class="k">if</span> <span class="s2">&quot;time_dt&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">start_dt</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;time_dt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">start_dt</span><span class="p">,</span> <span class="s2">&quot;to_pydatetime&quot;</span><span class="p">):</span>
+                    <span class="n">start_dt</span> <span class="o">=</span> <span class="n">start_dt</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="s2">&quot;us&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">file_path</span><span class="o">.</span><span class="n">stem</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">start_dt</span>
 
         <span class="k">elif</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;axivity&quot;</span><span class="p">:</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">load_axivity_data</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">file_path</span><span class="o">.</span><span class="n">stem</span><span class="p">,</span> <span class="n">df</span>
+            <span class="c1"># Extract start_datetime from time_dt column if available</span>
+            <span class="k">if</span> <span class="s2">&quot;time_dt&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">start_dt</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;time_dt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">start_dt</span><span class="p">,</span> <span class="s2">&quot;to_pydatetime&quot;</span><span class="p">):</span>
+                    <span class="n">start_dt</span> <span class="o">=</span> <span class="n">start_dt</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="s2">&quot;us&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">file_path</span><span class="o">.</span><span class="n">stem</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">start_dt</span>
 
         <span class="k">elif</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;prepared&quot;</span><span class="p">:</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">load_prepared_data</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="c1"># Check for time_dt column in prepared data</span>
+            <span class="k">if</span> <span class="s2">&quot;time_dt&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">start_dt</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;time_dt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">start_dt</span><span class="p">,</span> <span class="s2">&quot;to_pydatetime&quot;</span><span class="p">):</span>
+                    <span class="n">start_dt</span> <span class="o">=</span> <span class="n">start_dt</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="s2">&quot;us&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>
             <span class="n">prefix</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_meta&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">df</span>
+            <span class="k">return</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">start_dt</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown file format for </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -546,7 +568,7 @@
     <span class="c1"># Load each file</span>
     <span class="k">for</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="n">all_files</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">file_key</span><span class="p">,</span> <span class="n">df</span> <span class="o">=</span> <span class="n">load_single_data_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="n">file_key</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_single_data_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
             <span class="n">loaded_files</span><span class="p">[</span><span class="n">file_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to load </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>

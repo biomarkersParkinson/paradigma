@@ -55,10 +55,10 @@ Module Contents
               accelerometer, and gravity sensor data. The data should be
               structured with the necessary columns as specified in the `config`.
    :type df: pd.DataFrame
-   :param onfig: Configuration object containing parameters for feature extraction,
-                 including column names for time, accelerometer data, and gravity
-                 data, as well as settings for windowing, and feature computation.
-   :type onfig: GaitConfig
+   :param config: Configuration object containing parameters for feature extraction,
+                  including column names for time, accelerometer data, and gravity
+                  data, as well as settings for windowing, and feature computation.
+   :type config: GaitConfig
 
    :returns: A DataFrame containing extracted gait features, including temporal
              and spectral domain features. The DataFrame will have columns
@@ -112,7 +112,7 @@ Module Contents
    :rtype: pd.Series
 
 
-.. py:function:: extract_arm_activity_features(df: pandas.DataFrame, config: paradigma.config.GaitConfig) -> pandas.DataFrame
+.. py:function:: extract_arm_activity_features(df: pandas.DataFrame, config: paradigma.config.GaitConfig, custom_logger: logging.Logger | None = None) -> pandas.DataFrame
 
    Extract features related to arm activity from a time-series DataFrame.
 
@@ -134,6 +134,9 @@ Module Contents
    :param config: Configuration object containing column names and parameters
                   for feature extraction.
    :type config: ArmActivityFeatureExtractionConfig
+   :param custom_logger: Custom logger instance for logging within this function.
+                         If None, uses the module-level logger.
+   :type custom_logger: logging.Logger, optional
 
    :returns: A DataFrame containing the extracted arm activity features,
              including angle, velocity, temporal, and spectral features.
@@ -157,7 +160,7 @@ Module Contents
    :rtype: pd.Series
 
 
-.. py:function:: quantify_arm_swing(df: pandas.DataFrame, fs: int, filtered: bool = True, max_segment_gap_s: float = 1.5, min_segment_length_s: float = 1.5) -> tuple[pandas.DataFrame, dict]
+.. py:function:: quantify_arm_swing(df: pandas.DataFrame, fs: int, filtered: bool = True, max_segment_gap_s: float = 1.5, min_segment_length_s: float = 1.5, start_dt: datetime.datetime | None = None, custom_logger: logging.Logger | None = None, gait_segment_categories: list[tuple] | None = None) -> tuple[pandas.DataFrame, dict]
 
    Quantify arm swing parameters for segments of motion based on gyroscope data.
 
@@ -175,13 +178,27 @@ Module Contents
    :type max_segment_gap_s: float, optional, default=1.5
    :param min_segment_length_s: The minimum length in seconds for a segment to be considered valid.
    :type min_segment_length_s: float, optional, default=1.5
+   :param start_dt: Start datetime of the recording session. Used to compute absolute
+                    datetime values for each arm swing segment. If None, only relative
+                    timestamps will be included in metadata.
+   :type start_dt: datetime.datetime, optional
+   :param custom_logger: Custom logger instance for logging within this function.
+                         If None, uses the module-level logger.
+   :type custom_logger: logging.Logger, optional
+   :param gait_segment_categories: A list of tuples defining gait segment categories, where each tuple
+                                   contains (lower_bound_s, upper_bound_s) for the unfiltered segment
+                                   duration in seconds. A segment is assigned to a category if its
+                                   duration falls within that range (lower <= duration < upper).
+                                   Segments can belong to multiple overlapping categories.
+                                   If None, defaults to [(0, 20), (20, float('inf'))].
+   :type gait_segment_categories: list[tuple], optional
 
    :returns: A tuple containing a dataframe with quantified arm swing parameters
              and a dictionary containing metadata for each segment.
    :rtype: Tuple[pd.DataFrame, dict]
 
 
-.. py:function:: aggregate_arm_swing_params(df_arm_swing_params: pandas.DataFrame, segment_meta: dict, segment_cats: list[tuple], aggregates: list[str] = ['median']) -> dict
+.. py:function:: aggregate_arm_swing_params(df_arm_swing_params: pandas.DataFrame, segment_meta: dict, gait_segment_categories: list[tuple], aggregates: list[str] = ['median']) -> dict
 
    Aggregate the quantification results for arm swing parameters.
 
@@ -189,9 +206,9 @@ Module Contents
    :type df_arm_swing_params: pd.DataFrame
    :param segment_meta: A dictionary containing metadata for each segment.
    :type segment_meta: dict
-   :param segment_cats: A list of tuples defining the segment categories, where each tuple
-                        contains the lower and upper bounds for the segment duration.
-   :type segment_cats: List[tuple]
+   :param gait_segment_categories: A list of tuples defining the gait segment categories, where each tuple
+                                   contains the lower and upper bounds for the segment duration.
+   :type gait_segment_categories: List[tuple]
    :param aggregates: A list of aggregation methods to apply to the quantification
                       results.
    :type aggregates: List[str], optional
@@ -247,7 +264,7 @@ Module Contents
    :rtype: pd.DataFrame
 
 
-.. py:function:: run_gait_pipeline(df_prepared: pandas.DataFrame, watch_side: str, output_dir: str | pathlib.Path, imu_config: paradigma.config.IMUConfig | None = None, gait_config: paradigma.config.GaitConfig | None = None, arm_activity_config: paradigma.config.GaitConfig | None = None, store_intermediate: list[str] | None = None, segment_number_offset_filtered: int = 0, segment_number_offset_unfiltered: int = 0, logging_level: int = logging.INFO, custom_logger: logging.Logger | None = None) -> tuple[dict[str, pandas.DataFrame], dict[str, dict]]
+.. py:function:: run_gait_pipeline(df_prepared: pandas.DataFrame, watch_side: str, output_dir: str | pathlib.Path, imu_config: paradigma.config.IMUConfig | None = None, gait_config: paradigma.config.GaitConfig | None = None, arm_activity_config: paradigma.config.GaitConfig | None = None, store_intermediate: list[str] | None = None, segment_number_offset_filtered: int = 0, segment_number_offset_unfiltered: int = 0, start_dt: datetime.datetime | None = None, logging_level: int = logging.INFO, custom_logger: logging.Logger | None = None, run_steps: list[str] | None = None, return_intermediate: list[str] | None = None, gait_segment_categories: list[tuple] | None = None) -> dict
 
    Run the complete gait analysis pipeline on prepared data (steps 1-6).
 
@@ -293,25 +310,45 @@ Module Contents
                                             concatenating multiple data segments. Used for proper segment numbering
                                             across multiple files.
    :type segment_number_offset_unfiltered: int, optional, default=0
+   :param start_dt: Start datetime of the recording session. Used to compute absolute
+                    datetime values for each arm swing segment. If None, only relative
+                    timestamps will be included in metadata.
+   :type start_dt: datetime.datetime, optional
    :param logging_level: Logging level using standard logging constants (logging.DEBUG, logging.INFO,
                          etc.)
    :type logging_level: int, default logging.INFO
    :param custom_logger: Custom logger instance. If provided, logging_level is ignored.
    :type custom_logger: logging.Logger, optional
+   :param run_steps: Which steps to execute: 'preprocessing', 'classification', 'quantification'.
+                     Must be a contiguous sequence starting from 'preprocessing'.
+                     If None, defaults to running all steps.
+   :type run_steps: list[str], optional
+   :param return_intermediate: Which intermediate results to include in the return dict.
+                               Must be a subset of run_steps.
+                               If None, defaults to only returning quantification.
+   :type return_intermediate: list[str], optional
+   :param gait_segment_categories: Segment duration categories for arm swing grouping (gait pipeline only). Segment
+                                   categories are based on unfiltered gait segments, i.e., gait segments with any
+                                   concurrent arm activity. Accepts either string categories like
+                                   ['(0, 10)', '(10, 20)'] or 2-element tuples/lists like
+                                   [(0, 10), (10, 20)] for segments 0-10s and 10-20s.
+   :type gait_segment_categories: list of str or list of tuple/list, optional
 
-   :returns: A tuple containing two dictionaries:
-             - First dict contains quantified arm swing parameters with keys:
-                 - 'filtered': DataFrame with arm swings from clean gait only
-                 - 'unfiltered': DataFrame with arm swings from all gait
-               Each DataFrame has columns:
+   :returns: A dictionary containing pipeline results with the following possible keys:
+             - 'preprocessing': DataFrame with preprocessed IMU data
+             (if 'preprocessing' in return_intermediate)
+             - 'classification': Dict with classification results
+             (if 'classification' in return_intermediate)
+             - 'quantification': Dict with keys 'filtered' and 'unfiltered', each containing
+             a DataFrame
+               with arm swing parameters. Each DataFrame has columns:
                  - gait_segment_nr: Gait segment number within this data segment
                  - Various arm swing metrics (range of motion, peak angular velocity, etc.)
                  - Additional metadata columns
-             - Second dict contains gait segment metadata with keys:
-                 - 'filtered': Metadata for filtered quantification
-                 - 'unfiltered': Metadata for unfiltered quantification
-               Each metadata dict contains information about each detected gait segment
-   :rtype: tuple[dict[str, pd.DataFrame], dict[str, dict]]
+             - 'metadata': Dict with keys 'filtered' and 'unfiltered' containing metadata
+             - '_steps_executed': List of steps that were actually executed
+             - '_error': Error message if an error occurred (None if successful)
+   :rtype: dict
 
    .. rubric:: Notes
 

@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
@@ -6,23 +8,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sensor Data Requirements &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
-      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a31c8b26" />
       <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a31c8b26" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -108,6 +106,10 @@
 <li><p><strong>Orientation</strong>: Standardized coordinate system (see <a class="reference internal" href="coordinate_system.html"><span class="std std-doc">Coordinate System Guide</span></a>)</p></li>
 </ul>
 </section>
+<section id="sampling-frequency-flexibility">
+<h2>Sampling Frequency Flexibility<a class="headerlink" href="#sampling-frequency-flexibility" title="Link to this heading"></a></h2>
+<p>ParaDigMa is designed to work with various sampling frequencies. The orchestrator <code class="docutils literal notranslate"><span class="pre">run_paradigma</span></code> estimates the current sampling frequency and adjusts frequency-dependent parameters accordingly. For best results, use native sensor data without upsampling beforehand.</p>
+</section>
 <section id="pipeline-specific-requirements">
 <h2>Pipeline-Specific Requirements<a class="headerlink" href="#pipeline-specific-requirements" title="Link to this heading"></a></h2>
 <section id="arm-swing-during-gait">
@@ -122,10 +124,10 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p><strong>Accelerometer</strong></p></td>
-<td><p>Sampling rate ≥ 100 Hz<br>Range ≥ ± 4 g</p></td>
+<td><p>Sampling rate ≥ 50 Hz<br>Range ≥ ± 4 g</p></td>
 </tr>
 <tr class="row-odd"><td><p><strong>Gyroscope</strong></p></td>
-<td><p>Sampling rate ≥ 100 Hz<br>Range ≥ ± 1000 degrees/sec</p></td>
+<td><p>Sampling rate ≥ 50 Hz<br>Range ≥ ± 1000 degrees/sec</p></td>
 </tr>
 </tbody>
 </table>
@@ -175,7 +177,7 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p><strong>Gyroscope</strong></p></td>
-<td><p>Sampling rate ≥ 100 Hz<br>Range ≥ ± 1000 degrees/sec</p></td>
+<td><p>Sampling rate ≥ 50 Hz<br>Range ≥ ± 1000 degrees/sec</p></td>
 </tr>
 </tbody>
 </table>
@@ -298,7 +300,7 @@
 <h2>Important Notes on Validation<a class="headerlink" href="#important-notes-on-validation" title="Link to this heading"></a></h2>
 <blockquote>
 <div><p>[!NOTE]
-The specifications above represent <strong>minimally validated requirements</strong>. For example, while ParaDigMa works with accelerometer and gyroscope data sampled at 50 Hz, the effect on processing accuracy has not been empirically validated.</p>
+The specifications above represent <strong>validated requirements</strong>. ParaDigMa has been tested and verified to work correctly with sampling frequencies as low as 50 Hz.</p>
 </div></blockquote>
 <hr class="docutils" />
 </section>

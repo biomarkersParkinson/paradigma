@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
@@ -6,23 +8,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>paradigma.load &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=a31c8b26" />
       <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=a31c8b26" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -153,7 +151,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#paradigma.load.get_data_file_paths" title="paradigma.load.get_data_file_paths"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_data_file_paths</span></code></a>(→ list[pathlib.Path])</p></td>
 <td><p>Get list of data file paths without loading them.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.load.load_single_data_file" title="paradigma.load.load_single_data_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_single_data_file</span></code></a>(→ tuple[str, pandas.DataFrame])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.load.load_single_data_file" title="paradigma.load.load_single_data_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_single_data_file</span></code></a>(→ tuple[str, pandas.DataFrame, ...)</p></td>
 <td><p>Load a single data file with automatic format detection.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#paradigma.load.load_data_files" title="paradigma.load.load_data_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_data_files</span></code></a>(→ dict[str, pandas.DataFrame])</p></td>
@@ -289,14 +287,17 @@ If None, all supported formats are considered.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.load.load_single_data_file">
-<span class="sig-prename descclassname"><span class="pre">paradigma.load.</span></span><span class="sig-name descname"><span class="pre">load_single_data_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/paradigma/load.html#load_single_data_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.load.load_single_data_file" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">paradigma.load.</span></span><span class="sig-name descname"><span class="pre">load_single_data_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">datetime.datetime</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/paradigma/load.html#load_single_data_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.load.load_single_data_file" title="Link to this definition"></a></dt>
 <dd><p>Load a single data file with automatic format detection.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>file_path</strong> (<em>str</em><em> or </em><em>Path</em>) – Path to data file</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Tuple of (file_key, DataFrame) where file_key is the file name without extension</p>
+<dd class="field-even"><p>Tuple of (file_key, DataFrame, start_datetime) where:
+- file_key is the file name without extension
+- DataFrame is the loaded sensor data
+- start_datetime is the recording start time (or None if not available)</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>tuple</p>

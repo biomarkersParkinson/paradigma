@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
@@ -5,23 +7,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>paradigma.orchestrator &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
-      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -106,7 +104,7 @@
 <span class="sd">  Can process raw data from disk or already-prepared DataFrames.</span>
 
 <span class="sd">The orchestrator coordinates:</span>
-<span class="sd">1. Data loading and preparation (unit conversion, resampling, orientation correction)</span>
+<span class="sd">1. Data loading and preparation (unit conversion, orientation correction)</span>
 <span class="sd">2. Pipeline execution on single or multiple files (imports from pipeline modules)</span>
 <span class="sd">3. Result aggregation across files and segments</span>
 <span class="sd">4. Optional intermediate result storage</span>
@@ -172,7 +170,9 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">dfs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">run_steps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span><span class="p">,</span>
     <span class="n">save_intermediate</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[],</span>
+    <span class="n">return_intermediate</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[],</span>
     <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="s2">&quot;./output&quot;</span><span class="p">,</span>
     <span class="n">skip_preparation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">pipelines</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -180,12 +180,13 @@
     <span class="n">accelerometer_units</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;g&quot;</span><span class="p">,</span>
     <span class="n">gyroscope_units</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;deg/s&quot;</span><span class="p">,</span>
     <span class="n">time_input_unit</span><span class="p">:</span> <span class="n">TimeUnit</span> <span class="o">=</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_S</span><span class="p">,</span>
-    <span class="n">target_frequency</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">100.0</span><span class="p">,</span>
     <span class="n">column_mapping</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">device_orientation</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">],</span>
     <span class="n">file_pattern</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">aggregates</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">segment_length_bins</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">gait_segment_categories</span><span class="p">:</span> <span class="p">(</span>
+        <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">split_by_gaps</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">max_gap_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">min_segment_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -225,15 +226,31 @@
 <span class="sd">        Note: The &#39;file_key&#39; column is only added to quantification results when</span>
 <span class="sd">        len(dfs) &gt; 1, allowing cleaner output for single-file processing.</span>
 <span class="sd">        See input_formats guide for details.</span>
+<span class="sd">    run_steps : list of str or str, default &#39;all&#39;</span>
+<span class="sd">        Which steps of the pipeline(s) to run. When constructing a list, the following</span>
+<span class="sd">        steps are valid: &#39;preprocessing&#39;, &#39;classification&#39;, &#39;quantification&#39;,</span>
+<span class="sd">        &#39;aggregation&#39;. Steps must be in this order; skipping intermediate steps is not</span>
+<span class="sd">        allowed (e.g., cannot do [&#39;preprocessing&#39;, &#39;quantification&#39;] because</span>
+<span class="sd">        &#39;classification&#39; is required). Use this parameter when running ParaDigMa in</span>
+<span class="sd">        parallel across multiple directories or data chunks, allowing you to split</span>
+<span class="sd">        the pipeline into separate runs and aggregate results later by only running</span>
+<span class="sd">        aggregation on combined quantifications.</span>
 <span class="sd">    save_intermediate : list of str, default []</span>
-<span class="sd">        Which intermediate results to store. Valid values:</span>
+<span class="sd">        Which intermediate results to store to disk. Valid values:</span>
 <span class="sd">        - &#39;preparation&#39;: Save prepared data</span>
 <span class="sd">        - &#39;preprocessing&#39;: Save preprocessed signals</span>
 <span class="sd">        - &#39;classification&#39;: Save classification/prediction results (e.g., gait</span>
 <span class="sd">        predictions, tremor predictions, PPG signal quality predictions)</span>
 <span class="sd">        - &#39;quantification&#39;: Save quantified measures</span>
 <span class="sd">        - &#39;aggregation&#39;: Save aggregated results</span>
-<span class="sd">        If empty, no files are saved (results are only returned).</span>
+<span class="sd">        Must be subset of run_steps. If empty, no files are saved.</span>
+<span class="sd">    return_intermediate : list of str, default []</span>
+<span class="sd">        Which intermediate results to include in return dictionary. Valid values:</span>
+<span class="sd">        same as save_intermediate. By default, only quantifications/aggregations</span>
+<span class="sd">        are returned to minimize memory usage. Set to include preprocessing/</span>
+<span class="sd">        classification results for debugging or inspection. Must be subset of</span>
+<span class="sd">        run_steps. Results can be saved to disk without being returned (and vice</span>
+<span class="sd">        versa) by configuring these parameters independently.</span>
 <span class="sd">    output_dir : str or Path, default &#39;./output&#39;</span>
 <span class="sd">        Output directory for all results. Files are only saved if</span>
 <span class="sd">        save_intermediate is not empty.</span>
@@ -263,10 +280,12 @@
 <span class="sd">        File pattern(s) to match when loading data (e.g., &#39;parquet&#39;, &#39;*.csv&#39;).</span>
 <span class="sd">    aggregates : list of str, optional</span>
 <span class="sd">        Aggregation methods for quantification.</span>
-<span class="sd">    segment_length_bins : list of str or list of tuple/list, optional</span>
-<span class="sd">        Duration bins for gait segment aggregation (gait pipeline only).</span>
-<span class="sd">        Accepts either string bins like [&#39;(0, 10)&#39;, &#39;(10, 20)&#39;] or 2-element</span>
-<span class="sd">        tuples/lists like [(0, 10), (10, 20)] for segments 0-10s and 10-20s.</span>
+<span class="sd">    gait_segment_categories : list of str or list of tuple/list, optional</span>
+<span class="sd">        Segment duration categories for arm swing grouping (gait pipeline only). Segment</span>
+<span class="sd">        categories are based on unfiltered gait segments, i.e., gait segments with any</span>
+<span class="sd">        concurrent arm activity. Accepts either string categories like</span>
+<span class="sd">        [&#39;(0, 10)&#39;, &#39;(10, 20)&#39;] or 2-element tuples/lists like</span>
+<span class="sd">        [(0, 10), (10, 20)] for segments 0-10s and 10-20s.</span>
 <span class="sd">    split_by_gaps : bool, default False</span>
 <span class="sd">        If True, automatically split non-contiguous data into segments</span>
 <span class="sd">        during preparation.</span>
@@ -337,6 +356,62 @@
             <span class="sa">f</span><span class="s2">&quot;Supported pipelines: &#39;gait&#39;, &#39;tremor&#39;, &#39;pulse_rate&#39;&quot;</span>
         <span class="p">)</span>
 
+    <span class="c1"># Parse and validate run_steps</span>
+    <span class="n">valid_steps</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;preprocessing&quot;</span><span class="p">,</span> <span class="s2">&quot;classification&quot;</span><span class="p">,</span> <span class="s2">&quot;quantification&quot;</span><span class="p">,</span> <span class="s2">&quot;aggregation&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">run_steps</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">run_steps</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
+            <span class="n">run_steps</span> <span class="o">=</span> <span class="n">valid_steps</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid run_steps value: &#39;</span><span class="si">{</span><span class="n">run_steps</span><span class="si">}</span><span class="s2">&#39;. Must be &#39;all&#39; or a list.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Validate all steps are valid</span>
+    <span class="n">invalid_steps</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">run_steps</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_steps</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">invalid_steps</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid steps in run_steps: </span><span class="si">{</span><span class="n">invalid_steps</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Valid steps are: </span><span class="si">{</span><span class="n">valid_steps</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Check that steps are in correct order and no intermediate steps are skipped</span>
+    <span class="n">step_indices</span> <span class="o">=</span> <span class="p">{</span><span class="n">step</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">valid_steps</span><span class="p">)}</span>
+    <span class="n">sorted_steps</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">run_steps</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">step_indices</span><span class="p">[</span><span class="n">s</span><span class="p">])</span>
+    <span class="k">if</span> <span class="nb">list</span><span class="p">(</span><span class="n">run_steps</span><span class="p">)</span> <span class="o">!=</span> <span class="n">sorted_steps</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Steps must be in order: </span><span class="si">{</span><span class="n">sorted_steps</span><span class="si">}</span><span class="s2"> (received: </span><span class="si">{</span><span class="n">run_steps</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Check for skipped intermediate steps</span>
+    <span class="n">run_steps_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">run_steps</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">valid_steps</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">run_steps_set</span><span class="p">:</span>
+            <span class="c1"># Check if all previous required steps are present</span>
+            <span class="n">required_steps</span> <span class="o">=</span> <span class="n">valid_steps</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">missing_required</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">required_steps</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">run_steps_set</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">missing_required</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Step &#39;</span><span class="si">{</span><span class="n">step</span><span class="si">}</span><span class="s2">&#39; requires </span><span class="si">{</span><span class="n">missing_required</span><span class="si">}</span><span class="s2"> but they are not in &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;run_steps. Steps must form a contiguous sequence.&quot;</span>
+                <span class="p">)</span>
+
+    <span class="c1"># Validate save_intermediate and return_intermediate are subsets of run_steps</span>
+    <span class="c1"># preparation can be independent</span>
+    <span class="n">save_steps</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">save_intermediate</span><span class="p">)</span> <span class="o">-</span> <span class="p">{</span><span class="s2">&quot;preparation&quot;</span><span class="p">}</span>
+    <span class="n">invalid_save</span> <span class="o">=</span> <span class="n">save_steps</span> <span class="o">-</span> <span class="n">run_steps_set</span>
+    <span class="k">if</span> <span class="n">invalid_save</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;save_intermediate steps </span><span class="si">{</span><span class="n">invalid_save</span><span class="si">}</span><span class="s2"> are not in run_steps </span><span class="si">{</span><span class="n">run_steps</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">return_steps</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">return_intermediate</span><span class="p">)</span>
+    <span class="n">invalid_return</span> <span class="o">=</span> <span class="n">return_steps</span> <span class="o">-</span> <span class="n">run_steps_set</span>
+    <span class="k">if</span> <span class="n">invalid_return</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;return_intermediate steps </span><span class="si">{</span><span class="n">invalid_return</span><span class="si">}</span><span class="s2"> are not in &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;run_steps </span><span class="si">{</span><span class="n">run_steps</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
     <span class="c1"># Use custom logger if provided, otherwise use module logger</span>
     <span class="n">active_logger</span> <span class="o">=</span> <span class="n">custom_logger</span> <span class="k">if</span> <span class="n">custom_logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">logger</span>
 
@@ -368,6 +443,23 @@
     <span class="p">)</span>
     <span class="n">package_logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">file_handler</span><span class="p">)</span>
     <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Logging to </span><span class="si">{</span><span class="n">log_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Log which steps will be executed and returned</span>
+    <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running pipeline steps: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">run_steps</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">returned_steps</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">return_intermediate</span>
+        <span class="k">if</span> <span class="n">return_intermediate</span>
+        <span class="k">else</span> <span class="p">[</span><span class="s2">&quot;quantification&quot;</span><span class="p">,</span> <span class="s2">&quot;aggregation&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Returning intermediate results: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">returned_steps</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">save_intermediate</span><span class="p">:</span>
+        <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Saving intermediate results: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_intermediate</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Warn about save_intermediate steps not in run_steps</span>
+    <span class="c1"># (should not happen due to validation)</span>
 
     <span class="c1"># Step 1: Get file paths or convert provided DataFrames</span>
     <span class="n">file_paths</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Will hold list of file paths if loading from directory</span>
@@ -410,500 +502,634 @@
             <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pipelines</span>
         <span class="p">},</span>
         <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="n">p</span><span class="p">:</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">p</span> <span class="o">!=</span> <span class="s2">&quot;gait&quot;</span> <span class="k">else</span> <span class="p">{</span><span class="s2">&quot;filtered&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;unfiltered&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+            <span class="n">p</span><span class="p">:</span> <span class="p">(</span>
+                <span class="p">{}</span>
+                <span class="k">if</span> <span class="n">p</span> <span class="o">!=</span> <span class="s2">&quot;gait&quot;</span>
+                <span class="k">else</span> <span class="p">{</span>
+                    <span class="s2">&quot;filtered&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;per_segment&quot;</span><span class="p">:</span> <span class="p">{}},</span>
+                    <span class="s2">&quot;unfiltered&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;per_segment&quot;</span><span class="p">:</span> <span class="p">{}},</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
             <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pipelines</span>
         <span class="p">},</span>
         <span class="s2">&quot;errors&quot;</span><span class="p">:</span> <span class="p">[],</span>
     <span class="p">}</span>
 
-    <span class="c1"># Steps 2-3: Process each file individually</span>
-    <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Steps 2-3: Processing </span><span class="si">{</span><span class="n">num_files</span><span class="si">}</span><span class="s2"> files individually&quot;</span><span class="p">)</span>
+    <span class="c1"># Determine if we need to process files</span>
+    <span class="n">should_process_files</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span>
+        <span class="n">step</span> <span class="ow">in</span> <span class="n">run_steps</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;preprocessing&quot;</span><span class="p">,</span> <span class="s2">&quot;classification&quot;</span><span class="p">,</span> <span class="s2">&quot;quantification&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
 
-    <span class="c1"># Track maximum gait segment numbers separately for filtered and unfiltered</span>
-    <span class="c1"># since they have independent numbering schemes</span>
-    <span class="n">max_gait_segment_nr_filtered</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">max_gait_segment_nr_unfiltered</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_files</span><span class="p">):</span>
-        <span class="c1"># Load one file at a time</span>
-        <span class="k">if</span> <span class="n">file_paths</span><span class="p">:</span>
-            <span class="n">file_path</span> <span class="o">=</span> <span class="n">file_paths</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing file </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">num_files</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">file_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">file_name</span><span class="p">,</span> <span class="n">df_raw</span> <span class="o">=</span> <span class="n">load_single_data_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Failed to load file </span><span class="si">{</span><span class="n">file_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="n">active_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
-                <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;errors&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">file_path</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;stage&quot;</span><span class="p">:</span> <span class="s2">&quot;loading&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}</span>
-                <span class="p">)</span>
-                <span class="k">continue</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Using in-memory data</span>
-            <span class="n">file_name</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dfs_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="n">i</span><span class="p">]</span>
-            <span class="n">df_raw</span> <span class="o">=</span> <span class="n">dfs_dict</span><span class="p">[</span><span class="n">file_name</span><span class="p">]</span>
-            <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing DataFrame </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">num_files</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># Step 2: Prepare data (if needed)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_preparation</span><span class="p">:</span>
-                <span class="n">active_logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">DETAILED_INFO</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Preparing data for </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-                <span class="n">prepare_params</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s2">&quot;time_input_unit&quot;</span><span class="p">:</span> <span class="n">time_input_unit</span><span class="p">,</span>
-                    <span class="s2">&quot;resampling_frequency&quot;</span><span class="p">:</span> <span class="n">target_frequency</span><span class="p">,</span>
-                    <span class="s2">&quot;column_mapping&quot;</span><span class="p">:</span> <span class="n">column_mapping</span><span class="p">,</span>
-                    <span class="s2">&quot;auto_segment&quot;</span><span class="p">:</span> <span class="n">split_by_gaps</span><span class="p">,</span>
-                    <span class="s2">&quot;max_segment_gap_s&quot;</span><span class="p">:</span> <span class="n">max_gap_seconds</span><span class="p">,</span>
-                    <span class="s2">&quot;min_segment_length_s&quot;</span><span class="p">:</span> <span class="n">min_segment_seconds</span><span class="p">,</span>
-                <span class="p">}</span>
-
-                <span class="c1"># Add pipeline-specific preparation parameters</span>
-                <span class="k">if</span> <span class="s2">&quot;gait&quot;</span> <span class="ow">in</span> <span class="n">pipelines</span> <span class="ow">or</span> <span class="s2">&quot;tremor&quot;</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">:</span>
-                    <span class="n">prepare_params</span><span class="p">[</span><span class="s2">&quot;gyroscope_units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gyroscope_units</span>
-
-                <span class="k">if</span> <span class="s2">&quot;gait&quot;</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">:</span>
-                    <span class="n">prepare_params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                        <span class="p">{</span>
-                            <span class="s2">&quot;accelerometer_units&quot;</span><span class="p">:</span> <span class="n">accelerometer_units</span><span class="p">,</span>
-                            <span class="s2">&quot;device_orientation&quot;</span><span class="p">:</span> <span class="n">device_orientation</span><span class="p">,</span>
-                        <span class="p">}</span>
+    <span class="c1"># Normalize gait_segment_categories to ensure consistency between quantification</span>
+    <span class="c1"># and aggregation (both use the same categorization boundaries)</span>
+    <span class="k">if</span> <span class="n">gait_segment_categories</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">gait_segment_categories</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">))]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Support both string format [&#39;(0, 10)&#39;, &#39;(10, 20)&#39;] and</span>
+        <span class="c1"># tuple/list format [(0, 10), (10, 20)]</span>
+        <span class="n">normalized_cats</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">cat_def</span> <span class="ow">in</span> <span class="n">gait_segment_categories</span><span class="p">:</span>
+            <span class="c1"># Case 1: already provided as tuple/list</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cat_def</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cat_def</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;gait_segment_categories entries as tuple/list &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;must have length 2, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cat_def</span><span class="p">)</span><span class="si">}</span><span class="s2">: &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cat_def</span><span class="si">!r}</span><span class="s2">&quot;</span>
                     <span class="p">)</span>
-
-                <span class="n">df_prepared</span> <span class="o">=</span> <span class="n">prepare_raw_data</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df_raw</span><span class="p">,</span> <span class="o">**</span><span class="n">prepare_params</span><span class="p">)</span>
-
-                <span class="c1"># Save prepared data if requested</span>
-                <span class="k">if</span> <span class="s2">&quot;preparation&quot;</span> <span class="ow">in</span> <span class="n">save_intermediate</span><span class="p">:</span>
-                    <span class="n">prepared_dir</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;prepared_data&quot;</span>
-                    <span class="n">prepared_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                    <span class="n">save_prepared_data</span><span class="p">(</span>
-                        <span class="n">df_prepared</span><span class="p">,</span>
-                        <span class="n">prepared_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">.parquet&quot;</span><span class="p">,</span>
+                <span class="n">lower_val</span><span class="p">,</span> <span class="n">upper_val</span> <span class="o">=</span> <span class="n">cat_def</span>
+                <span class="n">lower</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">lower_val</span><span class="p">)</span>
+                <span class="c1"># Allow &#39;inf&#39; as string, or float(&#39;inf&#39;) / np.inf / etc.</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">upper_val</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">upper_val</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;inf&quot;</span><span class="p">:</span>
+                    <span class="n">upper</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">upper</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">upper_val</span><span class="p">)</span>
+                <span class="n">normalized_cats</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">))</span>
+            <span class="c1"># Case 2: string that needs parsing</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cat_def</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">cat_str</span> <span class="o">=</span> <span class="n">cat_def</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;()&quot;</span><span class="p">)</span>
+                <span class="n">parts</span> <span class="o">=</span> <span class="n">cat_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Invalid gait_segment_categories string: &quot;</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cat_def</span><span class="si">!r}</span><span class="s2">&quot;</span>
                     <span class="p">)</span>
+                <span class="n">lower</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                <span class="n">upper_part</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="n">upper</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">upper_part</span> <span class="o">==</span> <span class="s2">&quot;inf&quot;</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">upper_part</span><span class="p">)</span>
+                <span class="n">normalized_cats</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">df_prepared</span> <span class="o">=</span> <span class="n">df_raw</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                    <span class="s2">&quot;gait_segment_categories entries must be strings or &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;2-element tuples/lists, got &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">cat_def</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+        <span class="n">gait_segment_categories</span> <span class="o">=</span> <span class="n">normalized_cats</span>
 
-            <span class="c1"># Release raw data from memory</span>
-            <span class="k">del</span> <span class="n">df_raw</span>
+    <span class="c1"># Steps 2-3: Process each file individually</span>
+    <span class="k">if</span> <span class="n">should_process_files</span><span class="p">:</span>
+        <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Steps 2-3: Processing </span><span class="si">{</span><span class="n">num_files</span><span class="si">}</span><span class="s2"> files individually&quot;</span><span class="p">)</span>
 
-            <span class="c1"># Step 3: Run each pipeline on this single file</span>
-            <span class="n">store_intermediate_per_file</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">x</span>
-                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">save_intermediate</span>
-                <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;aggregation&quot;</span><span class="p">,</span> <span class="s2">&quot;quantification&quot;</span><span class="p">]</span>
-            <span class="p">]</span>
+        <span class="c1"># Track maximum gait segment numbers separately for filtered and unfiltered</span>
+        <span class="c1"># since they have independent numbering schemes</span>
+        <span class="n">max_gait_segment_nr_filtered</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">max_gait_segment_nr_unfiltered</span> <span class="o">=</span> <span class="mi">0</span>
 
-            <span class="c1"># Create file-specific output directory</span>
-            <span class="n">file_output_dir</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;individual_files&quot;</span> <span class="o">/</span> <span class="n">file_name</span>
-
-            <span class="k">for</span> <span class="n">pipeline_name</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">:</span>
-                <span class="n">active_logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
-                    <span class="n">DETAILED_INFO</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Running </span><span class="si">{</span><span class="n">pipeline_name</span><span class="si">}</span><span class="s2"> pipeline on </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_files</span><span class="p">):</span>
+            <span class="c1"># Load one file at a time</span>
+            <span class="k">if</span> <span class="n">file_paths</span><span class="p">:</span>
+                <span class="n">file_path</span> <span class="o">=</span> <span class="n">file_paths</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Processing file </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">num_files</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">file_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">file_name</span><span class="p">,</span> <span class="n">df_raw</span><span class="p">,</span> <span class="n">start_dt</span> <span class="o">=</span> <span class="n">load_single_data_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Failed to load file </span><span class="si">{</span><span class="n">file_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">active_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+                    <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;errors&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">file_path</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;stage&quot;</span><span class="p">:</span> <span class="s2">&quot;loading&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}</span>
+                    <span class="p">)</span>
+                    <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Using in-memory data</span>
+                <span class="n">file_name</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dfs_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">df_raw</span> <span class="o">=</span> <span class="n">dfs_dict</span><span class="p">[</span><span class="n">file_name</span><span class="p">]</span>
+                <span class="n">start_dt</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Processing DataFrame </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">num_files</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
 
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s2">&quot;gait&quot;</span><span class="p">:</span>
-                        <span class="c1"># Pass separate offsets for filtered and unfiltered</span>
-                        <span class="n">quantifications_dict</span><span class="p">,</span> <span class="n">metadata_dict</span> <span class="o">=</span> <span class="n">run_gait_pipeline</span><span class="p">(</span>
-                            <span class="n">df_prepared</span><span class="o">=</span><span class="n">df_prepared</span><span class="p">,</span>
-                            <span class="n">watch_side</span><span class="o">=</span><span class="n">watch_side</span><span class="p">,</span>
-                            <span class="n">imu_config</span><span class="o">=</span><span class="n">imu_config</span><span class="p">,</span>
-                            <span class="n">gait_config</span><span class="o">=</span><span class="n">gait_config</span><span class="p">,</span>
-                            <span class="n">arm_activity_config</span><span class="o">=</span><span class="n">arm_activity_config</span><span class="p">,</span>
-                            <span class="n">store_intermediate</span><span class="o">=</span><span class="n">store_intermediate_per_file</span><span class="p">,</span>
-                            <span class="n">output_dir</span><span class="o">=</span><span class="n">file_output_dir</span><span class="p">,</span>
-                            <span class="n">segment_number_offset_filtered</span><span class="o">=</span><span class="p">(</span>
-                                <span class="n">max_gait_segment_nr_filtered</span>
-                            <span class="p">),</span>
-                            <span class="n">segment_number_offset_unfiltered</span><span class="o">=</span><span class="p">(</span>
-                                <span class="n">max_gait_segment_nr_unfiltered</span>
-                            <span class="p">),</span>
-                            <span class="n">logging_level</span><span class="o">=</span><span class="n">logging_level</span><span class="p">,</span>
-                            <span class="n">custom_logger</span><span class="o">=</span><span class="n">active_logger</span><span class="p">,</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Step 2: Prepare data (if needed)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_preparation</span><span class="p">:</span>
+                    <span class="n">active_logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">DETAILED_INFO</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Preparing data for </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                    <span class="n">prepare_params</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;time_input_unit&quot;</span><span class="p">:</span> <span class="n">time_input_unit</span><span class="p">,</span>
+                        <span class="s2">&quot;column_mapping&quot;</span><span class="p">:</span> <span class="n">column_mapping</span><span class="p">,</span>
+                        <span class="s2">&quot;auto_segment&quot;</span><span class="p">:</span> <span class="n">split_by_gaps</span><span class="p">,</span>
+                        <span class="s2">&quot;max_segment_gap_s&quot;</span><span class="p">:</span> <span class="n">max_gap_seconds</span><span class="p">,</span>
+                        <span class="s2">&quot;min_segment_length_s&quot;</span><span class="p">:</span> <span class="n">min_segment_seconds</span><span class="p">,</span>
+                    <span class="p">}</span>
+
+                    <span class="c1"># Add pipeline-specific preparation parameters</span>
+                    <span class="k">if</span> <span class="s2">&quot;gait&quot;</span> <span class="ow">in</span> <span class="n">pipelines</span> <span class="ow">or</span> <span class="s2">&quot;tremor&quot;</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">:</span>
+                        <span class="n">prepare_params</span><span class="p">[</span><span class="s2">&quot;gyroscope_units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gyroscope_units</span>
+
+                    <span class="k">if</span> <span class="s2">&quot;gait&quot;</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">:</span>
+                        <span class="n">prepare_params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                            <span class="p">{</span>
+                                <span class="s2">&quot;accelerometer_units&quot;</span><span class="p">:</span> <span class="n">accelerometer_units</span><span class="p">,</span>
+                                <span class="s2">&quot;device_orientation&quot;</span><span class="p">:</span> <span class="n">device_orientation</span><span class="p">,</span>
+                            <span class="p">}</span>
                         <span class="p">)</span>
 
-                        <span class="c1"># Process both filtered and unfiltered quantifications</span>
-                        <span class="k">for</span> <span class="n">quant_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;filtered&quot;</span><span class="p">,</span> <span class="s2">&quot;unfiltered&quot;</span><span class="p">]:</span>
-                            <span class="n">quantification_data</span> <span class="o">=</span> <span class="n">quantifications_dict</span><span class="p">[</span><span class="n">quant_type</span><span class="p">]</span>
-                            <span class="n">quantification_metadata</span> <span class="o">=</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="n">quant_type</span><span class="p">]</span>
+                    <span class="n">df_prepared</span> <span class="o">=</span> <span class="n">prepare_raw_data</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df_raw</span><span class="p">,</span> <span class="o">**</span><span class="n">prepare_params</span><span class="p">)</span>
 
-                            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">quantification_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                                <span class="c1"># Add file identifier if processing multiple files</span>
+                    <span class="c1"># Save prepared data if requested</span>
+                    <span class="k">if</span> <span class="s2">&quot;preparation&quot;</span> <span class="ow">in</span> <span class="n">save_intermediate</span><span class="p">:</span>
+                        <span class="n">prepared_dir</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;prepared_data&quot;</span>
+                        <span class="n">prepared_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                        <span class="n">save_prepared_data</span><span class="p">(</span>
+                            <span class="n">df_prepared</span><span class="p">,</span>
+                            <span class="n">prepared_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">.parquet&quot;</span><span class="p">,</span>
+                        <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">df_prepared</span> <span class="o">=</span> <span class="n">df_raw</span>
+
+                <span class="c1"># Release raw data from memory</span>
+                <span class="k">del</span> <span class="n">df_raw</span>
+
+                <span class="c1"># Step 3: Run each pipeline on this single file</span>
+                <span class="n">store_intermediate_per_file</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">x</span>
+                    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">save_intermediate</span>
+                    <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;aggregation&quot;</span><span class="p">,</span> <span class="s2">&quot;quantification&quot;</span><span class="p">]</span>
+                <span class="p">]</span>
+
+                <span class="c1"># Filter run_steps for pipeline execution (remove &#39;aggregation&#39;)</span>
+                <span class="n">pipeline_run_steps</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">step</span> <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">run_steps</span> <span class="k">if</span> <span class="n">step</span> <span class="o">!=</span> <span class="s2">&quot;aggregation&quot;</span>
+                <span class="p">]</span>
+
+                <span class="c1"># Create file-specific output directory</span>
+                <span class="n">file_output_dir</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;individual_files&quot;</span> <span class="o">/</span> <span class="n">file_name</span>
+
+                <span class="k">for</span> <span class="n">pipeline_name</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">:</span>
+                    <span class="n">active_logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                        <span class="n">DETAILED_INFO</span><span class="p">,</span>
+                        <span class="sa">f</span><span class="s2">&quot;Running </span><span class="si">{</span><span class="n">pipeline_name</span><span class="si">}</span><span class="s2"> pipeline on </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s2">&quot;gait&quot;</span><span class="p">:</span>
+                            <span class="c1"># Pass separate offsets for filtered and unfiltered</span>
+                            <span class="n">pipeline_result</span> <span class="o">=</span> <span class="n">run_gait_pipeline</span><span class="p">(</span>
+                                <span class="n">df_prepared</span><span class="o">=</span><span class="n">df_prepared</span><span class="p">,</span>
+                                <span class="n">watch_side</span><span class="o">=</span><span class="n">watch_side</span><span class="p">,</span>
+                                <span class="n">imu_config</span><span class="o">=</span><span class="n">imu_config</span><span class="p">,</span>
+                                <span class="n">gait_config</span><span class="o">=</span><span class="n">gait_config</span><span class="p">,</span>
+                                <span class="n">arm_activity_config</span><span class="o">=</span><span class="n">arm_activity_config</span><span class="p">,</span>
+                                <span class="n">run_steps</span><span class="o">=</span><span class="n">pipeline_run_steps</span><span class="p">,</span>
+                                <span class="n">return_intermediate</span><span class="o">=</span><span class="p">(</span>
+                                    <span class="n">return_intermediate</span>
+                                    <span class="k">if</span> <span class="n">return_intermediate</span>
+                                    <span class="k">else</span> <span class="p">[</span><span class="s2">&quot;quantification&quot;</span><span class="p">]</span>
+                                <span class="p">),</span>
+                                <span class="n">store_intermediate</span><span class="o">=</span><span class="n">store_intermediate_per_file</span><span class="p">,</span>
+                                <span class="n">output_dir</span><span class="o">=</span><span class="n">file_output_dir</span><span class="p">,</span>
+                                <span class="n">segment_number_offset_filtered</span><span class="o">=</span><span class="p">(</span>
+                                    <span class="n">max_gait_segment_nr_filtered</span>
+                                <span class="p">),</span>
+                                <span class="n">segment_number_offset_unfiltered</span><span class="o">=</span><span class="p">(</span>
+                                    <span class="n">max_gait_segment_nr_unfiltered</span>
+                                <span class="p">),</span>
+                                <span class="n">start_dt</span><span class="o">=</span><span class="n">start_dt</span><span class="p">,</span>
+                                <span class="n">logging_level</span><span class="o">=</span><span class="n">logging_level</span><span class="p">,</span>
+                                <span class="n">custom_logger</span><span class="o">=</span><span class="n">active_logger</span><span class="p">,</span>
+                                <span class="n">gait_segment_categories</span><span class="o">=</span><span class="n">gait_segment_categories</span><span class="p">,</span>
+                            <span class="p">)</span>
+
+                            <span class="c1"># Extract results from pipeline dict</span>
+                            <span class="k">if</span> <span class="n">pipeline_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_error&quot;</span><span class="p">):</span>
+                                <span class="n">error_msg</span> <span class="o">=</span> <span class="p">(</span>
+                                    <span class="sa">f</span><span class="s2">&quot;Gait pipeline failed on </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">: &quot;</span>
+                                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pipeline_result</span><span class="p">[</span><span class="s1">&#39;_error&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                                <span class="p">)</span>
+                                <span class="n">active_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+                                <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;errors&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                    <span class="p">{</span>
+                                        <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">file_name</span><span class="p">,</span>
+                                        <span class="s2">&quot;pipeline&quot;</span><span class="p">:</span> <span class="n">pipeline_name</span><span class="p">,</span>
+                                        <span class="s2">&quot;stage&quot;</span><span class="p">:</span> <span class="s2">&quot;pipeline_execution&quot;</span><span class="p">,</span>
+                                        <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="n">pipeline_result</span><span class="p">[</span><span class="s2">&quot;_error&quot;</span><span class="p">],</span>
+                                    <span class="p">}</span>
+                                <span class="p">)</span>
+                                <span class="k">continue</span>
+
+                            <span class="c1"># Extract quantification if it was computed</span>
+                            <span class="n">quantifications_dict</span> <span class="o">=</span> <span class="n">pipeline_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;quantification&quot;</span><span class="p">)</span>
+                            <span class="n">metadata_dict</span> <span class="o">=</span> <span class="n">pipeline_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metadata&quot;</span><span class="p">,</span> <span class="p">{})</span>
+
+                            <span class="c1"># Process both filtered and unfiltered quantifications</span>
+                            <span class="k">if</span> <span class="n">quantifications_dict</span><span class="p">:</span>
+                                <span class="k">for</span> <span class="n">quant_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;filtered&quot;</span><span class="p">,</span> <span class="s2">&quot;unfiltered&quot;</span><span class="p">]:</span>
+                                    <span class="n">quantification_data</span> <span class="o">=</span> <span class="n">quantifications_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                                        <span class="n">quant_type</span>
+                                    <span class="p">)</span>
+                                    <span class="n">quantification_metadata</span> <span class="o">=</span> <span class="n">metadata_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                                        <span class="n">quant_type</span><span class="p">,</span> <span class="p">{}</span>
+                                    <span class="p">)</span>
+
+                                    <span class="k">if</span> <span class="p">(</span>
+                                        <span class="n">quantification_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                                        <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">quantification_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                                    <span class="p">):</span>
+                                        <span class="c1"># Add file identifier if processing multiple</span>
+                                        <span class="c1"># files</span>
+                                        <span class="n">quantification_data</span> <span class="o">=</span> <span class="n">quantification_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                                        <span class="k">if</span> <span class="n">num_files</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                                            <span class="n">quantification_data</span><span class="p">[</span><span class="s2">&quot;file_key&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_name</span>
+                                        <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span>
+                                            <span class="n">quant_type</span>
+                                        <span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">quantification_data</span><span class="p">)</span>
+
+                                        <span class="c1"># Update max segment number for next file</span>
+                                        <span class="n">current_max</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+                                            <span class="n">quantification_data</span><span class="p">[</span>
+                                                <span class="n">DataColumns</span><span class="o">.</span><span class="n">GAIT_SEGMENT_NR</span>
+                                            <span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+                                        <span class="p">)</span>
+                                        <span class="k">if</span> <span class="n">quant_type</span> <span class="o">==</span> <span class="s2">&quot;filtered&quot;</span><span class="p">:</span>
+                                            <span class="n">max_gait_segment_nr_filtered</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+                                                <span class="n">max_gait_segment_nr_filtered</span><span class="p">,</span>
+                                                <span class="n">current_max</span><span class="p">,</span>
+                                            <span class="p">)</span>
+                                        <span class="k">else</span><span class="p">:</span>  <span class="c1"># unfiltered</span>
+                                            <span class="n">max_gait_segment_nr_unfiltered</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+                                                <span class="n">max_gait_segment_nr_unfiltered</span><span class="p">,</span>
+                                                <span class="n">current_max</span><span class="p">,</span>
+                                            <span class="p">)</span>
+
+                                    <span class="c1"># Store metadata and update offset even if</span>
+                                    <span class="c1"># no quantifications</span>
+                                    <span class="k">if</span> <span class="p">(</span>
+                                        <span class="n">quantification_metadata</span>
+                                        <span class="ow">and</span> <span class="s2">&quot;per_segment&quot;</span> <span class="ow">in</span> <span class="n">quantification_metadata</span>
+                                    <span class="p">):</span>
+                                        <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span>
+                                            <span class="n">quant_type</span>
+                                        <span class="p">][</span><span class="s2">&quot;per_segment&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                                            <span class="n">quantification_metadata</span><span class="p">[</span><span class="s2">&quot;per_segment&quot;</span><span class="p">]</span>
+                                        <span class="p">)</span>
+
+                                        <span class="c1"># Update max segment number based on</span>
+                                        <span class="c1"># metadata to prevent overwrites</span>
+                                        <span class="k">if</span> <span class="n">quantification_metadata</span><span class="p">[</span><span class="s2">&quot;per_segment&quot;</span><span class="p">]:</span>
+                                            <span class="n">max_segment_in_metadata</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+                                                <span class="n">quantification_metadata</span><span class="p">[</span>
+                                                    <span class="s2">&quot;per_segment&quot;</span>
+                                                <span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                                            <span class="p">)</span>
+                                            <span class="k">if</span> <span class="n">quant_type</span> <span class="o">==</span> <span class="s2">&quot;filtered&quot;</span><span class="p">:</span>
+                                                <span class="n">max_gait_segment_nr_filtered</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+                                                    <span class="n">max_gait_segment_nr_filtered</span><span class="p">,</span>
+                                                    <span class="n">max_segment_in_metadata</span><span class="p">,</span>
+                                                <span class="p">)</span>
+                                            <span class="k">else</span><span class="p">:</span>  <span class="c1"># unfiltered</span>
+                                                <span class="n">max_gait_segment_nr_unfiltered</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+                                                    <span class="n">max_gait_segment_nr_unfiltered</span><span class="p">,</span>
+                                                    <span class="n">max_segment_in_metadata</span><span class="p">,</span>
+                                                <span class="p">)</span>
+
+                        <span class="k">elif</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s2">&quot;tremor&quot;</span><span class="p">:</span>
+                            <span class="n">pipeline_result</span> <span class="o">=</span> <span class="n">run_tremor_pipeline</span><span class="p">(</span>
+                                <span class="n">df_prepared</span><span class="o">=</span><span class="n">df_prepared</span><span class="p">,</span>
+                                <span class="n">store_intermediate</span><span class="o">=</span><span class="n">store_intermediate_per_file</span><span class="p">,</span>
+                                <span class="n">output_dir</span><span class="o">=</span><span class="n">file_output_dir</span><span class="p">,</span>
+                                <span class="n">tremor_config</span><span class="o">=</span><span class="n">tremor_config</span><span class="p">,</span>
+                                <span class="n">imu_config</span><span class="o">=</span><span class="n">imu_config</span><span class="p">,</span>
+                                <span class="n">logging_level</span><span class="o">=</span><span class="n">logging_level</span><span class="p">,</span>
+                                <span class="n">custom_logger</span><span class="o">=</span><span class="n">active_logger</span><span class="p">,</span>
+                                <span class="n">run_steps</span><span class="o">=</span><span class="n">pipeline_run_steps</span><span class="p">,</span>
+                                <span class="n">return_intermediate</span><span class="o">=</span><span class="p">(</span>
+                                    <span class="n">return_intermediate</span>
+                                    <span class="k">if</span> <span class="n">return_intermediate</span>
+                                    <span class="k">else</span> <span class="p">[</span><span class="s2">&quot;quantification&quot;</span><span class="p">]</span>
+                                <span class="p">),</span>
+                            <span class="p">)</span>
+
+                            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pipeline_result</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                                <span class="k">if</span> <span class="n">pipeline_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_error&quot;</span><span class="p">):</span>
+                                    <span class="n">active_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                                        <span class="sa">f</span><span class="s2">&quot;tremor pipeline returned error: &quot;</span>
+                                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pipeline_result</span><span class="p">[</span><span class="s1">&#39;_error&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                                    <span class="p">)</span>
+                                <span class="n">quantification_data</span> <span class="o">=</span> <span class="n">pipeline_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                                    <span class="s2">&quot;quantification&quot;</span><span class="p">,</span> <span class="kc">None</span>
+                                <span class="p">)</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">quantification_data</span> <span class="o">=</span> <span class="n">pipeline_result</span>
+
+                            <span class="c1"># Check if quantification_data is not None and has content</span>
+                            <span class="c1"># (works for both DataFrame and dict)</span>
+                            <span class="k">if</span> <span class="p">(</span>
+                                <span class="n">quantification_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                                <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">quantification_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                            <span class="p">):</span>
                                 <span class="n">quantification_data</span> <span class="o">=</span> <span class="n">quantification_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
                                 <span class="k">if</span> <span class="n">num_files</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                                     <span class="n">quantification_data</span><span class="p">[</span><span class="s2">&quot;file_key&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_name</span>
-                                <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span>
-                                    <span class="n">quant_type</span>
-                                <span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">quantification_data</span><span class="p">)</span>
-
-                                <span class="c1"># Update max segment number for next file</span>
-                                <span class="n">current_max</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
-                                    <span class="n">quantification_data</span><span class="p">[</span>
-                                        <span class="n">DataColumns</span><span class="o">.</span><span class="n">GAIT_SEGMENT_NR</span>
-                                    <span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+                                <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                    <span class="n">quantification_data</span>
                                 <span class="p">)</span>
-                                <span class="k">if</span> <span class="n">quant_type</span> <span class="o">==</span> <span class="s2">&quot;filtered&quot;</span><span class="p">:</span>
-                                    <span class="n">max_gait_segment_nr_filtered</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
-                                        <span class="n">max_gait_segment_nr_filtered</span><span class="p">,</span> <span class="n">current_max</span>
-                                    <span class="p">)</span>
-                                <span class="k">else</span><span class="p">:</span>  <span class="c1"># unfiltered</span>
-                                    <span class="n">max_gait_segment_nr_unfiltered</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
-                                        <span class="n">max_gait_segment_nr_unfiltered</span><span class="p">,</span> <span class="n">current_max</span>
-                                    <span class="p">)</span>
 
-                            <span class="c1"># Store metadata and update offset even if</span>
-                            <span class="c1"># no quantifications</span>
+                        <span class="k">elif</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s2">&quot;pulse_rate&quot;</span><span class="p">:</span>
+                            <span class="n">pipeline_result</span> <span class="o">=</span> <span class="n">run_pulse_rate_pipeline</span><span class="p">(</span>
+                                <span class="n">df_ppg_prepared</span><span class="o">=</span><span class="n">df_prepared</span><span class="p">,</span>
+                                <span class="n">store_intermediate</span><span class="o">=</span><span class="n">store_intermediate_per_file</span><span class="p">,</span>
+                                <span class="n">output_dir</span><span class="o">=</span><span class="n">file_output_dir</span><span class="p">,</span>
+                                <span class="n">pulse_rate_config</span><span class="o">=</span><span class="n">pulse_rate_config</span><span class="p">,</span>
+                                <span class="n">ppg_config</span><span class="o">=</span><span class="n">ppg_config</span><span class="p">,</span>
+                                <span class="n">logging_level</span><span class="o">=</span><span class="n">logging_level</span><span class="p">,</span>
+                                <span class="n">custom_logger</span><span class="o">=</span><span class="n">active_logger</span><span class="p">,</span>
+                                <span class="n">run_steps</span><span class="o">=</span><span class="n">pipeline_run_steps</span><span class="p">,</span>
+                                <span class="n">return_intermediate</span><span class="o">=</span><span class="p">(</span>
+                                    <span class="n">return_intermediate</span>
+                                    <span class="k">if</span> <span class="n">return_intermediate</span>
+                                    <span class="k">else</span> <span class="p">[</span><span class="s2">&quot;quantification&quot;</span><span class="p">]</span>
+                                <span class="p">),</span>
+                            <span class="p">)</span>
+
+                            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pipeline_result</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                                <span class="k">if</span> <span class="n">pipeline_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_error&quot;</span><span class="p">):</span>
+                                    <span class="n">active_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                                        <span class="sa">f</span><span class="s2">&quot;pulse_rate pipeline returned error: &quot;</span>
+                                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pipeline_result</span><span class="p">[</span><span class="s1">&#39;_error&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                                    <span class="p">)</span>
+                                <span class="n">quantification_data</span> <span class="o">=</span> <span class="n">pipeline_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                                    <span class="s2">&quot;quantification&quot;</span><span class="p">,</span> <span class="kc">None</span>
+                                <span class="p">)</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">quantification_data</span> <span class="o">=</span> <span class="n">pipeline_result</span>
+
+                            <span class="c1"># Check if quantification_data is not None and has content</span>
+                            <span class="c1"># (works for both DataFrame and dict)</span>
                             <span class="k">if</span> <span class="p">(</span>
-                                <span class="n">quantification_metadata</span>
-                                <span class="ow">and</span> <span class="s2">&quot;per_segment&quot;</span> <span class="ow">in</span> <span class="n">quantification_metadata</span>
+                                <span class="n">quantification_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                                <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">quantification_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
                             <span class="p">):</span>
-                                <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span>
-                                    <span class="n">quant_type</span>
-                                <span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">quantification_metadata</span><span class="p">[</span><span class="s2">&quot;per_segment&quot;</span><span class="p">])</span>
+                                <span class="n">quantification_data</span> <span class="o">=</span> <span class="n">quantification_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                                <span class="k">if</span> <span class="n">num_files</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                                    <span class="n">quantification_data</span><span class="p">[</span><span class="s2">&quot;file_key&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_name</span>
+                                <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                    <span class="n">quantification_data</span>
+                                <span class="p">)</span>
 
-                                <span class="c1"># Update max segment number based on metadata to</span>
-                                <span class="c1"># prevent overwrites</span>
-                                <span class="k">if</span> <span class="n">quantification_metadata</span><span class="p">[</span><span class="s2">&quot;per_segment&quot;</span><span class="p">]:</span>
-                                    <span class="n">max_segment_in_metadata</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
-                                        <span class="n">quantification_metadata</span><span class="p">[</span><span class="s2">&quot;per_segment&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-                                    <span class="p">)</span>
-                                    <span class="k">if</span> <span class="n">quant_type</span> <span class="o">==</span> <span class="s2">&quot;filtered&quot;</span><span class="p">:</span>
-                                        <span class="n">max_gait_segment_nr_filtered</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
-                                            <span class="n">max_gait_segment_nr_filtered</span><span class="p">,</span>
-                                            <span class="n">max_segment_in_metadata</span><span class="p">,</span>
-                                        <span class="p">)</span>
-                                    <span class="k">else</span><span class="p">:</span>  <span class="c1"># unfiltered</span>
-                                        <span class="n">max_gait_segment_nr_unfiltered</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
-                                            <span class="n">max_gait_segment_nr_unfiltered</span><span class="p">,</span>
-                                            <span class="n">max_segment_in_metadata</span><span class="p">,</span>
-                                        <span class="p">)</span>
-
-                    <span class="k">elif</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s2">&quot;tremor&quot;</span><span class="p">:</span>
-                        <span class="n">quantification_data</span> <span class="o">=</span> <span class="n">run_tremor_pipeline</span><span class="p">(</span>
-                            <span class="n">df_prepared</span><span class="o">=</span><span class="n">df_prepared</span><span class="p">,</span>
-                            <span class="n">store_intermediate</span><span class="o">=</span><span class="n">store_intermediate_per_file</span><span class="p">,</span>
-                            <span class="n">output_dir</span><span class="o">=</span><span class="n">file_output_dir</span><span class="p">,</span>
-                            <span class="n">tremor_config</span><span class="o">=</span><span class="n">tremor_config</span><span class="p">,</span>
-                            <span class="n">imu_config</span><span class="o">=</span><span class="n">imu_config</span><span class="p">,</span>
-                            <span class="n">logging_level</span><span class="o">=</span><span class="n">logging_level</span><span class="p">,</span>
-                            <span class="n">custom_logger</span><span class="o">=</span><span class="n">active_logger</span><span class="p">,</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">error_msg</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Failed to run </span><span class="si">{</span><span class="n">pipeline_name</span><span class="si">}</span><span class="s2"> pipeline on &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
                         <span class="p">)</span>
-
-                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">quantification_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                            <span class="n">quantification_data</span> <span class="o">=</span> <span class="n">quantification_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-                            <span class="k">if</span> <span class="n">num_files</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                                <span class="n">quantification_data</span><span class="p">[</span><span class="s2">&quot;file_key&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_name</span>
-                            <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                                <span class="n">quantification_data</span>
-                            <span class="p">)</span>
-
-                    <span class="k">elif</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s2">&quot;pulse_rate&quot;</span><span class="p">:</span>
-                        <span class="n">quantification_data</span> <span class="o">=</span> <span class="n">run_pulse_rate_pipeline</span><span class="p">(</span>
-                            <span class="n">df_ppg_prepared</span><span class="o">=</span><span class="n">df_prepared</span><span class="p">,</span>
-                            <span class="n">store_intermediate</span><span class="o">=</span><span class="n">store_intermediate_per_file</span><span class="p">,</span>
-                            <span class="n">output_dir</span><span class="o">=</span><span class="n">file_output_dir</span><span class="p">,</span>
-                            <span class="n">pulse_rate_config</span><span class="o">=</span><span class="n">pulse_rate_config</span><span class="p">,</span>
-                            <span class="n">ppg_config</span><span class="o">=</span><span class="n">ppg_config</span><span class="p">,</span>
-                            <span class="n">logging_level</span><span class="o">=</span><span class="n">logging_level</span><span class="p">,</span>
-                            <span class="n">custom_logger</span><span class="o">=</span><span class="n">active_logger</span><span class="p">,</span>
+                        <span class="n">active_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+                        <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;errors&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="p">{</span>
+                                <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">file_name</span><span class="p">,</span>
+                                <span class="s2">&quot;pipeline&quot;</span><span class="p">:</span> <span class="n">pipeline_name</span><span class="p">,</span>
+                                <span class="s2">&quot;stage&quot;</span><span class="p">:</span> <span class="s2">&quot;pipeline_execution&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span>
+                            <span class="p">}</span>
                         <span class="p">)</span>
+                        <span class="k">continue</span>
 
-                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">quantification_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                            <span class="n">quantification_data</span> <span class="o">=</span> <span class="n">quantification_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-                            <span class="k">if</span> <span class="n">num_files</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                                <span class="n">quantification_data</span><span class="p">[</span><span class="s2">&quot;file_key&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_name</span>
-                            <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                                <span class="n">quantification_data</span>
-                            <span class="p">)</span>
+                <span class="c1"># Release prepared data from memory</span>
+                <span class="k">del</span> <span class="n">df_prepared</span>
 
-                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                    <span class="n">error_msg</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Failed to run </span><span class="si">{</span><span class="n">pipeline_name</span><span class="si">}</span><span class="s2"> pipeline on </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="p">)</span>
-                    <span class="n">active_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
-                    <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;errors&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="p">{</span>
-                            <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">file_name</span><span class="p">,</span>
-                            <span class="s2">&quot;pipeline&quot;</span><span class="p">:</span> <span class="n">pipeline_name</span><span class="p">,</span>
-                            <span class="s2">&quot;stage&quot;</span><span class="p">:</span> <span class="s2">&quot;pipeline_execution&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span>
-                        <span class="p">}</span>
-                    <span class="p">)</span>
-                    <span class="k">continue</span>
-
-            <span class="c1"># Release prepared data from memory</span>
-            <span class="k">del</span> <span class="n">df_prepared</span>
-
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Failed to process file </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="n">active_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
-            <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;errors&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;stage&quot;</span><span class="p">:</span> <span class="s2">&quot;preparation&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}</span>
-            <span class="p">)</span>
-            <span class="k">continue</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Failed to process file </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">active_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+                <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;errors&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;stage&quot;</span><span class="p">:</span> <span class="s2">&quot;preparation&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}</span>
+                <span class="p">)</span>
+                <span class="k">continue</span>
 
     <span class="c1"># Step 4: Combine quantifications from all files</span>
-    <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Step 4: Combining quantifications from all files&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;quantification&quot;</span> <span class="ow">in</span> <span class="n">run_steps</span><span class="p">:</span>
+        <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Step 4: Combining quantifications from all files&quot;</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">pipeline_name</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">:</span>
-        <span class="c1"># Handle gait separately due to filtered/unfiltered structure</span>
-        <span class="k">if</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s2">&quot;gait&quot;</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">quant_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;filtered&quot;</span><span class="p">,</span> <span class="s2">&quot;unfiltered&quot;</span><span class="p">]:</span>
-                <span class="k">if</span> <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span><span class="n">quant_type</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">pipeline_name</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">:</span>
+            <span class="c1"># Handle gait separately due to filtered/unfiltered structure</span>
+            <span class="k">if</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s2">&quot;gait&quot;</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">quant_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;filtered&quot;</span><span class="p">,</span> <span class="s2">&quot;unfiltered&quot;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span><span class="n">quant_type</span><span class="p">]:</span>
+                        <span class="n">combined_quantified</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                            <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span><span class="n">quant_type</span><span class="p">],</span>
+                            <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="p">)</span>
+
+                        <span class="n">num_files_processed</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span>
+                            <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span><span class="n">quant_type</span><span class="p">]</span>
+                        <span class="p">)</span>
+                        <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span>
+                            <span class="n">quant_type</span>
+                        <span class="p">]</span> <span class="o">=</span> <span class="n">combined_quantified</span>
+
+                        <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pipeline_name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">quant_type</span><span class="si">}</span><span class="s2">): Combined &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">combined_quantified</span><span class="p">)</span><span class="si">}</span><span class="s2"> windows from &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">num_files_processed</span><span class="si">}</span><span class="s2"> files&quot;</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># Normalize empty lists to DataFrames to avoid AttributeError on</span>
+                        <span class="c1"># .empty</span>
+                        <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span>
+                            <span class="n">quant_type</span>
+                        <span class="p">]</span> <span class="o">=</span> <span class="n">_empty_gait_quantification_df</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Concatenate all quantifications for non-gait pipelines</span>
+                <span class="k">if</span> <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]:</span>
                     <span class="n">combined_quantified</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
-                        <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span><span class="n">quant_type</span><span class="p">],</span>
-                        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span>
                     <span class="p">)</span>
 
                     <span class="n">num_files_processed</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span>
-                        <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span><span class="n">quant_type</span><span class="p">]</span>
+                        <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span>
                     <span class="p">)</span>
-                    <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span>
-                        <span class="n">quant_type</span>
-                    <span class="p">]</span> <span class="o">=</span> <span class="n">combined_quantified</span>
+                    <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">combined_quantified</span>
 
                     <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pipeline_name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">quant_type</span><span class="si">}</span><span class="s2">): Combined &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pipeline_name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">: Combined &quot;</span>
                         <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">combined_quantified</span><span class="p">)</span><span class="si">}</span><span class="s2"> windows from &quot;</span>
                         <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">num_files_processed</span><span class="si">}</span><span class="s2"> files&quot;</span>
                     <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="c1"># Normalize empty lists to DataFrames to avoid AttributeError on</span>
-                    <span class="c1"># .empty</span>
-                    <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span>
-                        <span class="n">quant_type</span>
-                    <span class="p">]</span> <span class="o">=</span> <span class="n">_empty_gait_quantification_df</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Concatenate all quantifications for non-gait pipelines</span>
-            <span class="k">if</span> <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]:</span>
-                <span class="n">combined_quantified</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
-                    <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span>
-                <span class="p">)</span>
-
-                <span class="n">num_files_processed</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">])</span>
-                <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">combined_quantified</span>
-
-                <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pipeline_name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">: Combined &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">combined_quantified</span><span class="p">)</span><span class="si">}</span><span class="s2"> windows from &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">num_files_processed</span><span class="si">}</span><span class="s2"> files&quot;</span>
-                <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># No quantifications found for this pipeline</span>
-                <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
-                <span class="n">active_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No quantified </span><span class="si">{</span><span class="n">pipeline_name</span><span class="si">}</span><span class="s2"> results found&quot;</span><span class="p">)</span>
+                    <span class="c1"># No quantifications found for this pipeline</span>
+                    <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+                    <span class="n">active_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;No quantified </span><span class="si">{</span><span class="n">pipeline_name</span><span class="si">}</span><span class="s2"> results found&quot;</span>
+                    <span class="p">)</span>
 
     <span class="c1"># Step 5: Perform aggregation on combined results FROM ALL FILES</span>
-    <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Step 5: Aggregating results across all files&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;aggregation&quot;</span> <span class="ow">in</span> <span class="n">run_steps</span><span class="p">:</span>
+        <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Step 5: Aggregating results across all files&quot;</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">pipeline_name</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># Skip aggregation if no quantifications</span>
-            <span class="k">if</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s2">&quot;gait&quot;</span><span class="p">:</span>
-                <span class="c1"># Check both filtered and unfiltered</span>
-                <span class="n">has_quantifications</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="ow">not</span> <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span><span class="s2">&quot;filtered&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span>
-                    <span class="ow">or</span> <span class="ow">not</span> <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span>
-                        <span class="s2">&quot;unfiltered&quot;</span>
-                    <span class="p">]</span><span class="o">.</span><span class="n">empty</span>
-                <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">has_quantifications</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span>
-                    <span class="n">pipeline_name</span>
-                <span class="p">]</span><span class="o">.</span><span class="n">empty</span>
-
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">has_quantifications</span><span class="p">:</span>
-                <span class="n">active_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;No </span><span class="si">{</span><span class="n">pipeline_name</span><span class="si">}</span><span class="s2"> quantifications to aggregate&quot;</span>
-                <span class="p">)</span>
-                <span class="k">continue</span>
-
-            <span class="k">if</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s2">&quot;tremor&quot;</span><span class="p">:</span>
-                <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Aggregating tremor results across ALL files&quot;</span><span class="p">)</span>
-
-                <span class="c1"># Work on a copy for tremor aggregation</span>
-                <span class="n">combined_quantified</span> <span class="o">=</span> <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span>
-                <span class="n">tremor_data_for_aggregation</span> <span class="o">=</span> <span class="n">combined_quantified</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
-                <span class="c1"># Need to add datetime column for aggregate_tremor</span>
-                <span class="k">if</span> <span class="p">(</span>
-                    <span class="s2">&quot;time_dt&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tremor_data_for_aggregation</span><span class="o">.</span><span class="n">columns</span>
-                    <span class="ow">and</span> <span class="s2">&quot;time&quot;</span> <span class="ow">in</span> <span class="n">tremor_data_for_aggregation</span><span class="o">.</span><span class="n">columns</span>
-                <span class="p">):</span>
-                    <span class="n">tremor_data_for_aggregation</span><span class="p">[</span><span class="s2">&quot;time_dt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
-                        <span class="n">tremor_data_for_aggregation</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span>
+        <span class="k">for</span> <span class="n">pipeline_name</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Skip aggregation if no quantifications</span>
+                <span class="k">if</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s2">&quot;gait&quot;</span><span class="p">:</span>
+                    <span class="c1"># Check both filtered and unfiltered</span>
+                    <span class="n">has_quantifications</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="ow">not</span> <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span>
+                            <span class="s2">&quot;filtered&quot;</span>
+                        <span class="p">]</span><span class="o">.</span><span class="n">empty</span>
+                        <span class="ow">or</span> <span class="ow">not</span> <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span>
+                            <span class="s2">&quot;unfiltered&quot;</span>
+                        <span class="p">]</span><span class="o">.</span><span class="n">empty</span>
                     <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">has_quantifications</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span>
+                        <span class="n">pipeline_name</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">empty</span>
 
-                <span class="k">if</span> <span class="n">tremor_config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">tremor_config</span> <span class="o">=</span> <span class="n">TremorConfig</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">has_quantifications</span><span class="p">:</span>
+                    <span class="n">active_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;No </span><span class="si">{</span><span class="n">pipeline_name</span><span class="si">}</span><span class="s2"> quantifications to aggregate&quot;</span>
+                    <span class="p">)</span>
+                    <span class="k">continue</span>
 
-                <span class="n">aggregation_output</span> <span class="o">=</span> <span class="n">aggregate_tremor</span><span class="p">(</span>
-                    <span class="n">tremor_data_for_aggregation</span><span class="p">,</span> <span class="n">tremor_config</span>
-                <span class="p">)</span>
-                <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;aggregations&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregation_output</span><span class="p">[</span>
-                    <span class="s2">&quot;aggregated_tremor_measures&quot;</span>
-                <span class="p">]</span>
-                <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregation_output</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">]</span>
-                <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Tremor aggregation completed&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s2">&quot;tremor&quot;</span><span class="p">:</span>
+                    <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Aggregating tremor results across ALL files&quot;</span><span class="p">)</span>
 
-            <span class="k">elif</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s2">&quot;pulse_rate&quot;</span><span class="p">:</span>
-                <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Aggregating pulse rate results across ALL files&quot;</span><span class="p">)</span>
+                    <span class="c1"># Work on a copy for tremor aggregation</span>
+                    <span class="n">combined_quantified</span> <span class="o">=</span> <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span>
+                    <span class="n">tremor_data_for_aggregation</span> <span class="o">=</span> <span class="n">combined_quantified</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-                <span class="n">combined_quantified</span> <span class="o">=</span> <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span>
-                <span class="n">pulse_rate_values</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">combined_quantified</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PULSE_RATE</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
-                <span class="p">)</span>
+                    <span class="c1"># Need to add datetime column for aggregate_tremor</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="s2">&quot;time_dt&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tremor_data_for_aggregation</span><span class="o">.</span><span class="n">columns</span>
+                        <span class="ow">and</span> <span class="s2">&quot;time&quot;</span> <span class="ow">in</span> <span class="n">tremor_data_for_aggregation</span><span class="o">.</span><span class="n">columns</span>
+                    <span class="p">):</span>
+                        <span class="n">tremor_data_for_aggregation</span><span class="p">[</span><span class="s2">&quot;time_dt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+                            <span class="n">tremor_data_for_aggregation</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span>
+                        <span class="p">)</span>
 
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pulse_rate_values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">aggregation_output</span> <span class="o">=</span> <span class="n">aggregate_pulse_rate</span><span class="p">(</span>
-                        <span class="n">pr_values</span><span class="o">=</span><span class="n">pulse_rate_values</span><span class="p">,</span>
-                        <span class="n">aggregates</span><span class="o">=</span><span class="n">aggregates</span> <span class="k">if</span> <span class="n">aggregates</span> <span class="k">else</span> <span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">,</span> <span class="s2">&quot;99p&quot;</span><span class="p">],</span>
+                    <span class="k">if</span> <span class="n">tremor_config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">tremor_config</span> <span class="o">=</span> <span class="n">TremorConfig</span><span class="p">()</span>
+
+                    <span class="n">aggregation_output</span> <span class="o">=</span> <span class="n">aggregate_tremor</span><span class="p">(</span>
+                        <span class="n">tremor_data_for_aggregation</span><span class="p">,</span> <span class="n">tremor_config</span>
                     <span class="p">)</span>
                     <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;aggregations&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregation_output</span><span class="p">[</span>
-                        <span class="s2">&quot;pr_aggregates&quot;</span>
+                        <span class="s2">&quot;aggregated_tremor_measures&quot;</span>
                     <span class="p">]</span>
                     <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregation_output</span><span class="p">[</span>
                         <span class="s2">&quot;metadata&quot;</span>
                     <span class="p">]</span>
+                    <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Tremor aggregation completed&quot;</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s2">&quot;pulse_rate&quot;</span><span class="p">:</span>
                     <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Pulse rate aggregation completed with &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">pulse_rate_values</span><span class="p">)</span><span class="si">}</span><span class="s2"> valid estimates&quot;</span>
-                    <span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">active_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="s2">&quot;No valid pulse rate estimates found for aggregation&quot;</span>
+                        <span class="s2">&quot;Aggregating pulse rate results across ALL files&quot;</span>
                     <span class="p">)</span>
 
-            <span class="k">elif</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s2">&quot;gait&quot;</span><span class="p">:</span>
-                <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Aggregating gait results across ALL files&quot;</span><span class="p">)</span>
-
-                <span class="c1"># Initialize nested dictionary for gait aggregations</span>
-                <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;aggregations&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s2">&quot;filtered&quot;</span><span class="p">:</span> <span class="p">{},</span>
-                    <span class="s2">&quot;unfiltered&quot;</span><span class="p">:</span> <span class="p">{},</span>
-                <span class="p">}</span>
-
-                <span class="c1"># Convert segment_length_bins to segment_cats (list of tuples)</span>
-                <span class="k">if</span> <span class="n">segment_length_bins</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">segment_cats</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">))]</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="c1"># Support both string format [&#39;(0, 10)&#39;, &#39;(10, 20)&#39;] and</span>
-                    <span class="c1"># tuple/list format [(0, 10), (10, 20)]</span>
-                    <span class="n">segment_cats</span> <span class="o">=</span> <span class="p">[]</span>
-                    <span class="k">for</span> <span class="n">bin_def</span> <span class="ow">in</span> <span class="n">segment_length_bins</span><span class="p">:</span>
-                        <span class="c1"># Case 1: already provided as tuple/list</span>
-                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bin_def</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
-                            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bin_def</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-                                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                                    <span class="sa">f</span><span class="s2">&quot;segment_length_bins entries as tuple/list must &quot;</span>
-                                    <span class="sa">f</span><span class="s2">&quot;have length 2, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">bin_def</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">bin_def</span><span class="si">!r}</span><span class="s2">&quot;</span>
-                                <span class="p">)</span>
-                            <span class="n">lower_val</span><span class="p">,</span> <span class="n">upper_val</span> <span class="o">=</span> <span class="n">bin_def</span>
-                            <span class="n">lower</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">lower_val</span><span class="p">)</span>
-                            <span class="c1"># Allow &#39;inf&#39; as string, or float(&#39;inf&#39;) / np.inf / etc.</span>
-                            <span class="k">if</span> <span class="p">(</span>
-                                <span class="nb">isinstance</span><span class="p">(</span><span class="n">upper_val</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
-                                <span class="ow">and</span> <span class="n">upper_val</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;inf&quot;</span>
-                            <span class="p">):</span>
-                                <span class="n">upper</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
-                            <span class="k">else</span><span class="p">:</span>
-                                <span class="n">upper</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">upper_val</span><span class="p">)</span>
-                            <span class="n">segment_cats</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">))</span>
-                        <span class="c1"># Case 2: string that needs parsing</span>
-                        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bin_def</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                            <span class="n">bin_str</span> <span class="o">=</span> <span class="n">bin_def</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;()&quot;</span><span class="p">)</span>
-                            <span class="n">parts</span> <span class="o">=</span> <span class="n">bin_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
-                            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-                                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                                    <span class="sa">f</span><span class="s2">&quot;Invalid segment length bin string: </span><span class="si">{</span><span class="n">bin_def</span><span class="si">!r}</span><span class="s2">&quot;</span>
-                                <span class="p">)</span>
-                            <span class="n">lower</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-                            <span class="n">upper_part</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-                            <span class="n">upper</span> <span class="o">=</span> <span class="p">(</span>
-                                <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
-                                <span class="k">if</span> <span class="n">upper_part</span> <span class="o">==</span> <span class="s2">&quot;inf&quot;</span>
-                                <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">upper_part</span><span class="p">)</span>
-                            <span class="p">)</span>
-                            <span class="n">segment_cats</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">))</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                                <span class="s2">&quot;segment_length_bins entries must be strings or &quot;</span>
-                                <span class="sa">f</span><span class="s2">&quot;2-element tuples/lists, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">bin_def</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
-                            <span class="p">)</span>
-
-                <span class="c1"># Aggregate filtered gait quantifications</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span><span class="s2">&quot;filtered&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-                    <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                        <span class="s2">&quot;Aggregating filtered gait quantifications (clean gait only)&quot;</span>
+                    <span class="n">combined_quantified</span> <span class="o">=</span> <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span>
+                    <span class="n">pulse_rate_values</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">combined_quantified</span><span class="p">[</span><span class="n">DataColumns</span><span class="o">.</span><span class="n">PULSE_RATE</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
                     <span class="p">)</span>
-                    <span class="n">aggregation_output</span> <span class="o">=</span> <span class="n">aggregate_arm_swing_params</span><span class="p">(</span>
-                        <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span><span class="s2">&quot;filtered&quot;</span><span class="p">],</span>
-                        <span class="n">segment_meta</span><span class="o">=</span><span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span><span class="s2">&quot;filtered&quot;</span><span class="p">],</span>
-                        <span class="n">segment_cats</span><span class="o">=</span><span class="n">segment_cats</span><span class="p">,</span>
-                        <span class="n">aggregates</span><span class="o">=</span><span class="p">(</span>
-                            <span class="n">aggregates</span> <span class="k">if</span> <span class="n">aggregates</span> <span class="k">else</span> <span class="p">[</span><span class="s2">&quot;median&quot;</span><span class="p">,</span> <span class="s2">&quot;95p&quot;</span><span class="p">,</span> <span class="s2">&quot;cov&quot;</span><span class="p">]</span>
-                        <span class="p">),</span>
-                    <span class="p">)</span>
-                    <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;aggregations&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span>
+
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pulse_rate_values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">aggregation_output</span> <span class="o">=</span> <span class="n">aggregate_pulse_rate</span><span class="p">(</span>
+                            <span class="n">pr_values</span><span class="o">=</span><span class="n">pulse_rate_values</span><span class="p">,</span>
+                            <span class="n">aggregates</span><span class="o">=</span><span class="n">aggregates</span> <span class="k">if</span> <span class="n">aggregates</span> <span class="k">else</span> <span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">,</span> <span class="s2">&quot;99p&quot;</span><span class="p">],</span>
+                        <span class="p">)</span>
+                        <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;aggregations&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregation_output</span><span class="p">[</span>
+                            <span class="s2">&quot;pr_aggregates&quot;</span>
+                        <span class="p">]</span>
+                        <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregation_output</span><span class="p">[</span>
+                            <span class="s2">&quot;metadata&quot;</span>
+                        <span class="p">]</span>
+                        <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Pulse rate aggregation completed with &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">pulse_rate_values</span><span class="p">)</span><span class="si">}</span><span class="s2"> valid estimates&quot;</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">active_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                            <span class="s2">&quot;No valid pulse rate estimates found for aggregation&quot;</span>
+                        <span class="p">)</span>
+
+                <span class="k">elif</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s2">&quot;gait&quot;</span><span class="p">:</span>
+                    <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Aggregating gait results across ALL files&quot;</span><span class="p">)</span>
+
+                    <span class="c1"># Initialize nested dictionary for gait aggregations</span>
+                    <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;aggregations&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;filtered&quot;</span><span class="p">:</span> <span class="p">{},</span>
+                        <span class="s2">&quot;unfiltered&quot;</span><span class="p">:</span> <span class="p">{},</span>
+                    <span class="p">}</span>
+
+                    <span class="c1"># Note: gait_segment_categories was computed at the start of</span>
+                    <span class="c1"># file processing and used in quantification. We reuse the same</span>
+                    <span class="c1"># categories here to ensure consistency between quantification</span>
+                    <span class="c1"># and aggregation.</span>
+
+                    <span class="c1"># Aggregate filtered gait quantifications</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span>
                         <span class="s2">&quot;filtered&quot;</span>
-                    <span class="p">]</span> <span class="o">=</span> <span class="n">aggregation_output</span>
-                    <span class="n">filtered_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span>
-                        <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span><span class="s2">&quot;filtered&quot;</span><span class="p">]</span>
-                    <span class="p">)</span>
-                    <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Filtered gait aggregation completed with &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filtered_count</span><span class="si">}</span><span class="s2"> arm swings&quot;</span>
-                    <span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">active_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="s2">&quot;No filtered gait quantifications found for aggregation&quot;</span>
-                    <span class="p">)</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                        <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                            <span class="s2">&quot;Aggregating filtered gait quantifications &quot;</span>
+                            <span class="s2">&quot;(clean gait only)&quot;</span>
+                        <span class="p">)</span>
+                        <span class="n">aggregation_output</span> <span class="o">=</span> <span class="n">aggregate_arm_swing_params</span><span class="p">(</span>
+                            <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span><span class="s2">&quot;filtered&quot;</span><span class="p">],</span>
+                            <span class="n">segment_meta</span><span class="o">=</span><span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span>
+                                <span class="s2">&quot;filtered&quot;</span>
+                            <span class="p">],</span>
+                            <span class="n">gait_segment_categories</span><span class="o">=</span><span class="n">gait_segment_categories</span><span class="p">,</span>
+                            <span class="n">aggregates</span><span class="o">=</span><span class="p">(</span>
+                                <span class="n">aggregates</span> <span class="k">if</span> <span class="n">aggregates</span> <span class="k">else</span> <span class="p">[</span><span class="s2">&quot;median&quot;</span><span class="p">,</span> <span class="s2">&quot;95p&quot;</span><span class="p">,</span> <span class="s2">&quot;cov&quot;</span><span class="p">]</span>
+                            <span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;aggregations&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span>
+                            <span class="s2">&quot;filtered&quot;</span>
+                        <span class="p">]</span> <span class="o">=</span> <span class="n">aggregation_output</span>
+                        <span class="n">filtered_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span>
+                            <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span><span class="s2">&quot;filtered&quot;</span><span class="p">]</span>
+                        <span class="p">)</span>
+                        <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Filtered gait aggregation completed with &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filtered_count</span><span class="si">}</span><span class="s2"> arm swings&quot;</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">active_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                            <span class="s2">&quot;No filtered gait quantifications found for aggregation&quot;</span>
+                        <span class="p">)</span>
 
-                <span class="c1"># Aggregate unfiltered gait quantifications</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span>
-                    <span class="s2">&quot;unfiltered&quot;</span>
-                <span class="p">]</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-                    <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                        <span class="s2">&quot;Aggregating unfiltered gait quantifications (all gait)&quot;</span>
-                    <span class="p">)</span>
-                    <span class="n">aggregation_output</span> <span class="o">=</span> <span class="n">aggregate_arm_swing_params</span><span class="p">(</span>
-                        <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span><span class="s2">&quot;unfiltered&quot;</span><span class="p">],</span>
-                        <span class="n">segment_meta</span><span class="o">=</span><span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span>
-                            <span class="s2">&quot;unfiltered&quot;</span>
-                        <span class="p">],</span>
-                        <span class="n">segment_cats</span><span class="o">=</span><span class="n">segment_cats</span><span class="p">,</span>
-                        <span class="n">aggregates</span><span class="o">=</span><span class="p">(</span>
-                            <span class="n">aggregates</span> <span class="k">if</span> <span class="n">aggregates</span> <span class="k">else</span> <span class="p">[</span><span class="s2">&quot;median&quot;</span><span class="p">,</span> <span class="s2">&quot;95p&quot;</span><span class="p">,</span> <span class="s2">&quot;cov&quot;</span><span class="p">]</span>
-                        <span class="p">),</span>
-                    <span class="p">)</span>
-                    <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;aggregations&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span>
+                    <span class="c1"># Aggregate unfiltered gait quantifications</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span>
                         <span class="s2">&quot;unfiltered&quot;</span>
-                    <span class="p">]</span> <span class="o">=</span> <span class="n">aggregation_output</span>
-                    <span class="n">unfiltered_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span>
-                        <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span><span class="s2">&quot;unfiltered&quot;</span><span class="p">]</span>
-                    <span class="p">)</span>
-                    <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Unfiltered gait aggregation completed with &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">unfiltered_count</span><span class="si">}</span><span class="s2"> arm swings&quot;</span>
-                    <span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">active_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="s2">&quot;No unfiltered gait quantifications found for aggregation&quot;</span>
-                    <span class="p">)</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                        <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                            <span class="s2">&quot;Aggregating unfiltered gait quantifications (all gait)&quot;</span>
+                        <span class="p">)</span>
+                        <span class="n">aggregation_output</span> <span class="o">=</span> <span class="n">aggregate_arm_swing_params</span><span class="p">(</span>
+                            <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span><span class="s2">&quot;unfiltered&quot;</span><span class="p">],</span>
+                            <span class="n">segment_meta</span><span class="o">=</span><span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span>
+                                <span class="s2">&quot;unfiltered&quot;</span>
+                            <span class="p">],</span>
+                            <span class="n">gait_segment_categories</span><span class="o">=</span><span class="n">gait_segment_categories</span><span class="p">,</span>
+                            <span class="n">aggregates</span><span class="o">=</span><span class="p">(</span>
+                                <span class="n">aggregates</span> <span class="k">if</span> <span class="n">aggregates</span> <span class="k">else</span> <span class="p">[</span><span class="s2">&quot;median&quot;</span><span class="p">,</span> <span class="s2">&quot;95p&quot;</span><span class="p">,</span> <span class="s2">&quot;cov&quot;</span><span class="p">]</span>
+                            <span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;aggregations&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span>
+                            <span class="s2">&quot;unfiltered&quot;</span>
+                        <span class="p">]</span> <span class="o">=</span> <span class="n">aggregation_output</span>
+                        <span class="n">unfiltered_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span>
+                            <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;quantifications&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">][</span><span class="s2">&quot;unfiltered&quot;</span><span class="p">]</span>
+                        <span class="p">)</span>
+                        <span class="n">active_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Unfiltered gait aggregation completed with &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">unfiltered_count</span><span class="si">}</span><span class="s2"> arm swings&quot;</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">active_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                            <span class="s2">&quot;No unfiltered gait quantifications found for aggregation&quot;</span>
+                        <span class="p">)</span>
 
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Failed to aggregate </span><span class="si">{</span><span class="n">pipeline_name</span><span class="si">}</span><span class="s2"> results: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="n">active_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
-            <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;errors&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="p">{</span><span class="s2">&quot;pipeline&quot;</span><span class="p">:</span> <span class="n">pipeline_name</span><span class="p">,</span> <span class="s2">&quot;stage&quot;</span><span class="p">:</span> <span class="s2">&quot;aggregation&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}</span>
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s2">&quot;gait&quot;</span><span class="p">:</span>
-                <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;aggregations&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s2">&quot;filtered&quot;</span><span class="p">:</span> <span class="p">{},</span>
-                    <span class="s2">&quot;unfiltered&quot;</span><span class="p">:</span> <span class="p">{},</span>
-                <span class="p">}</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;aggregations&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Failed to aggregate </span><span class="si">{</span><span class="n">pipeline_name</span><span class="si">}</span><span class="s2"> results: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">active_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+                <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;errors&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span><span class="s2">&quot;pipeline&quot;</span><span class="p">:</span> <span class="n">pipeline_name</span><span class="p">,</span> <span class="s2">&quot;stage&quot;</span><span class="p">:</span> <span class="s2">&quot;aggregation&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s2">&quot;gait&quot;</span><span class="p">:</span>
+                    <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;aggregations&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;filtered&quot;</span><span class="p">:</span> <span class="p">{},</span>
+                        <span class="s2">&quot;unfiltered&quot;</span><span class="p">:</span> <span class="p">{},</span>
+                    <span class="p">}</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">all_results</span><span class="p">[</span><span class="s2">&quot;aggregations&quot;</span><span class="p">][</span><span class="n">pipeline_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="c1"># Save combined quantifications if requested</span>
     <span class="k">if</span> <span class="s2">&quot;quantification&quot;</span> <span class="ow">in</span> <span class="n">save_intermediate</span><span class="p">:</span>

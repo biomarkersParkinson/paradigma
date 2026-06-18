@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
@@ -6,23 +8,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ParaDigMa Pipeline Orchestrator Tutorial &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
-      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -118,6 +116,8 @@ data</p></li>
 <li><p><strong>Multiple data formats</strong>: Supports Verily, Axivity, Empatica, and custom
 formats</p></li>
 <li><p><strong>Robust processing</strong>: Automatic data preparation and error handling</p></li>
+<li><p><strong>Adaptive frequency detection</strong>: Automatically detects and adapts to your data’s
+sampling frequency</p></li>
 </ul>
 </section>
 <section id="data-requirements">
@@ -610,15 +610,16 @@ First 5 rows of imu_segment0001:
 </div>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Detailed Results Analysis:
 
-Filtered arm swing quantification (5299 swings):
+Filtered arm swing quantification (5436 swings):
    Columns: [&#39;gait_segment_nr&#39;, &#39;range_of_motion&#39;, &#39;peak_velocity&#39;, &#39;file_key&#39;]... (4 total)
    Files: [&#39;imu_segment0001&#39; &#39;imu_segment0002&#39;]
 
-Unfiltered arm swing quantification (11950 &#39;swings&#39;):
+Unfiltered arm swing quantification (12034 &#39;swings&#39;):
 
 Filtered gait aggregation:
    Gait segment categories: [&#39;0_20&#39;, &#39;20_inf&#39;]
    Aggregates for 0-20s segments: [&#39;duration_s&#39;, &#39;median_range_of_motion&#39;, &#39;95p_range_of_motion&#39;, &#39;median_cov_range_of_motion&#39;, &#39;mean_cov_range_of_motion&#39;, &#39;median_peak_velocity&#39;, &#39;95p_peak_velocity&#39;, &#39;median_cov_peak_velocity&#39;, &#39;mean_cov_peak_velocity&#39;]
+   First filtered gait segment: {&#39;start_s&#39;: 2221.71, &#39;end_s&#39;: 2230.649900990099, &#39;duration_s&#39;: 8.94059405940594, &#39;unfiltered_duration_s&#39;: 12.653465346534654, &#39;segment_categories&#39;: [&#39;0_20&#39;]}
 
 Tremor quantification (27056 windows):
    Columns: [&#39;time&#39;, &#39;pred_arm_at_rest&#39;, &#39;pred_tremor_checked&#39;, &#39;tremor_power&#39;, &#39;file_key&#39;]... (5 total)
@@ -626,7 +627,7 @@ Tremor quantification (27056 windows):
 
 Tremor aggregation (4 time ranges):
    Aggregates: [&#39;perc_windows_tremor&#39;, &#39;median_tremor_power&#39;, &#39;modal_tremor_power&#39;, &#39;90p_tremor_power&#39;]
-   Metadata: {&#39;nr_valid_days&#39;: 1, &#39;nr_windows_total&#39;: 27056, &#39;nr_windows_rest&#39;: 18766}
+   Metadata: {&#39;nr_valid_days&#39;: 1, &#39;nr_windows_total&#39;: 27056, &#39;nr_windows_rest&#39;: 18763}
 </pre></div>
 </div>
 </section>
@@ -694,7 +695,6 @@ axes</p></li>
     <span class="n">time_input_unit</span><span class="o">=</span><span class="n">TimeUnit</span><span class="o">.</span><span class="n">RELATIVE_S</span><span class="p">,</span>    <span class="c1"># Specify time unit</span>
     <span class="n">accelerometer_units</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">,</span>
     <span class="n">gyroscope_units</span><span class="o">=</span><span class="s1">&#39;deg/s&#39;</span><span class="p">,</span>
-    <span class="n">target_frequency</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span>
     <span class="n">device_orientation</span><span class="o">=</span><span class="n">device_orientation</span><span class="p">,</span>
     <span class="n">save_intermediate</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;aggregation&#39;</span><span class="p">],</span>      <span class="c1"># Only save aggregations</span>
     <span class="n">logging_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>          <span class="c1"># Only show warnings and errors</span>
@@ -726,7 +726,20 @@ axes</p></li>
 <span class="n">results_end_to_end</span><span class="p">[</span><span class="s1">&#39;quantifications&#39;</span><span class="p">][</span><span class="n">pipeline</span><span class="p">][</span><span class="s1">&#39;filtered&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Filtered Gait Aggregations:
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Filtered Gait Metadata (first segment):
+{
+  &quot;start_s&quot;: 124.5,
+  &quot;end_s&quot;: 127.5,
+  &quot;duration_s&quot;: 3.0,
+  &quot;unfiltered_duration_s&quot;: 124.5,
+  &quot;segment_categories&quot;: [
+    &quot;20_inf&quot;
+  ],
+  &quot;start_dt&quot;: &quot;2025-11-17T09:02:06.824188&quot;,
+  &quot;end_dt&quot;: &quot;2025-11-17T09:02:09.824188&quot;
+}
+
+Filtered Gait Aggregations:
 {
   &quot;0_20&quot;: {
     &quot;duration_s&quot;: 0
@@ -964,9 +977,12 @@ Dropping 10 rows with NaN values from file test_file
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>WARNING: Time column has irregular sampling
 
 
-Number of detected gait segments: 48
+WARNING: Data is not contiguous but validation is disabled. Interpolating over gaps.
 
-Number of arm swings: 1834
+
+Number of detected gait segments: 47
+
+Number of arm swings: 1782
 Individual arm swings:
 </pre></div>
 </div>
@@ -978,44 +994,38 @@ Individual arm swings:
       <th>gait_segment_nr</th>
       <th>range_of_motion</th>
       <th>peak_velocity</th>
-      <th>data_segment_nr</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>14.394159</td>
-      <td>40.731020</td>
-      <td>1</td>
+      <td>14.175549</td>
+      <td>40.844875</td>
     </tr>
     <tr>
       <th>1</th>
       <td>2</td>
-      <td>13.593113</td>
-      <td>21.522583</td>
-      <td>1</td>
+      <td>13.590119</td>
+      <td>21.436342</td>
     </tr>
     <tr>
       <th>2</th>
       <td>2</td>
-      <td>20.881968</td>
-      <td>102.620567</td>
-      <td>1</td>
+      <td>20.877245</td>
+      <td>102.735568</td>
     </tr>
     <tr>
       <th>3</th>
       <td>2</td>
-      <td>16.711927</td>
-      <td>48.794681</td>
-      <td>1</td>
+      <td>16.709358</td>
+      <td>48.634776</td>
     </tr>
     <tr>
       <th>4</th>
       <td>2</td>
-      <td>6.565145</td>
-      <td>26.096350</td>
-      <td>1</td>
+      <td>6.744359</td>
+      <td>26.217534</td>
     </tr>
   </tbody>
 </table>

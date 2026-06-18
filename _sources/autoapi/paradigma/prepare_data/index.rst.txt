@@ -12,7 +12,8 @@ paradigma.prepare_data
    - Time column formatting
    - Column name standardization
    - Watch side orientation correction
-   - Resampling to 100 Hz
+
+   Note: Resampling is handled during preprocessing, not data preparation.
 
    Based on data_preparation tutorial.
 
@@ -120,7 +121,7 @@ Module Contents
    :rtype: dict
 
 
-.. py:function:: prepare_raw_data(df: pandas.DataFrame, accelerometer_units: str = 'm/s^2', gyroscope_units: str = 'deg/s', time_input_unit: paradigma.constants.TimeUnit = TimeUnit.RELATIVE_S, resampling_frequency: float = 100.0, column_mapping: dict[str, str] | None = None, device_orientation: dict[str, int] | None = None, validate: bool = True, auto_segment: bool = False, max_segment_gap_s: float | None = None, min_segment_length_s: float | None = None) -> pandas.DataFrame
+.. py:function:: prepare_raw_data(df: pandas.DataFrame, accelerometer_units: str = 'm/s^2', gyroscope_units: str = 'deg/s', time_input_unit: paradigma.constants.TimeUnit = TimeUnit.RELATIVE_S, resampling_frequency: float = 100.0, column_mapping: dict[str, str] | None = None, device_orientation: dict[str, int] | None = None, validate: bool = True, auto_segment: bool = False, max_segment_gap_s: float = 1.5, min_segment_length_s: float = 1.5) -> pandas.DataFrame
 
    Complete data preparation pipeline for raw sensor data.
 
@@ -132,7 +133,8 @@ Module Contents
    :type gyroscope_units: str, default 'deg/s'
    :param time_input_unit: Input time unit type
    :type time_input_unit: TimeUnit, default TimeUnit.RELATIVE_S
-   :param resampling_frequency: Target sampling frequency in Hz
+   :param resampling_frequency: Deprecated. This parameter is ignored; resampling is handled during
+                                preprocessing.
    :type resampling_frequency: float, default 100.0
    :param column_mapping: Custom column name mapping
    :type column_mapping: Dict[str, str], optional
@@ -140,8 +142,8 @@ Module Contents
    :type device_orientation: Dict[str, int], optional
    :param validate: Whether to validate the prepared data
    :type validate: bool, default True
-   :param auto_segment: If True, automatically split non-contiguous data into segments.
-                        Adds 'data_segment_nr' column to output.
+   :param auto_segment: If True, automatically split non-contiguous data into segments based on
+                        time gaps. Adds 'data_segment_nr' column to output.
    :type auto_segment: bool, default False
    :param max_segment_gap_s: Maximum gap (seconds) before starting new segment. Used when auto_segment=True.
                              Defaults to 1.5s.
@@ -151,7 +153,7 @@ Module Contents
    :type min_segment_length_s: float, optional
 
    :returns: Prepared data ready for ParaDigMa analysis. If auto_segment=True and multiple
-             segments found, includes 'data_segment_nr' column.
+             segments found, includes 'data_segment_nr' column for tracking segments.
    :rtype: pd.DataFrame
 
 

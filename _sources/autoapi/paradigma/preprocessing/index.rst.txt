@@ -29,7 +29,7 @@ Module Contents
 
 .. py:data:: logger
 
-.. py:function:: resample_data(df: pandas.DataFrame, time_column: str = 'time', values_column_names: list[str] | None = None, sampling_frequency: int | None = None, resampling_frequency: int | None = None, tolerance: float | None = None, validate_contiguous: bool = True, auto_segment: bool = False, max_segment_gap_s: float | None = None, min_segment_length_s: float | None = None) -> pandas.DataFrame
+.. py:function:: resample_data(df: pandas.DataFrame, config: paradigma.config.IMUConfig | paradigma.config.PPGConfig, values_column_names: list[str] | None = None, validate_contiguous: bool = True, auto_segment: bool = False, max_segment_gap_s: float = 1.5, min_segment_length_s: float = 1.5) -> pandas.DataFrame
 
    Unified resampling function with optional auto-segmentation for non-contiguous data.
 
@@ -41,16 +41,10 @@ Module Contents
 
    :param df: The input DataFrame containing the sensor data.
    :type df: pd.DataFrame
-   :param time_column: The name of the column containing the time data.
-   :type time_column: str, default 'time'
+   :param config: ...
+   :type config: IMUConfig | PPGConfig
    :param values_column_names: Column names to resample. If None, auto-detects all numeric columns except time.
    :type values_column_names: List[str], optional
-   :param sampling_frequency: Original sampling frequency (Hz). If None, auto-detected from data.
-   :type sampling_frequency: int, optional
-   :param resampling_frequency: Target sampling frequency in Hz.
-   :type resampling_frequency: int, optional
-   :param tolerance: Tolerance for contiguity checking (seconds). Defaults to IMUConfig tolerance.
-   :type tolerance: float, optional
    :param validate_contiguous: Whether to validate data contiguity. If False, gaps are silently interpolated.
    :type validate_contiguous: bool, default True
    :param auto_segment: If True, automatically split non-contiguous data into segments and

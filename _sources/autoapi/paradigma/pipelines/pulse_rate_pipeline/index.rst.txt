@@ -34,11 +34,11 @@ Module Contents
 
    :param df_ppg: The DataFrame containing the PPG signal.
    :type df_ppg: pd.DataFrame
-   :param df_acc: The DataFrame containing the accelerometer signal.
-   :type df_acc: pd.DataFrame
    :param ppg_config: The configuration for the signal quality feature extraction of the PPG
                       signal.
    :type ppg_config: PulseRateConfig
+   :param df_acc: The DataFrame containing the accelerometer signal.
+   :type df_acc: pd.DataFrame
    :param acc_config: The configuration for the signal quality feature extraction of the
                       accelerometer signal.
    :type acc_config: PulseRateConfig
@@ -68,10 +68,10 @@ Module Contents
    :param clf_package: The classifier package containing the classifier and scaler.
    :type clf_package: ClassifierPackage
 
-   :returns: The DataFrame containing the PPG signal quality predictions (both
+   :returns: **df_sqa** -- The DataFrame containing the PPG signal quality predictions (both
              probabilities of the PPG signal quality classification and the
              accelerometer label based on the threshold).
-   :rtype: df_sqa pd.DataFrame
+   :rtype: pd.DataFrame
 
 
 .. py:function:: estimate_pulse_rate(df_sqa: pandas.DataFrame, df_ppg_preprocessed: pandas.DataFrame, config: paradigma.config.PulseRateConfig) -> pandas.DataFrame
@@ -97,7 +97,7 @@ Module Contents
    :type pr_values: np.ndarray
    :param aggregates: The list of aggregation methods to be used for the pulse rate
                       estimates. The default is ['mode', '99p'].
-   :type aggregates: List[str]
+   :type aggregates: list[str]
 
    :returns: **aggregated_results** -- The dictionary containing the aggregated results of the pulse rate estimates.
    :rtype: dict
@@ -171,7 +171,7 @@ Module Contents
    :rtype: pd.DataFrame
 
 
-.. py:function:: run_pulse_rate_pipeline(df_ppg_prepared: pandas.DataFrame, output_dir: str | pathlib.Path, store_intermediate: list[str] = [], pulse_rate_config: paradigma.config.PulseRateConfig | None = None, ppg_config: paradigma.config.PPGConfig | None = None, logging_level: int = logging.INFO, custom_logger: logging.Logger | None = None) -> pandas.DataFrame
+.. py:function:: run_pulse_rate_pipeline(df_ppg_prepared: pandas.DataFrame, output_dir: str | pathlib.Path, store_intermediate: list[str] = [], pulse_rate_config: paradigma.config.PulseRateConfig | None = None, ppg_config: paradigma.config.PPGConfig | None = None, logging_level: int = logging.INFO, custom_logger: logging.Logger | None = None, run_steps: list[str] | None = None, return_intermediate: list[str] | None = None) -> dict
 
    High-level pulse rate analysis pipeline for a single segment.
 
@@ -197,11 +197,25 @@ Module Contents
    :type logging_level: int, default logging.INFO
    :param custom_logger: Custom logger instance
    :type custom_logger: logging.Logger, optional
+   :param run_steps: Which steps to execute: 'preprocessing', 'classification', 'quantification'.
+                     Must be a contiguous sequence starting from 'preprocessing'.
+                     If None, defaults to running all steps.
+   :type run_steps: list[str], optional
+   :param return_intermediate: Which intermediate results to include in the return dict.
+                               Must be a subset of run_steps.
+                               If None, defaults to only returning quantification.
+   :type return_intermediate: list[str], optional
 
-   :returns: Quantified pulse rate data with columns:
-             - time: timestamp
-             - pulse_rate: pulse rate estimate
-             - signal_quality: quality assessment (if available)
-   :rtype: pd.DataFrame
+   :returns: A dictionary containing pipeline results with the following possible keys:
+             - 'preprocessing': DataFrame with preprocessed PPG data
+             (if 'preprocessing' in return_intermediate)
+             - 'classification': DataFrame with signal quality classification
+             (if 'classification' in return_intermediate)
+             - 'quantification': DataFrame with pulse rate quantification
+             (if 'quantification' in return_intermediate)
+               Columns include: time, pulse_rate, signal_quality
+             - '_steps_executed': List of steps that were actually executed
+             - '_error': Error message if an error occurred (None if successful)
+   :rtype: dict
 
 

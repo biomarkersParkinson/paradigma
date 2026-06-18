@@ -23,6 +23,7 @@ Functions
    paradigma.util.convert_units_gyroscope
    paradigma.util.invert_watch_side
    paradigma.util.aggregate_parameter
+   paradigma.util.round_detected_frequency
    paradigma.util.merge_predictions_with_timestamps
    paradigma.util.select_hours
    paradigma.util.select_days
@@ -182,6 +183,33 @@ Module Contents
 
    :returns: The aggregated parameter.
    :rtype: np.ndarray
+
+
+.. py:function:: round_detected_frequency(frequency: float) -> int
+
+   Round detected sampling frequency to nearest integer.
+
+   Uses banker's rounding (round-to-nearest-even) to bias toward even
+   sampling frequencies, which have several advantages for signal processing:
+
+   1. Even frequencies have integer Nyquist frequencies (fs/2 is an integer)
+   2. FFT bin frequencies align better (no half-Hz boundaries)
+   3. Filter design is cleaner (easier to set exact cutoff frequencies)
+
+   Example: 128 Hz (even) → Nyquist = 64 Hz (integer)
+            127 Hz (odd)  → Nyquist = 63.5 Hz (fractional)
+
+   :param frequency: Raw detected frequency (e.g., 1.0 / median_time_difference)
+   :type frequency: float
+
+   :returns: Rounded frequency with bias toward even values.
+   :rtype: int
+
+   .. rubric:: Notes
+
+   - Banker's rounding: 50.5 → 50, 51.5 → 52 (rounds to nearest even)
+   - This differs from standard round-half-up: 50.5 → 51, 51.5 → 52
+   - The bias toward even frequencies is intentional and beneficial
 
 
 .. py:function:: merge_predictions_with_timestamps(df_ts: pandas.DataFrame, df_predictions: pandas.DataFrame, pred_proba_colname: str, window_length_s: float, fs: int) -> pandas.DataFrame

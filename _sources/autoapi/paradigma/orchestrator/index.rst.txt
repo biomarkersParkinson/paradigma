@@ -17,7 +17,7 @@ paradigma.orchestrator
      Can process raw data from disk or already-prepared DataFrames.
 
    The orchestrator coordinates:
-   1. Data loading and preparation (unit conversion, resampling, orientation correction)
+   1. Data loading and preparation (unit conversion, orientation correction)
    2. Pipeline execution on single or multiple files (imports from pipeline modules)
    3. Result aggregation across files and segments
    4. Optional intermediate result storage
@@ -55,7 +55,7 @@ Module Contents
 
 .. py:function:: _empty_gait_quantification_df() -> pandas.DataFrame
 
-.. py:function:: run_paradigma(*, data_path: str | pathlib.Path | None = None, dfs: pandas.DataFrame | list[pandas.DataFrame] | dict[str, pandas.DataFrame] | None = None, save_intermediate: list[str] = [], output_dir: str | pathlib.Path = './output', skip_preparation: bool = False, pipelines: list[str] | str | None = None, watch_side: str | None = None, accelerometer_units: str = 'g', gyroscope_units: str = 'deg/s', time_input_unit: paradigma.constants.TimeUnit = TimeUnit.RELATIVE_S, target_frequency: float = 100.0, column_mapping: dict[str, str] | None = None, device_orientation: list[str] | None = ['x', 'y', 'z'], file_pattern: str | list[str] | None = None, aggregates: list[str] | None = None, segment_length_bins: list[tuple[float, float] | list[float] | str] | None = None, split_by_gaps: bool = False, max_gap_seconds: float | None = None, min_segment_seconds: float | None = None, imu_config: paradigma.config.IMUConfig | None = None, ppg_config: paradigma.config.PPGConfig | None = None, gait_config: paradigma.config.GaitConfig | None = None, arm_activity_config: paradigma.config.GaitConfig | None = None, tremor_config: paradigma.config.TremorConfig | None = None, pulse_rate_config: paradigma.config.PulseRateConfig | None = None, logging_level: int = logging.INFO, custom_logger: logging.Logger | None = None) -> dict[str, pandas.DataFrame | dict]
+.. py:function:: run_paradigma(*, data_path: str | pathlib.Path | None = None, dfs: pandas.DataFrame | list[pandas.DataFrame] | dict[str, pandas.DataFrame] | None = None, run_steps: list[str] | str = 'all', save_intermediate: list[str] = [], return_intermediate: list[str] = [], output_dir: str | pathlib.Path = './output', skip_preparation: bool = False, pipelines: list[str] | str | None = None, watch_side: str | None = None, accelerometer_units: str = 'g', gyroscope_units: str = 'deg/s', time_input_unit: paradigma.constants.TimeUnit = TimeUnit.RELATIVE_S, column_mapping: dict[str, str] | None = None, device_orientation: list[str] | None = ['x', 'y', 'z'], file_pattern: str | list[str] | None = None, aggregates: list[str] | None = None, gait_segment_categories: list[tuple[float, float] | list[float] | str] | None = None, split_by_gaps: bool = False, max_gap_seconds: float | None = None, min_segment_seconds: float | None = None, imu_config: paradigma.config.IMUConfig | None = None, ppg_config: paradigma.config.PPGConfig | None = None, gait_config: paradigma.config.GaitConfig | None = None, arm_activity_config: paradigma.config.GaitConfig | None = None, tremor_config: paradigma.config.TremorConfig | None = None, pulse_rate_config: paradigma.config.PulseRateConfig | None = None, logging_level: int = logging.INFO, custom_logger: logging.Logger | None = None) -> dict[str, pandas.DataFrame | dict]
 
    Complete ParaDigMa analysis pipeline from data loading to aggregated results.
 
@@ -81,15 +81,31 @@ Module Contents
                len(dfs) > 1, allowing cleaner output for single-file processing.
                See input_formats guide for details.
    :type dfs: DataFrame, list of DataFrames, or dict of DataFrames, optional
-   :param save_intermediate: Which intermediate results to store. Valid values:
+   :param run_steps: Which steps of the pipeline(s) to run. When constructing a list, the following
+                     steps are valid: 'preprocessing', 'classification', 'quantification',
+                     'aggregation'. Steps must be in this order; skipping intermediate steps is not
+                     allowed (e.g., cannot do ['preprocessing', 'quantification'] because
+                     'classification' is required). Use this parameter when running ParaDigMa in
+                     parallel across multiple directories or data chunks, allowing you to split
+                     the pipeline into separate runs and aggregate results later by only running
+                     aggregation on combined quantifications.
+   :type run_steps: list of str or str, default 'all'
+   :param save_intermediate: Which intermediate results to store to disk. Valid values:
                              - 'preparation': Save prepared data
                              - 'preprocessing': Save preprocessed signals
                              - 'classification': Save classification/prediction results (e.g., gait
                              predictions, tremor predictions, PPG signal quality predictions)
                              - 'quantification': Save quantified measures
                              - 'aggregation': Save aggregated results
-                             If empty, no files are saved (results are only returned).
+                             Must be subset of run_steps. If empty, no files are saved.
    :type save_intermediate: list of str, default []
+   :param return_intermediate: Which intermediate results to include in return dictionary. Valid values:
+                               same as save_intermediate. By default, only quantifications/aggregations
+                               are returned to minimize memory usage. Set to include preprocessing/
+                               classification results for debugging or inspection. Must be subset of
+                               run_steps. Results can be saved to disk without being returned (and vice
+                               versa) by configuring these parameters independently.
+   :type return_intermediate: list of str, default []
    :param output_dir: Output directory for all results. Files are only saved if
                       save_intermediate is not empty.
    :type output_dir: str or Path, default './output'
@@ -119,10 +135,12 @@ Module Contents
    :type file_pattern: str or list of str, optional
    :param aggregates: Aggregation methods for quantification.
    :type aggregates: list of str, optional
-   :param segment_length_bins: Duration bins for gait segment aggregation (gait pipeline only).
-                               Accepts either string bins like ['(0, 10)', '(10, 20)'] or 2-element
-                               tuples/lists like [(0, 10), (10, 20)] for segments 0-10s and 10-20s.
-   :type segment_length_bins: list of str or list of tuple/list, optional
+   :param gait_segment_categories: Segment duration categories for arm swing grouping (gait pipeline only). Segment
+                                   categories are based on unfiltered gait segments, i.e., gait segments with any
+                                   concurrent arm activity. Accepts either string categories like
+                                   ['(0, 10)', '(10, 20)'] or 2-element tuples/lists like
+                                   [(0, 10), (10, 20)] for segments 0-10s and 10-20s.
+   :type gait_segment_categories: list of str or list of tuple/list, optional
    :param split_by_gaps: If True, automatically split non-contiguous data into segments
                          during preparation.
                          Adds 'data_segment_nr' column to prepared data which is preserved

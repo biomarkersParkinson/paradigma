@@ -114,18 +114,18 @@ Module Contents
       :type:  dict[str, str]
 
 
-   .. py:attribute:: sampling_frequency
-      :value: 100
+   .. py:attribute:: _sampling_frequency
+      :value: None
 
 
 
    .. py:attribute:: resampling_frequency
-      :value: 100
+      :value: None
 
 
 
    .. py:attribute:: tolerance
-      :value: 0.03
+      :value: None
 
 
 
@@ -154,6 +154,35 @@ Module Contents
 
 
 
+   .. py:property:: sampling_frequency
+      :type: int | None
+
+
+      Get the sampling frequency in Hz. Auto-detected by resample_data.
+
+
+   .. py:method:: _set_sampling_frequency_detected(frequency: float) -> None
+
+      Internal method: Update sampling_frequency and all dependent parameters.
+
+      Called by resample_data after detecting the sampling frequency.
+      Updates tolerance and calls _update_frequency_dependent_params() for
+      all subclasses to update their domain-specific parameters.
+
+      :param frequency: The detected sampling frequency in Hz. Will be converted to integer.
+      :type frequency: float
+
+
+
+   .. py:method:: _update_frequency_dependent_params() -> None
+
+      Update parameters that depend on sampling_frequency.
+
+      Subclasses should override this to update their domain-specific
+      frequency bounds (e.g., spectrum_high_frequency, mfcc_high_frequency).
+
+
+
 .. py:class:: PPGConfig(column_mapping: dict[str, str] | None = None)
 
    Bases: :py:obj:`BaseConfig`
@@ -168,18 +197,18 @@ Module Contents
    .. py:attribute:: ppg_colname
 
 
-   .. py:attribute:: sampling_frequency
-      :value: 30
+   .. py:attribute:: _sampling_frequency
+      :value: None
 
 
 
    .. py:attribute:: resampling_frequency
-      :value: 30
+      :value: None
 
 
 
    .. py:attribute:: tolerance
-      :value: 0.1
+      :value: None
 
 
 
@@ -199,6 +228,35 @@ Module Contents
 
 
    .. py:attribute:: d_channels_ppg
+
+
+   .. py:property:: sampling_frequency
+      :type: int | None
+
+
+      Get the sampling frequency in Hz. Auto-detected by resample_data.
+
+
+   .. py:method:: _set_sampling_frequency_detected(frequency: float) -> None
+
+      Internal method: Update sampling_frequency and all dependent parameters.
+
+      Called by resample_data after auto-detecting the sampling frequency.
+      Updates tolerance and calls _update_frequency_dependent_params() for
+      all subclasses to update their domain-specific parameters.
+
+      :param frequency: The detected sampling frequency in Hz. Will be converted to integer.
+      :type frequency: float
+
+
+
+   .. py:method:: _update_frequency_dependent_params() -> None
+
+      Update parameters that depend on sampling_frequency.
+
+      Subclasses should override this to update their domain-specific
+      frequency bounds.
+
 
 
 .. py:class:: GaitConfig(step, column_mapping: dict[str, str] | None = None)
@@ -282,6 +340,15 @@ Module Contents
       :type:  dict[str, str]
 
 
+   .. py:method:: _update_frequency_dependent_params() -> None
+
+      Update frequency-dependent parameters when sampling_frequency changes.
+
+      Ensures that spectral bounds stay within Nyquist frequency (fs/2).
+      Only clamps when bounds actually exceed Nyquist (aliasing risk).
+
+
+
 .. py:class:: TremorConfig(step: str | None = None)
 
    Bases: :py:obj:`IMUConfig`
@@ -326,9 +393,15 @@ Module Contents
 
 
 
-   .. py:attribute:: spectral_resolution
+   .. py:attribute:: spectral_resolution_psd
       :type:  float
       :value: 0.25
+
+
+
+   .. py:attribute:: spectral_resolution_spectrogram
+      :type:  float
+      :value: 0.5
 
 
 
@@ -406,6 +479,15 @@ Module Contents
 
    .. py:attribute:: evaluation_points_tremor_power
       :type:  numpy.ndarray
+
+
+   .. py:method:: _update_frequency_dependent_params() -> None
+
+      Update frequency-dependent parameters when sampling_frequency changes.
+
+      Ensures that PSD and MFCC frequency bounds stay within Nyquist frequency.
+      Only clamps when they actually exceed Nyquist.
+
 
 
 .. py:class:: PulseRateConfig(sensor: str = 'ppg', ppg_sampling_frequency: int = 30, imu_sampling_frequency: int | None = None, min_window_length_s: int = 30, accelerometer_colnames: list[str] | None = None)

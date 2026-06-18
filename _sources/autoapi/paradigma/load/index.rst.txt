@@ -122,14 +122,17 @@ Module Contents
    :rtype: list of Path
 
 
-.. py:function:: load_single_data_file(file_path: str | pathlib.Path) -> tuple[str, pandas.DataFrame]
+.. py:function:: load_single_data_file(file_path: str | pathlib.Path) -> tuple[str, pandas.DataFrame, datetime.datetime | None]
 
    Load a single data file with automatic format detection.
 
    :param file_path: Path to data file
    :type file_path: str or Path
 
-   :returns: Tuple of (file_key, DataFrame) where file_key is the file name without extension
+   :returns: Tuple of (file_key, DataFrame, start_datetime) where:
+             - file_key is the file name without extension
+             - DataFrame is the loaded sensor data
+             - start_datetime is the recording start time (or None if not available)
    :rtype: tuple
 
 

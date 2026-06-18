@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
@@ -6,23 +8,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>paradigma.pipelines.tremor_pipeline &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=a31c8b26" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=a31c8b26" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -139,7 +137,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#paradigma.pipelines.tremor_pipeline.extract_spectral_domain_features" title="paradigma.pipelines.tremor_pipeline.extract_spectral_domain_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_spectral_domain_features</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Compute spectral domain features from the gyroscope data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.tremor_pipeline.run_tremor_pipeline" title="paradigma.pipelines.tremor_pipeline.run_tremor_pipeline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_tremor_pipeline</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paradigma.pipelines.tremor_pipeline.run_tremor_pipeline" title="paradigma.pipelines.tremor_pipeline.run_tremor_pipeline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_tremor_pipeline</span></code></a>(→ dict)</p></td>
 <td><p>High-level tremor analysis pipeline for a single segment.</p></td>
 </tr>
 </tbody>
@@ -329,7 +327,7 @@ below tremor power for each window.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="paradigma.pipelines.tremor_pipeline.run_tremor_pipeline">
-<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.tremor_pipeline.</span></span><span class="sig-name descname"><span class="pre">run_tremor_pipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_prepared</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_intermediate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tremor_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.TremorConfig" title="paradigma.config.TremorConfig"><span class="pre">paradigma.config.TremorConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imu_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.IMUConfig" title="paradigma.config.IMUConfig"><span class="pre">paradigma.config.IMUConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logging_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">logging.INFO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logging.Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/tremor_pipeline.html#run_tremor_pipeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.tremor_pipeline.run_tremor_pipeline" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">paradigma.pipelines.tremor_pipeline.</span></span><span class="sig-name descname"><span class="pre">run_tremor_pipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_prepared</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_intermediate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tremor_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.TremorConfig" title="paradigma.config.TremorConfig"><span class="pre">paradigma.config.TremorConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imu_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#paradigma.config.IMUConfig" title="paradigma.config.IMUConfig"><span class="pre">paradigma.config.IMUConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logging_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">logging.INFO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logging.Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_intermediate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../../../_modules/paradigma/pipelines/tremor_pipeline.html#run_tremor_pipeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paradigma.pipelines.tremor_pipeline.run_tremor_pipeline" title="Link to this definition"></a></dt>
 <dd><p>High-level tremor analysis pipeline for a single segment.</p>
 <p>This function implements the complete tremor analysis workflow from the
 tremor tutorial:
@@ -347,17 +345,33 @@ tremor tutorial:
 <li><p><strong>imu_config</strong> (<a class="reference internal" href="../../config/index.html#paradigma.config.IMUConfig" title="paradigma.config.IMUConfig"><em>IMUConfig</em></a><em>, </em><em>optional</em>) – IMU preprocessing configuration</p></li>
 <li><p><strong>logging_level</strong> (<em>int</em><em>, </em><em>default logging.INFO</em>) – Logging level using standard logging constants</p></li>
 <li><p><strong>custom_logger</strong> (<em>logging.Logger</em><em>, </em><em>optional</em>) – Custom logger instance</p></li>
+<li><p><strong>run_steps</strong> (<em>list</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Which steps to execute: ‘preprocessing’, ‘classification’, ‘quantification’.
+Must be a contiguous sequence starting from ‘preprocessing’.
+If None, defaults to running all steps.</p></li>
+<li><p><strong>return_intermediate</strong> (<em>list</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Which intermediate results to include in the return dict.
+Must be a subset of run_steps.
+If None, defaults to only returning quantification.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Quantified tremor data with columns:
-- time: timestamp
-- pred_arm_at_rest: arm at rest prediction
-- pred_tremor_checked: tremor detection result
-- tremor_power: tremor power measure</p>
+<dd class="field-even"><p><p>A dictionary containing pipeline results with the following possible keys:
+- ‘preprocessing’: DataFrame with preprocessed gyroscope data
+(if ‘preprocessing’ in return_intermediate)
+- ‘classification’: DataFrame with classification results
+(if ‘classification’ in return_intermediate)
+- ‘quantification’: DataFrame with tremor quantification
+(if ‘quantification’ in return_intermediate)</p>
+<blockquote>
+<div><p>Columns include: time, pred_arm_at_rest, pred_tremor_checked, tremor_power</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>’_steps_executed’: List of steps that were actually executed</p></li>
+<li><p>’_error’: Error message if an error occurred (None if successful)</p></li>
+</ul>
+</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pd.DataFrame</p>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>

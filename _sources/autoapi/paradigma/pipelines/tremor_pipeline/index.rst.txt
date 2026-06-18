@@ -157,7 +157,7 @@ Module Contents
    :rtype: pd.DataFrame
 
 
-.. py:function:: run_tremor_pipeline(df_prepared: pandas.DataFrame, output_dir: str | pathlib.Path, store_intermediate: list[str] = [], tremor_config: paradigma.config.TremorConfig | None = None, imu_config: paradigma.config.IMUConfig | None = None, logging_level: int = logging.INFO, custom_logger: logging.Logger | None = None) -> pandas.DataFrame
+.. py:function:: run_tremor_pipeline(df_prepared: pandas.DataFrame, output_dir: str | pathlib.Path, store_intermediate: list[str] = [], tremor_config: paradigma.config.TremorConfig | None = None, imu_config: paradigma.config.IMUConfig | None = None, logging_level: int = logging.INFO, custom_logger: logging.Logger | None = None, run_steps: list[str] | None = None, return_intermediate: list[str] | None = None) -> dict
 
    High-level tremor analysis pipeline for a single segment.
 
@@ -182,12 +182,25 @@ Module Contents
    :type logging_level: int, default logging.INFO
    :param custom_logger: Custom logger instance
    :type custom_logger: logging.Logger, optional
+   :param run_steps: Which steps to execute: 'preprocessing', 'classification', 'quantification'.
+                     Must be a contiguous sequence starting from 'preprocessing'.
+                     If None, defaults to running all steps.
+   :type run_steps: list[str], optional
+   :param return_intermediate: Which intermediate results to include in the return dict.
+                               Must be a subset of run_steps.
+                               If None, defaults to only returning quantification.
+   :type return_intermediate: list[str], optional
 
-   :returns: Quantified tremor data with columns:
-             - time: timestamp
-             - pred_arm_at_rest: arm at rest prediction
-             - pred_tremor_checked: tremor detection result
-             - tremor_power: tremor power measure
-   :rtype: pd.DataFrame
+   :returns: A dictionary containing pipeline results with the following possible keys:
+             - 'preprocessing': DataFrame with preprocessed gyroscope data
+             (if 'preprocessing' in return_intermediate)
+             - 'classification': DataFrame with classification results
+             (if 'classification' in return_intermediate)
+             - 'quantification': DataFrame with tremor quantification
+             (if 'quantification' in return_intermediate)
+               Columns include: time, pred_arm_at_rest, pred_tremor_checked, tremor_power
+             - '_steps_executed': List of steps that were actually executed
+             - '_error': Error message if an error occurred (None if successful)
+   :rtype: dict
 
 

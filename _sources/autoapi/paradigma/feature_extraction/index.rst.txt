@@ -141,10 +141,10 @@ Module Contents
    Tremor power is 1.25 Hz around the peak within the tremor
    frequency band.
 
-   :param total_psd: The power spectral density of the gyroscope signal summed over the three axes
-   :type total_psd: np.ndarray
    :param freqs: Frequency vector corresponding to the power spectral density
    :type freqs: np.ndarray
+   :param total_psd: The power spectral density of the gyroscope signal summed over the three axes
+   :type total_psd: np.ndarray
    :param fmin: The lower bound of the tremor frequency band in Hz (default: 3)
    :type fmin: float
    :param fmax: The upper bound of the tremor frequency band in Hz (default: 7)

@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
@@ -6,23 +8,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pulse rate analysis &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
-      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -330,8 +328,10 @@
 </section>
 <section id="step-1-preprocess-data">
 <h2>Step 1: Preprocess data<a class="headerlink" href="#step-1-preprocess-data" title="Link to this heading"></a></h2>
-<p>The first step after loading the data is preprocessing using the <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.preprocess_ppg_data">preprocess_ppg_data</a>. This begins by isolating segments containing both PPG and IMU data, discarding portions where one modality (e.g., PPG) extends beyond the other, such as when the PPG recording is longer than the accelerometer data. This functionality requires the starting times (<code class="docutils literal notranslate"><span class="pre">metadata_time_ppg.start_iso8601</span></code> and <code class="docutils literal notranslate"><span class="pre">metadata_time_imu.start_iso8601</span></code>) in iso8601 format as inputs. After this step, the preprocess_ppg_data function resamples the PPG and accelerometer data to uniformly distributed timestamps, addressing the fixed but non-uniform sampling rates of the sensors. If the difference between timestamps is larger than a specified tolerance (<code class="docutils literal notranslate"><span class="pre">config.tolerance</span></code>, in seconds), it will return an error that the timestamps are not contiguous.  If you still want to process the data in this case, you can create segments from discontiguous samples using the function <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/segmenting/index.html#paradigma.segmenting.create_segments"><code class="docutils literal notranslate"><span class="pre">create_segments</span></code></a> and analyze these segments consecutively as shown in here. After resampling, a bandpass Butterworth filter (4th-order, bandpass frequencies: 0.4–3.5 Hz) is applied to the PPG signal, while a high-pass Butterworth filter (4th-order, cut-off frequency: 0.2 Hz) is applied to the accelerometer data.</p>
-<p>Note: the printed shapes are (rows, columns) with each row corresponding to a single data point and each column representing a data column (e.g.time). The number of rows of the overlapping segments of PPG and accelerometer are not the same due to sampling differences (other sensors and possibly other sampling frequencies).</p>
+<p>The first step after loading the data is preprocessing using the <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.preprocess_ppg_data">preprocess_ppg_data</a>. This begins by isolating segments containing both PPG and IMU data, discarding portions where one modality (e.g., PPG) extends beyond the other, such as when the PPG recording is longer than the accelerometer data. This functionality requires the starting times (<code class="docutils literal notranslate"><span class="pre">metadata_time_ppg.start_iso8601</span></code> and <code class="docutils literal notranslate"><span class="pre">metadata_time_imu.start_iso8601</span></code>) in iso8601 format as inputs. After this step, the preprocess_ppg_data function resamples the PPG and accelerometer data to uniformly distributed timestamps, addressing the fixed but non-uniform sampling rates of the sensors. If the difference between timestamps is larger than a specified tolerance (<code class="docutils literal notranslate"><span class="pre">config.tolerance</span></code>, in seconds), it will return an error that the timestamps are not contiguous. If you still want to process the data in this case, you can create segments from discontiguous samples using the function <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/segmenting/index.html#paradigma.segmenting.create_segments"><code class="docutils literal notranslate"><span class="pre">create_segments</span></code></a> and analyze these segments consecutively as shown in here. After resampling, a bandpass Butterworth filter (4th-order, bandpass frequencies: 0.4–3.5 Hz) is applied to the PPG signal, while a high-pass Butterworth filter (4th-order, cut-off frequency: 0.2 Hz) is applied to the accelerometer data.</p>
+<p>Note: The data sampling frequency is automatically detected, and frequency-dependent parameters (such as the tolerance) and features
+are subsequently automatically adjusted. For more info, see the <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/guides/config.html">config guide</a>.</p>
+<p>Note: the printed shapes are (rows, columns) with each row corresponding to a single data point and each column representing a data column (e.g. time). The number of rows of the overlapping segments of PPG and accelerometer are not the same due to sampling differences (other sensors and possibly other sampling frequencies).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set column names: replace DataColumn.* with your actual column names.</span>
 <span class="c1"># It is only necessary to set the columns that are present in your data, and</span>
 <span class="c1"># only if they differ from the default names defined in DataColumns.</span>
@@ -350,14 +350,14 @@
 <span class="n">ppg_config</span> <span class="o">=</span> <span class="n">PPGConfig</span><span class="p">(</span><span class="n">column_mapping</span><span class="o">=</span><span class="n">ppg_column_mapping</span><span class="p">)</span>
 <span class="n">imu_config</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">(</span><span class="n">column_mapping</span><span class="o">=</span><span class="n">imu_column_mapping</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span>
-    <span class="sa">f</span><span class="s2">&quot;The tolerance for checking contiguous timestamps is set to &quot;</span>
-    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">tolerance</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> seconds for PPG data and &quot;</span>
-    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">imu_config</span><span class="o">.</span><span class="n">tolerance</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> seconds for accelerometer data.&quot;</span>
-<span class="p">)</span>
+<span class="c1"># print(</span>
+<span class="c1">#     f&quot;The tolerance for checking contiguous timestamps is set to &quot;</span>
+<span class="c1">#     f&quot;{ppg_config.tolerance:.3f} seconds for PPG data and &quot;</span>
+<span class="c1">#     f&quot;{imu_config.tolerance:.3f} seconds for accelerometer data.&quot;</span>
+<span class="c1"># )</span>
 <span class="nb">print</span><span class="p">(</span>
     <span class="sa">f</span><span class="s2">&quot;Original data shapes:</span><span class="se">\n</span><span class="s2">- PPG data: </span><span class="si">{</span><span class="n">df_ppg</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
-    <span class="sa">f</span><span class="s2">&quot;- Accelerometer data: </span><span class="si">{</span><span class="n">df_imu</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;- Accelerometer data: </span><span class="si">{</span><span class="n">df_imu</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
 <span class="p">)</span>
 <span class="n">df_ppg_proc</span><span class="p">,</span> <span class="n">df_acc_proc</span> <span class="o">=</span> <span class="n">preprocess_ppg_data</span><span class="p">(</span>
     <span class="n">df_ppg</span><span class="o">=</span><span class="n">df_ppg</span><span class="p">,</span>
@@ -368,26 +368,35 @@
     <span class="n">start_time_imu</span><span class="o">=</span><span class="n">metadata_time_imu</span><span class="o">.</span><span class="n">start_iso8601</span>  <span class="c1"># Optional</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Overlapping preprocessed data shapes:</span><span class="se">\n</span><span class="s2">- PPG data: </span><span class="si">{</span><span class="n">df_ppg_proc</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The tolerance for checking contiguous timestamps is set to &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">tolerance</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> seconds for PPG data and &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">imu_config</span><span class="o">.</span><span class="n">tolerance</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> seconds for accelerometer data.&quot;</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Overlapping preprocessed data shapes:</span><span class="se">\n</span><span class="s2">- PPG data: </span><span class="si">{</span><span class="n">df_ppg_proc</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
       <span class="sa">f</span><span class="s2">&quot;- Accelerometer data: </span><span class="si">{</span><span class="n">df_acc_proc</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">display</span><span class="p">(</span><span class="n">df_ppg_proc</span><span class="p">,</span> <span class="n">df_acc_proc</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>The tolerance for checking contiguous timestamps is set to 0.100 seconds for PPG data and 0.030 seconds for accelerometer data.
-Original data shapes:
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Original data shapes:
 - PPG data: (1029375, 2)
 - Accelerometer data: (3455331, 7)
 
 
-INFO: Resampled: 3455331 -&gt; 3433961 rows at 100.0 Hz
+
+INFO: Resampled: 3455331 -&gt; 3468300 rows at 101 Hz
 
 
-INFO: Resampled: 1029374 -&gt; 1030188 rows at 30.0 Hz
+INFO: Resampled: 1029374 -&gt; 1030188 rows at 30 Hz
 
+
+
+The tolerance for checking contiguous timestamps is set to 0.100 seconds for PPG data and 0.030 seconds for accelerometer data.
 
 Overlapping preprocessed data shapes:
 - PPG data: (1030188, 2)
-- Accelerometer data: (3433961, 4)
+- Accelerometer data: (3468300, 4)
 </pre></div>
 </div>
 <div>
@@ -473,38 +482,38 @@ Overlapping preprocessed data shapes:
   <tbody>
     <tr>
       <th>0</th>
-      <td>0.00</td>
-      <td>-0.002324</td>
-      <td>-0.001442</td>
-      <td>-0.002116</td>
+      <td>0.000000</td>
+      <td>-0.002357</td>
+      <td>-0.001140</td>
+      <td>-0.002248</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>0.01</td>
-      <td>-0.000390</td>
-      <td>-0.000914</td>
-      <td>-0.007396</td>
+      <td>0.009901</td>
+      <td>-0.000438</td>
+      <td>-0.000647</td>
+      <td>-0.007521</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>0.02</td>
-      <td>0.000567</td>
-      <td>0.002474</td>
-      <td>-0.005445</td>
+      <td>0.019802</td>
+      <td>0.000533</td>
+      <td>0.002722</td>
+      <td>-0.005643</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>0.03</td>
-      <td>-0.000425</td>
-      <td>0.002414</td>
-      <td>-0.002099</td>
+      <td>0.029703</td>
+      <td>-0.000393</td>
+      <td>0.002789</td>
+      <td>-0.002310</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>0.04</td>
-      <td>-0.002807</td>
-      <td>-0.001408</td>
-      <td>-0.000218</td>
+      <td>0.039604</td>
+      <td>-0.002775</td>
+      <td>-0.001001</td>
+      <td>-0.000398</td>
     </tr>
     <tr>
       <th>...</th>
@@ -514,43 +523,43 @@ Overlapping preprocessed data shapes:
       <td>...</td>
     </tr>
     <tr>
-      <th>3433956</th>
-      <td>34339.56</td>
-      <td>-0.402941</td>
-      <td>0.038710</td>
-      <td>0.461449</td>
+      <th>3468295</th>
+      <td>34339.554455</td>
+      <td>-0.324322</td>
+      <td>0.373854</td>
+      <td>-1.105726</td>
     </tr>
     <tr>
-      <th>3433957</th>
-      <td>34339.57</td>
-      <td>-0.659832</td>
-      <td>0.098696</td>
-      <td>0.817136</td>
+      <th>3468296</th>
+      <td>34339.564356</td>
+      <td>-0.091892</td>
+      <td>-0.251911</td>
+      <td>0.301449</td>
     </tr>
     <tr>
-      <th>3433958</th>
-      <td>34339.58</td>
-      <td>-0.464138</td>
-      <td>0.033607</td>
-      <td>0.471552</td>
+      <th>3468297</th>
+      <td>34339.574257</td>
+      <td>-0.318763</td>
+      <td>-0.045995</td>
+      <td>0.022215</td>
     </tr>
     <tr>
-      <th>3433959</th>
-      <td>34339.59</td>
-      <td>-0.389065</td>
-      <td>0.108485</td>
-      <td>0.622471</td>
+      <th>3468298</th>
+      <td>34339.584158</td>
+      <td>-0.029810</td>
+      <td>-0.162985</td>
+      <td>-0.125948</td>
     </tr>
     <tr>
-      <th>3433960</th>
-      <td>34339.60</td>
-      <td>-0.082625</td>
-      <td>-0.014490</td>
-      <td>0.119875</td>
+      <th>3468299</th>
+      <td>34339.594059</td>
+      <td>0.008105</td>
+      <td>-0.052241</td>
+      <td>-0.049179</td>
     </tr>
   </tbody>
 </table>
-<p>3433961 rows × 4 columns</p>
+<p>3468300 rows × 4 columns</p>
 </div>
 </section>
 <section id="step-2-extract-signal-quality-features">
@@ -613,7 +622,7 @@ The default step size for the signal quality feature extraction is set to 1 seco
     <tr>
       <th>0</th>
       <td>0.0</td>
-      <td>0.026409</td>
+      <td>0.023676</td>
       <td>1.145652e+05</td>
       <td>282.401234</td>
       <td>238.829637</td>
@@ -628,7 +637,7 @@ The default step size for the signal quality feature extraction is set to 1 seco
     <tr>
       <th>1</th>
       <td>1.0</td>
-      <td>0.023402</td>
+      <td>0.028832</td>
       <td>1.102401e+05</td>
       <td>271.582177</td>
       <td>236.891936</td>
@@ -643,7 +652,7 @@ The default step size for the signal quality feature extraction is set to 1 seco
     <tr>
       <th>2</th>
       <td>2.0</td>
-      <td>0.028592</td>
+      <td>0.029021</td>
       <td>1.061479e+05</td>
       <td>262.348604</td>
       <td>225.915756</td>
@@ -658,7 +667,7 @@ The default step size for the signal quality feature extraction is set to 1 seco
     <tr>
       <th>3</th>
       <td>3.0</td>
-      <td>0.019296</td>
+      <td>0.018267</td>
       <td>9.514719e+04</td>
       <td>245.089445</td>
       <td>203.417715</td>
@@ -673,7 +682,7 @@ The default step size for the signal quality feature extraction is set to 1 seco
     <tr>
       <th>4</th>
       <td>4.0</td>
-      <td>0.020083</td>
+      <td>0.020808</td>
       <td>7.393010e+04</td>
       <td>218.379138</td>
       <td>187.583266</td>
@@ -703,7 +712,7 @@ The default step size for the signal quality feature extraction is set to 1 seco
     <tr>
       <th>34329</th>
       <td>34329.0</td>
-      <td>0.110219</td>
+      <td>0.097033</td>
       <td>8.176078e+06</td>
       <td>1613.021494</td>
       <td>438.201240</td>
@@ -718,7 +727,7 @@ The default step size for the signal quality feature extraction is set to 1 seco
     <tr>
       <th>34330</th>
       <td>34330.0</td>
-      <td>0.178742</td>
+      <td>0.167539</td>
       <td>3.512188e+07</td>
       <td>3307.888927</td>
       <td>1069.775894</td>
@@ -733,7 +742,7 @@ The default step size for the signal quality feature extraction is set to 1 seco
     <tr>
       <th>34331</th>
       <td>34331.0</td>
-      <td>0.153351</td>
+      <td>0.155921</td>
       <td>1.181350e+08</td>
       <td>6648.535487</td>
       <td>2743.478312</td>
@@ -748,7 +757,7 @@ The default step size for the signal quality feature extraction is set to 1 seco
     <tr>
       <th>34332</th>
       <td>34332.0</td>
-      <td>0.154910</td>
+      <td>0.113562</td>
       <td>1.252829e+09</td>
       <td>20165.525309</td>
       <td>6452.244225</td>
@@ -763,7 +772,7 @@ The default step size for the signal quality feature extraction is set to 1 seco
     <tr>
       <th>34333</th>
       <td>34333.0</td>
-      <td>0.093221</td>
+      <td>0.068665</td>
       <td>1.008217e+10</td>
       <td>42271.328020</td>
       <td>12552.656437</td>
@@ -869,7 +878,7 @@ In this pipeline, the logistic classifier for PPG morphology was trained on z-sc
       <th>34329</th>
       <td>34329.0</td>
       <td>1.782669e-08</td>
-      <td>0</td>
+      <td>1</td>
     </tr>
     <tr>
       <th>34330</th>
@@ -1173,10 +1182,10 @@ In this pipeline, the logistic classifier for PPG morphology was trained on z-sc
 <span class="n">df_pr</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">list_df_pr</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>INFO: Resampled: 3455331 -&gt; 3433961 rows at 100.0 Hz
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>INFO: Resampled: 3455331 -&gt; 3468300 rows at 101 Hz
 
 
-INFO: Resampled: 1029374 -&gt; 1030188 rows at 30.0 Hz
+INFO: Resampled: 1029374 -&gt; 1030188 rows at 30 Hz
 </pre></div>
 </div>
 </section>

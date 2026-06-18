@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
@@ -5,23 +7,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>paradigma.config &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
-      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -99,6 +97,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataColumns</span><span class="p">,</span> <span class="n">DataUnits</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">round_detected_frequency</span>
 
 
 <div class="viewcode-block" id="BaseConfig">
@@ -195,16 +194,52 @@
             <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">d_channels_gyroscope</span><span class="p">,</span>
         <span class="p">}</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="mi">100</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">resampling_frequency</span> <span class="o">=</span> <span class="mi">100</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sampling_frequency</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resampling_frequency</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">lower_cutoff_frequency</span> <span class="o">=</span> <span class="mf">0.2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">upper_cutoff_frequency</span> <span class="o">=</span> <span class="mf">3.5</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filter_order</span> <span class="o">=</span> <span class="mi">4</span>
 
         <span class="c1"># Segmentation parameters for handling non-contiguous data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_segment_gap_s</span> <span class="o">=</span> <span class="mf">1.5</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">min_segment_length_s</span> <span class="o">=</span> <span class="mf">1.5</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_segment_length_s</span> <span class="o">=</span> <span class="mf">1.5</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sampling_frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the sampling frequency in Hz. Auto-detected by resample_data.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sampling_frequency</span>
+
+<div class="viewcode-block" id="IMUConfig._set_sampling_frequency_detected">
+<a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.IMUConfig._set_sampling_frequency_detected">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_sampling_frequency_detected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Internal method: Update sampling_frequency and all dependent parameters.</span>
+
+<span class="sd">        Called by resample_data after detecting the sampling frequency.</span>
+<span class="sd">        Updates tolerance and calls _update_frequency_dependent_params() for</span>
+<span class="sd">        all subclasses to update their domain-specific parameters.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        frequency : float</span>
+<span class="sd">            The detected sampling frequency in Hz. Will be converted to integer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sampling_frequency</span> <span class="o">=</span> <span class="n">round_detected_frequency</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sampling_frequency</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_frequency_dependent_params</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="IMUConfig._update_frequency_dependent_params">
+<a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.IMUConfig._update_frequency_dependent_params">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_update_frequency_dependent_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update parameters that depend on sampling_frequency.</span>
+
+<span class="sd">        Subclasses should override this to update their domain-specific</span>
+<span class="sd">        frequency bounds (e.g., spectrum_high_frequency, mfcc_high_frequency).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+</div>
 
 
 
@@ -224,14 +259,49 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">time_colname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_mapping</span><span class="p">[</span><span class="s2">&quot;TIME&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ppg_colname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_mapping</span><span class="p">[</span><span class="s2">&quot;PPG&quot;</span><span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="mi">30</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">resampling_frequency</span> <span class="o">=</span> <span class="mi">30</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sampling_frequency</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resampling_frequency</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lower_cutoff_frequency</span> <span class="o">=</span> <span class="mf">0.4</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">upper_cutoff_frequency</span> <span class="o">=</span> <span class="mf">3.5</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filter_order</span> <span class="o">=</span> <span class="mi">4</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_ppg</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ppg_colname</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">NONE</span><span class="p">}</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_ppg</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ppg_colname</span><span class="p">:</span> <span class="n">DataUnits</span><span class="o">.</span><span class="n">NONE</span><span class="p">}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sampling_frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the sampling frequency in Hz. Auto-detected by resample_data.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sampling_frequency</span>
+
+<div class="viewcode-block" id="PPGConfig._set_sampling_frequency_detected">
+<a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.PPGConfig._set_sampling_frequency_detected">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_sampling_frequency_detected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Internal method: Update sampling_frequency and all dependent parameters.</span>
+
+<span class="sd">        Called by resample_data after auto-detecting the sampling frequency.</span>
+<span class="sd">        Updates tolerance and calls _update_frequency_dependent_params() for</span>
+<span class="sd">        all subclasses to update their domain-specific parameters.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        frequency : float</span>
+<span class="sd">            The detected sampling frequency in Hz. Will be converted to integer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sampling_frequency</span> <span class="o">=</span> <span class="n">round_detected_frequency</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sampling_frequency</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_frequency_dependent_params</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="PPGConfig._update_frequency_dependent_params">
+<a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.PPGConfig._update_frequency_dependent_params">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_update_frequency_dependent_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update parameters that depend on sampling_frequency.</span>
+
+<span class="sd">        Subclasses should override this to update their domain-specific</span>
+<span class="sd">        frequency bounds.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+</div>
 
 
 
@@ -264,7 +334,9 @@
         <span class="c1"># -----------------</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hann&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">spectrum_low_frequency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">spectrum_high_frequency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spectrum_high_frequency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mi">0</span>  <span class="c1"># Will be set in _update_frequency_dependent_params</span>
+        <span class="p">)</span>
 
         <span class="c1"># Power in specified frequency bands</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">d_frequency_bandwidths</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
@@ -321,7 +393,50 @@
             <span class="k">for</span> <span class="n">mfcc_coef</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mfcc_n_coefficients</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">d_channels_values</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;gyroscope_mfcc_</span><span class="si">{</span><span class="n">mfcc_coef</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="n">DataUnits</span><span class="o">.</span><span class="n">GRAVITY</span>
-                <span class="p">)</span></div>
+                <span class="p">)</span>
+
+        <span class="c1"># Update frequency-dependent parameters now that all attributes are initialized</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_frequency_dependent_params</span><span class="p">()</span>
+
+<div class="viewcode-block" id="GaitConfig._update_frequency_dependent_params">
+<a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.GaitConfig._update_frequency_dependent_params">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_update_frequency_dependent_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update frequency-dependent parameters when sampling_frequency changes.</span>
+
+<span class="sd">        Ensures that spectral bounds stay within Nyquist frequency (fs/2).</span>
+<span class="sd">        Only clamps when bounds actually exceed Nyquist (aliasing risk).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sampling_frequency</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">nyquist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sampling_frequency</span> <span class="o">/</span> <span class="mi">2</span>
+
+        <span class="c1"># Spectrum bounds: use exact Nyquist frequency</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spectrum_high_frequency</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">nyquist</span><span class="p">)</span>
+
+        <span class="c1"># MFCC bounds: only clamp if it EXCEEDS Nyquist (actual aliasing risk)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;mfcc_high_frequency&quot;</span><span class="p">):</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mfcc_high_frequency</span> <span class="o">&gt;</span> <span class="n">nyquist</span><span class="p">:</span>
+            <span class="n">original_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mfcc_high_frequency</span>
+            <span class="n">clamped_val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">nyquist</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;GaitConfig: mfcc_high_frequency (</span><span class="si">{</span><span class="n">original_val</span><span class="si">}</span><span class="s2">Hz) exceeds &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Nyquist (</span><span class="si">{</span><span class="n">nyquist</span><span class="si">}</span><span class="s2">Hz) at </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_sampling_frequency</span><span class="si">}</span><span class="s2">Hz sampling. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Clamped to </span><span class="si">{</span><span class="n">clamped_val</span><span class="si">}</span><span class="s2">Hz.&quot;</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mfcc_high_frequency</span> <span class="o">=</span> <span class="n">clamped_val</span>
+
+        <span class="c1"># Clamp frequency bands only if they exceed Nyquist</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;d_frequency_bandwidths&quot;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">band_name</span><span class="p">,</span> <span class="p">(</span><span class="n">fmin</span><span class="p">,</span> <span class="n">fmax</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">d_frequency_bandwidths</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">fmax</span> <span class="o">&gt;</span> <span class="n">nyquist</span><span class="p">:</span>
+                    <span class="n">clamped_fmax</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">nyquist</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">d_frequency_bandwidths</span><span class="p">[</span><span class="n">band_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">fmin</span><span class="p">,</span> <span class="n">clamped_fmax</span><span class="p">]</span></div>
+</div>
 
 
 
@@ -353,7 +468,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">overlap_fraction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.8</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">segment_length_psd_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">3</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">segment_length_spectrogram_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">2</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">spectral_resolution</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.25</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spectral_resolution_psd</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.25</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spectral_resolution_spectrogram</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
 
         <span class="c1"># PSD based features</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fmin_peak_search</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span>
@@ -400,7 +516,49 @@
                 <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_TREMOR_LOGREG</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
                 <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_TREMOR_CHECKED</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
                 <span class="n">DataColumns</span><span class="o">.</span><span class="n">PRED_ARM_AT_REST</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
-            <span class="p">}</span></div>
+            <span class="p">}</span>
+
+        <span class="c1"># Update frequency-dependent parameters now that all attributes are initialized</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_frequency_dependent_params</span><span class="p">()</span>
+
+<div class="viewcode-block" id="TremorConfig._update_frequency_dependent_params">
+<a class="viewcode-back" href="../../autoapi/paradigma/config/index.html#paradigma.config.TremorConfig._update_frequency_dependent_params">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_update_frequency_dependent_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update frequency-dependent parameters when sampling_frequency changes.</span>
+
+<span class="sd">        Ensures that PSD and MFCC frequency bounds stay within Nyquist frequency.</span>
+<span class="sd">        Only clamps when they actually exceed Nyquist.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">nyquist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">/</span> <span class="mi">2</span>
+
+        <span class="c1"># Clamp peak search bounds: only if it exceeds Nyquist</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmax_peak_search</span> <span class="o">&gt;</span> <span class="n">nyquist</span><span class="p">:</span>
+            <span class="n">original_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmax_peak_search</span>
+            <span class="n">clamped_val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">nyquist</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;TremorConfig: fmax_peak_search (</span><span class="si">{</span><span class="n">original_val</span><span class="si">}</span><span class="s2">Hz) exceeds &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Nyquist (</span><span class="si">{</span><span class="n">nyquist</span><span class="si">}</span><span class="s2">Hz) at </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="si">}</span><span class="s2">Hz sampling. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Clamped to </span><span class="si">{</span><span class="n">clamped_val</span><span class="si">}</span><span class="s2">Hz.&quot;</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fmax_peak_search</span> <span class="o">=</span> <span class="n">clamped_val</span>
+
+        <span class="c1"># Clamp MFCC bounds: only if it exceeds Nyquist</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmax_mfcc</span> <span class="o">&gt;</span> <span class="n">nyquist</span><span class="p">:</span>
+            <span class="n">original_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmax_mfcc</span>
+            <span class="n">clamped_val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">nyquist</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;TremorConfig: fmax_mfcc (</span><span class="si">{</span><span class="n">original_val</span><span class="si">}</span><span class="s2">Hz) exceeds &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Nyquist (</span><span class="si">{</span><span class="n">nyquist</span><span class="si">}</span><span class="s2">Hz) at </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="si">}</span><span class="s2">Hz sampling. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Clamped to </span><span class="si">{</span><span class="n">clamped_val</span><span class="si">}</span><span class="s2">Hz.&quot;</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fmax_mfcc</span> <span class="o">=</span> <span class="n">clamped_val</span></div>
+</div>
 
 
 
@@ -457,11 +615,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">sensor</span> <span class="o">=</span> <span class="n">sensor</span>
 
         <span class="c1"># Decide which frequency to use</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">target_frequency</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">imu_sampling_frequency</span>
             <span class="k">if</span> <span class="n">sensor</span> <span class="o">==</span> <span class="s2">&quot;imu&quot;</span>
             <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppg_sampling_frequency</span>
         <span class="p">)</span>
+
+        <span class="c1"># Use internal method to set sampling frequency (not auto-detected, but</span>
+        <span class="c1"># explicit)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_sampling_frequency_detected</span><span class="p">(</span><span class="n">target_frequency</span><span class="p">)</span>
 
         <span class="c1"># Update all frequency-dependent parameters</span>
         <span class="k">if</span> <span class="n">min_window_length_s</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -478,18 +640,18 @@
 
         <span class="c1"># --- PPG-dependent parameters ---</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tfd_length</span> <span class="o">=</span> <span class="n">tfd_length</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">min_pr_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tfd_length</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppg_sampling_frequency</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_pr_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tfd_length</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppg_sampling_frequency</span><span class="p">)</span>
 
         <span class="n">pr_est_length</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># pulse rate estimation length in seconds</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pr_est_samples</span> <span class="o">=</span> <span class="n">pr_est_length</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppg_sampling_frequency</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pr_est_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pr_est_length</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppg_sampling_frequency</span><span class="p">)</span>
 
         <span class="c1"># Time-frequency distribution parameters</span>
         <span class="n">win_type_doppler</span> <span class="o">=</span> <span class="s2">&quot;hamm&quot;</span>
         <span class="n">win_type_lag</span> <span class="o">=</span> <span class="s2">&quot;hamm&quot;</span>
         <span class="n">win_length_doppler</span> <span class="o">=</span> <span class="mi">8</span>
         <span class="n">win_length_lag</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="n">doppler_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppg_sampling_frequency</span> <span class="o">*</span> <span class="n">win_length_doppler</span>
-        <span class="n">lag_samples</span> <span class="o">=</span> <span class="n">win_length_lag</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppg_sampling_frequency</span>
+        <span class="n">doppler_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ppg_sampling_frequency</span> <span class="o">*</span> <span class="n">win_length_doppler</span><span class="p">)</span>
+        <span class="n">lag_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">win_length_lag</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppg_sampling_frequency</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kern_type</span> <span class="o">=</span> <span class="s2">&quot;sep&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kern_params</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;doppler&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;win_length&quot;</span><span class="p">:</span> <span class="n">doppler_samples</span><span class="p">,</span> <span class="s2">&quot;win_type&quot;</span><span class="p">:</span> <span class="n">win_type_doppler</span><span class="p">},</span>
@@ -497,7 +659,7 @@
         <span class="p">}</span>
 
         <span class="c1"># --- Welch / FFT parameters based on current sensor frequency ---</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">window_length_welch</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window_length_welch</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">overlap_welch_window</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_length_welch</span> <span class="o">//</span> <span class="mi">2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nfft</span> <span class="o">=</span> <span class="p">(</span>
             <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">freq_bin_resolution</span><span class="p">))</span> <span class="o">*</span> <span class="mi">2</span>

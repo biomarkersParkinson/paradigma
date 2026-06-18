@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
@@ -6,23 +8,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gait analysis &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
-      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a31c8b26" />
       <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a31c8b26" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
@@ -176,6 +174,8 @@ df_imu
 <section id="step-1-preprocess-data">
 <h2>Step 1: Preprocess data<a class="headerlink" href="#step-1-preprocess-data" title="Link to this heading"></a></h2>
 <p>The function <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.preprocess_imu_data"><code class="docutils literal notranslate"><span class="pre">preprocess_imu_data</span></code></a> in the cell below runs all necessary preprocessing steps. It requires the loaded dataframe, a configuration object <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/config/index.html"><code class="docutils literal notranslate"><span class="pre">config</span></code></a> specifying parameters used for preprocessing, and a selection of sensors. For the sensors, options include <code class="docutils literal notranslate"><span class="pre">'accelerometer'</span></code>, <code class="docutils literal notranslate"><span class="pre">'gyroscope'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'both'</span></code>.  If the difference between timestamps is larger than a specified tolerance (<code class="docutils literal notranslate"><span class="pre">config.tolerance</span></code>, in seconds), it will return an error that the timestamps are not contiguous. If you still want to process the data in this case, you can create segments from discontiguous samples using the function <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/segmenting/index.html#paradigma.segmenting.create_segments"><code class="docutils literal notranslate"><span class="pre">create_segments</span></code></a> and analyze these segments consecutively as shown in here.</p>
+<p>Note: The data sampling frequency is automatically detected, and frequency-dependent parameters (such as the tolerance) and features
+are subsequently automatically adjusted. For more info, see the <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/guides/config.html">config guide</a>.</p>
 <p>The function <a class="reference external" href="https://biomarkersparkinson.github.io/paradigma/autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.preprocess_imu_data"><code class="docutils literal notranslate"><span class="pre">preprocess_imu_data</span></code></a> processes the data as follows:</p>
 <ol class="arabic simple">
 <li><p>Resample the data to ensure uniformly distributed sampling rate.</p></li>
@@ -183,23 +183,15 @@ df_imu
 </ol>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>config = IMUConfig()
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>imu_config = IMUConfig()
 
 df_preprocessed = preprocess_imu_data(
     df=df_imu,
-    config=config,
+    config=imu_config,
     sensor=&#39;both&#39;,
     watch_side=&#39;left&#39;,
 )
 
-print(
-    f&quot;The dataset of {df_preprocessed.shape[0] / config.sampling_frequency} seconds &quot;
-    f&quot;is automatically resampled to {config.resampling_frequency} Hz.&quot;
-)
-print(
-    f&quot;The tolerance for checking contiguous timestamps is set &quot;
-    f&quot;to {config.tolerance:.3f} seconds.&quot;
-)
 df_preprocessed.head()
 </pre></div>
 </div>
@@ -238,17 +230,19 @@ column_mapping = {
     &#39;GYROSCOPE_Z&#39;: DataColumns.GYROSCOPE_Z,
 }
 
-config = GaitConfig(step=&#39;gait&#39;, column_mapping=column_mapping)
+# Pass the IMUConfig from preprocessing to inherit the detected sampling frequency
+gait_config = GaitConfig(step=&#39;gait&#39;, column_mapping=column_mapping)
+gait_config._set_sampling_frequency_detected(imu_config.sampling_frequency)
 
 df_gait = extract_gait_features(
     df=df_preprocessed,
-    config=config
+    config=gait_config
 )
 
 print(
     f&quot;A total of {df_gait.shape[1]-1} features have been extracted from &quot;
-    f&quot;{df_gait.shape[0]} {config.window_length_s}-second windows with &quot;
-    f&quot;{config.window_length_s-config.window_step_length_s} seconds overlap.&quot;
+    f&quot;{df_gait.shape[0]} {gait_config.window_length_s}-second windows with &quot;
+    f&quot;{gait_config.window_length_s-gait_config.window_step_length_s} seconds overlap.&quot;
 )
 df_gait.head()
 </pre></div>
@@ -301,7 +295,7 @@ print(
 
 # Only the time and the predicted gait probability are shown, but the
 # dataframe also contains the extracted features
-df_gait[[config.time_colname, DataColumns.PRED_GAIT_PROBA]].head()
+df_gait[[gait_config.time_colname, DataColumns.PRED_GAIT_PROBA]].head()
 </pre></div>
 </div>
 </div>
@@ -322,7 +316,7 @@ metadata_values_store = tsdf.TSDFMetadata(
 )
 
 # Select the columns to be saved
-metadata_time_store.channels = [config.time_colname]
+metadata_time_store.channels = [gait_config.time_colname]
 metadata_values_store.channels = [DataColumns.PRED_GAIT_PROBA]
 
 # Set the units
@@ -375,14 +369,12 @@ df_gait.head()
 if not any(df_gait[DataColumns.PRED_GAIT_PROBA] &gt;= clf_package_detection.threshold):
     raise ValueError(&quot;No gait detected in the input data.&quot;)
 
-gait_preprocessing_config = GaitConfig(step=&#39;gait&#39;)
-
 df = merge_predictions_with_timestamps(
     df_ts=df_preprocessed,
     df_predictions=df_gait,
     pred_proba_colname=DataColumns.PRED_GAIT_PROBA,
-    window_length_s=gait_preprocessing_config.window_length_s,
-    fs=gait_preprocessing_config.sampling_frequency
+    window_length_s=gait_config.window_length_s,
+    fs=gait_config.sampling_frequency
 )
 
 # Add a column for predicted gait based on a fitted threshold
@@ -398,17 +390,19 @@ df = df.loc[df[DataColumns.PRED_GAIT]==1].reset_index(drop=True)
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>config = GaitConfig(step=&#39;arm_activity&#39;)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>arm_config = GaitConfig(step=&#39;arm_activity&#39;)
+arm_config._set_sampling_frequency_detected(imu_config.sampling_frequency)
 
 df_arm = extract_arm_activity_features(
     df=df,
-    config=config,
+    config=arm_config,
 )
 
 print(
     f&quot;A total of {df_arm.shape[1] - 1} features have been extracted &quot;
-    f&quot;from {df_arm.shape[0]} {config.window_length_s}-second windows &quot;
-    f&quot;with {config.window_length_s - config.window_step_length_s} seconds overlap.&quot;
+    f&quot;from {df_arm.shape[0]} {arm_config.window_length_s}-second windows &quot;
+    f&quot;with {arm_config.window_length_s - arm_config.window_step_length_s} seconds &quot;
+    &quot;overlap.&quot;
 )
 df_arm.head()
 </pre></div>
@@ -467,7 +461,7 @@ print(
 
 # Only the time and predicted probabilities are shown,
 # but the dataframe also contains the extracted features
-df_arm[[config.time_colname, DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]].head()
+df_arm[[arm_config.time_colname, DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA]].head()
 </pre></div>
 </div>
 </div>
@@ -501,14 +495,12 @@ if not any(
         &quot;No gait without other arm activities detected in the input data.&quot;
     )
 
-config = GaitConfig(step=&#39;arm_activity&#39;)
-
 df = merge_predictions_with_timestamps(
     df_ts=df_preprocessed,
     df_predictions=df_arm,
     pred_proba_colname=DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA,
-    window_length_s=config.window_length_s,
-    fs=config.sampling_frequency
+    window_length_s=arm_config.window_length_s,
+    fs=arm_config.sampling_frequency
 )
 
 # Add a column for predicted gait based on a fitted threshold
@@ -534,15 +526,16 @@ else:
 
 quantified_arm_swing, gait_segment_meta = quantify_arm_swing(
     df=df,
-    fs=config.sampling_frequency,
+    fs=arm_config.sampling_frequency,
     filtered=filtered,
-    max_segment_gap_s=config.max_segment_gap_s,
-    min_segment_length_s=config.min_segment_length_s,
+    max_segment_gap_s=arm_config.max_segment_gap_s,
+    min_segment_length_s=arm_config.min_segment_length_s,
+    start_dt=None,  # if provided, this ensures datetime format of segments is returned
 )
 
 print(
-    f&quot;Gait segments are created of minimum {config.min_segment_length_s} seconds &quot;
-    f&quot;and maximum {config.max_segment_gap_s} seconds gap between segments.\n&quot;
+    f&quot;Gait segments are created of minimum {arm_config.min_segment_length_s} seconds &quot;
+    f&quot;and maximum {arm_config.max_segment_gap_s} seconds gap between segments.\n&quot;
 )
 print(
     f&quot;A total of {quantified_arm_swing[&#39;gait_segment_nr&#39;].nunique()} {dataset_used} &quot;
@@ -550,14 +543,17 @@ print(
 )
 
 print(&quot;\nMetadata of the first gait segment:&quot;)
-print(json.dumps(gait_segment_meta[&#39;per_segment&#39;][1], indent = 1))
+first_segment_meta = gait_segment_meta[&#39;per_segment&#39;][1]
+print(json.dumps(first_segment_meta, indent = 1))
 
-filt_example_s = gait_segment_meta[&#39;per_segment&#39;][1][&#39;duration_filtered_segment_s&#39;]
-unfilt_example_s = gait_segment_meta[&#39;per_segment&#39;][1][&#39;duration_unfiltered_segment_s&#39;]
+segment_duration_s = first_segment_meta[&#39;duration_s&#39;]
+segment_start_s = first_segment_meta[&#39;start_s&#39;]
+segment_end_s = first_segment_meta[&#39;end_s&#39;]
+
 print(
-    f&quot;\nOf this example, the filtered gait segment of {filt_example_s} seconds &quot;
-    f&quot;is part of an unfiltered segment of {unfilt_example_s} seconds, which is &quot;
-    f&quot;at least as large as the filtered gait segment.&quot;
+    f&quot;\nThe first {dataset_used} gait segment has a duration of &quot;
+    f&quot;{segment_duration_s:.2f} seconds, starting at {segment_start_s:.2f}s and &quot;
+    f&quot;ending at {segment_end_s:.2f}s.&quot;
 )
 
 print(
@@ -617,21 +613,22 @@ for raw_data_segment_nr in raw_data_segments:
     # 1: Preprocess the data
     # Change column names if necessary by creating parameter column_mapping
     # (see previous cells for an example)
-    config = IMUConfig()
+    imu_config = IMUConfig()
 
     df_preprocessed = preprocess_imu_data(
         df=df_imu,
-        config=config,
+        config=imu_config,
         sensor=&#39;both&#39;,
         watch_side=&#39;left&#39;,
     )
 
     # 2: Extract gait features
-    config = GaitConfig(step=&#39;gait&#39;)
+    gait_config = GaitConfig(step=&#39;gait&#39;)
+    gait_config._set_sampling_frequency_detected(imu_config.sampling_frequency)
 
     df_gait = extract_gait_features(
         df=df_preprocessed,
-        config=config
+        config=gait_config
     )
 
     # 3: Detect gait
@@ -650,8 +647,8 @@ for raw_data_segment_nr in raw_data_segments:
         df_ts=df_preprocessed,
         df_predictions=df_gait,
         pred_proba_colname=DataColumns.PRED_GAIT_PROBA,
-        window_length_s=config.window_length_s,
-        fs=config.sampling_frequency
+        window_length_s=gait_config.window_length_s,
+        fs=gait_config.sampling_frequency
     )
 
     df[DataColumns.PRED_GAIT] = (
@@ -660,11 +657,12 @@ for raw_data_segment_nr in raw_data_segments:
     df = df.loc[df[DataColumns.PRED_GAIT]==1].reset_index(drop=True)
 
     # 4: Extract arm activity features
-    config = GaitConfig(step=&#39;arm_activity&#39;)
+    arm_config = GaitConfig(step=&#39;arm_activity&#39;)
+    arm_config._set_sampling_frequency_detected(imu_config.sampling_frequency)
 
     df_arm_activity = extract_arm_activity_features(
         df=df,
-        config=config,
+        config=arm_config,
     )
 
     # 5: Filter gait
@@ -685,8 +683,8 @@ for raw_data_segment_nr in raw_data_segments:
         df_ts=df_preprocessed,
         df_predictions=df_arm_activity,
         pred_proba_colname=DataColumns.PRED_NO_OTHER_ARM_ACTIVITY_PROBA,
-        window_length_s=config.window_length_s,
-        fs=config.sampling_frequency
+        window_length_s=arm_config.window_length_s,
+        fs=arm_config.sampling_frequency
     )
 
     df[DataColumns.PRED_NO_OTHER_ARM_ACTIVITY] = (
@@ -697,10 +695,10 @@ for raw_data_segment_nr in raw_data_segments:
     # 6: Quantify arm swing
     quantified_arm_swing, gait_segment_meta = quantify_arm_swing(
         df=df,
-        fs=config.sampling_frequency,
+        fs=arm_config.sampling_frequency,
         filtered=filtered,
-        max_segment_gap_s=config.max_segment_gap_s,
-        min_segment_length_s=config.min_segment_length_s,
+        max_segment_gap_s=arm_config.max_segment_gap_s,
+        min_segment_length_s=arm_config.min_segment_length_s,
     )
 
     # Since gait segments start at zero, and we are concatenating multiple segments,
@@ -737,8 +735,8 @@ quantified_arm_swing = pd.concat(list_quantified_arm_swing, ignore_index=True)
 
 arm_swing_aggregations = aggregate_arm_swing_params(
     df_arm_swing_params=quantified_arm_swing,
-    segment_meta=gait_segment_meta[&#39;per_segment&#39;],
-    segment_cats=segment_categories,
+    segment_meta=gait_segment_meta,
+    gait_segment_categories=segment_categories,
     aggregates=[&#39;median&#39;, &#39;95p&#39;]
 )
 

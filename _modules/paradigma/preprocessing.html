@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
@@ -5,23 +7,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>paradigma.preprocessing &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
-      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a31c8b26" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -103,7 +101,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMUConfig</span><span class="p">,</span> <span class="n">PPGConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.segmenting</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_segments</span><span class="p">,</span> <span class="n">discard_segments</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">invert_watch_side</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">paradigma.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">invert_watch_side</span><span class="p">,</span> <span class="n">round_detected_frequency</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -112,15 +110,12 @@
 <a class="viewcode-back" href="../../autoapi/paradigma/preprocessing/index.html#paradigma.preprocessing.resample_data">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">resample_data</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-    <span class="n">time_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;time&quot;</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">IMUConfig</span> <span class="o">|</span> <span class="n">PPGConfig</span><span class="p">,</span>
     <span class="n">values_column_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">sampling_frequency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">resampling_frequency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">validate_contiguous</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">auto_segment</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">max_segment_gap_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">min_segment_length_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_segment_gap_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="n">min_segment_length_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Unified resampling function with optional auto-segmentation for non-contiguous data.</span>
@@ -135,16 +130,10 @@
 <span class="sd">    ----------</span>
 <span class="sd">    df : pd.DataFrame</span>
 <span class="sd">        The input DataFrame containing the sensor data.</span>
-<span class="sd">    time_column : str, default &#39;time&#39;</span>
-<span class="sd">        The name of the column containing the time data.</span>
+<span class="sd">    config : IMUConfig | PPGConfig</span>
+<span class="sd">        ...</span>
 <span class="sd">    values_column_names : List[str], optional</span>
 <span class="sd">        Column names to resample. If None, auto-detects all numeric columns except time.</span>
-<span class="sd">    sampling_frequency : int, optional</span>
-<span class="sd">        Original sampling frequency (Hz). If None, auto-detected from data.</span>
-<span class="sd">    resampling_frequency : int, optional</span>
-<span class="sd">        Target sampling frequency in Hz.</span>
-<span class="sd">    tolerance : float, optional</span>
-<span class="sd">        Tolerance for contiguity checking (seconds). Defaults to IMUConfig tolerance.</span>
 <span class="sd">    validate_contiguous : bool, default True</span>
 <span class="sd">        Whether to validate data contiguity. If False, gaps are silently interpolated.</span>
 <span class="sd">    auto_segment : bool, default False</span>
@@ -200,57 +189,57 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">time_column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Time column &#39;</span><span class="si">{</span><span class="n">time_column</span><span class="si">}</span><span class="s2">&#39; not found in DataFrame&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">time_colname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Time column &#39;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="si">}</span><span class="s2">&#39; not found in DataFrame&quot;</span><span class="p">)</span>
 
-    <span class="c1"># Validate resampling frequency</span>
-    <span class="k">if</span> <span class="n">resampling_frequency</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">resampling_frequency</span> <span class="o">=</span> <span class="mi">100</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;resampling_frequency automatically set to 100 Hz&quot;</span><span class="p">)</span>
-
-    <span class="n">resampling_frequency</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">resampling_frequency</span><span class="p">)</span>
-
-    <span class="c1"># Auto-detect or use provided column names</span>
+    <span class="c1"># Detect or use provided column names</span>
     <span class="k">if</span> <span class="n">values_column_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">numeric_columns</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span>
         <span class="n">values_column_names</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">col</span>
             <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">numeric_columns</span>
-            <span class="k">if</span> <span class="n">col</span> <span class="o">!=</span> <span class="n">time_column</span> <span class="ow">and</span> <span class="n">col</span> <span class="o">!=</span> <span class="s2">&quot;data_segment_nr&quot;</span>
+            <span class="k">if</span> <span class="n">col</span> <span class="o">!=</span> <span class="n">config</span><span class="o">.</span><span class="n">time_colname</span> <span class="ow">and</span> <span class="n">col</span> <span class="o">!=</span> <span class="s2">&quot;data_segment_nr&quot;</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">values_column_names</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No numeric columns found for resampling&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Auto-detected </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">values_column_names</span><span class="p">)</span><span class="si">}</span><span class="s2"> columns for resampling&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Detected </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">values_column_names</span><span class="p">)</span><span class="si">}</span><span class="s2"> columns for resampling&quot;</span><span class="p">)</span>
 
-    <span class="c1"># Auto-detect or use provided sampling frequency</span>
-    <span class="n">time_abs_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">time_column</span><span class="p">])</span>
-    <span class="k">if</span> <span class="n">sampling_frequency</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">time_diff</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">time_column</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
-        <span class="n">current_dt</span> <span class="o">=</span> <span class="n">time_diff</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
-        <span class="n">sampling_frequency</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">current_dt</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Auto-detected sampling frequency: </span><span class="si">{</span><span class="n">sampling_frequency</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> Hz&quot;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">sampling_frequency</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">sampling_frequency</span><span class="p">)</span>
+    <span class="c1"># Detect or use provided sampling frequency</span>
+    <span class="n">time_abs_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">])</span>
+    <span class="n">time_diff</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+    <span class="n">current_dt</span> <span class="o">=</span> <span class="n">time_diff</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+    <span class="n">detected_sampling_frequency</span> <span class="o">=</span> <span class="n">round_detected_frequency</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">current_dt</span><span class="p">)</span>
+
+    <span class="c1"># Use internal method to set frequency and update dependent parameters</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">_set_sampling_frequency_detected</span><span class="p">(</span><span class="n">detected_sampling_frequency</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Detected sampling frequency: </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="si">}</span><span class="s2"> Hz&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Detect resampling frequency if not provided</span>
+    <span class="c1"># Use the detected/provided sampling frequency to ensure uniform sampling without</span>
+    <span class="c1"># upsampling</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">resampling_frequency</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">resampling_frequency</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;resampling_frequency not specified. Using detected sampling &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;frequency of </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">resampling_frequency</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> Hz for uniform resampling.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">resampling_frequency</span> <span class="o">!=</span> <span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Resampling detected sampling frequency &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> Hz to &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">resampling_frequency</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> Hz.&quot;</span>
+        <span class="p">)</span>
 
     <span class="c1"># Ensure time array is strictly increasing</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">time_abs_array</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Time array is not strictly increasing&quot;</span><span class="p">)</span>
 
-    <span class="c1"># Set default tolerance if not provided</span>
-    <span class="k">if</span> <span class="n">tolerance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">tolerance</span> <span class="o">=</span> <span class="n">IMUConfig</span><span class="p">()</span><span class="o">.</span><span class="n">tolerance</span>
-
-    <span class="c1"># Set default segmentation parameters</span>
-    <span class="k">if</span> <span class="n">auto_segment</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">max_segment_gap_s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">max_segment_gap_s</span> <span class="o">=</span> <span class="mf">1.5</span>  <span class="c1"># IMUConfig default</span>
-        <span class="k">if</span> <span class="n">min_segment_length_s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">min_segment_length_s</span> <span class="o">=</span> <span class="mf">1.5</span>  <span class="c1"># IMUConfig default</span>
-
     <span class="c1"># Check contiguity</span>
-    <span class="n">expected_interval</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">sampling_frequency</span>
+    <span class="n">expected_interval</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span>
     <span class="n">timestamp_diffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">time_abs_array</span><span class="p">)</span>
-    <span class="n">is_contiguous</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">timestamp_diffs</span> <span class="o">-</span> <span class="n">expected_interval</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">tolerance</span><span class="p">)</span>
+    <span class="n">is_contiguous</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">timestamp_diffs</span> <span class="o">-</span> <span class="n">expected_interval</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">config</span><span class="o">.</span><span class="n">tolerance</span>
+    <span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">is_contiguous</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">validate_contiguous</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">auto_segment</span><span class="p">:</span>
@@ -275,7 +264,7 @@
                 <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
                 <span class="n">segment_nr_colname</span><span class="o">=</span><span class="s2">&quot;data_segment_nr&quot;</span><span class="p">,</span>
                 <span class="n">min_segment_length_s</span><span class="o">=</span><span class="n">min_segment_length_s</span><span class="p">,</span>
-                <span class="n">fs</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">sampling_frequency</span><span class="p">),</span>
+                <span class="n">fs</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">),</span>
                 <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;timestamps&quot;</span><span class="p">,</span>
             <span class="p">)</span>
 
@@ -283,7 +272,10 @@
             <span class="n">segment_durations</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">seg_nr</span> <span class="ow">in</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;data_segment_nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
                 <span class="n">seg_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;data_segment_nr&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">seg_nr</span><span class="p">]</span>
-                <span class="n">duration</span> <span class="o">=</span> <span class="n">seg_df</span><span class="p">[</span><span class="n">time_column</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">seg_df</span><span class="p">[</span><span class="n">time_column</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">duration</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">seg_df</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="o">-</span> <span class="n">seg_df</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="p">)</span>
                 <span class="n">segment_durations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">duration</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Created </span><span class="si">{</span><span class="n">n_segments</span><span class="si">}</span><span class="s2"> segments: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">segment_durations</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -293,12 +285,12 @@
             <span class="n">resampled_segments</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">seg_nr</span> <span class="ow">in</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;data_segment_nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
                 <span class="n">seg_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;data_segment_nr&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">seg_nr</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-                <span class="n">seg_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">seg_df</span><span class="p">[</span><span class="n">time_column</span><span class="p">])</span>
+                <span class="n">seg_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">seg_df</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">])</span>
                 <span class="n">seg_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">seg_df</span><span class="p">[</span><span class="n">values_column_names</span><span class="p">])</span>
 
                 <span class="c1"># Resample this segment</span>
                 <span class="n">duration</span> <span class="o">=</span> <span class="n">seg_time</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">seg_time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">duration</span> <span class="o">*</span> <span class="n">resampling_frequency</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">duration</span> <span class="o">*</span> <span class="n">config</span><span class="o">.</span><span class="n">resampling_frequency</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
                 <span class="n">t_resampled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">seg_time</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">seg_time</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">n_samples</span><span class="p">)</span>
 
                 <span class="n">interpolation_kind</span> <span class="o">=</span> <span class="s2">&quot;cubic&quot;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">seg_time</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span> <span class="k">else</span> <span class="s2">&quot;linear&quot;</span>
@@ -315,7 +307,7 @@
                 <span class="n">df_seg_resampled</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
                     <span class="n">resampled_values</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">values_column_names</span>
                 <span class="p">)</span>
-                <span class="n">df_seg_resampled</span><span class="p">[</span><span class="n">time_column</span><span class="p">]</span> <span class="o">=</span> <span class="n">t_resampled</span>
+                <span class="n">df_seg_resampled</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">]</span> <span class="o">=</span> <span class="n">t_resampled</span>
                 <span class="n">df_seg_resampled</span><span class="p">[</span><span class="s2">&quot;data_segment_nr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">seg_nr</span>
 
                 <span class="c1"># Copy non-numeric columns from first row of segment</span>
@@ -333,7 +325,7 @@
 
             <span class="c1"># Ensure correct column order</span>
             <span class="n">resampled_columns</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="p">[</span><span class="n">time_column</span><span class="p">]</span> <span class="o">+</span> <span class="n">values_column_names</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;data_segment_nr&quot;</span><span class="p">]</span>
+                <span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">]</span> <span class="o">+</span> <span class="n">values_column_names</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;data_segment_nr&quot;</span><span class="p">]</span>
             <span class="p">)</span>
             <span class="n">other_cols</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df_resampled</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">resampled_columns</span>
@@ -342,7 +334,7 @@
 
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Resampled: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df_resampled</span><span class="p">)</span><span class="si">}</span><span class="s2"> rows at &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">resampling_frequency</span><span class="si">}</span><span class="s2"> Hz&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">resampling_frequency</span><span class="si">}</span><span class="s2"> Hz&quot;</span>
             <span class="p">)</span>
 
             <span class="k">return</span> <span class="n">df_resampled</span>
@@ -358,7 +350,7 @@
 
     <span class="c1"># Resample the time data</span>
     <span class="n">t_resampled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
-        <span class="n">time_abs_array</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">time_abs_array</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">resampling_frequency</span>
+        <span class="n">time_abs_array</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">time_abs_array</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">config</span><span class="o">.</span><span class="n">resampling_frequency</span>
     <span class="p">)</span>
 
     <span class="c1"># Choose interpolation method</span>
@@ -376,18 +368,21 @@
 
     <span class="c1"># Create resampled DataFrame</span>
     <span class="n">df_resampled</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">resampled_values</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">values_column_names</span><span class="p">)</span>
-    <span class="n">df_resampled</span><span class="p">[</span><span class="n">time_column</span><span class="p">]</span> <span class="o">=</span> <span class="n">t_resampled</span>
+    <span class="n">df_resampled</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">]</span> <span class="o">=</span> <span class="n">t_resampled</span>
 
     <span class="c1"># Return with correct column order</span>
-    <span class="n">resampled_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">time_column</span><span class="p">]</span> <span class="o">+</span> <span class="n">values_column_names</span>
+    <span class="n">resampled_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">]</span> <span class="o">+</span> <span class="n">values_column_names</span>
     <span class="n">df_resampled</span> <span class="o">=</span> <span class="n">df_resampled</span><span class="p">[</span><span class="n">resampled_columns</span><span class="p">]</span>
+
+    <span class="c1"># Update parameters based on current sampling frequency</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">_set_sampling_frequency_detected</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">resampling_frequency</span><span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;Resampled: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df_resampled</span><span class="p">)</span><span class="si">}</span><span class="s2"> rows at &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">resampling_frequency</span><span class="si">}</span><span class="s2"> Hz&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">resampling_frequency</span><span class="si">}</span><span class="s2"> Hz&quot;</span>
     <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">df_resampled</span></div>
+    <span class="k">return</span> <span class="n">df_resampled</span><span class="p">,</span> <span class="n">config</span></div>
 
 
 
@@ -521,34 +516,20 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="p">(</span><span class="s2">&quot;Sensor should be either accelerometer, gyroscope, or both&quot;</span><span class="p">)</span>
 
-    <span class="c1"># Check if data needs resampling</span>
     <span class="c1"># Skip resampling if already at target frequency or if data has been pre-segmented</span>
-    <span class="n">needs_resampling</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">validate_contiguous</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="k">if</span> <span class="s2">&quot;data_segment_nr&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="c1"># Data has been pre-segmented, skip contiguity validation</span>
         <span class="n">validate_contiguous</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="c1"># Check current sampling frequency</span>
-    <span class="n">time_diff</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
-    <span class="n">current_dt</span> <span class="o">=</span> <span class="n">time_diff</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
-    <span class="n">current_frequency</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">current_dt</span>
-
-    <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">current_frequency</span> <span class="o">-</span> <span class="n">config</span><span class="o">.</span><span class="n">resampling_frequency</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.1</span><span class="p">:</span>
-        <span class="n">needs_resampling</span> <span class="o">=</span> <span class="kc">False</span>
-
-    <span class="k">if</span> <span class="n">needs_resampling</span><span class="p">:</span>
-        <span class="c1"># Resample the data to the specified frequency</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">resample_data</span><span class="p">(</span>
-            <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
-            <span class="n">time_column</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">,</span>
-            <span class="n">values_column_names</span><span class="o">=</span><span class="n">values_colnames</span><span class="p">,</span>
-            <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
-            <span class="n">resampling_frequency</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">resampling_frequency</span><span class="p">,</span>
-            <span class="n">tolerance</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">tolerance</span><span class="p">,</span>
-            <span class="n">validate_contiguous</span><span class="o">=</span><span class="n">validate_contiguous</span><span class="p">,</span>
-        <span class="p">)</span>
+    <span class="c1"># Resample the data to the specified frequency</span>
+    <span class="n">df</span><span class="p">,</span> <span class="n">config</span> <span class="o">=</span> <span class="n">resample_data</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+        <span class="n">values_column_names</span><span class="o">=</span><span class="n">values_colnames</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="n">validate_contiguous</span><span class="o">=</span><span class="n">validate_contiguous</span><span class="p">,</span>
+    <span class="p">)</span>
 
     <span class="c1"># Invert the IMU data if the watch was worn on the right wrist</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">invert_watch_side</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">watch_side</span><span class="p">,</span> <span class="n">sensor</span><span class="p">)</span>
@@ -677,13 +658,10 @@
         <span class="c1"># Resample accelerometer data</span>
         <span class="c1"># Skip contiguity validation if data has been pre-segmented</span>
         <span class="n">validate_contiguous_acc</span> <span class="o">=</span> <span class="s2">&quot;data_segment_nr&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df_acc_overlapping</span><span class="o">.</span><span class="n">columns</span>
-        <span class="n">df_acc_proc</span> <span class="o">=</span> <span class="n">resample_data</span><span class="p">(</span>
+        <span class="n">df_acc_proc</span><span class="p">,</span> <span class="n">imu_config</span> <span class="o">=</span> <span class="n">resample_data</span><span class="p">(</span>
             <span class="n">df</span><span class="o">=</span><span class="n">df_acc_overlapping</span><span class="p">,</span>
-            <span class="n">time_column</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">,</span>
             <span class="n">values_column_names</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">imu_config</span><span class="o">.</span><span class="n">d_channels_accelerometer</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
-            <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
-            <span class="n">resampling_frequency</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">resampling_frequency</span><span class="p">,</span>
-            <span class="n">tolerance</span><span class="o">=</span><span class="n">imu_config</span><span class="o">.</span><span class="n">tolerance</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">imu_config</span><span class="p">,</span>
             <span class="n">validate_contiguous</span><span class="o">=</span><span class="n">validate_contiguous_acc</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -717,13 +695,10 @@
     <span class="c1"># Resample PPG data</span>
     <span class="c1"># Skip contiguity validation if data has been pre-segmented</span>
     <span class="n">validate_contiguous_ppg</span> <span class="o">=</span> <span class="s2">&quot;data_segment_nr&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df_ppg_overlapping</span><span class="o">.</span><span class="n">columns</span>
-    <span class="n">df_ppg_proc</span> <span class="o">=</span> <span class="n">resample_data</span><span class="p">(</span>
+    <span class="n">df_ppg_proc</span><span class="p">,</span> <span class="n">ppg_config</span> <span class="o">=</span> <span class="n">resample_data</span><span class="p">(</span>
         <span class="n">df</span><span class="o">=</span><span class="n">df_ppg_overlapping</span><span class="p">,</span>
-        <span class="n">time_column</span><span class="o">=</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">time_colname</span><span class="p">,</span>
         <span class="n">values_column_names</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">d_channels_ppg</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
-        <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
-        <span class="n">resampling_frequency</span><span class="o">=</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">resampling_frequency</span><span class="p">,</span>
-        <span class="n">tolerance</span><span class="o">=</span><span class="n">ppg_config</span><span class="o">.</span><span class="n">tolerance</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">ppg_config</span><span class="p">,</span>
         <span class="n">validate_contiguous</span><span class="o">=</span><span class="n">validate_contiguous_ppg</span><span class="p">,</span>
     <span class="p">)</span>
 

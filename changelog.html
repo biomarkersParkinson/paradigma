@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
@@ -6,23 +8,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Changelog &mdash; paradigma  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
-      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=a31c8b26" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=a31c8b26" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -98,10 +96,73 @@
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading"></a></h1>
 <!--next-version-placeholder-->
-<section id="v1-1-1-24-03-2026">
-<h2>v1.1.1 (24/03/2026)<a class="headerlink" href="#v1-1-1-24-03-2026" title="Link to this heading"></a></h2>
+<section id="v1-1-2-11-06-26">
+<h2>v1.1.2 (11/06/26)<a class="headerlink" href="#v1-1-2-11-06-26" title="Link to this heading"></a></h2>
 <section id="breaking-changes">
 <h3>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Unified pipeline return format</strong>: All pipelines (<code class="docutils literal notranslate"><span class="pre">run_gait_pipeline()</span></code>, <code class="docutils literal notranslate"><span class="pre">run_tremor_pipeline()</span></code>, <code class="docutils literal notranslate"><span class="pre">run_pulse_rate_pipeline()</span></code>) now return a unified dictionary structure instead of tuples/DataFrames:</p>
+<ul>
+<li><p>Previously:</p>
+<ul>
+<li><p>Gait: <code class="docutils literal notranslate"><span class="pre">(quantified_df_dict:</span> <span class="pre">dict,</span> <span class="pre">metadata_dict:</span> <span class="pre">dict)</span></code> (from v1.1.1)</p></li>
+<li><p>Tremor/Pulse Rate: <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code></p></li>
+</ul>
+</li>
+<li><p>Now: All return unified dict with keys:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">'quantification'</span></code>: Computed results (dict for gait, DataFrame for others)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'metadata'</span></code>: Metadata dict (gait only)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'preprocessing'</span></code>, <code class="docutils literal notranslate"><span class="pre">'classification'</span></code>: Intermediate results (if requested via <code class="docutils literal notranslate"><span class="pre">return_intermediate</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'_steps_executed'</span></code>: List of steps that were actually executed</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'_error'</span></code>: Error message (None if successful)</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="features">
+<h3>Features<a class="headerlink" href="#features" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Selective pipeline step execution</strong>: New parameters <code class="docutils literal notranslate"><span class="pre">run_steps</span></code> and <code class="docutils literal notranslate"><span class="pre">return_intermediate</span></code> in all pipeline functions and orchestrator:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">run_steps</span></code>: Which processing steps to execute (‘preprocessing’, ‘classification’, ‘quantification’, ‘aggregation’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">return_intermediate</span></code>: Which intermediate results to include in return dict (independent of disk storage)</p></li>
+<li><p>Available in both individual pipeline functions and main <code class="docutils literal notranslate"><span class="pre">run_paradigma()</span></code> orchestrator</p></li>
+<li><p>Enables parallel processing workflows where preprocessing/classification run separately from quantification</p></li>
+<li><p>Example: <code class="docutils literal notranslate"><span class="pre">run_steps=['preprocessing',</span> <span class="pre">'classification']</span></code> to stop after classification without computing quantification</p></li>
+</ul>
+</li>
+<li><p><strong>Adaptive sampling frequency detection</strong>: orchestrator now automatically detects data sampling frequency and adjusts frequency-dependent parameters accordingly. It is no longer necessary to manually set the sampling frequency to 100 Hz</p></li>
+<li><p><strong>Independent save/return control</strong>: <code class="docutils literal notranslate"><span class="pre">save_intermediate</span></code> and <code class="docutils literal notranslate"><span class="pre">return_intermediate</span></code> now work independently:</p>
+<ul>
+<li><p>Save results to disk without returning them (memory-efficient for large datasets)</p></li>
+<li><p>Return intermediate results without saving to disk (useful for debugging)</p></li>
+<li><p>Previously, saving automatically returned results in memory</p></li>
+</ul>
+</li>
+<li><p><strong>Orchestrator updates</strong>: <code class="docutils literal notranslate"><span class="pre">run_paradigma()</span></code> now supports selective step execution and handles unified dict returns from all pipelines:</p>
+<ul>
+<li><p>Updated to work with new pipeline return formats (unified dict structure)</p></li>
+<li><p>Properly handles gait filtered/unfiltered results in combined output</p></li>
+<li><p>Enables conditional execution paths (e.g., only run quantification for pre-processed data)</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="improvements">
+<h3>Improvements<a class="headerlink" href="#improvements" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Added comprehensive error handling with <code class="docutils literal notranslate"><span class="pre">_error</span></code> field in all pipeline function returns.</p></li>
+<li><p>All pipeline functions now log which steps are being executed and returned.</p></li>
+</ul>
+</section>
+</section>
+<section id="v1-1-1-24-03-2026">
+<h2>v1.1.1 (24/03/2026)<a class="headerlink" href="#v1-1-1-24-03-2026" title="Link to this heading"></a></h2>
+<section id="id1">
+<h3>Breaking Changes<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><strong>run_gait_pipeline() return structure changed</strong>: Now returns nested dictionaries with separate ‘filtered’ and ‘unfiltered’ results instead of flat tuples.</p>
 <ul>
@@ -112,8 +173,8 @@
 </li>
 </ul>
 </section>
-<section id="features">
-<h3>Features<a class="headerlink" href="#features" title="Link to this heading"></a></h3>
+<section id="id2">
+<h3>Features<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><strong>Unfiltered gait quantification</strong> (#264): Added support for both filtered and unfiltered gait analysis, allowing comparison of:</p>
 <ul>
@@ -131,8 +192,8 @@
 <li><p>Fixed orchestrator to properly pass required <code class="docutils literal notranslate"><span class="pre">segment_meta</span></code> and <code class="docutils literal notranslate"><span class="pre">segment_cats</span></code> to aggregation functions, including parsing of <code class="docutils literal notranslate"><span class="pre">segment_length_bins</span></code> to segment category tuples.</p></li>
 </ul>
 </section>
-<section id="improvements">
-<h3>Improvements<a class="headerlink" href="#improvements" title="Link to this heading"></a></h3>
+<section id="id3">
+<h3>Improvements<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>Cleaned up test infrastructure by removing unused test files, notebooks, and consolidating test helpers to conftest.py.</p></li>
 </ul>
@@ -140,8 +201,8 @@
 </section>
 <section id="v1-1-0-04-02-2026">
 <h2>v1.1.0 (04/02/2026)<a class="headerlink" href="#v1-1-0-04-02-2026" title="Link to this heading"></a></h2>
-<section id="id1">
-<h3>Features<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<section id="id4">
+<h3>Features<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><strong>Orchestrator Pipeline</strong>: Added <code class="docutils literal notranslate"><span class="pre">orchestrator.py</span></code> with <code class="docutils literal notranslate"><span class="pre">run_paradigma()</span></code> function for complete end-to-end ParaDigMa analysis pipeline from data loading to aggregated results.</p></li>
 <li><p><strong>Data Preparation</strong>: Added <code class="docutils literal notranslate"><span class="pre">prepare_data.py</span></code> with automatic data preparation capabilities, including column mapping for flexible column names, watch orientation adjustment, and comprehensive validation.</p></li>
@@ -152,8 +213,8 @@
 <li><p><strong>Test Data</strong>: Added Physilog Gait-Up test data to LFS.</p></li>
 </ul>
 </section>
-<section id="id2">
-<h3>Improvements<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<section id="id5">
+<h3>Improvements<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><strong>Logging System</strong>: Replaced <code class="docutils literal notranslate"><span class="pre">verbose</span></code> parameter with standard Python logging using <code class="docutils literal notranslate"><span class="pre">logging_level</span></code> and <code class="docutils literal notranslate"><span class="pre">custom_logger</span></code> parameters across all pipeline functions for better control and traceability.</p></li>
 <li><p><strong>Data Segment Preservation</strong>: Modified <code class="docutils literal notranslate"><span class="pre">quantify_arm_swing()</span></code>, <code class="docutils literal notranslate"><span class="pre">preprocess_imu_data()</span></code>, and aggregation functions to preserve <code class="docutils literal notranslate"><span class="pre">data_segment_nr</span></code> column throughout the pipeline when using <code class="docutils literal notranslate"><span class="pre">split_by_gaps=True</span></code> for non-contiguous data processing.</p></li>
