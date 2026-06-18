@@ -23,6 +23,8 @@ process:
 - **Multiple data formats**: Supports Verily, Axivity, Empatica, and custom
   formats
 - **Robust processing**: Automatic data preparation and error handling
+- **Adaptive frequency detection**: Automatically detects and adapts to your data's
+  sampling frequency
 
 ### Data Requirements
 
@@ -556,15 +558,16 @@ print(f"   Metadata: {tremor_meta}")
 
     Detailed Results Analysis:
 
-    Filtered arm swing quantification (5299 swings):
+    Filtered arm swing quantification (5436 swings):
        Columns: ['gait_segment_nr', 'range_of_motion', 'peak_velocity', 'file_key']... (4 total)
        Files: ['imu_segment0001' 'imu_segment0002']
 
-    Unfiltered arm swing quantification (11950 'swings'):
+    Unfiltered arm swing quantification (12034 'swings'):
 
     Filtered gait aggregation:
        Gait segment categories: ['0_20', '20_inf']
        Aggregates for 0-20s segments: ['duration_s', 'median_range_of_motion', '95p_range_of_motion', 'median_cov_range_of_motion', 'mean_cov_range_of_motion', 'median_peak_velocity', '95p_peak_velocity', 'median_cov_peak_velocity', 'mean_cov_peak_velocity']
+       First filtered gait segment: {'start_s': 2221.71, 'end_s': 2230.649900990099, 'duration_s': 8.94059405940594, 'unfiltered_duration_s': 12.653465346534654, 'segment_categories': ['0_20']}
 
     Tremor quantification (27056 windows):
        Columns: ['time', 'pred_arm_at_rest', 'pred_tremor_checked', 'tremor_power', 'file_key']... (5 total)
@@ -572,7 +575,7 @@ print(f"   Metadata: {tremor_meta}")
 
     Tremor aggregation (4 time ranges):
        Aggregates: ['perc_windows_tremor', 'median_tremor_power', 'modal_tremor_power', '90p_tremor_power']
-       Metadata: {'nr_valid_days': 1, 'nr_windows_total': 27056, 'nr_windows_rest': 18766}
+       Metadata: {'nr_valid_days': 1, 'nr_windows_total': 27056, 'nr_windows_rest': 18763}
 
 
 ## 3. Raw Data Processing
@@ -635,7 +638,6 @@ results_end_to_end = run_paradigma(
     time_input_unit=TimeUnit.RELATIVE_S,    # Specify time unit
     accelerometer_units='g',
     gyroscope_units='deg/s',
-    target_frequency=100.0,
     device_orientation=device_orientation,
     save_intermediate=['aggregation'],      # Only save aggregations
     logging_level=logging.WARNING,          # Only show warnings and errors
@@ -667,6 +669,19 @@ print("\nQuantifications (first 5 rows; each row represents a single arm swing):
 results_end_to_end['quantifications'][pipeline]['filtered'].head()
 ```
 
+
+    Filtered Gait Metadata (first segment):
+    {
+      "start_s": 124.5,
+      "end_s": 127.5,
+      "duration_s": 3.0,
+      "unfiltered_duration_s": 124.5,
+      "segment_categories": [
+        "20_inf"
+      ],
+      "start_dt": "2025-11-17T09:02:06.824188",
+      "end_dt": "2025-11-17T09:02:09.824188"
+    }
 
     Filtered Gait Aggregations:
     {
@@ -906,9 +921,12 @@ filtered_gait_df.head()
     WARNING: Time column has irregular sampling
 
 
-    Number of detected gait segments: 48
+    WARNING: Data is not contiguous but validation is disabled. Interpolating over gaps.
 
-    Number of arm swings: 1834
+
+    Number of detected gait segments: 47
+
+    Number of arm swings: 1782
     Individual arm swings:
 
 
@@ -923,44 +941,38 @@ filtered_gait_df.head()
       <th>gait_segment_nr</th>
       <th>range_of_motion</th>
       <th>peak_velocity</th>
-      <th>data_segment_nr</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>14.394159</td>
-      <td>40.731020</td>
-      <td>1</td>
+      <td>14.175549</td>
+      <td>40.844875</td>
     </tr>
     <tr>
       <th>1</th>
       <td>2</td>
-      <td>13.593113</td>
-      <td>21.522583</td>
-      <td>1</td>
+      <td>13.590119</td>
+      <td>21.436342</td>
     </tr>
     <tr>
       <th>2</th>
       <td>2</td>
-      <td>20.881968</td>
-      <td>102.620567</td>
-      <td>1</td>
+      <td>20.877245</td>
+      <td>102.735568</td>
     </tr>
     <tr>
       <th>3</th>
       <td>2</td>
-      <td>16.711927</td>
-      <td>48.794681</td>
-      <td>1</td>
+      <td>16.709358</td>
+      <td>48.634776</td>
     </tr>
     <tr>
       <th>4</th>
       <td>2</td>
-      <td>6.565145</td>
-      <td>26.096350</td>
-      <td>1</td>
+      <td>6.744359</td>
+      <td>26.217534</td>
     </tr>
   </tbody>
 </table>
