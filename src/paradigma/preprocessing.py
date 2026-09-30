@@ -365,7 +365,7 @@ def preprocess_imu_data(
     df: pd.DataFrame,
     config: IMUConfig,
     sensor: str,
-    watch_side: str,
+    watch_side: str | None = None,
 ) -> pd.DataFrame:
     """
     Preprocesses IMU data by resampling and applying filters.
@@ -383,10 +383,12 @@ def preprocess_imu_data(
         - "accelerometer": Preprocess accelerometer data only.
         - "gyroscope": Preprocess gyroscope data only.
         - "both": Preprocess both accelerometer and gyroscope data.
-    watch_side: str
-        The side of the watch where the data was collected. Must be one of:
+    watch_side: str, optional
+        The gait pipeline requires information about the side of the watch
+        where the data was collected. Must be one of:
         - "left": Data was collected from the left wrist.
         - "right": Data was collected from the right wrist.
+        For the tremor pipeline, this parameter is not required.
 
     Returns
     -------
@@ -431,7 +433,8 @@ def preprocess_imu_data(
     )
 
     # Invert the IMU data if the watch was worn on the right wrist
-    df = invert_watch_side(df, watch_side, sensor)
+    if watch_side in ["left", "right"]:
+        df = invert_watch_side(df, watch_side, sensor)
 
     if sensor in ["accelerometer", "both"]:
 

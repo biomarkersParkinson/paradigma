@@ -553,7 +553,6 @@ def run_tremor_pipeline(
                 df_prepared,
                 imu_config,
                 sensor="gyroscope",
-                watch_side="left",  # Watch side is unimportant for tremor detection
             )
 
             steps_executed.append("preprocessing")
