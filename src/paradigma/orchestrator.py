@@ -321,6 +321,16 @@ def run_paradigma(
     else:
         raise ValueError("return_intermediate must be a list[str]")
 
+    # Check if watchside is provided when gait pipeline in run
+    if (
+        "gait" in pipelines
+        and "preprocessing" in run_steps
+        and watch_side not in ["left", "right"]
+    ):
+        raise ValueError(
+            "watch_side must be set to 'left' or 'right' when running gait pipeline"
+        )
+
     # Use custom logger if provided, otherwise use module logger
     active_logger = custom_logger if custom_logger is not None else logger
 
