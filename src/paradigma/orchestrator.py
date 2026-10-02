@@ -299,19 +299,36 @@ def run_paradigma(
 
     # Validate save_intermediate and return_intermediate are subsets of run_steps
     # preparation can be independent
-    save_steps = set(save_intermediate) - {"preparation"}
-    invalid_save = save_steps - run_steps_set
-    if invalid_save:
-        raise ValueError(
-            f"save_intermediate steps {invalid_save} are not in run_steps {run_steps}"
-        )
+    if isinstance(save_intermediate, list):
+        save_steps = set(save_intermediate) - {"preparation"}
+        invalid_save = save_steps - run_steps_set
+        if invalid_save:
+            raise ValueError(
+                f"save_intermediate steps {invalid_save} are not in "
+                f"run_steps {run_steps}"
+            )
+    else:
+        raise ValueError("save_intermediate must be a list[str]")
 
-    return_steps = set(return_intermediate)
-    invalid_return = return_steps - run_steps_set
-    if invalid_return:
+    if isinstance(return_intermediate, list):
+        return_steps = set(return_intermediate) - {"preparation"}
+        invalid_return = return_steps - run_steps_set
+        if invalid_return:
+            raise ValueError(
+                f"return_intermediate steps {invalid_return} are not in "
+                f"run_steps {run_steps}"
+            )
+    else:
+        raise ValueError("return_intermediate must be a list[str]")
+
+    # Check if watchside is provided when gait pipeline in run
+    if (
+        "gait" in pipelines
+        and "preprocessing" in run_steps
+        and watch_side not in ["left", "right"]
+    ):
         raise ValueError(
-            f"return_intermediate steps {invalid_return} are not in "
-            f"run_steps {run_steps}"
+            "watch_side must be set to 'left' or 'right' when running gait pipeline"
         )
 
     # Use custom logger if provided, otherwise use module logger

@@ -1129,6 +1129,12 @@ def run_gait_pipeline(
 
     # Step 1: Preprocess data
     if "preprocessing" in run_steps:
+        # Check that watch_side is provided
+        if watch_side not in ["left", "right"]:
+            raise ValueError(
+                "watch_side must be set to 'left' or 'right' when running gait pipeline"
+            )
+
         try:
             active_logger.info("Step 1: Preprocessing IMU data")
             df_preprocessed = preprocess_imu_data(
