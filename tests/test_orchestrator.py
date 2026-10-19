@@ -267,3 +267,95 @@ class TestErrorHandling:
                     run_steps=["preprocessing"],
                     return_intermediate=["quantification"],  # Not in run_steps
                 )
+
+
+class TestSubsetData:
+    """Test subset_data parameter behavior in orchestrator."""
+
+    def test_subset_data_callable_applied_before_pipeline(self, monkeypatch):
+        """Test that callable subset_data is applied before pipeline execution."""
+        df = create_test_imu_data(duration_seconds=30)
+        observed_lengths = []
+
+        def mock_tremor_pipeline(df_prepared, **kwargs):
+            observed_lengths.append(len(df_prepared))
+            return {"quantification": pd.DataFrame({DataColumns.TIME: [0.0]})}
+
+        monkeypatch.setattr(
+            "paradigma.orchestrator.run_tremor_pipeline", mock_tremor_pipeline
+        )
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            run_paradigma(
+                dfs=df,
+                pipelines="tremor",
+                output_dir=temp_dir,
+                skip_preparation=True,
+                run_steps=["preprocessing", "classification", "quantification"],
+                subset_data=lambda d: d.iloc[:123],
+            )
+
+        assert observed_lengths == [123]
+
+    def test_subset_data_per_pipeline_dict(self, monkeypatch):
+        """Test that per-pipeline subset functions are applied independently."""
+        df = create_test_imu_data(duration_seconds=30)
+        observed_lengths = {}
+
+        def mock_gait_pipeline(df_prepared, **kwargs):
+            observed_lengths["gait"] = len(df_prepared)
+            return {
+                "quantification": {
+                    "filtered": pd.DataFrame(),
+                    "unfiltered": pd.DataFrame(),
+                },
+                "metadata": {
+                    "filtered": {"per_segment": {}},
+                    "unfiltered": {"per_segment": {}},
+                },
+            }
+
+        def mock_tremor_pipeline(df_prepared, **kwargs):
+            observed_lengths["tremor"] = len(df_prepared)
+            return {"quantification": pd.DataFrame()}
+
+        monkeypatch.setattr(
+            "paradigma.orchestrator.run_gait_pipeline", mock_gait_pipeline
+        )
+        monkeypatch.setattr(
+            "paradigma.orchestrator.run_tremor_pipeline", mock_tremor_pipeline
+        )
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            run_paradigma(
+                dfs=df,
+                watch_side="left",
+                pipelines=["gait", "tremor"],
+                output_dir=temp_dir,
+                skip_preparation=True,
+                run_steps=["preprocessing", "classification", "quantification"],
+                subset_data={
+                    "gait": lambda d: d.iloc[:100],
+                    "tremor": lambda d: d.iloc[:200],
+                },
+            )
+
+        assert observed_lengths["gait"] == 100
+        assert observed_lengths["tremor"] == 200
+
+    def test_subset_data_invalid_pipeline_key_raises(self):
+        """Test that invalid subset_data pipeline key raises error."""
+        df = create_test_imu_data(duration_seconds=30)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with pytest.raises(
+                ValueError, match="subset_data has unknown or inactive pipeline keys"
+            ):
+                run_paradigma(
+                    dfs=df,
+                    pipelines="tremor",
+                    output_dir=temp_dir,
+                    skip_preparation=True,
+                    run_steps=["preprocessing"],
+                    subset_data={"gait": lambda d: d},
+                )

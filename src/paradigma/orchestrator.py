@@ -21,6 +21,7 @@ Supports multi-file processing with automatic segment numbering and metadata tra
 
 import json
 import logging
+from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
 
@@ -92,6 +93,11 @@ def run_paradigma(
     split_by_gaps: bool = False,
     max_gap_seconds: float | None = None,
     min_segment_seconds: float | None = None,
+    subset_data: (
+        Callable[[pd.DataFrame], pd.DataFrame]
+        | dict[str, Callable[[pd.DataFrame], pd.DataFrame]]
+        | None
+    ) = None,
     imu_config: IMUConfig | None = None,
     ppg_config: PPGConfig | None = None,
     gait_config: GaitConfig | None = None,
@@ -200,6 +206,12 @@ def run_paradigma(
     min_segment_seconds : float, optional
         Minimum segment length (seconds) to keep. Used when split_by_gaps=True.
         Defaults to 1.5s.
+    subset_data : callable or dict[str, callable], optional
+        Optional data subsetting before running pipeline(s).
+        - If callable: applied once to prepared data and reused for all pipelines.
+        - If dict: keys must be pipeline names ('gait', 'tremor', 'pulse_rate')
+          and values are callables applied only for that pipeline.
+        Each callable must accept a DataFrame and return a DataFrame.
     imu_config : IMUConfig, optional
         IMU preprocessing configuration.
     ppg_config : PPGConfig, optional
@@ -252,10 +264,39 @@ def run_paradigma(
             "Pulse rate pipeline cannot be run together with other pipelines"
         )
 
-    if any(p not in ["gait", "tremor", "pulse_rate"] for p in pipelines):
+    supported_pipelines = ["gait", "tremor", "pulse_rate"]
+    if any(p not in supported_pipelines for p in pipelines):
         raise ValueError(
             f"At least one unknown pipeline provided: {pipelines}. "
             f"Supported pipelines: 'gait', 'tremor', 'pulse_rate'"
+        )
+
+    subset_data_all = None
+    subset_data_per_pipeline = {}
+    if subset_data is None:
+        pass
+    elif callable(subset_data):
+        subset_data_all = subset_data
+    elif isinstance(subset_data, dict):
+        invalid_subset_pipelines = set(subset_data.keys()) - set(pipelines)
+        if invalid_subset_pipelines:
+            raise ValueError(
+                f"subset_data has unknown or inactive pipeline keys: "
+                f"{sorted(invalid_subset_pipelines)}. Valid keys for this run: "
+                f"{pipelines}"
+            )
+        invalid_subset_callables = [
+            key for key, value in subset_data.items() if not callable(value)
+        ]
+        if invalid_subset_callables:
+            raise ValueError(
+                "subset_data dict values must be callable for all provided keys; "
+                f"non-callable keys: {sorted(invalid_subset_callables)}"
+            )
+        subset_data_per_pipeline = subset_data
+    else:
+        raise ValueError(
+            "subset_data must be None, a callable, or a dict[str, callable]"
         )
 
     # Parse and validate run_steps
@@ -557,6 +598,13 @@ def run_paradigma(
                 else:
                     df_prepared = df_raw
 
+                if subset_data_all is not None:
+                    df_prepared = subset_data_all(df_prepared)
+                    if not isinstance(df_prepared, pd.DataFrame):
+                        raise TypeError(
+                            "subset_data callable must return a pandas DataFrame"
+                        )
+
                 # Release raw data from memory
                 del df_raw
 
@@ -580,12 +628,22 @@ def run_paradigma(
                         DETAILED_INFO,
                         f"Running {pipeline_name} pipeline on {file_name}",
                     )
+                    df_prepared_pipeline = df_prepared
+                    if pipeline_name in subset_data_per_pipeline:
+                        df_prepared_pipeline = subset_data_per_pipeline[pipeline_name](
+                            df_prepared
+                        )
+                        if not isinstance(df_prepared_pipeline, pd.DataFrame):
+                            raise TypeError(
+                                f"subset_data['{pipeline_name}'] must return a "
+                                "pandas DataFrame"
+                            )
 
                     try:
                         if pipeline_name == "gait":
                             # Pass separate offsets for filtered and unfiltered
                             pipeline_result = run_gait_pipeline(
-                                df_prepared=df_prepared,
+                                df_prepared=df_prepared_pipeline,
                                 watch_side=watch_side,
                                 imu_config=imu_config,
                                 gait_config=gait_config,
@@ -704,7 +762,7 @@ def run_paradigma(
 
                         elif pipeline_name == "tremor":
                             pipeline_result = run_tremor_pipeline(
-                                df_prepared=df_prepared,
+                                df_prepared=df_prepared_pipeline,
                                 store_intermediate=store_intermediate_per_file,
                                 output_dir=file_output_dir,
                                 tremor_config=tremor_config,
@@ -746,7 +804,7 @@ def run_paradigma(
 
                         elif pipeline_name == "pulse_rate":
                             pipeline_result = run_pulse_rate_pipeline(
-                                df_ppg_prepared=df_prepared,
+                                df_ppg_prepared=df_prepared_pipeline,
                                 store_intermediate=store_intermediate_per_file,
                                 output_dir=file_output_dir,
                                 pulse_rate_config=pulse_rate_config,
