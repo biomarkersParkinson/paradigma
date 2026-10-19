@@ -19,7 +19,12 @@ from paradigma.feature_extraction import (
 )
 from paradigma.preprocessing import preprocess_imu_data
 from paradigma.segmenting import WindowedDataExtractor, tabulate_windows
-from paradigma.util import aggregate_parameter, round_detected_frequency
+from paradigma.util import (
+    aggregate_parameter,
+    round_detected_frequency,
+    select_days,
+    select_hours,
+)
 
 
 def extract_tremor_features(df: pd.DataFrame, config: TremorConfig) -> pd.DataFrame:
@@ -210,12 +215,16 @@ def detect_tremor(
 
 def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     """
-    Quantifies the amount of tremor time and tremor power, aggregated over
-    all windows in the input dataframe. Tremor time is calculated as the
-    number of the detected tremor windows, as percentage of the number of
-    windows without significant non-tremor movement (at rest). For tremor
-    power the following aggregates are derived: the median, mode and
-    percentile of tremor power specified in the configuration object.
+    Quantifies the amount of tremor time and tremor power, aggregated
+    over a subset of the data based on specified hours and minimum hours
+    per day in the configuration object. If you want to aggregate over
+    the entire dataset, set config.select_hours_start, config.select_hours_end,
+    and config.min_hours_per_day to None.
+    Tremor time is calculated as the number of the detected tremor windows,
+    as percentage of the number of windows without significant
+    non-tremor movement (at rest). For tremor power the following aggregates
+    are derived: the median, mode and percentile of tremor power specified
+    in the configuration object.
 
     Parameters
     ----------
@@ -225,8 +234,9 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
         ('time_dt').
 
     config : TremorConfig
-        Configuration object containing the percentile for aggregating tremor
-        power.
+        Configuration object containing settings, such as the selected hours
+        and minimum number of hours per day, and the percentile for aggregating
+        tremor power.
 
     Returns
     -------
@@ -245,14 +255,25 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
       estimation.
 
     """
+
+    if config.select_hours_start is not None and config.select_hours_end is not None:
+        # Select the hours that should be included in the aggregation
+        df_subset = select_hours(df, config.select_hours_start, config.select_hours_end)
+    else:
+        df_subset = df
+
+    # Remove days with less than the specified minimum amount of hours
+    df_subset = select_days(df_subset, config.min_hours_per_day)
+
+    # Determine number of valid days
     nr_valid_days = (
-        df["time_dt"].dt.date.unique().size
+        df_subset["time_dt"].dt.date.unique().size
     )  # number of valid days in the input dataframe
-    nr_windows_total = df.shape[0]  # number of windows in the input dataframe
+    nr_windows_total = df_subset.shape[0]  # number of windows in the input dataframe
 
     # Remove windows with detected non-tremor arm movements to control for
     # the amount of arm activities performed
-    df_filtered = df.loc[df.pred_arm_at_rest == 1]
+    df_filtered = df_subset.loc[df_subset.pred_arm_at_rest == 1]
     nr_windows_rest = df_filtered.shape[
         0
     ]  # number of windows without non-tremor arm movement
