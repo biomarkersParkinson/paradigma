@@ -442,7 +442,9 @@ def load_data_files(
     Returns
     -------
     dict
-        Dictionary mapping file names (without extension) to DataFrames
+        A dictionary mapping file names to their corresponding DataFrames
+        and start datetimes.
+
     """
     # Get all file paths
     all_files = get_data_file_paths(data_path, file_patterns)
@@ -452,8 +454,8 @@ def load_data_files(
     # Load each file
     for file_path in all_files:
         try:
-            file_key, df, _ = load_single_data_file(file_path)
-            loaded_files[file_key] = df
+            file_key, df, start_dt = load_single_data_file(file_path)
+            loaded_files[file_key] = {"df": df, "start_dt": start_dt}
         except Exception as e:
             logger.warning(f"Failed to load {file_path}: {e}")
 

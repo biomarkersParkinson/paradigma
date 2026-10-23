@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 from importlib.resources import files
@@ -19,12 +20,7 @@ from paradigma.feature_extraction import (
 )
 from paradigma.preprocessing import preprocess_imu_data
 from paradigma.segmenting import WindowedDataExtractor, tabulate_windows
-from paradigma.util import (
-    aggregate_parameter,
-    round_detected_frequency,
-    select_days,
-    select_hours,
-)
+from paradigma.util import aggregate_parameter, round_detected_frequency
 
 
 def extract_tremor_features(df: pd.DataFrame, config: TremorConfig) -> pd.DataFrame:
@@ -215,28 +211,22 @@ def detect_tremor(
 
 def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     """
-    Quantifies the amount of tremor time and tremor power, aggregated
-    over a subset of the data based on specified hours and minimum hours
-    per day in the configuration object. If you want to aggregate over
-    the entire dataset, set config.select_hours_start, config.select_hours_end,
-    and config.min_hours_per_day to None.
-    Tremor time is calculated as the number of the detected tremor windows,
-    as percentage of the number of windows without significant
-    non-tremor movement (at rest). For tremor power the following aggregates
-    are derived: the median, mode and percentile of tremor power specified
-    in the configuration object.
+    Quantifies the amount of tremor time and tremor power, aggregated over
+    all windows in the input dataframe. Tremor time is calculated as the
+    number of the detected tremor windows, as percentage of the number of
+    windows without significant non-tremor movement (at rest). For tremor
+    power the following aggregates are derived: the median, mode and
+    percentile of tremor power specified in the configuration object.
 
     Parameters
     ----------
     df : pd.DataFrame
         The input DataFrame containing the tremor predictions and computed
-        tremor power. The DataFrame must also contain a datatime column
-        ('time_dt').
+        tremor power.
 
     config : TremorConfig
-        Configuration object containing settings, such as the selected hours
-        and minimum number of hours per day, and the percentile for aggregating
-        tremor power.
+        Configuration object containing the percentile for aggregating tremor
+        power.
 
     Returns
     -------
@@ -253,27 +243,22 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
       scale.
     - The modal tremor power is computed based on gaussian kernel density
       estimation.
+    - The number of valid days is only computed if the input dataframe contains
+      a datetime column {config.time_colname}_dt.
 
     """
 
-    if config.select_hours_start is not None and config.select_hours_end is not None:
-        # Select the hours that should be included in the aggregation
-        df_subset = select_hours(df, config.select_hours_start, config.select_hours_end)
+    if f"{config.time_colname}_dt" in df.columns:
+        # Determine number of valid days
+        nr_valid_days = df[f"{config.time_colname}_dt"].dt.date.unique().size
     else:
-        df_subset = df
+        nr_valid_days = None
 
-    # Remove days with less than the specified minimum amount of hours
-    df_subset = select_days(df_subset, config.min_hours_per_day)
-
-    # Determine number of valid days
-    nr_valid_days = (
-        df_subset["time_dt"].dt.date.unique().size
-    )  # number of valid days in the input dataframe
-    nr_windows_total = df_subset.shape[0]  # number of windows in the input dataframe
+    nr_windows_total = df.shape[0]  # number of windows in the input dataframe
 
     # Remove windows with detected non-tremor arm movements to control for
     # the amount of arm activities performed
-    df_filtered = df_subset.loc[df_subset.pred_arm_at_rest == 1]
+    df_filtered = df.loc[df.pred_arm_at_rest == 1]
     nr_windows_rest = df_filtered.shape[
         0
     ]  # number of windows without non-tremor arm movement
@@ -455,6 +440,7 @@ def run_tremor_pipeline(
     store_intermediate: list[str] = [],
     tremor_config: TremorConfig | None = None,
     imu_config: IMUConfig | None = None,
+    start_dt: datetime.datetime | None = None,
     logging_level: int = logging.INFO,
     custom_logger: logging.Logger | None = None,
     run_steps: list[str] | None = None,
@@ -482,6 +468,9 @@ def run_tremor_pipeline(
         Tremor analysis configuration
     imu_config : IMUConfig, optional
         IMU preprocessing configuration
+    start_dt : datetime.datetime, optional
+        Start datetime for the data segment. Used to compute absolute
+        datetime values. If None, timestamps will be relative.
     logging_level : int, default logging.INFO
         Logging level using standard logging constants
     custom_logger : logging.Logger, optional
@@ -679,6 +668,18 @@ def run_tremor_pipeline(
                     df_quantification[DataColumns.PRED_TREMOR_CHECKED] == 0,
                     DataColumns.TREMOR_POWER,
                 ] = None
+
+            # Add datetime column if start_dt is available
+            if start_dt is not None:
+                if start_dt.tzinfo is None:
+                    # Assume naive means UTC
+                    start_dt = start_dt.replace(tzinfo=datetime.UTC)
+                df_quantification[f"{tremor_config.time_colname}_dt"] = (
+                    start_dt
+                    + pd.to_timedelta(
+                        df_quantification[tremor_config.time_colname], unit="s"
+                    )
+                )
 
             if "quantification" in store_intermediate:
                 quantification_dir = output_dir / "quantification"

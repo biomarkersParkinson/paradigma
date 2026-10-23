@@ -559,6 +559,72 @@ def merge_predictions_with_timestamps(
     return df_ts
 
 
+def subset_data(df, config):
+    """
+    Subset the input dataframe based on the specified configuration settings,
+    including selected hours and minimum hours per day.
+
+    Parameters:
+    ----------
+    df : pd.DataFrame
+        The input DataFrame to be subsetted.
+        Must contain a datetime column specified by {config.time_colname}_dt.
+
+    config : object
+        Configuration object containing the settings for subsetting the data.
+        The selected hours must be in "HH:MM" format.
+
+    Returns:
+    -------
+    pd.DataFrame
+        The subsetted DataFrame.
+
+    """
+
+    if config.select_hours_start is not None and config.select_hours_end is None:
+        raise ValueError(
+            "If select_hours_start is specified, "
+            "select_hours_end must also be specified."
+        )
+    if config.select_hours_end is not None and config.select_hours_start is None:
+        raise ValueError(
+            "If select_hours_end is specified, "
+            "select_hours_start must also be specified."
+        )
+
+    if config.timezone is not None:
+        # Convert the datetime column to the specified timezone
+        df[f"{config.time_colname}_dt"] = df[f"{config.time_colname}_dt"].dt.tz_convert(
+            config.timezone
+        )
+
+    if config.select_hours_start is not None and config.select_hours_end is not None:
+        tod = df[f"{config.time_colname}_dt"].dt.time
+        from_time = datetime.strptime(
+            config.select_hours_start, "%H:%M"
+        ).time()  # convert to time object
+        to_time = datetime.strptime(config.select_hours_end, "%H:%M").time()
+        if from_time < to_time:
+            mask = (tod >= from_time) & (tod < to_time)
+        else:
+            mask = (tod >= from_time) | (tod < to_time)
+        df_subset = df[mask]
+    else:
+        df_subset = df
+
+    if config.min_hours_per_day is not None:
+        min_s_per_day = config.min_hours_per_day * 3600
+        window_length_s = (
+            df_subset[f"{config.time_colname}_dt"].diff().dt.total_seconds().iloc[1]
+        )  # determine the length of the first window in seconds
+        min_windows_per_day = min_s_per_day / window_length_s
+        df_subset = df_subset.groupby(
+            df_subset[f"{config.time_colname}_dt"].dt.date
+        ).filter(lambda x: len(x) >= min_windows_per_day)
+
+    return df_subset
+
+
 def select_hours(
     df: pd.DataFrame, select_hours_start: str, select_hours_end: str
 ) -> pd.DataFrame:

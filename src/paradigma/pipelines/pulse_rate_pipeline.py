@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 from importlib.resources import files
@@ -547,6 +548,7 @@ def run_pulse_rate_pipeline(
     store_intermediate: list[str] = [],
     pulse_rate_config: PulseRateConfig | None = None,
     ppg_config: PPGConfig | None = None,
+    start_dt: datetime.datetime | None = None,
     logging_level: int = logging.INFO,
     custom_logger: logging.Logger | None = None,
     run_steps: list[str] | None = None,
@@ -575,6 +577,9 @@ def run_pulse_rate_pipeline(
         Pulse rate analysis configuration
     ppg_config : PPGConfig, optional
         PPG preprocessing configuration
+    start_dt : datetime.datetime, optional
+        Start datetime for the data segment. Used to compute absolute
+        datetime values. If None, timestamps will be relative.
     logging_level : int, default logging.INFO
         Logging level using standard logging constants
     custom_logger : logging.Logger, optional
@@ -756,6 +761,18 @@ def run_pulse_rate_pipeline(
                 df_ppg_preprocessed=df_ppg_proc,
                 config=pulse_rate_config,
             )
+
+            # Add datetime column if start_dt is available
+            if start_dt is not None:
+                if start_dt.tzinfo is None:
+                    # Assume naive means UTC
+                    start_dt = start_dt.replace(tzinfo=datetime.UTC)
+                df_pulse_rates[f"{pulse_rate_config.time_colname}_dt"] = (
+                    start_dt
+                    + pd.to_timedelta(
+                        df_pulse_rates[pulse_rate_config.time_colname], unit="s"
+                    )
+                )
 
             if "quantification" in store_intermediate:
                 quantification_dir = output_dir / "quantification"
