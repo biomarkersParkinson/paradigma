@@ -367,7 +367,7 @@ class TremorConfig(IMUConfig):
         # -----------
         self.select_hours_start: str = "08:00"
         self.select_hours_end: str = "22:00"
-        self.timezone: str = "Europe/Amsterdam"
+        self.timezone = None
         self.min_hours_per_day: int = 10
         self.aggregates_tremor_power: list[str] = ["mode_binned", "median", "90p"]
         self.evaluation_points_tremor_power: np.ndarray = np.linspace(0, 6, 301)

@@ -423,7 +423,7 @@ def load_single_data_file(
 def load_data_files(
     data_path: str | Path,
     file_patterns: list[str] | None = None,
-) -> dict[str, pd.DataFrame]:
+) -> tuple[dict[str, pd.DataFrame], dict[str, datetime]]:
     """
     Load all data files from a directory with automatic format detection.
 
@@ -441,21 +441,24 @@ def load_data_files(
 
     Returns
     -------
-    dict
-        A dictionary mapping file names to their corresponding DataFrames
-        and start datetimes.
+    tuple[dict[str, pd.DataFrame], dict[str, datetime]]
+        A tuple containing a dictionary mapping file names to their
+        corresponding DataFrames and a dictionary mapping file names
+        to their corresponding start datetimes.
 
     """
     # Get all file paths
     all_files = get_data_file_paths(data_path, file_patterns)
 
     loaded_files = {}
+    start_times = {}
 
     # Load each file
     for file_path in all_files:
         try:
             file_key, df, start_dt = load_single_data_file(file_path)
-            loaded_files[file_key] = {"df": df, "start_dt": start_dt}
+            loaded_files[file_key] = df
+            start_times[file_key] = start_dt
         except Exception as e:
             logger.warning(f"Failed to load {file_path}: {e}")
 
@@ -464,7 +467,7 @@ def load_data_files(
     else:
         logger.info(f"Successfully loaded {len(loaded_files)} files")
 
-    return loaded_files
+    return loaded_files, start_times
 
 
 def save_prepared_data(
