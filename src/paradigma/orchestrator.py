@@ -943,7 +943,7 @@ def run_paradigma(
                                     "'start_dt' should be provided for subsetting of "
                                     "data before aggregation. Skipping subsetting "
                                     "based on selected hours and/or minimum hours "
-                                    "per day."
+                                    "per day, and aggregating over all available data."
                                 )
                             else:
                                 active_logger.warning(
@@ -951,7 +951,8 @@ def run_paradigma(
                                     f"'{tremor_config.time_colname}_dt' "
                                     "is required for subsetting the data before "
                                     "aggregation. Skipping subsetting based on "
-                                    "selected hours and/or minimum hours per day."
+                                    "selected hours and/or minimum hours per day,"
+                                    "and aggregating over all available data."
                                 )
                         else:
                             tremor_data_for_aggregation = subset_data(
@@ -1007,7 +1008,8 @@ def run_paradigma(
                                 active_logger.warning(
                                     "'start_dt' should be provided for subsetting of "
                                     "data before aggregation. Skipping subsetting based"
-                                    " on selected hours and/or minimum hours per day."
+                                    " on selected hours and/or minimum hours per day,"
+                                    " and aggregating over all available data."
                                 )
                             else:
                                 active_logger.warning(
@@ -1015,7 +1017,8 @@ def run_paradigma(
                                     f"'{pulse_rate_config.time_colname}_dt' "
                                     "is required for subsetting the data before "
                                     "aggregation. Skipping subsetting based on "
-                                    "selected hours and/or minimum hours per day."
+                                    "selected hours and/or minimum hours per day,"
+                                    " and aggregating over all available data."
                                 )
                         else:
                             pr_data_for_aggregation = subset_data(
