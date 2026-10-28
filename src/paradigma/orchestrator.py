@@ -50,6 +50,7 @@ from paradigma.pipelines.pulse_rate_pipeline import (
 )
 from paradigma.pipelines.tremor_pipeline import aggregate_tremor, run_tremor_pipeline
 from paradigma.prepare_data import prepare_raw_data
+from paradigma.util import subset_data
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +73,7 @@ def run_paradigma(
     *,
     data_path: str | Path | None = None,
     dfs: pd.DataFrame | list[pd.DataFrame] | dict[str, pd.DataFrame] | None = None,
+    start_dt: datetime | list[datetime] | dict[str, datetime] | None = None,
     run_steps: list[str] | str = "all",
     save_intermediate: list[str] = [],
     return_intermediate: list[str] = [],
@@ -128,6 +130,8 @@ def run_paradigma(
         Note: The 'file_key' column is only added to quantification results when
         len(dfs) > 1, allowing cleaner output for single-file processing.
         See input_formats guide for details.
+    start_dt : datetime, list of datetimes, or dict of datetimes, optional
+        Start datetime for the input DataFrame(s).
     run_steps : list of str or str, default 'all'
         Which steps of the pipeline(s) to run. When constructing a list, the following
         steps are valid: 'preprocessing', 'classification', 'quantification',
@@ -407,6 +411,21 @@ def run_paradigma(
         else:
             dfs_dict = dfs
 
+        # Convert provided start_dt to dict format
+        if start_dt is not None:
+            if isinstance(start_dt, list):
+                if len(start_dt) != len(dfs_dict):
+                    raise ValueError(
+                        "Length of start_dt list must match number of DataFrames"
+                    )
+                start_dt_dict = {
+                    f"df_{i}": dt for i, dt in enumerate(start_dt, start=1)
+                }
+            elif isinstance(start_dt, datetime):
+                start_dt_dict = {"df_1": start_dt}
+            else:
+                start_dt_dict = start_dt
+
     # Determine number of files to process
     num_files = len(file_paths) if file_paths else len(dfs_dict)
 
@@ -514,7 +533,7 @@ def run_paradigma(
                 # Using in-memory data
                 file_name = list(dfs_dict.keys())[i]
                 df_raw = dfs_dict[file_name]
-                start_dt = None
+                start_dt = start_dt_dict[file_name] if start_dt is not None else None
                 active_logger.info(
                     f"Processing DataFrame {i+1}/{num_files}: {file_name}"
                 )
@@ -709,6 +728,7 @@ def run_paradigma(
                                 output_dir=file_output_dir,
                                 tremor_config=tremor_config,
                                 imu_config=imu_config,
+                                start_dt=start_dt,
                                 logging_level=logging_level,
                                 custom_logger=active_logger,
                                 run_steps=pipeline_run_steps,
@@ -751,6 +771,7 @@ def run_paradigma(
                                 output_dir=file_output_dir,
                                 pulse_rate_config=pulse_rate_config,
                                 ppg_config=ppg_config,
+                                start_dt=start_dt,
                                 logging_level=logging_level,
                                 custom_logger=active_logger,
                                 run_steps=pipeline_run_steps,
@@ -904,17 +925,52 @@ def run_paradigma(
                     combined_quantified = all_results["quantifications"][pipeline_name]
                     tremor_data_for_aggregation = combined_quantified.copy()
 
-                    # Need to add datetime column for aggregate_tremor
-                    if (
-                        "time_dt" not in tremor_data_for_aggregation.columns
-                        and "time" in tremor_data_for_aggregation.columns
-                    ):
-                        tremor_data_for_aggregation["time_dt"] = pd.to_datetime(
-                            tremor_data_for_aggregation["time"], unit="s"
-                        )
-
                     if tremor_config is None:
                         tremor_config = TremorConfig()
+
+                    # Subset input dataframe if specified in the configuration object
+                    if (
+                        tremor_config.select_hours_start is not None
+                        or tremor_config.select_hours_end is not None
+                        or tremor_config.min_hours_per_day is not None
+                    ):
+                        if (
+                            f"{tremor_config.time_colname}_dt"
+                            not in tremor_data_for_aggregation.columns
+                        ):
+                            if "quantification" in run_steps:
+                                active_logger.warning(
+                                    "'start_dt' should be provided for subsetting of "
+                                    "data before aggregation. Skipping subsetting "
+                                    "based on selected hours and/or minimum hours "
+                                    "per day, and aggregating over all available data."
+                                )
+                            else:
+                                active_logger.warning(
+                                    "Datetime column "
+                                    f"'{tremor_config.time_colname}_dt' "
+                                    "is required for subsetting the data before "
+                                    "aggregation. Skipping subsetting based on "
+                                    "selected hours and/or minimum hours per day,"
+                                    "and aggregating over all available data."
+                                )
+                        else:
+                            tremor_data_for_aggregation = subset_data(
+                                tremor_data_for_aggregation, tremor_config
+                            )
+                            if tremor_config.select_hours_start is not None:
+                                active_logger.info(
+                                    "Data collected between "
+                                    f"{tremor_config.select_hours_start} "
+                                    f"and {tremor_config.select_hours_end} was used "
+                                    "for aggregation."
+                                )
+                            if tremor_config.min_hours_per_day is not None:
+                                active_logger.info(
+                                    f"Data from days with at least"
+                                    f"{tremor_config.min_hours_per_day} hours of data "
+                                    "was used for aggregation."
+                                )
 
                     aggregation_output = aggregate_tremor(
                         tremor_data_for_aggregation, tremor_config
@@ -933,8 +989,57 @@ def run_paradigma(
                     )
 
                     combined_quantified = all_results["quantifications"][pipeline_name]
+                    pr_data_for_aggregation = combined_quantified.copy()
+
+                    if pulse_rate_config is None:
+                        pulse_rate_config = PulseRateConfig()
+
+                    # Subset input dataframe if specified in the configuration object
+                    if (
+                        pulse_rate_config.select_hours_start is not None
+                        or pulse_rate_config.select_hours_end is not None
+                        or pulse_rate_config.min_hours_per_day is not None
+                    ):
+                        if (
+                            f"{pulse_rate_config.time_colname}_dt"
+                            not in pr_data_for_aggregation.columns
+                        ):
+                            if "quantification" in run_steps:
+                                active_logger.warning(
+                                    "'start_dt' should be provided for subsetting of "
+                                    "data before aggregation. Skipping subsetting based"
+                                    " on selected hours and/or minimum hours per day,"
+                                    " and aggregating over all available data."
+                                )
+                            else:
+                                active_logger.warning(
+                                    "Datetime column "
+                                    f"'{pulse_rate_config.time_colname}_dt' "
+                                    "is required for subsetting the data before "
+                                    "aggregation. Skipping subsetting based on "
+                                    "selected hours and/or minimum hours per day,"
+                                    " and aggregating over all available data."
+                                )
+                        else:
+                            pr_data_for_aggregation = subset_data(
+                                pr_data_for_aggregation, pulse_rate_config
+                            )
+                            if pulse_rate_config.select_hours_start is not None:
+                                active_logger.info(
+                                    f"Data collected between "
+                                    f"{pulse_rate_config.select_hours_start} and "
+                                    f"{pulse_rate_config.select_hours_end} was used "
+                                    "for aggregation."
+                                )
+                            if pulse_rate_config.min_hours_per_day is not None:
+                                active_logger.info(
+                                    f"Data from days with at least "
+                                    f"{pulse_rate_config.min_hours_per_day} hours of "
+                                    "data was used for aggregation."
+                                )
+
                     pulse_rate_values = (
-                        combined_quantified[DataColumns.PULSE_RATE].dropna().values
+                        pr_data_for_aggregation[DataColumns.PULSE_RATE].dropna().values
                     )
 
                     if len(pulse_rate_values) > 0:

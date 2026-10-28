@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 from importlib.resources import files
@@ -221,8 +222,7 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
     ----------
     df : pd.DataFrame
         The input DataFrame containing the tremor predictions and computed
-        tremor power. The DataFrame must also contain a datatime column
-        ('time_dt').
+        tremor power.
 
     config : TremorConfig
         Configuration object containing the percentile for aggregating tremor
@@ -243,11 +243,17 @@ def aggregate_tremor(df: pd.DataFrame, config: TremorConfig):
       scale.
     - The modal tremor power is computed based on gaussian kernel density
       estimation.
+    - The number of valid days is only computed if the input dataframe contains
+      a datetime column {config.time_colname}_dt.
 
     """
-    nr_valid_days = (
-        df["time_dt"].dt.date.unique().size
-    )  # number of valid days in the input dataframe
+
+    if f"{config.time_colname}_dt" in df.columns:
+        # Determine number of valid days
+        nr_valid_days = df[f"{config.time_colname}_dt"].dt.date.unique().size
+    else:
+        nr_valid_days = None
+
     nr_windows_total = df.shape[0]  # number of windows in the input dataframe
 
     # Remove windows with detected non-tremor arm movements to control for
@@ -434,6 +440,7 @@ def run_tremor_pipeline(
     store_intermediate: list[str] = [],
     tremor_config: TremorConfig | None = None,
     imu_config: IMUConfig | None = None,
+    start_dt: datetime.datetime | None = None,
     logging_level: int = logging.INFO,
     custom_logger: logging.Logger | None = None,
     run_steps: list[str] | None = None,
@@ -461,6 +468,9 @@ def run_tremor_pipeline(
         Tremor analysis configuration
     imu_config : IMUConfig, optional
         IMU preprocessing configuration
+    start_dt : datetime.datetime, optional
+        Start datetime for the data segment. Used to compute absolute
+        datetime values. If None, timestamps will be relative.
     logging_level : int, default logging.INFO
         Logging level using standard logging constants
     custom_logger : logging.Logger, optional
@@ -658,6 +668,18 @@ def run_tremor_pipeline(
                     df_quantification[DataColumns.PRED_TREMOR_CHECKED] == 0,
                     DataColumns.TREMOR_POWER,
                 ] = None
+
+            # Add datetime column if start_dt is available
+            if start_dt is not None:
+                if start_dt.tzinfo is None:
+                    # Assume naive means UTC
+                    start_dt = start_dt.replace(tzinfo=datetime.UTC)
+                df_quantification[f"{tremor_config.time_colname}_dt"] = (
+                    start_dt
+                    + pd.to_timedelta(
+                        df_quantification[tremor_config.time_colname], unit="s"
+                    )
+                )
 
             if "quantification" in store_intermediate:
                 quantification_dir = output_dir / "quantification"
